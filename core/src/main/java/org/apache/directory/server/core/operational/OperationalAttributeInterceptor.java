@@ -19,6 +19,12 @@
  */
 package org.apache.directory.server.core.operational;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -26,7 +32,14 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -44,8 +57,11 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
-import java.util.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 
 /**

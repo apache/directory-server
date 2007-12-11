@@ -20,6 +20,14 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
@@ -63,7 +71,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-import java.util.*;
 
 
 /**
@@ -123,7 +130,7 @@ public class SchemaOperationControl
         "metaDITContentRule",
         "metaNameForm"
     };
-    private static final Collection<String> SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS;
+    private static final java.util.Collection<String> SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS;
 
     private final MetaSchemaHandler metaSchemaHandler;
     private final Registries globalRegistries;

@@ -23,14 +23,29 @@ import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.*;
+import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
+import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
+import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -40,7 +55,11 @@ import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchResult;
+
 import java.util.List;
 import java.util.Map;
 
@@ -209,7 +228,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         // check if entry to delete has children (only leaves can be deleted)
         boolean hasChildren = false;
-        NamingEnumeration list = nextInterceptor.list( new ListOperationContext( name ) );
+        NamingEnumeration<SearchResult> list = nextInterceptor.list( new ListOperationContext( name ) );
         
         if ( list.hasMore() )
         {

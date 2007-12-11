@@ -20,8 +20,32 @@
 package org.apache.directory.server.core.interceptor;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -35,7 +59,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
-import java.util.*;
 
 
 /**
@@ -196,7 +219,6 @@ public class InterceptorChain
 
     private Entry head;
 
-    @SuppressWarnings ( { "UnusedDeclaration" } )
     private DirectoryService directoryService;
 
 
@@ -771,27 +793,6 @@ public class InterceptorChain
             throwInterceptorException( head, e );
         }
     }
-
-
-    /*public void modify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
-    {
-        Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
-        NextInterceptor next = entry.nextInterceptor;
-
-        try
-        {
-            head.modify( next, name, mods );
-        }
-        catch ( NamingException ne )
-        {
-            throw ne;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-        }
-    }*/
 
 
     public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException

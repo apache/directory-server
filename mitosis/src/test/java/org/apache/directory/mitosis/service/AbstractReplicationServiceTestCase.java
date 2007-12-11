@@ -25,6 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -38,7 +39,12 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 
 /**
@@ -126,7 +132,7 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
             
             Hashtable<String,Object> env = new Hashtable<String,Object>();
             env.put( DirectoryService.JNDI_KEY, service );
-            env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+            env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
             env.put( Context.SECURITY_CREDENTIALS, "secret" );
             env.put( Context.SECURITY_AUTHENTICATION, "simple" );
             env.put( Context.PROVIDER_URL, "" );

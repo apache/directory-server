@@ -25,7 +25,11 @@ import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.core.partition.Oid;
-import org.apache.directory.server.core.partition.impl.btree.*;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
+import org.apache.directory.server.core.partition.impl.btree.IndexAssertionEnumeration;
+import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
+import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -52,7 +56,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 public class JdbmStore
@@ -1165,7 +1175,7 @@ public class JdbmStore
     }
 
 
-    public NamingEnumeration list( Long id ) throws NamingException
+    public NamingEnumeration<?> list( Long id ) throws NamingException
     {
         return hierarchyIdx.listIndices( id );
     }
@@ -1225,11 +1235,11 @@ public class JdbmStore
         // Get all standard index attribute to value mappings
         for ( Index index:this.userIndices.values() )
         {
-            NamingEnumeration list = index.listReverseIndices( id );
+            NamingEnumeration<IndexRecord> list = index.listReverseIndices( id );
             
             while ( list.hasMore() )
             {
-                IndexRecord rec = ( IndexRecord ) list.next();
+                IndexRecord rec = list.next();
                 Object val = rec.getIndexKey();
                 String attrId = index.getAttribute().getName();
                 Attribute attr = attributes.get( attrId );
@@ -1246,12 +1256,12 @@ public class JdbmStore
 
         // Get all existance mappings for this id creating a special key
         // that looks like so 'existance[attribute]' and the value is set to id
-        NamingEnumeration list = existanceIdx.listReverseIndices( id );
+        NamingEnumeration<IndexRecord> list = existanceIdx.listReverseIndices( id );
         StringBuffer val = new StringBuffer();
         
         while ( list.hasMore() )
         {
-            IndexRecord rec = ( IndexRecord ) list.next();
+            IndexRecord rec = list.next();
             val.append( "_existance[" );
             val.append( rec.getIndexKey() );
             val.append( "]" );

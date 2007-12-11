@@ -21,6 +21,7 @@ package org.apache.directory.server.core.prefs;
 
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -39,7 +40,12 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -65,7 +71,7 @@ public class ServerSystemPreferences extends AbstractPreferences
     private LdapContext ctx;
 
     /** the changes (ModificationItems) representing cached alterations to preferences */
-    private ArrayList<ModificationItem> changes = new ArrayList<ModificationItem>( 3 );
+    private List<ModificationItem> changes = new ArrayList<ModificationItem>( 3 );
 
     /** maps changes based on key: key->list of mods (on same key) */
     private HashMap<String, List<ModificationItem>> keyToChange = new HashMap<String, List<ModificationItem>>( 3 );
@@ -83,7 +89,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-        env.put( Context.PROVIDER_URL, PreferencesUtils.SYSPREF_BASE );
+        env.put( Context.PROVIDER_URL, ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
 
         try
         {

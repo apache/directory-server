@@ -24,6 +24,7 @@ import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.impl.btree.Index;
@@ -33,9 +34,18 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTabl
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.*;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
-import org.apache.directory.server.schema.registries.*;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.DefaultOidRegistry;
+import org.apache.directory.server.schema.registries.DefaultRegistries;
+import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
@@ -63,7 +73,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -161,7 +176,8 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         loader.loadWithDependencies( bootstrapSchemas, registries );
 
         // run referential integrity tests
-        java.util.List errors = registries.checkRefInteg();
+        List<Throwable> errors = registries.checkRefInteg();
+        
         if ( !errors.isEmpty() )
         {
             NamingException e = new NamingException();
@@ -204,7 +220,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
             indexedAttributes.add( new JdbmIndex( attributeId ) );
         }
         schemaPartition.setIndexedAttributes( indexedAttributes );
-        schemaPartition.setSuffix( "ou=schema" );
+        schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
         
         Attributes entry = new AttributesImpl();
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
@@ -265,6 +281,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
     private void processParameters( Parameter[] params )
     {
         Map<String, Object> parameters = new HashMap<String, Object>();
+        
         for ( Parameter parameter : params )
         {
             parameters.put( parameter.getName(), parameter.getValue() );
@@ -405,11 +422,12 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         idIndex.init( attributeType, partitionDirectory );
 
         out.println( "#---------------------" );
-        NamingEnumeration list = master.listTuples();
+        NamingEnumeration<Tuple> list = master.listTuples();
         StringBuffer buf = new StringBuffer();
+        
         while ( list.hasMore() )
         {
-            Tuple tuple = ( Tuple ) list.next();
+            Tuple tuple = list.next();
             Long id = ( Long ) tuple.getKey();
             String dn = ( String ) idIndex.reverseLookup( id );
             Attributes entry = ( Attributes ) tuple.getValue();
@@ -442,10 +460,12 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
     {
         List<String> toRemove = new ArrayList<String>();
         AttributeTypeRegistry registry = bootstrapRegistries.getAttributeTypeRegistry();
-        NamingEnumeration attrs = entry.getAll();
+        NamingEnumeration<? extends Attribute> attrs = entry.getAll();
+        
         while ( attrs.hasMore() )
         {
-            Attribute attr = ( Attribute ) attrs.next();
+            Attribute attr = attrs.next();
+            
             if ( !registry.hasAttributeType( attr.getID() ) )
             {
                 if ( !isQuietEnabled() )

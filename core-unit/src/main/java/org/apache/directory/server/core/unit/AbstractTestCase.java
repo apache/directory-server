@@ -22,6 +22,7 @@ package org.apache.directory.server.core.unit;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.schema.registries.Registries;
@@ -308,7 +309,7 @@ public abstract class AbstractTestCase extends TestCase
         Hashtable<String,Object> envFinal = new Hashtable<String,Object>( env );
         if ( !envFinal.containsKey( Context.PROVIDER_URL ) )
         {
-            envFinal.put( Context.PROVIDER_URL, "ou=system" );
+            envFinal.put( Context.PROVIDER_URL, ServerDNConstants.SYSTEM_DN );
         }
 
         envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
@@ -316,7 +317,7 @@ public abstract class AbstractTestCase extends TestCase
 
         // We have to initiate the first run as an admin at least.
         Hashtable<String,Object> adminEnv = new Hashtable<String,Object>( envFinal );
-        adminEnv.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        adminEnv.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         adminEnv.put( Context.SECURITY_CREDENTIALS, "secret" );
         adminEnv.put( Context.SECURITY_AUTHENTICATION, "simple" );
         adminEnv.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
@@ -326,7 +327,7 @@ public abstract class AbstractTestCase extends TestCase
         // OK, now let's get an appropriate context.
         sysRoot = new InitialLdapContext( envFinal, null );
 
-        envFinal.put( Context.PROVIDER_URL, "ou=schema" );
+        envFinal.put( Context.PROVIDER_URL, ServerDNConstants.OU_SCHEMA_DN );
         schemaRoot = new InitialLdapContext( envFinal, null );
         
         envFinal.put( Context.PROVIDER_URL, "" );

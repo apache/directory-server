@@ -25,27 +25,39 @@ package org.apache.directory.server.constants;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class ServerDNConstants 
+public class ServerDNConstants
 {
-	public static final String ADMINISTRATORS_GROUP_DN = "cn=Administrators,ou=groups,ou=system";
+    /** The administrators group DN */
+    public static final String ADMINISTRATORS_GROUP_DN = "cn=Administrators,ou=groups,ou=system";
 
+    /** The system DN */
     public static final String SYSTEM_DN = "ou=system";
     
     /** the default user principal or DN */
-    public static final String ADMIN_SYSTEM_DN = "uid=admin,ou=system";
+    public final static String ADMIN_SYSTEM_DN = "uid=admin,ou=system";
     
-    /** the DN for the global schema subentry */
-    public static final String SCHEMA_DN = "cn=schema";
-
-    /** the normalized DN for the global schema subentry */
-    public static final String SCHEMA_DN_NORMALIZED = "2.5.4.3=schema";
-
     /** the normalized user principal or DN */
-    public static final String ADMIN_SYSTEM_DN_NORMALIZED = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
+    public final static String ADMIN_SYSTEM_DN_NORMALIZED = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
+
+    /** the DN for the global schema subentry */
+    public final static String CN_SCHEMA_DN = "cn=schema";
+    
+    /** The DN for the gloval schema subentry normalized */
+    public static final String CN_SCHEMA_DN_NORMALIZED = "2.5.4.3=schema";
+   
+    /** the DN for the global schema subentry */
+    public final static String OU_SCHEMA_DN = "ou=schema";
     
     /** the base dn under which all users reside */
-    public static final String USERS_SYSTEM_DN = "ou=users,ou=system";
+    public final static String USERS_SYSTEM_DN = "ou=users,ou=system";
+    
+    /** The default change password base DN. */
+    public final static String USER_EXAMPLE_COM_DN = "ou=users,dc=example,dc=com";
+    
     
     /** the base dn under which all groups reside */
-    public static final String GROUPS_SYSTEM_DN = "ou=groups,ou=system";
+    public final static String GROUPS_SYSTEM_DN = "ou=groups,ou=system";
+    
+    /** the dn base of the system preference hierarchy */
+    public final static String SYSPREFROOT_SYSTEM_DN = "prefNodeName=sysPrefRoot,ou=system";
 }

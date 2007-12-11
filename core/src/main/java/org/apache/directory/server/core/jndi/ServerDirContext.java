@@ -25,7 +25,13 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.filter.*;
+import org.apache.directory.shared.ldap.filter.AndNode;
+import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.FilterParser;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
@@ -34,8 +40,18 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
-import javax.naming.*;
-import javax.naming.directory.*;
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.naming.Referenceable;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidSearchFilterException;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.event.EventDirContext;
 import javax.naming.event.NamingListener;
 import javax.naming.spi.DirStateFactory;
@@ -56,7 +72,6 @@ import java.util.List;
  */
 public abstract class ServerDirContext extends ServerContext implements EventDirContext
 {
-
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------

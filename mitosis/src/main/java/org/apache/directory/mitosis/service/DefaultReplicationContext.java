@@ -20,6 +20,11 @@
 package org.apache.directory.mitosis.service;
 
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientContextHandler;
@@ -30,8 +35,6 @@ import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.util.SessionLog;
-
-import java.util.*;
 
 /**
  * The default implementation of {@link ReplicationContext}

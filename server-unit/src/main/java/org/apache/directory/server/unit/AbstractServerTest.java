@@ -47,7 +47,11 @@ import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -232,7 +236,7 @@ public abstract class AbstractServerTest extends TestCase
 
         configureLdapServer();
         ldapServer.start();
-        setContexts( "uid=admin,ou=system", "secret" );
+        setContexts( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
 
     protected void configureDirectoryService()
@@ -308,7 +312,7 @@ public abstract class AbstractServerTest extends TestCase
         envFinal.put( Context.PROVIDER_URL, "" );
         rootDSE = new InitialLdapContext( envFinal, null );
 
-        envFinal.put( Context.PROVIDER_URL, "ou=schema" );
+        envFinal.put( Context.PROVIDER_URL, ServerDNConstants.OU_SCHEMA_DN );
         schemaRoot = new InitialLdapContext( envFinal, null );
     }
 

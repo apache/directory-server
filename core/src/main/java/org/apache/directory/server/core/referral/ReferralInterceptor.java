@@ -20,6 +20,13 @@
 package org.apache.directory.server.core.referral;
 
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
@@ -30,7 +37,17 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -65,8 +82,12 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
-import java.util.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 
 /**
@@ -168,7 +189,7 @@ public class ReferralInterceptor extends BaseInterceptor
             		throw new NamingException( message );
             	}
             	
-            	NamingEnumeration refs = ref.getAll();
+            	NamingEnumeration<?> refs = ref.getAll();
             	
             	while ( refs.hasMoreElements() )
             	{

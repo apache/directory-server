@@ -27,6 +27,7 @@ import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
@@ -50,9 +51,6 @@ public class KdcServer extends DirectoryBackedService
 
     /** The default kdc port */
     private static final int DEFAULT_IP_PORT = 88;
-
-    /** The default kdc search base DN */
-    public static final String DEFAULT_SEARCH_BASEDN = "ou=users,dc=example,dc=com";
 
     /** The default kdc service pid */
     private static final String DEFAULT_PID = "org.apache.directory.server.kerberos";
@@ -148,7 +146,7 @@ public class KdcServer extends DirectoryBackedService
         super.setServiceName( DEFAULT_NAME );
         super.setIpPort( DEFAULT_IP_PORT );
         super.setServiceId( DEFAULT_PID );
-        super.setSearchBaseDn( DEFAULT_SEARCH_BASEDN );
+        super.setSearchBaseDn( ServerDNConstants.USER_EXAMPLE_COM_DN );
 
         prepareEncryptionTypes();
     }

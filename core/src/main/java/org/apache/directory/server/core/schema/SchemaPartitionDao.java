@@ -187,7 +187,7 @@ public class SchemaPartitionDao
 
     private NamingEnumeration listSchemas() throws NamingException
     {
-        LdapDN base = new LdapDN( "ou=schema" );
+        LdapDN base = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
         base.normalize( attrRegistry.getNormalizerMapping() );
         ExprNode filter = new EqualityNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ), MetaSchemaConstants.META_SCHEMA_OC );
         SearchControls searchControls = new SearchControls();

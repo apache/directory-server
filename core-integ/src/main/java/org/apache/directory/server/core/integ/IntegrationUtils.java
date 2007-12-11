@@ -20,6 +20,7 @@ package org.apache.directory.server.core.integ;
 
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -126,19 +127,19 @@ public class IntegrationUtils
 
     public static LdapContext getSystemContext( DirectoryService service ) throws NamingException
     {
-        return getContext( "uid=admin,ou=system", service, "ou=system" );
+        return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, ServerDNConstants.SYSTEM_DN );
     }
 
 
     public static LdapContext getSchemaContext( DirectoryService service ) throws NamingException
     {
-        return getContext( "uid=admin,ou=system", service, "ou=schema" );
+        return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, ServerDNConstants.OU_SCHEMA_DN );
     }
 
 
     public static LdapContext getRootContext( DirectoryService service ) throws NamingException
     {
-        return getContext( "uid=admin,ou=system", service, "" );
+        return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "" );
     }
 
 

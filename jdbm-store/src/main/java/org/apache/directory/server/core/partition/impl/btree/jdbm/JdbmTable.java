@@ -25,7 +25,13 @@ import jdbm.btree.BTree;
 import jdbm.helper.Serializer;
 import jdbm.helper.TupleBrowser;
 import org.apache.commons.collections.iterators.ArrayIterator;
-import org.apache.directory.server.core.partition.impl.btree.*;
+import org.apache.directory.server.core.partition.impl.btree.KeyOnlyComparator;
+import org.apache.directory.server.core.partition.impl.btree.NoDupsEnumeration;
+import org.apache.directory.server.core.partition.impl.btree.Table;
+import org.apache.directory.server.core.partition.impl.btree.Tuple;
+import org.apache.directory.server.core.partition.impl.btree.TupleComparator;
+import org.apache.directory.server.core.partition.impl.btree.TupleEnumeration;
+import org.apache.directory.server.core.partition.impl.btree.TupleRenderer;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -35,7 +41,15 @@ import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 
 /**
@@ -1227,7 +1241,7 @@ public class JdbmTable implements Table
                 // a list.  They will be in ascending order so we need to reverse
                 // the list after adding val which is not included in headSet.
                 SortedSet headset = set.headSet( val );
-                ArrayList list = new ArrayList( headset.size() + 1 );
+                List list = new ArrayList( headset.size() + 1 );
                 list.addAll( headset );
     
                 // Add largest value (val) if it is in the set.  TreeSet.headSet

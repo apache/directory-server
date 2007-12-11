@@ -21,10 +21,23 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.*;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.DefaultOptimizer;
+import org.apache.directory.server.core.partition.impl.btree.DefaultSearchEngine;
+import org.apache.directory.server.core.partition.impl.btree.ExpressionEnumerator;
+import org.apache.directory.server.core.partition.impl.btree.ExpressionEvaluator;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
+import org.apache.directory.server.core.partition.impl.btree.NoOpOptimizer;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;

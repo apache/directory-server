@@ -46,7 +46,12 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -108,12 +113,12 @@ public class TriggerSpecCache
             ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration results = 
+            NamingEnumeration<SearchResult> results = 
                 nexus.search( new SearchOperationContext( baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
             
             while ( results.hasMore() )
             {
-                SearchResult result = ( SearchResult ) results.next();
+                SearchResult result = results.next();
                 String subentryDn = result.getName();
                 Attribute triggerSpec = result.getAttributes().get( PRESCRIPTIVE_TRIGGER_ATTR );
                 

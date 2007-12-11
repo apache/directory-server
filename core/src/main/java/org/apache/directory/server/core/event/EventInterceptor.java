@@ -20,10 +20,25 @@
 package org.apache.directory.server.core.event;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.normalization.NormalizingVisitor;
@@ -32,7 +47,12 @@ import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.filter.*;
+import org.apache.directory.shared.ldap.filter.AndNode;
+import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.LeafNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
+import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -45,8 +65,11 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.event.*;
-import java.util.*;
+import javax.naming.event.EventContext;
+import javax.naming.event.NamespaceChangeListener;
+import javax.naming.event.NamingEvent;
+import javax.naming.event.NamingListener;
+import javax.naming.event.ObjectChangeListener;
 
 
 /**
@@ -105,6 +128,7 @@ public class EventInterceptor extends BaseInterceptor
         if ( filter.isLeaf() )
         {
             LeafNode ln = ( LeafNode ) filter;
+            
             if ( !attributeRegistry.hasAttributeType( ln.getAttribute() ) )
             {
                 StringBuffer buf = new StringBuffer();
@@ -195,11 +219,11 @@ public class EventInterceptor extends BaseInterceptor
         }
         else if ( obj instanceof List )
         {
-            List list = ( List ) obj;
+            List<EventSourceRecord> list = ( List<EventSourceRecord> ) obj;
 
             for ( int ii = 0; ii < list.size(); ii++ )
             {
-                EventSourceRecord rec = ( EventSourceRecord ) list.get( ii );
+                EventSourceRecord rec =  list.get( ii );
                 if ( rec.getEventContext() == ctx )
                 {
                     list.remove( ii );

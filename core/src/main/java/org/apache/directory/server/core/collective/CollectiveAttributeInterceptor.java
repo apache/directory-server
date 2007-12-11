@@ -25,7 +25,11 @@ import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -325,17 +329,6 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
     public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
-    	/*
-        SearchControls sc = opContext.getSearchControls();
-        String[] returnedAttrs = sc.getReturningAttributes();
-        
-        String[] newReturnedAttrs = new String[returnedAttrs.length + 1];
-        System.arraycopy( returnedAttrs, 0, newReturnedAttrs, 0, returnedAttrs.length );
-        newReturnedAttrs[returnedAttrs.length] = SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
-        
-        sc.setReturningAttributes( newReturnedAttrs );
-        */
-        
         NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         

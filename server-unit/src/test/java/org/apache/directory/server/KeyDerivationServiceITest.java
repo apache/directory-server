@@ -44,7 +44,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -102,16 +108,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
         }
 
-/*
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-*/
         ctx =   directoryService.getJndiContext( "dc=example,dc=com" );
-//                new InitialDirContext( env );
 
         attrs = getOrgUnitAttributes( "users" );
         DirContext users = ctx.createSubcontext( "ou=users", attrs );

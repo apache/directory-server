@@ -27,7 +27,12 @@ import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.*;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
@@ -38,7 +43,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 /**

@@ -30,6 +30,8 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.constants.ServerDNConstants;
+
 import junit.framework.TestCase;
 
 
@@ -44,7 +46,7 @@ public class AbstractTestCase extends TestCase
     // General server settings
     protected final static String host = "localhost";
     protected final static int port = 10389;
-    protected final static String user = "uid=admin,ou=system";
+    protected final static String user = ServerDNConstants.ADMIN_SYSTEM_DN;
     protected final static String password = "secret";
 
     protected DirContext ctx;

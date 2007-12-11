@@ -36,7 +36,12 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamingExceptionEvent;
-import javax.naming.ldap.*;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.UnsolicitedNotification;
+import javax.naming.ldap.UnsolicitedNotificationListener;
+import javax.naming.ldap.UnsolicitedNotificationEvent;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;

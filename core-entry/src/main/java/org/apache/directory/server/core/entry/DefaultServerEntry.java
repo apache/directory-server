@@ -19,6 +19,12 @@
 package org.apache.directory.server.core.entry;
 
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -29,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import java.util.*;
 
 
 /**

@@ -54,7 +54,7 @@ public class CapacityTestCommand extends BaseToolCommand
     public static final String PORT_RANGE = "(" + AvailablePortFinder.MIN_PORT_NUMBER + ", "
         + AvailablePortFinder.MAX_PORT_NUMBER + ")";
 
-    private static final String baseDn = "ou=users,dc=example,dc=com";
+    private static final String baseDn = ServerDNConstants.USER_EXAMPLE_COM_DN;
     
     
     public CapacityTestCommand()

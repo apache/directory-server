@@ -20,12 +20,21 @@
 package org.apache.directory.server.core.schema;
 
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -34,12 +43,21 @@ import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.*;
+import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.message.*;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.CascadeControl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -58,9 +76,23 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -78,7 +110,6 @@ public class SchemaInterceptor extends BaseInterceptor
     /** The LoggerFactory used by this Interceptor */
     private static Logger log = LoggerFactory.getLogger( SchemaInterceptor.class );
 
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String[] SCHEMA_SUBENTRY_RETURN_ATTRIBUTES =
             new String[] { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES };
 
@@ -155,7 +186,7 @@ public class SchemaInterceptor extends BaseInterceptor
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
-        schemaBaseDN = new LdapDN( "ou=schema" );
+        schemaBaseDN = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
         schemaBaseDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         schemaService = directoryService.getSchemaService();
         schemaManager = directoryService.getSchemaService().getSchemaControl();
@@ -1058,7 +1089,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     
                     if ( attr != null ) 
                     {
-                        NamingEnumeration values = change.getAll();
+                        NamingEnumeration<?> values = change.getAll();
                         
                         while ( values.hasMoreElements() )
                         {
@@ -1068,7 +1099,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     else
                     {
                         attr = new AttributeImpl( change.getID() );
-                        NamingEnumeration values = change.getAll();
+                        NamingEnumeration<?> values = change.getAll();
                         
                         while ( values.hasMoreElements() )
                         {
@@ -1112,7 +1143,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         Attribute modified = tmpEntry.remove( change.getID() );
                         
                         // And inject back the values except the ones to remove
-                        NamingEnumeration values = change.getAll();
+                        NamingEnumeration<?> values = change.getAll();
                         
                         while ( values.hasMoreElements() )
                         {
@@ -1154,7 +1185,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     
                     attr = new AttributeImpl( change.getID() );
                     
-                    NamingEnumeration values = change.getAll();
+                    NamingEnumeration<?> values = change.getAll();
                     
                     if ( values.hasMoreElements() ) 
                     {
@@ -1285,11 +1316,11 @@ public class SchemaInterceptor extends BaseInterceptor
          * start converting values of attributes to byte[]s which are not
          * human readable and those that are in the binaries set
          */
-        NamingEnumeration list = entry.getIDs();
+        NamingEnumeration<String> list = entry.getIDs();
 
         while ( list.hasMore() )
         {
-            String id = ( String ) list.next();
+            String id = list.next();
             AttributeType type = null;
 
             if ( registries.getAttributeTypeRegistry().hasAttributeType( id ) )
@@ -1366,7 +1397,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private void check( LdapDN dn, Attributes entry ) throws NamingException
     {
-        NamingEnumeration attrEnum = entry.getIDs();
+        NamingEnumeration<String> attrEnum = entry.getIDs();
 
         // ---------------------------------------------------------------
         // First, make sure all attributes are valid schema defined attributes
@@ -1374,7 +1405,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         while ( attrEnum.hasMoreElements() )
         {
-            String name = ( String ) attrEnum.nextElement();
+            String name = attrEnum.nextElement();
             
             if ( !registries.getAttributeTypeRegistry().hasAttributeType( name ) )
             {
@@ -1465,11 +1496,11 @@ public class SchemaInterceptor extends BaseInterceptor
             return;
         }
 
-        NamingEnumeration attrs = attributes.getAll();
+        NamingEnumeration<? extends Attribute> attrs = attributes.getAll();
 
         while ( attrs.hasMoreElements() )
         {
-            Attribute attribute = (Attribute)attrs.nextElement();
+            Attribute attribute = attrs.nextElement();
             String attrId = attribute.getID();
             String attrOid = registries.getOidRegistry().getOid( attrId );
 
@@ -1507,11 +1538,11 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private void assertNumberOfAttributeValuesValid( Attributes attributes ) throws InvalidAttributeValueException, NamingException
     {
-        NamingEnumeration list = attributes.getAll();
+        NamingEnumeration<? extends Attribute> list = attributes.getAll();
         
         while ( list.hasMore() )
         {
-            Attribute attribute = ( Attribute ) list.next();
+            Attribute attribute = list.next();
             assertNumberOfAttributeValuesValid( attribute );
         }
     }
@@ -1536,11 +1567,11 @@ public class SchemaInterceptor extends BaseInterceptor
     private void assertRequiredAttributesPresent( LdapDN dn, Attributes entry, Set<String> must )
         throws NamingException
     {
-        NamingEnumeration attributes = entry.getAll();
+        NamingEnumeration<? extends Attribute> attributes = entry.getAll();
 
         while ( attributes.hasMoreElements() && ( must.size() > 0 ) )
         {
-            Attribute attribute = (Attribute)attributes.nextElement();
+            Attribute attribute = attributes.nextElement();
             
             String oid = registries.getOidRegistry().getOid( attribute.getID() );
 
@@ -1633,12 +1664,12 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private void assertSyntaxes( Attributes entry ) throws NamingException
     {
-        NamingEnumeration attributes = entry.getAll();
+        NamingEnumeration<? extends Attribute> attributes = entry.getAll();
 
         // First, loop on all attributes
         while ( attributes.hasMoreElements() )
         {
-            Attribute attribute = ( Attribute ) attributes.nextElement();
+            Attribute attribute = attributes.nextElement();
 
             AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute.getID() );
             SyntaxChecker syntaxChecker =  registries.getSyntaxCheckerRegistry().lookup( attributeType.getSyntax().getOid() );
@@ -1681,21 +1712,21 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private void assertHumanReadable( Attributes entry ) throws NamingException
     {
-        NamingEnumeration attributes = entry.getAll();
+        NamingEnumeration<? extends Attribute> attributes = entry.getAll();
         boolean isEntryModified = false;
         Attributes cloneEntry = null;
 
         // First, loop on all attributes
         while ( attributes.hasMoreElements() )
         {
-            Attribute attribute = ( Attribute ) attributes.nextElement();
+            Attribute attribute = attributes.nextElement();
 
             AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute.getID() );
 
             // If the attributeType is H-R, check all of its values
             if ( attributeType.getSyntax().isHumanReadable() )
             {
-                Enumeration values = attribute.getAll();
+                Enumeration<?> values = attribute.getAll();
                 Attribute clone = null;
                 boolean isModified = false;
 

@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.unit;
 
+import org.apache.directory.server.constants.ServerDNConstants;
+
 
 /**
  * A simple testcase for testing JNDI provider functionality.
@@ -30,6 +32,6 @@ public abstract class AbstractAdminTestCase extends AbstractTestCase
 {
     protected AbstractAdminTestCase()
     {
-        super( "uid=admin,ou=system", "secret" );
+        super( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
 }

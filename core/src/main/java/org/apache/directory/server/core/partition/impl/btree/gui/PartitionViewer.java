@@ -20,15 +20,14 @@
 package org.apache.directory.server.core.partition.impl.btree.gui;
 
 
-import org.apache.directory.server.core.partition.impl.btree.*;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
+import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import java.awt.*;
 
 
 /**

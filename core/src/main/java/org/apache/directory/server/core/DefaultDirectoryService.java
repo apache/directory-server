@@ -949,7 +949,7 @@ public class DefaultDirectoryService implements  DirectoryService
         // -------------------------------------------------------------------
 
         Map<String,OidNormalizer> oidsMap = registries.getAttributeTypeRegistry().getNormalizerMapping();
-        LdapDN userDn = new LdapDN( "ou=users,ou=system" );
+        LdapDN userDn = new LdapDN( ServerDNConstants.USERS_SYSTEM_DN );
         userDn.normalize( oidsMap );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( userDn ) ) )
@@ -973,7 +973,7 @@ public class DefaultDirectoryService implements  DirectoryService
         // create system groups area
         // -------------------------------------------------------------------
 
-        LdapDN groupDn = new LdapDN( "ou=groups,ou=system" );
+        LdapDN groupDn = new LdapDN( ServerDNConstants.GROUPS_SYSTEM_DN );
         groupDn.normalize( oidsMap );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( groupDn ) ) )
@@ -1137,7 +1137,7 @@ public class DefaultDirectoryService implements  DirectoryService
         // create system preferences area
         // -------------------------------------------------------------------
 
-        LdapDN sysPrefRootDn = new LdapDN( "prefNodeName=sysPrefRoot,ou=system");
+        LdapDN sysPrefRootDn = new LdapDN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
         sysPrefRootDn.normalize( oidsMap );
         
         if ( !partitionNexus.hasEntry( new EntryOperationContext( sysPrefRootDn ) ) )
@@ -1318,7 +1318,7 @@ public class DefaultDirectoryService implements  DirectoryService
         }
 
         schemaPartition.setIndexedAttributes( indexedAttributes );
-        schemaPartition.setSuffix( "ou=schema" );
+        schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
         
         Attributes entry = new AttributesImpl();
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );

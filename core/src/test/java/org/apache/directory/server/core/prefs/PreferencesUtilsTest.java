@@ -22,6 +22,7 @@ package org.apache.directory.server.core.prefs;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.prefs.PreferencesUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -45,13 +46,14 @@ public class PreferencesUtilsTest extends TestCase
     public void testToSysDn() throws NamingException
     {
         // simple test
-
+        String expectedDN = "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org," +
+                ServerDNConstants.SYSPREFROOT_SYSTEM_DN;
+        
         String test = "/org/apache/kerberos/";
 
         LdapDN dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.getUpName(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org,"
-            + PreferencesUtils.SYSPREF_BASE );
+        assertEquals( expectedDN, dn.getUpName() );
 
         // simple test without trailing '/'
 
@@ -59,8 +61,7 @@ public class PreferencesUtilsTest extends TestCase
 
         dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.getUpName(), "prefNodeName=kerberos,prefNodeName=apache,prefNodeName=org,"
-            + PreferencesUtils.SYSPREF_BASE );
+        assertEquals( expectedDN, dn.getUpName() );
 
         // basis condition tests
 
@@ -68,7 +69,7 @@ public class PreferencesUtilsTest extends TestCase
 
         dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.getUpName(), PreferencesUtils.SYSPREF_BASE );
+        assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getUpName() );
 
         // endpoint tests
 
@@ -76,7 +77,7 @@ public class PreferencesUtilsTest extends TestCase
 
         dn = ( LdapDN ) PreferencesUtils.toSysDn( test );
 
-        assertEquals( dn.getUpName(), PreferencesUtils.SYSPREF_BASE );
+        assertEquals( ServerDNConstants.SYSPREFROOT_SYSTEM_DN, dn.getUpName() );
 
     }
 }

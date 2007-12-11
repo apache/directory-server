@@ -21,7 +21,16 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
@@ -261,7 +270,6 @@ public abstract class BTreePartition implements Partition
             opContext.getFilter(), 
             searchCtls );
 
-        //noinspection unchecked
         return new BTreeSearchResultEnumeration( attrIds, underlying, this, attributeTypeRegistry );
     }
 

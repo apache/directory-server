@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.protocol.shared;
 
+import org.apache.directory.server.constants.ServerDNConstants;
+
 
 /**
  * Base class shared by all protocol providers for configuration.
@@ -34,7 +36,8 @@ public abstract class DirectoryBackedService extends AbstractProtocolService
      * configuration for catalog entries.  Otherwise it will use this
      * search base as a single point of searching the DIT.
      */
-    private String searchBaseDn = "ou=users,dc=example,dc=com";
+    private String searchBaseDn = ServerDNConstants.USER_EXAMPLE_COM_DN;
+    
     /** determines if the search base is pointer to a catelog or a single entry point */
     private boolean catelogBased;
 

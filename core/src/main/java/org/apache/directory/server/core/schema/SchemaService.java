@@ -59,9 +59,6 @@ import java.util.Set;
  */
 public class SchemaService
 {
-    public static final String SCHEMA_AREA_DN = "ou=schema";
-    public static final String SCHEMA_AREA_DN_NORMALIZED = "2.5.4.11=schema";
-
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String SCHEMA_TIMESTAMP_ENTRY_DN = "cn=schemaModifications,ou=schema";
 
@@ -99,14 +96,14 @@ public class SchemaService
 
     public boolean isSchemaSubentry( String dnString ) throws NamingException
     {
-        if ( dnString.equalsIgnoreCase( ServerDNConstants.SCHEMA_DN ) ||
-             dnString.equalsIgnoreCase( ServerDNConstants.SCHEMA_DN_NORMALIZED ) )
+        if ( dnString.equalsIgnoreCase( ServerDNConstants.CN_SCHEMA_DN ) ||
+             dnString.equalsIgnoreCase( ServerDNConstants.CN_SCHEMA_DN_NORMALIZED ) )
         {
             return true;
         }
 
         LdapDN dn = new LdapDN( dnString ).normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        return dn.getNormName().equals( ServerDNConstants.SCHEMA_DN_NORMALIZED );
+        return dn.getNormName().equals( ServerDNConstants.CN_SCHEMA_DN_NORMALIZED );
     }
 
 
