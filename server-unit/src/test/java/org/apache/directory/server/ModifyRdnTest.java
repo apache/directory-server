@@ -443,13 +443,13 @@ public class ModifyRdnTest extends AbstractServerTest
 
     /**
      * Test for DIRSERVER-1096.
-     * Modify the RDN of an entry with an encoded new RDN. 
-     * Ensure that the attribute itself contains the unencoded value.
+     * Modify the RDN of an entry with an escaped new RDN. 
+     * Ensure that the attribute itself contains the not-escaped value.
      *
      * @throws Exception
      */
-    /*
-    @Test public void testModifyRdnWithEncodedNewRdn() throws Exception
+    @Test
+    public void testModifyRdnWithEncodedNewRdn() throws Exception
     {
         // Create a person, cn value is rdn
         String cnVal = "Tori Amos";
@@ -458,11 +458,13 @@ public class ModifyRdnTest extends AbstractServerTest
         Attributes attributes = this.getPersonAttributes( snVal, cnVal );
         ctx.createSubcontext( oldRdn, attributes );
 
-        // modify Rdn from cn=Tori Amos to cn=Ä\+
+        // modify Rdn from cn=Tori Amos to cn=<A Umlaut>\+
         String newCnVal = new String( new byte[]
-             { ( byte ) 0xC3, ( byte ) 0x84, '\\', '+' }, "UTF-8" );
+            { ( byte ) 0xC3, ( byte ) 0x84, '+' }, "UTF-8" );
+        String newCnEscapedVal = new String( new byte[]
+            { ( byte ) 0xC3, ( byte ) 0x84, '\\', '+' }, "UTF-8" );
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
-        String newRdn = "cn=" + newCnVal;
+        String newRdn = "cn=" + newCnEscapedVal;
         ctx.rename( oldRdn, newRdn );
 
         // Check, whether old Entry does not exists
@@ -475,7 +477,7 @@ public class ModifyRdnTest extends AbstractServerTest
         {
             // expected behaviour
         }
-        
+
         // Check, whether new Entry exists
         DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
         assertNotNull( newCtx );
@@ -488,7 +490,6 @@ public class ModifyRdnTest extends AbstractServerTest
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
     }
-    */
 
 }
 
