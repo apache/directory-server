@@ -23,10 +23,13 @@ package org.apache.directory.server;
 import java.util.Hashtable;
 
 import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -371,30 +374,31 @@ public class ModifyRdnTest extends AbstractServerTest
     /**
      * Test for DIRSERVER-1086.
      * Modify Rdn of an entry that has a child entry, delete its old rdn value.
+     * Ensure that the tree is not broken.
      *
      * @throws NamingException
      */
-    /*
-    @Test public void testModifyRdnAndDeleteOldWithChild() throws NamingException
+    @Test
+    public void testModifyRdnAndDeleteOldWithChild() throws NamingException
     {
         // Create an organizational unit, ou value is rdn
         String oldOu = "Writers";
         String oldRdn = "ou=" + oldOu;
         Attributes attributes = this.getOrganizationalUnitAttributes( oldOu );
         DirContext createdCtx = ctx.createSubcontext( oldRdn, attributes );
-  
+
         // Create a child
         String childCn = "Tori Amos";
         String childRdn = "cn=" + childCn;
         Attributes childAttributes = this.getPersonAttributes( "Amos", childCn );
         createdCtx.createSubcontext( childRdn, childAttributes );
-  
+
         // modify Rdn
         String newOu = "Singers";
         String newRdn = "ou=" + newOu;
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
         ctx.rename( oldRdn, newRdn );
-  
+
         // Check, whether old Entry does not exists
         try
         {
@@ -406,34 +410,35 @@ public class ModifyRdnTest extends AbstractServerTest
             // expected behaviour
             assertTrue( true );
         }
-  
+
         // Check, whether new Entry exists
         DirContext org = ( DirContext ) ctx.lookup( newRdn );
         assertNotNull( org );
-  
+
         // Check values of ou
         Attribute ou = org.getAttributes( "" ).get( "ou" );
         assertTrue( ou.contains( newOu ) );
         assertTrue( !ou.contains( oldOu ) ); // old value is gone
         assertEquals( 1, ou.size() );
-  
+
         // Perform a search under renamed ou and check whether exactly one child entry exist
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        searchControls.setReturningAttributes( new String[]{"objectClass"} );
+        searchControls.setReturningAttributes( new String[]
+            { "objectClass" } );
         NamingEnumeration<SearchResult> results = org.search( "", "(objectClass=*)", searchControls );
         assertTrue( results.hasMore() );
         results.next();
         assertTrue( !results.hasMore() );
-  
+
         // Check whether Tori exists
         DirContext tori = ( DirContext ) org.lookup( childRdn );
         assertNotNull( tori );
-  
+
         // Remove entry (use new rdn)
+        ctx.unbind( childRdn + "," + newRdn );
         ctx.unbind( newRdn );
     }
-    */
 
 
     /**
