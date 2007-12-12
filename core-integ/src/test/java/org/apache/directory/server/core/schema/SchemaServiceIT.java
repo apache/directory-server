@@ -447,6 +447,55 @@ public class SchemaServiceIT
         assertNull( attrs.get( "objectClasses" ) );
     }
 
+    /**
+     * Test for DIRSERVER-1055.
+     * Check if modifyTimestamp and createTimestamp are present in the search result,
+     * if they are requested.
+     */
+    public void testSearchForSubSchemaSubEntryOperationalAttributesSelected() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "creatorsName", "createTimestamp", "modifiersName", "modifyTimestamp" } );
+        
+        Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
+        NamingEnumeration<SearchResult> results = getRootContext( service )
+        .search( "cn=schema", "(objectClass=subschema)", controls );
+        
+        while ( results.hasMore() )
+        {
+            SearchResult result = results.next();
+            subSchemaEntry.put( result.getName(), result.getAttributes() );
+        }
+        
+        // We should have only one entry in the result
+        assertEquals( 1, subSchemaEntry.size() );
+        
+        // It should be the normalized form of cn=schema
+        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema" );
+        
+        assertNotNull( attrs );
+        
+        // We should have 4 attribute in the result :
+        assertEquals( 4, attrs.size() );
+        
+        assertNull( attrs.get( "attributeTypes" ) );
+        assertNull( attrs.get( "cn" ) );
+        assertNotNull( attrs.get( "creatorsName" ) );
+        assertNotNull( attrs.get( "createTimestamp" ) );
+        assertNull( attrs.get( "dITContentRules" ) );
+        assertNull( attrs.get( "dITStructureRules" ) );
+        assertNull( attrs.get( "ldapSyntaxes" ) );
+        assertNull( attrs.get( "matchingRules" ) );
+        assertNull( attrs.get( "matchingRuleUse" ) );
+        assertNotNull( attrs.get( "modifiersName" ) );
+        assertNotNull( attrs.get( "modifyTimestamp" ) );
+        assertNull( attrs.get( "nameForms" ) );
+        assertNull( attrs.get( "objectClass" ) );
+        assertNull( attrs.get( "objectClasses" ) );
+    }
+
     public void testSearchForSubSchemaSubEntryBadFilter() throws NamingException
     {
         SearchControls controls = new SearchControls();
