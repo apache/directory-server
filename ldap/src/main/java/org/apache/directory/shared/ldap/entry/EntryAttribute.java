@@ -18,34 +18,18 @@
  */
 package org.apache.directory.shared.ldap.entry;
 
-
 import java.util.Iterator;
 
 
 /**
- * Document me!
+ * A generic interface mocking the Attribute JNDI interface. This interface
+ * will be the base interface for the ServerAttribute and ClientAttribute.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface EntryAttribute<E extends Value<?>>
+public interface EntryAttribute<T extends Value<?>>
 {
-    /**
-     * Adds a value to this attribute. If the new value is already present in
-     * the attribute values, the method has no effect.
-     * <p>
-     * The new value is added at the end of list of values.
-     * </p>
-     * <p>
-     * This method returns true or false to indicate whether a value was added.
-     * </p>
-     *
-     * @param val a new value to be added which may be null
-     * @return true if a value was added, otherwise false
-     */
-    boolean add( E val );
-
-
     /**
      * Adds a value to this attribute. If the new value is already present in
      * the attribute values, the method has no effect.
@@ -90,15 +74,6 @@ public interface EntryAttribute<E extends Value<?>>
      * @param val the value which may be null
      * @return true if this attribute contains the value, otherwise false
      */
-    boolean contains( E val );
-
-
-    /**
-     * Indicates whether the specified value is one of the attribute's values.
-     *
-     * @param val the value which may be null
-     * @return true if this attribute contains the value, otherwise false
-     */
     boolean contains( String val );
 
 
@@ -111,34 +86,6 @@ public interface EntryAttribute<E extends Value<?>>
     boolean contains( byte[] val );
 
 
-    /**
-     * Gets the first value of this attribute. <code>null</code> is a valid value.
-     *
-     * <p>
-     * If the attribute has no values this method throws
-     * <code>NoSuchElementException</code>.
-     * </p>
-     *
-     * @return a value of this attribute
-     */
-    E get();
-
-
-    /**
-     * Returns an iterator over all the attribute's values.
-     * <p>
-     * The effect on the returned enumeration of adding or removing values of
-     * the attribute is not specified.
-     * </p>
-     * <p>
-     * This method will throw any <code>NamingException</code> that occurs.
-     * </p>
-     *
-     * @return an enumeration of all values of the attribute
-     */
-    Iterator<? extends E> getAll();
-
-
    /**
       * Retrieves the number of values in this attribute.
       *
@@ -146,19 +93,6 @@ public interface EntryAttribute<E extends Value<?>>
       * wrapping a null value if there is one
       */
     int size();
-
-
-    /**
-     * Removes a value that is equal to the given value.
-     * <p>
-     * Returns true if a value is removed. If there is no value equal to <code>
-     * val</code> this method simply returns false.
-     * </p>
-     *
-     * @param val the value to be removed
-     * @return true if the value is removed, otherwise false
-     */
-    boolean remove( E val );
 
 
     /**
@@ -185,4 +119,70 @@ public interface EntryAttribute<E extends Value<?>>
      * @return true if the value is removed, otherwise false
      */
     boolean remove( String val );
+    
+    
+    /**
+     * Gets the first value of this attribute. <code>null</code> is a valid value.
+     *
+     * <p>
+     * If the attribute has no values this method throws
+     * <code>NoSuchElementException</code>.
+     * </p>
+     *
+     * @return a value of this attribute
+     */
+    T get();
+
+
+    /**
+     * Returns an iterator over all the attribute's values.
+     * <p>
+     * The effect on the returned enumeration of adding or removing values of
+     * the attribute is not specified.
+     * </p>
+     * <p>
+     * This method will throw any <code>NamingException</code> that occurs.
+     * </p>
+     *
+     * @return an enumeration of all values of the attribute
+     */
+    Iterator<T> getAll();
+
+
+    /**
+     * Removes a value that is equal to the given value.
+     * <p>
+     * Returns true if a value is removed. If there is no value equal to <code>
+     * val</code> this method simply returns false.
+     * </p>
+     *
+     * @param val the value to be removed
+     * @return true if the value is removed, otherwise false
+     */
+    boolean remove( T val );
+
+
+    /**
+     * Indicates whether the specified value is one of the attribute's values.
+     *
+     * @param val the value which may be null
+     * @return true if this attribute contains the value, otherwise false
+     */
+    boolean contains( T val );
+
+
+    /**
+     * Adds a value to this attribute. If the new value is already present in
+     * the attribute values, the method has no effect.
+     * <p>
+     * The new value is added at the end of list of values.
+     * </p>
+     * <p>
+     * This method returns true or false to indicate whether a value was added.
+     * </p>
+     *
+     * @param val a new value to be added which may be null
+     * @return true if a value was added, otherwise false
+     */
+    boolean add( T val );
 }

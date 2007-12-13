@@ -23,6 +23,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -72,6 +73,20 @@ public interface Entry<T extends EntryAttribute<?>>
 
 
     /**
+     * Places non-null attributes in the attribute collection. If there is
+     * already an attribute with the same OID as any of the new attributes, 
+     * the old ones are removed from the collection and are returned by this 
+     * method. If there was no attribute with the same OID the return value 
+     * is <code>null</code>.
+     *
+     * @param attributes the attributes to be put
+     * @return the old attributes with the same OID, if exist; otherwise
+     *         <code>null</code>
+     */
+    List<T> put( T... attributes ) throws NamingException;
+
+
+    /**
      * Places a non-null attribute in the attribute collection. If there is
      * already an attribute with the same OID as the new attribute, the old one
      * is removed from the collection and is returned by this method. If there
@@ -85,16 +100,27 @@ public interface Entry<T extends EntryAttribute<?>>
 
 
     /**
-      * Removes the specified attribute. The removed attribute is
+      * Removes the specified attributes. The removed attributes are
       * returned by this method. If there were no attribute the return value
       * is <code>null</code>.
       *
-      * @param attribute the attribute to be removed
+      * @param attributes the attributes to be removed
       * @return the removed attribute, if exists; otherwise <code>null</code>
       */
+    List<T> remove( T... attributes ) throws NamingException;
+
+
+    /**
+     * Removes the specified attribute. The removed attribute is
+     * returned by this method. If there were no attribute the return value
+     * is <code>null</code>.
+     *
+     * @param attribute the attribute to be removed
+     * @return the removed attribute, if exists; otherwise <code>null</code>
+     */
     T remove( T attribute ) throws NamingException;
-
-
+    
+    
     /**
       * Returns the number of attributes.
       *

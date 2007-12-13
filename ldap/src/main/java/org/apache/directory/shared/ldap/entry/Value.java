@@ -29,14 +29,6 @@ package org.apache.directory.shared.ldap.entry;
  */
 public interface Value<T>
 {
-//    /**
-//     * Get the wrapped value.
-//     *
-//     * @return the wrapped value, as its original type (String,byte[],URI)
-//     */
-//    T get();
-
-
     /**
      * Sets the wrapped value.
      *
@@ -50,5 +42,4 @@ public interface Value<T>
      * @return <code>true</code> if the inner value is null.
      */
     boolean isNull();
-    
 }
