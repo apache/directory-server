@@ -38,7 +38,7 @@ import java.util.Collections;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ObjectClassAttribute implements ServerAttribute
+public class ObjectClassAttribute implements ServerAttribute<ServerValue<?>>
 {
     /** A logger */
     private static final Logger LOG = LoggerFactory.getLogger( ObjectClassAttribute.class );
@@ -398,7 +398,7 @@ public class ObjectClassAttribute implements ServerAttribute
      */
     public boolean add( ServerValue<?> val )
     {
-        return values.add( val );
+        return values.add( (ServerValue<?>)val );
     }
 
 
@@ -450,7 +450,7 @@ public class ObjectClassAttribute implements ServerAttribute
     }
 
 
-    public Iterator<? extends ServerValue<?>> getAll()
+    public Iterator<ServerValue<?>> getAll()
     {
         return iterator();
     }

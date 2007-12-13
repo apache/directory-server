@@ -32,7 +32,7 @@ import java.util.Iterator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BasicServerAttribute implements ServerAttribute
+public class BasicServerAttribute implements ServerAttribute<ServerValue<?>>
 {
     private HashSet<ServerValue<?>> values = new HashSet<ServerValue<?>>();
     private AttributeType attributeType;
@@ -88,6 +88,7 @@ public class BasicServerAttribute implements ServerAttribute
     public BasicServerAttribute( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException
     {
         this.attributeType = attributeType;
+        
         if ( val == null )
         {
             if ( attributeType.getSyntax().isHumanReadable() )
@@ -122,6 +123,7 @@ public class BasicServerAttribute implements ServerAttribute
 
             values.add( val );
         }
+        
         setUpId( upId, attributeType );
     }
 
@@ -307,7 +309,7 @@ public class BasicServerAttribute implements ServerAttribute
     }
 
 
-    public Iterator<? extends ServerValue<?>> getAll()
+    public Iterator<ServerValue<?>> getAll()
     {
         return iterator();
     }

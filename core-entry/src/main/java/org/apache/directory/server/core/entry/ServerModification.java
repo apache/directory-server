@@ -23,10 +23,8 @@ import java.io.Serializable;
 
 import javax.naming.directory.DirContext;
 
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Value;
 
 /**
  * An internal implementation for a ModificationItem. The name has been
@@ -35,7 +33,7 @@ import org.apache.directory.shared.ldap.entry.Value;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerModification implements Modification, Serializable
+public class ServerModification<T extends ServerAttribute<?>> implements Modification<T>, Serializable
 {
     public static final long serialVersionUID = 1L;
     
@@ -43,7 +41,7 @@ public class ServerModification implements Modification, Serializable
     private ModificationOperation operation;
     
     /** The attribute which contains the modification */
-    private EntryAttribute<? extends Value<?>> attribute;
+    private T attribute;
  
     
     /**
@@ -90,7 +88,7 @@ public class ServerModification implements Modification, Serializable
     /**
      * @return the attribute containing the modifications
      */
-    public EntryAttribute<? extends Value<?>> getAttribute()
+    public T getAttribute()
     {
         return attribute;
     }
@@ -101,7 +99,7 @@ public class ServerModification implements Modification, Serializable
      *
      * @param attribute The modified attribute 
      */
-    public void setAttribute( EntryAttribute<? extends Value<?>> attribute )
+    public void setAttribute( T attribute )
     {
         this.attribute = attribute;
     }

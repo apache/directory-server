@@ -24,6 +24,8 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 
 import javax.naming.NamingException;
+
+import java.util.List;
 import java.util.Set;
 
 
@@ -33,7 +35,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttribute>
+public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends Entry<T>, Iterable<T>
 {
     // -----------------------------------------------------------------------
     // Schema Related Methods
@@ -182,7 +184,7 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      * @param attributeType the type of the attribute
      * @return the attribute of the specified type
      */
-    ServerAttribute get( AttributeType attributeType );
+    T get( AttributeType attributeType );
 
 
     /**
@@ -195,13 +197,27 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      * @return the existing attribute of the same type if it exists; otherwise
      * <code>null</code>
      */
-    ServerAttribute put( ServerAttribute attribute ) throws NamingException;
+    T put( T attribute ) throws NamingException;
+
+    
+    /**
+     * Places non-null attributes in the attribute collection. If there is
+     * already an attribute with the same OID as any of the new attributes, 
+     * the old ones are removed from the collection and are returned by this 
+     * method. If there was no attribute with the same OID the return value 
+     * is <code>null</code>.
+     *
+     * @param attributes the attributes to be put
+     * @return the old attributes with the same OID, if exist; otherwise
+     *         <code>null</code>
+     */
+    List<T> put( T... attributes ) throws NamingException;
 
     // no value put'ters
 
-    ServerAttribute put( String upId, AttributeType attributeType ) throws NamingException;
+    T put( String upId, AttributeType attributeType ) throws NamingException;
 
-    ServerAttribute put( AttributeType attributeType ) throws NamingException;
+    T put( AttributeType attributeType ) throws NamingException;
 
 
     /**
@@ -223,7 +239,7 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      *         <code>null</code>
      * @throws NamingException if there are resolution issues
      */
-    ServerAttribute put( AttributeType attributeType, ServerValue<?> val ) throws NamingException;
+    T put( AttributeType attributeType, ServerValue<?> val ) throws NamingException;
 
     /**
      * Places a new attribute with the supplied attributeType and value into this
@@ -241,7 +257,7 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute put( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException;
+    T put( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException;
 
 
     /**
@@ -261,10 +277,10 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute put( AttributeType attributeType, String val ) throws NamingException;
+    T put( AttributeType attributeType, String val ) throws NamingException;
 
 
-    ServerAttribute put( String upId, AttributeType attributeType, String val ) throws NamingException;
+    T put( String upId, AttributeType attributeType, String val ) throws NamingException;
 
 
     /**
@@ -284,10 +300,10 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute put( AttributeType attributeType, byte[] val ) throws NamingException;
+    T put( AttributeType attributeType, byte[] val ) throws NamingException;
 
 
-    ServerAttribute put( String upId, AttributeType attributeType, byte[] val ) throws NamingException;
+    T put( String upId, AttributeType attributeType, byte[] val ) throws NamingException;
 
 
     /**
@@ -299,5 +315,27 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      * @return the removed attribute, if exists; otherwise <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute remove( AttributeType attributeType ) throws NamingException;
+    T remove( AttributeType attributeType ) throws NamingException;
+
+    /**
+     * Places a non-null attribute into this ServerEntry. If there an attribute
+     * of the same exists, the existing one is removed from the set and is
+     * returned by this method. If there was no attribute of the same type the
+     * return value is <code>null</code>.
+     *
+     * @param attribute the attribute to be put into this ServerEntry
+     * @return the existing attribute of the same type if it exists; otherwise
+     * <code>null</code>
+     */
+    T remove( T attribute ) throws NamingException;
+
+    /**
+     * Removes the specified attributes. The removed attributes are
+     * returned by this method. If there were no attribute the return value
+     * is <code>null</code>.
+     *
+     * @param attributes the attributes to be removed
+     * @return the removed attribute, if exists; otherwise <code>null</code>
+     */
+    List<T> remove( T... attributes ) throws NamingException;
 }
