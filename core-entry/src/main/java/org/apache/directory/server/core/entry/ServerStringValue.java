@@ -45,10 +45,6 @@ public class ServerStringValue extends StringValue implements ServerValue<String
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerStringValue.class );
 
-    /** used to dynamically lookup the attributeType when/if deserializing */
-    @SuppressWarnings ( { "FieldCanBeLocal", "UnusedDeclaration" } )
-    private final String oid;
-
     /** reference to the attributeType which is not serialized */
     private transient AttributeType attributeType;
 
@@ -66,10 +62,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
      */
     public ServerStringValue( AttributeType attributeType )
     {
-        if ( attributeType == null )
-        {
-            throw new NullPointerException( "attributeType cannot be null" );
-        }
+        assert checkAttributeType( attributeType) == null : logAssert( checkAttributeType( attributeType ) );
 
         try
         {
@@ -85,7 +78,6 @@ public class ServerStringValue extends StringValue implements ServerValue<String
         }
 
         this.attributeType = attributeType;
-        this.oid = attributeType.getOid();
     }
 
 
@@ -251,13 +243,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
             return true;
         }
 
-        //noinspection RedundantIfStatement
-        if ( this.attributeType.isDescentantOf( attributeType ) )
-        {
-            return true;
-        }
-
-        return false;
+        return this.attributeType.isDescentantOf( attributeType );
     }
 
 
@@ -306,11 +292,6 @@ public class ServerStringValue extends StringValue implements ServerValue<String
         if ( this == obj )
         {
             return true;
-        }
-
-        if ( obj == null )
-        {
-            return false;
         }
 
         if ( ! ( obj instanceof ServerStringValue ) )

@@ -289,7 +289,7 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
             return setObjectClassAttribute( new ObjectClassAttribute( upId, registries, val ) );
         }
 
-        return serverAttributeMap.put( attributeType, new BasicServerAttribute( upId, attributeType, val ) );
+        return serverAttributeMap.put( attributeType, new DefaultServerAttribute( upId, attributeType, val ) );
     }
 
 
@@ -325,7 +325,7 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
             return setObjectClassAttribute( new ObjectClassAttribute( upId, registries, val ) );
         }
 
-        return serverAttributeMap.put( attributeType, new BasicServerAttribute( upId, attributeType, val ) );
+        return serverAttributeMap.put( attributeType, new DefaultServerAttribute( upId, attributeType, val ) );
     }
 
 
@@ -356,7 +356,7 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
             throw new UnsupportedOperationException( "Only String values supported for objectClass attribute" );
         }
 
-        return serverAttributeMap.put( attributeType, new BasicServerAttribute( upId, attributeType, val ) );
+        return serverAttributeMap.put( attributeType, new DefaultServerAttribute( upId, attributeType, val ) );
     }
 
 

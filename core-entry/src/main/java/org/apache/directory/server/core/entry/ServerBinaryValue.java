@@ -63,10 +63,7 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
      */
     public ServerBinaryValue( AttributeType attributeType )
     {
-        if ( attributeType == null )
-        {
-            throw new NullPointerException( "attributeType cannot be null" );
-        }
+        assert checkAttributeType( attributeType) == null : logAssert( checkAttributeType( attributeType ) );
 
         try
         {
@@ -247,7 +244,6 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
 
             try
             {
-                //noinspection unchecked
                 return getComparator().compare( getNormalizedReference(), binaryValue.getNormalizedReference() );
             }
             catch ( NamingException e )
@@ -280,13 +276,7 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
             return true;
         }
 
-        //noinspection RedundantIfStatement
-        if ( this.attributeType.isDescentantOf( attributeType ) )
-        {
-            return true;
-        }
-
-        return false;
+        return this.attributeType.isDescentantOf( attributeType );
     }
 
 
@@ -311,7 +301,7 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
 
         try
         {
-            return getNormalizedReference().hashCode();
+            return Arrays.hashCode( getNormalizedReference() );
         }
         catch ( NamingException e )
         {
@@ -335,11 +325,6 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
         if ( this == obj )
         {
             return true;
-        }
-
-        if ( obj == null )
-        {
-            return false;
         }
 
         if ( ! ( obj instanceof ServerBinaryValue ) )
