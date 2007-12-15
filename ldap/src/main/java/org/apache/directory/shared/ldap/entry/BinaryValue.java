@@ -24,6 +24,7 @@ import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 
 /**
@@ -34,6 +35,10 @@ import java.util.Arrays;
  */
 public class BinaryValue implements Value<byte[]>
 {
+    /** A byte array comparator instance */
+	@SuppressWarnings ( { "unchecked" } )
+    private static final Comparator<byte[]> BYTE_ARRAY_COMPARATOR = new ByteArrayComparator();
+    
     /** the wrapped binary value */
     private byte[] wrapped;
 
@@ -58,23 +63,19 @@ public class BinaryValue implements Value<byte[]>
 
 
     /**
-     * Creates a new instance of BinaryValue copying an existing BinaryValue
+     * Dumps binary in hex with label.
      *
-     * @param value the binary value to copy
+     * @see Object#toString()
      */
-    public BinaryValue( BinaryValue value )
+    public String toString()
     {
-        if ( value != null )
-        {
-            wrapped = value.getCopy();
-        }
+        return "BinaryValue : " + StringTools.dumpBytes( wrapped );
     }
 
 
     /**
      * @see Object#hashCode()
      */
-    @Override
     public int hashCode()
     {
         return Arrays.hashCode( wrapped );
@@ -149,7 +150,11 @@ public class BinaryValue implements Value<byte[]>
     {
         BinaryValue cloned = (BinaryValue)super.clone();
         
-        cloned.wrapped = getCopy();
+        if ( wrapped != null )
+        {
+            cloned.wrapped = new byte[ wrapped.length ];
+            System.arraycopy( wrapped, 0, cloned.wrapped, 0, wrapped.length );
+        }
         
         return cloned;
     }
@@ -158,7 +163,6 @@ public class BinaryValue implements Value<byte[]>
     /**
      * @see Object#equals(Object)
      */
-    @Override
     public boolean equals( Object obj )
     {
         if ( this == obj )
@@ -166,28 +170,30 @@ public class BinaryValue implements Value<byte[]>
             return true;
         }
 
-        if ( ! ( obj instanceof BinaryValue ) )
+        if ( obj == null )
+        {
+            return false;
+        }
+
+        if ( obj.getClass() != this.getClass() )
         {
             return false;
         }
 
         BinaryValue binaryValue = ( BinaryValue ) obj;
         
-        if ( isNull() ) 
+        if ( ( wrapped == null ) && ( binaryValue.wrapped == null ) )
         {
-            return binaryValue.isNull();
+            return true;
         }
-        else
+
+        //noinspection SimplifiableIfStatement
+        if ( isNull() != binaryValue.isNull() )
         {
-            if ( binaryValue.isNull() )
-            {
-                return false;
-            }
-            else
-            {
-                return Arrays.equals( wrapped, binaryValue.wrapped );
-            }
+            return false;
         }
+
+        return Arrays.equals( wrapped, binaryValue.wrapped );
     }
 
 
@@ -196,6 +202,7 @@ public class BinaryValue implements Value<byte[]>
      *
      * @see Comparable#compareTo(Object) 
      */
+    @SuppressWarnings ( { "JavaDoc" } )
     public int compareTo( BinaryValue value )
     {
         if ( value == null )
@@ -215,18 +222,6 @@ public class BinaryValue implements Value<byte[]>
             return -1;
         }
 
-        return ByteArrayComparator.INSTANCE.compare( wrapped, value.getReference() );
-    }
-
-    
-    /**
-     * Dumps binary in hex with label.
-     *
-     * @see Object#toString()
-     */
-    @Override
-    public String toString()
-    {
-        return "BinaryValue : " + StringTools.dumpBytes( wrapped );
+        return BYTE_ARRAY_COMPARATOR.compare( wrapped, value.getReference() );
     }
 }

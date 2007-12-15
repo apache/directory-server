@@ -2636,20 +2636,6 @@ public class LdapDNTest extends TestCase
        assertEquals( "cn=\\ Kylie Minogue\\ ,dc=example,dc=com", dn.toString() );
    }
 
-   
-   /**
-    * Test for DIRSTUDIO-250
-    * @throws NamingException
-    */
-   public void testDoubleQuoteWithSpecialCharsInNameDIRSERVER_250() throws NamingException
-   {
-       LdapDN dn = new LdapDN( "a=\"b,c\"" );
-
-       assertEquals( "a=\"b,c\"", dn.getUpName() );
-       assertEquals( "a=b\\,c", dn.toString() );
-   }
-
-
    /**
     * Test for DIRSERVER-184
     * @throws NamingException

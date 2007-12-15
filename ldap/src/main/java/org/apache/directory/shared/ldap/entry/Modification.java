@@ -27,7 +27,7 @@ package org.apache.directory.shared.ldap.entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Modification<T extends EntryAttribute<?>>
+public interface Modification
 {
     /**
      *  @return the operation
@@ -54,7 +54,7 @@ public interface Modification<T extends EntryAttribute<?>>
     /**
      * @return the attribute containing the modifications
      */
-    T getAttribute();
+    EntryAttribute<? extends Value<?>> getAttribute();
     
     
     /**
@@ -62,5 +62,5 @@ public interface Modification<T extends EntryAttribute<?>>
      *
      * @param attribute The modified attribute 
      */
-    void setAttribute( T attribute );
+    void setAttribute( EntryAttribute<? extends Value<?>> attribute );
 }
