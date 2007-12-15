@@ -20,10 +20,15 @@
 package org.apache.directory.shared.ldap.entry;
 
 
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+
+import javax.naming.NamingException;
 
 
 /**
@@ -34,10 +39,54 @@ import java.util.Arrays;
  */
 public class BinaryValue implements Value<byte[]>
 {
+    /** logger for reporting errors that might not be handled properly upstream */
+    private static final Logger LOG = LoggerFactory.getLogger( BinaryValue.class );
+
+    
     /** the wrapped binary value */
     private byte[] wrapped;
 
 
+    // -----------------------------------------------------------------------
+    // utility methods
+    // -----------------------------------------------------------------------
+    /**
+     * Utility method to get some logs if an assert fails
+     */
+    protected String logAssert( String message )
+    {
+        LOG.error(  message );
+        return message;
+    }
+
+    
+    /**
+     *  Check the attributeType member. It should not be null, 
+     *  and it should contains a syntax.
+     */
+    protected String checkAttributeType( AttributeType attributeType )
+    {
+        try
+        {
+            if ( attributeType == null )
+            {
+                return "The AttributeType parameter should not be null";
+            }
+            
+            if ( attributeType.getSyntax() == null )
+            {
+                return "There is no Syntax associated with this attributeType";
+            }
+
+            return null;
+        }
+        catch ( NamingException ne )
+        {
+            return "This AttributeType is incorrect";
+        }
+    }
+
+    
     /**
      * Creates a new instance of BinaryValue with no initial wrapped value.
      */
