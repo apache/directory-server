@@ -147,11 +147,12 @@ public class JdbmTable implements Table
             throw ne;
         }
 
+        
         browserFactory = new TupleBrowserFactory()
         {
             public long size() throws IOException
             {
-                return count;
+                return bt.size();
             }
 
 
@@ -164,6 +165,12 @@ public class JdbmTable implements Table
             public org.apache.directory.server.core.partition.impl.btree.TupleBrowser afterLast() throws IOException
             {
                 return new JdbmTupleBrowser( bt.browse( null ) );
+            }
+
+
+            public org.apache.directory.server.core.partition.impl.btree.TupleBrowser beforeKey( Object key ) throws IOException
+            {
+                return new JdbmTupleBrowser( bt.browse( key ) );
             }
         };
     }
@@ -988,6 +995,7 @@ public class JdbmTable implements Table
     // listTuple Overloads 
     // ------------------------------------------------------------------------
 
+    
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.Table#listTuples()
      */
@@ -1055,13 +1063,10 @@ public class JdbmTable implements Table
      */
     public Cursor<Tuple> listTuples( Object key, boolean isGreaterThan ) throws IOException
     {
-        Cursor<Tuple> list = null;
+        Cursor<Tuple> list;
 
         if ( isGreaterThan )
         {
-            // JdbmTupleBrowser browser = new JdbmTupleBrowser( bt.browse( key ) );
-            // list = new NoDupsEnumeration( browser, isGreaterThan );
-
             list = new NoDupsCursor( browserFactory, key );
         }
         else

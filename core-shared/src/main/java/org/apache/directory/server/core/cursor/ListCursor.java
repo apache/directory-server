@@ -19,6 +19,8 @@
 package org.apache.directory.server.core.cursor;
 
 
+import org.apache.directory.shared.ldap.NotImplementedException;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +33,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ListCursor<E> extends AbstractCursor
+public class ListCursor<E> extends AbstractCursor<E>
 {
     private final List<E> list;
     private final int start;
@@ -134,6 +136,18 @@ public class ListCursor<E> extends AbstractCursor
     {
         //noinspection unchecked
         this( 0, Collections.EMPTY_LIST, 0 );
+    }
+
+
+    public boolean before( E element ) throws IOException
+    {
+        throw new NotImplementedException();
+    }
+
+
+    public boolean after( E element ) throws IOException
+    {
+        throw new NotImplementedException();
     }
 
 

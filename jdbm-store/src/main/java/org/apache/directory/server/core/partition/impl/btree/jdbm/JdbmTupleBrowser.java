@@ -22,8 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.IOException;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.TupleBrowser;
 
@@ -39,7 +37,7 @@ public class JdbmTupleBrowser implements TupleBrowser
     /** underlying wrapped jdbm.helper.TupleBrowser */
     private jdbm.helper.TupleBrowser jdbmBrowser;
     /** safe temp jdbm.helper.Tuple used to store next/previous tuples */
-    private jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
+    private final jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
 
 
     /**
@@ -56,22 +54,13 @@ public class JdbmTupleBrowser implements TupleBrowser
     /**
      * @see TupleBrowser#getNext(org.apache.directory.server.core.partition.impl.btree.Tuple)
      */
-    public boolean getNext( Tuple tuple ) throws NamingException
+    public boolean getNext( Tuple tuple ) throws IOException
     {
-        boolean isSuccess = false;
+        boolean isSuccess;
 
         synchronized ( jdbmTuple )
         {
-            try
-            {
-                isSuccess = jdbmBrowser.getNext( jdbmTuple );
-            }
-            catch ( IOException ioe )
-            {
-                NamingException ne = new NamingException( "Failed on call to jdbm TupleBrowser.getNext()" );
-                ne.setRootCause( ioe );
-                throw ne;
-            }
+            isSuccess = jdbmBrowser.getNext( jdbmTuple );
 
             if ( isSuccess )
             {
@@ -87,22 +76,13 @@ public class JdbmTupleBrowser implements TupleBrowser
     /**
      * @see TupleBrowser#getPrevious(Tuple)
      */
-    public boolean getPrevious( Tuple tuple ) throws NamingException
+    public boolean getPrevious( Tuple tuple ) throws IOException
     {
-        boolean isSuccess = false;
+        boolean isSuccess;
 
         synchronized ( jdbmTuple )
         {
-            try
-            {
-                isSuccess = jdbmBrowser.getPrevious( jdbmTuple );
-            }
-            catch ( IOException ioe )
-            {
-                NamingException ne = new NamingException( "Failed on call to jdbm TupleBrowser.getPrevious()" );
-                ne.setRootCause( ioe );
-                throw ne;
-            }
+            isSuccess = jdbmBrowser.getPrevious( jdbmTuple );
 
             if ( isSuccess )
             {

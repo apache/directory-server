@@ -28,15 +28,27 @@ import java.util.Iterator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class IteratorCursor<E> extends AbstractCursor
+public class IteratorCursor<E> extends AbstractCursor<E>
 {
     private final Iterator<E> values;
-    private Object current;
+    private E current;
 
 
     public IteratorCursor( Iterator<E> values )
     {
         this.values = values;
+    }
+
+
+    public boolean before( E element ) throws IOException
+    {
+        throw new UnsupportedOperationException( "Cannot advance before an element on the underlying Iterator." );
+    }
+
+
+    public boolean after( E element ) throws IOException
+    {
+        throw new UnsupportedOperationException( "Cannot advance after an element on the underlying Iterator." );
     }
 
 
@@ -119,7 +131,7 @@ public class IteratorCursor<E> extends AbstractCursor
     }
 
 
-    public Object get() throws IOException
+    public E get() throws IOException
     {
         checkClosed( "get()" );
         return current;

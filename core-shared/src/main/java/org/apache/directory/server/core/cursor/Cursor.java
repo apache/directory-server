@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.cursor;
 
+
 import java.io.IOException;
 
 
@@ -40,6 +41,34 @@ import java.io.IOException;
  */
 public interface Cursor<E>
 {
+    /**
+     * Positions this Cursor just before the element.  If the element value
+     * does not exist in the dataset, the Cursor is advanced to a data element
+     * with the greatest value in the dataset less than the element argument.
+     *
+     * @param element the element to be positioned before
+     * @return true if get() will yeild a valid value, false otherwise
+     * @throws IOException if there are problems positioning this cursor or if
+     * this Cursor is closed
+     * @throws UnsupportedOperationException if this operation is not supported
+     */
+    boolean before( E element ) throws IOException;
+
+
+    /**
+     * Positions this Cursor just after the element.  If the element value
+     * does not exist in the dataset, the Cursor is advanced to a data element
+     * with the smallest value in the dataset greater than the element argument.
+     *
+     * @param element the element to be positioned after
+     * @return true if get() will yeild a valid value, false otherwise
+     * @throws IOException if there are problems positioning this cursor or if
+     * this Cursor is closed
+     * @throws UnsupportedOperationException if this operation is not supported
+     */
+    boolean after( E element ) throws IOException;
+
+
     /**
      * Positions this Curser before the first element.
      *

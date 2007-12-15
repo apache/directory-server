@@ -25,7 +25,7 @@ package org.apache.directory.server.core.cursor;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractCursor<T> implements Cursor<T>
+public abstract class AbstractCursor<E> implements Cursor<E>
 {
     protected static final int BEFORE_FIRST = -1;
     private boolean closed;

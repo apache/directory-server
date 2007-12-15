@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.CursorClosedException;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.NotImplementedException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -69,6 +70,18 @@ public class ValueArrayCursor implements Cursor<Tuple>
             throw new CursorClosedException( "Attempting " + operation
                     + " operation on a closed Cursor." );
         }
+    }
+
+
+    public boolean before( Tuple element ) throws IOException
+    {
+        throw new NotImplementedException();
+    }
+
+
+    public boolean after( Tuple element ) throws IOException
+    {
+        throw new NotImplementedException();
     }
 
 

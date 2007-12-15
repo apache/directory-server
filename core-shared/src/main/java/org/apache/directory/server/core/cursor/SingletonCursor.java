@@ -20,6 +20,7 @@ package org.apache.directory.server.core.cursor;
 
 
 import java.io.IOException;
+import java.util.Comparator;
 
 
 /**
@@ -28,17 +29,75 @@ import java.io.IOException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SingletonCursor<E> extends AbstractCursor
+public class SingletonCursor<E> extends AbstractCursor<E>
 {
     private boolean beforeFirst = true;
     private boolean afterLast;
     private boolean onSingleton;
+    private final Comparator<E> comparator;
     private final E singleton;
 
 
     public SingletonCursor( E singleton )
     {
+        this( singleton, null );
+    }
+
+
+    public SingletonCursor( E singleton, Comparator<E> comparator )
+    {
         this.singleton = singleton;
+        this.comparator = comparator;
+    }
+
+
+    public boolean before( E element ) throws IOException
+    {
+        checkClosed( "before()" );
+
+        if ( comparator == null )
+        {
+            throw new UnsupportedOperationException(
+                    "Without a comparator I cannot advance to just before the specified element." );
+        }
+
+        int comparison = comparator.compare( singleton, element );
+
+        if ( comparison < 0 )
+        {
+            absolute( 0 );
+            return true;
+        }
+        else
+        {
+            beforeFirst();
+            return false;
+        }
+    }
+
+
+    public boolean after( E element ) throws IOException
+    {
+        checkClosed( "after()" );
+
+        if ( comparator == null )
+        {
+            throw new UnsupportedOperationException(
+                    "Without a comparator I cannot advance to just after the specified element." );
+        }
+
+        int comparison = comparator.compare( singleton, element );
+
+        if ( comparison > 0 )
+        {
+            absolute( 0 );
+            return true;
+        }
+        else
+        {
+            afterLast();
+            return false;
+        }
     }
 
 

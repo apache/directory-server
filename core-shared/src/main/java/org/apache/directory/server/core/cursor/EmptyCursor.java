@@ -28,8 +28,22 @@ import java.io.IOException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class EmptyCursor<E> extends AbstractCursor
+public class EmptyCursor<E> extends AbstractCursor<E>
 {
+    public boolean before( E element ) throws IOException
+    {
+        checkClosed( "before()" );
+        return false;
+    }
+
+
+    public boolean after( E element ) throws IOException
+    {
+        checkClosed( "after()" );
+        return false;
+    }
+
+
     public void beforeFirst() throws CursorClosedException
     {
         checkClosed( "beforeFirst()" );

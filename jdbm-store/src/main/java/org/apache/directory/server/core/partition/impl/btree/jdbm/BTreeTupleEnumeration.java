@@ -58,7 +58,7 @@ public class BTreeTupleEnumeration implements NamingEnumeration
     private final jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
     private final boolean stepForward;
     private TupleBrowser browser;
-    private boolean success = false;
+    private boolean success;
     
     
     BTreeTupleEnumeration( BTree tree, Comparator<Object> comparator, Object key, Object val, boolean isGreaterThan ) 

@@ -92,14 +92,26 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
      */
     private void beforeKey( Object key ) throws IOException
     {
+        browser = factory.beforeKey( key );
         beforeFirst = false;
         afterLast = false;
-        success = true;
         size = factory.size();
         pos = BEFORE_FIRST;
-        browser = factory.beforeKey( key );
+        success = true;
 
         throw new NotImplementedException( "Need to fix the todo on this before going further" );
+    }
+
+
+    public boolean before( Tuple element ) throws IOException
+    {
+        throw new NotImplementedException();
+    }
+
+
+    public boolean after( Tuple element ) throws IOException
+    {
+        throw new NotImplementedException();
     }
 
 
