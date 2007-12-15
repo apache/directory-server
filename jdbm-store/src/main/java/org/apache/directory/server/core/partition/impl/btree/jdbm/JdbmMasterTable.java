@@ -29,6 +29,8 @@ import jdbm.helper.StringComparator;
 import org.apache.directory.server.core.partition.impl.btree.MasterTable;
 import org.apache.directory.server.schema.SerializableComparator;
 
+import java.io.IOException;
+
 
 /**
  * The master table used to store the Attributes of entries.
@@ -93,11 +95,25 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
     {
         super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new AttributesSerializer() );
         adminTbl = new JdbmTable( "admin", recMan, STRING_COMPARATOR, null, null );
-        String seqValue = ( String ) adminTbl.get( SEQPROP_KEY );
+        try
+        {
+            String seqValue = ( String ) adminTbl.get( SEQPROP_KEY );
+        }
+        catch ( IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
         if ( null == seqValue )
         {
-            adminTbl.put( SEQPROP_KEY, "0" );
+            try
+            {
+                adminTbl.put( SEQPROP_KEY, "0" );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
     }
 
@@ -109,7 +125,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @return the Attributes of the entry with operational attributes and all.
      * @throws NamingException if there is a read error on the underlying Db.
      */
-    public Attributes get( Object id ) throws NamingException
+    public Attributes get( Object id ) throws IOException
     {
         return ( Attributes ) super.get( id );
     }
@@ -158,12 +174,26 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
 
         synchronized ( adminTbl )
         {
-            id = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
+            try
+            {
+                id = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
 
             //noinspection ConstantConditions
             if ( null == id )
             {
-                adminTbl.put( SEQPROP_KEY, "0" );
+                try
+                {
+                    adminTbl.put( SEQPROP_KEY, "0" );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
                 id = 0L;
             }
         }
@@ -189,17 +219,38 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
 
         synchronized ( adminTbl )
         {
-            lastVal = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
+            try
+            {
+                lastVal = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
 
             //noinspection ConstantConditions
             if ( null == lastVal )
             {
-                adminTbl.put( SEQPROP_KEY, "1" );
+                try
+                {
+                    adminTbl.put( SEQPROP_KEY, "1" );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
                 return 1L;
             } else
             {
                 nextVal = lastVal + 1L;
-                adminTbl.put( SEQPROP_KEY, nextVal.toString() );
+                try
+                {
+                    adminTbl.put( SEQPROP_KEY, nextVal.toString() );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
             }
         }
 
@@ -218,7 +269,14 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
     {
         synchronized ( adminTbl )
         {
-            return ( String ) adminTbl.get( property );
+            try
+            {
+                return ( String ) adminTbl.get( property );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
     }
 
@@ -234,7 +292,14 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
     {
         synchronized ( adminTbl )
         {
-            adminTbl.put( property, value );
+            try
+            {
+                adminTbl.put( property, value );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
     }
 

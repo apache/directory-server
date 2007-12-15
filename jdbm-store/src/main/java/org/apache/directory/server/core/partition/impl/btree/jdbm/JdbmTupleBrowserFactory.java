@@ -16,13 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.entry;
+package org.apache.directory.server.core.partition.impl.btree.jdbm;
+
+import org.apache.directory.server.core.partition.impl.btree.TupleBrowserFactory;
+import org.apache.directory.server.core.partition.impl.btree.TupleBrowser;
 
 
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import java.io.IOException;
 
-import javax.naming.NamingException;
+import jdbm.btree.BTree;
 
 
 /**
@@ -31,13 +33,37 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerAttribute extends EntryAttribute<ServerValue<?>>, Iterable<ServerValue<?>>
+public class JdbmTupleBrowserFactory implements TupleBrowserFactory
 {
-    AttributeType getType();
+    private final BTree btree;
 
 
-    String getUpId();
+    public JdbmTupleBrowserFactory( BTree btree )
+    {
+        this.btree = btree;
+    }
 
 
-    boolean isValid() throws NamingException;
+    public long size() throws IOException
+    {
+        return btree.size();
+    }
+
+
+    public TupleBrowser beforeFirst() throws IOException
+    {
+        return new JdbmTupleBrowser( btree.browse() );
+    }
+
+
+    public TupleBrowser afterLast() throws IOException
+    {
+        return new JdbmTupleBrowser( btree.browse( null ) );
+    }
+
+
+    public TupleBrowser beforeKey( Object key ) throws IOException
+    {
+        return new JdbmTupleBrowser( btree.browse( key ) );
+    }
 }

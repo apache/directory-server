@@ -46,7 +46,7 @@ public class BTreeEnumeration implements NamingEnumeration
 {
     private final jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
     private TupleBrowser browser;
-    private boolean success = false;
+    private boolean success;
     
     
     BTreeEnumeration( BTree tree ) throws NamingException 

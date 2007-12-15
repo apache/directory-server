@@ -256,7 +256,14 @@ public class DefaultOptimizer implements Optimizer
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getUserIndex( node.getAttribute() );
-            return Long.valueOf( idx.count( node.getValue() ) );
+            try
+            {
+                return Long.valueOf( idx.count( node.getValue() ) );
+            }
+            catch ( java.io.IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
 
         // count for non-indexed attribute is unknown so we presume da worst
@@ -278,7 +285,14 @@ public class DefaultOptimizer implements Optimizer
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getUserIndex( node.getAttribute() );
-            int count = idx.count( node.getValue(), isGreaterThan );
+            try
+            {
+                int count = idx.count( node.getValue(), isGreaterThan );
+            }
+            catch ( java.io.IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
             return Long.valueOf( count );
         }
 
@@ -301,7 +315,14 @@ public class DefaultOptimizer implements Optimizer
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getUserIndex( node.getAttribute() );
-            int count = idx.count();
+            try
+            {
+                int count = idx.count();
+            }
+            catch ( java.io.IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
             return Long.valueOf( count );
         }
 
@@ -322,7 +343,14 @@ public class DefaultOptimizer implements Optimizer
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getExistanceIndex();
-            int count = idx.count( node.getAttribute() );
+            try
+            {
+                int count = idx.count( node.getAttribute() );
+            }
+            catch ( java.io.IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
             return Long.valueOf( count );
         }
 

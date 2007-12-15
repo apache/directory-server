@@ -110,9 +110,16 @@ public class ScopeEvaluator implements Evaluator
          */
         Index idx = db.getAliasIndex();
 
-        if ( null != idx.reverseLookup( id ) )
+        try
         {
-            return false;
+            if ( null != idx.reverseLookup( id ) )
+            {
+                return false;
+            }
+        }
+        catch ( java.io.IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
         /*
@@ -138,8 +145,15 @@ public class ScopeEvaluator implements Evaluator
          * candidate is rejected with a false return because it is not in scope.
          */
         idx = db.getSubAliasIndex();
-        
-        return idx.hasValue( baseId, id );
+
+        try
+        {
+            return idx.hasValue( baseId, id );
+        }
+        catch ( java.io.IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 
 
@@ -158,7 +172,14 @@ public class ScopeEvaluator implements Evaluator
         AliasDerefMode mode = node.getDerefAliases();
         Object baseId = db.getEntryId( node.getBaseDn() );
         Index idx = db.getHierarchyIndex();
-        boolean isChild = idx.hasValue( baseId, id );
+        try
+        {
+            boolean isChild = idx.hasValue( baseId, id );
+        }
+        catch ( java.io.IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
         /*
          * The candidate id could be any entry in the db.  If search 
@@ -176,10 +197,17 @@ public class ScopeEvaluator implements Evaluator
          * not be returned.
          */
         idx = db.getAliasIndex();
-        
-        if ( null != idx.reverseLookup( id ) )
+
+        try
         {
-            return false;
+            if ( null != idx.reverseLookup( id ) )
+            {
+                return false;
+            }
+        }
+        catch ( java.io.IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
         /*
@@ -202,7 +230,14 @@ public class ScopeEvaluator implements Evaluator
          * candidate is rejected with a false return because it is not in scope.
          */
         idx = db.getOneAliasIndex();
-        
-        return idx.hasValue( baseId, id );
+
+        try
+        {
+            return idx.hasValue( baseId, id );
+        }
+        catch ( java.io.IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 }

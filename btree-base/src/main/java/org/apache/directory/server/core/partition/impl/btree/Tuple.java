@@ -51,7 +51,7 @@ public class Tuple
      * @param key the key to set
      * @param value the value to set
      */
-    public Tuple(Object key, Object value)
+    public Tuple( Object key, Object value )
     {
         this.key = key;
         this.value = value;
@@ -73,10 +73,12 @@ public class Tuple
      * Sets the key for this Tuple.
      *
      * @param key the new key to set
+     * @return this Tuple itself to set and return
      */
-    public void setKey( Object key )
+    public Tuple setKey( Object key )
     {
         this.key = key;
+        return this;
     }
 
 
@@ -95,9 +97,28 @@ public class Tuple
      * Sets the value for this Tuple.
      *
      * @param value the new value to set
+     * @return this Tuple itself to set and return
      */
-    public void setValue( Object value )
+    public Tuple setValue( Object value )
     {
         this.value = value;
+        return this;
+    }
+
+
+    /**
+     * Sets both the key and the value for this Tuple in one call and returns
+     * this Tuple object.  This is useful for setting the tuples key and value
+     * then returning it.
+     *
+     * @param key the new key to set
+     * @param value the new value to set
+     * @return this Tuple itself to set and return
+     */
+    public Tuple setBoth( Object key, Object value )
+    {
+        this.key = key;
+        this.value = value;
+        return this;
     }
 }

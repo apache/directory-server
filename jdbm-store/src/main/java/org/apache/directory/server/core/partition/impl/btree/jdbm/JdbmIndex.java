@@ -24,10 +24,8 @@ import jdbm.RecordManager;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
-import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.IndexComparator;
-import org.apache.directory.server.core.partition.impl.btree.IndexEnumeration;
-import org.apache.directory.server.core.partition.impl.btree.Tuple;
+import org.apache.directory.server.core.partition.impl.btree.*;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -349,7 +347,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#count()
      */
-    public int count() throws NamingException
+    public int count() throws IOException
     {
         return forward.count();
     }
@@ -358,7 +356,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#count(java.lang.Object)
      */
-    public int count( Object attrVal ) throws NamingException
+    public int count( Object attrVal ) throws IOException
     {
         return forward.count( getNormalized( attrVal ) );
     }
@@ -367,7 +365,7 @@ public class JdbmIndex implements Index
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.Index#count(java.lang.Object, boolean)
      */
-    public int count( Object attrVal, boolean isGreaterThan ) throws NamingException
+    public int count( Object attrVal, boolean isGreaterThan ) throws IOException
     {
         return forward.count( getNormalized( attrVal ), isGreaterThan );
     }
@@ -381,7 +379,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#forwardLookup(java.lang.Object)
      */
-    public Long forwardLookup( Object attrVal ) throws NamingException
+    public Long forwardLookup( Object attrVal ) throws IOException
     {
         return ( Long ) forward.get( getNormalized( attrVal ) );
     }
@@ -390,7 +388,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#reverseLookup(Object)
      */
-    public Object reverseLookup( Object id ) throws NamingException
+    public Object reverseLookup( Object id ) throws IOException
     {
         return reverse.get( id );
     }
@@ -404,7 +402,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#add(Object,Object)
      */
-    public synchronized void add( Object attrVal, Object id ) throws NamingException
+    public synchronized void add( Object attrVal, Object id ) throws IOException
     {
         forward.put( getNormalized( attrVal ), id );
         reverse.put( id, getNormalized( attrVal ) );
@@ -414,7 +412,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#add(Attribute, Object)
      */
-    public synchronized void add( Attribute attr, Object id ) throws NamingException
+    public synchronized void add( Attribute attr, Object id ) throws IOException
     {
         // Can efficiently batch add to the reverse table 
         NamingEnumeration values = attr.getAll();
@@ -432,7 +430,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#add(Attributes, Object)
      */
-    public synchronized void add( Attributes attrs, Object id ) throws NamingException
+    public synchronized void add( Attributes attrs, Object id ) throws IOException
     {
         add( AttributeUtils.getAttribute( attrs, attribute ), id );
     }
@@ -441,7 +439,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#drop(Object,Object)
      */
-    public synchronized void drop( Object attrVal, Object id ) throws NamingException
+    public synchronized void drop( Object attrVal, Object id ) throws IOException
     {
         forward.remove( getNormalized( attrVal ), id );
         reverse.remove( id, getNormalized( attrVal ) );
@@ -451,7 +449,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#drop(Object)
      */
-    public void drop( Object entryId ) throws NamingException
+    public void drop( Object entryId ) throws IOException
     {
         NamingEnumeration<Object> values = reverse.listValues( entryId );
 
@@ -467,7 +465,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#drop(Attribute, Object)
      */
-    public void drop( Attribute attr, Object id ) throws NamingException
+    public void drop( Attribute attr, Object id ) throws IOException
     {
         // Can efficiently batch remove from the reverse table 
         NamingEnumeration values = attr.getAll();
@@ -493,7 +491,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#drop(Attributes, Object)
      */
-    public void drop( Attributes attrs, Object id ) throws NamingException
+    public void drop( Attributes attrs, Object id ) throws IOException
     {
         drop( AttributeUtils.getAttribute( attrs, attribute ), id );
     }
@@ -507,7 +505,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#listReverseIndices(Object)
      */
-    public IndexEnumeration listReverseIndices( Object id ) throws NamingException
+    public Cursor<IndexRecord> listReverseIndices( Object id ) throws IOException
     {
         return new IndexEnumeration<Tuple>( reverse.listTuples( id ), true );
     }
@@ -516,7 +514,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#listIndices()
      */
-    public IndexEnumeration listIndices() throws NamingException
+    public Cursor<IndexRecord> listIndices() throws IOException
     {
         return new IndexEnumeration<Tuple>( forward.listTuples() );
     }
@@ -525,7 +523,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#listIndices(Object)
      */
-    public IndexEnumeration listIndices( Object attrVal ) throws NamingException
+    public Cursor<IndexRecord> listIndices( Object attrVal ) throws IOException
     {
         return new IndexEnumeration<Tuple>( forward.listTuples( getNormalized( attrVal ) ) );
     }
@@ -534,7 +532,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#listIndices(Object,boolean)
      */
-    public IndexEnumeration<Tuple> listIndices( Object attrVal, boolean isGreaterThan ) throws NamingException
+    public Cursor<IndexRecord> listIndices( Object attrVal, boolean isGreaterThan ) throws IOException
     {
         return new IndexEnumeration<Tuple>( forward.listTuples( getNormalized( attrVal ), isGreaterThan ) );
     }
@@ -543,7 +541,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#listIndices(Pattern)
      */
-    public IndexEnumeration<Tuple> listIndices( Pattern regex ) throws NamingException
+    public Cursor<IndexRecord> listIndices( Pattern regex ) throws IOException
     {
         return new IndexEnumeration<Tuple>( forward.listTuples(), false, regex );
     }
@@ -552,7 +550,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#listIndices(Pattern,String)
      */
-    public IndexEnumeration<Tuple> listIndices( Pattern regex, String prefix ) throws NamingException
+    public Cursor<IndexRecord> listIndices( Pattern regex, String prefix ) throws IOException
     {
         return new IndexEnumeration<Tuple>( forward.listTuples( getNormalized( prefix ), true ), false, regex );
     }
@@ -567,7 +565,7 @@ public class JdbmIndex implements Index
      * @see Index#hasValue(java.lang.Object,
      * Object)
      */
-    public boolean hasValue( Object attrVal, Object id ) throws NamingException
+    public boolean hasValue( Object attrVal, Object id ) throws IOException
     {
         return forward.has( getNormalized( attrVal ), id );
     }
@@ -577,7 +575,7 @@ public class JdbmIndex implements Index
      * @see Index#hasValue(java.lang.Object,
      * Object, boolean)
      */
-    public boolean hasValue( Object attrVal, Object id, boolean isGreaterThan ) throws NamingException
+    public boolean hasValue( Object attrVal, Object id, boolean isGreaterThan ) throws IOException
     {
         return forward.has( getNormalized( attrVal ), id, isGreaterThan );
     }
@@ -586,7 +584,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#hasValue(Pattern,Object)
      */
-    public boolean hasValue( Pattern regex, Object id ) throws NamingException
+    public boolean hasValue( Pattern regex, Object id ) throws IOException
     {
         IndexEnumeration<Tuple> list = new IndexEnumeration<Tuple>( reverse.listTuples( id ), true, regex );
         boolean hasValue = list.hasMore();
@@ -603,41 +601,21 @@ public class JdbmIndex implements Index
     /**
      * @see Index#close()
      */
-    public synchronized void close() throws NamingException
+    public synchronized void close() throws IOException
     {
-        try
-        {
-            forward.close();
-            reverse.close();
-            recMan.commit();
-            recMan.close();
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException( "Exception while closing backend index file for attribute "
-                + attribute.getName() );
-            ne.setRootCause( e );
-            throw ne;
-        }
+        forward.close();
+        reverse.close();
+        recMan.commit();
+        recMan.close();
     }
 
 
     /**
      * @see Index#sync()
      */
-    public synchronized void sync() throws NamingException
+    public synchronized void sync() throws IOException
     {
-        try
-        {
-            recMan.commit();
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException( "Exception while syncing backend index file for attribute "
-                + attribute.getName() );
-            ne.setRootCause( e );
-            throw ne;
-        }
+        recMan.commit();
     }
 
 
@@ -645,7 +623,7 @@ public class JdbmIndex implements Index
      * TODO I don't think the keyCache is required anymore since the normalizer
      * will cache values for us.
      */
-    public Object getNormalized( Object attrVal ) throws NamingException
+    public Object getNormalized( Object attrVal ) throws IOException
     {
         if ( attrVal instanceof Long )
         {
@@ -656,7 +634,14 @@ public class JdbmIndex implements Index
 
         if ( null == normalized )
         {
-            normalized = attribute.getEquality().getNormalizer().normalize( attrVal );
+            try
+            {
+                normalized = attribute.getEquality().getNormalizer().normalize( attrVal );
+            }
+            catch ( NamingException e )
+            {
+                throw new IOException ( "Failed to normalized the original value: " + attrVal, e );
+            }
 
             // Double map it so if we use an already normalized
             // value we can get back the same normalized value.

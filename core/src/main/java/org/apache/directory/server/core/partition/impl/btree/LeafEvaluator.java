@@ -124,7 +124,7 @@ public class LeafEvaluator implements Evaluator
      * @throws NamingException
      */
     private boolean matchValue( SimpleNode node, Attribute attr, AttributeType type, Normalizer normalizer,
-        Comparator comparator ) throws NamingException
+        Comparator<Object> comparator ) throws NamingException
     {
         // get the normalized AVA filter value
         Object filterValue = node.getValue();
@@ -251,16 +251,30 @@ public class LeafEvaluator implements Evaluator
 
             if ( isGreaterOrLesser = SimpleNode.EVAL_GREATER )
             {
-                if ( idx.hasValue( node.getValue(), id, SimpleNode.EVAL_GREATER ) )
+                try
                 {
-                    return true;
+                    if ( idx.hasValue( node.getValue(), id, SimpleNode.EVAL_GREATER ) )
+                    {
+                        return true;
+                    }
+                }
+                catch ( java.io.IOException e )
+                {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
             }
             else
             {
-                if ( idx.hasValue( node.getValue(), id, SimpleNode.EVAL_LESSER ) )
+                try
                 {
-                    return true;
+                    if ( idx.hasValue( node.getValue(), id, SimpleNode.EVAL_LESSER ) )
+                    {
+                        return true;
+                    }
+                }
+                catch ( java.io.IOException e )
+                {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
             }
         }
@@ -286,7 +300,7 @@ public class LeafEvaluator implements Evaluator
          * and use the comparator to determine if a match exists.
          */
         Normalizer normalizer = getNormalizer( attrId, ORDERING_MATCH );
-        Comparator comparator = getComparator( attrId, ORDERING_MATCH );
+        Comparator<Object> comparator = getComparator( attrId, ORDERING_MATCH );
         Object filterValue = node.getValue();
         NamingEnumeration list = attr.getAll();
 
@@ -345,9 +359,16 @@ public class LeafEvaluator implements Evaluator
             // We have a fast find if the entry contains 
             // this attribute type : as the AT was indexed, we
             // have a direct access to the entry.
-            if ( idx.hasValue( attrId, rec.getEntryId() ) )
+            try
             {
-                return true;
+                if ( idx.hasValue( attrId, rec.getEntryId() ) )
+                {
+                    return true;
+                }
+            }
+            catch ( java.io.IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
 
             // Fallthrough : we may have some descendant 
@@ -425,20 +446,27 @@ public class LeafEvaluator implements Evaluator
             // from the index.
             Index idx = db.getUserIndex( filterAttr );
 
-            if ( idx.hasValue( filterValue, rec.getEntryId() ) )
+            try
             {
-                return true;
+                if ( idx.hasValue( filterValue, rec.getEntryId() ) )
+                {
+                    return true;
+                }
+                else
+                {
+                    // FallThrough : we may have some descendant attributes
+                    // which values are equal to the filter value.
+                }
             }
-            else
+            catch ( java.io.IOException e )
             {
-                // FallThrough : we may have some descendant attributes
-                // which values are equal to the filter value.
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
         }
 
         // Get the normalizer and comparator for this attributeType
         Normalizer normalizer = getNormalizer( filterAttr, EQUALITY_MATCH );
-        Comparator<?> comparator = getComparator( filterAttr, EQUALITY_MATCH );
+        Comparator<Object> comparator = getComparator( filterAttr, EQUALITY_MATCH );
 
         /*
          * Get the attribute and if it is not set in rec then resusitate it
@@ -530,7 +558,7 @@ public class LeafEvaluator implements Evaluator
      * @throws NamingException if there is a failure
      */
     @SuppressWarnings("unchecked")
-    private Comparator<?> getComparator( String attrId, int matchType ) throws NamingException
+    private Comparator<Object> getComparator( String attrId, int matchType ) throws NamingException
     {
         MatchingRule mrule = getMatchingRule( attrId, matchType );
 

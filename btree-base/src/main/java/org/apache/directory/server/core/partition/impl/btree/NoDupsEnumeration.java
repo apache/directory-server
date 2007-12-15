@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import java.util.NoSuchElementException;
+import java.io.IOException;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -59,6 +60,10 @@ public class NoDupsEnumeration implements NamingEnumeration<Tuple>
     
     /**
      * Creates a cursor over a TupleBrowser where duplicates are not expected.
+     *
+     * @param browser the underlying tuple browser
+     * @param doAscendingScan true if scan is ascending, false if descending
+     * @throws NamingException if there are failures prefetching
      */
     public NoDupsEnumeration( TupleBrowser browser, boolean doAscendingScan ) throws NamingException
     {
@@ -165,15 +170,33 @@ public class NoDupsEnumeration implements NamingEnumeration<Tuple>
     private void prefetch() throws NamingException
     {
         // Prefetch into tuple!
-        boolean isSuccess = false;
+        boolean isSuccess;
 
         if ( doAscendingScan )
         {
-            isSuccess = browser.getNext( prefetched );
+            try
+            {
+                isSuccess = browser.getNext( prefetched );
+            }
+            catch ( IOException e )
+            {
+                NamingException namingException = new NamingException( "browser.getNext() failure" );
+                namingException.setRootCause( e );
+                throw namingException;
+            }
         }
         else
         {
-            isSuccess = browser.getPrevious( prefetched );
+            try
+            {
+                isSuccess = browser.getPrevious( prefetched );
+            }
+            catch ( IOException e )
+            {
+                NamingException namingException = new NamingException( "browser.getPrevious() failure" );
+                namingException.setRootCause( e );
+                throw namingException;
+            }
         }
 
         hasNext = isSuccess;

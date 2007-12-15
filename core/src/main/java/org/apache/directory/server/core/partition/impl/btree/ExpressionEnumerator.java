@@ -194,8 +194,15 @@ public class ExpressionEnumerator implements Enumerator
     {
     	NamingEnumeration<IndexRecord> baseEnumeration = null;
     	NamingEnumeration<IndexRecord> enumeration = null;
-        
-        baseEnumeration = db.getNdnIndex().listIndices();
+
+        try
+        {
+            baseEnumeration = db.getNdnIndex().listIndices();
+        }
+        catch ( java.io.IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
         IndexAssertion assertion = new IndexAssertion()
         {
@@ -290,7 +297,14 @@ public class ExpressionEnumerator implements Enumerator
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getExistanceIndex();
-            return idx.listIndices( node.getAttribute() );
+            try
+            {
+                return idx.listIndices( node.getAttribute() );
+            }
+            catch ( java.io.IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
 
         return nonIndexedScan( node );
@@ -312,7 +326,14 @@ public class ExpressionEnumerator implements Enumerator
         {
             Index idx = db.getUserIndex( node.getAttribute() );
 
-            return idx.listIndices( node.getValue(), isGreaterOrLesser );
+            try
+            {
+                return idx.listIndices( node.getValue(), isGreaterOrLesser );
+            }
+            catch ( java.io.IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
 
         return nonIndexedScan( node );
@@ -332,7 +353,14 @@ public class ExpressionEnumerator implements Enumerator
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getUserIndex( node.getAttribute() );
-            return idx.listIndices( node.getValue() );
+            try
+            {
+                return idx.listIndices( node.getValue() );
+            }
+            catch ( java.io.IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
 
         return nonIndexedScan( node );
@@ -349,8 +377,15 @@ public class ExpressionEnumerator implements Enumerator
      */
     private NamingEnumeration<IndexRecord> nonIndexedScan( final LeafNode node ) throws NamingException
     {
-    	NamingEnumeration<IndexRecord> underlying = db.getNdnIndex().listIndices();
-    	
+        try
+        {
+            NamingEnumeration<IndexRecord> underlying = db.getNdnIndex().listIndices();
+        }
+        catch ( java.io.IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
         IndexAssertion assertion = new IndexAssertion()
         {
             public boolean assertCandidate( IndexRecord record ) throws NamingException

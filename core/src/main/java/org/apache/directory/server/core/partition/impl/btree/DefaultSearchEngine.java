@@ -90,7 +90,14 @@ public class DefaultSearchEngine implements SearchEngine
     {
         Name effectiveBase;
         Long baseId = db.getEntryId( base.toString() );
-        String aliasedBase = ( String ) db.getAliasIndex().reverseLookup( baseId );
+        try
+        {
+            String aliasedBase = ( String ) db.getAliasIndex().reverseLookup( baseId );
+        }
+        catch ( java.io.IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
         // --------------------------------------------------------------------
         // Determine the eective base with aliases

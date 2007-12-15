@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import java.io.IOException;
 
 
 /**
@@ -46,7 +47,7 @@ public interface MasterTable extends Table
      * @return the Attributes of the entry with operational attributes and all.
      * @throws NamingException if there is a read error on the underlying Db.
      */
-    Attributes get( Object id ) throws NamingException;
+    Attributes get( Object id ) throws IOException;
 
 
     /**

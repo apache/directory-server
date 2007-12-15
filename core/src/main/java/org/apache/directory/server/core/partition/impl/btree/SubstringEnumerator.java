@@ -115,11 +115,25 @@ public class SubstringEnumerator implements Enumerator
             idx = db.getUserIndex( snode.getAttribute() );
             if ( null == snode.getInitial() )
             {
-                return idx.listIndices( regex );
+                try
+                {
+                    return idx.listIndices( regex );
+                }
+                catch ( java.io.IOException e )
+                {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
             }
             else
             {
-                return idx.listIndices( regex, snode.getInitial() );
+                try
+                {
+                    return idx.listIndices( regex, snode.getInitial() );
+                }
+                catch ( java.io.IOException e )
+                {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
             }
         }
 
@@ -132,8 +146,15 @@ public class SubstringEnumerator implements Enumerator
          * underlying enumeration.  An evaluator in an assertion is used to 
          * constrain the result set.
          */
-        NamingEnumeration<IndexRecord> underlying = db.getNdnIndex().listIndices();
-        
+        try
+        {
+            NamingEnumeration<IndexRecord> underlying = db.getNdnIndex().listIndices();
+        }
+        catch ( java.io.IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
         IndexAssertion assertion = new IndexAssertion()
         {
             public boolean assertCandidate( final IndexRecord record ) throws NamingException

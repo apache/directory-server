@@ -99,7 +99,14 @@ public class ScopeEnumerator implements Enumerator
     {
         Index idx = db.getHierarchyIndex();
         final Long id = db.getEntryId( dn );
-        final NamingEnumeration<IndexRecord> children = idx.listIndices( id );
+        try
+        {
+            final NamingEnumeration<IndexRecord> children = idx.listIndices( id );
+        }
+        catch ( java.io.IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
         /*
          * If alias dereferencing is not enabled while searching then we just
@@ -123,7 +130,14 @@ public class ScopeEnumerator implements Enumerator
 
         // List all entries brought into one level scope at base by aliases
         idx = db.getOneAliasIndex();
-        NamingEnumeration aliasIntroduced = idx.listIndices( id );
+        try
+        {
+            NamingEnumeration aliasIntroduced = idx.listIndices( id );
+        }
+        catch ( java.io.IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
         // Still need to use assertion enum to weed out aliases
         NamingEnumeration nonAliasChildren = new IndexAssertionEnumeration( children, new AssertNotAlias() );
@@ -157,7 +171,14 @@ public class ScopeEnumerator implements Enumerator
         {
             // Gets a NamingEnumeration over all elements
             idx = db.getNdnIndex();
-            NamingEnumeration<IndexRecord> underlying = idx.listIndices();
+            try
+            {
+                NamingEnumeration<IndexRecord> underlying = idx.listIndices();
+            }
+            catch ( java.io.IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
             return new IndexAssertionEnumeration( underlying, new AssertDescendant( node ) );
         }
 
@@ -172,7 +193,14 @@ public class ScopeEnumerator implements Enumerator
 
         // Gets a NamingEnumeration over all elements
         idx = db.getNdnIndex();
-        NamingEnumeration<IndexRecord> underlying = idx.listIndices();
+        try
+        {
+            NamingEnumeration<IndexRecord> underlying = idx.listIndices();
+        }
+        catch ( java.io.IOException e )
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
         return new IndexAssertionEnumeration( underlying, assertion );
     }
 
@@ -223,9 +251,16 @@ public class ScopeEnumerator implements Enumerator
         {
             Index aliasIdx = db.getAliasIndex();
 
-            if ( null == aliasIdx.reverseLookup( record.getEntryId() ) )
+            try
             {
-                return true;
+                if ( null == aliasIdx.reverseLookup( record.getEntryId() ) )
+                {
+                    return true;
+                }
+            }
+            catch ( java.io.IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
 
             return false;

@@ -16,28 +16,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.entry;
-
-
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-
-import javax.naming.NamingException;
+package org.apache.directory.server.core.cursor;
 
 
 /**
- * Document me!
+ * Simple class that contains often used Cursor code.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerAttribute extends EntryAttribute<ServerValue<?>>, Iterable<ServerValue<?>>
+public abstract class AbstractCursor<T> implements Cursor<T>
 {
-    AttributeType getType();
+    protected static final int BEFORE_FIRST = -1;
+    private boolean closed;
 
 
-    String getUpId();
+    protected void checkClosed( String operation ) throws CursorClosedException
+    {
+        if ( isClosed() )
+        {
+            throw new CursorClosedException( "Attempting " + operation + " operation on a closed Cursor." );
+        }
+    }
 
 
-    boolean isValid() throws NamingException;
+    public boolean isClosed()
+    {
+        return closed;
+    }
+
+
+    public void close()
+    {
+        closed = true;
+    }
 }

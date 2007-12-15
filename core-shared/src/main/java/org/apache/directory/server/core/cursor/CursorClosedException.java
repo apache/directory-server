@@ -16,28 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.entry;
+package org.apache.directory.server.core.cursor;
 
 
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-
-import javax.naming.NamingException;
+import java.io.IOException;
 
 
 /**
- * Document me!
+ * A specific form of IOException to note that an operation is being
+ * attempted on a closed Cursor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerAttribute extends EntryAttribute<ServerValue<?>>, Iterable<ServerValue<?>>
+public class CursorClosedException extends IOException
 {
-    AttributeType getType();
+    public CursorClosedException()
+    {
+    }
 
 
-    String getUpId();
-
-
-    boolean isValid() throws NamingException;
+    public CursorClosedException( String s )
+    {
+        super( s );
+    }
 }

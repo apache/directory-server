@@ -31,12 +31,11 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ListCursor<E> implements Cursor<E>
+public class ListCursor<E> extends AbstractCursor
 {
     private final List<E> list;
     private final int start;
     private final int end;
-    private boolean closed;
     private int index = -1;
 
 
@@ -135,15 +134,6 @@ public class ListCursor<E> implements Cursor<E>
     {
         //noinspection unchecked
         this( 0, Collections.EMPTY_LIST, 0 );
-    }
-
-
-    protected void checkClosed( String operation ) throws IOException
-    {
-        if ( closed )
-        {
-            throw new IOException( "Attempting " + operation + " operation on a closed Cursor." );
-        }
     }
 
 
@@ -260,12 +250,6 @@ public class ListCursor<E> implements Cursor<E>
     }
 
 
-    public boolean isClosed()
-    {
-        return closed;
-    }
-
-
     public boolean previous() throws IOException
     {
         checkClosed( "previous()" );
@@ -348,11 +332,5 @@ public class ListCursor<E> implements Cursor<E>
     public boolean isElementReused()
     {
         return true;
-    }
-
-
-    public void close()
-    {
-        closed = true;
     }
 }

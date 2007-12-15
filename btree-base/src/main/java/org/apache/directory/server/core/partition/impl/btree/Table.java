@@ -20,8 +20,9 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import org.apache.directory.server.core.cursor.Cursor;
+
+import java.io.IOException;
 
 
 /**
@@ -98,9 +99,9 @@ public interface Table
      *
      * @param key the Object of the key to check for
      * @return true if the key exists, false otherwise.
-     * @throws NamingException if there is a failure to read the underlying Db
+     * @throws IOException if there is a failure to read the underlying Db
      */
-    boolean has( Object key ) throws NamingException;
+    boolean has( Object key ) throws IOException;
 
 
     /**
@@ -109,9 +110,9 @@ public interface Table
      * @param key the key Object to check for
      * @param value the value Object to check for
      * @return true if a record with the key and value exists, false otherwise.
-     * @throws NamingException if there is a failure to read the underlying Db
+     * @throws IOException if there is a failure to read the underlying Db
      */
-    boolean has( Object key, Object value ) throws NamingException;
+    boolean has( Object key, Object value ) throws IOException;
 
 
     /**
@@ -124,10 +125,10 @@ public interface Table
      * @param isGreaterThan boolean for greater than or less then comparison
      * @return true if a record with a key greater/less than the key argument
      * exists, false otherwise
-     * @throws NamingException if there is a failure to read the underlying Db,
+     * @throws IOException if there is a failure to read the underlying Db,
      * or if the underlying Db is not a Btree.
      */
-    boolean has( Object key, boolean isGreaterThan ) throws NamingException;
+    boolean has( Object key, boolean isGreaterThan ) throws IOException;
 
 
     /**
@@ -147,11 +148,11 @@ public interface Table
      * @param isGreaterThan boolean for greater than or less then comparison
      * @return true if a record with a key greater/less than the key argument
      * exists, false otherwise
-     * @throws NamingException if there is a failure to read the underlying Db
+     * @throws IOException if there is a failure to read the underlying Db
      * or if the underlying Db is not of the Btree type that allows sorted
      * duplicate values.
      */
-    boolean has( Object key, Object val, boolean isGreaterThan ) throws NamingException;
+    boolean has( Object key, Object val, boolean isGreaterThan ) throws IOException;
 
 
     // ------------------------------------------------------------------------
@@ -168,9 +169,9 @@ public interface Table
      * @param key the key of the record
      * @return the value of the record with key if key exists or null if
      * no such record exists.
-     * @throws NamingException if there is a failure to read the underlying Db
+     * @throws IOException if there is a failure to read the underlying Db
      */
-    Object get( Object key ) throws NamingException;
+    Object get( Object key ) throws IOException;
 
 
     /**
@@ -180,76 +181,79 @@ public interface Table
      * @param value the value of the record.
      * @return the last value present for key or null if this the key did not
      * exist before.
-     * @throws NamingException if there is a failure to read or write to
+     * @throws IOException if there is a failure to read or write to
      * the underlying Db
      */
-    Object put( Object key, Object value ) throws NamingException;
+    Object put( Object key, Object value ) throws IOException;
 
 
     /**
-     * Efficiently puts a set of values into the Table.  If the Table does not 
-     * support duplicate keys then only the first key within the enumeration is
-     * added.  If there are more elements left after this single addition an
-     * UnsupportedOperationException is thrown.  Nothing is added if the table
-     * does not support duplicates and there is more than one element in the
-     * enumeration.
+     * Puts a set of values into the Table.  If the Table does not support
+     * duplicate keys then only the first value found in the Cursor is added.
+     * If duplicate keys are not supported and there is more than one element
+     * in the Cursor an IllegalStateException will be raised without putting
+     * any values.
      *
      * @param key the key to use for the values
-     * @param values the values supplied as an enumeration
-     * @throws NamingException if something goes wrong
+     * @param values the values supplied as an cursor
+     * @return the replaced object or null if one did not exist
+     * @throws IOException if something goes wrong
      */
-    Object put( Object key, NamingEnumeration<? extends Object> values ) throws NamingException;
+    Object put( Object key, Cursor<Object> values ) throws IOException;
 
 
     /**
-     * Removes all records with key from this Table.
+     * Removes all records with a specified key from this Table.
      *
      * @param key the key of the records to remove
-     * @throws NamingException if there is a failure to read or write to
+     * @return the removed object or null if one did not exist for the key
+     * @throws IOException if there is a failure to read or write to
      * the underlying Db
      */
-    Object remove( Object key ) throws NamingException;
+    Object remove( Object key ) throws IOException;
 
 
     /**
-     * Removes a single specific record with key and value from this Table.
+     * Removes a single key value pair with a specified key and value from
+     * this Table.
      *
      * @param key the key of the record to remove
      * @param value the value of the record to remove
-     * @throws NamingException if there is a failure to read or write to
+     * @return the removed value object or null if one did not exist
+     * @throws IOException if there is a failure to read or write to
      * the underlying Db
      */
-    Object remove( Object key, Object value ) throws NamingException;
+    Object remove( Object key, Object value ) throws IOException;
 
 
     /**
      * Removes a set of values with the same key from this Table.  If this 
      * table does not allow duplicates the method will attempt to remove the 
-     * first value in the enumeration if one exists.  If there is more than one 
-     * value within the enumeration after the first drop an 
-     * UnsupportedOperationException is thrown.  Nothing is removed if there is 
-     * more than one element on the enumeration and the table does not support
-     * duplicates.
+     * first value in the Cursor if one exists.  If there is more than one
+     * value within the Cursor after the first an IllegalStateException is
+     * thrown.
      *
      * @param key the key of the records to remove
+     * @param values the values supplied as an enumeration
      * @return the first value removed
-     * @throws NamingException if there is a failure to read or write to
+     * @throws IOException if there is a failure to read or write to
      * the underlying Db
      */
-    Object remove( Object key, NamingEnumeration<? extends Object> values ) throws NamingException;
+    Object remove( Object key, Cursor<Object> values ) throws IOException;
 
 
     /**
-     * Sets a enumeration to the first record in the Table with a key value of
+     * Sets a Cursor to the first record in the Table with a key value of
      * key and enables single next steps across all duplicate records with
-     * this key.  This enumeration will only iterate over duplicates of the key.
+     * this key.  This Cursor will only iterate over duplicates of the key.
      * Unlike listTuples(Object) which returns Tuples from the enumerations 
-     * this just returns the values of the key.
+     * this just returns the values of the key as an Object.
      * 
      * @param key the key to iterate over
-     * @throws NamingException if the underlying browser could not be set
+     * @return the values of the key ONLY, not the Tuples
+     * @throws IOException if the underlying btree browser could not be set
      */
-    NamingEnumeration<Object> listValues( Object key ) throws NamingException;
+    Cursor<Object> listValues( Object key ) throws IOException;
 
 
     // ------------------------------------------------------------------------
@@ -261,9 +265,10 @@ public interface Table
      * Sets a cursor to the first record in the Table and enables single
      * next steps across all records.
      *
-     * @throws NamingException if the underlying cursor could not be set.
+     * @return the values as key value Tuples
+     * @throws IOException if the underlying cursor could not be set.
      */
-    NamingEnumeration<Tuple> listTuples() throws NamingException;
+    Cursor<Tuple> listTuples() throws IOException;
 
 
     /**
@@ -271,10 +276,14 @@ public interface Table
      * key and enables single next steps across all duplicate records with
      * this key.  This cursor will only iterate over duplicates of the key.
      *
+     * Unlike listValues(Object) this returns Tuples from the resulting 
+     * Cursor.
+     *
      * @param key the key to iterate over
-     * @throws NamingException if the underlying cursor could not be set
+     * @return the values as key value Tuples
+     * @throws IOException if the underlying cursor could not be set
      */
-    NamingEnumeration<Tuple> listTuples( Object key ) throws NamingException;
+    Cursor<Tuple> listTuples( Object key ) throws IOException;
 
 
     /**
@@ -287,9 +296,10 @@ public interface Table
      * @param isGreaterThan if true the cursor iterates up over ascending keys
      * greater than or equal to the key argument, but if false this cursor
      * iterates down over descending keys less than or equal to key argument
-     * @throws NamingException if the underlying cursor could not be set
+     * @return the values as key value Tuples
+     * @throws IOException if the underlying cursor could not be set
      */
-    NamingEnumeration<Tuple> listTuples( Object key, boolean isGreaterThan ) throws NamingException;
+    Cursor<Tuple> listTuples( Object key, boolean isGreaterThan ) throws IOException;
 
 
     /**
@@ -306,15 +316,16 @@ public interface Table
      * equal to it.
      * @param val the value to use to position this cursor to record with a
      * value greater/less than or equal to it.
-     * @param isGreaterThan if true the cursor iterates up over ascending 
-     * values greater than or equal to the val argument, but if false this 
-     * cursor iterates down over descending values less than or equal to val 
+     * @param isGreaterThan if true the cursor iterates up over ascending
+     * values greater than or equal to the val argument, but if false this
+     * cursor iterates down over descending values less than or equal to val
      * argument starting from the largest value going down
-     * @throws NamingException if the underlying cursor could not be set or
+     * @return the values as key value Tuples
+     * @throws IOException if the underlying cursor could not be set or
      * this method is called over a cursor on a table that does not have sorted
      * duplicates enabled.
      */
-    NamingEnumeration<Tuple> listTuples( Object key, Object val, boolean isGreaterThan ) throws NamingException;
+    Cursor<Tuple> listTuples( Object key, Object val, boolean isGreaterThan ) throws IOException;
 
 
     // ------------------------------------------------------------------------
@@ -325,9 +336,9 @@ public interface Table
      * Gets the count of the number of records in this Table.
      *
      * @return the number of records
-     * @throws NamingException if there is a failure to read the underlying Db
+     * @throws IOException if there is a failure to read the underlying Db
      */
-    int count() throws NamingException;
+    int count() throws IOException;
 
 
     /**
@@ -336,9 +347,9 @@ public interface Table
      *
      * @param key the Object key to count.
      * @return the number of duplicate records for a key.
-     * @throws NamingException if there is a failure to read the underlying Db
+     * @throws IOException if there is a failure to read the underlying Db
      */
-    int count( Object key ) throws NamingException;
+    int count( Object key ) throws IOException;
 
 
     /**
@@ -349,15 +360,15 @@ public interface Table
      * @param isGreaterThan boolean set to true to count for greater than and
      * equal to record keys, or false for less than or equal to keys.
      * @return the number of keys greater or less than key.
-     * @throws NamingException if there is a failure to read the underlying Db
+     * @throws IOException if there is a failure to read the underlying Db
      */
-    int count( Object key, boolean isGreaterThan ) throws NamingException;
+    int count( Object key, boolean isGreaterThan ) throws IOException;
 
 
     /**
      * Closes the underlying Db of this Table.
      *
-     * @throws NamingException on any failures
+     * @throws IOException on any failures
      */
-    void close() throws NamingException;
+    void close() throws IOException;
 }

@@ -105,7 +105,14 @@ public class SubstringEvaluator implements Evaluator
              * no reverse lookups.
              */
 
-            NamingEnumeration entries = idx.listReverseIndices( record.getEntryId() );
+            try
+            {
+                NamingEnumeration entries = idx.listReverseIndices( record.getEntryId() );
+            }
+            catch ( java.io.IOException e )
+            {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
 
             // compile the regular expression to search for a matching attribute
             try

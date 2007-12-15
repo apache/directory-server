@@ -22,12 +22,14 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import java.util.regex.Pattern;
 import java.io.File;
+import java.io.IOException;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.server.core.cursor.Cursor;
 
 
 /**
@@ -115,18 +117,18 @@ public interface Index
      *
      * @param attrVal the user provided value to normalize
      * @return the normalized value.
-     * @throws NamingException if something goes wrong.
+     * @throws IOException if something goes wrong.
      */
-    Object getNormalized( Object attrVal ) throws NamingException;
+    Object getNormalized( Object attrVal ) throws IOException;
 
 
     /**
      * Gets the total scan count for this index.
      *
      * @return the number of key/value pairs in this index
-     * @throws NamingException if their is a failure accessing the index
+     * @throws IOException on failure to access index db files
      */
-    int count() throws NamingException;
+    int count() throws IOException;
 
 
     /**
@@ -135,78 +137,78 @@ public interface Index
      *
      * @param attrVal the value of the attribute to get a scan count for
      * @return the number of key/value pairs in this index with the value value
-     * @throws NamingException if their is a failure accessing the index
+     * @throws IOException on failure to access index db files
      */
-    int count( Object attrVal ) throws NamingException;
+    int count( Object attrVal ) throws IOException;
 
 
-    int count( Object attrVal, boolean isGreaterThan ) throws NamingException;
+    int count( Object attrVal, boolean isGreaterThan ) throws IOException;
 
 
-    Object forwardLookup( Object attrVal ) throws NamingException;
+    Object forwardLookup( Object attrVal ) throws IOException;
 
 
-    Object reverseLookup( Object id ) throws NamingException;
+    Object reverseLookup( Object id ) throws IOException;
 
 
-    void add( Object attrVal, Object id ) throws NamingException;
+    void add( Object attrVal, Object id ) throws IOException;
 
 
-    void add( Attribute attr, Object id ) throws NamingException;
+    void add( Attribute attr, Object id ) throws IOException;
 
 
-    void add( Attributes attrs, Object id ) throws NamingException;
+    void add( Attributes attrs, Object id ) throws IOException;
 
 
-    void drop( Object entryId ) throws NamingException;
+    void drop( Object entryId ) throws IOException;
 
 
-    void drop( Object attrVal, Object id ) throws NamingException;
+    void drop( Object attrVal, Object id ) throws IOException;
 
 
     /**
      * If the Attribute does not have any values then this reduces to a 
      * drop(BigInteger) call.
      */
-    void drop( Attribute attr, Object id ) throws NamingException;
+    void drop( Attribute attr, Object id ) throws IOException;
 
 
     /**
      * If the Attribute for this index within the Attributes does not have any 
      * values then this reduces to a drop(BigInteger) call.
      */
-    void drop( Attributes attrs, Object id ) throws NamingException;
+    void drop( Attributes attrs, Object id ) throws IOException;
 
 
-    IndexEnumeration listReverseIndices( Object id ) throws NamingException;
+    Cursor<IndexRecord> listReverseIndices( Object id ) throws IOException;
 
 
-    IndexEnumeration listIndices() throws NamingException;
+    Cursor<IndexRecord> listIndices() throws IOException;
 
 
-    IndexEnumeration listIndices( Object attrVal ) throws NamingException;
+    Cursor<IndexRecord> listIndices( Object attrVal ) throws IOException;
 
 
-    IndexEnumeration listIndices( Object attrVal, boolean isGreaterThan ) throws NamingException;
+    Cursor<IndexRecord> listIndices( Object attrVal, boolean isGreaterThan ) throws IOException;
 
 
-    IndexEnumeration listIndices( Pattern regex ) throws NamingException;
+    Cursor<IndexRecord> listIndices( Pattern regex ) throws IOException;
 
 
-    IndexEnumeration listIndices( Pattern regex, String prefix ) throws NamingException;
+    Cursor<IndexRecord> listIndices( Pattern regex, String prefix ) throws IOException;
 
 
-    boolean hasValue( Object attrVal, Object id ) throws NamingException;
+    boolean hasValue( Object attrVal, Object id ) throws IOException;
 
 
-    boolean hasValue( Object attrVal, Object id, boolean isGreaterThan ) throws NamingException;
+    boolean hasValue( Object attrVal, Object id, boolean isGreaterThan ) throws IOException;
 
 
-    boolean hasValue( Pattern regex, Object id ) throws NamingException;
+    boolean hasValue( Pattern regex, Object id ) throws IOException;
 
 
-    void close() throws NamingException;
+    void close() throws IOException;
 
 
-    void sync() throws NamingException;
+    void sync() throws IOException;
 }

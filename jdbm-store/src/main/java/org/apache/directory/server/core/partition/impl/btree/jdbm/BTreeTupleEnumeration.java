@@ -66,7 +66,7 @@ public class BTreeTupleEnumeration implements NamingEnumeration
     {
         this.key = key;
         stepForward = isGreaterThan;
-        
+                                                                     
         try
         {
             browser = tree.browse( val );

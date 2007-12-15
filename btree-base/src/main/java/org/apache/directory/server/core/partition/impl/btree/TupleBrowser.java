@@ -20,11 +20,14 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import javax.naming.NamingException;
+import java.io.IOException;
 
 
 /**
- * TupleBrowser interface used to abstract 
+ * TupleBrowser interface used to abstract underlying browser.  You might
+ * wonder why this interface was recreated when the same interface is present
+ * in jdbm.  It's to be implementation agnostic while not requiring other
+ * implementations to have dependencies on JDBM interfaces.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -37,9 +40,9 @@ public interface TupleBrowser
      *
      * @param tuple the tuple to populate with a key/value pair
      * @return true if there was a next that was populated or false otherwise
-     * @throws NamingException @todo
+     * @throws IOException if there is a unexpected failure
      */
-    boolean getNext( Tuple tuple ) throws NamingException;
+    boolean getNext( Tuple tuple ) throws IOException;
 
 
     /**
@@ -48,7 +51,7 @@ public interface TupleBrowser
      *
      * @param tuple the tuple to populate with a key/value pair
      * @return true if there was a previous value populated or false otherwise
-     * @throws NamingException @todo
+     * @throws IOException if there is an unexpected failure
      */
-    boolean getPrevious( Tuple tuple ) throws NamingException;
+    boolean getPrevious( Tuple tuple ) throws IOException;
 }

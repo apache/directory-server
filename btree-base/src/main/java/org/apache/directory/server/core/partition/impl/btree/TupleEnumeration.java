@@ -40,7 +40,7 @@ import javax.naming.NamingEnumeration;
 public class TupleEnumeration implements NamingEnumeration<Tuple>
 {
     private final Object key;
-    private final Iterator<? extends Object> iterator;
+    private final Iterator<Object> iterator;
     private final Tuple tuple = new Tuple();
 
 
@@ -50,7 +50,7 @@ public class TupleEnumeration implements NamingEnumeration<Tuple>
      * @param key the keys whose duplicate values are to be returned
      * @param iterator the underlying iterator this cursor uses
      */
-    public TupleEnumeration( Object key, Iterator<? extends Object> iterator )
+    public TupleEnumeration( Object key, Iterator<Object> iterator )
     {
         this.key = key;
         tuple.setKey( key );

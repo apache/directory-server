@@ -16,28 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.entry;
+package org.apache.directory.server.core.cursor;
 
-
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-
-import javax.naming.NamingException;
+import java.io.IOException;
 
 
 /**
- * Document me!
+ * Thrown to indicate an illegal position state for a Cursor when a call to
+ * get is made.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerAttribute extends EntryAttribute<ServerValue<?>>, Iterable<ServerValue<?>>
+public class InvalidCursorPositionException extends IOException
 {
-    AttributeType getType();
+    public InvalidCursorPositionException ()
+    {
+    }
 
 
-    String getUpId();
-
-
-    boolean isValid() throws NamingException;
+    public InvalidCursorPositionException ( String s )
+    {
+        super( s );
+    }
 }
