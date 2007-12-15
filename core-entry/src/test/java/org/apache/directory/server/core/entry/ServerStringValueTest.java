@@ -42,7 +42,9 @@ import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -60,6 +62,158 @@ import static org.junit.Assert.assertFalse;
  */
 public class ServerStringValueTest
 {
+    /**
+     * A local Syntax class for tests
+     */
+    static class AT extends AbstractAttributeType
+    {
+        public static final long serialVersionUID = 0L;
+        AttributeType superior;
+        Syntax syntax;
+        MatchingRule equality;
+        MatchingRule ordering;
+        MatchingRule substr;
+
+        protected AT( String oid )
+        {
+            super( oid );
+        }
+
+        public AttributeType getSuperior() throws NamingException
+        {
+            return superior;
+        }
+
+
+        public Syntax getSyntax() throws NamingException
+        {
+            return syntax;
+        }
+
+
+        public MatchingRule getEquality() throws NamingException
+        {
+            return equality;
+        }
+
+
+        public MatchingRule getOrdering() throws NamingException
+        {
+            return ordering;
+        }
+
+
+        public MatchingRule getSubstr() throws NamingException
+        {
+            return substr;
+        }
+
+
+        public void setSuperior( AttributeType superior )
+        {
+            this.superior = superior;
+        }
+
+
+        public void setSyntax( Syntax syntax )
+        {
+            this.syntax = syntax;
+        }
+
+
+        public void setEquality( MatchingRule equality )
+        {
+            this.equality = equality;
+        }
+
+
+        public void setOrdering( MatchingRule ordering )
+        {
+            this.ordering = ordering;
+        }
+
+
+        public void setSubstr( MatchingRule substr )
+        {
+            this.substr = substr;
+        }
+    }
+
+    /**
+     * A local MatchingRule class for tests
+     */
+    static class MR extends AbstractMatchingRule
+    {
+        public static final long serialVersionUID = 0L;
+        private Syntax syntax;
+        private Comparator comparator;
+        private Normalizer normalizer;
+
+        protected MR( String oid )
+        {
+            super( oid );
+        }
+
+        public Syntax getSyntax() throws NamingException
+        {
+            return syntax;
+        }
+
+        public Comparator getComparator() throws NamingException
+        {
+            return comparator;
+        }
+
+
+        public Normalizer getNormalizer() throws NamingException
+        {
+            return normalizer;
+        }
+
+
+        public void setSyntax( Syntax syntax )
+        {
+            this.syntax = syntax;
+        }
+
+
+        public void setComparator( Comparator<?> comparator )
+        {
+            this.comparator = comparator;
+        }
+
+
+        public void setNormalizer( Normalizer normalizer )
+        {
+            this.normalizer = normalizer;
+        }
+    }
+
+
+    /**
+     * A local Syntax class used for the tests
+     */
+    static class S extends AbstractSyntax
+    {
+        public static final long serialVersionUID = 0L;
+        SyntaxChecker checker;
+
+        public S( String oid, boolean humanReadible )
+        {
+            super( oid, humanReadible );
+        }
+
+        public void setSyntaxChecker( SyntaxChecker checker )
+        {
+            this.checker = checker;
+        }
+
+        public SyntaxChecker getSyntaxChecker() throws NamingException
+        {
+            return checker;
+        }
+    }
+
     private AttributeType getCaseIgnoringAttributeNoNumbersType()
     {
         S s = new S( "1.1.1.1", true );
@@ -78,6 +232,7 @@ public class ServerStringValueTest
                 }
 
                 String strval = ( String ) value;
+                
                 for ( char c:strval.toCharArray() )
                 {
                     if ( Character.isDigit( c ) )
@@ -103,24 +258,9 @@ public class ServerStringValueTest
         {
             public int compare( String o1, String o2 )
             {
-                if ( o1 == null && o2 == null )
-                {
-                    return 0;
-                }
-
-                //noinspection ConstantConditions
-                if ( ( o1 == null ) && ( o2 != null ) )
-                {
-                    return -1;
-                }
-
-                //noinspection ConstantConditions
-                if ( ( o1 != null ) && ( o2 == null ) )
-                {
-                    return 1;
-                }
-
-                return o1.compareTo( o2 );
+                return ( o1 == null ? 
+                    ( o2 == null ? 0 : -1 ) :
+                    ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
             }
 
             int getValue( String val )
@@ -144,6 +284,7 @@ public class ServerStringValueTest
         
         mr.normalizer = new Normalizer()
         {
+            public static final long serialVersionUID = 1L;
 
             public Object normalize( Object value ) throws NamingException
             {
@@ -155,6 +296,7 @@ public class ServerStringValueTest
                 throw new IllegalStateException( "expected string to normalize" );
             }
         };
+        
         AT at = new AT( "1.1.3.1" );
         at.setEquality( mr );
         at.setSyntax( s );
@@ -162,6 +304,170 @@ public class ServerStringValueTest
     }
 
 
+    private AttributeType getIA5StringAttributeType()
+    {
+        AT at = new AT( "1.1" );
+
+        S s = new S( "1.1.1", true );
+
+        s.setSyntaxChecker( new SyntaxChecker()
+        {
+            public String getSyntaxOid()
+            {
+                return "1.1.1";
+            }
+            public boolean isValidSyntax( Object value )
+            {
+                return ((String)value).length() < 5 ;
+            }
+
+            public void assertSyntax( Object value ) throws NamingException
+            {
+                if ( ! isValidSyntax( value ) )
+                {
+                    throw new InvalidAttributeValueException();
+                }
+            }
+        } );
+
+        final MR mr = new MR( "1.1.2" );
+        mr.syntax = s;
+        mr.comparator = new Comparator<String>()
+        {
+            public int compare( String o1, String o2 )
+            {
+                return ( ( o1 == null ) ? 
+                    ( o2 == null ? 0 : -1 ) :
+                    ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
+            }
+        };
+        
+        mr.normalizer = new Normalizer()
+        {
+            public static final long serialVersionUID = 1L;
+            
+            public Object normalize( Object value ) throws NamingException
+            {
+                if ( value instanceof String )
+                {
+                    return ( ( String ) value ).toLowerCase();
+                }
+
+                throw new IllegalStateException( "expected string to normalize" );
+            }
+        };
+        
+        at.setEquality( mr );
+        at.setSyntax( s );
+        return at;
+    }
+
+    
+    /**
+     * Test the constructor with bad AttributeType
+     */
+    @Test public void testBadConstructor()
+    {
+        try
+        {
+            new ServerStringValue( null );
+            fail();
+        }
+        catch ( AssertionError ae )
+        {
+            // Expected...
+        }
+        
+        // create a AT without any syntax
+        AttributeType at = new AT( "1.1.3.1" );
+        
+        try
+        {
+            new ServerStringValue( at );
+            fail();
+        }
+        catch ( AssertionError ae )
+        {
+            // Expected...
+        }
+    }
+
+
+    /**
+     * Test the constructor with a null value
+     */
+    @Test public void testNullValue()
+    {
+        AttributeType at = getIA5StringAttributeType();
+        
+        ServerStringValue value = new ServerStringValue( at, null );
+        
+        assertNull( value.get() );
+        assertTrue( value.isNull() );
+    }
+    
+    
+    /**
+     * Test the equals method
+     */
+    @Test public void testEquals()
+    {
+        AttributeType at = getIA5StringAttributeType();
+        
+        ServerStringValue value1 = new ServerStringValue( at, "test" );
+        ServerStringValue value2 = new ServerStringValue( at, "test" );
+        ServerStringValue value3 = new ServerStringValue( at, "TEST" );
+        ServerStringValue value4 = new ServerStringValue( at, "tes" );
+        ServerStringValue value5 = new ServerStringValue( at, null );
+        
+        assertTrue( value1.equals( value1 ) );
+        assertTrue( value1.equals( value2 ) );
+        assertTrue( value1.equals( value3 ) );
+        assertFalse( value1.equals( value4 ) );
+        assertFalse( value1.equals( value5 ) );
+        assertFalse( value1.equals( "test" ) );
+        assertFalse( value1.equals( null ) );
+    }
+
+    
+    /**
+     * Test the getNormalized method
+     * TODO testNormalized.
+     *
+     */
+    @Test public void testGetNormalized() throws NamingException
+    {
+        AttributeType at = getIA5StringAttributeType();
+        
+        ServerStringValue value = new ServerStringValue( at, "TEST" );
+        
+        assertEquals( "test", value.getNormalized() );
+
+        value = new ServerStringValue( at, null );
+        
+        assertNull( value.getNormalized() );
+    }
+    
+    
+    /**
+     * Test the isValid method
+     * 
+     * The SyntaxChecker does not accept values longer than 5 chars.
+     */
+    @Test public void testIsValid() throws NamingException
+    {
+        AttributeType at = getIA5StringAttributeType();
+        
+        ServerStringValue value = new ServerStringValue( at, "test" );
+        
+        assertTrue( value.isValid() );
+
+        value = new ServerStringValue( at, "testlong" );
+        
+        assertFalse( value.isValid() );
+    }
+    
+    
     /**
      * Tests to make sure the hashCode method is working properly.
      * @throws Exception on errors
@@ -225,19 +531,18 @@ public class ServerStringValueTest
         {
             public int compare( String o1, String o2 )
             {
-                if ( o1 == null && o2 == null )
+                if ( o1 == null )
                 {
-                    return 0;
+                    if ( o2 == null )
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        return -1;
+                    }
                 }
-
-                //noinspection ConstantConditions
-                if ( o1 == null && o2 != null )
-                {
-                    return -1;
-                }
-
-                //noinspection ConstantConditions
-                if ( o1 != null && o2 == null )
+                else if ( o2 == null )
                 {
                     return 1;
                 }
@@ -320,7 +625,6 @@ public class ServerStringValueTest
         list.add( v2 );
         list.add( v4 );
 
-        //noinspection unchecked
         Collections.sort( list );
 
         // null ones are at first 2 indices
@@ -440,7 +744,6 @@ public class ServerStringValueTest
 
                 try
                 {
-                    //noinspection unchecked
                     return mr.getComparator().compare( b1, b2 );
                 }
                 catch ( Exception e )
@@ -469,143 +772,4 @@ public class ServerStringValueTest
     }
 
     
-    static class AT extends AbstractAttributeType
-    {
-        AttributeType superior;
-        Syntax syntax;
-        MatchingRule equality;
-        MatchingRule ordering;
-        MatchingRule substr;
-
-        protected AT( String oid )
-        {
-            super( oid );
-        }
-
-        public AttributeType getSuperior() throws NamingException
-        {
-            return superior;
-        }
-
-
-        public Syntax getSyntax() throws NamingException
-        {
-            return syntax;
-        }
-
-
-        public MatchingRule getEquality() throws NamingException
-        {
-            return equality;
-        }
-
-
-        public MatchingRule getOrdering() throws NamingException
-        {
-            return ordering;
-        }
-
-
-        public MatchingRule getSubstr() throws NamingException
-        {
-            return substr;
-        }
-
-
-        public void setSuperior( AttributeType superior )
-        {
-            this.superior = superior;
-        }
-
-
-        public void setSyntax( Syntax syntax )
-        {
-            this.syntax = syntax;
-        }
-
-
-        public void setEquality( MatchingRule equality )
-        {
-            this.equality = equality;
-        }
-
-
-        public void setOrdering( MatchingRule ordering )
-        {
-            this.ordering = ordering;
-        }
-
-
-        public void setSubstr( MatchingRule substr )
-        {
-            this.substr = substr;
-        }
-    }
-
-    static class MR extends AbstractMatchingRule
-    {
-        private Syntax syntax;
-        private Comparator comparator;
-        private Normalizer normalizer;
-
-        protected MR( String oid )
-        {
-            super( oid );
-        }
-
-        public Syntax getSyntax() throws NamingException
-        {
-            return syntax;
-        }
-
-        public Comparator getComparator() throws NamingException
-        {
-            return comparator;
-        }
-
-
-        public Normalizer getNormalizer() throws NamingException
-        {
-            return normalizer;
-        }
-
-
-        public void setSyntax( Syntax syntax )
-        {
-            this.syntax = syntax;
-        }
-
-
-        public void setComparator( Comparator comparator )
-        {
-            this.comparator = comparator;
-        }
-
-
-        public void setNormalizer( Normalizer normalizer )
-        {
-            this.normalizer = normalizer;
-        }
-    }
-
-
-    static class S extends AbstractSyntax
-    {
-        SyntaxChecker checker;
-
-        public S( String oid, boolean humanReadible )
-        {
-            super( oid, humanReadible );
-        }
-
-        public void setSyntaxChecker( SyntaxChecker checker )
-        {
-            this.checker = checker;
-        }
-
-        public SyntaxChecker getSyntaxChecker() throws NamingException
-        {
-            return checker;
-        }
-    }
 }
