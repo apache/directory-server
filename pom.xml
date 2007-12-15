@@ -326,6 +326,7 @@
     <module>utils</module>
     <module>schema-registries</module>
     <module>jdbm-store</module>
+    <module>jdbm-cursor</module>
     <module>btree-base</module>
     <module>core</module>
     <module>core-constants</module>
