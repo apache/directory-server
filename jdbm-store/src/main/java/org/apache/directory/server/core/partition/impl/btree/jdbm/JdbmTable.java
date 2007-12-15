@@ -24,7 +24,6 @@ import jdbm.RecordManager;
 import jdbm.btree.BTree;
 import jdbm.helper.Serializer;
 import jdbm.helper.TupleBrowser;
-import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.EmptyCursor;
 import org.apache.directory.server.core.cursor.IteratorCursor;
@@ -32,7 +31,6 @@ import org.apache.directory.server.core.cursor.SingletonCursor;
 import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.schema.SerializableComparator;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import java.io.IOException;
 import java.util.*;
@@ -972,13 +970,13 @@ public class JdbmTable implements Table
         
         if ( values == null )
         {
-            return new EmptyCursor();
+            return new EmptyCursor<Object>();
         }
         
         if ( values instanceof TreeSet )
         {
             TreeSet set = ( TreeSet ) values;
-            return new IteratorCursor( set.iterator() );
+            return new IteratorCursor<Object>( set.iterator() );
         }
         
         if ( values instanceof BTreeRedirect )
@@ -1173,8 +1171,19 @@ public class JdbmTable implements Table
         
         if ( values instanceof BTreeRedirect )
         {
-            return new BTreeTupleEnumeration( getBTree( ( BTreeRedirect ) values ), 
-                comparator.getValueComparator(), key, val, isGreaterThan );
+//            return new BTreeTupleEnumeration( getBTree( ( BTreeRedirect ) values ),
+//                comparator.getValueComparator(), key, val, isGreaterThan );
+            JdbmTupleBrowserFactory factory = new JdbmTupleBrowserFactory( getBTree( ( BTreeRedirect ) values ) );
+            Cursor<Tuple> cursor = new BTreeTupleCursor( factory, key, comparator.getValueComparator() );
+            if ( isGreaterThan )
+            {
+                cursor.after( new Tuple( key, val ) );
+            }
+            else
+            {
+                cursor.before( new Tuple( key, val ) );
+            }
+            return cursor;
         }
 
         throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );

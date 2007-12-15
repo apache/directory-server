@@ -20,6 +20,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.TupleBrowserFactory;
 import org.apache.directory.server.core.partition.impl.btree.TupleBrowser;
@@ -35,11 +36,12 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BTreeTupleCursor implements Cursor
+public class BTreeTupleCursor extends AbstractCursor<Tuple>
 {
     private final Object key;
     private final Tuple tuple = new Tuple();
     private final TupleBrowserFactory factory;
+    private final Comparator comparator;
 
     private jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
     private TupleBrowser browser;
@@ -47,78 +49,66 @@ public class BTreeTupleCursor implements Cursor
 
 
 
-    public BTreeTupleCursor( TupleBrowserFactory factory, Comparator<Object> comparator, Object key, Object val,
-                             boolean beforeValue ) throws IOException
+    public BTreeTupleCursor( TupleBrowserFactory factory, Object key, Comparator comparator )
+            throws IOException
     {
         this.key = key;
         this.factory = factory;
-
-        if ( beforeValue )
-        {
-            browser = factory.beforeKey( val );
-        }
+        this.comparator = comparator;
     }
 
 
-    /**
-     * @todo
-     *
-     * This is a little tricky. How do we know where we are positioned?  We could
-     * do some check perhaps with getNext() and backup with getPrevious().
-     *
-     * @param key
-     * @throws IOException
-     */
-    private void beforeKey( Object key ) throws IOException
+    public boolean before( Tuple element ) throws IOException
     {
-        browser = factory.beforeKey( key );
-        beforeFirst = false;
-        afterLast = false;
-        size = factory.size();
-        pos = BEFORE_FIRST;
-        success = true;
+        throw new NotImplementedException();
+    }
 
-        throw new NotImplementedException( "Need to fix the todo on this before going further" );
+
+    public boolean after( Tuple element ) throws IOException
+    {
+        throw new NotImplementedException();
     }
 
 
     public void beforeFirst() throws IOException
     {
+        throw new NotImplementedException();
     }
 
 
     public void afterLast() throws IOException
     {
+        throw new NotImplementedException();
     }
 
 
     public boolean absolute( int absolutePosition ) throws IOException
     {
-        return false;
+        throw new NotImplementedException();
     }
 
 
     public boolean relative( int relativePosition ) throws IOException
     {
-        return false;
+        throw new NotImplementedException();
     }
 
 
     public boolean first() throws IOException
     {
-        return false;
+        throw new NotImplementedException();
     }
 
 
     public boolean last() throws IOException
     {
-        return false;
+        throw new NotImplementedException();
     }
 
 
     public boolean isFirst() throws IOException
     {
-        return false;
+        throw new NotImplementedException();
     }
 
 
@@ -140,12 +130,6 @@ public class BTreeTupleCursor implements Cursor
     }
 
 
-    public boolean isClosed() throws IOException
-    {
-        return false;
-    }
-
-
     public boolean previous() throws IOException
     {
         return false;
@@ -158,20 +142,14 @@ public class BTreeTupleCursor implements Cursor
     }
 
 
-    public Object get() throws IOException
+    public Tuple get() throws IOException
     {
-        return null;
+        throw new NotImplementedException();
     }
 
 
     public boolean isElementReused()
     {
-        return false;
-    }
-
-
-    public void close() throws IOException
-    {
-
+        return true;
     }
 }

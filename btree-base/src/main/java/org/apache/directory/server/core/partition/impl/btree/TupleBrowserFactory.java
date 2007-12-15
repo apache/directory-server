@@ -44,6 +44,7 @@ public interface TupleBrowserFactory
      */
     TupleBrowser beforeFirst() throws IOException;
 
+
     /**
      * Gets a TupleBrowser positioned just after the last entry if one
      * exists.  The getPrevious() method should return the last entry from
