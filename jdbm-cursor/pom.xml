@@ -23,18 +23,12 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.2-SNAPSHOT</version>
   </parent>
-  <artifactId>apacheds-jdbm-store</artifactId>
-  <name>ApacheDS JDBM Store</name>
+  <artifactId>apacheds-jdbm-cursor</artifactId>
+  <name>ApacheDS JDBM Cursor</name>
   <packaging>jar</packaging>
 
   <description>
-    A JDBM entry store which does not have any dependency on core interfaces.
-    The JDBM partition will use this store and build on it to adapt this to 
-    server specific partition interfaces.
-    Having this separate module without dependencies on core interfaces makes
-    it easier to avoid cyclic dependencies between modules.  This is especially
-    important for use within the bootstrap plugin which needs to build the
-    schema partition used for bootstrapping the server.
+    Simple cursor implementations on JDBM based btrees.
   </description>
 
   <dependencies>
