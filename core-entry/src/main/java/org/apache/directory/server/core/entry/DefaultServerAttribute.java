@@ -338,7 +338,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
         }
         else
         {
-            String message = "The value must be a byte[], as its AttributeType is not H/R";
+            String message = "The value must be a String, as its AttributeType is H/R";
             LOG.error( message );
             throw new InvalidAttributeValueException( message );
         }
