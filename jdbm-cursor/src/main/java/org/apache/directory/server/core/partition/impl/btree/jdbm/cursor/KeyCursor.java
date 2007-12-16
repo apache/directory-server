@@ -47,7 +47,6 @@ public class KeyCursor<E> extends AbstractCursor<E>
 
     private BTree btree;
     private TupleBrowser browser;
-    private int pos = BEFORE_FIRST;
     private int size;  // cache the size to prevent needless lookups
     private boolean afterLast;
     private boolean beforeFirst;
@@ -70,7 +69,6 @@ public class KeyCursor<E> extends AbstractCursor<E>
     public void before( E element ) throws IOException
     {
         browser = btree.browse( element );
-        pos = UNDEFINED;
         success = false;
         afterLast = false;
         beforeFirst = false;
@@ -107,7 +105,6 @@ public class KeyCursor<E> extends AbstractCursor<E>
             afterLast = true;
             success = false;
             size = btree.size();
-            pos = size;
             browser = btree.browse( null );
         }
     }
