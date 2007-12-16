@@ -42,7 +42,6 @@ public class ListCursorTest extends TestCase
         ListCursor<String> cursor = new ListCursor<String>();
 
         assertFirstLastOnNewCursor( cursor, 0, 0, 0 );
-        assertAbsolute( cursor, 0, 0, 0 );
         assertRelative( cursor, 0, 0, 0 );
 
         // close test
@@ -55,7 +54,6 @@ public class ListCursorTest extends TestCase
     {
         ListCursor<String> cursor = new ListCursor<String>( Collections.singletonList( "singleton" ) );
         assertFirstLastOnNewCursor( cursor, 1, 0, 1 );
-        assertAbsolute( cursor, 1, 0, 1 );
         assertRelative( cursor, 1, 0, 1 );
         cursor.close();
 
@@ -149,21 +147,18 @@ public class ListCursorTest extends TestCase
         // test with bounds of the list itself
         ListCursor<String> cursor = new ListCursor<String>( list );
         assertFirstLastOnNewCursor( cursor, 5, 0, 5 );
-        assertAbsolute( cursor, 5, 0, 5 );
         assertRelative( cursor, 5, 0, 5 );
         cursor.close();
 
         // test with nonzero lower bound
         cursor = new ListCursor<String>( 1, list );
         assertFirstLastOnNewCursor( cursor, 5, 1, 5 );
-        assertAbsolute( cursor, 5, 1, 5 );
         assertRelative( cursor, 5, 1, 5 );
         cursor.close();
 
         // test with nonzero lower bound and upper bound
         cursor = new ListCursor<String>( 1, list, 4 );
         assertFirstLastOnNewCursor( cursor, 5, 1, 4 );
-        assertAbsolute( cursor, 5, 1, 4 );
         assertRelative( cursor, 5, 1, 4 );
 
         // close test
@@ -357,43 +352,6 @@ public class ListCursorTest extends TestCase
     }
 
 
-    protected void assertAbsolute( Cursor cursor, int listSize, int lowerBound, int upperBound )
-            throws IOException
-    {
-        String prefix = "[size, " + listSize + "] [lower, " + lowerBound + "] [upper, " + upperBound + "]: ";
-
-        // test absolute() advance with change of position below lower bound
-        cursor.afterLast();
-        assertFalse( prefix + "cursor.absolute(" + ( lowerBound - 1 ) +
-                ") should return false and change state to before first", cursor.absolute( lowerBound - 1 ) );
-        assertTrue( prefix + "cursor.relative(" + ( lowerBound - 1 ) +
-                ") should change pos to before first", cursor.isBeforeFirst() );
-        assertFalse( prefix + "cursor.relative(" + ( lowerBound - 1 ) +
-                ") should --NOT-- change pos to after last", cursor.isAfterLast() );
-
-        if ( listSize == 0 )
-        {
-            // Corner case!!!  Technically the 0th index is the 1st element
-            // which is greater than 0 elements which is the size of the list
-            // so technically the observed state change for index = 0 should be
-            // the same as when index > 0.
-            cursor.beforeFirst();
-            assertFalse( "empty cursor.absolute(0) should fail but change state to after last", cursor.absolute( 0 ) );
-            assertFalse( "empty cursor.absolute(0) should change pos to after last", cursor.isBeforeFirst() );
-            assertTrue( "empty cursor.absolute(0) should change pos to after last", cursor.isAfterLast() );
-        }
-
-        // test absolute() advance with change of position above upper bound
-        cursor.beforeFirst();
-        assertFalse( prefix + "cursor.absolute(" + ( upperBound + 1 )
-                + ") should return false but change state to after last", cursor.absolute( upperBound + 1 ) );
-        assertFalse( prefix + "cursor.absolute(" + ( upperBound + 1 ) + ") should change pos to after last",
-                cursor.isBeforeFirst() );
-        assertTrue( prefix + "cursor.absolute(" + ( upperBound + 1 ) + ") should change pos to after last",
-                cursor.isAfterLast() );
-    }
-
-
     protected void assertRelative( Cursor cursor, int listSize, int lowerBound, int upperBound )
             throws IOException
     {
@@ -455,16 +413,6 @@ public class ListCursorTest extends TestCase
             fail( "cursor.close() after closing the cursor should not fail with exceptions" );
         }
 
-
-        try
-        {
-            cursor.absolute( 1 );
-            fail( "cursor.absolute() after closing the cursor should fail with an IOException" );
-        }
-        catch ( IOException e )
-        {
-            assertNotNull( e );
-        }
 
         try
         {

@@ -24,6 +24,7 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Comparator;
 
 
 /**
@@ -36,6 +37,7 @@ import java.util.List;
 public class ListCursor<E> extends AbstractCursor<E>
 {
     private final List<E> list;
+    private final Comparator<E> comparator;
     private final int start;
     private final int end;
     private int index = -1;
@@ -49,11 +51,12 @@ public class ListCursor<E> extends AbstractCursor<E>
      * advance operations (next() or previous()) to properly return values
      * using the get() operation.
      *
+     * @param comparator an optional comparator to use for ordering
      * @param start the lower bound index
      * @param list the list this ListCursor operates on
      * @param end the upper bound index
      */
-    public ListCursor( int start, List<E> list, int end )
+    public ListCursor( Comparator<E> comparator, int start, List<E> list, int end )
     {
         if ( start < 0 || start > list.size() )
         {
@@ -73,6 +76,8 @@ public class ListCursor<E> extends AbstractCursor<E>
                     + end + "' just does not make sense" );
         }
 
+        this.comparator = comparator;
+
         //noinspection ConstantConditions
         if ( list != null )
         {
@@ -90,6 +95,24 @@ public class ListCursor<E> extends AbstractCursor<E>
 
 
     /**
+     * Creates a new ListCursor with lower (inclusive) and upper (exclusive)
+     * bounds.
+     *
+     * As with all Cursors, this ListCursor requires a successful return from
+     * advance operations (next() or previous()) to properly return values
+     * using the get() operation.
+     *
+     * @param start the lower bound index
+     * @param list the list this ListCursor operates on
+     * @param end the upper bound index
+     */
+    public ListCursor( int start, List<E> list, int end )
+    {
+        this( null, start, list, end );
+    }
+
+
+    /**
      * Creates a new ListCursor with a specific upper (exclusive) bound: the
      * lower (inclusive) bound defaults to 0.
      *
@@ -99,7 +122,13 @@ public class ListCursor<E> extends AbstractCursor<E>
      */
     public ListCursor( List<E> list, int end )
     {
-        this( 0, list, end );
+        this( null, 0, list, end );
+    }
+
+
+    public ListCursor( Comparator<E> comparator, List<E> list, int end )
+    {
+        this( comparator, 0, list, end );
     }
 
 
@@ -113,7 +142,13 @@ public class ListCursor<E> extends AbstractCursor<E>
      */
     public ListCursor( int start, List<E> list )
     {
-        this( start, list, list.size() );
+        this( null, start, list, list.size() );
+    }
+
+
+    public ListCursor( Comparator<E> comparator, int start, List<E> list )
+    {
+        this( comparator, start, list, list.size() );
     }
 
 
@@ -125,7 +160,13 @@ public class ListCursor<E> extends AbstractCursor<E>
      */
     public ListCursor( List<E> list )
     {
-        this( 0, list, list.size() );
+        this( null, 0, list, list.size() );
+    }
+
+
+    public ListCursor( Comparator<E> comparator, List<E> list )
+    {
+        this( comparator, 0, list, list.size() );
     }
 
 
@@ -135,19 +176,86 @@ public class ListCursor<E> extends AbstractCursor<E>
     public ListCursor()
     {
         //noinspection unchecked
-        this( 0, Collections.EMPTY_LIST, 0 );
+        this( null, 0, Collections.EMPTY_LIST, 0 );
     }
 
 
-    public boolean before( E element ) throws IOException
+    public ListCursor( Comparator<E> comparator )
     {
-        throw new NotImplementedException();
+        //noinspection unchecked
+        this( comparator, 0, Collections.EMPTY_LIST, 0 );
     }
 
 
-    public boolean after( E element ) throws IOException
+    /**
+     * @throws IllegalStateException if the underlying list is not sorted
+     * and/or a comparator is not provided.
+     */
+    public void before( E element ) throws IOException
     {
-        throw new NotImplementedException();
+        checkClosed( "before()" );
+
+        if ( comparator == null )
+        {
+            throw new IllegalStateException();
+        }
+
+        // handle some special cases
+        if ( list.size() == 0 )
+        {
+            return;
+        }
+        else if ( list.size() == 1 )
+        {
+            if ( comparator.compare( element, list.get( 0 ) ) <= 0 )
+            {
+                beforeFirst();
+            }
+            else
+            {
+                afterLast();
+            }
+        }
+
+        throw new NotImplementedException( "don't know if list is sorted and checking that is not worth it" );
+
+        // check if increasing or decreasing order is in effect
+//        if ( comparator.compare( list.get( 0 ), list.get( list.size() - 1 ) ) > 0 )
+//        {
+//        }
+//        else
+//        {
+//        }
+    }
+
+
+    public void after( E element ) throws IOException
+    {
+        checkClosed( "after()" );
+
+        if ( comparator == null )
+        {
+            throw new IllegalStateException();
+        }
+
+        // handle some special cases
+        if ( list.size() == 0 )
+        {
+            return;
+        }
+        else if ( list.size() == 1 )
+        {
+            if ( comparator.compare( element, list.get( 0 ) ) >= 0 )
+            {
+                afterLast();
+            }
+            else
+            {
+                beforeFirst();
+            }
+        }
+
+        throw new NotImplementedException( "don't know if list is sorted and checking that is not worth it" );
     }
 
 
@@ -162,27 +270,6 @@ public class ListCursor<E> extends AbstractCursor<E>
     {
         checkClosed( "afterLast()" );
         this.index = end;
-    }
-
-
-    public boolean absolute( int index ) throws IOException
-    {
-        checkClosed( "absolute()" );
-
-        if ( index < start )
-        {
-            this.index = -1;
-            return false;
-        }
-
-        if ( index >= end )
-        {
-            this.index = end;
-            return false;
-        }
-
-        this.index = index;
-        return true;
     }
 
 

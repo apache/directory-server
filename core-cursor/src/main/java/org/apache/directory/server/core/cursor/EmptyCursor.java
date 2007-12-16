@@ -30,17 +30,15 @@ import java.io.IOException;
  */
 public class EmptyCursor<E> extends AbstractCursor<E>
 {
-    public boolean before( E element ) throws IOException
+    public void before( E element ) throws IOException
     {
         checkClosed( "before()" );
-        return false;
     }
 
 
-    public boolean after( E element ) throws IOException
+    public void after( E element ) throws IOException
     {
         checkClosed( "after()" );
-        return false;
     }
 
 
@@ -53,14 +51,6 @@ public class EmptyCursor<E> extends AbstractCursor<E>
     public void afterLast() throws CursorClosedException
     {
         checkClosed( "afterLast()" );
-    }
-
-
-    @SuppressWarnings ( { "UnusedDeclaration" } )
-    public boolean absolute( int absolutePosition ) throws CursorClosedException
-    {
-        checkClosed( "absolute()" );
-        return false;
     }
 
 

@@ -40,13 +40,13 @@ public class IteratorCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean before( E element ) throws IOException
+    public void before( E element ) throws IOException
     {
         throw new UnsupportedOperationException( "Cannot advance before an element on the underlying Iterator." );
     }
 
 
-    public boolean after( E element ) throws IOException
+    public void after( E element ) throws IOException
     {
         throw new UnsupportedOperationException( "Cannot advance after an element on the underlying Iterator." );
     }
@@ -61,12 +61,6 @@ public class IteratorCursor<E> extends AbstractCursor<E>
     public void afterLast() throws IOException
     {
         throw new UnsupportedOperationException( "Cannot adanvce after last on the underlying Iterator." );
-    }
-
-
-    public boolean absolute( int absolutePosition ) throws IOException
-    {
-        throw new UnsupportedOperationException( "Cannot advance to an absolute postion on the underlying Iterator." );
     }
 
 

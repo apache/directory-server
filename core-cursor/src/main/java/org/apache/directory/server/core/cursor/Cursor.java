@@ -23,18 +23,19 @@ import java.io.IOException;
 
 
 /**
- * A simple cursor concept for bidirectionally enumerating over elements.
- * Cursors unlike iterators request to advance to an element by calling next()
- * or previous() which returns true or false if the request succeeds.  Other
- * operations for relative and absolute advances are provided.  If the cursor
- * does not advance, then the Cursor is either positioned before the first
- * element or after the last element in which case the user of the Cursor must
- * stop advancing in the respective direction.  If an advance succeeds a get()
+ * A Cursor for bidirectional traversal over elements in a dataset. Cursors
+ * unlike Iterators or Enumerations may advance to an element by calling
+ * next() or previous() which returns true or false if the request succeeds
+ * with a viable element at the new position.  Operations for relative
+ * positioning in larger increments are provided.  If the cursor can not
+ * advance, then the Cursor is either positioned before the first element or
+ * after the last element in which case the user of the Cursor must stop
+ * advancing in the respective direction.  If an advance succeeds a get()
  * operation retreives the current object at the Cursors position.
  *
- * Although this interface presumes Cursors can advance bidirectionally, one
- * or more either direction may not be supported.  In this case
- * implementations should throw UnsupportedOperationExceptions.
+ * Although this interface presumes Cursors can advance bidirectionally,
+ * implementations may restrict this by throwing
+ * UnsupportedOperationExceptions.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -42,31 +43,40 @@ import java.io.IOException;
 public interface Cursor<E>
 {
     /**
-     * Positions this Cursor just before the element.  If the element value
-     * does not exist in the dataset, the Cursor is advanced to a data element
-     * with the greatest value in the dataset less than the element argument.
+     * Prepares this Cursor, so a subsequent call to Cursor#next() with a
+     * true return value, will have positioned the Cursor on a dataset element
+     * equal to or greater than the element argument but not less.  A call to
+     * Cursor#previous() with a true return value will position the Cursor on
+     * a dataset element less than the argument.  If Cursor#next() returns
+     * false then the Cursor is past the last element and so all values in the
+     * dataset are less than the argument.  If Cursor#previous() returns false
+     * then the Cursor is positioned before the first element and all elements
+     * in the dataset are greater than the argument.
      *
      * @param element the element to be positioned before
-     * @return true if get() will yeild a valid value, false otherwise
-     * @throws IOException if there are problems positioning this cursor or if
-     * this Cursor is closed
-     * @throws UnsupportedOperationException if this operation is not supported
+     * @throws IOException with problems accessing the underlying btree
+     * @throws UnsupportedOperationException if this method is not supported
      */
-    boolean before( E element ) throws IOException;
+    void before( E element ) throws IOException;
 
 
     /**
-     * Positions this Cursor just after the element.  If the element value
-     * does not exist in the dataset, the Cursor is advanced to a data element
-     * with the smallest value in the dataset greater than the element argument.
+     * Prepares this Cursor, so a subsequent call to Cursor#previous() with a
+     * true return value, will have positioned the Cursor on a dataset element
+     * equal to or less than the element argument but not greater. A call to
+     * Cursor#next() with a true return value will position the Cursor on a
+     * dataset element greater than the argument.  If Cursor#next() returns
+     * false then the Cursor is past the last element and so all values in the
+     * dataset are less than or equal to the argument.  If Cursor#previous()
+     * returns false then the Cursor is positioned before the first element
+     * and all elements in the dataset are greater than the argument.
      *
      * @param element the element to be positioned after
-     * @return true if get() will yeild a valid value, false otherwise
      * @throws IOException if there are problems positioning this cursor or if
      * this Cursor is closed
-     * @throws UnsupportedOperationException if this operation is not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
-    boolean after( E element ) throws IOException;
+    void after( E element ) throws IOException;
 
 
     /**
@@ -74,7 +84,7 @@ public interface Cursor<E>
      *
      * @throws IOException if there are problems positioning this cursor or if
      * this Cursor is closed
-     * @throws UnsupportedOperationException if this operation is not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
     void beforeFirst() throws IOException;
 
@@ -84,43 +94,34 @@ public interface Cursor<E>
      *
      * @throws IOException if there are problems positioning this Cursor or if
      * this Cursor is closed
-     * @throws UnsupportedOperationException if this operation is not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
     void afterLast() throws IOException;
 
 
     /**
-     * Positions this Curser at the nth element.  Zero based indexing is used.
+     * Positions this Curser an offset number of elements before or after the
+     * current position.  Negative offsets are used to move the Cursor's
+     * position back, while positive offsets are used to advance the Cursor's
+     * position forward.
      *
      * If the specified position is past the first or last element, the Cursor
      * is positioned before the first or after the last element respectively.
      *
-     * @param absolutePosition the absolute position to move this Cursor to
-     * @return true if the position has been successfully changed to the
-     * element at the specified position, false otherwise
+     * Note that this is not the most efficient means to advance a Cursor over
+     * a BTree.  The best mechanism is to advance by using a specific key via
+     * the Cursor#before() and Cursor#after() methods.  Most implementations
+     * of this method will have to walk through BTree records.
+     *
+     * @param offset the relative offset to move this Cursor to
+     * @return true if the position has been successfully changed to an
+     * existing element retreivable by Cursor#get() at the new relative
+     * position, of this Cursor, otherwise false
      * @throws IOException if there are problems positioning this Cursor or if
      * this Cursor is closed
-     * @throws UnsupportedOperationException if this operation is not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
-    boolean absolute( int absolutePosition ) throws IOException;
-
-
-    /**
-     * Positions this Curser n places relative to the present position.  Zero
-     * based indexing is used and negative index values may be provided for
-     * representing the direction.
-     *
-     * If the specified position is past the first or last element, the Cursor
-     * is positioned before the first or after the last element respectively.
-     *
-     * @param relativePosition the relative position to move this Cursor to
-     * @return true if the position has been successfully changed to the
-     * element relative to the current position, false otherwise
-     * @throws IOException if there are problems positioning this Cursor or if
-     * this Cursor is closed
-     * @throws UnsupportedOperationException if this operation is not supported
-     */
-    boolean relative( int relativePosition ) throws IOException;
+    boolean relative( int offset ) throws IOException;
 
 
     /**
@@ -130,7 +131,7 @@ public interface Cursor<E>
      * element, false otherwise
      * @throws IOException if there are problems positioning this Cursor or if
      * this Cursor is closed
-     * @throws UnsupportedOperationException if this operation is not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
     boolean first() throws IOException;
 
@@ -142,7 +143,7 @@ public interface Cursor<E>
      * element, false otherwise
      * @throws IOException if there are problems positioning this Cursor or if
      * this Cursor is closed
-     * @throws UnsupportedOperationException if this operation is not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
     boolean last() throws IOException;
 
@@ -154,7 +155,7 @@ public interface Cursor<E>
      * otherwise
      * @throws IOException if there are problems determining this Cursor's
      * position, or if this Cursor is closed
-     * @throws UnsupportedOperationException if this operation is not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
     boolean isFirst() throws IOException;
 
@@ -166,7 +167,7 @@ public interface Cursor<E>
      * otherwise
      * @throws IOException if there are problems determining this Cursor's
      * position, or if this Cursor is closed
-     * @throws UnsupportedOperationException if this operation is not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
     boolean isLast() throws IOException;
 
@@ -178,7 +179,7 @@ public interface Cursor<E>
      * otherwise
      * @throws IOException if there are problems determining this Cursor's
      * position, or if this Cursor is closed
-     * @throws UnsupportedOperationException if this operation is not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
     boolean isAfterLast() throws IOException;
 
@@ -190,7 +191,7 @@ public interface Cursor<E>
      * otherwise
      * @throws IOException if there are problems determining this Cursor's
      * position, or if this Cursor is closed
-     * @throws UnsupportedOperationException if this operation is not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
     boolean isBeforeFirst() throws IOException;
 
@@ -201,7 +202,7 @@ public interface Cursor<E>
      *
      * @return true if this Cursor is closed, false otherwise
      * @throws IOException if there are problems determining the cursor's closed state
-     * @throws UnsupportedOperationException if this operation is not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
     boolean isClosed() throws IOException;
 
@@ -211,7 +212,7 @@ public interface Cursor<E>
      *
      * @return true if the advance succeeded, false otherwise
      * @throws IOException if there are problems advancing to the next position
-     * @throws UnsupportedOperationException if advances in this direction are not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
     boolean previous() throws IOException;
 
@@ -222,7 +223,7 @@ public interface Cursor<E>
      * @return true if the advance succeeded, false otherwise
      * @throws IOException if there are problems advancing to this Cursor to
      * the next position, or if this Cursor is closed
-     * @throws UnsupportedOperationException if advances in this direction are not supported
+     * @throws UnsupportedOperationException if this method is not supported
      */
     boolean next() throws IOException;
 
@@ -259,7 +260,7 @@ public interface Cursor<E>
      * Repeated calls to this method after this Cursor has already been
      * called should not fail with exceptions.
      *
-     * @throws IOException if this Cursor cannot be closed
+     * @throws IOException if for some reason this Cursor could not be closed
      */
     void close() throws IOException;
 }

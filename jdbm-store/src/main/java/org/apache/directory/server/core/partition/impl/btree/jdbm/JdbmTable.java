@@ -29,6 +29,8 @@ import org.apache.directory.server.core.cursor.EmptyCursor;
 import org.apache.directory.server.core.cursor.IteratorCursor;
 import org.apache.directory.server.core.cursor.SingletonCursor;
 import org.apache.directory.server.core.partition.impl.btree.*;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.KeyCursor;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.TupleCursor;
 import org.apache.directory.server.schema.SerializableComparator;
 
 import javax.naming.NamingException;
@@ -982,7 +984,7 @@ public class JdbmTable implements Table
         if ( values instanceof BTreeRedirect )
         {
             BTree tree = getBTree( ( BTreeRedirect ) values );
-            return new BTreeCursor( tree );
+            return new KeyCursor( tree );
         }
         
         throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
@@ -1174,7 +1176,7 @@ public class JdbmTable implements Table
 //            return new BTreeTupleEnumeration( getBTree( ( BTreeRedirect ) values ),
 //                comparator.getValueComparator(), key, val, isGreaterThan );
             JdbmTupleBrowserFactory factory = new JdbmTupleBrowserFactory( getBTree( ( BTreeRedirect ) values ) );
-            Cursor<Tuple> cursor = new BTreeTupleCursor( factory, key, comparator.getValueComparator() );
+            Cursor<Tuple> cursor = new TupleCursor( factory, key, comparator.getValueComparator() );
             if ( isGreaterThan )
             {
                 cursor.after( new Tuple( key, val ) );

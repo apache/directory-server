@@ -20,33 +20,11 @@ package org.apache.directory.server.core.cursor;
 
 
 /**
- * Simple class that contains often used Cursor code.
+ * Tests for the correct behavoir of a Cursor over a single element.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractCursor<E> implements Cursor<E>
+public class SingletonCursorTest
 {
-    private boolean closed;
-
-
-    protected void checkClosed( String operation ) throws CursorClosedException
-    {
-        if ( isClosed() )
-        {
-            throw new CursorClosedException( "Attempting " + operation + " operation on a closed Cursor." );
-        }
-    }
-
-
-    public boolean isClosed()
-    {
-        return closed;
-    }
-
-
-    public void close()
-    {
-        closed = true;
-    }
 }

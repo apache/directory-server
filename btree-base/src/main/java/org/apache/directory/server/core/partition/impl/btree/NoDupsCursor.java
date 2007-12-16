@@ -103,7 +103,7 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
     }
 
 
-    public boolean before( Tuple element ) throws IOException
+    public void before( Tuple element ) throws IOException
     {
         throw new NotImplementedException();
     }

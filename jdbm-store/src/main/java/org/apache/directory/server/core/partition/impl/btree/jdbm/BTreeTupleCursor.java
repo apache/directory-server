@@ -19,7 +19,6 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.TupleBrowserFactory;
@@ -58,13 +57,13 @@ public class BTreeTupleCursor extends AbstractCursor<Tuple>
     }
 
 
-    public boolean before( Tuple element ) throws IOException
+    public void before( Tuple element ) throws IOException
     {
         throw new NotImplementedException();
     }
 
 
-    public boolean after( Tuple element ) throws IOException
+    public void after( Tuple element ) throws IOException
     {
         throw new NotImplementedException();
     }

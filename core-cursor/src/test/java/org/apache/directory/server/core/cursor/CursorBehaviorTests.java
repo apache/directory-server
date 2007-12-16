@@ -20,33 +20,14 @@ package org.apache.directory.server.core.cursor;
 
 
 /**
- * Simple class that contains often used Cursor code.
+ * Presuming a pristine Cursor's underlying data structure is initialized and
+ * populated with the expected data and given to the methods of this class,
+ * the class methods test various properties of the Cursor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractCursor<E> implements Cursor<E>
+public class CursorBehaviorTests
 {
-    private boolean closed;
-
-
-    protected void checkClosed( String operation ) throws CursorClosedException
-    {
-        if ( isClosed() )
-        {
-            throw new CursorClosedException( "Attempting " + operation + " operation on a closed Cursor." );
-        }
-    }
-
-
-    public boolean isClosed()
-    {
-        return closed;
-    }
-
-
-    public void close()
-    {
-        closed = true;
-    }
 }
+

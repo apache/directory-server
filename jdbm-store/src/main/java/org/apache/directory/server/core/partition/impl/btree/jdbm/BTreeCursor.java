@@ -25,19 +25,20 @@ import jdbm.helper.TupleBrowser;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.InconsistentCursorStateException;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.NotImplementedException;
 
 import java.io.IOException;
 
 
 /**
- * @TODO you better test me man!!!
+ * A Cursor across JDBM based BTree keys.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class BTreeCursor extends AbstractCursor
 {
-    private final jdbm.helper.Tuple jdbmTuple = new Tuple();
+    private final Tuple jdbmTuple = new Tuple();
 
     private BTree btree;
     private TupleBrowser browser;
@@ -52,6 +53,18 @@ public class BTreeCursor extends AbstractCursor
     {
         this.btree = btree;
         beforeFirst();
+    }
+
+
+    public void before( Object element ) throws IOException
+    {
+        throw new NotImplementedException();
+    }
+
+
+    public boolean after( Object element ) throws IOException
+    {
+        throw new NotImplementedException();
     }
 
 

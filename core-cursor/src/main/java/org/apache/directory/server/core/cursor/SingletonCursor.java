@@ -24,7 +24,7 @@ import java.util.Comparator;
 
 
 /**
- * A Cursor on a single element.
+ * A Cursor over a single element.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -51,7 +51,7 @@ public class SingletonCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean before( E element ) throws IOException
+    public void before( E element ) throws IOException
     {
         checkClosed( "before()" );
 
@@ -65,18 +65,16 @@ public class SingletonCursor<E> extends AbstractCursor<E>
 
         if ( comparison < 0 )
         {
-            absolute( 0 );
-            return true;
+            first();
         }
         else
         {
             beforeFirst();
-            return false;
         }
     }
 
 
-    public boolean after( E element ) throws IOException
+    public void after( E element ) throws IOException
     {
         checkClosed( "after()" );
 
@@ -90,13 +88,11 @@ public class SingletonCursor<E> extends AbstractCursor<E>
 
         if ( comparison > 0 )
         {
-            absolute( 0 );
-            return true;
+            first();
         }
         else
         {
             afterLast();
-            return false;
         }
     }
 
@@ -116,33 +112,6 @@ public class SingletonCursor<E> extends AbstractCursor<E>
         beforeFirst = false;
         afterLast = true;
         onSingleton = false;
-    }
-
-
-    public boolean absolute( int absolutePosition ) throws IOException
-    {
-        checkClosed( "()" );
-        if ( absolutePosition == 0 )
-        {
-            beforeFirst = false;
-            onSingleton = true;
-            afterLast = false;
-            return true;
-        }
-        else if ( absolutePosition > 0 )
-        {
-            beforeFirst = false;
-            onSingleton = false;
-            afterLast = true;
-            return false;
-        }
-        else
-        {
-            beforeFirst = true;
-            onSingleton = false;
-            afterLast = false;
-            return false;
-        }
     }
 
 
