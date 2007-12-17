@@ -42,4 +42,12 @@ public interface Value<T>
      * @return <code>true</code> if the inner value is null.
      */
     boolean isNull();
+    
+    
+    /**
+     * Get the stored value.
+     *
+     * @return The stored value
+     */
+    T get();
 }

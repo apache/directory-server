@@ -162,6 +162,17 @@ public class BinaryValue implements Value<byte[]>
 
     
     /**
+     * Gets a copy of the wrapped binary value.
+     * 
+     * @return a copy of the binary value that is wrapped
+     */
+    public byte[] get()
+    {
+        return getCopy();
+    }
+
+    
+    /**
      * Returns <code>true</code> if the wrapper contains no value.
      */
     public final boolean isNull()
