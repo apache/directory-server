@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
@@ -461,5 +462,24 @@ public class DefaultServerAttributeTest
         
         assertTrue( value instanceof ServerStringValue );
         assertNull( ((ServerStringValue)value).get() );
+    }
+    
+    @Test public void testGetAttribute() throws NamingException
+    {
+        AttributeType at = getIA5StringAttributeType();
+        
+        DefaultServerAttribute attr = new DefaultServerAttribute( at );
+        
+        attr.add( "Test1" );
+        attr.add( "Test2" );
+        attr.add( "Test3" );
+        
+        Attribute attribute = attr.toAttribute();
+        
+        assertEquals( "1.1",attribute.getID() );
+        assertEquals( 3, attribute.size() );
+        assertTrue( attribute.contains( "Test1" ) );
+        assertTrue( attribute.contains( "Test2" ) );
+        assertTrue( attribute.contains( "Test3" ) );
     }
 }
