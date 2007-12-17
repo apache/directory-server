@@ -37,6 +37,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 
 
 /**
@@ -91,6 +95,12 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     public boolean addObjectClass( ObjectClass objectClass ) throws NamingException
     {
         return objectClassAttribute.addObjectClass( objectClass );
+    }
+
+
+    public void addObjectClass( ObjectClassAttribute objectClassAttribute ) throws NamingException
+    {
+        this.objectClassAttribute = objectClassAttribute;
     }
 
 
@@ -411,5 +421,16 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     public int size()
     {
         return serverAttributeMap.size();
+    }
+    
+    
+    /**
+     * Gest all the attributes type (ObjectClasses, May and Must)
+     *
+     * @return The combined set of all the attributes, including ObjectClass.
+     */
+    public Set<AttributeType> getAttributeTypes()
+    {
+        return serverAttributeMap.keySet();
     }
 }

@@ -148,6 +148,14 @@ public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends 
      */
     Set<AttributeType> getMayList();
 
+    
+    /**
+     * Gets all the attributes type (ObjectClasses, May and Must)
+     *
+     * @return The combined set of all the attributes, including ObjectClass.
+     */
+    Set<AttributeType> getAttributeTypes();
+    
 
     /**
      * Fail fast check performed to determine entry consistency according to schema
