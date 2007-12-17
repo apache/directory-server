@@ -163,7 +163,7 @@ public class DnsMessageDecoder
             String domainName = getDomainName( byteBuffer );
 
             RecordType recordType = RecordType.convert( byteBuffer.getShort() );
-            RecordClass recordClass = RecordClass.convert( ( byte ) byteBuffer.getShort() );
+            RecordClass recordClass = RecordClass.convert( byteBuffer.getShort() );
 
             questions.add( new QuestionRecord( domainName, recordType, recordClass ) );
         }

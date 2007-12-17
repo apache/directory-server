@@ -17,63 +17,27 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.dns.messages;
 
 
-import org.apache.directory.server.dns.util.EnumConverter;
-import org.apache.directory.server.dns.util.ReverseEnumMap;
+import junit.framework.TestCase;
 
 
 /**
+ * Test case for the RecordClass class.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public enum RecordClass implements EnumConverter<Short>
+public class RecordClassTest extends TestCase
 {
-    /** Internet */
-    IN(1),
-
-    /** CSNET class */
-    CS(2),
-
-    /** CHAOS class */
-    CH(3),
-
-    /** Hesiod [Dyer 87] */
-    HS(4),
-
-    /** Special value used in dynamic update messages */
-    NONE(254),
-
-    /** Any class */
-    ANY(255);
-
-    private static ReverseEnumMap<Short, RecordClass> map = new ReverseEnumMap<Short, RecordClass>( RecordClass.class );
-
-    private final short value;
-
-
-    private RecordClass( int value )
-    {
-        this.value = ( short ) value;
-    }
-
-
-    public Short convert()
-    {
-        return this.value;
-    }
-
-
     /**
-     * Converts an ordinal value into a {@link RecordClass}.
-     *
-     * @param value
-     * @return The {@link RecordClass}.
+     * Tests conversion of ordinals to RecordClass enums.
      */
-    public static RecordClass convert( short value )
+    public void testRecordClassConversion()
     {
-        return map.get( value );
+        assertEquals( RecordClass.IN, RecordClass.convert( ( short ) 1 ) );
+        assertEquals( RecordClass.NONE, RecordClass.convert( ( short ) 254 ) );
+        assertEquals( RecordClass.ANY, RecordClass.convert( ( short ) 255 ) );
     }
 }
