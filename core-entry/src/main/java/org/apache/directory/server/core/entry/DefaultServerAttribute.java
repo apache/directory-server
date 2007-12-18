@@ -27,8 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.InvalidAttributeValueException;
 
 import java.util.Iterator;
@@ -621,20 +619,5 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     public Iterator<ServerValue<?>> iterator()
     {
         return values.iterator();
-    }
-    
-    
-    public Attribute toAttribute()
-    {
-        BasicAttribute attribute = new BasicAttribute( upId, false );
-
-        for ( Iterator<ServerValue<?>> iter=iterator(); iter.hasNext();)
-        {
-            ServerValue<?> value = iter.next();
-            
-            attribute.add( value.get() );
-        }
-        
-        return attribute;
     }
 }

@@ -20,13 +20,19 @@ package org.apache.directory.server.core.entry;
 
 import java.util.Iterator;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
+import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 /**
@@ -66,6 +72,89 @@ public class ServerEntryUtils
         return attributes;
     }
 
+    
+    /**
+     * Convert a BasicAttribute or a AttributeImpl to a ServerAtribute
+     *
+     * @param attributes the BasicAttributes or AttributesImpl instance to convert
+     * @param registries The registries, needed ro build a ServerEntry
+     * @param dn The DN which is needed by the ServerEntry 
+     * @return An instance of a ServerEntry object
+     */
+    public static DefaultServerAttribute toServerAttribute( Attribute attribute, AttributeType attributeType )
+    {
+        try 
+        {
+            DefaultServerAttribute serverAttribute = new DefaultServerAttribute( attributeType );
+        
+            for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
+            {
+                Object value = values.nextElement();
+                
+                if ( value instanceof String )
+                {
+                    serverAttribute.add( (String)value );
+                }
+                else if ( value instanceof byte[] )
+                {
+                    serverAttribute.add( (byte[])value );
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            
+            return serverAttribute;
+        }
+        catch ( NamingException ne )
+        {
+            return null;
+        }
+    }
+    
+
+    /**
+     * Convert a BasicAttributes or a AttributesImpl to a ServerEntry
+     *
+     * @param attributes the BasicAttributes or AttributesImpl instance to convert
+     * @param registries The registries, needed ro build a ServerEntry
+     * @param dn The DN which is needed by the ServerEntry 
+     * @return An instance of a ServerEntry object
+     */
+    public static DefaultServerEntry toServerEntry( Attributes attributes, LdapDN dn, Registries registries )
+    {
+        if ( ( attributes instanceof BasicAttributes ) || ( attributes instanceof AttributesImpl ) )
+        {
+            try 
+            {
+                DefaultServerEntry entry = new DefaultServerEntry( dn, registries );
+    
+                for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
+                {
+                    Attribute attr = attrs.nextElement();
+                    AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attr.getID() );
+                    DefaultServerAttribute serverAttribute = ServerEntryUtils.toServerAttribute( attr, attributeType );
+                    
+                    if ( serverAttribute != null )
+                    {
+                        entry.put( serverAttribute );
+                    }
+                }
+                
+                return entry;
+            }
+            catch ( NamingException ne )
+            {
+                return null;
+            }
+        }
+        else
+        {
+            return null;
+        }
+    }
+
 
     /**
      * Convert a ServerEntry into a BasicAttributes. The DN is lost
@@ -94,5 +183,45 @@ public class ServerEntryUtils
         }
         
         return attributes;
+    }
+    
+    
+    /**
+     * Convert a ServerAttributeEntry into a BasicAttribute.
+     *
+     * @return An instance of a BasicAttribute() object
+     */
+    public static Attribute toBasicAttribute( ServerAttribute<ServerValue<?>> attr )
+    {
+        Attribute attribute = new BasicAttribute( attr.getUpId(), false );
+
+        for ( Iterator<ServerValue<?>> iter = attr.getAll(); iter.hasNext();)
+        {
+            Value<?> value = iter.next();
+            
+            attribute.add( value.get() );
+        }
+        
+        return attribute;
+    }
+
+
+    /**
+     * Convert a ServerAttributeEntry into a AttributeImpl.
+     *
+     * @return An instance of a BasicAttribute() object
+     */
+    public Attribute toAttributeImpl( EntryAttribute<Value<?>> attr )
+    {
+        Attribute attribute = new AttributeImpl( attr.getUpId(), false );
+
+        for ( Iterator<Value<?>> iter = attr.getAll(); iter.hasNext();)
+        {
+            Value<?> value = iter.next();
+            
+            attribute.add( value.get() );
+        }
+        
+        return attribute;
     }
 }

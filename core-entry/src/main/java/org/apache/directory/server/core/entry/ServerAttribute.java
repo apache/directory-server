@@ -54,6 +54,7 @@ public interface ServerAttribute<T extends ServerValue<?>> extends EntryAttribut
      */
     String getUpId();
 
+    
     /**
      * Checks to see if this attribute is valid along with the values it contains.
      *

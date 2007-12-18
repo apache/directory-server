@@ -474,7 +474,7 @@ public class DefaultServerAttributeTest
         attr.add( "Test2" );
         attr.add( "Test3" );
         
-        Attribute attribute = attr.toAttribute();
+        Attribute attribute = ServerEntryUtils.toBasicAttribute( attr );
         
         assertEquals( "1.1",attribute.getID() );
         assertEquals( 3, attribute.size() );
