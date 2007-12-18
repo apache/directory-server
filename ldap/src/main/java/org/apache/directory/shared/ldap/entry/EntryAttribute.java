@@ -216,6 +216,20 @@ public interface EntryAttribute<T extends Value<?>>
 
 
     /**
+     * Get's the user provided identifier for this entry.  This is the value
+     * that will be used as the identifier for the attribute within the
+     * entry.  If this is a commonName attribute for example and the user
+     * provides "COMMONname" instead when adding the entry then this is
+     * the format the user will have that entry returned by the directory
+     * server.  To do so we store this value as it was given and track it
+     * in the attribute using this property.
+     *
+     * @return the user provided identifier for this attribute
+     */
+    String getUpId();
+
+    
+    /**
      * Returns an iterator over all the attribute's values.
      * <p>
      * The effect on the returned enumeration of adding or removing values of
