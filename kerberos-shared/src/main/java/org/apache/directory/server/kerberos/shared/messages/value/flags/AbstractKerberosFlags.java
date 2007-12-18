@@ -33,6 +33,11 @@ import org.apache.directory.shared.asn1.primitives.BitString;
  */
 public abstract class AbstractKerberosFlags extends BitString implements KerberosFlags
 {
+    /**
+     * The maximum size of the BitString as specified for Kerberos flags.
+     */
+    public static final int MAX_SIZE = 32;
+
     /** The associated value */
     protected int value;
     
@@ -42,7 +47,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
      */
     public AbstractKerberosFlags()
     {
-        super( 32 );
+        super( MAX_SIZE );
     }
 
     
