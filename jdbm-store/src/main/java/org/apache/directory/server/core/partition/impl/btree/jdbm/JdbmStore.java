@@ -525,7 +525,7 @@ public class JdbmStore
         try
         {
             recMan.close();
-            LOG.debug( "Cloased record manager for {} partition.",  suffixDn );
+            LOG.debug( "Closed record manager for {} partition.",  suffixDn );
         }
         catch ( Throwable t )
         {
