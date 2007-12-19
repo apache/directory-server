@@ -98,7 +98,7 @@ public class Checksum extends AbstractAsn1Object
             return true;
         }
 
-        if ( ( o != null ) || !( o instanceof Checksum ) )
+        if ( ( o == null ) || !( o instanceof Checksum ) )
         {
             return false;
         }

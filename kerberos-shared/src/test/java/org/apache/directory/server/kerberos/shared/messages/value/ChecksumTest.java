@@ -78,4 +78,20 @@ public class ChecksumTest extends TestCase
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
     }
+
+
+    /**
+     * Tests that two Checksums are equal if both their type and value are equal.
+     */
+    public void testEquality()
+    {
+        byte[] checksumValue =
+            { ( byte ) 0x30, ( byte ) 0x1A, ( byte ) 0xA0, ( byte ) 0x11, ( byte ) 0x18, ( byte ) 0x0F, ( byte ) 0x32,
+                ( byte ) 0x30 };
+
+        Checksum expected = new Checksum( ChecksumType.RSA_MD5, checksumValue );
+        Checksum provided = new Checksum( ChecksumType.RSA_MD5, checksumValue );
+
+        assertTrue( "Checksum equality", expected.equals( provided ) );
+    }
 }
