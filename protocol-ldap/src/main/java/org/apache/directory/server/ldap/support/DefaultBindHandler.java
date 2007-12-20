@@ -68,6 +68,7 @@ import javax.security.sasl.SaslServer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -481,14 +482,22 @@ public class DefaultBindHandler extends BindHandler
             throw new ServiceConfigurationException( message );
         }
 
-        EncryptionKey key = entry.getKeyMap().get( EncryptionType.DES_CBC_MD5 );
-        byte[] keyBytes = key.getKeyValue();
-        int type = key.getKeyType().getOrdinal();
-        int kvno = key.getKeyVersion();
-
-        KerberosKey serviceKey = new KerberosKey( servicePrincipal, keyBytes, type, kvno );
         Subject subject = new Subject();
-        subject.getPrivateCredentials().add( serviceKey );
+
+        Iterator<EncryptionType> it = entry.getKeyMap().keySet().iterator();
+
+        while ( it.hasNext() )
+        {
+            EncryptionKey key = entry.getKeyMap().get( it.next() );
+
+            byte[] keyBytes = key.getKeyValue();
+            int type = key.getKeyType().getOrdinal();
+            int kvno = key.getKeyVersion();
+
+            KerberosKey serviceKey = new KerberosKey( servicePrincipal, keyBytes, type, kvno );
+
+            subject.getPrivateCredentials().add( serviceKey );
+        }
 
         return subject;
     }
