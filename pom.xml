@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.directory.server</groupId>
   <version>1.0</version>
-  <artifactId>1.0-with-dependencies</artifactId>
-  <name>ApacheDS 1.0 Build With Dependencies</name>
+  <artifactId>1.5-2-with-dependencies</artifactId>
+  <name>ApacheDS 1.5.2 Build With Dependencies</name>
   <inceptionYear>2004</inceptionYear>
   <packaging>pom</packaging>
   <modules>
