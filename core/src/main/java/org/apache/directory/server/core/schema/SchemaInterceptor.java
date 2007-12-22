@@ -49,10 +49,18 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueExcep
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.filter.ApproximateNode;
+import org.apache.directory.shared.ldap.filter.AssertionNode;
+import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.ExtensibleNode;
+import org.apache.directory.shared.ldap.filter.GreaterEqNode;
+import org.apache.directory.shared.ldap.filter.LessEqNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.CascadeControl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -108,7 +116,7 @@ import java.util.Set;
 public class SchemaInterceptor extends BaseInterceptor
 {
     /** The LoggerFactory used by this Interceptor */
-    private static Logger log = LoggerFactory.getLogger( SchemaInterceptor.class );
+    private static Logger LOG = LoggerFactory.getLogger( SchemaInterceptor.class );
 
     private static final String[] SCHEMA_SUBENTRY_RETURN_ATTRIBUTES =
             new String[] { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES };
@@ -117,7 +125,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /**
      * the root nexus to all database partitions
@@ -137,6 +145,11 @@ public class SchemaInterceptor extends BaseInterceptor
      * the global schema object registries
      */
     private Registries registries;
+
+    /**
+     * the global attributeType registry
+     */
+    private AttributeTypeRegistry attributeTypeRegistry;
 
     /** A normalized form for the SubschemaSubentry DN */
     private String subschemaSubentryDnNorm;
@@ -176,35 +189,36 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Initializing SchemaInterceptor..." );
+            LOG.debug( "Initializing SchemaInterceptor..." );
         }
 
         nexus = directoryService.getPartitionNexus();
         registries = directoryService.getRegistries();
+        attributeTypeRegistry = registries.getAttributeTypeRegistry();
         binaryAttributeFilter = new BinaryAttributeFilter();
         topFilter = new TopFilter();
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
         schemaBaseDN = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
-        schemaBaseDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        schemaBaseDN.normalize( attributeTypeRegistry.getNormalizerMapping() );
         schemaService = directoryService.getSchemaService();
         schemaManager = directoryService.getSchemaService().getSchemaControl();
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         LdapDN subschemaSubentryDn = new LdapDN( subschemaSubentry );
-        subschemaSubentryDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        subschemaSubentryDn.normalize( attributeTypeRegistry.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
         schemaModificationAttributesDN = new LdapDN( "cn=schemaModifications,ou=schema" );
-        schemaModificationAttributesDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        schemaModificationAttributesDN.normalize( attributeTypeRegistry.getNormalizerMapping() );
 
         computeSuperiors();
 
         if ( IS_DEBUG )
         {
-            log.debug( "SchemaInterceptor Initialized !" );
+            LOG.debug( "SchemaInterceptor Initialized !" );
         }
     }
 
@@ -431,7 +445,7 @@ public class SchemaInterceptor extends BaseInterceptor
 	                String oid = registries.getOidRegistry().getOid( attribute );
 
             		// The attribute must be an AttributeType
-	                if ( registries.getAttributeTypeRegistry().hasAttributeType( oid ) )
+	                if ( attributeTypeRegistry.hasAttributeType( oid ) )
 	                {
 		                if ( !filteredAttrs.containsKey( oid ) )
 		                {
@@ -482,6 +496,161 @@ public class SchemaInterceptor extends BaseInterceptor
 
         searchCtls.setReturningAttributes( newAttributesList );
     }
+    
+    
+    private Object convert( String id, Object value ) throws NamingException
+    {
+        AttributeType at = attributeTypeRegistry.lookup( id );
+
+        if ( at.getSyntax().isHumanReadable() )
+        {
+            if ( value instanceof byte[] )
+            {
+                try
+                {
+                    String valStr = new String( (byte[])value, "UTF-8" );
+                    return valStr;
+                }
+                catch ( UnsupportedEncodingException uee )
+                {
+                    String message = "The value stored in an Human Readable attribute as a byte[] should be convertible to a String";
+                    LOG.error( message );
+                    throw new NamingException( message );
+                }
+            }
+        }
+        else
+        {
+            if ( value instanceof String )
+            {
+                try
+                {
+                    byte[] valBytes = ((String)value).getBytes( "UTF-8" );
+                    return valBytes;
+                }
+                catch ( UnsupportedEncodingException uee )
+                {
+                    String message = "The value stored in a non Human Readable attribute as a String should be convertible to a byte[]";
+                    LOG.error( message );
+                    throw new NamingException( message );
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Check that the filter values are compatible with the AttributeType. Typically,
+     * a HumanReadible filter should have a String value. The substring filter should
+     * not be used with binary attributes.
+     */
+    private void checkFilter( ExprNode filter ) throws NamingException
+    {
+        if ( filter == null )
+        {
+            String message = "A filter should not be null";
+            LOG.error( message );
+            throw new NamingException( message );
+        }
+        
+        if ( filter.isLeaf() )
+        {
+            if ( filter instanceof EqualityNode )
+            {
+                EqualityNode node = ((EqualityNode)filter);
+                Object value = node.getValue();
+                
+                Object newValue = convert( node.getAttribute(), value );
+                
+                if ( newValue != null )
+                {
+                    node.setValue( newValue );
+                }
+            }
+            else if ( filter instanceof SubstringNode )
+            {
+                SubstringNode node = ((SubstringNode)filter);
+
+                if ( ! attributeTypeRegistry.lookup( node.getAttribute() ).getSyntax().isHumanReadable() )
+                {
+                    String message = "A Substring filter should be used only on Human Readable attributes";
+                    LOG.error(  message  );
+                    throw new NamingException( message );
+                }
+            }
+            else if ( filter instanceof PresenceNode )
+            {
+                // Nothing to do
+            }
+            else if ( filter instanceof GreaterEqNode )
+            {
+                GreaterEqNode node = ((GreaterEqNode)filter);
+                Object value = node.getValue();
+                
+                Object newValue = convert( node.getAttribute(), value );
+                
+                if ( newValue != null )
+                {
+                    node.setValue( newValue );
+                }
+                
+            }
+            else if ( filter instanceof LessEqNode )
+            {
+                LessEqNode node = ((LessEqNode)filter);
+                Object value = node.getValue();
+                
+                Object newValue = convert( node.getAttribute(), value );
+                
+                if ( newValue != null )
+                {
+                    node.setValue( newValue );
+                }
+            }
+            else if ( filter instanceof ExtensibleNode )
+            {
+                ExtensibleNode node = ((ExtensibleNode)filter);
+                
+                if ( ! attributeTypeRegistry.lookup( node.getAttribute() ).getSyntax().isHumanReadable() )
+                {
+                    String message = "A Extensible filter should be used only on Human Readable attributes";
+                    LOG.error(  message  );
+                    throw new NamingException( message );
+                }
+            }
+            else if ( filter instanceof ApproximateNode )
+            {
+                ApproximateNode node = ((ApproximateNode)filter);
+                Object value = node.getValue();
+                
+                Object newValue = convert( node.getAttribute(), value );
+                
+                if ( newValue != null )
+                {
+                    node.setValue( newValue );
+                }
+            }
+            else if ( filter instanceof AssertionNode )
+            {
+                // Nothing to do
+                return;
+            }
+            else if ( filter instanceof ScopeNode )
+            {
+                // Nothing to do
+                return;
+            }
+        }
+        else
+        {
+            // Recursively iterate through all the children.
+            for ( ExprNode child:((BranchNode)filter).getChildren() )
+            {
+                checkFilter( child );
+            }
+        }
+    }
 
 
     /**
@@ -497,6 +666,9 @@ public class SchemaInterceptor extends BaseInterceptor
         // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
         // from the list
         filterAttributesToReturn( searchCtls );
+        
+        // We also have to check the H/R flag for the filter attributes
+        checkFilter( filter );
 
         String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.toNormName() );
 
@@ -749,13 +921,13 @@ public class SchemaInterceptor extends BaseInterceptor
 
         // We must select all the ObjectClasses, except 'top',
         // but including all the inherited ObjectClasses
-        NamingEnumeration<String> ocs = (NamingEnumeration<String>)objectClasses.getAll();
+        NamingEnumeration<?> ocs = objectClasses.getAll();
         boolean hasExtensibleObject = false;
 
 
         while ( ocs.hasMoreElements() )
         {
-            String objectClassName = ocs.nextElement();
+            String objectClassName = (String)ocs.nextElement();
 
             if ( SchemaConstants.TOP_OC.equals( objectClassName ) )
             {
@@ -857,11 +1029,11 @@ public class SchemaInterceptor extends BaseInterceptor
         objectClassesUP.add( SchemaConstants.TOP_OC );
         
         // Construct the new list of ObjectClasses
-        NamingEnumeration<String> ocList = (NamingEnumeration<String>)objectClassAttr.getAll();
+        NamingEnumeration<?> ocList = objectClassAttr.getAll();
 
         while ( ocList.hasMoreElements() )
         {
-            String ocName = ocList.nextElement();
+            String ocName = (String)ocList.nextElement();
 
             if ( !ocName.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
             {
@@ -976,7 +1148,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( entry == null )
         {
-            log.error( "No entry with this name :{}", name );
+            LOG.error( "No entry with this name :{}", name );
             throw new LdapNameNotFoundException( "The entry which name is " + name + " is not found." );
         }
         
@@ -1045,7 +1217,6 @@ public class SchemaInterceptor extends BaseInterceptor
         }
 
         ObjectClassRegistry ocRegistry = this.registries.getObjectClassRegistry();
-        AttributeTypeRegistry atRegistry = this.registries.getAttributeTypeRegistry();
 
         // -------------------------------------------------------------------
         // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
@@ -1055,7 +1226,7 @@ public class SchemaInterceptor extends BaseInterceptor
         if ( ( mods.size() == 1 ) && 
              ( mods.get( 0 ).getAttribute().size() == 0 ) && 
              ( mods.get( 0 ).getModificationOp() == DirContext.REPLACE_ATTRIBUTE ) &&
-             ! atRegistry.hasAttributeType( mods.get( 0 ).getAttribute().getID() ) )
+             ! attributeTypeRegistry.hasAttributeType( mods.get( 0 ).getAttribute().getID() ) )
         {
             return;
         }
@@ -1067,7 +1238,7 @@ public class SchemaInterceptor extends BaseInterceptor
             int modOp = mod.getModificationOp();
             Attribute change = mod.getAttribute();
 
-            if ( !atRegistry.hasAttributeType( change.getID() ) && 
+            if ( !attributeTypeRegistry.hasAttributeType( change.getID() ) && 
                 !objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
             {
                 throw new LdapInvalidAttributeIdentifierException();
@@ -1075,7 +1246,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             // We will forbid modification of operational attributes which are not
             // user modifiable.
-            AttributeType attributeType = atRegistry.lookup( change.getID() );
+            AttributeType attributeType = attributeTypeRegistry.lookup( change.getID() );
             
             if ( !attributeType.isCanUserModify() )
             {
@@ -1114,7 +1285,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 case DirContext.REMOVE_ATTRIBUTE :
                     if ( tmpEntry.get( change.getID() ) == null )
                     {
-                        log.error( "Trying to remove an non-existant attribute: " + change.getID() );
+                        LOG.error( "Trying to remove an non-existant attribute: " + change.getID() );
                         throw new LdapNoSuchAttributeException();
                     }
 
@@ -1125,7 +1296,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         // Check that we aren't removing a MUST attribute
                         if ( isRequired( change.getID(), objectClass ) )
                         {
-                            log.error( "Trying to remove a required attribute: " + change.getID() );
+                            LOG.error( "Trying to remove a required attribute: " + change.getID() );
                             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                         }
                     }
@@ -1135,7 +1306,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         // if so then we have a schema violation that must be thrown
                         if ( isRequired( change.getID(), objectClass ) && isCompleteRemoval( change, entry ) )
                         {
-                            log.error( "Trying to remove a required attribute: " + change.getID() );
+                            LOG.error( "Trying to remove a required attribute: " + change.getID() );
                             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                         }
 
@@ -1154,7 +1325,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         // and if it's a MUST one, we should thow an exception
                         if ( ( modified.size() == 0 ) && isRequired( change.getID(), objectClass ) )
                         {
-                            log.error( "Trying to remove a required attribute: " + change.getID() );
+                            LOG.error( "Trying to remove a required attribute: " + change.getID() );
                             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                         }
 
@@ -1261,14 +1432,14 @@ public class SchemaInterceptor extends BaseInterceptor
         
         if ( name.startsWith( schemaBaseDN ) )
         {
-            log.debug( "Modification attempt on schema partition {}: \n{}", name, opContext );
+            LOG.debug( "Modification attempt on schema partition {}: \n{}", name, opContext );
         
             schemaManager.modify( name, mods, entry, targetEntry,
                 opContext.hasRequestControl( CascadeControl.CONTROL_OID ));
         }
         else if ( subschemaSubentryDnNorm.equals( name.getNormName() ) )
         {
-            log.debug( "Modification attempt on schema subentry {}: \n{}", name, opContext );
+            LOG.debug( "Modification attempt on schema subentry {}: \n{}", name, opContext );
 
             schemaManager.modifySchemaSubentry( name, mods, entry, targetEntry,
                 opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
@@ -1323,9 +1494,9 @@ public class SchemaInterceptor extends BaseInterceptor
             String id = list.next();
             AttributeType type = null;
 
-            if ( registries.getAttributeTypeRegistry().hasAttributeType( id ) )
+            if ( attributeTypeRegistry.hasAttributeType( id ) )
             {
-                type = registries.getAttributeTypeRegistry().lookup( id );
+                type = attributeTypeRegistry.lookup( id );
             }
             else
             {
@@ -1407,7 +1578,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             String name = attrEnum.nextElement();
             
-            if ( !registries.getAttributeTypeRegistry().hasAttributeType( name ) )
+            if ( !attributeTypeRegistry.hasAttributeType( name ) )
             {
                 throw new LdapInvalidAttributeIdentifierException( name + " not found in attribute registry!" );
             }
@@ -1504,7 +1675,7 @@ public class SchemaInterceptor extends BaseInterceptor
             String attrId = attribute.getID();
             String attrOid = registries.getOidRegistry().getOid( attrId );
 
-            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attrOid );
+            AttributeType attributeType = attributeTypeRegistry.lookup( attrOid );
 
             if ( !attributeType.isCollective() && ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) )
             {
@@ -1552,9 +1723,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private void assertNumberOfAttributeValuesValid( Attribute attribute ) throws InvalidAttributeValueException, NamingException
     {
-        AttributeTypeRegistry registry = this.registries.getAttributeTypeRegistry();
-
-        if ( attribute.size() > 1 && registry.lookup( attribute.getID() ).isSingleValue() )
+        if ( attribute.size() > 1 && attributeTypeRegistry.lookup( attribute.getID() ).isSingleValue() )
         {                
             throw new LdapInvalidAttributeValueException( "More than one value has been provided " +
                 "for the single-valued attribute: " + attribute.getID(), ResultCodeEnum.CONSTRAINT_VIOLATION );
@@ -1623,7 +1792,7 @@ public class SchemaInterceptor extends BaseInterceptor
     	if ( structuralObjectClasses.isEmpty() )
     	{
     		String message = "Entry " + dn + " does not contain a STRUCTURAL ObjectClass";
-    		log.error( message );
+    		LOG.error( message );
     		throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
     	}
     	
@@ -1654,7 +1823,7 @@ public class SchemaInterceptor extends BaseInterceptor
     	if ( remaining.size() > 1 )
     	{
             String message = "Entry " + dn + " contains more than one STRUCTURAL ObjectClass: " + remaining;
-            log.error( message );
+            LOG.error( message );
             throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
     	}
     }
@@ -1671,7 +1840,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             Attribute attribute = attributes.nextElement();
 
-            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute.getID() );
+            AttributeType attributeType = attributeTypeRegistry.lookup( attribute.getID() );
             SyntaxChecker syntaxChecker =  registries.getSyntaxCheckerRegistry().lookup( attributeType.getSyntax().getOid() );
             
             if ( syntaxChecker instanceof AcceptAllSyntaxChecker )
@@ -1697,7 +1866,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     String message = "Attribute value '" + 
                         (value instanceof String ? value : StringTools.dumpBytes( (byte[])value ) ) + 
                         "' for attribute '" + attribute.getID() + "' is syntactically incorrect";
-                    log.info( message );
+                    LOG.info( message );
                     
                     throw new LdapInvalidAttributeValueException( message, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
 
@@ -1706,102 +1875,138 @@ public class SchemaInterceptor extends BaseInterceptor
         }
     }
     
+    private boolean checkHumanReadable( Attribute attribute ) throws NamingException
+    {
+        Enumeration<?> values = attribute.getAll();
+        boolean isModified = false;
+
+        // Loop on each values
+        while ( values.hasMoreElements() )
+        {
+            Object value = values.nextElement();
+
+            if ( value instanceof String )
+            {
+                continue;
+            }
+            else if ( value instanceof byte[] )
+            {
+                // we have a byte[] value. It should be a String UTF-8 encoded
+                // Let's transform it
+                try
+                {
+                    String valStr = new String( (byte[])value, "UTF-8" );
+                    attribute.remove( value );
+                    attribute.add( valStr );
+                    isModified = true;
+                }
+                catch ( UnsupportedEncodingException uee )
+                {
+                    throw new NamingException( "The value is not a valid String" );
+                }
+            }
+            else
+            {
+                throw new NamingException( "The value stored in an Human Readable attribute is not a String" );
+            }
+        }
+        
+        return isModified;
+    }
+    
+    private boolean checkNotHumanReadable( Attribute attribute ) throws NamingException
+    {
+        Enumeration<?> values = attribute.getAll();
+        boolean isModified = false;
+
+        // Loop on each values
+        while ( values.hasMoreElements() )
+        {
+            Object value = values.nextElement();
+
+            if ( value instanceof byte[] )
+            {
+                continue;
+            }
+            else if ( value instanceof String )
+            {
+                // We have a String value. It should be a byte[]
+                // Let's transform it
+                try
+                {
+                    byte[] valBytes = ( (String)value ).getBytes( "UTF-8" );
+                    
+                    attribute.remove( value );
+                    attribute.add( valBytes );
+                    isModified = true;
+                }
+                catch ( UnsupportedEncodingException uee )
+                {
+                    String message = "The value stored in a not Human Readable attribute as a String should be convertible to a byte[]";
+                    LOG.error( message );
+                    throw new NamingException( message );
+                }
+            }
+            else
+            {
+                String message ="The value is not valid. It should be a String or a byte[]"; 
+                LOG.error( message );
+                throw new NamingException( message );
+            }
+        }
+        
+        return isModified;
+    }
+    
+    
     /**
      * Check that all the attribute's values which are Human Readable can be transformed
-     * to valid String if they are stored as byte[].
+     * to valid String if they are stored as byte[], and that non Human Readable attributes
+     * stored as String can be transformed to byte[]
      */
     private void assertHumanReadable( Attributes entry ) throws NamingException
     {
         NamingEnumeration<? extends Attribute> attributes = entry.getAll();
-        boolean isEntryModified = false;
-        Attributes cloneEntry = null;
+        boolean isModified = false;
+        
+        Attributes clonedEntry = null;
 
         // First, loop on all attributes
         while ( attributes.hasMoreElements() )
         {
             Attribute attribute = attributes.nextElement();
 
-            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute.getID() );
+            AttributeType attributeType = attributeTypeRegistry.lookup( attribute.getID() );
 
             // If the attributeType is H-R, check all of its values
             if ( attributeType.getSyntax().isHumanReadable() )
             {
-                Enumeration<?> values = attribute.getAll();
-                Attribute clone = null;
-                boolean isModified = false;
-
-                // Loop on each values
-                while ( values.hasMoreElements() )
+                isModified = checkHumanReadable( attribute );
+            }
+            else
+            {
+                isModified = checkNotHumanReadable( attribute );
+            }
+            
+            // If we have a returned attribute, then we need to store it
+            // into a new entry
+            if ( isModified )
+            {
+                if ( clonedEntry == null )
                 {
-                    Object value = values.nextElement();
-
-                    if ( value instanceof String )
-                    {
-                        continue;
-                    }
-                    else if ( value instanceof byte[] )
-                    {
-                        // Ve have a byte[] value. It should be a String UTF-8 encoded
-                        // Let's transform it
-                        try
-                        {
-                            String valStr = new String( (byte[])value, "UTF-8" );
-
-                            if ( !isModified )
-                            {
-                                // Don't create useless clones. We only clone
-                                // if we have at least one value which is a byte[]
-                                isModified = true;
-                                clone = (Attribute)attribute.clone();
-                            }
-
-                            // Swap the value into the clone
-                            clone.remove( value );
-                            clone.add( valStr );
-                        }
-                        catch ( UnsupportedEncodingException uee )
-                        {
-                            throw new NamingException( "The value is not a valid String" );
-                        }
-                    }
-                    else
-                    {
-                        throw new NamingException( "The value stored in an Human Readable attribute is not a String" );
-                    }
+                    clonedEntry = (Attributes)entry.clone();
                 }
+                
+                // Switch the attributes
+                clonedEntry.put( attribute );
 
-                // The attribute has been checked. If one of its value has been modified,
-                // we have to modify the cloned Attributes/
-                if ( isModified )
-                {
-                    if ( !isEntryModified )
-                    {
-                        // Again, let's avoid useless cloning. If no attribute is H-R
-                        // or if no H-R value is stored as a byte[], we don't have to create a clone
-                        // of the entry
-                        cloneEntry = (Attributes)entry.clone();
-                        isEntryModified = true;
-                    }
-
-                    // Swap the attribute into the cloned entry
-                    cloneEntry.remove( attribute.getID() );
-                    cloneEntry.put( clone );
-                }
+                isModified = false;
             }
         }
-
-        // At the end, we now have to switch the entries, if it has been modified
-        if ( isEntryModified )
+        
+        if ( clonedEntry != null )
         {
-            attributes = cloneEntry.getAll();
-
-            // We llop on all the attributes and modify them in the initial entry.
-            while ( attributes.hasMoreElements() )
-            {
-                Attribute attribute = (Attribute)attributes.nextElement();
-                entry.remove( attribute.getID() );
-                entry.put( attribute );
-            }
+            entry = clonedEntry;
         }
     }
 }

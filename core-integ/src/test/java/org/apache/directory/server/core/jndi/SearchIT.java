@@ -692,9 +692,9 @@ public class SearchIT
         // Search for kate by cn first
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        NamingEnumeration enm = sysRoot.search( "", "(cn=Kate Bush)", controls );
+        NamingEnumeration<SearchResult> enm = sysRoot.search( "", "(cn=Kate Bush)", controls );
         assertTrue( enm.hasMore() );
-        SearchResult sr = ( SearchResult ) enm.next();
+        SearchResult sr = enm.next();
         assertNotNull( sr );
         assertFalse( enm.hasMore() );
         assertEquals( "cn=Kate Bush,ou=system", sr.getName() );

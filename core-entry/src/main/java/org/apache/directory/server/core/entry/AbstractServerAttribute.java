@@ -29,8 +29,10 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 
@@ -47,7 +49,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute<ServerV
     private static final Logger LOG = LoggerFactory.getLogger( AbstractServerAttribute.class );
 
     /** The set of contained values */
-    protected Set<ServerValue<?>> values = new HashSet<ServerValue<?>>();
+    protected List<ServerValue<?>> values = new ArrayList<ServerValue<?>>();
     
     /** The associated AttributeType */
     protected AttributeType attributeType;

@@ -23,6 +23,7 @@ import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -302,8 +303,8 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
         else
         {
             String message = "The value must be a String, as its AttributeType is H/R";
-            LOG.error( message );
-            throw new InvalidAttributeValueException( message );
+            LOG.warn( message );
+            return add( new ServerBinaryValue( attributeType, StringTools.getBytesUtf8( val ) ) );
         }
     }
 

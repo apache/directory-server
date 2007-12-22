@@ -26,6 +26,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.InvalidAttributeIdentifierException;
 
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -63,7 +64,7 @@ public class ServerEntryUtils
             for ( Iterator<ServerValue<?>> iter = attr.iterator(); iter.hasNext();)
             {
                 ServerValue<?> value = iter.next();
-                attribute.add( value );
+                attribute.add( value.get() );
             }
             
             attributes.put( attribute );
@@ -80,8 +81,11 @@ public class ServerEntryUtils
      * @param registries The registries, needed ro build a ServerEntry
      * @param dn The DN which is needed by the ServerEntry 
      * @return An instance of a ServerEntry object
+     * 
+     * @throws InvalidAttributeIdentifierException If we had an incorrect attribute
      */
     public static DefaultServerAttribute toServerAttribute( Attribute attribute, AttributeType attributeType )
+            throws InvalidAttributeIdentifierException
     {
         try 
         {
@@ -121,8 +125,11 @@ public class ServerEntryUtils
      * @param registries The registries, needed ro build a ServerEntry
      * @param dn The DN which is needed by the ServerEntry 
      * @return An instance of a ServerEntry object
+     * 
+     * @throws InvalidAttributeIdentifierException If we get an invalid attribute
      */
-    public static DefaultServerEntry toServerEntry( Attributes attributes, LdapDN dn, Registries registries )
+    public static DefaultServerEntry toServerEntry( Attributes attributes, LdapDN dn, Registries registries ) 
+            throws InvalidAttributeIdentifierException
     {
         if ( ( attributes instanceof BasicAttributes ) || ( attributes instanceof AttributesImpl ) )
         {
@@ -133,6 +140,7 @@ public class ServerEntryUtils
                 for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
                 {
                     Attribute attr = attrs.nextElement();
+
                     AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attr.getID() );
                     DefaultServerAttribute serverAttribute = ServerEntryUtils.toServerAttribute( attr, attributeType );
                     
@@ -146,7 +154,7 @@ public class ServerEntryUtils
             }
             catch ( NamingException ne )
             {
-                return null;
+                throw new InvalidAttributeIdentifierException( ne.getMessage() );
             }
         }
         else

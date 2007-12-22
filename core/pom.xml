@@ -48,6 +48,12 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-entry</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-schema-registries</artifactId>
       <version>${pom.version}</version>
     </dependency>

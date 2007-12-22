@@ -27,6 +27,9 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -43,6 +46,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -106,6 +110,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     private DirectoryService service;
 
     private LdapDN subschemaSubentryDn;
+    
+    private Registries registries;
 
 
     /**
@@ -119,7 +125,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws NamingException
     {
         service = directoryService;
-        registry = directoryService.getRegistries().getAttributeTypeRegistry();
+        registries = directoryService.getRegistries();
+        registry = registries.getAttributeTypeRegistry();
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) service.getPartitionNexus()
@@ -141,16 +148,18 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         throws NamingException
     {
         String principal = getPrincipal().getName();
-        Attributes entry = opContext.getEntry();
+        
+        DefaultServerEntry entry = ServerEntryUtils.toServerEntry( opContext.getEntry(), opContext.getDn(), registries );
 
-        Attribute attribute = new AttributeImpl( SchemaConstants.CREATORS_NAME_AT );
+        DefaultServerAttribute attribute = new DefaultServerAttribute( registry.lookup( SchemaConstants.CREATORS_NAME_AT ) );
         attribute.add( principal );
         entry.put( attribute );
 
-        attribute = new AttributeImpl( SchemaConstants.CREATE_TIMESTAMP_AT );
+        attribute = new DefaultServerAttribute( registry.lookup( SchemaConstants.CREATE_TIMESTAMP_AT ) );
         attribute.add( DateUtils.getGeneralizedTime() );
         entry.put( attribute );
-
+        
+        opContext.setEntry( ServerEntryUtils.toAttributesImpl( entry ) );
         nextInterceptor.add( opContext );
     }
 

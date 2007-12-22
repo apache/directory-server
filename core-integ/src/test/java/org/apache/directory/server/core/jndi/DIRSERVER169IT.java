@@ -100,9 +100,9 @@ public class DIRSERVER169IT
         SearchControls ctls = new SearchControls();
         String searchBase = "ou=people";
 
-        NamingEnumeration results = ctx.search( searchBase, "(uid=bob)", ctls );
+        NamingEnumeration<SearchResult> results = ctx.search( searchBase, "(uid=bob)", ctls );
         assertTrue( results.hasMore() );
-        SearchResult searchResult = ( SearchResult ) results.next();
+        SearchResult searchResult = results.next();
 
         StringBuffer userDn = new StringBuffer();
         userDn.append( searchResult.getName() );
@@ -147,8 +147,8 @@ public class DIRSERVER169IT
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         String filter = "(userPassword={0})";
-        NamingEnumeration results = ctx.search( "uid=bob,ou=people", filter, new Object[]
-            { "bobspassword" }, ctls );
+        NamingEnumeration<SearchResult> results = ctx.search( "uid=bob,ou=people", filter, new Object[]
+                                                                                            { "bobspassword" }, ctls );
 
         // We should have a match
         assertTrue( results.hasMore() );

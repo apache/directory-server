@@ -20,6 +20,8 @@
 package org.apache.directory.server.schema;
 
 
+import java.io.UnsupportedEncodingException;
+
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -29,6 +31,9 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,8 +46,12 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  */
 public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
 {
+    /** The LoggerFactory used by this Interceptor */
+    private static Logger LOG = LoggerFactory.getLogger( ConcreteNameComponentNormalizer.class );
+
     /** the at registry used to dynamically resolve Normalizers */
     private final AttributeTypeRegistry attributeRegistry;
+    
     /** the oid registry used to dynamically resolve aliases to OIDs */
     private final OidRegistry oidRegistry;
 
@@ -60,13 +69,75 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
         this.oidRegistry = oidRegistry;
     }
 
+    
+    private String unescape( String value )
+    {
+        char[] newVal = new char[value.length()];
+        int escaped = 0;
+        char high = 0;
+        char low = 0;
+        int pos = 0;
+        
+        for ( char c:value.toCharArray() )
+        {
+            switch ( escaped )
+            {
+                case 0 :
+                    if ( c == '\\' )
+                    {
+                        escaped = 1;
+                    }
+                    else
+                    {
+                        newVal[pos++] = c;
+                    }
+                    
+                    break;
+
+                case 1 :
+                    escaped++;
+                    high = c;
+                    break;
+                    
+                case 2 :
+                    escaped=0;
+                    low = c;
+                    newVal[pos++] = (char)StringTools.getHexValue( high, low );
+                    
+            }
+        }
+        
+        return new String( newVal, 0, pos );
+    }
 
     /**
      * @see NameComponentNormalizer#normalizeByName(String, String)
      */
     public Object normalizeByName( String name, String value ) throws NamingException
     {
-        return lookup( name ).normalize( value );
+        AttributeType attributeType = attributeRegistry.lookup( name );
+        
+        if ( attributeType.getSyntax().isHumanReadable() )
+        {
+            return lookup( name ).normalize( value );
+        }
+        else
+        {
+            try
+            {
+                String unescaped = unescape( value );
+                byte[] valBytes = unescaped.getBytes( "UTF-8" );
+                
+                return lookup( name ).normalize( valBytes ); 
+            }
+            catch ( UnsupportedEncodingException uee )
+            {
+                String message = "The value stored in a non Human Readable attribute as a String should be convertible to a byte[]";
+                LOG.error( message );
+                throw new NamingException( message );
+            }
+        }
+        
     }
 
 
@@ -75,7 +146,26 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
      */
     public Object normalizeByName( String name, byte[] value ) throws NamingException
     {
-        return lookup( name ).normalize( value );
+        AttributeType attributeType = attributeRegistry.lookup( name );
+        
+        if ( !attributeType.getSyntax().isHumanReadable() )
+        {
+            return lookup( name ).normalize( value );
+        }
+        else
+        {
+            try
+            {
+                String valStr = new String( value, "UTF-8" );
+                return lookup( name ).normalize( valStr ); 
+            }
+            catch ( UnsupportedEncodingException uee )
+            {
+                String message = "The value stored in an Human Readable attribute as a byte[] should be convertible to a String";
+                LOG.error( message );
+                throw new NamingException( message );
+            }
+        }
     }
 
 
