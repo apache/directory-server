@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.partition.impl.btree.jdbm.cursor;
+package org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.keyonly;
 
 
 import jdbm.btree.BTree;
@@ -26,6 +26,7 @@ import jdbm.helper.TupleBrowser;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.InconsistentCursorStateException;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
+import org.apache.directory.server.core.cursor.CursorState;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,14 +44,26 @@ import java.io.IOException;
 public class KeyCursor<E> extends AbstractCursor<E>
 {
     private static final Logger LOG = LoggerFactory.getLogger( KeyCursor.class );
-    private final Tuple jdbmTuple = new Tuple();
+    private final Tuple tuple = new Tuple();
 
+    private final CursorState afterInner = new AfterInnerState( this );
+    private final CursorState afterLast = new AfterLastState( this );
+    private final CursorState beforeFirst = new BeforeFirstState( this );
+    private final CursorState beforeInner = new BeforeInnerState( this );
+    private final CursorState closed = new ClosedState();
+    private final CursorState opened = new OpenedState( this );
+    private final CursorState onFirst = new OnFirstState( this );
+    private final CursorState onInner = new OnInnerState( this );
+    private final CursorState onLast = new OnLastState( this );
+    private final CursorState empty = new EmptyCursorState( this );
+
+    private CursorState state = opened;
     private BTree btree;
     private TupleBrowser browser;
     private int size;  // cache the size to prevent needless lookups
-    private boolean afterLast;
-    private boolean beforeFirst;
-    private boolean success;
+
+    private E first;
+    private E last;
 
 
     /**
@@ -62,7 +75,7 @@ public class KeyCursor<E> extends AbstractCursor<E>
     KeyCursor( BTree btree ) throws IOException
     {
         this.btree = btree;
-        beforeFirst();
+        this.size = btree.size();
     }
 
 
@@ -72,8 +85,8 @@ public class KeyCursor<E> extends AbstractCursor<E>
         success = false;
         afterLast = false;
         beforeFirst = false;
-        jdbmTuple.setKey( null );
-        jdbmTuple.setValue( null );
+        tuple.setKey( null );
+        tuple.setValue( null );
     }
 
 
@@ -91,7 +104,6 @@ public class KeyCursor<E> extends AbstractCursor<E>
             afterLast = false;
             success = false;
             size = btree.size();
-            pos = BEFORE_FIRST;
             browser = btree.browse();
         }
     }
@@ -117,17 +129,17 @@ public class KeyCursor<E> extends AbstractCursor<E>
         // respectively before the first or after the last position
         // -------------------------------------------------------------------
 
-        if ( ( relativePosition + pos ) >= size )
-        {
-            afterLast();
-            return false;
-        }
-
-        if ( ( relativePosition + pos ) < 0 )
-        {
-            beforeFirst();
-            return false;
-        }
+//        if ( ( relativePosition + pos ) >= size )
+//        {
+//            afterLast();
+//            return false;
+//        }
+//
+//        if ( ( relativePosition + pos ) < 0 )
+//        {
+//            beforeFirst();
+//            return false;
+//        }
 
         // -------------------------------------------------------------------
         // Special case where position is valid and that's the new position
@@ -168,10 +180,10 @@ public class KeyCursor<E> extends AbstractCursor<E>
             return next();
         }
 
-        if ( pos == 0 )
-        {
-            return success;
-        }
+//        if ( pos == 0 )
+//        {
+//            return success;
+//        }
 
         beforeFirst();
         return next();
@@ -185,10 +197,10 @@ public class KeyCursor<E> extends AbstractCursor<E>
             return previous();
         }
 
-        if ( pos == ( size - 1 ) )
-        {
-            return success;
-        }
+//        if ( pos == ( size - 1 ) )
+//        {
+//            return success;
+//        }
 
         afterLast();
         return previous();
@@ -197,13 +209,15 @@ public class KeyCursor<E> extends AbstractCursor<E>
 
     public boolean isFirst() throws IOException
     {
-        return pos == 0;
+//        return pos == 0;
+        throw new NotImplementedException();
     }
 
 
     public boolean isLast() throws IOException
     {
-        return pos == ( size - 1 );
+//        return pos == ( size - 1 );
+        throw new NotImplementedException();
     }
 
 
@@ -228,29 +242,29 @@ public class KeyCursor<E> extends AbstractCursor<E>
 
         if ( afterLast )
         {
-            success = browser.getPrevious( jdbmTuple );
+            success = browser.getPrevious( tuple );
             if ( success )
             {
                 afterLast = false;
                 beforeFirst = false;
-                pos = size - 1;
+//                pos = size - 1;
             }
             return success;
         }
 
-        if ( pos == 0 )
-        {
-            success = false;
-            afterLast = false;
-            beforeFirst = true;
-            pos = BEFORE_FIRST;
-            return false;
-        }
+//        if ( pos == 0 )
+//        {
+//            success = false;
+//            afterLast = false;
+//            beforeFirst = true;
+//            pos = BEFORE_FIRST;
+//            return false;
+//        }
 
-        success = browser.getPrevious( jdbmTuple );
+        success = browser.getPrevious( tuple );
         if ( success )
         {
-            pos--;
+//            pos--;
         }
         return success;
     }
@@ -265,29 +279,29 @@ public class KeyCursor<E> extends AbstractCursor<E>
 
         if ( beforeFirst )
         {
-            success = browser.getNext( jdbmTuple );
+            success = browser.getNext( tuple );
             if ( success )
             {
                 afterLast = false;
                 beforeFirst = false;
-                pos = 0;
+//                pos = 0;
             }
             return success;
         }
 
-        if ( pos == size - 1 )
-        {
-            success = false;
-            afterLast = true;
-            beforeFirst = false;
-            pos = size;
-            return false;
-        }
+//        if ( pos == size - 1 )
+//        {
+//            success = false;
+//            afterLast = true;
+//            beforeFirst = false;
+//            pos = size;
+//            return false;
+//        }
 
-        success = browser.getNext( jdbmTuple );
+        success = browser.getNext( tuple );
         if ( success )
         {
-            pos++;
+//            pos++;
         }
         return success;
     }
@@ -295,7 +309,8 @@ public class KeyCursor<E> extends AbstractCursor<E>
 
     private boolean inRangeOnValue()
     {
-        return pos > BEFORE_FIRST && pos < size;
+//        return pos > BEFORE_FIRST && pos < size;
+        throw new NotImplementedException();
     }
 
 
@@ -310,7 +325,7 @@ public class KeyCursor<E> extends AbstractCursor<E>
         if ( success )
         {
             //noinspection unchecked
-            return ( E ) jdbmTuple.getKey();
+            return ( E ) tuple.getKey();
         }
         else
         {
@@ -323,5 +338,146 @@ public class KeyCursor<E> extends AbstractCursor<E>
     public boolean isElementReused()
     {
         return false;
+    }
+
+
+    BTree getBtree()
+    {
+        return btree;
+    }
+
+
+    Tuple getTuple()
+    {
+        return tuple;
+    }
+
+
+    CursorState getState()
+    {
+        return state;
+    }
+
+
+    void setState( CursorState state )
+    {
+        this.state = state;
+    }
+
+
+    TupleBrowser getBrowser()
+    {
+        return browser;
+    }
+
+
+    void setBrowser( TupleBrowser browser )
+    {
+        this.browser = browser;
+    }
+
+
+    int size()
+    {
+        return size;
+    }
+
+
+    E getFirst() throws IOException
+    {
+        if ( size == 0 )
+        {
+            return null;
+        }
+
+        if ( first != null )
+        {
+            return first;
+        }
+
+        TupleBrowser browser = btree.browse();
+        Tuple tuple = new Tuple();
+        if ( browser.getNext( tuple ) )
+        {
+            return first = ( E ) tuple.getKey();
+        }
+
+        return first = null;
+    }
+
+
+    E getLast() throws IOException
+    {
+        if ( size == 0 )
+        {
+            return null;
+        }
+
+        if ( last != null )
+        {
+            return last;
+        }
+
+        TupleBrowser browser = btree.browse( null );
+        Tuple tuple = new Tuple();
+        if ( browser.getPrevious( tuple ) )
+        {
+            return last = ( E ) tuple.getKey();
+        }
+        return last = null;
+    }
+
+
+    public CursorState getAfterInner()
+    {
+        return afterInner;
+    }
+
+
+    public CursorState getAfterLast()
+    {
+        return afterLast;
+    }
+
+
+    public CursorState getBeforeFirst()
+    {
+        return beforeFirst;
+    }
+
+
+    public CursorState getBeforeInner()
+    {
+        return beforeInner;
+    }
+
+
+    public CursorState getClosed()
+    {
+        return closed;
+    }
+
+
+    public CursorState getOpened()
+    {
+        return opened;
+    }
+
+
+    public CursorState getOnFirst()
+    {
+        return onFirst;
+    }
+
+
+    public CursorState getOnInner()
+    {
+        return onInner;
+    }
+
+
+    public CursorState getOnLast()
+    {
+        return onLast;
     }
 }

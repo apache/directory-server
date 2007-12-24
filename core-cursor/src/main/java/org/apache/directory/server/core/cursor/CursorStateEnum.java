@@ -27,20 +27,22 @@ package org.apache.directory.server.core.cursor;
  */
 public enum CursorStateEnum
 {
+    /** the Cursor has been created and so has not been positioned yet */
+    JUST_OPENED,
     /** the Cursor is positioned just before the first element */
     BEFORE_FIRST,
     /** the Cursor is positioned just after the last element */
     AFTER_LAST,
     /** the Cursor is positioned just before an element but not on any element */
-    BEFORE_ELEMENT,
+    BEFORE_INNER,
     /** the Cursor is positioned just after an element but not on any element */
-    AFTER_ELEMENT,
+    AFTER_INNER,
     /** the Cursor is positioned on the first element */
     ON_FIRST,
     /** the Cursor is positioned on the last element */
     ON_LAST,
     /** the Cursor is positioned on an element */
-    ON_INTERIOR_ELEMENT,
+    ON_INNER,
     /** the Cursor is closed and not operations can be performed on it */
     CLOSED
 }

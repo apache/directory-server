@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.partition.impl.btree.jdbm.cursor;
+package org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.keyonly;
 
 
 import org.junit.*;
@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNull;
 
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.keyonly.KeyCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

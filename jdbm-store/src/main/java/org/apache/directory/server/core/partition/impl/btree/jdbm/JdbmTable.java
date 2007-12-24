@@ -29,7 +29,7 @@ import org.apache.directory.server.core.cursor.EmptyCursor;
 import org.apache.directory.server.core.cursor.IteratorCursor;
 import org.apache.directory.server.core.cursor.SingletonCursor;
 import org.apache.directory.server.core.partition.impl.btree.*;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.KeyCursor;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.keyonly.KeyCursor;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.TupleCursor;
 import org.apache.directory.server.schema.SerializableComparator;
 
