@@ -21,10 +21,6 @@ package org.apache.directory.server.core.entry;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 

@@ -36,7 +36,6 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingEnumeration;

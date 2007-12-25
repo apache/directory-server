@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
@@ -34,7 +33,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import java.io.File;
 import java.util.Hashtable;
 
 

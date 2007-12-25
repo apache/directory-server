@@ -23,7 +23,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.startup;
-import static org.apache.directory.server.core.integ.state.TestServiceContext.revert;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
