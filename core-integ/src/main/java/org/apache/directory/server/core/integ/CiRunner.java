@@ -19,7 +19,10 @@
 package org.apache.directory.server.core.integ;
 
 
-import static org.apache.directory.server.core.integ.state.TestServiceContext.*;
+//port static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.cleanup;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.destroy;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.test;
 import org.junit.internal.runners.InitializationError;
 import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.Description;

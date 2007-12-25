@@ -19,7 +19,11 @@
 package org.apache.directory.server.core.integ;
 
 
-import org.apache.directory.server.core.integ.annotations.*;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifFiles;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.annotations.Factory;
+import org.apache.directory.server.core.integ.annotations.Mode;
 import org.junit.runner.Description;
 
 import java.util.ArrayList;
