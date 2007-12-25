@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -151,13 +150,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         DefaultServerEntry entry = ServerEntryUtils.toServerEntry( opContext.getEntry(), opContext.getDn(), registries );
 
-        DefaultServerAttribute attribute = new DefaultServerAttribute( registry.lookup( SchemaConstants.CREATORS_NAME_AT ) );
-        attribute.add( principal );
-        entry.put( attribute );
-
-        attribute = new DefaultServerAttribute( registry.lookup( SchemaConstants.CREATE_TIMESTAMP_AT ) );
-        attribute.add( DateUtils.getGeneralizedTime() );
-        entry.put( attribute );
+        entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
+        entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         
         opContext.setEntry( ServerEntryUtils.toAttributesImpl( entry ) );
         nextInterceptor.add( opContext );

@@ -219,11 +219,11 @@ public class ServerEntryUtils
      *
      * @return An instance of a BasicAttribute() object
      */
-    public Attribute toAttributeImpl( EntryAttribute<Value<?>> attr )
+    public static Attribute toAttributeImpl( ServerAttribute<ServerValue<?>> attr )
     {
         Attribute attribute = new AttributeImpl( attr.getUpId(), false );
 
-        for ( Iterator<Value<?>> iter = attr.getAll(); iter.hasNext();)
+        for ( Iterator<ServerValue<?>> iter = attr.getAll(); iter.hasNext();)
         {
             Value<?> value = iter.next();
             

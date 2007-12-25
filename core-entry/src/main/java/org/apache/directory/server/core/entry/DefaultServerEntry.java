@@ -166,29 +166,6 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public ServerAttribute<ServerValue<?>> put( ServerAttribute<ServerValue<?>> serverAttribute ) throws NamingException
-    {
-        if ( serverAttribute.getType().equals( objectClassAT ) && serverAttribute instanceof ObjectClassAttribute )
-        {
-            return setObjectClassAttribute( ( ObjectClassAttribute ) serverAttribute );
-        }
-
-        if ( serverAttribute.getType().equals( objectClassAT ) )
-        {
-            ObjectClassAttribute objectClassAttribute = new ObjectClassAttribute( registries );
-            
-            for ( ServerValue<?> val : serverAttribute )
-            {
-                objectClassAttribute.add( val );
-            }
-            
-            return setObjectClassAttribute( objectClassAttribute );
-        }
-
-        return serverAttributeMap.put( serverAttribute.getType(), serverAttribute );
-    }
-
-
     public List<ServerAttribute<ServerValue<?>>> put( ServerAttribute<ServerValue<?>>... serverAttributes ) throws NamingException
     {
         List<ServerAttribute<ServerValue<?>>> duplicatedAttributes = new ArrayList<ServerAttribute<ServerValue<?>>>();
@@ -234,20 +211,57 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public ServerAttribute<ServerValue<?>> put( AttributeType attributeType ) throws NamingException
+    /**
+     * Put an attribute (represented by its ID and values) into an entry. 
+     * If the attribute already exists, the previous attribute will be 
+     * replaced and returned.
+     *
+     * @param upId The attribute ID
+     * @param values The list of values to inject. It can be empty
+     * @return The replaced attribute
+     * @throws NamingException If the attribute does not exist
+     */
+    public ServerAttribute<ServerValue<?>> put( String upId, String... values ) throws NamingException
     {
-        throw new NotImplementedException();
+        AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( upId );
+        ServerAttribute<ServerValue<?>> existing = serverAttributeMap.get( attributeType );
+
+        for ( String value:values )
+        {
+            put( attributeType, value );
+        }
+        
+        return existing;
     }
 
 
-    public ServerAttribute<ServerValue<?>> remove( ServerAttribute<ServerValue<?>> serverAttribute ) throws NamingException
+    /**
+     * Put an attribute (represented by its ID and values) into an entry. 
+     * If the attribute already exists, the previous attribute will be 
+     * replaced and returned.
+     *
+     * @param upId The attribute ID
+     * @param values The list of values to inject. It can be empty
+     * @return The replaced attribute
+     * @throws NamingException If the attribute does not exist
+     */
+    public ServerAttribute<ServerValue<?>> put( String upId, byte[]... values ) throws NamingException
     {
-        if ( serverAttribute.getType().equals( objectClassAT ) )
-        {
-            return setObjectClassAttribute( new ObjectClassAttribute( registries ) );
-        }
+        AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( upId );
+        ServerAttribute<ServerValue<?>> existing = serverAttributeMap.get( attributeType );
 
-        return serverAttributeMap.remove( serverAttribute.getType() );
+        for ( byte[] value:values )
+        {
+            put( attributeType, value );
+        }
+        
+        return existing;
+    }
+
+
+    public ServerAttribute<ServerValue<?>> put( AttributeType attributeType ) throws NamingException
+    {
+        throw new NotImplementedException();
     }
 
 

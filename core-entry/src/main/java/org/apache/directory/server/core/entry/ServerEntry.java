@@ -196,19 +196,6 @@ public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends 
 
 
     /**
-     * Places a non-null attribute into this ServerEntry. If there an attribute
-     * of the same exists, the existing one is removed from the set and is
-     * returned by this method. If there was no attribute of the same type the
-     * return value is <code>null</code>.
-     *
-     * @param attribute the attribute to be put into this ServerEntry
-     * @return the existing attribute of the same type if it exists; otherwise
-     * <code>null</code>
-     */
-    T put( T attribute ) throws NamingException;
-
-    
-    /**
      * Places non-null attributes in the attribute collection. If there is
      * already an attribute with the same OID as any of the new attributes, 
      * the old ones are removed from the collection and are returned by this 
@@ -325,17 +312,6 @@ public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends 
      */
     T remove( AttributeType attributeType ) throws NamingException;
 
-    /**
-     * Places a non-null attribute into this ServerEntry. If there an attribute
-     * of the same exists, the existing one is removed from the set and is
-     * returned by this method. If there was no attribute of the same type the
-     * return value is <code>null</code>.
-     *
-     * @param attribute the attribute to be put into this ServerEntry
-     * @return the existing attribute of the same type if it exists; otherwise
-     * <code>null</code>
-     */
-    T remove( T attribute ) throws NamingException;
 
     /**
      * Removes the specified attributes. The removed attributes are
