@@ -19,8 +19,12 @@
 package org.apache.directory.server.core.changelog;
 
 
+import java.util.Set;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -45,9 +49,7 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 
@@ -98,11 +100,14 @@ public class ChangeLogInterceptor extends BaseInterceptor
         Entry forward = new Entry();
         forward.setChangeType( ChangeType.Add );
         forward.setDn( opContext.getDn().getUpName() );
-        NamingEnumeration<? extends Attribute> list = opContext.getEntry().getAll();
         
-        while ( list.hasMore() )
+        DefaultServerEntry addEntry = ServerEntryUtils.toServerEntry( opContext.getEntry(), opContext.getDn(), schemaService.getRegistries() );
+
+        Set<AttributeType> list = addEntry.getAttributeTypes();
+        
+        for ( AttributeType attributeType:list )
         {
-            forward.addAttribute( ( Attribute ) list.next() );
+            forward.addAttribute( ServerEntryUtils.toAttributeImpl( addEntry.get( attributeType ) ) );
         }
         
         Entry reverse = LdifUtils.reverseAdd( opContext.getDn() );
