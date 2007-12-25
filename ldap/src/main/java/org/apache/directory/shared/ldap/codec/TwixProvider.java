@@ -19,8 +19,14 @@
  */
 package org.apache.directory.shared.ldap.codec;
 
+import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
+import org.apache.directory.shared.ldap.message.spi.Provider;
+import org.apache.directory.shared.ldap.message.spi.ProviderDecoder;
+import org.apache.directory.shared.ldap.message.spi.ProviderEncoder;
+import org.apache.directory.shared.ldap.message.spi.ProviderException;
+import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
 
-import org.apache.directory.shared.ldap.message.spi.*;
+
 
 
 /**
