@@ -144,19 +144,23 @@ public class StringValue implements Value<String>
         }
 
         StringValue stringValue = ( StringValue ) obj;
-        if ( this.wrapped == null && stringValue.wrapped == null )
+        
+        if ( this.wrapped == null ) 
         {
-            return true;
+            if ( stringValue.wrapped == null )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-
-        //noinspection SimplifiableIfStatement
-        if ( this.wrapped == null && stringValue.wrapped != null ||
-             this.wrapped != null && stringValue.wrapped == null )
+        else if ( stringValue.wrapped == null )
         {
             return false;
         }
 
-        //noinspection ConstantConditions
         return this.wrapped.equals( stringValue.wrapped );
     }
 

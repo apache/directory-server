@@ -87,19 +87,6 @@ public interface Entry<T extends EntryAttribute<?>>
 
 
     /**
-     * Places a non-null attribute in the attribute collection. If there is
-     * already an attribute with the same OID as the new attribute, the old one
-     * is removed from the collection and is returned by this method. If there
-     * was no attribute with the same OID the return value is <code>null</code>.
-     *
-     * @param attribute the attribute to be put
-     * @return the old attribute with the same OID, if exists; otherwise
-     *         <code>null</code>
-     */
-    T put( T attribute ) throws NamingException;
-
-
-    /**
       * Removes the specified attributes. The removed attributes are
       * returned by this method. If there were no attribute the return value
       * is <code>null</code>.
@@ -110,17 +97,6 @@ public interface Entry<T extends EntryAttribute<?>>
     List<T> remove( T... attributes ) throws NamingException;
 
 
-    /**
-     * Removes the specified attribute. The removed attribute is
-     * returned by this method. If there were no attribute the return value
-     * is <code>null</code>.
-     *
-     * @param attribute the attribute to be removed
-     * @return the removed attribute, if exists; otherwise <code>null</code>
-     */
-    T remove( T attribute ) throws NamingException;
-    
-    
     /**
       * Returns the number of attributes.
       *
