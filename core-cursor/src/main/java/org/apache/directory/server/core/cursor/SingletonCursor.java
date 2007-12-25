@@ -115,40 +115,6 @@ public class SingletonCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean relative( int relativePosition ) throws IOException
-    {
-        checkClosed( "()" );
-
-        if ( relativePosition == 0 )
-        {
-            return true;
-        }
-
-        if ( ( relativePosition == -1 && afterLast ) ||
-             ( relativePosition == 1 && beforeFirst ) )
-        {
-            beforeFirst = false;
-            onSingleton = true;
-            afterLast = false;
-            return true;
-        }
-
-        if ( relativePosition > 1 )
-        {
-            beforeFirst = false;
-            onSingleton = false;
-            afterLast = true;
-            return false;
-        }
-
-        // below this then relativePosition < 1
-        beforeFirst = true;
-        onSingleton = false;
-        afterLast = false;
-        return false;
-    }
-
-
     public boolean first() throws IOException
     {
         checkClosed( "()" );

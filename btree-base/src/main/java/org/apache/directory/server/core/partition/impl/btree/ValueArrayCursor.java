@@ -79,7 +79,7 @@ public class ValueArrayCursor implements Cursor<Tuple>
     }
 
 
-    public boolean after( Tuple element ) throws IOException
+    public void after( Tuple element ) throws IOException
     {
         throw new NotImplementedException();
     }

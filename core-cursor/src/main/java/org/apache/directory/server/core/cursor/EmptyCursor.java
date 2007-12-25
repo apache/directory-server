@@ -54,14 +54,6 @@ public class EmptyCursor<E> extends AbstractCursor<E>
     }
 
 
-    @SuppressWarnings ( { "UnusedDeclaration" } )
-    public boolean relative( int relativePosition ) throws CursorClosedException
-    {
-        checkClosed( "relative()" );
-        return false;
-    }
-
-
     public boolean first() throws CursorClosedException
     {
         checkClosed( "first()" );
@@ -72,34 +64,6 @@ public class EmptyCursor<E> extends AbstractCursor<E>
     public boolean last() throws CursorClosedException
     {
         checkClosed( "last()" );
-        return false;
-    }
-
-
-    public boolean isFirst() throws CursorClosedException
-    {
-        checkClosed( "isFirst()" );
-        return false;
-    }
-
-
-    public boolean isLast() throws CursorClosedException
-    {
-        checkClosed( "isLast()" );
-        return false;
-    }
-
-
-    public boolean isAfterLast() throws CursorClosedException
-    {
-        checkClosed( "isAfterLast()" );
-        return false;
-    }
-
-
-    public boolean isBeforeFirst() throws CursorClosedException
-    {
-        checkClosed( "isBeforeFirst()" );
         return false;
     }
 

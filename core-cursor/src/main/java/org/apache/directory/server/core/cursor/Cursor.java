@@ -100,31 +100,6 @@ public interface Cursor<E>
 
 
     /**
-     * Positions this Curser an offset number of elements before or after the
-     * current position.  Negative offsets are used to move the Cursor's
-     * position back, while positive offsets are used to advance the Cursor's
-     * position forward.
-     *
-     * If the specified position is past the first or last element, the Cursor
-     * is positioned before the first or after the last element respectively.
-     *
-     * Note that this is not the most efficient means to advance a Cursor over
-     * a BTree.  The best mechanism is to advance by using a specific key via
-     * the Cursor#before() and Cursor#after() methods.  Most implementations
-     * of this method will have to walk through BTree records.
-     *
-     * @param offset the relative offset to move this Cursor to
-     * @return true if the position has been successfully changed to an
-     * existing element retreivable by Cursor#get() at the new relative
-     * position, of this Cursor, otherwise false
-     * @throws IOException if there are problems positioning this Cursor or if
-     * this Cursor is closed
-     * @throws UnsupportedOperationException if this method is not supported
-     */
-    boolean relative( int offset ) throws IOException;
-
-
-    /**
      * Positions this Curser at the first element.
      *
      * @return true if the position has been successfully changed to the first
@@ -146,54 +121,6 @@ public interface Cursor<E>
      * @throws UnsupportedOperationException if this method is not supported
      */
     boolean last() throws IOException;
-
-
-    /**
-     * Checks if this Curser is positioned at the first element.
-     *
-     * @return true if the current position is at the first element, false
-     * otherwise
-     * @throws IOException if there are problems determining this Cursor's
-     * position, or if this Cursor is closed
-     * @throws UnsupportedOperationException if this method is not supported
-     */
-    boolean isFirst() throws IOException;
-
-
-    /**
-     * Checks if this Curser is positioned at the last element.
-     *
-     * @return true if the current position is at the last element, false
-     * otherwise
-     * @throws IOException if there are problems determining this Cursor's
-     * position, or if this Cursor is closed
-     * @throws UnsupportedOperationException if this method is not supported
-     */
-    boolean isLast() throws IOException;
-
-
-    /**
-     * Checks if this Curser is positioned after the last element.
-     *
-     * @return true if the current position is after the last element, false
-     * otherwise
-     * @throws IOException if there are problems determining this Cursor's
-     * position, or if this Cursor is closed
-     * @throws UnsupportedOperationException if this method is not supported
-     */
-    boolean isAfterLast() throws IOException;
-
-
-    /**
-     * Checks if this Curser is positioned before the first element.
-     *
-     * @return true if the current position is before the first element, false
-     * otherwise
-     * @throws IOException if there are problems determining this Cursor's
-     * position, or if this Cursor is closed
-     * @throws UnsupportedOperationException if this method is not supported
-     */
-    boolean isBeforeFirst() throws IOException;
 
 
     /**

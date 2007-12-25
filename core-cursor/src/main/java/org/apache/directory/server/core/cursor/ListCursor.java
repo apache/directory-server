@@ -273,27 +273,6 @@ public class ListCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean relative( int index ) throws IOException
-    {
-        checkClosed( "relative()" );
-
-        if ( this.index + index < start )
-        {
-            this.index = -1;
-            return false;
-        }
-
-        if ( this.index + index >= end )
-        {
-            this.index = end;
-            return false;
-        }
-
-        this.index += index;
-        return true;
-    }
-
-
     public boolean first() throws IOException
     {
         checkClosed( "first()" );

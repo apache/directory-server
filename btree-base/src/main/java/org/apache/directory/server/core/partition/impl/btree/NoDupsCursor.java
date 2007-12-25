@@ -38,7 +38,6 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
     private final Tuple tuple = new Tuple();
     private final TupleBrowserFactory factory;
 
-    private long pos = BEFORE_FIRST;
     private long size;  // cache the size to prevent needless lookups
     private boolean afterLast;
     private boolean beforeFirst;
@@ -70,7 +69,6 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
     public NoDupsCursor( TupleBrowserFactory factory, int absolute ) throws IOException
     {
         this.factory = factory;
-        absolute( absolute );
     }
 
 
@@ -96,7 +94,6 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
         beforeFirst = false;
         afterLast = false;
         size = factory.size();
-        pos = BEFORE_FIRST;
         success = true;
 
         throw new NotImplementedException( "Need to fix the todo on this before going further" );
@@ -109,7 +106,7 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
     }
 
 
-    public boolean after( Tuple element ) throws IOException
+    public void after( Tuple element ) throws IOException
     {
         throw new NotImplementedException();
     }
@@ -123,7 +120,6 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
             afterLast = false;
             success = false;
             size = factory.size();
-            pos = BEFORE_FIRST;
             browser = factory.beforeFirst();
         }
     }
@@ -137,125 +133,8 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
             afterLast = true;
             success = false;
             size = factory.size();
-            pos = size;
             browser = factory.afterLast();
         }
-    }
-
-
-    public boolean absolute( int absolutePosition ) throws IOException
-    {
-        // -------------------------------------------------------------------
-        // Special cases under or above the valid range puts the cursor
-        // respectively before the first or after the last position
-        // -------------------------------------------------------------------
-
-        if ( absolutePosition >= size )
-        {
-            afterLast();
-            return false;
-        }
-
-        if ( absolutePosition < 0 )
-        {
-            beforeFirst();
-            return false;
-        }
-
-        // -------------------------------------------------------------------
-        // Special case where position is valid and that's the new position
-        // -------------------------------------------------------------------
-
-        if ( absolutePosition == pos )
-        {
-            return success;
-        }
-
-        // -------------------------------------------------------------------
-        // Special easy to get to cases where we don't have to walk the tree
-        // -------------------------------------------------------------------
-
-        if ( absolutePosition == 0 && beforeFirst )
-        {
-            return next();
-        }
-
-        if ( ( absolutePosition == size - 1  ) && afterLast )
-        {
-            return previous();
-        }
-
-        // -------------------------------------------------------------------
-        // Cases we have to walk the tree forward or backwards to get to target
-        // -------------------------------------------------------------------
-
-        if ( absolutePosition > pos )
-        {
-            while ( success && pos < absolutePosition )
-            {
-                next();
-            }
-        }
-        else
-        {
-            while ( success && pos > absolutePosition )
-            {
-                previous();
-            }
-        }
-
-        return success;
-    }
-
-
-    public boolean relative( int relativePosition ) throws IOException
-    {
-        // -------------------------------------------------------------------
-        // Special cases under or above the valid range puts the cursor
-        // respectively before the first or after the last position
-        // -------------------------------------------------------------------
-
-        if ( ( relativePosition + pos ) >= size )
-        {
-            afterLast();
-            return false;
-        }
-
-        if ( ( relativePosition + pos ) < 0 )
-        {
-            beforeFirst();
-            return false;
-        }
-
-        // -------------------------------------------------------------------
-        // Special case where position is valid and that's the new position
-        // -------------------------------------------------------------------
-
-        if ( relativePosition == 0 )
-        {
-            return success;
-        }
-
-        // -------------------------------------------------------------------
-        // Cases we have to walk the tree forward or backwards
-        // -------------------------------------------------------------------
-
-        if ( relativePosition > 0 )
-        {
-            for ( ; success && relativePosition > 0; relativePosition-- )
-            {
-                next();
-            }
-        }
-        else
-        {
-            for ( ; success && relativePosition < 0; relativePosition++ )
-            {
-                previous();
-            }
-        }
-
-        return success;
     }
 
 
@@ -264,11 +143,6 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
         if ( beforeFirst )
         {
             return next();
-        }
-
-        if ( pos == 0 )
-        {
-            return success;
         }
 
         beforeFirst();
@@ -283,37 +157,8 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
             return previous();
         }
 
-        if ( pos == ( size - 1 ) )
-        {
-            return success;
-        }
-
         afterLast();
         return previous();
-    }
-
-
-    public boolean isFirst() throws IOException
-    {
-        return pos == 0;
-    }
-
-
-    public boolean isLast() throws IOException
-    {
-        return pos == ( size - 1 );
-    }
-
-
-    public boolean isAfterLast() throws IOException
-    {
-        return afterLast;
-    }
-
-
-    public boolean isBeforeFirst() throws IOException
-    {
-        return beforeFirst;
     }
 
 
@@ -331,25 +176,11 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
             {
                 afterLast = false;
                 beforeFirst = false;
-                pos = size - 1;
             }
             return success;
         }
 
-        if ( pos == 0 )
-        {
-            success = false;
-            afterLast = false;
-            beforeFirst = true;
-            pos = BEFORE_FIRST;
-            return false;
-        }
-
         success = browser.getPrevious( tuple );
-        if ( success )
-        {
-            pos--;
-        }
         return success;
     }
 
@@ -360,20 +191,8 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
     }
 
 
-    private boolean inRangeOnValue()
-    {
-        return pos > BEFORE_FIRST && pos < size;
-    }
-
-
-
     public Tuple get() throws IOException
     {
-        if ( ! inRangeOnValue() )
-        {
-            throw new InvalidCursorPositionException();
-        }
-
         if ( success )
         {
             return tuple;

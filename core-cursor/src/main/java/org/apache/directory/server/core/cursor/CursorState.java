@@ -41,8 +41,6 @@ public interface CursorState<E>
 
     void afterLast() throws IOException;
 
-    boolean relative( int offset ) throws IOException;
-
     boolean first() throws IOException;
 
     boolean last() throws IOException;

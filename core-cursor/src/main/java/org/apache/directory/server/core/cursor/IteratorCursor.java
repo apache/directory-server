@@ -64,12 +64,6 @@ public class IteratorCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean relative( int relativePosition ) throws IOException
-    {
-        throw new UnsupportedOperationException( "Cannot advance to a relative position on the underlying Iterator." );
-    }
-
-
     public boolean first() throws IOException
     {
         throw new UnsupportedOperationException( "Cannot advance to first position on the underlying Iterator." );
@@ -79,30 +73,6 @@ public class IteratorCursor<E> extends AbstractCursor<E>
     public boolean last() throws IOException
     {
         throw new UnsupportedOperationException( "Cannot advance to last position on the underlying Iterator." );
-    }
-
-
-    public boolean isFirst() throws IOException
-    {
-        throw new UnsupportedOperationException( "Cannot determine position on the underlying Iterator." );
-    }
-
-
-    public boolean isLast() throws IOException
-    {
-        throw new UnsupportedOperationException( "Cannot determine position on the underlying Iterator." );
-    }
-
-
-    public boolean isAfterLast() throws IOException
-    {
-        throw new UnsupportedOperationException( "Cannot determine position on the underlying Iterator." );
-    }
-
-
-    public boolean isBeforeFirst() throws IOException
-    {
-        throw new UnsupportedOperationException( "Cannot determine position on the underlying Iterator." );
     }
 
 

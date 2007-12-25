@@ -106,59 +106,6 @@ public class KeyCursorTest
 
 
     @Test
-    @Ignore ( "Messed up now after removing absolute() method." )
-    public void testCursorAdvance() throws Exception
-    {
-        assertNotNull( cursor );
-
-        // test before changing newly created cursor
-        assertTrue( "New default Cursor should be before first element.", cursor.isBeforeFirst() );
-        assertFalse( "New default Cursor should NOT be at the first element", cursor.isFirst() );
-        assertFalse( "New default Cursor should NOT be after last element", cursor.isAfterLast() );
-        assertFalse( "New default Cursor should NOT be at the last element", cursor.isLast() );
-        assertInvalid( cursor );
-
-        // move to first position and test
-        assertTrue( "New default Cursor should be able to goto next position", cursor.next() );
-        assertEquals( "First value should be recovered", "0", cursor.get() );
-        assertTrue( "After cursor.next() we should be above the first element", cursor.isFirst() );
-        assertFalse( "After next() Cursor should be NOT before first element.", cursor.isBeforeFirst() );
-        assertTrue( "After first next() Cursor should be at the first element", cursor.isFirst() );
-        assertFalse( "After first next() Cursor should NOT be after last element", cursor.isAfterLast() );
-        assertFalse( "After first next() Cursor should NOT be at the last element", cursor.isLast() );
-
-        // move forward to 5th position over the "5"
-        assertTrue( "Cursor advance to index 5 should work.", cursor.relative( 4 ) );
-        assertEquals( "Cursor advance to index 5 should be \"5\"", "5", cursor.get() );
-        assertFalse( "Cursor @5th pos should NOT be before first element.", cursor.isBeforeFirst() );
-        assertFalse( "Cursor @5th pos should NOT be at the first element", cursor.isFirst() );
-        assertFalse( "Cursor @5th pos should NOT be after last element", cursor.isAfterLast() );
-        assertFalse( "Cursor @5th pos should NOT be at the last element", cursor.isLast() );
-
-        // move backwards to 2nd position over the "2"
-        assertTrue( "Cursor advance to index 2 should work.", cursor.relative( 2 ) );
-        assertEquals( "Element at index 2 value should be \"2\"", "2", cursor.get() );
-        assertFalse( "Cursor @2nd pos should NOT be before first element.", cursor.isBeforeFirst() );
-        assertFalse( "Cursor @2nd pos should NOT be at the first element", cursor.isFirst() );
-        assertFalse( "Cursor @2nd pos should NOT be after last element", cursor.isAfterLast() );
-        assertFalse( "Cursor @2nd pos should NOT be at the last element", cursor.isLast() );
-
-        // move backwards to 2nd position over the "9"
-        assertTrue( "Cursor advance to index 2 should work.", cursor.relative( 2 ) );
-        assertEquals( "Element at index 2 value should be \"2\"", "2", cursor.get() );
-        assertFalse( "Cursor @2nd pos should NOT be before first element.", cursor.isBeforeFirst() );
-        assertFalse( "Cursor @2nd pos should NOT be at the first element", cursor.isFirst() );
-        assertFalse( "Cursor @2nd pos should NOT be after last element", cursor.isAfterLast() );
-        assertFalse( "Cursor @2nd pos should NOT be at the last element", cursor.isLast() );
-
-        while ( cursor.next() )
-        {
-            System.out.println( cursor.get() );
-        }
-    }
-
-
-    @Test
     public void testJdbmBehaviorBrowse() throws Exception
     {
         bt.remove( "0" );
@@ -212,49 +159,6 @@ public class KeyCursorTest
         assertNull( tuple.getKey() );
         browser.getNext( tuple );
         assertEquals( "1", tuple.getKey() );
-    }
-
-
-    @Test
-    @Ignore ( "This is a performance test and takes a while to run." )
-    public void testCostOfAdvances() throws Exception
-    {
-        final int capacity = 100000;
-        long startTime = System.nanoTime();
-        long startTimeMs = System.currentTimeMillis();
-
-        // fill up the BTree with a lot of data
-        for ( int ii = 10; ii < capacity; ii++ )
-        {
-            bt.insert( String.valueOf( ii ), EMPTY_BYTES, true );
-        }
-
-        long insertTime = System.nanoTime() - startTime;
-        long insertTimeMs = System.currentTimeMillis() - startTimeMs;
-        LOG.debug( "insertion of {} btree records took {} nano seconds", capacity, insertTime );
-        LOG.debug( "insertion of {} btree records took {} milli seconds", capacity, insertTimeMs );
-
-        cursor = new KeyCursor<String>( bt );
-        startTime = System.nanoTime();
-        startTimeMs = System.currentTimeMillis();
-        int advanceTo = capacity - 3;
-        assertTrue( cursor.relative( advanceTo ) );
-        long advanceTime = System.nanoTime() - startTime;
-        long advanceTimeMs = System.currentTimeMillis() - startTimeMs;
-        LOG.debug( "advance from before first to {}th record took {} nano seconds", advanceTo, advanceTime );
-        LOG.debug( "advance from before first to {}th record took {} milli seconds", advanceTo, advanceTimeMs );
-        assertEquals( String.valueOf( advanceTo ), cursor.get() );
-
-        startTime = System.nanoTime();
-        startTimeMs = System.currentTimeMillis();
-        TupleBrowser browser = bt.browse( String.valueOf( advanceTo ) );
-        Tuple tuple = new Tuple();
-        browser.getNext( tuple );
-        long byKeyTime = System.nanoTime() - startTime;
-        long byKeyTimeMs = System.currentTimeMillis() - startTimeMs;
-        LOG.debug( "advance by key to {}th record took {} nano seconds", advanceTo, byKeyTime );
-        LOG.debug( "advance by key to {}th record took {} milli seconds", advanceTo, byKeyTimeMs );
-        assertEquals( String.valueOf( advanceTo ), tuple.getKey() );
     }
 
 
