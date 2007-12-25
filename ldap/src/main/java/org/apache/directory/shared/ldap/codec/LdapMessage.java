@@ -111,7 +111,14 @@ public class LdapMessage extends AbstractAsn1Object
      */
     public Control getControls( int i )
     {
-        return controls.get( i );
+        if ( controls != null )
+        {
+            return controls.get( i );
+        }
+        else
+        {
+            return null;
+        }
     }
 
 

@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubEntryControlGrammar extends AbstractGrammar implements IGrammar
+public class SubEntryControlGrammar extends AbstractGrammar
 {
     /** The logger */
     static final Logger log = LoggerFactory.getLogger( SubEntryControlGrammar.class );

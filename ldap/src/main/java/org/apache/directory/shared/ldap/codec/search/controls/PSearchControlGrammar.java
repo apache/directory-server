@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PSearchControlGrammar extends AbstractGrammar implements IGrammar
+public class PSearchControlGrammar extends AbstractGrammar
 {
     /** The logger */
     static final Logger log = LoggerFactory.getLogger( PSearchControlGrammar.class );

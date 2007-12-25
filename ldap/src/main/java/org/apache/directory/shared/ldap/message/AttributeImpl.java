@@ -696,9 +696,9 @@ public class AttributeImpl implements Attribute
      */
     public int hashCode()
     {
-        int hash = 17;
+        int hash = 37;
         
-        hash += hash*37 + StringTools.toLowerCase( getID() ).hashCode();
+        hash += hash*17 + StringTools.toLowerCase( getID() ).hashCode();
         
         if ( ( list != null ) && ( list.size() != 0 ) )
         {
@@ -706,11 +706,11 @@ public class AttributeImpl implements Attribute
             {
                 if ( value instanceof byte[] )
                 {
-                    hash += hash*37 + Arrays.hashCode( (byte[])value );
+                    hash += hash*17 + Arrays.hashCode( (byte[])value );
                 }
                 else 
                 {
-                    hash += hash*37 + value.hashCode();
+                    hash += hash*17 + value.hashCode();
                 }
             }
         }

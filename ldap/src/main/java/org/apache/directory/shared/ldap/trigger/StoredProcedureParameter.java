@@ -102,10 +102,11 @@ public abstract class StoredProcedureParameter
      */
     public int hashCode()
     {
-        final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + ( ( name == null ) ? 0 : name.hashCode() );
-        return result;
+        int h = 37;
+        
+        h = h*17 + ( ( name == null ) ? 0 : name.hashCode() );
+        
+        return h;
     }
 
 

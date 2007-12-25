@@ -51,7 +51,16 @@ public class LessEqNode extends SimpleNode
         super( attribute, value );
     }
 
+    
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        return super.hashCode();
+    }
 
+    
     /**
      * @see Object#toString()
      */

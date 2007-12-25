@@ -125,10 +125,10 @@ public abstract class SimpleNode extends LeafNode
      */
     public int hashCode()
     {
-    	int h = 31;
-    	h += value.hashCode()*13;
-    	h += getAttribute().hashCode()*13;
-    	h += this.getClass().hashCode()*13;
+    	int h = 37;
+    	
+    	h = h*17 + super.hashCode();
+    	h = h*17 + ( value == null ? 0 : value.hashCode() );
     	
     	return h;
     }

@@ -619,10 +619,10 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
      */
     public int hashCode()
     {
-        int result = 17;
+        int result = 37;
 
-        result = result * 37 + ( normType != null ? normType.hashCode() : 0 );
-        result = result * 37 + ( value != null ? value.hashCode() : 0 );
+        result = result*17 + ( normType != null ? normType.hashCode() : 0 );
+        result = result*17 + ( value != null ? value.hashCode() : 0 );
 
         return result;
     }

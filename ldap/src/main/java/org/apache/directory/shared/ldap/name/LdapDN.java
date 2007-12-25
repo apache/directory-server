@@ -485,13 +485,13 @@ public class LdapDN implements Name
      */
     public int hashCode()
     {
-        int result = 17;
+        int result = 37;
 
         if ( ( rdns != null ) && ( rdns.size() != 0 ) )
         {
             for ( Rdn rdn : rdns )
             {
-                result = result * 37 + rdn.hashCode();
+                result = result * 17 + rdn.hashCode();
             }
         }
 

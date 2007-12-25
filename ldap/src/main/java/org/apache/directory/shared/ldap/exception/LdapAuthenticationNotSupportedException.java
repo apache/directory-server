@@ -116,11 +116,7 @@ public class LdapAuthenticationNotSupportedException extends AuthenticationNotSu
         switch ( resultCode )
         {
             case INAPPROPRIATE_AUTHENTICATION :
-                break;
-                
             case CONFIDENTIALITY_REQUIRED :
-                break;
-                
             case AUTH_METHOD_NOT_SUPPORTED :
                 break;
                 

@@ -42,6 +42,27 @@ public abstract class AbstractExprNode implements ExprNode
     {
     }
 
+    
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int h = 37;
+        
+        if ( annotations != null )
+        {
+            for ( String key:annotations.keySet() )
+            {
+                Object value = annotations.get( key );
+                
+                h = h*17 + key.hashCode();
+                h = h*17 + ( value == null ? 0 : value.hashCode() );
+            }
+        }
+        
+        return h;
+    }
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#get(java.lang.Object)
@@ -71,7 +92,7 @@ public abstract class AbstractExprNode implements ExprNode
         annotations.put( key, value );
     }
 
-
+    
     /**
      * Gets the annotations as a Map.
      * 

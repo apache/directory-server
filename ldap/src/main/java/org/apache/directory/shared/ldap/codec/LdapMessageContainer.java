@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.codec;
 
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
-import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 
 
@@ -32,7 +31,7 @@ import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapMessageContainer extends AbstractContainer implements IAsn1Container
+public class LdapMessageContainer extends AbstractContainer
 {
     // ~ Instance fields
     // ----------------------------------------------------------------------------

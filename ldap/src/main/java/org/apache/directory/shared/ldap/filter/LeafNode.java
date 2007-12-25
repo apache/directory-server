@@ -77,6 +77,20 @@ public abstract class LeafNode extends AbstractExprNode
         this.attribute = attribute;
     }
 
+    
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int h = 37;
+        
+        h = h*17 + super.hashCode();
+        h = h*17 + attribute.hashCode();
+        
+        return h;
+    }
+
 
     /*
      * (non-Javadoc)

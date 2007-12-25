@@ -61,15 +61,8 @@ public class LdapSchemaViolationException extends SchemaViolationException imple
         switch ( resultCode )
         {
             case OBJECT_CLASS_VIOLATION :
-
-                break;
-
             case NOT_ALLOWED_ON_RDN :
-
-                break;
-
             case OBJECT_CLASS_MODS_PROHIBITED :
-
                 break;
 
             default:

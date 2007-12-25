@@ -20,6 +20,8 @@
 package org.apache.directory.shared.ldap.filter;
 
 
+import java.util.Arrays;
+
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -165,6 +167,22 @@ public class ExtensibleNode extends LeafNode
     public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException( "ExtensibleNode can't be part of a refinement" );
+    }
+
+
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int h = 37;
+        
+        h = h*17 + super.hashCode();
+        h = h*17 + ( dnAttributes ? 1 : 0 );
+        h = h*17 + matchingRuleId.hashCode();
+        h = h*17 + Arrays.hashCode( value );
+        
+        return h;
     }
 
 

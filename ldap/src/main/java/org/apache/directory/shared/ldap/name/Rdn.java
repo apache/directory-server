@@ -1245,7 +1245,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
     */
    public int hashCode()
    {
-       int result = 17;
+       int result = 37;
 
        switch ( nbAtavs )
        {
@@ -1255,7 +1255,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
            case 1:
                // We have a single AttributeTypeAndValue
-               result = result * 37 + atav.hashCode();
+               result = result * 17 + atav.hashCode();
                break;
 
            default:
@@ -1263,7 +1263,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
                for ( AttributeTypeAndValue ata:atavs )
                {
-                   result = result * 37 + ata.hashCode();
+                   result = result * 17 + ata.hashCode();
                }
        }
 

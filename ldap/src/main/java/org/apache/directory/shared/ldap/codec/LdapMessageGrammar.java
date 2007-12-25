@@ -116,7 +116,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
+public class LdapMessageGrammar extends AbstractGrammar
 {
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
@@ -592,12 +592,12 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                     }
                     else
                     {
-                        LdapDN dn = LdapDN.EMPTY_LDAPDN;
                         byte[] dnBytes = tlv.getValue().getData();
 
                         try
                         {
-                            dn = new LdapDN( dnBytes );
+                            LdapDN dn = new LdapDN( dnBytes );
+                            bindRequestMessage.setName( dn );
                         }
                         catch ( InvalidNameException ine )
                         {
@@ -610,8 +610,6 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
                         
                             throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_DN_SYNTAX, LdapDN.EMPTY_LDAPDN, ine );
                         }
-
-                        bindRequestMessage.setName( dn );
                     }
 
                     if ( IS_DEBUG )
