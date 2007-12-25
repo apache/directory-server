@@ -21,7 +21,7 @@ package org.apache.directory.server.ldap.support;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.shared.ldap.message.*;
+import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 
