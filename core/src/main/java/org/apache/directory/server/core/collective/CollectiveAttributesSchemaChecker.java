@@ -64,7 +64,7 @@ public class CollectiveAttributesSchemaChecker
     {
         Attribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         
-        if ( AttributeUtils.containsValueCaseIgnore( objectClass, "collectiveAttributeSubentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClass, SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
             return;
         }
@@ -101,7 +101,7 @@ public class CollectiveAttributesSchemaChecker
         Attributes targetEntry = SchemaUtils.getTargetEntry( mods, originalEntry );
         Attribute targetObjectClasses = targetEntry.get( SchemaConstants.OBJECT_CLASS_AT );
         
-        if ( AttributeUtils.containsValueCaseIgnore( targetObjectClasses, "collectiveAttributeSubentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( targetObjectClasses, SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
             return;
         }

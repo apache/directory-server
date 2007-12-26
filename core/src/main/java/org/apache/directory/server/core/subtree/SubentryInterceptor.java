@@ -212,7 +212,7 @@ public class SubentryInterceptor extends BaseInterceptor
             types |= Subentry.SCHEMA_SUBENTRY;
         }
         
-        if ( AttributeUtils.containsValueCaseIgnore( oc, "collectiveAttributeSubentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
             types |= Subentry.COLLECTIVE_SUBENTRY;
         }
