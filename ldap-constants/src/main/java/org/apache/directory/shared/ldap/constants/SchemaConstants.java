@@ -100,6 +100,10 @@ public interface SchemaConstants
     String ACCESS_CONTROL_SUBENTRY_OC = "accessControlSubentry";
     String ACCESS_CONTROL_SUBENTRY_OC_OID = "2.5.17.1";
     
+    // CollectiveAttributeSubentry
+    String COLLECTIVE_ATTRIBUTE_SUBENTRY_OC = "collectiveAttributeSubentry";
+    String COLLECTIVE_ATTRIBUTE_SUBENTRY_OC_OID = "2.5.17.2";
+
     // Subschema
     String SUBSCHEMA_OC = "subschema";
     String SUBSCHEMA_OC_OID = "2.5.20.1";
