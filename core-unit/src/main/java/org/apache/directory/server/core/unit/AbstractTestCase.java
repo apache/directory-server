@@ -36,7 +36,12 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.io.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -95,7 +100,7 @@ public abstract class AbstractTestCase extends TestCase
     private String ldifPath;
 
     /** Load resources relative to this class */
-    private Class loadClass;
+    private Class<?> loadClass;
 
     private Hashtable<String,Object> overrides = new Hashtable<String,Object>();
 
@@ -124,7 +129,7 @@ public abstract class AbstractTestCase extends TestCase
      * @param ldifPath the relative resource path to the LDIF file
      * @param loadClass the class used to load the LDIF as a resource stream
      */
-    protected void setLdifPath( String ldifPath, Class loadClass )
+    protected void setLdifPath( String ldifPath, Class<?> loadClass )
     {
         this.loadClass = loadClass;
         this.ldifPath = ldifPath;
@@ -174,8 +179,8 @@ public abstract class AbstractTestCase extends TestCase
         // -------------------------------------------------------------------
 
         LdifReader reader = new LdifReader();
-    	List entries = reader.parseLdif( LDIF );
-        Entry entry = ( Entry ) entries.get(0);
+    	List<Entry> entries = reader.parseLdif( LDIF );
+        Entry entry = entries.get(0);
         testEntries.add( entry );
 
         // -------------------------------------------------------------------
@@ -405,7 +410,7 @@ public abstract class AbstractTestCase extends TestCase
     }
 
 
-    protected void setLoadClass( Class loadClass )
+    protected void setLoadClass( Class<?> loadClass )
     {
         this.loadClass = loadClass;
     }
