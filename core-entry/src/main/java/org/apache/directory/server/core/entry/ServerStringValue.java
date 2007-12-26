@@ -20,7 +20,7 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.entry.StringValue;
+import org.apache.directory.shared.ldap.entry.AbstractStringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -40,7 +40,7 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerStringValue extends StringValue implements ServerValue<String>
+public class ServerStringValue extends AbstractStringValue implements ServerValue<String>
 {
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerStringValue.class );

@@ -20,7 +20,7 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.entry.StreamedValue;
+import org.apache.directory.shared.ldap.entry.AbstractStreamedValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +72,7 @@ import java.net.URI;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerStreamedValue extends StreamedValue implements ServerValue<URI>
+public class ServerStreamedValue extends AbstractStreamedValue implements ServerValue<URI>
 {
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerStreamedValue.class );
