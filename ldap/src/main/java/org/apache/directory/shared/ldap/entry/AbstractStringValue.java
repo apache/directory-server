@@ -32,10 +32,10 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class StringValue implements Value<String>
+public abstract class AbstractStringValue implements Value<String>
 {
     /** logger for reporting errors that might not be handled properly upstream */
-    private static final Logger LOG = LoggerFactory.getLogger( StringValue.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractStringValue.class );
 
     /** the wrapped string value */
     private String wrapped;
@@ -84,7 +84,7 @@ public class StringValue implements Value<String>
     /**
      * Creates a new instance of StringValue with no value.
      */
-    public StringValue()
+    public AbstractStringValue()
     {
     }
 
@@ -94,7 +94,7 @@ public class StringValue implements Value<String>
      *
      * @param wrapped the actual String value to wrap
      */
-    public StringValue( String wrapped )
+    public AbstractStringValue( String wrapped )
     {
         this.wrapped = wrapped;
     }
@@ -138,12 +138,12 @@ public class StringValue implements Value<String>
             return false;
         }
 
-        if ( ! ( obj instanceof StringValue ) )
+        if ( ! ( obj instanceof AbstractStringValue ) )
         {
             return false;
         }
 
-        StringValue stringValue = ( StringValue ) obj;
+        AbstractStringValue stringValue = ( AbstractStringValue ) obj;
         
         if ( this.wrapped == null ) 
         {

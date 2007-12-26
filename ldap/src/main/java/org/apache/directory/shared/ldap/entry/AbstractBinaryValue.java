@@ -37,10 +37,10 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BinaryValue implements Value<byte[]>
+public abstract class AbstractBinaryValue implements Value<byte[]>
 {
     /** logger for reporting errors that might not be handled properly upstream */
-    private static final Logger LOG = LoggerFactory.getLogger( BinaryValue.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractBinaryValue.class );
 
     
     /** the wrapped binary value */
@@ -90,7 +90,7 @@ public class BinaryValue implements Value<byte[]>
     /**
      * Creates a new instance of BinaryValue with no initial wrapped value.
      */
-    public BinaryValue()
+    public AbstractBinaryValue()
     {
     }
 
@@ -100,7 +100,7 @@ public class BinaryValue implements Value<byte[]>
      *
      * @param wrapped the binary value to wrap
      */
-    public BinaryValue( byte[] wrapped )
+    public AbstractBinaryValue( byte[] wrapped )
     {
         set( wrapped );
     }
@@ -111,7 +111,7 @@ public class BinaryValue implements Value<byte[]>
      *
      * @param value the binary value to copy
      */
-    public BinaryValue( BinaryValue value )
+    public AbstractBinaryValue( AbstractBinaryValue value )
     {
         if ( value != null )
         {
@@ -205,9 +205,9 @@ public class BinaryValue implements Value<byte[]>
      *
      * @return a deep copy of the Value.
      */
-    public BinaryValue clone() throws CloneNotSupportedException
+    public AbstractBinaryValue clone() throws CloneNotSupportedException
     {
-        BinaryValue cloned = (BinaryValue)super.clone();
+        AbstractBinaryValue cloned = (AbstractBinaryValue)super.clone();
         
         cloned.wrapped = getCopy();
         
@@ -226,12 +226,12 @@ public class BinaryValue implements Value<byte[]>
             return true;
         }
 
-        if ( ! ( obj instanceof BinaryValue ) )
+        if ( ! ( obj instanceof AbstractBinaryValue ) )
         {
             return false;
         }
 
-        BinaryValue binaryValue = ( BinaryValue ) obj;
+        AbstractBinaryValue binaryValue = ( AbstractBinaryValue ) obj;
         
         if ( isNull() ) 
         {
@@ -256,7 +256,7 @@ public class BinaryValue implements Value<byte[]>
      *
      * @see Comparable#compareTo(Object) 
      */
-    public int compareTo( BinaryValue value )
+    public int compareTo( AbstractBinaryValue value )
     {
         if ( value == null )
         {
