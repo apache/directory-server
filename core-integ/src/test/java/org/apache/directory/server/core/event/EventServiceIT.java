@@ -33,7 +33,12 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.event.*;
+import javax.naming.event.EventDirContext;
+import javax.naming.event.NamespaceChangeListener;
+import javax.naming.event.NamingEvent;
+import javax.naming.event.NamingExceptionEvent;
+import javax.naming.event.ObjectChangeListener;
+
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -135,7 +140,7 @@ public class EventServiceIT
         List<EventRecord> events = new ArrayList<EventRecord>();
 
 
-        public List getEventRecords()
+        public List<EventRecord> getEventRecords()
         {
             return events;
         }

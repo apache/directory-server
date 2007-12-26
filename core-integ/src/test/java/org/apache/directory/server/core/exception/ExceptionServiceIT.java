@@ -32,13 +32,21 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 
@@ -113,11 +121,11 @@ public class ExceptionServiceIT
     public void testSearchControl() throws NamingException
     {
         SearchControls ctls = new SearchControls();
-        NamingEnumeration list = getSystemContext( service ).search( "ou=users", "(objectClass=*)", ctls );
+        NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "ou=users", "(objectClass=*)", ctls );
 
         if ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             assertNotNull( result.getAttributes() );
             assertEquals( "uid=akarasulu,ou=users,ou=system", result.getName() );
         }
@@ -485,11 +493,11 @@ public class ExceptionServiceIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        NamingEnumeration list = sysRoot.list( "ou=users" );
+        NamingEnumeration<?> list = sysRoot.list( "ou=users" );
 
         if ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = (SearchResult)list.next();
             assertNotNull( result.getAttributes() );
             assertEquals( "uid=akarasulu,ou=users,ou=system", result.getName() );
         }
