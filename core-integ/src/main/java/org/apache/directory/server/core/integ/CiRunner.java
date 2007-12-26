@@ -23,6 +23,7 @@ package org.apache.directory.server.core.integ;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.cleanup;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.destroy;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.test;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
 import org.junit.internal.runners.InitializationError;
 import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.Description;
