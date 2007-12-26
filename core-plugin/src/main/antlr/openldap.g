@@ -35,8 +35,12 @@ header {
  */
 package org.apache.directory.server.core.tools.schema;
 
-import java.util.* ;
-import org.apache.directory.shared.ldap.schema.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
+import org.apache.directory.shared.ldap.schema.UsageEnum;
 
 }
 
@@ -117,8 +121,8 @@ options    {
 {
     public static final String[] EMPTY = new String[0];
 
-    private List attributeTypes = new ArrayList();
-    private List objectClasses = new ArrayList();
+    private List<AttributeTypeLiteral> attributeTypes = new ArrayList<AttributeTypeLiteral>();
+    private List<ObjectClassLiteral> objectClasses = new ArrayList<ObjectClassLiteral>();
     private ParserMonitor monitor = null;
 
 
