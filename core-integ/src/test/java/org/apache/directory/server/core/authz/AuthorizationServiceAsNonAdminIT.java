@@ -22,7 +22,9 @@ package org.apache.directory.server.core.authz;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.*;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.Entry;
@@ -145,12 +147,12 @@ public class AuthorizationServiceAsNonAdminIT
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        //noinspection MismatchedQueryAndUpdateOfCollection
         HashSet<String> set = new HashSet<String>();
-        NamingEnumeration list = sysRoot.search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(objectClass=*)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             set.add( result.getName() );
         }
 

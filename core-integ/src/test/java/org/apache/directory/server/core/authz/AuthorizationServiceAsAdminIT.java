@@ -27,7 +27,9 @@ import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -124,11 +126,11 @@ public class AuthorizationServiceAsAdminIT
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         HashSet<String> set = new HashSet<String>();
-        NamingEnumeration list = sysRoot.search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(objectClass=*)", controls );
 
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             set.add( result.getName() );
         }
 

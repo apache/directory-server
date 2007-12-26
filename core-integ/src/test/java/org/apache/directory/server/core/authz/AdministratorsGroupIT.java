@@ -21,12 +21,16 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.*;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.SetupMode;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.integ.annotations.Mode;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
