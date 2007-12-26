@@ -20,14 +20,26 @@
 package org.apache.directory.mitosis.service.protocol.handler;
 
 
-import org.apache.directory.mitosis.common.*;
+import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.CSNVector;
+import org.apache.directory.mitosis.common.DefaultCSN;
+import org.apache.directory.mitosis.common.Replica;
+import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.AddEntryOperation;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.service.ReplicationContext;
 import org.apache.directory.mitosis.service.ReplicationContext.State;
 import org.apache.directory.mitosis.service.protocol.Constants;
-import org.apache.directory.mitosis.service.protocol.message.*;
+import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
+import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
+import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesMessage;
+import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesAckMessage;
+import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesMessage;
+import org.apache.directory.mitosis.service.protocol.message.LogEntryAckMessage;
+import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
+import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
+import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -345,7 +357,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         }
 
         // Iterate all context partitions to send all entries of them.
-        NamingEnumeration e = namingContextsAttr.getAll();
+        NamingEnumeration<?> e = namingContextsAttr.getAll();
+        
         while ( e.hasMore() )
         {
             Object value = e.next();
@@ -377,7 +390,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration e = ctx.getDirectoryService().getPartitionNexus().search(
+        NamingEnumeration<SearchResult> e = ctx.getDirectoryService().getPartitionNexus().search(
             new SearchOperationContext( contextName, AliasDerefMode.DEREF_ALWAYS,
             new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
@@ -385,7 +398,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         {
             while ( e.hasMore() )
             {
-                SearchResult sr = ( SearchResult ) e.next();
+                SearchResult sr = e.next();
                 Attributes attrs = sr.getAttributes();
 
                 // Skip entries without entryCSN attribute.

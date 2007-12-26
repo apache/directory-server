@@ -19,7 +19,11 @@
  */
 package org.apache.directory.mitosis.operation;
 
-import org.apache.directory.mitosis.common.*;
+import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.CSNFactory;
+import org.apache.directory.mitosis.common.Constants;
+import org.apache.directory.mitosis.common.ReplicaId;
+import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
@@ -40,7 +44,13 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import java.util.List;
 
 

@@ -20,7 +20,10 @@
 package org.apache.directory.mitosis.service;
 
 
-import org.apache.directory.mitosis.common.*;
+import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.Constants;
+import org.apache.directory.mitosis.common.DefaultCSN;
+import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationFactory;
@@ -34,7 +37,17 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -56,7 +69,12 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import java.net.InetSocketAddress;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -306,7 +324,8 @@ public class ReplicationInterceptor extends BaseInterceptor
         }
 
         // Iterate all context partitions to send all entries of them.
-        NamingEnumeration e = namingContextsAttr.getAll();
+        NamingEnumeration<?> e = namingContextsAttr.getAll();
+        
         while ( e.hasMore() )
         {
             Object value = e.next();
@@ -346,6 +365,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             {
                 SearchResult sr = e.next();
                 LdapDN name = new LdapDN( sr.getName() );
+                
                 if ( name.size() > contextName.size() )
                 {
                     names.add( new LdapDN( sr.getName() ) );

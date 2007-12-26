@@ -21,7 +21,11 @@ package org.apache.directory.mitosis.store.derby;
 
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.directory.mitosis.common.*;
+import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.CSNVector;
+import org.apache.directory.mitosis.common.DefaultCSN;
+import org.apache.directory.mitosis.common.ReplicaId;
+import org.apache.directory.mitosis.common.UUID;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationCodec;
@@ -35,7 +39,12 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Name;
 import javax.naming.ldap.LdapName;
 import java.io.File;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -511,11 +520,12 @@ public class DerbyReplicationStore implements ReplicationStore
             // Check if the specified uuid already exists
             ps = con.prepareStatement( query );
 
-            Iterator i = updateVector.getReplicaIds().iterator();
+            Iterator<ReplicaId> i = updateVector.getReplicaIds().iterator();
             int paramIdx = 1;
+            
             while ( i.hasNext() )
             {
-                ReplicaId replicaId = ( ReplicaId ) i.next();
+                ReplicaId replicaId = i.next();
                 CSN csn = updateVector.getCSN( replicaId );
                 ps.setString( paramIdx++, replicaId.getId() );
                 ps.setLong( paramIdx++, csn.getTimestamp() );
