@@ -42,7 +42,11 @@ import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.HashSet;
 import java.util.Set;
@@ -156,11 +160,11 @@ public class SearchWithIndicesITest
         }
 
         Set<String> results = new HashSet<String>();
-        NamingEnumeration list = getSystemContext( service ).search( "ou=groups", filter, controls );
+        NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "ou=groups", filter, controls );
 
         while( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             results.add( result.getName() );
         }
 
@@ -186,7 +190,7 @@ public class SearchWithIndicesITest
     public void testLessThanSearchWithIndices() throws Exception
     {
         createData();
-        Set results = searchGroups( "(gidNumber<=5)" );
+        Set<String> results = searchGroups( "(gidNumber<=5)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -232,7 +236,7 @@ public class SearchWithIndicesITest
     public void testGreaterThanSearchWithIndices() throws Exception
     {
         createData();
-        Set results = searchGroups( "(gidNumber>=0)" );
+        Set<String> results = searchGroups( "(gidNumber>=0)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );

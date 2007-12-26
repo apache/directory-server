@@ -35,7 +35,11 @@ import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.HashMap;
 import java.util.Map;
@@ -113,10 +117,11 @@ public class SubentryServiceObjectClassChangeHandlingIT
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
             { "+", "*" } );
-        NamingEnumeration results = sysRoot.search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*)", controls );
+        
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             resultMap.put( result.getName(), result.getAttributes() );
         }
         return resultMap;
@@ -134,8 +139,8 @@ public class SubentryServiceObjectClassChangeHandlingIT
 
         //----------------------------------------------------------------------
 
-        Map results = getAllEntries();
-        Attributes testEntry = ( Attributes ) results.get( "cn=testEntry,ou=system" );
+        Map<String, Attributes> results = getAllEntries();
+        Attributes testEntry = results.get( "cn=testEntry,ou=system" );
 
         Attribute collectiveAttributeSubentries = testEntry.get( "collectiveAttributeSubentries" );
         

@@ -40,7 +40,10 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.Syntax;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -124,7 +127,7 @@ public class MetaComparatorHandlerIT
         
         assertTrue( getComparatorRegistry().hasComparator( OID ) );
         assertEquals( getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
-        Class clazz = getComparatorRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, StringComparator.class );
     }
     
@@ -155,7 +158,7 @@ public class MetaComparatorHandlerIT
         
         assertTrue( getComparatorRegistry().hasComparator( OID ) );
         assertEquals( getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
-        Class clazz = getComparatorRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz.getName(), "DummyComparator" );
     }
     
@@ -207,7 +210,7 @@ public class MetaComparatorHandlerIT
         }
 
         assertTrue( getComparatorRegistry().hasComparator( NEW_OID ) );
-        Class clazz = getComparatorRegistry().lookup( NEW_OID ).getClass();
+        Class<?> clazz = getComparatorRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, StringComparator.class );
     }
 
@@ -231,7 +234,7 @@ public class MetaComparatorHandlerIT
         assertEquals( "comparator schema should be set to apache not apachemeta", 
             getComparatorRegistry().getSchemaName( OID ), "apache" );
 
-        Class clazz = getComparatorRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, StringComparator.class );
     }
 
@@ -258,7 +261,7 @@ public class MetaComparatorHandlerIT
         assertEquals( "comparator with new oid should have schema set to apache NOT apachemeta", 
             getComparatorRegistry().getSchemaName( NEW_OID ), "apache" );
 
-        Class clazz = getComparatorRegistry().lookup( NEW_OID ).getClass();
+        Class<?> clazz = getComparatorRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, StringComparator.class );
     }
 
@@ -282,7 +285,7 @@ public class MetaComparatorHandlerIT
         assertEquals( "comparator schema should be set to apachemeta", 
             getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
 
-        Class clazz = getComparatorRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, IntegerComparator.class );
     }
 
@@ -305,7 +308,7 @@ public class MetaComparatorHandlerIT
         assertEquals( "comparator schema should be set to apachemeta", 
             getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
 
-        Class clazz = getComparatorRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, IntegerComparator.class );
     }
     

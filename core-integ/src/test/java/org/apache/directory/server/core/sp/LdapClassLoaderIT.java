@@ -82,7 +82,7 @@ public class LdapClassLoaderIT
 
         // load the class
         LdapClassLoader loader = new LdapClassLoader( ( ServerLdapContext ) ( root.lookup( "" ) ) );
-        Class clazz = loader.loadClass( "HelloWorld" );
+        Class<?> clazz = loader.loadClass( "HelloWorld" );
 
         // assert class loaded successfully
         assertEquals( clazz.getName(), "HelloWorld" );

@@ -35,8 +35,16 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.*;
-import static org.junit.Assert.*;
+import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
+import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.Syntax;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -120,7 +128,7 @@ public class MetaNormalizerHandlerIT
         
         assertTrue( getNormalizerRegistry().hasNormalizer( OID ) );
         assertEquals( getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
-        Class clazz = getNormalizerRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
     }
     
@@ -151,7 +159,7 @@ public class MetaNormalizerHandlerIT
         
         assertTrue( getNormalizerRegistry().hasNormalizer( OID ) );
         assertEquals( getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
-        Class clazz = getNormalizerRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz.getName(), "DummyNormalizer" );
     }
     
@@ -205,7 +213,7 @@ public class MetaNormalizerHandlerIT
         }
 
         assertTrue( getNormalizerRegistry().hasNormalizer( NEW_OID ) );
-        Class clazz = getNormalizerRegistry().lookup( NEW_OID ).getClass();
+        Class<?> clazz = getNormalizerRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
     }
 
@@ -229,7 +237,7 @@ public class MetaNormalizerHandlerIT
         assertEquals( "normalizer schema should be set to apache not apachemeta", 
             getNormalizerRegistry().getSchemaName( OID ), "apache" );
 
-        Class clazz = getNormalizerRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
     }
 
@@ -256,7 +264,7 @@ public class MetaNormalizerHandlerIT
         assertEquals( "normalizer with new oid should have schema set to apache NOT apachemeta", 
             getNormalizerRegistry().getSchemaName( NEW_OID ), "apache" );
 
-        Class clazz = getNormalizerRegistry().lookup( NEW_OID ).getClass();
+        Class<?> clazz = getNormalizerRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
     }
 
@@ -280,7 +288,7 @@ public class MetaNormalizerHandlerIT
         assertEquals( "normalizer schema should be set to apachemeta", 
             getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
 
-        Class clazz = getNormalizerRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, DeepTrimNormalizer.class );
     }
 
@@ -303,7 +311,7 @@ public class MetaNormalizerHandlerIT
         assertEquals( "normalizer schema should be set to apachemeta", 
             getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
 
-        Class clazz = getNormalizerRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, DeepTrimNormalizer.class );
     }
     

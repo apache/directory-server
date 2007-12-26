@@ -28,14 +28,23 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 import java.util.HashMap;
@@ -118,12 +127,14 @@ public class SubentryServiceIT
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
             { "+", "*" } );
-        NamingEnumeration results = sysRoot.search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*)", controls );
+        
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             resultMap.put( result.getName(), result.getAttributes() );
         }
+        
         return resultMap;
     }
 
@@ -874,12 +885,14 @@ public class SubentryServiceIT
 
         // perform the search without the control
         Map<String, SearchResult> entries = new HashMap<String, SearchResult>();
-        NamingEnumeration list = sysRoot.search( "", "(objectClass=*)", searchControls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(objectClass=*)", searchControls );
+        
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();
             entries.put( result.getName(), result );
         }
+        
         assertTrue( entries.size() > 1 );
         assertNull( entries.get( "cn=testsubentry,ou=system" ) );
 
@@ -905,12 +918,14 @@ public class SubentryServiceIT
         searchControls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         Map<String, SearchResult> entries = new HashMap<String, SearchResult>();
-        NamingEnumeration list = sysRoot.search( "cn=testsubentry", "(objectClass=subentry)", searchControls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "cn=testsubentry", "(objectClass=subentry)", searchControls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             entries.put( result.getName(), result );
         }
+        
         assertEquals( 1, entries.size() );
         assertNotNull( entries.get( "cn=testsubentry,ou=system" ) );
     }

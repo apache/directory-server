@@ -34,13 +34,22 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.HashMap;
 import java.util.Set;
@@ -238,10 +247,11 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String,Attributes> map = new HashMap<String,Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=*)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -265,10 +275,11 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=*)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -296,11 +307,11 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration list = sysRoot.search( "", "(ou=testing02)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing02)", controls );
         
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -325,10 +336,11 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration list = sysRoot.search( "", "(objectClass=organ*)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(objectClass=organ*)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -355,11 +367,12 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(|(ou={0})(ou={1}))", new Object[]
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(|(ou={0})(ou={1}))", new Object[]
             { "testing00", "testing01" }, controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -383,15 +396,16 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=*)", controls );
 
         try
         {
             while ( list.hasMore() )
             {
-                SearchResult result = ( SearchResult ) list.next();
+                SearchResult result = list.next();
                 map.put( result.getName(), result.getAttributes() );
             }
+            
             fail( "Should not get here due to a SizeLimitExceededException" );
         }
         catch ( LdapSizeLimitExceededException e )
@@ -415,7 +429,7 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=*)", controls );
         SearchResultFilteringEnumeration srfe = ( SearchResultFilteringEnumeration ) list;
         srfe.addResultFilter( new SearchResultFilter()
         {
@@ -463,12 +477,14 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration list = sysRoot.search( "", "(name=testing00)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(name=testing00)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+        
         assertEquals( "size of results", 1, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
     }
@@ -487,12 +503,14 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration list = sysRoot.search( "", "(name=*)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(name=*)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+        
         assertEquals( "size of results", 19, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
@@ -523,12 +541,14 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration list = sysRoot.search( "", "(|(name=testing00)(name=testing01))", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(|(name=testing00)(name=testing01))", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+        
         assertEquals( "size of results", 2, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
@@ -548,12 +568,14 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration list = sysRoot.search( "", "(name=testing*)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(name=testing*)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+        
         assertEquals( "size of results", 3, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
@@ -579,12 +601,14 @@ public class SearchIT
             "(2.5.4.44=testing*)(2.5.4.11=testing*)(2.5.4.4=testing*)(2.5.4.8.1=testing*)" +
             "(2.5.4.12=testing*)(1.3.6.1.4.1.18060.0.4.1.2.3=testing*)" +
             "(2.5.4.7=testing*)(2.5.4.3=testing*)(2.5.4.8=testing*)(2.5.4.42=testing*))";
-        NamingEnumeration list = sysRoot.search( "", filter, controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", filter, controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+        
         assertEquals( "size of results", 3, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
@@ -606,10 +630,11 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(ou=testing00)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing00)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -636,10 +661,11 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(ou=testing00)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing00)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -722,10 +748,11 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(ou=testing01)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -754,10 +781,11 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(ou=testing01)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -786,10 +814,11 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(ou=testing01)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -818,10 +847,11 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(ou=testing01)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -850,10 +880,11 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(ou=testing01)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -882,11 +913,12 @@ public class SearchIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(ou=testing01)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
+        
 
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
 
@@ -916,11 +948,11 @@ public class SearchIT
         ctls.setReturningAttributes( new String[]
             { "cn", "sn;unknownOption" } );
 
-        NamingEnumeration result = sysRoot.search( RDN, FILTER, ctls );
+        NamingEnumeration<SearchResult> result = sysRoot.search( RDN, FILTER, ctls );
 
         if ( result.hasMore() )
         {
-            SearchResult entry = ( SearchResult ) result.next();
+            SearchResult entry = result.next();
             Attributes attrs = entry.getAttributes();
             Attribute cn = attrs.get( "cn" );
 
@@ -954,11 +986,11 @@ public class SearchIT
         ctls.setReturningAttributes( new String[]
             { "cn", "cn" } );
 
-        NamingEnumeration result = sysRoot.search( RDN, FILTER, ctls );
+        NamingEnumeration<SearchResult> result = sysRoot.search( RDN, FILTER, ctls );
 
         if ( result.hasMore() )
         {
-            SearchResult entry = ( SearchResult ) result.next();
+            SearchResult entry = result.next();
             Attributes attrs = entry.getAttributes();
             Attribute cn = attrs.get( "cn" );
 
@@ -1025,11 +1057,11 @@ public class SearchIT
         }
 
         Set<String> results = new HashSet<String>();
-        NamingEnumeration list = getSystemContext( service ).search( "ou=groups", filter, controls );
+        NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "ou=groups", filter, controls );
 
         while( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             results.add( result.getName() );
         }
 
@@ -1057,7 +1089,7 @@ public class SearchIT
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
 
-        Set results = searchGroups( "(objectClass=posixGroup)" );
+        Set<String> results = searchGroups( "(objectClass=posixGroup)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1073,7 +1105,7 @@ public class SearchIT
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
 
-        Set results = searchGroups( "(gidNumber<=5)" );
+        Set<String> results = searchGroups( "(gidNumber<=5)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1121,7 +1153,7 @@ public class SearchIT
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
 
-        Set results = searchGroups( "(gidNumber>=0)" );
+        Set<String> results = searchGroups( "(gidNumber>=0)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1161,7 +1193,7 @@ public class SearchIT
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
 
-        Set results = searchGroups( "(!(gidNumber=4))" );
+        Set<String> results = searchGroups( "(!(gidNumber=4))" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1180,7 +1212,7 @@ public class SearchIT
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        Set results = searchGroups( "(!(gidNumber=4))", controls );
+        Set<String> results = searchGroups( "(!(gidNumber=4))", controls );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );

@@ -36,13 +36,21 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.HashSet;
 import java.util.Set;
@@ -108,10 +116,10 @@ public class MixedCaseITest
         SearchControls sc = new SearchControls();
         sc.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        NamingEnumeration ne = ctxRoot.search( "", "(objectClass=*)", sc );
+        NamingEnumeration<SearchResult> ne = ctxRoot.search( "", "(objectClass=*)", sc );
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
-        SearchResult sr = ( SearchResult ) ne.next();
+        SearchResult sr = ne.next();
         assertEquals( "The entry returned should be the root entry.", SUFFIX, sr.getName() );
         assertFalse( "Search should return no more entries.", ne.hasMore() );
     }
@@ -137,10 +145,10 @@ public class MixedCaseITest
         SearchControls sc = new SearchControls();
         sc.setSearchScope( SearchControls.OBJECT_SCOPE );
 
-        NamingEnumeration ne = ctxRoot.search( dn, "(objectClass=*)", sc );
+        NamingEnumeration<SearchResult> ne = ctxRoot.search( dn, "(objectClass=*)", sc );
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
-        SearchResult sr = ( SearchResult ) ne.next();
+        SearchResult sr = ne.next();
         assertEquals( "The entry returned should be the entry added earlier.", dn + "," + SUFFIX, sr.getName() );
         assertFalse( "Search should return no more entries.", ne.hasMore() );
     }
@@ -173,7 +181,7 @@ public class MixedCaseITest
         SearchControls sc = new SearchControls();
         sc.setSearchScope( SearchControls.OBJECT_SCOPE );
 
-        NamingEnumeration ne = ctxRoot.search( dn, "(objectClass=*)", sc );
+        NamingEnumeration<SearchResult> ne = ctxRoot.search( dn, "(objectClass=*)", sc );
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
         SearchResult sr = ( SearchResult ) ne.next();
