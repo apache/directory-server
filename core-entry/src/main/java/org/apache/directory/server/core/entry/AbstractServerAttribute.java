@@ -41,7 +41,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractServerAttribute implements ServerAttribute<ServerValue<?>>
+public abstract class AbstractServerAttribute implements ServerAttribute
 {
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( AbstractServerAttribute.class );

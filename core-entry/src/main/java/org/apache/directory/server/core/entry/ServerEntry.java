@@ -35,7 +35,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends Entry<T>, Iterable<T>
+public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttribute>
 {
     // -----------------------------------------------------------------------
     // Schema Related Methods
@@ -192,7 +192,7 @@ public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends 
      * @param attributeType the type of the attribute
      * @return the attribute of the specified type
      */
-    T get( AttributeType attributeType );
+    ServerAttribute get( AttributeType attributeType );
 
 
     /**
@@ -206,13 +206,13 @@ public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends 
      * @return the old attributes with the same OID, if exist; otherwise
      *         <code>null</code>
      */
-    List<T> put( T... attributes ) throws NamingException;
+    List<ServerAttribute> put( ServerAttribute... attributes ) throws NamingException;
 
     // no value put'ters
 
-    T put( String upId, AttributeType attributeType ) throws NamingException;
+    ServerAttribute put( String upId, AttributeType attributeType ) throws NamingException;
 
-    T put( AttributeType attributeType ) throws NamingException;
+    ServerAttribute put( AttributeType attributeType ) throws NamingException;
 
 
     /**
@@ -234,7 +234,7 @@ public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends 
      *         <code>null</code>
      * @throws NamingException if there are resolution issues
      */
-    T put( AttributeType attributeType, ServerValue<?> val ) throws NamingException;
+    ServerAttribute put( AttributeType attributeType, ServerValue<?> val ) throws NamingException;
 
     /**
      * Places a new attribute with the supplied attributeType and value into this
@@ -252,7 +252,7 @@ public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends 
      *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    T put( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException;
+    ServerAttribute put( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException;
 
 
     /**
@@ -272,10 +272,10 @@ public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends 
      *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    T put( AttributeType attributeType, String val ) throws NamingException;
+    ServerAttribute put( AttributeType attributeType, String val ) throws NamingException;
 
 
-    T put( String upId, AttributeType attributeType, String val ) throws NamingException;
+    ServerAttribute put( String upId, AttributeType attributeType, String val ) throws NamingException;
 
 
     /**
@@ -295,10 +295,10 @@ public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends 
      *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    T put( AttributeType attributeType, byte[] val ) throws NamingException;
+    ServerAttribute put( AttributeType attributeType, byte[] val ) throws NamingException;
 
 
-    T put( String upId, AttributeType attributeType, byte[] val ) throws NamingException;
+    ServerAttribute put( String upId, AttributeType attributeType, byte[] val ) throws NamingException;
 
 
     /**
@@ -310,7 +310,7 @@ public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends 
      * @return the removed attribute, if exists; otherwise <code>null</code>
      * @throws NamingException if there are failures
      */
-    T remove( AttributeType attributeType ) throws NamingException;
+    ServerAttribute remove( AttributeType attributeType ) throws NamingException;
 
 
     /**
@@ -321,5 +321,5 @@ public interface ServerEntry<T extends ServerAttribute<ServerValue<?>>> extends 
      * @param attributes the attributes to be removed
      * @return the removed attribute, if exists; otherwise <code>null</code>
      */
-    List<T> remove( T... attributes ) throws NamingException;
+    List<ServerAttribute> remove( ServerAttribute... attributes ) throws NamingException;
 }

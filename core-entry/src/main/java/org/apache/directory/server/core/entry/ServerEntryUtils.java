@@ -29,7 +29,6 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -51,7 +50,7 @@ public class ServerEntryUtils
      *
      * @return An instance of a AttributesImpl() object
      */
-    public static Attributes toAttributesImpl( ServerEntry<?> entry )
+    public static Attributes toAttributesImpl( ServerEntry entry )
     {
         Attributes attributes = new AttributesImpl();
 
@@ -59,7 +58,7 @@ public class ServerEntryUtils
         {
             Attribute attribute = new AttributeImpl( attributeType.getName() );
             
-            ServerAttribute<?> attr = entry.get( attributeType );
+            ServerAttribute attr = entry.get( attributeType );
             
             for ( Iterator<ServerValue<?>> iter = attr.iterator(); iter.hasNext();)
             {
@@ -171,7 +170,7 @@ public class ServerEntryUtils
      *
      * @return An instance of a BasicAttributes() object
      */
-    public static Attributes toBasicAttributes( ServerEntry<?> entry )
+    public static Attributes toBasicAttributes( ServerEntry entry )
     {
         Attributes attributes = new BasicAttributes( true );
 
@@ -179,7 +178,7 @@ public class ServerEntryUtils
         {
             Attribute attribute = new BasicAttribute( attributeType.getName(), true );
             
-            ServerAttribute<?> attr = entry.get( attributeType );
+            ServerAttribute attr = entry.get( attributeType );
             
             for ( Iterator<ServerValue<?>> iter = attr.iterator(); iter.hasNext();)
             {
@@ -199,7 +198,7 @@ public class ServerEntryUtils
      *
      * @return An instance of a BasicAttribute() object
      */
-    public static Attribute toBasicAttribute( ServerAttribute<ServerValue<?>> attr )
+    public static Attribute toBasicAttribute( ServerAttribute attr )
     {
         Attribute attribute = new BasicAttribute( attr.getUpId(), false );
 
@@ -219,7 +218,7 @@ public class ServerEntryUtils
      *
      * @return An instance of a BasicAttribute() object
      */
-    public static Attribute toAttributeImpl( ServerAttribute<ServerValue<?>> attr )
+    public static Attribute toAttributeImpl( ServerAttribute attr )
     {
         Attribute attribute = new AttributeImpl( attr.getUpId(), false );
 

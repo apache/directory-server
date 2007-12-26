@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerModification<T extends ServerAttribute<?>> implements Modification<T>, Serializable
+public class ServerModification<T extends ServerAttribute> implements Modification<T>, Serializable
 {
     public static final long serialVersionUID = 1L;
     

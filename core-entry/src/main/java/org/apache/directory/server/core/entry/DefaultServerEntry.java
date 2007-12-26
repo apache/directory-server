@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -42,18 +43,33 @@ import javax.naming.NamingException;
 /**
  * A default implementation of a ServerEntry which should suite most
  * use cases.
+ * 
+ * This class is final, it should not be extended.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerValue<?>>>
+public final class DefaultServerEntry implements ServerEntry
 {
+    /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultServerEntry.class );
 
-    private Map<AttributeType, ServerAttribute<ServerValue<?>>> serverAttributeMap = new HashMap<AttributeType, ServerAttribute<ServerValue<?>>>();
+    /** A map containing all the attributes for this entry */
+    private Map<AttributeType, ServerAttribute> serverAttributeMap = new HashMap<AttributeType, ServerAttribute>();
+    
+    /** The objectClass container */
     private ObjectClassAttribute objectClassAttribute;
+    
+    /** The registries */
     private final transient Registries registries;
+    
+    /** The AttributeType registry */
+    private final transient AttributeTypeRegistry atRegistry;
+    
+    /** A speedup to get the ObjectClass attribute */
     private transient AttributeType objectClassAT;
+    
+    /** The DN for this entry */
     private LdapDN dn;
 
 
@@ -61,20 +77,21 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     {
         this.dn = dn;
         this.registries = registries;
+        atRegistry = registries.getAttributeTypeRegistry();
 
-        objectClassAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
+        objectClassAT = atRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
         setObjectClassAttribute( new ObjectClassAttribute( registries ) );
     }
 
 
-    private ServerAttribute<ServerValue<?>> setObjectClassAttribute( ServerAttribute<ServerValue<?>> objectClassAttribute ) throws NamingException
+    private ServerAttribute setObjectClassAttribute( ServerAttribute objectClassAttribute ) throws NamingException
     {
         this.objectClassAttribute = (ObjectClassAttribute)objectClassAttribute;
         return serverAttributeMap.put( objectClassAT, objectClassAttribute );
     }
 
 
-    private ServerAttribute<ServerValue<?>> removeObjectClassAttribute( ServerAttribute<ServerValue<?>> objectClassAttribute ) throws NamingException
+    private ServerAttribute removeObjectClassAttribute( ServerAttribute objectClassAttribute ) throws NamingException
     {
         this.objectClassAttribute = (ObjectClassAttribute)objectClassAttribute;
 
@@ -160,17 +177,35 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public ServerAttribute<ServerValue<?>> get( AttributeType attributeType )
+    /**
+     * Returns the attribute associated with an AttributeType
+     * 
+     * @param the AttributeType we are looking for
+     * @return the associated attribute
+     */
+    public ServerAttribute get( AttributeType attributeType )
     {
         return serverAttributeMap.get( attributeType );
     }
 
 
-    public List<ServerAttribute<ServerValue<?>>> put( ServerAttribute<ServerValue<?>>... serverAttributes ) throws NamingException
+    /**
+     * Returns the attribute associated with a String
+     * 
+     * @param the Attribute ID we are looking for
+     * @return the associated attribute
+     */
+    public ServerAttribute get( String attributeType ) throws NamingException
     {
-        List<ServerAttribute<ServerValue<?>>> duplicatedAttributes = new ArrayList<ServerAttribute<ServerValue<?>>>();
+        return get( atRegistry.lookup( attributeType ) );
+    }
+
+
+    public List<ServerAttribute> put( ServerAttribute... serverAttributes ) throws NamingException
+    {
+        List<ServerAttribute> duplicatedAttributes = new ArrayList<ServerAttribute>();
         
-        for ( ServerAttribute<ServerValue<?>> serverAttribute:serverAttributes )
+        for ( ServerAttribute serverAttribute:serverAttributes )
         {
             if ( serverAttribute.getType().equals( objectClassAT ) )
             {
@@ -205,7 +240,7 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public ServerAttribute<ServerValue<?>> put( String upId, AttributeType attributeType ) throws NamingException
+    public ServerAttribute put( String upId, AttributeType attributeType ) throws NamingException
     {
         throw new NotImplementedException();
     }
@@ -221,10 +256,10 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
      * @return The replaced attribute
      * @throws NamingException If the attribute does not exist
      */
-    public ServerAttribute<ServerValue<?>> put( String upId, String... values ) throws NamingException
+    public ServerAttribute put( String upId, String... values ) throws NamingException
     {
-        AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( upId );
-        ServerAttribute<ServerValue<?>> existing = serverAttributeMap.get( attributeType );
+        AttributeType attributeType = atRegistry.lookup( upId );
+        ServerAttribute existing = serverAttributeMap.get( attributeType );
 
         for ( String value:values )
         {
@@ -245,10 +280,10 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
      * @return The replaced attribute
      * @throws NamingException If the attribute does not exist
      */
-    public ServerAttribute<ServerValue<?>> put( String upId, byte[]... values ) throws NamingException
+    public ServerAttribute put( String upId, byte[]... values ) throws NamingException
     {
-        AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( upId );
-        ServerAttribute<ServerValue<?>> existing = serverAttributeMap.get( attributeType );
+        AttributeType attributeType = atRegistry.lookup( upId );
+        ServerAttribute existing = serverAttributeMap.get( attributeType );
 
         for ( byte[] value:values )
         {
@@ -259,17 +294,17 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public ServerAttribute<ServerValue<?>> put( AttributeType attributeType ) throws NamingException
+    public ServerAttribute put( AttributeType attributeType ) throws NamingException
     {
         throw new NotImplementedException();
     }
 
 
-    public List<ServerAttribute<ServerValue<?>>> remove( ServerAttribute<ServerValue<?>>... serverAttributes ) throws NamingException
+    public List<ServerAttribute> remove( ServerAttribute... serverAttributes ) throws NamingException
     {
-        List<ServerAttribute<ServerValue<?>>> removedAttributes = new ArrayList<ServerAttribute<ServerValue<?>>>();
+        List<ServerAttribute> removedAttributes = new ArrayList<ServerAttribute>();
         
-        for ( ServerAttribute<ServerValue<?>> serverAttribute:serverAttributes )
+        for ( ServerAttribute serverAttribute:serverAttributes )
         {
             if ( serverAttribute.getType().equals( objectClassAT ) )
             {
@@ -287,9 +322,9 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public ServerAttribute<ServerValue<?>> put( AttributeType attributeType, ServerValue<?> val ) throws NamingException
+    public ServerAttribute put( AttributeType attributeType, ServerValue<?> val ) throws NamingException
     {
-        ServerAttribute<ServerValue<?>> existing = serverAttributeMap.get( attributeType );
+        ServerAttribute existing = serverAttributeMap.get( attributeType );
 
         if ( existing != null )
         {
@@ -302,7 +337,7 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public ServerAttribute<ServerValue<?>> put( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException
+    public ServerAttribute put( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException
     {
         if ( attributeType.equals( objectClassAT ) )
         {
@@ -313,9 +348,9 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public ServerAttribute<ServerValue<?>> put( AttributeType attributeType, String val ) throws NamingException
+    public ServerAttribute put( AttributeType attributeType, String val ) throws NamingException
     {
-        ServerAttribute<ServerValue<?>> existing = serverAttributeMap.get( attributeType );
+        ServerAttribute existing = serverAttributeMap.get( attributeType );
 
         if ( attributeType.equals( objectClassAT ) )
         {
@@ -338,7 +373,7 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public ServerAttribute<ServerValue<?>> put( String upId, AttributeType attributeType, String val ) throws NamingException
+    public ServerAttribute put( String upId, AttributeType attributeType, String val ) throws NamingException
     {
         if ( attributeType.equals( objectClassAT ) )
         {
@@ -349,14 +384,14 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public ServerAttribute<ServerValue<?>> put( AttributeType attributeType, byte[] val ) throws NamingException
+    public ServerAttribute put( AttributeType attributeType, byte[] val ) throws NamingException
     {
         if ( attributeType.equals( objectClassAT ) )
         {
             throw new UnsupportedOperationException( "Only String values supported for objectClass attribute" );
         }
 
-        ServerAttribute<ServerValue<?>> existing = serverAttributeMap.get( attributeType );
+        ServerAttribute existing = serverAttributeMap.get( attributeType );
 
         if ( existing != null )
         {
@@ -369,7 +404,7 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public ServerAttribute<ServerValue<?>> put( String upId, AttributeType attributeType, byte[] val ) throws NamingException
+    public ServerAttribute put( String upId, AttributeType attributeType, byte[] val ) throws NamingException
     {
         if ( attributeType.equals( objectClassAT ) )
         {
@@ -380,7 +415,7 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public ServerAttribute<ServerValue<?>> remove( AttributeType attributeType ) throws NamingException
+    public ServerAttribute remove( AttributeType attributeType ) throws NamingException
     {
         if ( attributeType.equals( objectClassAT ) )
         {
@@ -422,7 +457,7 @@ public class DefaultServerEntry implements ServerEntry<ServerAttribute<ServerVal
     }
 
 
-    public Iterator<ServerAttribute<ServerValue<?>>> iterator()
+    public Iterator<ServerAttribute> iterator()
     {
         return Collections.unmodifiableMap( serverAttributeMap ).values().iterator();
     }
