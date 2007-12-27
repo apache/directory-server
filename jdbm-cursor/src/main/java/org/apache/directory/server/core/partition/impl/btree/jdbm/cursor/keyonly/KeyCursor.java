@@ -24,11 +24,12 @@ import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.server.core.cursor.AbstractCursor;
-import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Comparator;
 
 
 /**
@@ -43,75 +44,152 @@ public class KeyCursor<E> extends AbstractCursor<E>
     private static final Logger LOG = LoggerFactory.getLogger( KeyCursor.class );
     private final Tuple tuple = new Tuple();
 
-    private BTree btree;
+    private final BTree btree;
+    private final Comparator<E> comparator;
+    private boolean valueAvailable;
     private TupleBrowser browser;
 
 
     /**
      * Creates a Cursor over the keys of a JDBM BTree.
      *
-     * @param btree the JDBM BTree
+     * @param btree the JDBM BTree to build a Cursor over
+     * @param comparator the Comparator used to determine key ordering
      * @throws IOException of there are problems accessing the BTree
      */
-    KeyCursor( BTree btree ) throws IOException
+    public KeyCursor( BTree btree, Comparator<E> comparator ) throws IOException
     {
         this.btree = btree;
+        this.comparator = comparator;
+    }
+
+
+    private void clearValue()
+    {
+        tuple.setKey( null );
+        tuple.setValue( null );
+        valueAvailable = false;
     }
 
 
     public void before( E element ) throws IOException
     {
         browser = btree.browse( element );
-        tuple.setKey( null );
-        tuple.setValue( null );
+        clearValue();
     }
 
 
     public void after( E element ) throws IOException
     {
-        throw new NotImplementedException();
+        browser = btree.browse( element );
+
+        /*
+         * While the next value is less than or equal to the element keep
+         * advancing forward to the next item.  If we cannot advance any
+         * further then stop and return.  If we find a value greater than
+         * the element then we stop, backup, and return so subsequent calls
+         * to getNext() will return a value greater than the element.
+         */
+        while ( browser.getNext( tuple ) )
+        {
+            //noinspection unchecked
+            E next = ( E ) tuple.getKey();
+            int nextCompared = comparator.compare( next, element );
+
+            if ( nextCompared <= 0 )
+            {
+                // just continue
+            }
+            else if ( nextCompared > 0 )
+            {
+                /*
+                 * If we just have values greater than the element argument
+                 * then we are before the first element and cannot backup, and
+                 * the call below to getPrevious() will fail.  In this special
+                 * case we just reset the Cursor's browser and return.
+                 */
+                if ( browser.getPrevious( tuple ) )
+                {
+                }
+                else
+                {
+                    browser = btree.browse( element );
+                }
+
+                clearValue();
+                return;
+            }
+        }
+
+        clearValue();
+        // just return
     }
 
 
     public void beforeFirst() throws IOException
     {
-        throw new NotImplementedException();
+        browser = btree.browse();
+        clearValue();
     }
 
 
     public void afterLast() throws IOException
     {
-        throw new NotImplementedException();
+        browser = btree.browse( null );
     }
 
 
     public boolean first() throws IOException
     {
-        throw new NotImplementedException();
+        beforeFirst();
+        return next();
     }
 
 
     public boolean last() throws IOException
     {
-        throw new NotImplementedException();
+        afterLast();
+        return previous();
     }
 
 
     public boolean previous() throws IOException
     {
-        throw new NotImplementedException();
+        if ( browser.getPrevious( tuple ) )
+        {
+            return valueAvailable = true;
+        }
+        else
+        {
+            clearValue();
+            return false;
+        }
     }
 
 
     public boolean next() throws IOException
     {
-        throw new NotImplementedException();
+        if ( browser.getNext( tuple ) )
+        {
+            return valueAvailable = true;
+        }
+        else
+        {
+            clearValue();
+            return false;
+        }
     }
 
 
     public E get() throws IOException
     {
-        throw new NotImplementedException();
+        if ( valueAvailable )
+        {
+            //noinspection unchecked
+            return ( E ) tuple.getKey();
+        }
+
+        throw new InvalidCursorPositionException();
     }
 
 

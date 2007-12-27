@@ -27,8 +27,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNull;
 
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.keyonly.KeyCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +58,7 @@ public class KeyCursorTest
     File dbFile;
     RecordManager recman;
     BTree bt;
-    Comparator comparator;
+    Comparator<String> comparator;
 
     KeyCursor<String> cursor;
 
@@ -91,7 +89,8 @@ public class KeyCursorTest
         bt.insert( "8", EMPTY_BYTES, true );
         bt.insert( "9", EMPTY_BYTES, true );
 
-        cursor = new KeyCursor<String>( bt );
+        cursor = new KeyCursor<String>( bt, comparator );
+        LOG.debug( "Created new KeyCursor and populated it's btree" );
     }
 
 
@@ -106,7 +105,88 @@ public class KeyCursorTest
 
 
     @Test
-    public void testJdbmBehaviorBrowse() throws Exception
+    public void testAfter() throws IOException
+    {
+        // test initial setup, advances after, and before inside elements
+        assertInvalidCursor();
+
+        cursor.after( "5" );
+        assertInvalidCursor();
+        assertTrue( cursor.next() );
+        assertEquals( "6", cursor.get() );
+
+        cursor.before( "2" );
+        assertInvalidCursor();
+        assertTrue( cursor.next() );
+        assertEquals( "2", cursor.get() );
+
+        // test advances up to and past the tail end
+        cursor.after( "9" );
+        assertInvalidCursor();
+        assertFalse( cursor.next() );
+        assertTrue( cursor.previous() );
+        assertEquals( "9", cursor.get() );
+
+        cursor.after( "a" );
+        assertInvalidCursor();
+        assertFalse( cursor.next() );
+        assertTrue( cursor.previous() );
+        assertEquals( "9", cursor.get() );
+
+        cursor.before( "a" );
+        assertInvalidCursor();
+        assertFalse( cursor.next() );
+        assertTrue( cursor.previous() );
+        assertEquals( "9", cursor.get() );
+
+        // test advances up to and past the head
+        cursor.before( "0" );
+        assertInvalidCursor();
+        assertFalse( cursor.previous() );
+        assertTrue( cursor.next() );
+        assertEquals( "0", cursor.get() );
+
+        cursor.after( "*" );
+        assertInvalidCursor();
+        assertFalse( cursor.previous() );
+        assertTrue( cursor.next() );
+        assertEquals( "0", cursor.get() );
+
+        cursor.before( "*" );
+        assertInvalidCursor();
+        assertFalse( cursor.previous() );
+        assertTrue( cursor.next() );
+        assertEquals( "0", cursor.get() );
+
+        bt.remove( "0" );
+        bt.remove( "1" );
+        bt.remove( "2" );
+        bt.remove( "3" );
+        bt.remove( "4" );
+        bt.remove( "6" );
+        bt.remove( "7" );
+        bt.remove( "8" );
+        bt.remove( "9" );
+
+        // now test with only one element: "5" remains now with others deleted
+        cursor.before( "5" );
+        assertInvalidCursor();
+        assertFalse( cursor.previous() );
+        assertTrue( cursor.next() );
+        assertEquals( "5", cursor.get() );
+        assertFalse( cursor.next() );
+
+        cursor.after( "5" );
+        assertInvalidCursor();
+        assertFalse( cursor.next() );
+        assertTrue( cursor.previous() );
+        assertEquals( "5", cursor.get() );
+        assertFalse( cursor.previous() );
+    }
+
+
+    @Test
+    public void testJdbmBrowse() throws Exception
     {
         bt.remove( "0" );
         bt.remove( "5" );
@@ -162,7 +242,7 @@ public class KeyCursorTest
     }
 
 
-    private void assertInvalid( Cursor<String> cursor )
+    private void assertInvalidCursor()
     {
         try
         {
