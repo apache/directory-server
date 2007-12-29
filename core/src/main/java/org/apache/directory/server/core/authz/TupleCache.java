@@ -137,7 +137,8 @@ public class TupleCache
                     SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration<SearchResult> results = nexus.search( new SearchOperationContext( baseDn,
+            NamingEnumeration<SearchResult> results = nexus.search( 
+                new SearchOperationContext( registries, baseDn,
                     AliasDerefMode.NEVER_DEREF_ALIASES, filter, ctls ) );
             
             while ( results.hasMore() )

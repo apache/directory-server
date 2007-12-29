@@ -392,7 +392,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<SearchResult> e = ctx.getDirectoryService().getPartitionNexus().search(
-            new SearchOperationContext( contextName, AliasDerefMode.DEREF_ALWAYS,
+            new SearchOperationContext( ctx.getDirectoryService().getRegistries(), contextName, AliasDerefMode.DEREF_ALWAYS,
             new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         try

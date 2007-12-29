@@ -297,8 +297,15 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes userEntry;
 
-        LookupOperationContext lookupContext = new LookupOperationContext( new String[]
-            { SchemaConstants.OBJECT_CLASS_AT, KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT } );
+        LookupOperationContext lookupContext = 
+            new LookupOperationContext( modContext.getRegistries(),
+                new String[]
+                           { 
+                            SchemaConstants.OBJECT_CLASS_AT, 
+                            KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
+                            KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT 
+                           } );
+        
         lookupContext.setDn( principalDn );
 
         userEntry = proxy.lookup( lookupContext, USERLOOKUP_BYPASS );

@@ -35,6 +35,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -80,7 +81,7 @@ public class CollectiveAttributesSchemaChecker
         }
     }
     
-    public void checkModify( LdapDN normName, int modOp, Attributes mods ) throws NamingException
+    public void checkModify( Registries registries, LdapDN normName, int modOp, Attributes mods ) throws NamingException
     {
         ArrayList<ModificationItemImpl> modsAsArray = new ArrayList<ModificationItemImpl>( mods.size() );
         NamingEnumeration<? extends Attribute> allAttrs = mods.getAll();
@@ -91,13 +92,13 @@ public class CollectiveAttributesSchemaChecker
             modsAsArray.add( new ModificationItemImpl( modOp, attr ) );
         }
         
-        checkModify( normName, modsAsArray );
+        checkModify( registries, normName, modsAsArray );
     }
     
     
-    public void checkModify( LdapDN normName, List<ModificationItemImpl> mods ) throws NamingException
+    public void checkModify( Registries registries, LdapDN normName, List<ModificationItemImpl> mods ) throws NamingException
     {
-        Attributes originalEntry = nexus.lookup( new LookupOperationContext( normName ) );
+        Attributes originalEntry = nexus.lookup( new LookupOperationContext( registries, normName ) );
         Attributes targetEntry = SchemaUtils.getTargetEntry( mods, originalEntry );
         Attribute targetObjectClasses = targetEntry.get( SchemaConstants.OBJECT_CLASS_AT );
         

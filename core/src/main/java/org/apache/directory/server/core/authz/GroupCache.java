@@ -31,6 +31,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -109,7 +110,7 @@ public class GroupCache
         // stuff for dealing with the admin group
         administratorsGroupDn = parseNormalized( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
-        initialize();
+        initialize( directoryService.getRegistries() );
     }
 
 
@@ -121,7 +122,7 @@ public class GroupCache
     }
 
 
-    private void initialize() throws NamingException
+    private void initialize( Registries registries ) throws NamingException
     {
         // search all naming contexts for static groups and generate
         // normalized sets of members to cache within the map
@@ -139,7 +140,7 @@ public class GroupCache
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration<SearchResult> results = nexus.search(
-                    new SearchOperationContext( baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
+                    new SearchOperationContext( registries, baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
 
             while ( results.hasMore() )
             {

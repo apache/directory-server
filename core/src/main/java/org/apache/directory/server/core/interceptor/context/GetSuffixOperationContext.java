@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -28,14 +29,14 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetSuffixOperationContext  extends AbstractOperationContext
+public class GetSuffixOperationContext extends AbstractOperationContext
 {
     /**
      * Creates a new instance of GetSuffixOperationContext.
      */
-    public GetSuffixOperationContext()
+    public GetSuffixOperationContext( Registries registries )
     {
-        super();
+        super( registries );
     }
     
     /**
@@ -43,9 +44,9 @@ public class GetSuffixOperationContext  extends AbstractOperationContext
      *
      * @param dn The DN to get the suffix from
      */
-    public GetSuffixOperationContext( LdapDN dn )
+    public GetSuffixOperationContext( Registries registries, LdapDN dn )
     {
-        super( dn );
+        super( registries, dn );
     }
     
     /**

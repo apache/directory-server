@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import java.util.List;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
@@ -40,6 +41,17 @@ public class BindOperationContext extends AbstractOperationContext
     
     /** The SASL identifier */
     private String saslAuthId;
+    
+    /**
+     * Creates a new instance of BindOperationContext.
+     *
+     * @param Registries The global registries
+     */
+    public BindOperationContext( Registries registries )
+    {
+        super( registries );
+    }
+
     
     /**
      * @return The list of supported mechanisms

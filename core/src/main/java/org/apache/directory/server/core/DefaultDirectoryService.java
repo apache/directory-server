@@ -470,7 +470,7 @@ public class DefaultDirectoryService implements  DirectoryService
             return;
         }
 
-        AddContextPartitionOperationContext addPartitionCtx = new AddContextPartitionOperationContext( parition );
+        AddContextPartitionOperationContext addPartitionCtx = new AddContextPartitionOperationContext( registries, parition );
         partitionNexus.addContextPartition( addPartitionCtx );
     }
 
@@ -485,7 +485,7 @@ public class DefaultDirectoryService implements  DirectoryService
         }
 
         RemoveContextPartitionOperationContext removePartitionCtx =
-                new RemoveContextPartitionOperationContext( partition.getSuffixDn() );
+                new RemoveContextPartitionOperationContext( registries, partition.getSuffixDn() );
         partitionNexus.removeContextPartition( removePartitionCtx );
     }
 
@@ -921,7 +921,7 @@ public class DefaultDirectoryService implements  DirectoryService
         /*
          * If the admin entry is there, then the database was already created
          */
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( PartitionNexus.getAdminName() ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, PartitionNexus.getAdminName() ) ) )
         {
             firstStart = true;
 
@@ -954,7 +954,7 @@ public class DefaultDirectoryService implements  DirectoryService
         LdapDN userDn = new LdapDN( ServerDNConstants.USERS_SYSTEM_DN );
         userDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( userDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, userDn ) ) )
         {
             firstStart = true;
 
@@ -979,7 +979,7 @@ public class DefaultDirectoryService implements  DirectoryService
         LdapDN groupDn = new LdapDN( ServerDNConstants.GROUPS_SYSTEM_DN );
         groupDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( groupDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, groupDn ) ) )
         {
             firstStart = true;
 
@@ -1004,7 +1004,7 @@ public class DefaultDirectoryService implements  DirectoryService
         LdapDN name = new LdapDN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
         name.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( name ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, name ) ) )
         {
             firstStart = true;
 
@@ -1049,7 +1049,7 @@ public class DefaultDirectoryService implements  DirectoryService
         LdapDN configurationDn = new LdapDN( "ou=configuration,ou=system" );
         configurationDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( configurationDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, configurationDn ) ) )
         {
             firstStart = true;
 
@@ -1074,7 +1074,7 @@ public class DefaultDirectoryService implements  DirectoryService
         LdapDN partitionsDn = new LdapDN( "ou=partitions,ou=configuration,ou=system" );
         partitionsDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( partitionsDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, partitionsDn ) ) )
         {
             firstStart = true;
 
@@ -1099,7 +1099,7 @@ public class DefaultDirectoryService implements  DirectoryService
         LdapDN servicesDn = new LdapDN( "ou=services,ou=configuration,ou=system" );
         servicesDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( servicesDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, servicesDn ) ) )
         {
             firstStart = true;
 
@@ -1124,7 +1124,7 @@ public class DefaultDirectoryService implements  DirectoryService
         LdapDN interceptorsDn = new LdapDN( "ou=interceptors,ou=configuration,ou=system" );
         interceptorsDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( interceptorsDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, interceptorsDn ) ) )
         {
             firstStart = true;
 
@@ -1149,7 +1149,7 @@ public class DefaultDirectoryService implements  DirectoryService
         LdapDN sysPrefRootDn = new LdapDN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
         sysPrefRootDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( sysPrefRootDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, sysPrefRootDn ) ) )
         {
             firstStart = true;
 
@@ -1184,7 +1184,7 @@ public class DefaultDirectoryService implements  DirectoryService
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
-        Attributes adminEntry = partitionNexus.lookup( new LookupOperationContext( adminDn ) );
+        Attributes adminEntry = partitionNexus.lookup( new LookupOperationContext( registries, adminDn ) );
         Object userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
         if ( userPassword instanceof byte[] )
         {
@@ -1394,7 +1394,7 @@ public class DefaultDirectoryService implements  DirectoryService
 
         partitionNexus = new DefaultPartitionNexus( new AttributesImpl() );
         partitionNexus.init( this );
-        partitionNexus.addContextPartition( new AddContextPartitionOperationContext( schemaPartition ) );
+        partitionNexus.addContextPartition( new AddContextPartitionOperationContext( registries, schemaPartition ) );
 
         interceptorChain = new InterceptorChain();
         interceptorChain.init( this );

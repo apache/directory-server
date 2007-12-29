@@ -34,6 +34,7 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ServerSearchResult;
@@ -65,9 +66,17 @@ import java.util.Set;
  */
 public class CollectiveAttributeInterceptor extends BaseInterceptor
 {
-    public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID = "2.5.18.0";
-    public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES = "excludeAllCollectiveAttributes";
+    /** The global registries */
+    private Registries registries;
     
+    /** The attributeType registry */
+    private AttributeTypeRegistry atRegistry;
+    
+    private PartitionNexus nexus;
+    
+    private CollectiveAttributesSchemaChecker collectiveAttributesSchemaChecker;
+
+
     /**
      * the search result filter to use for collective attribute injection
      */
@@ -80,7 +89,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             
             if ( !name.isNormalized() )
             {
-            	name = LdapDN.normalize( name, attrTypeRegistry.getNormalizerMapping() );
+            	name = LdapDN.normalize( name, atRegistry.getNormalizerMapping() );
             }
             
             Attributes entry = result.getAttributes();
@@ -90,18 +99,13 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         }
     };
 
-    private AttributeTypeRegistry attrTypeRegistry;
-    private PartitionNexus nexus;
-    
-    private CollectiveAttributesSchemaChecker collectiveAttributesSchemaChecker;
-
-
     public void init( DirectoryService directoryService ) throws NamingException
     {
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
-        attrTypeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
-        collectiveAttributesSchemaChecker = new CollectiveAttributesSchemaChecker(nexus, attrTypeRegistry);
+        atRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
+        collectiveAttributesSchemaChecker = new CollectiveAttributesSchemaChecker( nexus, atRegistry );
+        registries = directoryService.getRegistries();
     }
 
 
@@ -123,7 +127,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         //noinspection StringEquality
         if ( ( retAttrs == null ) || ( retAttrs.length != 1 ) || ( retAttrs[0] != SchemaConstants.ALL_USER_ATTRIBUTES ) )
         {
-            Attributes entryWithCAS = nexus.lookup( new LookupOperationContext( normName, new String[] { 
+            Attributes entryWithCAS = nexus.lookup( new LookupOperationContext( registries, normName, new String[] { 
             	SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT } ) );
             caSubentries = entryWithCAS.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         }
@@ -152,8 +156,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         
         if ( collectiveExclusions != null )
         {
-            if ( AttributeUtils.containsValueCaseIgnore( collectiveExclusions, EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID )
-                || AttributeUtils.containsValue( collectiveExclusions, EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES, attrTypeRegistry.lookup( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT_OID ) ) )
+            if ( AttributeUtils.containsValueCaseIgnore( collectiveExclusions, SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT_OID )
+                || AttributeUtils.containsValue( collectiveExclusions, SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT, 
+                    atRegistry.lookup( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT_OID ) ) )
             {
                 /*
                  * This entry does not allow any collective attributes
@@ -166,7 +171,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             
             for ( int ii = 0; ii < collectiveExclusions.size(); ii++ )
             {
-                AttributeType attrType = attrTypeRegistry.lookup( ( String ) collectiveExclusions.get( ii ) );
+                AttributeType attrType = atRegistry.lookup( ( String ) collectiveExclusions.get( ii ) );
                 exclusions.add( attrType.getOid() );
             }
         }
@@ -200,13 +205,13 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         {
             String subentryDnStr = ( String ) caSubentries.get( ii );
             LdapDN subentryDn = new LdapDN( subentryDnStr );
-            Attributes subentry = nexus.lookup( new LookupOperationContext( subentryDn ) );
+            Attributes subentry = nexus.lookup( new LookupOperationContext( registries, subentryDn ) );
             NamingEnumeration<String> attrIds = subentry.getIDs();
             
             while ( attrIds.hasMore() )
             {
                 String attrId = attrIds.next();
-                AttributeType attrType = attrTypeRegistry.lookup( attrId );
+                AttributeType attrType = atRegistry.lookup( attrId );
 
                 if ( !attrType.isCollective() )
                 {
@@ -231,7 +236,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                         continue;
                     }
 
-                    AttributeType retType = attrTypeRegistry.lookup( retId );
+                    AttributeType retType = atRegistry.lookup( retId );
 
                     if ( allSuperTypes.contains( retType ) )
                     {
@@ -350,7 +355,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
-        collectiveAttributesSchemaChecker.checkModify( opContext.getDn(), opContext.getModItems() );
+        collectiveAttributesSchemaChecker.checkModify( opContext.getRegistries(),opContext.getDn(), opContext.getModItems() );
 
         next.modify( opContext );
     }

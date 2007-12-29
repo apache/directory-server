@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.schema.registries.Registries;
 
 
 /**
@@ -32,7 +33,7 @@ import org.apache.directory.server.core.partition.Partition;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AddContextPartitionOperationContext  extends EmptyOperationContext
+public class AddContextPartitionOperationContext extends EmptyOperationContext
 {
     /** the instantiated partition class */
     private Partition partition;
@@ -43,9 +44,9 @@ public class AddContextPartitionOperationContext  extends EmptyOperationContext
      *
      * @param partition The partition to add
      */
-    public AddContextPartitionOperationContext( Partition partition )
+    public AddContextPartitionOperationContext( Registries registries, Partition partition )
     {
-        super();
+        super( registries );
         this.partition = partition;
     }
     

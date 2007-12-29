@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -38,9 +39,9 @@ public class ReplaceOperationContext extends AbstractOperationContext
      * Creates a new instance of ReplaceOperationContext.
      *
      */
-    public ReplaceOperationContext()
+    public ReplaceOperationContext( Registries registries )
     {
-    	super();
+    	super( registries );
     }
 
     /**
@@ -48,9 +49,9 @@ public class ReplaceOperationContext extends AbstractOperationContext
      * Creates a new instance of ReplaceOperationContext.
      *
      */
-    public ReplaceOperationContext( LdapDN oldDn, LdapDN parent )
+    public ReplaceOperationContext( Registries registries, LdapDN oldDn, LdapDN parent )
     {
-        super( oldDn );
+        super( registries, oldDn );
         this.parent = parent;
     }
 

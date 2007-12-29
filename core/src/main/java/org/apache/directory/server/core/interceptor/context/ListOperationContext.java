@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
@@ -29,7 +30,7 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ListOperationContext  extends AbstractOperationContext
+public class ListOperationContext extends AbstractOperationContext
 {
     private AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
 
@@ -37,9 +38,9 @@ public class ListOperationContext  extends AbstractOperationContext
     /**
      * Creates a new instance of ListOperationContext.
      */
-    public ListOperationContext()
+    public ListOperationContext( Registries registries )
     {
-        super();
+        super( registries );
     }
 
 
@@ -48,9 +49,9 @@ public class ListOperationContext  extends AbstractOperationContext
      *
      * @param dn The DN to get the suffix from
      */
-    public ListOperationContext( LdapDN dn )
+    public ListOperationContext( Registries registries, LdapDN dn )
     {
-        super( dn );
+        super( registries, dn );
     }
 
 
@@ -60,9 +61,9 @@ public class ListOperationContext  extends AbstractOperationContext
      * @param dn The DN to get the suffix from
      * @param aliasDerefMode the alias dereferencing mode to use
      */
-    public ListOperationContext( LdapDN dn, AliasDerefMode aliasDerefMode )
+    public ListOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode )
     {
-        super( dn );
+        super( registries, dn );
         this.aliasDerefMode = aliasDerefMode;
     }
 

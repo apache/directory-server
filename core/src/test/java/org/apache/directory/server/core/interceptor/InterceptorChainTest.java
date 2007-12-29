@@ -101,7 +101,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupOperationContext( dn ) );
+            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
         }
         catch ( Exception e )
         {
@@ -127,7 +127,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupOperationContext( dn ) );
+            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
         }
         catch ( Exception e )
         {
@@ -156,7 +156,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupOperationContext( dn ) );
+            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
         }
         catch ( Exception e )
         {
@@ -185,7 +185,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupOperationContext( dn ) );
+            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
         }
         catch ( Exception e )
         {
@@ -213,7 +213,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupOperationContext( dn ) );
+            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
         }
         catch ( Exception e )
         {
@@ -238,7 +238,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupOperationContext( dn ) );
+            chain.lookup( new LookupOperationContext(ds.getRegistries(),  dn ) );
         }
         catch ( Exception e )
         {

@@ -372,7 +372,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     {
         LdapDN target = buildTarget( name );
         
-        if ( getNexusProxy().hasEntry( new EntryOperationContext( target ) ) )
+        if ( getNexusProxy().hasEntry( new EntryOperationContext( registries, target ) ) )
         {
             doDeleteOperation( target );
         }

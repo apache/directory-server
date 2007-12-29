@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
@@ -45,9 +46,9 @@ public class RenameOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of RenameOperationContext.
      */
-    public RenameOperationContext()
+    public RenameOperationContext( Registries registries )
     {
-    	super();
+    	super( registries );
     }
 
 
@@ -58,9 +59,9 @@ public class RenameOperationContext extends AbstractOperationContext
      * @param newRdn the new RDN to use for the target
      * @param delOldDn true if we delete the old RDN value
      */
-    public RenameOperationContext( LdapDN oldDn, Rdn newRdn, boolean delOldDn )
+    public RenameOperationContext( Registries registries, LdapDN oldDn, Rdn newRdn, boolean delOldDn )
     {
-        super( oldDn );
+        super( registries, oldDn );
         this.newRdn = newRdn;
         this.delOldDn = delOldDn;
     }

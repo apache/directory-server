@@ -101,7 +101,7 @@ public abstract class ServerContext implements EventContext
     /** The directory service which owns this context **/
     private final DirectoryService service;
 
-    /** The AttributeType registry **/
+    /** The global registries **/
     protected final Registries registries;
 
     /** The interceptor proxy to the backend nexus */
@@ -163,12 +163,12 @@ public abstract class ServerContext implements EventContext
         doBindOperation( props.getBindDn(), props.getCredentials(), props.getAuthenticationMechanisms(), 
             props.getSaslAuthId() );
         
-        if ( ! nexusProxy.hasEntry( new EntryOperationContext( dn ) ) )
+        registries = service.getRegistries();
+
+        if ( ! nexusProxy.hasEntry( new EntryOperationContext( registries, dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
-        
-        registries = service.getRegistries();
     }
     
     
@@ -238,7 +238,7 @@ public abstract class ServerContext implements EventContext
     protected void doDeleteOperation( LdapDN target ) throws NamingException
     {
         // setup the op context and populate with request controls
-        DeleteOperationContext opCtx = new DeleteOperationContext( target );
+        DeleteOperationContext opCtx = new DeleteOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
         
         // execute delete operation
@@ -263,7 +263,7 @@ public abstract class ServerContext implements EventContext
         throws NamingException
     {
         // setup the op context and populate with request controls
-        SearchOperationContext opCtx = new SearchOperationContext( dn, aliasDerefMode, filter, searchControls );
+        SearchOperationContext opCtx = new SearchOperationContext( registries, dn, aliasDerefMode, filter, searchControls );
         opCtx.addRequestControls( requestControls );
         
         // execute search operation
@@ -283,7 +283,7 @@ public abstract class ServerContext implements EventContext
     protected NamingEnumeration<SearchResult> doListOperation( LdapDN target ) throws NamingException
     {
         // setup the op context and populate with request controls
-        ListOperationContext opCtx = new ListOperationContext( target );
+        ListOperationContext opCtx = new ListOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
         
         // execute list operation
@@ -299,7 +299,7 @@ public abstract class ServerContext implements EventContext
     
     protected Attributes doGetRootDSEOperation( LdapDN target ) throws NamingException
     {
-        GetRootDSEOperationContext opCtx = new GetRootDSEOperationContext( target );
+        GetRootDSEOperationContext opCtx = new GetRootDSEOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
         
         // do not reset request controls since this is not an external 
@@ -317,7 +317,7 @@ public abstract class ServerContext implements EventContext
         LookupOperationContext opCtx;
         
         // execute lookup/getRootDSE operation
-        opCtx = new LookupOperationContext( target );
+        opCtx = new LookupOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
         Attributes attributes = nexusProxy.lookup( opCtx );
 
@@ -337,7 +337,7 @@ public abstract class ServerContext implements EventContext
         LookupOperationContext opCtx;
         
         // execute lookup/getRootDSE operation
-        opCtx = new LookupOperationContext( target, attrIds );
+        opCtx = new LookupOperationContext( registries, target, attrIds );
         opCtx.addRequestControls( requestControls );
         Attributes attributes = nexusProxy.lookup( opCtx );
 
@@ -356,7 +356,7 @@ public abstract class ServerContext implements EventContext
         throws NamingException
     {
         // setup the op context and populate with request controls
-        BindOperationContext opCtx = new BindOperationContext();
+        BindOperationContext opCtx = new BindOperationContext( registries );
         opCtx.setDn( bindDn );
         opCtx.setCredentials( credentials );
         opCtx.setMechanisms( mechanisms );
@@ -380,7 +380,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         MoveAndRenameOperationContext opCtx =
-                new MoveAndRenameOperationContext( oldDn, parent, new Rdn( newRdn ), delOldDn );
+                new MoveAndRenameOperationContext( registries, oldDn, parent, new Rdn( newRdn ), delOldDn );
         opCtx.addRequestControls( requestControls );
         
         // execute moveAndRename operation
@@ -416,7 +416,7 @@ public abstract class ServerContext implements EventContext
     protected void doMove( LdapDN oldDn, LdapDN target ) throws NamingException
     {
         // setup the op context and populate with request controls
-        MoveOperationContext opCtx = new MoveOperationContext( oldDn, target );
+        MoveOperationContext opCtx = new MoveOperationContext( registries, oldDn, target );
         opCtx.addRequestControls( requestControls );
         
         // execute move operation
@@ -434,7 +434,7 @@ public abstract class ServerContext implements EventContext
     protected void doRename( LdapDN oldDn, String newRdn, boolean delOldRdn ) throws NamingException
     {
         // setup the op context and populate with request controls
-        RenameOperationContext opCtx = new RenameOperationContext( oldDn, new Rdn( newRdn ), delOldRdn );
+        RenameOperationContext opCtx = new RenameOperationContext( registries, oldDn, new Rdn( newRdn ), delOldRdn );
         opCtx.addRequestControls( requestControls );
         
         // execute rename operation
@@ -860,7 +860,7 @@ public abstract class ServerContext implements EventContext
     {
         LdapDN target = buildTarget( name );
         
-        if ( nexusProxy.hasEntry( new EntryOperationContext( target ) ) )
+        if ( nexusProxy.hasEntry( new EntryOperationContext( registries, target ) ) )
         {
             doDeleteOperation( target );
         }

@@ -30,6 +30,7 @@ import org.apache.directory.server.core.operational.OperationalAttributeIntercep
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
@@ -74,6 +75,7 @@ public class MaxImmSubFilter implements ACITupleFilter
 
 
     public Collection<ACITuple> filter( 
+            Registries registries, 
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             PartitionNexusProxy proxy,
@@ -120,7 +122,7 @@ public class MaxImmSubFilter implements ACITupleFilter
                 {
                     if ( immSubCount < 0 )
                     {
-                        immSubCount = getImmSubCount( proxy, entryName );
+                        immSubCount = getImmSubCount( registries, proxy, entryName );
                     }
 
                     ProtectedItem.MaxImmSub mis = ( ProtectedItem.MaxImmSub ) item;
@@ -156,14 +158,14 @@ public class MaxImmSubFilter implements ACITupleFilter
     }
 
 
-    private int getImmSubCount( PartitionNexusProxy proxy, LdapDN entryName ) throws NamingException
+    private int getImmSubCount( Registries registries, PartitionNexusProxy proxy, LdapDN entryName ) throws NamingException
     {
         int cnt = 0;
         NamingEnumeration<SearchResult> e = null;
         
         try
         {
-            e = proxy.search( new SearchOperationContext( ( LdapDN ) entryName.getPrefix( 1 ),
+            e = proxy.search( new SearchOperationContext( registries, ( LdapDN ) entryName.getPrefix( 1 ),
                     AliasDerefMode.DEREF_ALWAYS, childrenFilter, childrenSearchControls ), SEARCH_BYPASS );
 
             while ( e.hasMore() )

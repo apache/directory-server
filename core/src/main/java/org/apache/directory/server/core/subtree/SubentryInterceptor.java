@@ -124,8 +124,14 @@ public class SubentryInterceptor extends BaseInterceptor
     private SubtreeSpecificationParser ssParser;
     private SubtreeEvaluator evaluator;
     private PartitionNexus nexus;
+
+    /** The global registries */
     private Registries registries;
-    private AttributeTypeRegistry attrRegistry;
+    
+    /** The AttributeType registry */
+    private AttributeTypeRegistry atRegistry;
+    
+    /** The OID registry */
     private OidRegistry oidRegistry;
     
     private AttributeType objectClassType;
@@ -136,20 +142,20 @@ public class SubentryInterceptor extends BaseInterceptor
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
         registries = directoryService.getRegistries();
-        attrRegistry = registries.getAttributeTypeRegistry();
+        atRegistry = registries.getAttributeTypeRegistry();
         oidRegistry = registries.getOidRegistry();
         
         // setup various attribute type values
-        objectClassType = attrRegistry.lookup( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
+        objectClassType = atRegistry.lookup( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
         
         ssParser = new SubtreeSpecificationParser( new NormalizerMappingResolver()
         {
             public Map<String, OidNormalizer> getNormalizerMapping() throws NamingException
             {
-                return attrRegistry.getNormalizerMapping();
+                return atRegistry.getNormalizerMapping();
             }
-        }, attrRegistry.getNormalizerMapping() );
-        evaluator = new SubtreeEvaluator( oidRegistry, attrRegistry );
+        }, atRegistry.getNormalizerMapping() );
+        evaluator = new SubtreeEvaluator( oidRegistry, atRegistry );
 
         // prepare to find all subentries in all namingContexts
         Iterator<String> suffixes = this.nexus.listSuffixes( null );
@@ -163,9 +169,9 @@ public class SubentryInterceptor extends BaseInterceptor
         {
             LdapDN suffix = new LdapDN( suffixes.next() );
             //suffix = LdapDN.normalize( suffix, registry.getNormalizerMapping() );
-            suffix.normalize( attrRegistry.getNormalizerMapping() );
+            suffix.normalize( atRegistry.getNormalizerMapping() );
             NamingEnumeration<SearchResult> subentries = nexus.search( 
-                new SearchOperationContext( suffix, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+                new SearchOperationContext( registries, suffix, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.hasMore() )
             {
@@ -186,7 +192,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 }
 
                 LdapDN dnName = new LdapDN( dn );
-                dnName.normalize( attrRegistry.getNormalizerMapping() );
+                dnName.normalize( atRegistry.getNormalizerMapping() );
                 subentryCache.setSubentry( dnName.toString(), ss, getSubentryTypes( subentry ) );
             }
         }
@@ -394,7 +400,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // get the name of the administrative point and its administrativeRole attributes
             LdapDN apName = ( LdapDN ) name.clone();
             apName.remove( name.size() - 1 );
-            Attributes ap = nexus.lookup( new LookupOperationContext( apName ) );
+            Attributes ap = nexus.lookup( new LookupOperationContext( registries, apName ) );
             Attribute administrativeRole = ap.get( "administrativeRole" );
 
             // check that administrativeRole has something valid in it for us
@@ -461,14 +467,14 @@ public class SubentryInterceptor extends BaseInterceptor
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
             NamingEnumeration<SearchResult> subentries = nexus.search(
-                    new SearchOperationContext( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( registries, baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.hasMore() )
             {
                 SearchResult result = subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize( attrRegistry.getNormalizerMapping() );
+                dn.normalize( atRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -563,7 +569,7 @@ public class SubentryInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
-        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
+        Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
         if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
@@ -591,14 +597,14 @@ public class SubentryInterceptor extends BaseInterceptor
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
             NamingEnumeration<SearchResult> subentries = nexus.search(
-                    new SearchOperationContext( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( registries, baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.hasMore() )
             {
                 SearchResult result = subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize( attrRegistry.getNormalizerMapping() );
+                dn.normalize( atRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -632,7 +638,7 @@ public class SubentryInterceptor extends BaseInterceptor
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<SearchResult> aps = nexus.search(
-                new SearchOperationContext( name, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+                new SearchOperationContext( registries, name, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
         if ( aps.hasMore() )
         {
@@ -721,7 +727,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         LdapDN name = opContext.getDn();
 
-        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
+        Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
         if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
@@ -747,14 +753,14 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[] { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
             NamingEnumeration<SearchResult> subentries = nexus.search(
-                    new SearchOperationContext( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( registries, baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.hasMore() )
             {
                 SearchResult result = subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize( attrRegistry.getNormalizerMapping() );
+                dn.normalize( atRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -778,7 +784,7 @@ public class SubentryInterceptor extends BaseInterceptor
             LdapDN newName = ( LdapDN ) name.clone();
             newName.remove( newName.size() - 1 );
             newName.add( opContext.getNewRdn() );
-            newName.normalize( attrRegistry.getNormalizerMapping() );
+            newName.normalize( atRegistry.getNormalizerMapping() );
             List<ModificationItemImpl> mods = getModsOnEntryRdnChange( name, newName, entry );
 
             if ( mods.size() > 0 )
@@ -796,7 +802,7 @@ public class SubentryInterceptor extends BaseInterceptor
         LdapDN parent = opContext.getParent();
 
         
-        Attributes entry = nexus.lookup( new LookupOperationContext( oriChildName ) );
+        Attributes entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
         if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
@@ -823,14 +829,14 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[] { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
             NamingEnumeration<SearchResult> subentries = nexus.search(
-                    new SearchOperationContext( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( registries, baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.hasMore() )
             {
                 SearchResult result = subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize( attrRegistry.getNormalizerMapping() );
+                dn.normalize( atRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -854,7 +860,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // attributes contained within this regular entry with name changes
             LdapDN newName = ( LdapDN ) parent.clone();
             newName.add( opContext.getNewRdn() );
-            newName.normalize( attrRegistry.getNormalizerMapping() );
+            newName.normalize( atRegistry.getNormalizerMapping() );
             List<ModificationItemImpl> mods = getModsOnEntryRdnChange( oriChildName, newName, entry );
 
             if ( mods.size() > 0 )
@@ -870,7 +876,7 @@ public class SubentryInterceptor extends BaseInterceptor
         LdapDN oriChildName = opContext.getDn();
         LdapDN newParentName = opContext.getParent();
         
-        Attributes entry = nexus.lookup( new LookupOperationContext( oriChildName ) );
+        Attributes entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
         Attribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
@@ -897,14 +903,14 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
             NamingEnumeration<SearchResult> subentries = nexus.search(
-                    new SearchOperationContext( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( registries, baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.hasMore() )
             {
                 SearchResult result = subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize( attrRegistry.getNormalizerMapping() );
+                dn.normalize( atRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -983,7 +989,7 @@ public class SubentryInterceptor extends BaseInterceptor
         LdapDN name = opContext.getDn();
         List<ModificationItemImpl> mods = opContext.getModItems();
         
-        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
+        Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         Attributes oldEntry = (Attributes) entry.clone();
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
         boolean isSubtreeSpecificationModification = false;
@@ -1028,14 +1034,14 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
             NamingEnumeration<SearchResult> subentries = nexus.search(
-                    new SearchOperationContext( oldBaseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( registries, oldBaseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.hasMore() )
             {
                 SearchResult result = subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize( attrRegistry.getNormalizerMapping() );
+                dn.normalize( atRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ssOld, apName, dn, candidate ) )
                 {
@@ -1049,13 +1055,13 @@ public class SubentryInterceptor extends BaseInterceptor
             LdapDN newBaseDn = ( LdapDN ) apName.clone();
             newBaseDn.addAll( ssNew.getBase() );
             subentries = nexus.search(
-                    new SearchOperationContext( newBaseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( registries, newBaseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             while ( subentries.hasMore() )
             {
                 SearchResult result = subentries.next();
                 Attributes candidate = result.getAttributes();
                 LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize( attrRegistry.getNormalizerMapping() );
+                dn.normalize( atRegistry.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ssNew, apName, dn, candidate ) )
                 {
@@ -1069,7 +1075,7 @@ public class SubentryInterceptor extends BaseInterceptor
             
             if ( !AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
             {
-	            Attributes newEntry = nexus.lookup( new LookupOperationContext( name ) );
+	            Attributes newEntry = nexus.lookup( new LookupOperationContext( registries, name ) );
 	            
 	            List<ModificationItemImpl> subentriesOpAttrMods = getModsOnEntryModification( name, oldEntry, newEntry );
                 
@@ -1362,16 +1368,16 @@ public class SubentryInterceptor extends BaseInterceptor
             if ( !result.isRelative() )
             {
                 LdapDN ndn = new LdapDN( dn );
-                ndn.normalize( attrRegistry.getNormalizerMapping() );
+                ndn.normalize( atRegistry.getNormalizerMapping() );
                 String normalizedDn = ndn.toString();
                 return !subentryCache.hasSubentry( normalizedDn );
             }
 
             LdapDN name = new LdapDN( invocation.getCaller().getNameInNamespace() );
-            name.normalize( attrRegistry.getNormalizerMapping() );
+            name.normalize( atRegistry.getNormalizerMapping() );
 
             LdapDN rest = new LdapDN( result.getName() );
-            rest.normalize( attrRegistry.getNormalizerMapping() );
+            rest.normalize( atRegistry.getNormalizerMapping() );
             name.addAll( rest );
             return !subentryCache.hasSubentry( name.toString() );
         }
@@ -1423,15 +1429,15 @@ public class SubentryInterceptor extends BaseInterceptor
             if ( !result.isRelative() )
             {
                 LdapDN ndn = new LdapDN( dn );
-                ndn.normalize( attrRegistry.getNormalizerMapping() );
+                ndn.normalize( atRegistry.getNormalizerMapping() );
                 return subentryCache.hasSubentry( ndn.toNormName() );
             }
 
             LdapDN name = new LdapDN( invocation.getCaller().getNameInNamespace() );
-            name.normalize( attrRegistry.getNormalizerMapping() );
+            name.normalize( atRegistry.getNormalizerMapping() );
 
             LdapDN rest = new LdapDN( result.getName() );
-            rest.normalize( attrRegistry.getNormalizerMapping() );
+            rest.normalize( atRegistry.getNormalizerMapping() );
             name.addAll( rest );
             return subentryCache.hasSubentry( name.toNormName() );
         }

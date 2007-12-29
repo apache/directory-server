@@ -97,7 +97,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
 
             PartitionNexus nexus = service.getPartitionNexus();
-            Iterator<String> list = nexus.listSuffixes( new ListSuffixOperationContext() );
+            Iterator<String> list = nexus.listSuffixes( new ListSuffixOperationContext( service.getRegistries() ) );
             int launchedWindowCount = 0;
             
             while ( list.hasNext() )

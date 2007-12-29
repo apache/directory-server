@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -28,14 +29,14 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetRootDSEOperationContext  extends AbstractOperationContext
+public class GetRootDSEOperationContext extends AbstractOperationContext
 {
     /**
      * Creates a new instance of GetRootDSEOperationContext.
      */
-    public GetRootDSEOperationContext()
+    public GetRootDSEOperationContext( Registries registries )
     {
-        super();
+        super( registries );
     }
     
     /**
@@ -43,9 +44,9 @@ public class GetRootDSEOperationContext  extends AbstractOperationContext
      *
      * @param dn The entry DN used to get the rootDSE
      */
-    public GetRootDSEOperationContext( LdapDN dn )
+    public GetRootDSEOperationContext( Registries registries, LdapDN dn )
     {
-        super( dn );
+        super( registries, dn );
     }
     
     /**

@@ -52,6 +52,7 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -185,7 +186,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * @return A byte array which can be empty if the password was not found
      * @throws NamingException If we have a problem during the lookup operation
      */
-    private LdapPrincipal getStoredPassword( LdapDN principalDN ) throws NamingException
+    private LdapPrincipal getStoredPassword( Registries registries, LdapDN principalDN ) throws NamingException
     {
         LdapPrincipal principal;
         String principalNorm = principalDN.getNormName();
@@ -201,7 +202,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             // Not found in the cache
             // Get the user password from the backend
-            storedPassword = lookupUserPassword( principalDN );
+            storedPassword = lookupUserPassword( registries, principalDN );
             
             
             // Deal with the special case where the user didn't enter a password
@@ -304,7 +305,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // ---- extract password from JNDI environment
         byte[] credentials = getCredentials( ctx );
         
-        LdapPrincipal principal = getStoredPassword( principalDn );
+        LdapPrincipal principal = getStoredPassword( getDirectoryService().getRegistries(), principalDn );
         
         // Get the stored password, either from cache or from backend
         byte[] storedPassword = principal.getUserPassword();
@@ -573,7 +574,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * @return the credentials from the backend
      * @throws NamingException if there are problems accessing backend
      */
-    private byte[] lookupUserPassword( LdapDN principalDn ) throws NamingException
+    private byte[] lookupUserPassword( Registries registries, LdapDN principalDn ) throws NamingException
     {
         // ---- lookup the principal entry's userPassword attribute
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -582,7 +583,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         try
         {
-            LookupOperationContext lookupContex  = new LookupOperationContext( new String[] { SchemaConstants.USER_PASSWORD_AT } );
+            LookupOperationContext lookupContex  = new LookupOperationContext( registries, new String[] { SchemaConstants.USER_PASSWORD_AT } );
             lookupContex.setDn( principalDn );
             
             userEntry = proxy.lookup( lookupContex, USERLOOKUP_BYPASS );

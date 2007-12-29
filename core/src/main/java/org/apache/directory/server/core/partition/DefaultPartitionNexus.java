@@ -49,6 +49,7 @@ import org.apache.directory.server.core.partition.tree.LeafNode;
 import org.apache.directory.server.core.partition.tree.Node;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -144,7 +145,13 @@ public class DefaultPartitionNexus extends PartitionNexus
     /** the read only rootDSE attributes */
     private final Attributes rootDSE;
 
-    private AttributeTypeRegistry attrRegistry;
+    /** The global registries */
+    private Registries registries;
+    
+    /** The attributeType registry */
+    private AttributeTypeRegistry atRegistry;
+    
+    /** The OID registry */
     private OidRegistry oidRegistry;
     private Object partitionLookupTreeLock = new Object();
 
@@ -321,8 +328,9 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         this.directoryService = directoryService;
-        this.attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
-        this.oidRegistry = directoryService.getRegistries().getOidRegistry();
+        registries = directoryService.getRegistries();
+        atRegistry = registries.getAttributeTypeRegistry();
+        oidRegistry = registries.getOidRegistry();
         
         initializeSystemPartition();
         List<Partition> initializedPartitions = new ArrayList<Partition>();
@@ -334,8 +342,9 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             while ( partitions.hasNext() )
             {
-                Partition p = partitions.next();
-                AddContextPartitionOperationContext opCtx = new AddContextPartitionOperationContext( p );
+                Partition partition = partitions.next();
+                AddContextPartitionOperationContext opCtx = 
+                    new AddContextPartitionOperationContext( registries, partition );
                 addContextPartition( opCtx );
                 initializedPartitions.add( opCtx.getPartition() );
             }
@@ -405,7 +414,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             {
                 Set<Index> indices = ( ( JdbmPartition ) override ).getIndexedAttributes();
                 Set<String> indexOids = new HashSet<String>();
-                OidRegistry registry = directoryService.getRegistries().getOidRegistry();
+                OidRegistry registry = registries.getOidRegistry();
 
                 for ( Index index : indices )
                 {
@@ -492,7 +501,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             try
             {
-                removeContextPartition( new RemoveContextPartitionOperationContext( new LdapDN( suffix ) ) );
+                removeContextPartition( new RemoveContextPartitionOperationContext( registries, new LdapDN( suffix ) ) );
             }
             catch ( NamingException e )
             {
@@ -548,7 +557,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     public boolean compare( CompareOperationContext compareContext ) throws NamingException
     {
         Partition partition = getPartition( compareContext.getDn() );
-        AttributeTypeRegistry registry = directoryService.getRegistries().getAttributeTypeRegistry();
+        AttributeTypeRegistry registry = registries.getAttributeTypeRegistry();
         
         // complain if we do not recognize the attribute being compared
         if ( !registry.hasAttributeType( compareContext.getOid() ) )
@@ -558,7 +567,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         AttributeType attrType = registry.lookup( compareContext.getOid() );
         
-        Attribute attr = partition.lookup( new LookupOperationContext( compareContext.getDn() ) ).get( attrType.getName() );
+        Attribute attr = partition.lookup( new LookupOperationContext( registries, compareContext.getDn() ) ).get( attrType.getName() );
 
         // complain if the attribute being compared does not exist in the entry
         if ( attr == null )
@@ -712,7 +721,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         
         while ( dn.size() > 0 )
         {
-            if ( hasEntry( new EntryOperationContext( dn ) ) )
+            if ( hasEntry( new EntryOperationContext( registries, dn ) ) )
             {
                 return dn;
             }
@@ -932,7 +941,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     {
                         // add all user attribute
                         Attribute attr = ii.next();
-                        AttributeType type = attrRegistry.lookup( attr.getID() );
+                        AttributeType type = atRegistry.lookup( attr.getID() );
                         if ( type.getUsage() == UsageEnum.USER_APPLICATIONS )
                         {
                             attrs.put( attr );
@@ -950,7 +959,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     {
                         // add all operational attributes
                         Attribute attr = ii.next();
-                        AttributeType type = attrRegistry.lookup( attr.getID() );
+                        AttributeType type = atRegistry.lookup( attr.getID() );
                         if ( type.getUsage() != UsageEnum.USER_APPLICATIONS )
                         {
                             attrs.put( attr );
@@ -968,7 +977,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     {
                       // add user attributes specifically asked for
                         Attribute attr = ii.next();
-                        AttributeType type = attrRegistry.lookup( attr.getID() );
+                        AttributeType type = atRegistry.lookup( attr.getID() );
                         if ( realIds.contains( type.getOid() ) )
                         {
                             attrs.put( attr );

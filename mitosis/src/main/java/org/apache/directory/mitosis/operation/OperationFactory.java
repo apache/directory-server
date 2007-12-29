@@ -33,6 +33,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -84,16 +85,21 @@ public class OperationFactory
     private final PartitionNexus nexus;
     private final UUIDFactory uuidFactory;
     private final CSNFactory csnFactory;
+    
+    /** The attributeType registry */
     private final AttributeTypeRegistry attributeRegistry;
 
+    /** The global registries */
+    private Registries registries;
 
     public OperationFactory( DirectoryService directoryService, ReplicationConfiguration cfg )
     {
-        this.replicaId = cfg.getReplicaId();
-        this.nexus = directoryService.getPartitionNexus();
-        this.uuidFactory = cfg.getUuidFactory();
-        this.csnFactory = cfg.getCsnFactory();
-        this.attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
+        replicaId = cfg.getReplicaId();
+        nexus = directoryService.getPartitionNexus();
+        uuidFactory = cfg.getUuidFactory();
+        csnFactory = cfg.getCsnFactory();
+        registries = directoryService.getRegistries();
+        attributeRegistry = registries.getAttributeTypeRegistry();
     }
 
 
@@ -248,7 +254,7 @@ public class OperationFactory
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<SearchResult> e = nexus.search( 
-            new SearchOperationContext( oldName, AliasDerefMode.DEREF_ALWAYS,
+            new SearchOperationContext( registries, oldName, AliasDerefMode.DEREF_ALWAYS,
                     new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         while ( e.hasMore() )
@@ -327,9 +333,9 @@ public class OperationFactory
      */
     private void checkBeforeAdd( LdapDN newEntryName ) throws NamingException
     {
-        if ( nexus.hasEntry( new EntryOperationContext( newEntryName ) ) )
+        if ( nexus.hasEntry( new EntryOperationContext( registries, newEntryName ) ) )
         {
-            Attributes entry = nexus.lookup( new LookupOperationContext( newEntryName ) );
+            Attributes entry = nexus.lookup( new LookupOperationContext( registries, newEntryName ) );
             Attribute deleted = entry.get( Constants.ENTRY_DELETED );
             Object value = deleted == null ? null : deleted.get();
 

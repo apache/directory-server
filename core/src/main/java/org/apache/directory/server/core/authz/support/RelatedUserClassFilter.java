@@ -29,6 +29,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.UserClass;
@@ -58,6 +59,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
 
 
     public Collection<ACITuple> filter( 
+            Registries registries, 
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             PartitionNexusProxy proxy,

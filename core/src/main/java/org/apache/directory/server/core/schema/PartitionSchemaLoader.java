@@ -81,7 +81,13 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private final SchemaPartitionDao dao;
     private SchemaEntityFactory factory;
     private Partition partition;
-    private AttributeTypeRegistry attrRegistry;
+    
+    /** The attributeType registry */
+    private AttributeTypeRegistry atRegistry;
+    
+    /** The global registries */
+    private Registries registries;
+    
     private final AttributeType mOidAT;
     private final AttributeType mNameAT;
     private final AttributeType cnAT;
@@ -97,19 +103,20 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private static Map<String, LdapDN> staticSyntaxCheckersDNs = new HashMap<String, LdapDN>();
     private static Map<String, LdapDN> staticSyntaxesDNs = new HashMap<String, LdapDN>();
     
-    public PartitionSchemaLoader( Partition partition, Registries bootstrapRegistries ) throws NamingException
+    public PartitionSchemaLoader( Partition partition, Registries registries ) throws NamingException
     {
-        this.factory = new SchemaEntityFactory( bootstrapRegistries );
+        this.factory = new SchemaEntityFactory( registries );
         this.partition = partition;
-        this.attrRegistry = bootstrapRegistries.getAttributeTypeRegistry();
+        this.registries = registries;
+        atRegistry = registries.getAttributeTypeRegistry();
         
-        this.dao = new SchemaPartitionDao( this.partition, bootstrapRegistries );
-        this.mOidAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
-        this.mNameAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_NAME_AT );
-        this.cnAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( SchemaConstants.CN_AT );
-        this.byteCodeAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
-        this.descAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DESCRIPTION_AT );
-        this.fqcnAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_FQCN_AT );
+        dao = new SchemaPartitionDao( this.partition, registries );
+        mOidAT = atRegistry.lookup( MetaSchemaConstants.M_OID_AT );
+        mNameAT = atRegistry.lookup( MetaSchemaConstants.M_NAME_AT );
+        cnAT = atRegistry.lookup( SchemaConstants.CN_AT );
+        byteCodeAT = atRegistry.lookup( MetaSchemaConstants.M_BYTECODE_AT );
+        descAT = atRegistry.lookup( MetaSchemaConstants.M_DESCRIPTION_AT );
+        fqcnAT = atRegistry.lookup( MetaSchemaConstants.M_FQCN_AT );
         
         initStaticDNs( "system" );
         initStaticDNs( "core" );
@@ -127,37 +134,37 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         // Initialize AttributeType Dns
         LdapDN dn = new LdapDN( "ou=attributeTypes,cn=" + schemaName + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        dn.normalize( atRegistry.getNormalizerMapping() );
         staticAttributeTypeDNs.put( schemaName, dn );
 
         // Initialize ObjectClasses Dns
         dn = new LdapDN( "ou=objectClasses,cn=" + schemaName + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        dn.normalize( atRegistry.getNormalizerMapping() );
         staticObjectClassesDNs.put( schemaName, dn );
 
         // Initialize MatchingRules Dns
         dn = new LdapDN( "ou=matchingRules,cn=" + schemaName + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        dn.normalize( atRegistry.getNormalizerMapping() );
         staticMatchingRulesDNs.put( schemaName, dn );
 
         // Initialize Comparators Dns
         dn = new LdapDN( "ou=comparators,cn=" + schemaName + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        dn.normalize( atRegistry.getNormalizerMapping() );
         staticComparatorsDNs.put( schemaName, dn );
         
         // Initialize Normalizers Dns
         dn = new LdapDN( "ou=normalizers,cn=" + schemaName + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        dn.normalize( atRegistry.getNormalizerMapping() );
         staticNormalizersDNs.put( schemaName, dn );
 
         // Initialize SyntaxCheckers Dns
         dn = new LdapDN( "ou=syntaxCheckers,cn=" + schemaName + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        dn.normalize( atRegistry.getNormalizerMapping() );
         staticSyntaxCheckersDNs.put( schemaName, dn );
 
         // Initialize Syntaxes Dns
         dn = new LdapDN( "ou=syntaxes,cn=" + schemaName + ",ou=schema" );
-        dn.normalize( this.attrRegistry.getNormalizerMapping() );
+        dn.normalize( atRegistry.getNormalizerMapping() );
         staticSyntaxesDNs.put( schemaName, dn );
 
     }
@@ -190,10 +197,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
          * OID registry.  To prevent this we need to load all the OID's in advance
          * regardless of whether they are used or not.
          */
-        NamingEnumeration ne = dao.listAllNames();
+        NamingEnumeration<SearchResult> ne = dao.listAllNames();
+        
         while ( ne.hasMore() )
         {
-            Attributes attrs = ( ( SearchResult ) ne.next() ).getAttributes();
+            Attributes attrs = ne.next().getAttributes();
             String oid = ( String ) AttributeUtils.getAttribute( attrs, mOidAT ).get();
             Attribute names = AttributeUtils.getAttribute( attrs, mNameAT );
             targetRegistries.getOidRegistry().register( oid, oid );
@@ -404,24 +412,25 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         if ( dn == null )
         {
             dn = new LdapDN( "ou=objectClasses,cn=" + schema.getSchemaName() + ",ou=schema" );
-            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            dn.normalize( atRegistry.getNormalizerMapping() );
             staticObjectClassesDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( new EntryOperationContext( dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading objectClasses", schema.getSchemaName() );
         
-        NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
+        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
-            resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( resultDN ) );
+            resultDN.normalize( atRegistry.getNormalizerMapping() );
+            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
             ObjectClass oc = factory.getObjectClass( attrs, targetRegistries, schema.getSchemaName() );
             
             try
@@ -504,24 +513,25 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         if ( dn == null )
         {
             dn = new LdapDN( "ou=attributeTypes,cn=" + schema.getSchemaName() + ",ou=schema" );
-            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            dn.normalize( atRegistry.getNormalizerMapping() );
             staticAttributeTypeDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( new EntryOperationContext( dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading attributeTypes", schema.getSchemaName() );
         
-        NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
+        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
-            resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( resultDN ) );
+            resultDN.normalize( atRegistry.getNormalizerMapping() );
+            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
             AttributeType at = factory.getAttributeType( attrs, targetRegistries, schema.getSchemaName() );
             try
             {
@@ -601,24 +611,25 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         if ( dn == null )
         {
             dn = new LdapDN( "ou=matchingRules,cn=" + schema.getSchemaName() + ",ou=schema" );
-            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            dn.normalize( atRegistry.getNormalizerMapping() );
             staticMatchingRulesDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( new EntryOperationContext( dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading matchingRules", schema.getSchemaName() );
         
-        NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
+        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
-            resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( resultDN ) );
+            resultDN.normalize( atRegistry.getNormalizerMapping() );
+            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
             MatchingRule mrule = factory.getMatchingRule( attrs, targetRegistries, schema.getSchemaName() );
             targetRegistries.getMatchingRuleRegistry().register( mrule );
 
@@ -633,24 +644,25 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         if ( dn == null )
         {
             dn = new LdapDN( "ou=syntaxes,cn=" + schema.getSchemaName() + ",ou=schema" );
-            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            dn.normalize( atRegistry.getNormalizerMapping() );
             staticSyntaxesDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( new EntryOperationContext( dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading syntaxes", schema.getSchemaName() );
         
-        NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
+        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
-            resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( resultDN ) );
+            resultDN.normalize( atRegistry.getNormalizerMapping() );
+            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
             Syntax syntax = factory.getSyntax( attrs, targetRegistries, schema.getSchemaName() );
             targetRegistries.getSyntaxRegistry().register( syntax );
         }
@@ -664,24 +676,25 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         if ( dn == null )
         {
             dn = new LdapDN( "ou=syntaxCheckers,cn=" + schema.getSchemaName() + ",ou=schema" );
-            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            dn.normalize( atRegistry.getNormalizerMapping() );
             staticSyntaxCheckersDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( new EntryOperationContext( dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading syntaxCheckers", schema.getSchemaName() );
         
-        NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
+        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
-            resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( resultDN ) );
+            resultDN.normalize( atRegistry.getNormalizerMapping() );
+            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
             SyntaxChecker sc = factory.getSyntaxChecker( attrs, targetRegistries );
             SyntaxCheckerDescription syntaxCheckerDescription = 
                 getSyntaxCheckerDescription( schema.getSchemaName(), attrs );
@@ -697,24 +710,25 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         if ( dn == null )
         {
             dn = new LdapDN( "ou=normalizers,cn=" + schema.getSchemaName() + ",ou=schema" );
-            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            dn.normalize( atRegistry.getNormalizerMapping() );
             staticNormalizersDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( new EntryOperationContext( dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading normalizers", schema.getSchemaName() );
         
-        NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
+        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
-            resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( resultDN ) );
+            resultDN.normalize( atRegistry.getNormalizerMapping() );
+            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
             Normalizer normalizer = factory.getNormalizer( attrs, targetRegistries );
             NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), attrs );
             targetRegistries.getNormalizerRegistry().register( normalizerDescription, normalizer );
@@ -766,24 +780,25 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         if ( dn == null )
         {
             dn = new LdapDN( "ou=comparators,cn=" + schema.getSchemaName() + ",ou=schema" );
-            dn.normalize( this.attrRegistry.getNormalizerMapping() );
+            dn.normalize( atRegistry.getNormalizerMapping() );
             staticComparatorsDNs.put( schema.getSchemaName(), dn );
         }
 
-        if ( ! partition.hasEntry( new EntryOperationContext( dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading comparators", schema.getSchemaName() );
         
-        NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
+        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
-            resultDN.normalize( attrRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( resultDN ) );
+            resultDN.normalize( atRegistry.getNormalizerMapping() );
+            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
             Comparator comparator = factory.getComparator( attrs, targetRegistries );
             ComparatorDescription comparatorDescription = getComparatorDescription( schema.getSchemaName(), attrs );
             targetRegistries.getComparatorRegistry().register( comparatorDescription, comparator );

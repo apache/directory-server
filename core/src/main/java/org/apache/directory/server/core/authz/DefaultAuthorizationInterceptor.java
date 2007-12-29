@@ -40,6 +40,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.message.ServerSearchResult;
@@ -140,15 +141,15 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         
         uniqueMemberAT = attrRegistry.lookup( SchemaConstants.UNIQUE_MEMBER_AT_OID );
         
-        loadAdministrators();
+        loadAdministrators( directoryService.getRegistries() );
     }
     
     
-    private void loadAdministrators() throws NamingException
+    private void loadAdministrators( Registries registries ) throws NamingException
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
-        Attributes adminGroup = nexus.lookup( new LookupOperationContext( ADMIN_GROUP_DN ) );
+        Attributes adminGroup = nexus.lookup( new LookupOperationContext( registries, ADMIN_GROUP_DN ) );
         
         if ( adminGroup == null )
         {
@@ -271,7 +272,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             // update administrators if we change administrators group
             if ( dn.getNormName().equals( ADMIN_GROUP_DN.getNormName() ) )
             {
-                loadAdministrators();
+                loadAdministrators( opContext.getRegistries() );
             }
         }
         else

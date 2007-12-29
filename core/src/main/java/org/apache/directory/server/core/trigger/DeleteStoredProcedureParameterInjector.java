@@ -29,6 +29,7 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
@@ -38,19 +39,19 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     private LdapDN deletedEntryName;
     private Attributes deletedEntry;
     
-    public DeleteStoredProcedureParameterInjector( Invocation invocation, LdapDN deletedEntryName ) throws NamingException
+    public DeleteStoredProcedureParameterInjector( Registries registries, Invocation invocation, LdapDN deletedEntryName ) throws NamingException
     {
         super( invocation );
         this.deletedEntryName = deletedEntryName;
-        this.deletedEntry = getDeletedEntry();
-        Map<Class, MicroInjector> injectors = super.getInjectors();
+        this.deletedEntry = getDeletedEntry( registries );
+        Map<Class<?>, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.Delete_NAME.class, $nameInjector );
         injectors.put( StoredProcedureParameter.Delete_DELETED_ENTRY.class, $deletedEntryInjector );
     }
     
     MicroInjector $nameInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( deletedEntryName.getUpName() );
@@ -59,20 +60,20 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     
     MicroInjector $deletedEntryInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
             return deletedEntry;
         }
     };
     
-    private Attributes getDeletedEntry() throws NamingException
+    private Attributes getDeletedEntry( Registries registries ) throws NamingException
     {
         PartitionNexusProxy proxy = getInvocation().getProxy();
         /**
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
          * especially subentry related ones like "triggerExecutionSubentries".
          */
-        Attributes deletedEntry = proxy.lookup( new LookupOperationContext( deletedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Attributes deletedEntry = proxy.lookup( new LookupOperationContext( registries, deletedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         return deletedEntry;
     }
 }

@@ -42,9 +42,14 @@ public abstract class AbstractOperationContext implements OperationContext
 
     /** The DN associated with the context */
     private LdapDN dn;
+    
+    /** The associated request's controls */
     private Map<String, Control> requestControls = new HashMap<String, Control>(4);
+
+    /** The associated response's controls */
     private Map<String, Control> responseControls = new HashMap<String, Control>(4);
 
+    /** A flag to tell that this is a collateral operation */
     private boolean collateralOperation;
     
     /** The global registries reference */
@@ -52,21 +57,9 @@ public abstract class AbstractOperationContext implements OperationContext
 
     
     /**
-     * 
      * Creates a new instance of AbstractOperationContext.
      *
-     */
-    public AbstractOperationContext()
-    {
-        this.registries = null;
-    }
-
-
-    /**
-     * 
-     * Creates a new instance of AbstractOperationContext.
-     *
-     * @param atRegistry The AttributeType registry
+     * @param Registries The global registries
      */
     public AbstractOperationContext( Registries registries )
     {
@@ -77,18 +70,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * Creates a new instance of AbstractOperationContext.
      *
-     * @param dn The associated DN
-     */
-    public AbstractOperationContext( LdapDN dn )
-    {
-        this.dn = dn;
-    }
-
-
-    /**
-     * Creates a new instance of AbstractOperationContext.
-     *
-     * @param atRegistry The AttributeType registry
+     * @param Registries The global registries
      * @param dn The associated DN
      */
     public AbstractOperationContext( Registries registries, LdapDN dn )
@@ -101,20 +83,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * Creates a new instance of AbstractOperationContext.
      *
-     * @param dn the associated DN
-     * @param collateralOperation true if op is collateral, false otherwise
-     */
-    public AbstractOperationContext( LdapDN dn, boolean collateralOperation )
-    {
-        this.dn = dn;
-        this.collateralOperation = collateralOperation;
-    }
-
-
-    /**
-     * Creates a new instance of AbstractOperationContext.
-     *
-     * @param atRegistry The AttributeType registry
+     * @param Registries The global registries
      * @param dn the associated DN
      * @param collateralOperation true if op is collateral, false otherwise
      */
@@ -130,19 +99,7 @@ public abstract class AbstractOperationContext implements OperationContext
      * Creates an operation context where the operation is considered a side
      * effect of a direct operation.
      *
-     * @param collateralOperation true if this is a side effect operation
-     */
-    public AbstractOperationContext( boolean collateralOperation )
-    {
-        this.collateralOperation = collateralOperation;
-    }
-
-
-    /**
-     * Creates an operation context where the operation is considered a side
-     * effect of a direct operation.
-     *
-     * @param atRegistry The AttributeType registry
+     * @param Registries The global registries
      * @param collateralOperation true if this is a side effect operation
      */
     public AbstractOperationContext( Registries registries, boolean collateralOperation )

@@ -77,7 +77,7 @@ public class AddEntryOperation extends Operation
     protected void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries )
         throws NamingException
     {
-        if ( !EntryUtil.isEntryUpdatable( nexus, normalizedName, getCSN() ) )
+        if ( !EntryUtil.isEntryUpdatable( registries, nexus, normalizedName, getCSN() ) )
         {
             return;
         }
@@ -85,7 +85,7 @@ public class AddEntryOperation extends Operation
         EntryUtil.createGlueEntries( registries, nexus, normalizedName, false );
 
         // Replace the entry if an entry with the same name exists.
-        Attributes oldEntry = nexus.lookup( new LookupOperationContext( normalizedName ) );
+        Attributes oldEntry = nexus.lookup( new LookupOperationContext( registries, normalizedName ) );
         
         if ( oldEntry != null )
         {
@@ -100,10 +100,10 @@ public class AddEntryOperation extends Operation
     private void recursiveDelete( PartitionNexus nexus, LdapDN normalizedName, Registries registries )
         throws NamingException
     {
-        NamingEnumeration<SearchResult> ne = nexus.list( new ListOperationContext( normalizedName ) );
+        NamingEnumeration<SearchResult> ne = nexus.list( new ListOperationContext( registries, normalizedName ) );
         if ( !ne.hasMore() )
         {
-            nexus.delete( new DeleteOperationContext( normalizedName ) );
+            nexus.delete( new DeleteOperationContext( registries, normalizedName ) );
             return;
         }
 
@@ -115,6 +115,6 @@ public class AddEntryOperation extends Operation
             recursiveDelete( nexus, dn, registries );
         }
         
-        nexus.delete( new DeleteOperationContext( normalizedName ) );
+        nexus.delete( new DeleteOperationContext( registries, normalizedName ) );
     }
 }

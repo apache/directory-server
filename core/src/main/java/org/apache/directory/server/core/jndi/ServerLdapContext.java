@@ -168,7 +168,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
     {
         // make sure we add the request controls to operation
-        CompareOperationContext opCtx = new CompareOperationContext( name, oid, value );
+        CompareOperationContext opCtx = new CompareOperationContext( registries, name, oid, value );
         opCtx.addRequestControls( requestControls );
 
         // execute operation
@@ -204,7 +204,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
             principalDn = new LdapDN( bindDn );
         }
 
-        UnbindOperationContext opCtx = new UnbindOperationContext( principalDn );
+        UnbindOperationContext opCtx = new UnbindOperationContext( registries, principalDn );
         opCtx.addRequestControls( requestControls );
         super.getNexusProxy().unbind( opCtx );
         responseControls = opCtx.getResponseControls();

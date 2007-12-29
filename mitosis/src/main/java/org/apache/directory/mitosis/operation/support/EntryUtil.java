@@ -45,9 +45,9 @@ import org.apache.directory.mitosis.common.DefaultCSN;
 public class EntryUtil
 {
     @SuppressWarnings("unchecked")
-    public static boolean isEntryUpdatable( PartitionNexus nexus, LdapDN name, CSN newCSN ) throws NamingException
+    public static boolean isEntryUpdatable( Registries registries, PartitionNexus nexus, LdapDN name, CSN newCSN ) throws NamingException
     {
-        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
+        Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
 
         if ( entry == null )
         {
@@ -108,7 +108,7 @@ public class EntryUtil
     {
         try
         {
-            if ( nexus.hasEntry( new EntryOperationContext( name ) ) )
+            if ( nexus.hasEntry( new EntryOperationContext( registries, name ) ) )
             {
                 return;
             }

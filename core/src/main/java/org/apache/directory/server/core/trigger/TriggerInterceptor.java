@@ -43,12 +43,14 @@ import org.apache.directory.server.core.sp.StoredProcExecutionManager;
 import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
 import org.apache.directory.shared.ldap.trigger.LdapOperation;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
@@ -80,17 +82,22 @@ public class TriggerInterceptor extends BaseInterceptor
 {
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( TriggerInterceptor.class );
+    
     /** the entry trigger attribute string: entryTrigger */
     private static final String ENTRY_TRIGGER_ATTR = "entryTriggerSpecification";
 
     /** a triggerSpecCache that responds to add, delete, and modify attempts */
     private TriggerSpecCache triggerSpecCache;
+    
     /** a normalizing Trigger Specification parser */
     private TriggerSpecificationParser triggerParser;
-    /** the attribute type registry */
-//    private AttributeTypeRegistry attrRegistry;
+    
+    /** the global registries */
+    private Registries registries;
+    
     /** */
     private InterceptorChain chain;
+    
     /** whether or not this interceptor is activated */
     private boolean enabled = true;
 
@@ -131,7 +138,7 @@ public class TriggerInterceptor extends BaseInterceptor
         {
             LdapDN parentDn = ( LdapDN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
-            entry = proxy.lookup( new LookupOperationContext( parentDn ), PartitionNexusProxy.LOOKUP_BYPASS );
+            entry = proxy.lookup( new LookupOperationContext( registries, parentDn ), PartitionNexusProxy.LOOKUP_BYPASS );
         }
 
         Attribute subentries = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
@@ -224,12 +231,14 @@ public class TriggerInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws NamingException
     {
         super.init( directoryService );
+        registries = directoryService.getRegistries();
+        
         triggerSpecCache = new TriggerSpecCache( directoryService );
         final AttributeTypeRegistry attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         triggerParser = new TriggerSpecificationParser
             ( new NormalizerMappingResolver()
                 {
-                    public Map getNormalizerMapping() throws NamingException
+                    public Map<String, OidNormalizer> getNormalizerMapping() throws NamingException
                     {
                         return attrRegistry.getNormalizerMapping();
                     }
@@ -298,9 +307,9 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes deletedEntry = proxy.lookup( new LookupOperationContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes deletedEntry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
-        StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( invocation, name );
+        StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( registries, invocation, name );
 
         // Gather Trigger Specifications which apply to the entry being deleted.
         List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
@@ -331,7 +340,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( normName ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( registries, normName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, opContext );
 
@@ -367,7 +376,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes renamedEntry = proxy.lookup( new LookupOperationContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes renamedEntry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( name.getRdn().getUpName() );
@@ -413,7 +422,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes movedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes movedEntry = proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
@@ -437,7 +446,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        Attributes importedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Attributes importedEntry = proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
         // we need to construct an entry to represent it
@@ -445,10 +454,11 @@ public class TriggerInterceptor extends BaseInterceptor
         // and access control subentry operational attributes.
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
         Attributes fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
-        NamingEnumeration attrList = importedEntry.getAll();
+        NamingEnumeration<? extends Attribute> attrList = importedEntry.getAll();
+        
         while ( attrList.hasMore() )
         {
-            fakeImportedEntry.put( ( Attribute ) attrList.next() );
+            fakeImportedEntry.put( attrList.next() );
         }
         
         // Gather Trigger Specifications which apply to the entry being imported.
@@ -486,7 +496,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes movedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes movedEntry = proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
@@ -511,7 +521,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        Attributes importedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Attributes importedEntry = proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
         // we need to construct an entry to represent it
@@ -519,11 +529,11 @@ public class TriggerInterceptor extends BaseInterceptor
         // and access control subentry operational attributes.
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
         Attributes fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
-        NamingEnumeration attrList = importedEntry.getAll();
+        NamingEnumeration <? extends Attribute> attrList = importedEntry.getAll();
         
         while ( attrList.hasMore() )
         {
-            fakeImportedEntry.put( ( Attribute ) attrList.next() );
+            fakeImportedEntry.put( attrList.next() );
         }
         
         // Gather Trigger Specifications which apply to the entry being imported.
@@ -580,7 +590,7 @@ public class TriggerInterceptor extends BaseInterceptor
         for ( SPSpec spSpec : spSpecs )
         {
         	List<Object> arguments = new ArrayList<Object>();
-        	arguments.addAll( injector.getArgumentsToInject( spSpec.getParameters() ) );
+        	arguments.addAll( injector.getArgumentsToInject( registries, spSpec.getParameters() ) );
             Object[] values = arguments.toArray();
             Object returnValue = executeProcedure( callerRootCtx, spSpec.getName(), values );
             returnValues.add( returnValue );

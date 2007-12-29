@@ -26,6 +26,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -95,11 +96,11 @@ public class TriggerSpecCache
                     return registry.getNormalizerMapping();
                 }
             });
-        initialize( registry );
+        initialize( directoryService.getRegistries() );
     }
 
 
-    private void initialize( AttributeTypeRegistry registry ) throws NamingException
+    private void initialize( Registries registries ) throws NamingException
     {
         // search all naming contexts for trigger subentenries
         // generate TriggerSpecification arrays for each subentry
@@ -114,7 +115,7 @@ public class TriggerSpecCache
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration<SearchResult> results = 
-                nexus.search( new SearchOperationContext( baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
+                nexus.search( new SearchOperationContext( registries, baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
             
             while ( results.hasMore() )
             {
@@ -129,7 +130,7 @@ public class TriggerSpecCache
                 }
 
                 LdapDN normSubentryName = new LdapDN( subentryDn );
-                normSubentryName.normalize( registry.getNormalizerMapping() );
+                normSubentryName.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
                 subentryAdded( normSubentryName, result.getAttributes() );
             }
             

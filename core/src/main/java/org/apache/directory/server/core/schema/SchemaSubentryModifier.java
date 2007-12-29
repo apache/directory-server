@@ -155,41 +155,41 @@ public class SchemaSubentryModifier
     }
 
 
-    public void deleteSchemaObject( SchemaObject obj ) throws NamingException
+    public void deleteSchemaObject( Registries registries, SchemaObject obj ) throws NamingException
     {
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = getDn( obj );
-        proxy.delete( new DeleteOperationContext( dn, true ), BYPASS );
+        proxy.delete( new DeleteOperationContext( registries, dn, true ), BYPASS );
     }
 
     
-    public void delete( NormalizerDescription normalizerDescription ) throws NamingException
+    public void delete( Registries registries, NormalizerDescription normalizerDescription ) throws NamingException
     {
         String schemaName = getSchema( normalizerDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( new DeleteOperationContext( dn, true ), BYPASS );
+        proxy.delete( new DeleteOperationContext( registries, dn, true ), BYPASS );
     }
 
 
-    public void delete( SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
+    public void delete( Registries registries, SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( new DeleteOperationContext( dn, true ), BYPASS );
+        proxy.delete( new DeleteOperationContext( registries, dn, true ), BYPASS );
     }
 
 
-    public void delete( ComparatorDescription comparatorDescription ) throws NamingException
+    public void delete( Registries registries, ComparatorDescription comparatorDescription ) throws NamingException
     {
         String schemaName = getSchema( comparatorDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( new DeleteOperationContext( dn, true ), BYPASS );
+        proxy.delete( new DeleteOperationContext( registries, dn, true ), BYPASS );
     }
 
 

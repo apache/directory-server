@@ -660,7 +660,7 @@ public class SchemaOperationControl
                 for ( ComparatorDescription comparatorDescription : comparatorDescriptions )
                 {
                     comparatorHandler.delete( comparatorDescription.getNumericOid(), doCascadeModify );
-                    subentryModifier.delete( comparatorDescription );
+                    subentryModifier.delete( registries, comparatorDescription );
                 }
                 break;
             case( NORMALIZER_INDEX ):
@@ -670,7 +670,7 @@ public class SchemaOperationControl
                 for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
                 {
                     normalizerHandler.delete( normalizerDescription.getNumericOid(), doCascadeModify );
-                    subentryModifier.delete( normalizerDescription );
+                    subentryModifier.delete( registries, normalizerDescription );
                 }
                 break;
             case( SYNTAX_CHECKER_INDEX ):
@@ -680,7 +680,7 @@ public class SchemaOperationControl
                 for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
                 {
                     syntaxCheckerHandler.delete( syntaxCheckerDescription.getNumericOid(), doCascadeModify );
-                    subentryModifier.delete( syntaxCheckerDescription );
+                    subentryModifier.delete( registries, syntaxCheckerDescription );
                 }
                 break;
             case( SYNTAX_INDEX ):
@@ -690,7 +690,7 @@ public class SchemaOperationControl
                 for ( Syntax syntax : syntaxes )
                 {
                     syntaxHandler.delete( syntax, doCascadeModify );
-                    subentryModifier.deleteSchemaObject( syntax );
+                    subentryModifier.deleteSchemaObject( registries, syntax );
                 }
                 break;
             case( MATCHING_RULE_INDEX ):
@@ -700,7 +700,7 @@ public class SchemaOperationControl
                 for ( MatchingRule mr : mrs )
                 {
                     matchingRuleHandler.delete( mr, doCascadeModify );
-                    subentryModifier.deleteSchemaObject( mr );
+                    subentryModifier.deleteSchemaObject( registries, mr );
                 }
                 break;
             case( ATTRIBUTE_TYPE_INDEX ):
@@ -710,7 +710,7 @@ public class SchemaOperationControl
                 for ( AttributeType at : ats )
                 {
                     atHandler.delete( at, doCascadeModify );
-                    subentryModifier.deleteSchemaObject( at );
+                    subentryModifier.deleteSchemaObject( registries, at );
                 }
                 break;
             case( OBJECT_CLASS_INDEX ):
@@ -720,7 +720,7 @@ public class SchemaOperationControl
                 for ( ObjectClass oc : ocs )
                 {
                     ocHandler.delete( oc, doCascadeModify );
-                    subentryModifier.deleteSchemaObject( oc );
+                    subentryModifier.deleteSchemaObject( registries, oc );
                 }
                 break;
             case( MATCHING_RULE_USE_INDEX ):
@@ -730,7 +730,7 @@ public class SchemaOperationControl
                 for ( MatchingRuleUse mru : mrus )
                 {
                     mruHandler.delete( mru, doCascadeModify );
-                    subentryModifier.deleteSchemaObject( mru );
+                    subentryModifier.deleteSchemaObject( registries, mru );
                 }
                 break;
             case( DIT_STRUCTURE_RULE_INDEX ):
@@ -740,7 +740,7 @@ public class SchemaOperationControl
                 for ( DITStructureRule dsr : dsrs )
                 {
                     dsrHandler.delete( dsr, doCascadeModify );
-                    subentryModifier.deleteSchemaObject( dsr );
+                    subentryModifier.deleteSchemaObject( registries, dsr );
                 }
                 break;
             case( DIT_CONTENT_RULE_INDEX ):
@@ -750,7 +750,7 @@ public class SchemaOperationControl
                 for ( DITContentRule dcr : dcrs )
                 {
                     dcrHandler.delete( dcr, doCascadeModify );
-                    subentryModifier.deleteSchemaObject( dcr );
+                    subentryModifier.deleteSchemaObject( registries, dcr );
                 }
                 break;
             case( NAME_FORM_INDEX ):
@@ -760,7 +760,7 @@ public class SchemaOperationControl
                 for ( NameForm nf : nfs )
                 {
                     nfHandler.delete( nf, doCascadeModify );
-                    subentryModifier.deleteSchemaObject( nf );
+                    subentryModifier.deleteSchemaObject( registries, nf );
                 }
                 break;
             default:

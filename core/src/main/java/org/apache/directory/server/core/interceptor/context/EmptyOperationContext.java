@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -33,9 +34,9 @@ public class EmptyOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of EmptyOperationContext.
      */
-    public EmptyOperationContext()
+    public EmptyOperationContext( Registries registries )
     {
-        super( LdapDN.EMPTY_LDAPDN );
+        super( registries, LdapDN.EMPTY_LDAPDN );
     }
     
 

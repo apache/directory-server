@@ -1078,7 +1078,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
 
-        Attributes entry = nexus.lookup( new LookupOperationContext( oriChildName ) );
+        Attributes entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
@@ -1097,7 +1097,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
         
-        Attributes entry = nexus.lookup( new LookupOperationContext( oriChildName ) );
+        Attributes entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
@@ -1115,7 +1115,7 @@ public class SchemaInterceptor extends BaseInterceptor
         Rdn newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
         
-        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
+        Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
 
         if ( name.startsWith( schemaBaseDN ) )
         {
@@ -1141,7 +1141,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
         else
         {
-            entry = nexus.lookup( new LookupOperationContext( name ) );
+            entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         }
         
         // First, we get the entry from the backend. If it does not exist, then we throw an exception
@@ -1694,7 +1694,7 @@ public class SchemaInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
-        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
+        Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         
         if ( name.startsWith( schemaBaseDN ) )
         {
