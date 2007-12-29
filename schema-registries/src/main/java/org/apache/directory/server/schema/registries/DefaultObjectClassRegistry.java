@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,18 +102,23 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
 
     public ObjectClass lookup( String id ) throws NamingException
     {
-        id = oidRegistry.getOid( id );
-
-        if ( !byOid.containsKey( id ) )
+        if ( StringTools.isEmpty( id ) )
         {
-            throw new NamingException( "objectClass w/ OID " + id + " not registered!" );
+            throw new NamingException( "name should not be empty" );
+        }
+        
+        String oid = oidRegistry.getOid( id.toLowerCase() );
+
+        if ( !byOid.containsKey( oid ) )
+        {
+            throw new NamingException( "objectClass w/ OID " + oid + " not registered!" );
         }
 
-        ObjectClass objectClass = byOid.get( id );
+        ObjectClass objectClass = byOid.get( oid );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "looked objectClass with OID '" + id + "' and got back " + objectClass );
+            LOG.debug( "looked objectClass with OID '" + oid + "' and got back " + objectClass );
         }
         return objectClass;
     }

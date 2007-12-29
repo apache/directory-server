@@ -22,6 +22,7 @@ package org.apache.directory.server.core.collective;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -30,6 +31,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -60,11 +62,9 @@ public class CollectiveAttributesSchemaChecker
         this.attrTypeRegistry = attrTypeRegistry;
     }
     
-    public void checkAdd( LdapDN normName, Attributes entry ) throws LdapSchemaViolationException, NamingException
+    /* package scope*/ void checkAdd( LdapDN normName, ServerEntry entry ) throws LdapSchemaViolationException, NamingException
     {
-        Attribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
-        
-        if ( AttributeUtils.containsValueCaseIgnore( objectClass, SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
+        if ( entry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
             return;
         }
@@ -138,16 +138,13 @@ public class CollectiveAttributesSchemaChecker
     }
     
     
-    private boolean containsAnyCollectiveAttributes( Attributes entry ) throws NamingException
+    private boolean containsAnyCollectiveAttributes( ServerEntry entry ) throws NamingException
     {
-        NamingEnumeration<String> allIDs = entry.getIDs();
+        Set<AttributeType> attributeTypes = entry.getAttributeTypes();
         
-        while ( allIDs.hasMoreElements() )
+        for ( AttributeType attributeType:attributeTypes )
         {
-            String attrTypeStr = allIDs.nextElement();
-            AttributeType attrType = attrTypeRegistry.lookup( attrTypeStr );
-            
-            if ( attrType.isCollective() )
+            if ( attributeType.isCollective() )
             {
                 return true;
             }

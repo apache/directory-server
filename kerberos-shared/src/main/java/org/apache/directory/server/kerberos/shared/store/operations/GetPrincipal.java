@@ -83,22 +83,26 @@ public class GetPrincipal implements ContextOperation
         }
 
         String[] attrIDs =
-            { KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION, KerberosAttribute.KEY,
-                KerberosAttribute.SAM_TYPE, KerberosAttribute.ACCOUNT_DISABLED,
-                KerberosAttribute.ACCOUNT_EXPIRATION_TIME, KerberosAttribute.ACCOUNT_LOCKEDOUT };
+            {   KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
+                KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, 
+                KerberosAttribute.KRB5_KEY_AT,
+                KerberosAttribute.APACHE_SAM_TYPE_AT, 
+                KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT,
+                KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT, 
+                KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT };
 
         Attributes matchAttrs = new AttributesImpl( true );
-        matchAttrs.put( new AttributeImpl( KerberosAttribute.PRINCIPAL, principal.getName() ) );
+        matchAttrs.put( new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal.getName() ) );
 
         PrincipalStoreEntry entry = null;
 
         try
         {
-            NamingEnumeration answer = ctx.search( "", matchAttrs, attrIDs );
+            NamingEnumeration<SearchResult> answer = ctx.search( "", matchAttrs, attrIDs );
 
             if ( answer.hasMore() )
             {
-                SearchResult result = ( SearchResult ) answer.next();
+                SearchResult result = answer.next();
 
                 Attributes attrs = result.getAttributes();
 
@@ -134,27 +138,27 @@ public class GetPrincipal implements ContextOperation
 
         modifier.setDistinguishedName( distinguishedName );
 
-        String principal = ( String ) attrs.get( KerberosAttribute.PRINCIPAL ).get();
+        String principal = ( String ) attrs.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get();
         modifier.setPrincipal( new KerberosPrincipal( principal ) );
 
-        String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.VERSION ).get();
+        String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get();
         modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );
 
-        if ( attrs.get( KerberosAttribute.ACCOUNT_DISABLED ) != null )
+        if ( attrs.get( KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT ) != null )
         {
-            String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_DISABLED ).get();
+            String val = ( String ) attrs.get( KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT ).get();
             modifier.setDisabled( "true".equalsIgnoreCase( val ) );
         }
 
-        if ( attrs.get( KerberosAttribute.ACCOUNT_LOCKEDOUT ) != null )
+        if ( attrs.get( KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT ) != null )
         {
-            String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_LOCKEDOUT ).get();
+            String val = ( String ) attrs.get( KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT ).get();
             modifier.setLockedOut( "true".equalsIgnoreCase( val ) );
         }
 
-        if ( attrs.get( KerberosAttribute.ACCOUNT_EXPIRATION_TIME ) != null )
+        if ( attrs.get( KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT ) != null )
         {
-            String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_EXPIRATION_TIME ).get();
+            String val = ( String ) attrs.get( KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT ).get();
             try
             {
                 modifier.setExpiration( KerberosTime.getTime( val ) );
@@ -162,20 +166,20 @@ public class GetPrincipal implements ContextOperation
             catch ( ParseException e )
             {
                 throw new InvalidAttributeValueException( "Account expiration attribute "
-                    + KerberosAttribute.ACCOUNT_EXPIRATION_TIME + " contained an invalid value for generalizedTime: "
+                    + KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT + " contained an invalid value for generalizedTime: "
                     + val );
             }
         }
 
-        if ( attrs.get( KerberosAttribute.SAM_TYPE ) != null )
+        if ( attrs.get( KerberosAttribute.APACHE_SAM_TYPE_AT ) != null )
         {
-            String samType = ( String ) attrs.get( KerberosAttribute.SAM_TYPE ).get();
+            String samType = ( String ) attrs.get( KerberosAttribute.APACHE_SAM_TYPE_AT ).get();
             modifier.setSamType( SamType.getTypeByOrdinal( Integer.parseInt( samType ) ) );
         }
 
-        if ( attrs.get( KerberosAttribute.KEY ) != null )
+        if ( attrs.get( KerberosAttribute.KRB5_KEY_AT ) != null )
         {
-            Attribute krb5key = attrs.get( KerberosAttribute.KEY );
+            Attribute krb5key = attrs.get( KerberosAttribute.KRB5_KEY_AT );
             try
             {
                 Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );
@@ -183,7 +187,7 @@ public class GetPrincipal implements ContextOperation
             }
             catch ( IOException ioe )
             {
-                throw new InvalidAttributeValueException( "Account Kerberos key attribute '" + KerberosAttribute.KEY
+                throw new InvalidAttributeValueException( "Account Kerberos key attribute '" + KerberosAttribute.KRB5_KEY_AT
                     + "' contained an invalid value for krb5key." );
             }
         }

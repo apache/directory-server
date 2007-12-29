@@ -35,7 +35,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttribute>
+public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttribute>, Cloneable
 {
     // -----------------------------------------------------------------------
     // Schema Related Methods
@@ -75,6 +75,15 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      * @return true if this entry is of the objectClass, false otherwise
      */
     boolean hasObjectClass( ObjectClass objectClass );
+
+
+    /**
+     * Checks to see if this entry is of the objectClass.
+     *
+     * @param objectClass the objectClass to check for in this ServerEntry
+     * @return true if this entry is of the objectClass, false otherwise
+     */
+    boolean hasObjectClass( String objectClass );
 
 
     /**
@@ -196,6 +205,16 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
 
 
     /**
+     * Returns the attribute with the specified ID. The return
+     * value is <code>null</code> if no match is found.
+     *
+     * @param upId the ID of the attribute
+     * @return the attribute of the specified ID
+     */
+    ServerAttribute get( String upId ) throws NamingException;
+
+
+    /**
      * Places non-null attributes in the attribute collection. If there is
      * already an attribute with the same OID as any of the new attributes, 
      * the old ones are removed from the collection and are returned by this 
@@ -208,9 +227,12 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      */
     List<ServerAttribute> put( ServerAttribute... attributes ) throws NamingException;
 
-    // no value put'ters
+    ServerAttribute put( String upId, String... values ) throws NamingException;
 
-    ServerAttribute put( String upId, AttributeType attributeType ) throws NamingException;
+    ServerAttribute put( String upId, byte[]... values ) throws NamingException;
+
+    // no value put'ters
+    ServerAttribute put( String upId ) throws NamingException;
 
     ServerAttribute put( AttributeType attributeType ) throws NamingException;
 
@@ -229,12 +251,12 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      * value: the value of <code>val</code> may be <code>null</code>.
      *
      * @param attributeType the type of the new attribute to be put
-     * @param val the value of the new attribute to be put
+     * @param values the values of the new attribute to be put
      * @return the old attribute of the same type, if exists; otherwise
      *         <code>null</code>
      * @throws NamingException if there are resolution issues
      */
-    ServerAttribute put( AttributeType attributeType, ServerValue<?> val ) throws NamingException;
+    ServerAttribute put( AttributeType attributeType, ServerValue<?>... values ) throws NamingException;
 
     /**
      * Places a new attribute with the supplied attributeType and value into this
@@ -247,12 +269,12 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      *
      * @param upId the user provided identifier for the new attribute
      * @param attributeType the type of the new attribute to be put
-     * @param val the value of the new attribute to be put
+     * @param values the value of the new attribute to be put
      * @return the old attribute of the same type, if exists; otherwise
      *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute put( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException;
+    ServerAttribute put( String upId, ServerValue<?>... values ) throws NamingException;
 
 
     /**
@@ -267,15 +289,12 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      * <code>null</code>.
      *
      * @param attributeType the type of the new attribute to be put
-     * @param val the value of the new attribute to be put
+     * @param values the values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute put( AttributeType attributeType, String val ) throws NamingException;
-
-
-    ServerAttribute put( String upId, AttributeType attributeType, String val ) throws NamingException;
+    ServerAttribute put( AttributeType attributeType, String... values ) throws NamingException;
 
 
     /**
@@ -290,15 +309,12 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      * <code>null</code>.
      *
      * @param attributeType the type of the new attribute to be put
-     * @param val the value of the new attribute to be put
+     * @param values the values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute put( AttributeType attributeType, byte[] val ) throws NamingException;
-
-
-    ServerAttribute put( String upId, AttributeType attributeType, byte[] val ) throws NamingException;
+    ServerAttribute put( AttributeType attributeType, byte[]... values ) throws NamingException;
 
 
     /**
@@ -306,11 +322,23 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      * returned by this method. If there is no attribute with the specified OID,
      * the return value is <code>null</code>.
      *
-     * @param attributeType the type of the attribute to be removed
+     * @param attributeTypes the types of the attribute to be removed
      * @return the removed attribute, if exists; otherwise <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute remove( AttributeType attributeType ) throws NamingException;
+    List<ServerAttribute> remove( AttributeType... attributeTypes ) throws NamingException;
+
+
+    /**
+     * Removes the attribute with the specified alias. The removed attribute is
+     * returned by this method. If there is no attribute with the specified OID,
+     * the return value is <code>null</code>.
+     *
+     * @param ids the IDs of the attribute to be removed
+     * @return the removed attribute, if exists; otherwise <code>null</code>
+     * @throws NamingException if there are failures
+     */
+    List<ServerAttribute> remove( String... ids ) throws NamingException;
 
 
     /**
@@ -322,4 +350,9 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      * @return the removed attribute, if exists; otherwise <code>null</code>
      */
     List<ServerAttribute> remove( ServerAttribute... attributes ) throws NamingException;
+    
+    /**
+     * A clone method to produce a clone of the current object
+     */
+    public Object clone();
 }

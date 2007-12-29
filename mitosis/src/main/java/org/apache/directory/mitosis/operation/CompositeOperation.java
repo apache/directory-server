@@ -29,7 +29,7 @@ import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -160,12 +160,12 @@ public class CompositeOperation extends Operation
     }
 
 
-    protected void execute0( PartitionNexus nexus, ReplicationStore store, AttributeTypeRegistry registry ) 
+    protected void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries ) 
         throws NamingException
     {
         for ( Operation op : children )
         {
-            op.execute( nexus, DUMMY_STORE, registry );
+            op.execute( nexus, DUMMY_STORE, registries );
         }
     }
 

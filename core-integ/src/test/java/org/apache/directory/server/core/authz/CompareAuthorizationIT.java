@@ -177,11 +177,32 @@ public class CompareAuthorizationIT
         assertFalse( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
 
         // now add a subentry that enables user billyd to compare an entry below ou=system
-        createAccessControlSubentry( "billydAdd", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
-            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + "userPermissions { { "
-            + "protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "grantsAndDenials { grantCompare, grantRead, grantBrowse } } } } }" );
+        createAccessControlSubentry( "billydAdd", 
+            "{ " +
+            "  identificationTag \"addAci\", precedence 14, authenticationLevel none, itemOrUserFirst userFirst: " + 
+            "  { " +
+            "    userClasses " +
+            "    { " +
+            "      name " +
+            "      { " +
+            "        \"uid=billyd,ou=users,ou=system\" " +
+            "      } " +
+            "    }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems " +
+            "        {" +
+            "          entry, allUserAttributeTypesAndValues" +
+            "        }, " +
+            "        grantsAndDenials " +
+            "        { " +
+            "          grantCompare, grantRead, grantBrowse " +
+            "        } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );

@@ -22,6 +22,7 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -273,7 +274,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         {
             Attributes clone = ( Attributes ) attrs.clone();
             LdapDN target = buildTarget( name );
-            doAddOperation( target, clone );
+            doAddOperation( target, ServerEntryUtils.toServerEntry( clone, target, registries ) );
             return;
         }
 
@@ -293,7 +294,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                     attributes.put( ( Attribute ) list.next() );
                 }
             }
-            doAddOperation( target, attributes );
+
+            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
             return;
         }
 
@@ -326,7 +328,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
             // Serialize object into entry attributes and add it.
             JavaLdapSupport.serialize( attributes, obj );
-            doAddOperation( target, attributes );
+            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
         }
         else if ( obj instanceof DirContext )
         {
@@ -343,7 +345,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             }
             
             LdapDN target = buildTarget( name );
-            doAddOperation( target, attributes );
+            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
         }
         else
         {
@@ -444,7 +446,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
 
         // Add the new context to the server which as a side effect adds
-        doAddOperation( target, attributes );
+        doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
 
         // Initialize the new context
         return new ServerLdapContext( getService(), getPrincipal(), target );

@@ -91,17 +91,17 @@ public class DeletePrincipal implements ContextOperation
     private String search( DirContext ctx, Name searchBaseDn, String principal ) throws NamingException
     {
         String[] attrIDs =
-            { KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION, KerberosAttribute.KEY };
+            { KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, KerberosAttribute.KRB5_KEY_AT };
 
         Attributes matchAttrs = new AttributesImpl( true );
-        matchAttrs.put( new AttributeImpl( KerberosAttribute.PRINCIPAL, principal ) );
+        matchAttrs.put( new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal ) );
 
         // Search for objects that have those matching attributes
-        NamingEnumeration answer = ctx.search( searchBaseDn, matchAttrs, attrIDs );
+        NamingEnumeration<SearchResult> answer = ctx.search( searchBaseDn, matchAttrs, attrIDs );
 
         if ( answer.hasMore() )
         {
-            SearchResult sr = ( SearchResult ) answer.next();
+            SearchResult sr = answer.next();
             if ( sr != null )
             {
                 return sr.getName();

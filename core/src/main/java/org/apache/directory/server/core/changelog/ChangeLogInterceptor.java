@@ -23,7 +23,7 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -61,10 +61,13 @@ public class ChangeLogInterceptor extends BaseInterceptor
 {
     /** for debugging */
     private static final Logger LOG = LoggerFactory.getLogger( ChangeLogInterceptor.class );
+    
     /** used to ignore modify operations to tombstone entries */
     private AttributeType entryDeleted;
+    
     /** the changelog service to log changes to */
     private ChangeLog changeLog;
+    
     /** we need the schema service to deal with special conditions */
     private SchemaService schemaService;
 
@@ -101,7 +104,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setChangeType( ChangeType.Add );
         forward.setDn( opContext.getDn().getUpName() );
         
-        DefaultServerEntry addEntry = ServerEntryUtils.toServerEntry( opContext.getEntry(), opContext.getDn(), schemaService.getRegistries() );
+        ServerEntry addEntry = opContext.getEntry();
 
         Set<AttributeType> list = addEntry.getAttributeTypes();
         

@@ -24,6 +24,8 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -50,6 +52,7 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -166,8 +169,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /** interceptor chain */
     private InterceptorChain chain;
     
+    /** Global registries */
+    private Registries registries;
+    
     /** attribute type registry */
-    private AttributeTypeRegistry attrRegistry;
+    private AttributeTypeRegistry atRegistry;
     
     /** whether or not this interceptor is activated */
     private boolean enabled;
@@ -201,20 +207,21 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         tupleCache = new TupleCache( directoryService );
         groupCache = new GroupCache( directoryService );
-        attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
-        OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
+        registries = directoryService.getRegistries();
+        atRegistry = registries.getAttributeTypeRegistry();
+        OidRegistry oidRegistry = registries.getOidRegistry();
         
         // look up some constant information
         String objectClassOid = oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT );
         subentryOid = oidRegistry.getOid( SchemaConstants.SUBENTRY_OC );
         String acSubentryOid = oidRegistry.getOid( AC_SUBENTRY_ATTR );
-        objectClassType = attrRegistry.lookup( objectClassOid );
-        acSubentryType = attrRegistry.lookup( acSubentryOid );
-        entryAciType = attrRegistry.lookup( SchemaConstants.ENTRY_ACI_AT_OID ); 
-        subentryAciType = attrRegistry.lookup( SchemaConstants.SUBENTRY_ACI_AT_OID );
+        objectClassType = atRegistry.lookup( objectClassOid );
+        acSubentryType = atRegistry.lookup( acSubentryOid );
+        entryAciType = atRegistry.lookup( SchemaConstants.ENTRY_ACI_AT_OID ); 
+        subentryAciType = atRegistry.lookup( SchemaConstants.SUBENTRY_ACI_AT_OID );
         
-        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( attrRegistry, oidRegistry ), attrRegistry.getNormalizerMapping() );
-        engine = new ACDFEngine( directoryService.getRegistries().getOidRegistry(), attrRegistry );
+        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( atRegistry, oidRegistry ), atRegistry.getNormalizerMapping() );
+        engine = new ACDFEngine( registries.getOidRegistry(), atRegistry );
         chain = directoryService.getInterceptorChain();
         enabled = directoryService.isAccessControlEnabled();
 
@@ -223,7 +230,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         	( String ) directoryService.getPartitionNexus().getRootDSE( null ).
         		get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         LdapDN subschemaSubentryDnName = new LdapDN( subschemaSubentry );
-        subschemaSubentryDnName.normalize( attrRegistry.getNormalizerMapping() );
+        subschemaSubentryDnName.normalize( atRegistry.getNormalizerMapping() );
         subschemaSubentryDn = subschemaSubentryDnName.toNormName();
     }
 
@@ -254,7 +261,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private LdapDN parseNormalized( String name ) throws NamingException
     {
         LdapDN dn = new LdapDN( name );
-        dn.normalize( attrRegistry.getNormalizerMapping() );
+        dn.normalize( atRegistry.getNormalizerMapping() );
         return dn;
     }
 
@@ -430,7 +437,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = principal.getJndiName();
         
-        Attributes entry = addContext.getEntry();
+        ServerEntry serverEntry = addContext.getEntry(); 
+        Attributes entry = ServerEntryUtils.toAttributesImpl( serverEntry );
+
         LdapDN name = addContext.getDn();
 
         // bypass authz code if we are disabled
@@ -444,7 +453,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.add( addContext );
-            tupleCache.subentryAdded( name, entry );
+            tupleCache.subentryAdded( name, serverEntry );
             groupCache.groupAdded( name, entry );
             return;
         }
@@ -492,7 +501,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // if the entry added is a subentry or a groupOf[Unique]Names we must
         // update the ACITuple cache and the groups cache to keep them in sync
-        tupleCache.subentryAdded( name, entry );
+        tupleCache.subentryAdded( name, serverEntry );
         groupCache.groupAdded( name, entry );
     }
 
@@ -527,7 +536,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.delete( deleteContext );
-            tupleCache.subentryDeleted( name, entry );
+            tupleCache.subentryDeleted( name, ServerEntryUtils.toServerEntry( entry, name, registries ) );
             groupCache.groupDeleted( name, entry );
             return;
         }
@@ -542,7 +551,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             REMOVE_PERMS, tuples, entry, null );
 
         next.delete( deleteContext );
-        tupleCache.subentryDeleted( name, entry );
+        tupleCache.subentryDeleted( name, ServerEntryUtils.toServerEntry( entry, name, registries ) );
         groupCache.groupDeleted( name, entry );
     }
 
@@ -576,7 +585,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
              * @TODO: A virtual entry can be created here for not hitting the backend again.
              */
             Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
-            tupleCache.subentryModified( name, mods, modifiedEntry );
+            tupleCache.subentryModified( name, mods, ServerEntryUtils.toServerEntry( modifiedEntry, name, registries ) );
             groupCache.groupModified( name, mods, entry );
             return;
         }
@@ -663,7 +672,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          * @TODO: A virtual entry can be created here for not hitting the backend again.
          */
         Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
-        tupleCache.subentryModified( name, mods, modifiedEntry );
+        tupleCache.subentryModified( name, mods, ServerEntryUtils.toServerEntry( modifiedEntry, name, registries ) );
         groupCache.groupModified( name, mods, entry );
     }
 
@@ -753,7 +762,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         
         if ( !principalDn.isNormalized() )
         {
-        	principalDn.normalize( attrRegistry.getNormalizerMapping() );
+        	principalDn.normalize( atRegistry.getNormalizerMapping() );
         }
         
         if ( isPrincipalAnAdministrator( principalDn ) || !enabled )

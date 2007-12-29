@@ -22,6 +22,7 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -1633,19 +1634,19 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Check that all the attributes exist in the schema for this entry.
      */
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
     {
-    	LdapDN name = opContext.getDn();
-        Attributes attrs = opContext.getEntry();
+    	LdapDN name = addContext.getDn();
+        Attributes entry = ServerEntryUtils.toAttributesImpl( addContext.getEntry() );
         
-    	check( name, attrs );
+    	check( name, entry );
 
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.add( name, attrs );
+            schemaManager.add( name, entry );
         }
 
-        next.add( opContext );
+        next.add( addContext );
     }
     
 

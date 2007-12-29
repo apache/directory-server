@@ -29,19 +29,33 @@ public class KerberosAttribute
     // ------------------------------------------------------------------------
     // Krb5 Schema Attributes
     // ------------------------------------------------------------------------
-
-    /** the krb5kdc schema key for a krb5KDCEntry */
-    public static final String KEY = "krb5Key";
     /** the krb5kdc schema principal name for a krb5KDCEntry */
-    public static final String PRINCIPAL = "krb5PrincipalName";
+    public static final String KRB5_PRINCIPAL_NAME_AT = "krb5PrincipalName";
+    public static final String KRB5_PRINCIPAL_NAME_AT_OID = "1.3.6.1.4.1.5322.10.1.1";
+    
+    /** the krb5kdc schema key for a krb5KDCEntry */
+    public static final String KRB5_KEY_AT = "krb5Key";
+    public static final String KRB5_KEY_AT_OID = "1.3.6.1.4.1.5322.10.1.10";
+    
     /** the krb5kdc schema key version identifier for a krb5KDCEntry */
-    public static final String VERSION = "krb5KeyVersionNumber";
-    /** the Apache specific SAM type attribute */
-    public static final String SAM_TYPE = "apacheSamType";
+    public static final String KRB5_KEY_VERSION_NUMBER_AT = "krb5KeyVersionNumber";
+    public static final String KRB5_KEY_VERSION_NUMBER_AT_OID = "1.3.6.1.4.1.5322.10.1.2";
+    
     /** the disabled boolean LDAP attribute for a Kerberos account */
-    public static final String ACCOUNT_DISABLED = "krb5AccountDisabled";
+    public static final String KRB5_ACCOUNT_DISABLED_AT = "krb5AccountDisabled";
+    public static final String KRB5_ACCOUNT_DISABLED_AT_OID = "1.3.6.1.4.1.5322.10.1.13";
+    
     /** the lockedout boolean LDAP attribute for a Kerberos account */
-    public static final String ACCOUNT_LOCKEDOUT = "krb5AccountLockedOut";
+    public static final String KRB5_ACCOUNT_LOCKEDOUT_AT = "krb5AccountLockedOut";
+    public static final String KRB5_ACCOUNT_LOCKEDOUT_AT_OID = "1.3.6.1.4.1.5322.10.1.14";
+    
     /** the expiration time attribute LDAP attribute for a Kerberos account */
-    public static final String ACCOUNT_EXPIRATION_TIME = "krb5AccountExpirationTime";
+    public static final String KRB5_ACCOUNT_EXPIRATION_TIME_AT = "krb5AccountExpirationTime";
+    public static final String KRB5_ACCOUNT_EXPIRATION_TIME_AT_OID = "1.3.6.1.4.1.5322.10.1.15";
+
+
+    /** the Apache specific SAM type attribute */
+    public static final String APACHE_SAM_TYPE_AT = "apacheSamType";
+    public static final String APACHE_SAM_TYPE_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.9";
+    
 }

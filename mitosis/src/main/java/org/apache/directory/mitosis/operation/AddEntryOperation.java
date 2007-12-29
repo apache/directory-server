@@ -28,12 +28,13 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -73,7 +74,7 @@ public class AddEntryOperation extends Operation
     }
 
 
-    protected void execute0( PartitionNexus nexus, ReplicationStore store, AttributeTypeRegistry registry )
+    protected void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries )
         throws NamingException
     {
         if ( !EntryUtil.isEntryUpdatable( nexus, normalizedName, getCSN() ) )
@@ -81,22 +82,22 @@ public class AddEntryOperation extends Operation
             return;
         }
         
-        EntryUtil.createGlueEntries( nexus, normalizedName, false );
+        EntryUtil.createGlueEntries( registries, nexus, normalizedName, false );
 
         // Replace the entry if an entry with the same name exists.
         Attributes oldEntry = nexus.lookup( new LookupOperationContext( normalizedName ) );
         
         if ( oldEntry != null )
         {
-            recursiveDelete( nexus, normalizedName, registry );
+            recursiveDelete( nexus, normalizedName, registries );
         }
 
-        nexus.add( new AddOperationContext( normalizedName, entry ) );
+        nexus.add( new AddOperationContext( registries, normalizedName, ServerEntryUtils.toServerEntry( entry, normalizedName, registries ) ) );
     }
 
 
     @SuppressWarnings("unchecked")
-    private void recursiveDelete( PartitionNexus nexus, LdapDN normalizedName, AttributeTypeRegistry registry )
+    private void recursiveDelete( PartitionNexus nexus, LdapDN normalizedName, Registries registries )
         throws NamingException
     {
         NamingEnumeration<SearchResult> ne = nexus.list( new ListOperationContext( normalizedName ) );
@@ -110,8 +111,8 @@ public class AddEntryOperation extends Operation
         {
             SearchResult sr = ne.next();
             LdapDN dn = new LdapDN( sr.getName() );
-            dn.normalize( registry.getNormalizerMapping() );
-            recursiveDelete( nexus, dn, registry );
+            dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+            recursiveDelete( nexus, dn, registries );
         }
         
         nexus.delete( new DeleteOperationContext( normalizedName ) );

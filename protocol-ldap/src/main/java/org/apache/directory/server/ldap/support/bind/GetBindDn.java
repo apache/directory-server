@@ -29,6 +29,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -96,7 +97,7 @@ public class GetBindDn implements ContextOperation
         }
 
         String[] attrIDs =
-            { "userPassword" };
+            { SchemaConstants.USER_PASSWORD_AT };
 
         Attributes matchAttrs = new AttributesImpl( true );
         matchAttrs.put( new AttributeImpl( "uid", username ) );
@@ -120,7 +121,7 @@ public class GetBindDn implements ContextOperation
                 }
 
                 Object userPassword;
-                Attribute userPasswordAttr = attrs.get( "userPassword" );
+                Attribute userPasswordAttr = attrs.get( SchemaConstants.USER_PASSWORD_AT );
 
                 if ( userPasswordAttr == null )
                 {

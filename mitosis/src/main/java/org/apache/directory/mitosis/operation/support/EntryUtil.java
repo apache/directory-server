@@ -25,15 +25,18 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.Constants;
 import org.apache.directory.mitosis.common.DefaultCSN;
@@ -63,7 +66,16 @@ public class EntryUtil
 
             try
             {
-                oldCSN = new DefaultCSN( String.valueOf( entryCSNAttr.get() ) );
+                Object val = entryCSNAttr.get();
+                
+                if ( val instanceof byte[] )
+                {
+                    oldCSN = new DefaultCSN( StringTools.utf8ToString( (byte[])val ) );
+                }
+                else
+                {
+                    oldCSN = new DefaultCSN( (String)val );
+                }
             }
             catch ( IllegalArgumentException e )
             {
@@ -75,24 +87,24 @@ public class EntryUtil
     }
 
 
-    public static void createGlueEntries( PartitionNexus nexus, LdapDN name, boolean includeLeaf )
+    public static void createGlueEntries( Registries registries, PartitionNexus nexus, LdapDN name, boolean includeLeaf )
         throws NamingException
     {
         assert name.size() > 0;
 
         for ( int i = name.size() - 1; i > 0; i-- )
         {
-            createGlueEntry( nexus, ( LdapDN ) name.getSuffix( i ) );
+            createGlueEntry( registries, nexus, ( LdapDN ) name.getSuffix( i ) );
         }
 
         if ( includeLeaf )
         {
-            createGlueEntry( nexus, name );
+            createGlueEntry( registries, nexus, name );
         }
     }
 
 
-    private static void createGlueEntry( PartitionNexus nexus, LdapDN name ) throws NamingException
+    private static void createGlueEntry( Registries registries, PartitionNexus nexus, LdapDN name ) throws NamingException
     {
         try
         {
@@ -123,7 +135,7 @@ public class EntryUtil
         entry.put( objectClassAttr );
 
         // And add it to the nexus.
-        nexus.add( new AddOperationContext( name, entry ) );
+        nexus.add( new AddOperationContext( registries, name, ServerEntryUtils.toServerEntry( entry, name, registries ) ) );
     }
 
 

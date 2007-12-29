@@ -31,6 +31,10 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerStringValue;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.ReferralHandlingEnumeration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -161,9 +165,9 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    static boolean isReferral( Attributes entry ) throws NamingException
+    static boolean isReferral( ServerEntry entry ) throws NamingException
     {
-        Attribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        ServerAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         
         if ( oc == null )
         {
@@ -171,108 +175,96 @@ public class ReferralInterceptor extends BaseInterceptor
             return false;
         }
         
-        for ( int ii = 0; ii < oc.size(); ii++ )
+        if ( oc.contains( SchemaConstants.REFERRAL_OC ) )
         {
-            if ( SchemaConstants.REFERRAL_OC.equalsIgnoreCase( ( String ) oc.get( ii ) ) )
+            //We have a referral ObjectClass, let's check that the ref is
+            // valid, accordingly to the RFC
+            
+            // Get the 'ref' attributeType
+            ServerAttribute refAttr = entry.get( SchemaConstants.REF_AT );
+            
+            if ( refAttr == null )
             {
-            	//We have a referral ObjectClass, let's check that the ref is
-            	// valid, accordingly to the RFC
-            	
-            	// Get the 'ref' attributeType
-            	Attribute ref = entry.get( SchemaConstants.REF_AT );
-            	
-            	if ( ref == null )
-            	{
-            		// very unlikely, as we have already checked the entry in SchemaInterceptor
-            		String message = "An entry with a 'referral' ObjectClass must contains a 'ref' Attribute";
-            		LOG.error( message );
-            		throw new NamingException( message );
-            	}
-            	
-            	NamingEnumeration<?> refs = ref.getAll();
-            	
-            	while ( refs.hasMoreElements() )
-            	{
-            		Object refObj = refs.nextElement(); 
-            		
-            		// it should be a String
-            		if ( refObj instanceof String )
-            		{
-            			String refVal = (String)refObj;
-            			
-            			try
-            			{
-            				LdapURL ldapUrl = new LdapURL( refVal );
-            				
-            				// We have a LDAP URL, we have to check that :
-            				// - we don't have scope specifier
-            				// - we don't have filters
-            				// - we don't have attribute description list
-            				// - we don't have extensions
-            				// - the DN is not empty
-            				
-            				if ( ldapUrl.getScope() != SearchControls.OBJECT_SCOPE )
-            				{
-            					// This is the default value if we don't have any scope
-            					// Let's assume that it's incorrect if we get something
-            					// else in the LdapURL
-            					String message = "An LDAPURL should not contains a scope";
-            					LOG.error( message );
-            					throw new NamingException( message );
-            				}
-            				
-            				if ( !StringTools.isEmpty( ldapUrl.getFilter() ) )
-            				{
-            					String message = "An LDAPURL should not contains filters";
-            					LOG.error( message );
-            					throw new NamingException( message );
-            				}
-            				
-            				if ( ( ldapUrl.getAttributes() != null ) && ( ldapUrl.getAttributes().size() != 0 ) )
-            				{
-            					String message = "An LDAPURL should not contains any description attribute list";
-            					LOG.error( message );
-            					throw new NamingException( message );
-            				}
-            				
-            				if ( ( ldapUrl.getExtensions() != null ) && ( ldapUrl.getExtensions().size() != 0 ) )
-            				{
-            					String message = "An LDAPURL should not contains any extension";
-            					LOG.error( message );
-            					throw new NamingException( message );
-            				}
-            				
-            				if ( ( ldapUrl.getCriticalExtensions() != null ) && ( ldapUrl.getCriticalExtensions().size() != 0 ) )
-            				{
-            					String message = "An LDAPURL should not contains any critical extension";
-            					LOG.error( message );
-            					throw new NamingException( message );
-            				}
-            				
-            				LdapDN dn = ldapUrl.getDn();
-            				
-            				if ( ( dn == null ) || dn.isEmpty() )
-            				{
-            					String message = "An LDAPURL should contains a non-empty DN";
-            					LOG.error( message );
-            					throw new NamingException( message );
-            				}
-            			}
-            			catch ( LdapURLEncodingException luee )
-            			{
-            				// Either the URL is invalid, or it's not a LDAP URL.
-            				// we will just ignore this LdapURL.
-                        }
-            		}
-            		else
-            		{
-            			String message = "Invalid referral value, it should be a String";
-            			LOG.error( message );
-            			throw new NamingException( message );
-            		}
-            	}
-                return true;
+                // very unlikely, as we have already checked the entry in SchemaInterceptor
+                String message = "An entry with a 'referral' ObjectClass must contains a 'ref' Attribute";
+                LOG.error( message );
+                throw new NamingException( message );
             }
+            
+            Iterator<ServerValue<?>> refs = refAttr.getAll();
+            
+            while ( refs.hasNext() )
+            {
+                ServerStringValue ref = (ServerStringValue)refs.next(); 
+                
+                String refVal = ref.get();
+                
+                try
+                {
+                    LdapURL ldapUrl = new LdapURL( refVal );
+                    
+                    // We have a LDAP URL, we have to check that :
+                    // - we don't have scope specifier
+                    // - we don't have filters
+                    // - we don't have attribute description list
+                    // - we don't have extensions
+                    // - the DN is not empty
+                    
+                    if ( ldapUrl.getScope() != SearchControls.OBJECT_SCOPE )
+                    {
+                        // This is the default value if we don't have any scope
+                        // Let's assume that it's incorrect if we get something
+                        // else in the LdapURL
+                        String message = "An LDAPURL should not contains a scope";
+                        LOG.error( message );
+                        throw new NamingException( message );
+                    }
+                    
+                    if ( !StringTools.isEmpty( ldapUrl.getFilter() ) )
+                    {
+                        String message = "An LDAPURL should not contains filters";
+                        LOG.error( message );
+                        throw new NamingException( message );
+                    }
+                    
+                    if ( ( ldapUrl.getAttributes() != null ) && ( ldapUrl.getAttributes().size() != 0 ) )
+                    {
+                        String message = "An LDAPURL should not contains any description attribute list";
+                        LOG.error( message );
+                        throw new NamingException( message );
+                    }
+                    
+                    if ( ( ldapUrl.getExtensions() != null ) && ( ldapUrl.getExtensions().size() != 0 ) )
+                    {
+                        String message = "An LDAPURL should not contains any extension";
+                        LOG.error( message );
+                        throw new NamingException( message );
+                    }
+                    
+                    if ( ( ldapUrl.getCriticalExtensions() != null ) && ( ldapUrl.getCriticalExtensions().size() != 0 ) )
+                    {
+                        String message = "An LDAPURL should not contains any critical extension";
+                        LOG.error( message );
+                        throw new NamingException( message );
+                    }
+                    
+                    LdapDN dn = ldapUrl.getDn();
+                    
+                    if ( ( dn == null ) || dn.isEmpty() )
+                    {
+                        String message = "An LDAPURL should contains a non-empty DN";
+                        LOG.error( message );
+                        throw new NamingException( message );
+                    }
+                }
+                catch ( LdapURLEncodingException luee )
+                {
+                    // Either the URL is invalid, or it's not a LDAP URL.
+                    // we will just ignore this LdapURL.
+                }
+            }
+            
+            return true;
         }
         
         return false;
@@ -383,7 +375,7 @@ public class ReferralInterceptor extends BaseInterceptor
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
         LdapDN name = opContext.getDn();
-        Attributes entry = opContext.getEntry();
+        ServerEntry entry = opContext.getEntry();
 
         // handle a normal add without following referrals
         if ( ( refval == null ) || refval.equals( IGNORE ) )

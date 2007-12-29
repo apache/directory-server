@@ -31,6 +31,8 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -38,6 +40,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -140,13 +143,15 @@ public class SchemaSubentryModifier
     }
     
 
-    public void addSchemaObject( SchemaObject obj ) throws NamingException
+    public void addSchemaObject( Registries registries, SchemaObject obj ) throws NamingException
     {
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         Schema schema = dao.getSchema( obj.getSchema() );
         LdapDN dn = getDn( obj );
         Attributes attrs = factory.getAttributes( obj, schema );
-        proxy.add( new AddOperationContext( dn, attrs, true ), BYPASS );
+        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, registries );
+
+        proxy.add( new AddOperationContext( registries, dn, entry, true ), BYPASS );
     }
 
 
@@ -188,14 +193,16 @@ public class SchemaSubentryModifier
     }
 
 
-    public void add( ComparatorDescription comparatorDescription ) throws NamingException
+    public void add( Registries registries, ComparatorDescription comparatorDescription ) throws NamingException
     {
         String schemaName = getSchema( comparatorDescription );   
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( comparatorDescription );
-        proxy.add( new AddOperationContext( dn, attrs, true ), BYPASS );
+        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, registries );
+
+        proxy.add( new AddOperationContext( registries, dn, entry, true ), BYPASS );
     }
     
     
@@ -222,14 +229,16 @@ public class SchemaSubentryModifier
     }
 
 
-    public void add( NormalizerDescription normalizerDescription ) throws NamingException
+    public void add( Registries registries, NormalizerDescription normalizerDescription ) throws NamingException
     {
         String schemaName = getSchema( normalizerDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( normalizerDescription );
-        proxy.add( new AddOperationContext( dn, attrs, true ), BYPASS );
+        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, registries );
+
+        proxy.add( new AddOperationContext( registries, dn, entry, true ), BYPASS );
     }
     
     
@@ -256,14 +265,15 @@ public class SchemaSubentryModifier
     }
 
 
-    public void add( SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
+    public void add( Registries registries, SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( syntaxCheckerDescription );
-        proxy.add( new AddOperationContext( dn, attrs, true ), BYPASS );
+        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, registries );
+        proxy.add( new AddOperationContext( registries, dn, entry, true ), BYPASS );
     }
     
     

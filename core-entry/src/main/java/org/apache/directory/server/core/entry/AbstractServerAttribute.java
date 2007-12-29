@@ -19,9 +19,7 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.shared.ldap.entry.AbstractBinaryValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.AbstractStringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +62,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
      */
     protected String logAssert( String message )
     {
-        LOG.error(  message );
+        LOG.error( message );
         return message;
     }
     
@@ -187,7 +185,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     {
         if ( attributeType.getSyntax().isHumanReadable() )
         {
-            if ( !( val instanceof AbstractStringValue ) )
+            if ( !( val instanceof ServerStringValue ) )
             {
                 String message = "The value must be a String, as its AttributeType is H/R";
                 LOG.error( message );
@@ -196,7 +194,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
         }
         else
         {
-            if ( !( val instanceof AbstractBinaryValue ) )
+            if ( !( val instanceof ServerBinaryValue ) )
             {
                 String message = "The value must be a byte[], as its AttributeType is not H/R";
                 LOG.error( message );
@@ -204,7 +202,9 @@ public abstract class AbstractServerAttribute implements ServerAttribute
             }
         }
         
-        return values.add( val );
+        boolean added = values.add( val );
+        
+        return added;
     }
 
 

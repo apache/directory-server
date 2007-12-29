@@ -26,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
+import javax.naming.directory.InvalidAttributeIdentifierException;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Collections;
@@ -50,6 +52,9 @@ public class ObjectClassAttribute extends AbstractServerAttribute
 
     private Set<AttributeType> mayList = new HashSet<AttributeType>();
     private Set<AttributeType> mustList = new HashSet<AttributeType>();
+    
+    /** The global registries */
+    private Registries registries;
 
 
 
@@ -60,7 +65,7 @@ public class ObjectClassAttribute extends AbstractServerAttribute
      */
     public ObjectClassAttribute( Registries registries ) throws NamingException
     {
-        this( null, registries );
+        this( registries, (String)null );
     }
 
 
@@ -68,11 +73,12 @@ public class ObjectClassAttribute extends AbstractServerAttribute
      * Creates a new instance of ObjectClassAttribute.
      *
      * @param upId The ObjectClass ID
-     * @param registries The registries to use to initialize this object
+     * @param registries The atRegistry to use to initialize this object
      * @throws NamingException If something went wrong
      */
-    public ObjectClassAttribute( String upId, Registries registries ) throws NamingException
+    public ObjectClassAttribute( Registries registries, String upId ) throws NamingException
     {
+        this.registries = registries;
         attributeType = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT_OID );
         setUpId( upId, attributeType );
     }
@@ -81,13 +87,13 @@ public class ObjectClassAttribute extends AbstractServerAttribute
     /**
      * Doc me more!
      *
-     * If the value does not correspond to the same attributeType, then it's
+     * If the values does not correspond to the same attributeType, then it's
      * wrapped value is copied into a new ServerValue which uses the specified
      * attributeType.
      */
-    public ObjectClassAttribute( Registries registries, ServerValue<?> val ) throws NamingException
+    public ObjectClassAttribute( Registries registries, ServerValue<?>... values ) throws NamingException
     {
-        this( null, registries, val );
+        this( registries, null, values );
     }
 
 
@@ -98,46 +104,51 @@ public class ObjectClassAttribute extends AbstractServerAttribute
      * wrapped value is copied into a new ServerValue which uses the specified
      * attributeType.
      */
-    public ObjectClassAttribute( String upId, Registries registries, ServerValue<?> val ) throws NamingException
+    public ObjectClassAttribute( Registries registries, String upId, ServerValue<?>... vals ) throws NamingException
     {
+        this.registries = registries;
         attributeType = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT_OID );
 
-        if ( val == null )
+        if ( vals == null )
         {
             values.add( new ServerStringValue( attributeType ) );
         }
-        else if ( ! ( val instanceof ServerStringValue ) )
-        {
-            String message = "Only String values supported for objectClass attribute";
-            LOG.error( message );
-            throw new UnsupportedOperationException( message );
-        }
         else
         {
-            values.add( val );
+            for ( ServerValue<?> val:vals )
+            {
+                if ( ! ( val instanceof ServerStringValue ) )
+                {
+                    String message = "Only String values supported for objectClass attribute";
+                    LOG.error( message );
+                    throw new UnsupportedOperationException( message );
+                }
+                else
+                {
+                    values.add( val );
+                }
+            }
         }
 
         setUpId( upId, attributeType );
     }
 
 
-    public ObjectClassAttribute( Registries registries, String val ) throws NamingException
+    public ObjectClassAttribute( Registries registries, String upId, String... vals ) throws NamingException
     {
-        this( null, registries, val );
-    }
-
-
-    public ObjectClassAttribute( String upId, Registries registries, String val ) throws NamingException
-    {
+        this.registries = registries;
         attributeType = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT_OID );
         
-        if ( val == null )
+        if ( vals == null )
         {
             values.add( new ServerStringValue( attributeType ) );
         }
         else
         {
-            values.add( new ServerStringValue( attributeType, val ) );
+            for ( String val:vals )
+            {
+                values.add( new ServerStringValue( attributeType, val ) );
+            }
         }
 
         setUpId( upId, attributeType );
@@ -207,6 +218,8 @@ public class ObjectClassAttribute extends AbstractServerAttribute
                     throw new UnsupportedOperationException( message );
             }
 
+            allObjectClasses.add( oc );
+            
             // now go through all objectClassses to collect the must an may list attributes
             Collections.addAll( mayList, oc.getMayList() );
             Collections.addAll( mustList, oc.getMustList() );
@@ -230,6 +243,12 @@ public class ObjectClassAttribute extends AbstractServerAttribute
 
 
     public boolean hasObjectClass( ObjectClass objectClass )
+    {
+        return allObjectClasses.contains( objectClass );
+    }
+
+
+    public boolean hasObjectClass( String objectClass )
     {
         return allObjectClasses.contains( objectClass );
     }
@@ -289,6 +308,33 @@ public class ObjectClassAttribute extends AbstractServerAttribute
     }
 
 
+    public boolean add( String val ) throws InvalidAttributeIdentifierException, NamingException
+    {
+        ObjectClass objectClass = registries.getObjectClassRegistry().lookup( val );
+        
+        return addObjectClass( objectClass );
+    }
+
+
+    public boolean add( ServerStringValue val ) throws InvalidAttributeIdentifierException, NamingException
+    {
+        //boolean added = super.add( val );
+        
+        ObjectClass objectClass = registries.getObjectClassRegistry().lookup( val.get() );
+        
+        if ( objectClass == null )
+        {
+            return false;
+        }
+        else
+        {
+            return addObjectClass( objectClass, val.get() );
+        }
+        
+        //return added;
+    }
+
+
     public boolean contains( byte[] val )
     {
         String message = "There are no binary values in an ObjectClass attribute.";
@@ -302,5 +348,43 @@ public class ObjectClassAttribute extends AbstractServerAttribute
         String message = "There are no binary values in an ObjectClass attribute.";
         LOG.error( message );
         throw new UnsupportedOperationException( message );
+    }
+    
+    
+    /**
+     * @see Object#toString() 
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "ObjectClass : " );
+        
+        if ( ( values != null ) && ( values.size() != 0 ) )
+        {
+            boolean isFirst = true;
+            
+            for ( ServerValue<?> objectClass:values )
+            {
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    sb.append( ", " );
+                }
+                
+                sb.append( objectClass.get() );
+            }
+        }
+        else
+        {
+            sb.append( "(null)" );
+        }
+        
+        sb.append( '\n' );
+        
+        return sb.toString();
     }
 }

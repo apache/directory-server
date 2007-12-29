@@ -140,7 +140,7 @@ public class SchemaOperationControl
     private static final java.util.Collection<String> SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS;
 
     private final MetaSchemaHandler metaSchemaHandler;
-    private final Registries globalRegistries;
+    private final Registries registries;
     private final AttributeType objectClassAT;
     private final SchemaSubentryModifier subentryModifier;
     private final SchemaChangeHandler[] schemaObjectHandlers = new SchemaChangeHandler[11];
@@ -191,31 +191,31 @@ public class SchemaOperationControl
     }
 
 
-    public SchemaOperationControl( Registries globalRegistries, PartitionSchemaLoader loader, SchemaPartitionDao dao )
+    public SchemaOperationControl( Registries registries, PartitionSchemaLoader loader, SchemaPartitionDao dao )
         throws NamingException
     {
-        this.globalRegistries = globalRegistries;
-        this.objectClassAT = this.globalRegistries.getAttributeTypeRegistry()
+        this.registries = registries;
+        this.objectClassAT = this.registries.getAttributeTypeRegistry()
             .lookup( SchemaConstants.OBJECT_CLASS_AT );
         
-        this.metaSchemaHandler = new MetaSchemaHandler( this.globalRegistries, loader );
+        this.metaSchemaHandler = new MetaSchemaHandler( this.registries, loader );
         
-        this.schemaObjectHandlers[COMPARATOR_INDEX] = new MetaComparatorHandler( globalRegistries, loader ); 
-        this.schemaObjectHandlers[NORMALIZER_INDEX] = new MetaNormalizerHandler( globalRegistries, loader );
-        this.schemaObjectHandlers[SYNTAX_CHECKER_INDEX] = new MetaSyntaxCheckerHandler( globalRegistries, loader );
-        this.schemaObjectHandlers[SYNTAX_INDEX] = new MetaSyntaxHandler( globalRegistries, loader, dao );
-        this.schemaObjectHandlers[MATCHING_RULE_INDEX] = new MetaMatchingRuleHandler( globalRegistries, loader, dao );
-        this.schemaObjectHandlers[ATTRIBUTE_TYPE_INDEX] = new MetaAttributeTypeHandler( globalRegistries, loader, dao );
-        this.schemaObjectHandlers[OBJECT_CLASS_INDEX] = new MetaObjectClassHandler( globalRegistries, loader, dao );
-        this.schemaObjectHandlers[MATCHING_RULE_USE_INDEX] = new MetaMatchingRuleUseHandler( globalRegistries, loader );
-        this.schemaObjectHandlers[DIT_STRUCTURE_RULE_INDEX] = new MetaDitStructureRuleHandler( globalRegistries, loader ); 
-        this.schemaObjectHandlers[DIT_CONTENT_RULE_INDEX] = new MetaDitContentRuleHandler( globalRegistries, loader ); 
-        this.schemaObjectHandlers[NAME_FORM_INDEX] = new MetaNameFormHandler( globalRegistries, loader ); 
+        this.schemaObjectHandlers[COMPARATOR_INDEX] = new MetaComparatorHandler( registries, loader ); 
+        this.schemaObjectHandlers[NORMALIZER_INDEX] = new MetaNormalizerHandler( registries, loader );
+        this.schemaObjectHandlers[SYNTAX_CHECKER_INDEX] = new MetaSyntaxCheckerHandler( registries, loader );
+        this.schemaObjectHandlers[SYNTAX_INDEX] = new MetaSyntaxHandler( registries, loader, dao );
+        this.schemaObjectHandlers[MATCHING_RULE_INDEX] = new MetaMatchingRuleHandler( registries, loader, dao );
+        this.schemaObjectHandlers[ATTRIBUTE_TYPE_INDEX] = new MetaAttributeTypeHandler( registries, loader, dao );
+        this.schemaObjectHandlers[OBJECT_CLASS_INDEX] = new MetaObjectClassHandler( registries, loader, dao );
+        this.schemaObjectHandlers[MATCHING_RULE_USE_INDEX] = new MetaMatchingRuleUseHandler( registries, loader );
+        this.schemaObjectHandlers[DIT_STRUCTURE_RULE_INDEX] = new MetaDitStructureRuleHandler( registries, loader ); 
+        this.schemaObjectHandlers[DIT_CONTENT_RULE_INDEX] = new MetaDitContentRuleHandler( registries, loader ); 
+        this.schemaObjectHandlers[NAME_FORM_INDEX] = new MetaNameFormHandler( registries, loader ); 
 
         this.subentryModifier = new SchemaSubentryModifier( dao );
-        this.parsers = new DescriptionParsers( globalRegistries, dao );
+        this.parsers = new DescriptionParsers( registries, dao );
         
-        OidRegistry oidRegistry = globalRegistries.getOidRegistry();
+        OidRegistry oidRegistry = registries.getOidRegistry();
 
         String comparatorsOid = oidRegistry.getOid( SchemaConstants.COMPARATORS_AT );
         opAttr2handlerIndex.put( comparatorsOid, COMPARATOR_INDEX );
@@ -256,14 +256,14 @@ public class SchemaOperationControl
     
     private void initHandlerMaps() throws NamingException
     {
-        AttributeTypeRegistry atReg = globalRegistries.getAttributeTypeRegistry();
+        AttributeTypeRegistry atReg = registries.getAttributeTypeRegistry();
         for ( int ii = 0; ii < OP_ATTRS.length; ii++ )
         {
             AttributeType at = atReg.lookup( OP_ATTRS[ii] );
             opAttr2handlerMap.put( at.getOid(), schemaObjectHandlers[ii] );
         }
 
-        ObjectClassRegistry ocReg = globalRegistries.getObjectClassRegistry();
+        ObjectClassRegistry ocReg = registries.getObjectClassRegistry();
         for ( int ii = 0; ii < META_OBJECT_CLASSES.length; ii++ )
         {
             ObjectClass oc = ocReg.lookup( META_OBJECT_CLASSES[ii] );
@@ -274,7 +274,7 @@ public class SchemaOperationControl
     
     public Registries getGlobalRegistries()
     {
-        return globalRegistries;
+        return registries;
     }
     
     
@@ -291,7 +291,7 @@ public class SchemaOperationControl
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
-            String oid = globalRegistries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
@@ -338,7 +338,7 @@ public class SchemaOperationControl
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
-            String oid = globalRegistries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
@@ -386,7 +386,7 @@ public class SchemaOperationControl
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
-            String oid = globalRegistries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
@@ -414,7 +414,7 @@ public class SchemaOperationControl
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
-            String oid = globalRegistries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -445,7 +445,7 @@ public class SchemaOperationControl
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
-            String oid = globalRegistries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
@@ -473,7 +473,7 @@ public class SchemaOperationControl
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
-            String oid = globalRegistries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -502,7 +502,7 @@ public class SchemaOperationControl
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
-            String oid = globalRegistries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
@@ -541,7 +541,7 @@ public class SchemaOperationControl
     {
         for ( ModificationItem mod : mods )
         {
-            String opAttrOid = globalRegistries.getOidRegistry().getOid( mod.getAttribute().getID() );
+            String opAttrOid = registries.getOidRegistry().getOid( mod.getAttribute().getID() );
             
             switch ( mod.getModificationOp() )
             {
@@ -597,7 +597,7 @@ public class SchemaOperationControl
                 while ( ids.hasMore() )
                 {
                     String id = ids.next();
-                    AttributeType opAttrAT = globalRegistries.getAttributeTypeRegistry().lookup( id );
+                    AttributeType opAttrAT = registries.getAttributeTypeRegistry().lookup( id );
                     modifyAddOperation( opAttrAT.getOid(), 
                         AttributeUtils.getAttribute( mods, opAttrAT ), doCascadeModify );
                 }
@@ -606,7 +606,7 @@ public class SchemaOperationControl
                 while ( ids.hasMore() )
                 {
                     String id = ids.next();
-                    AttributeType opAttrAT = globalRegistries.getAttributeTypeRegistry().lookup( id );
+                    AttributeType opAttrAT = registries.getAttributeTypeRegistry().lookup( id );
                     modifyRemoveOperation( opAttrAT.getOid(), 
                         AttributeUtils.getAttribute( mods, opAttrAT ), doCascadeModify );
                 }
@@ -797,7 +797,7 @@ public class SchemaOperationControl
                 for ( ComparatorDescription comparatorDescription : comparatorDescriptions )
                 {
                     comparatorHandler.add( comparatorDescription );
-                    subentryModifier.add( comparatorDescription );
+                    subentryModifier.add( registries, comparatorDescription );
                 }
                 break;
             case( NORMALIZER_INDEX ):
@@ -807,7 +807,7 @@ public class SchemaOperationControl
                 for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
                 {
                     normalizerHandler.add( normalizerDescription );
-                    subentryModifier.add( normalizerDescription );
+                    subentryModifier.add( registries, normalizerDescription );
                 }
                 break;
             case( SYNTAX_CHECKER_INDEX ):
@@ -817,7 +817,7 @@ public class SchemaOperationControl
                 for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
                 {
                     syntaxCheckerHandler.add( syntaxCheckerDescription );
-                    subentryModifier.add( syntaxCheckerDescription );
+                    subentryModifier.add( registries, syntaxCheckerDescription );
                 }
                 break;
             case( SYNTAX_INDEX ):
@@ -827,7 +827,7 @@ public class SchemaOperationControl
                 for ( Syntax syntax : syntaxes )
                 {
                     syntaxHandler.add( syntax );
-                    subentryModifier.addSchemaObject( syntax );
+                    subentryModifier.addSchemaObject( registries, syntax );
                 }
                 break;
             case( MATCHING_RULE_INDEX ):
@@ -837,7 +837,7 @@ public class SchemaOperationControl
                 for ( MatchingRule mr : mrs )
                 {
                     matchingRuleHandler.add( mr );
-                    subentryModifier.addSchemaObject( mr );
+                    subentryModifier.addSchemaObject( registries, mr );
                 }
                 break;
             case( ATTRIBUTE_TYPE_INDEX ):
@@ -847,7 +847,7 @@ public class SchemaOperationControl
                 for ( AttributeType at : ats )
                 {
                     atHandler.add( at );
-                    subentryModifier.addSchemaObject( at );
+                    subentryModifier.addSchemaObject( registries, at );
                 }
                 break;
             case( OBJECT_CLASS_INDEX ):
@@ -857,7 +857,7 @@ public class SchemaOperationControl
                 for ( ObjectClass oc : ocs )
                 {
                     ocHandler.add( oc );
-                    subentryModifier.addSchemaObject( oc );
+                    subentryModifier.addSchemaObject( registries, oc );
                 }
                 break;
             case( MATCHING_RULE_USE_INDEX ):
@@ -867,7 +867,7 @@ public class SchemaOperationControl
                 for ( MatchingRuleUse mru : mrus )
                 {
                     mruHandler.add( mru );
-                    subentryModifier.addSchemaObject( mru );
+                    subentryModifier.addSchemaObject( registries, mru );
                 }
                 break;
             case( DIT_STRUCTURE_RULE_INDEX ):
@@ -877,7 +877,7 @@ public class SchemaOperationControl
                 for ( DITStructureRule dsr : dsrs )
                 {
                     dsrHandler.add( dsr );
-                    subentryModifier.addSchemaObject( dsr );
+                    subentryModifier.addSchemaObject( registries, dsr );
                 }
                 break;
             case( DIT_CONTENT_RULE_INDEX ):
@@ -887,7 +887,7 @@ public class SchemaOperationControl
                 for ( DITContentRule dcr : dcrs )
                 {
                     dcrHandler.add( dcr );
-                    subentryModifier.addSchemaObject( dcr );
+                    subentryModifier.addSchemaObject( registries, dcr );
                 }
                 break;
             case( NAME_FORM_INDEX ):
@@ -897,7 +897,7 @@ public class SchemaOperationControl
                 for ( NameForm nf : nfs )
                 {
                     nfHandler.add( nf );
-                    subentryModifier.addSchemaObject( nf );
+                    subentryModifier.addSchemaObject( registries, nf );
                 }
                 break;
             default:
@@ -933,9 +933,9 @@ public class SchemaOperationControl
             new AttributeImpl( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, modifiersName ) ) );
         
         LdapDN name = new LdapDN( "cn=schemaModifications,ou=schema" );
-        name.normalize( globalRegistries.getAttributeTypeRegistry().getNormalizerMapping() );
+        name.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
-        invocation.getProxy().modify( new ModifyOperationContext( name, mods, true ),
+        invocation.getProxy().modify( new ModifyOperationContext( registries, name, mods, true ),
                 SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
     }
 }

@@ -106,12 +106,12 @@ public class ExpandingVisitor implements FilterVisitor
                         children.set( childNumber++, orNode );
                         
                         // iterate through descendants adding them to the orNode
-                        Iterator descendants = attrRegistry.descendants( leaf.getAttribute() );
+                        Iterator<AttributeType> descendants = attrRegistry.descendants( leaf.getAttribute() );
                         
                         while ( descendants.hasNext() )
                         {
                             LeafNode newLeaf = null;
-                            AttributeType descendant = ( AttributeType ) descendants.next();
+                            AttributeType descendant = descendants.next();
                             
                             if ( leaf instanceof PresenceNode )
                             {

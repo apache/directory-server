@@ -20,11 +20,17 @@
 package org.apache.directory.server.core.authz;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerStringValue;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -104,7 +110,7 @@ public class TupleCache
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry, oidRegistry );
         aciParser = new ACIItemParser( ncn, normalizerMap );
         prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT );
-        initialize();
+        initialize( directoryService.getRegistries() );
     }
 
     
@@ -116,7 +122,7 @@ public class TupleCache
     }
 
 
-    private void initialize() throws NamingException
+    private void initialize( Registries registries ) throws NamingException
     {
         // search all naming contexts for access control subentenries
         // generate ACITuple Arrays for each subentry
@@ -148,7 +154,7 @@ public class TupleCache
                 }
 
                 LdapDN normName = parseNormalized( subentryDn );
-                subentryAdded( normName, result.getAttributes() );
+                subentryAdded( normName, ServerEntryUtils.toServerEntry( result.getAttributes(), normName, registries ) );
             }
             
             results.close();
@@ -156,15 +162,15 @@ public class TupleCache
     }
 
 
-    private boolean hasPrescriptiveACI( Attributes entry ) throws NamingException
+    private boolean hasPrescriptiveACI( ServerEntry entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
-        Attribute aci = AttributeUtils.getAttribute( entry, prescriptiveAciAT );
+        ServerAttribute aci = entry.get( prescriptiveAciAT );
 
         if ( aci == null )
         {
-            if ( AttributeUtils.containsValueCaseIgnore( entry.get( SchemaConstants.OBJECT_CLASS_AT ), SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) ||
-                 AttributeUtils.containsValueCaseIgnore( entry.get( SchemaConstants.OBJECT_CLASS_AT ), SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC_OID ))
+            if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) ||
+                 entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC_OID ) )
             {
                 // should not be necessary because of schema interceptor but schema checking
                 // can be turned off and in this case we must protect against being able to
@@ -181,10 +187,10 @@ public class TupleCache
     }
 
 
-    public void subentryAdded( LdapDN normName, Attributes entry ) throws NamingException
+    public void subentryAdded( LdapDN normName, ServerEntry entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
-        Attribute aci = AttributeUtils.getAttribute( entry, prescriptiveAciAT );
+        ServerAttribute aciAttr = entry.get( prescriptiveAciAT );
         
         if ( !hasPrescriptiveACI( entry ) )
         {
@@ -193,14 +199,16 @@ public class TupleCache
 
         List<ACITuple> entryTuples = new ArrayList<ACITuple>();
         
-        for ( int ii = 0; ii < aci.size(); ii++ )
+        Iterator<ServerValue<?>> acis = aciAttr.getAll();
+        
+        while ( acis.hasNext() )
         {
+            String aci = ((ServerStringValue)acis.next()).get();
             ACIItem item = null;
-            String aciStr = ( String ) aci.get( ii ); 
 
             try
             {
-                item = aciParser.parse( aciStr );
+                item = aciParser.parse( aci );
                 entryTuples.addAll( item.toTuples() );
             }
             catch ( ParseException e )
@@ -220,9 +228,9 @@ public class TupleCache
     }
 
 
-    public void subentryDeleted( Name normName, Attributes entry ) throws NamingException
+    public void subentryDeleted( LdapDN normName, ServerEntry entry ) throws NamingException
     {
-        if ( !hasPrescriptiveACI( entry ) )
+        if ( !hasPrescriptiveACI(entry ) )
         {
             return;
         }
@@ -231,7 +239,7 @@ public class TupleCache
     }
 
 
-    public void subentryModified( LdapDN normName, List<ModificationItemImpl> mods, Attributes entry ) throws NamingException
+    public void subentryModified( LdapDN normName, List<ModificationItemImpl> mods, ServerEntry entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
@@ -241,6 +249,7 @@ public class TupleCache
         for ( ModificationItemImpl mod : mods )
         {
             String attrID = mod.getAttribute().getID();
+            
             if ( attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT ) ||
                     attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT_OID ) )
             {
@@ -251,7 +260,7 @@ public class TupleCache
     }
 
 
-    public void subentryModified( LdapDN normName, Attributes mods, Attributes entry ) throws NamingException
+    public void subentryModified( LdapDN normName, Attributes mods, ServerEntry entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {

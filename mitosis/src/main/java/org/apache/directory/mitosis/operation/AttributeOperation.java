@@ -24,7 +24,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
@@ -78,20 +78,20 @@ public abstract class AttributeOperation extends Operation
     }
 
 
-    protected final void execute0( PartitionNexus nexus, ReplicationStore store, AttributeTypeRegistry registry ) 
+    protected final void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries ) 
         throws NamingException
     {
         if ( !EntryUtil.isEntryUpdatable( nexus, name, getCSN() ) )
         {
             return;
         }
-        EntryUtil.createGlueEntries( nexus, name, true );
+        EntryUtil.createGlueEntries( registries, nexus, name, true );
 
-        execute1( nexus );
+        execute1( nexus, registries );
     }
 
 
-    protected abstract void execute1( PartitionNexus nexus ) throws NamingException;
+    protected abstract void execute1( PartitionNexus nexus, Registries registries ) throws NamingException;
 
 
     /**

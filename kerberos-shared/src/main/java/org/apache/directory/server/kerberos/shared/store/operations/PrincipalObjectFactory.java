@@ -62,12 +62,12 @@ public class PrincipalObjectFactory implements DirObjectFactory
         modifier.setUserId( ( String ) attrs.get( SchemaConstants.UID_AT ).get() );
         modifier.setCommonName( ( String ) attrs.get( SchemaConstants.CN_AT ).get() );
 
-        KerberosPrincipal principal = new KerberosPrincipal( ( String ) attrs.get( KerberosAttribute.PRINCIPAL ).get() );
+        KerberosPrincipal principal = new KerberosPrincipal( ( String ) attrs.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get() );
         modifier.setPrincipal( principal );
 
-        if ( attrs.get( KerberosAttribute.KEY ) != null )
+        if ( attrs.get( KerberosAttribute.KRB5_KEY_AT ) != null )
         {
-            Attribute krb5key = attrs.get( KerberosAttribute.KEY );
+            Attribute krb5key = attrs.get( KerberosAttribute.KRB5_KEY_AT );
             try
             {
                 Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );
@@ -75,12 +75,12 @@ public class PrincipalObjectFactory implements DirObjectFactory
             }
             catch ( IOException ioe )
             {
-                throw new InvalidAttributeValueException( "Account Kerberos key attribute '" + KerberosAttribute.KEY
+                throw new InvalidAttributeValueException( "Account Kerberos key attribute '" + KerberosAttribute.KRB5_KEY_AT
                     + "' contained an invalid value for krb5key." );
             }
         }
 
-        modifier.setKeyVersionNumber( Integer.parseInt( ( String ) attrs.get( KerberosAttribute.VERSION ).get() ) );
+        modifier.setKeyVersionNumber( Integer.parseInt( ( String ) attrs.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() ) );
 
         return modifier.getEntry();
     }

@@ -24,6 +24,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -41,6 +42,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -97,7 +99,6 @@ public class SubentryInterceptor extends BaseInterceptor
 
     public static final String AC_AREA = "accessControlSpecificArea";
     public static final String AC_INNERAREA = "accessControlInnerArea";
-    //public static final String AC_SUBENTRIES = "accessControlSubentries";
 
     public static final String SCHEMA_AREA = "subschemaAdminSpecificArea";
 
@@ -123,6 +124,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private SubtreeSpecificationParser ssParser;
     private SubtreeEvaluator evaluator;
     private PartitionNexus nexus;
+    private Registries registries;
     private AttributeTypeRegistry attrRegistry;
     private OidRegistry oidRegistry;
     
@@ -132,9 +134,10 @@ public class SubentryInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws NamingException
     {
         super.init( directoryService );
-        this.nexus = directoryService.getPartitionNexus();
-        this.attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
-        this.oidRegistry = directoryService.getRegistries().getOidRegistry();
+        nexus = directoryService.getPartitionNexus();
+        registries = directoryService.getRegistries();
+        attrRegistry = registries.getAttributeTypeRegistry();
+        oidRegistry = registries.getOidRegistry();
         
         // setup various attribute type values
         objectClassType = attrRegistry.lookup( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
@@ -146,8 +149,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 return attrRegistry.getNormalizerMapping();
             }
         }, attrRegistry.getNormalizerMapping() );
-        evaluator = new SubtreeEvaluator( directoryService.getRegistries().getOidRegistry(),
-                directoryService.getRegistries().getAttributeTypeRegistry() );
+        evaluator = new SubtreeEvaluator( oidRegistry, attrRegistry );
 
         // prepare to find all subentries in all namingContexts
         Iterator<String> suffixes = this.nexus.listSuffixes( null );
@@ -380,10 +382,10 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
     {
-    	LdapDN name = opContext.getDn();
-    	Attributes entry = opContext.getEntry();
+    	LdapDN name = addContext.getDn();
+        Attributes entry = ServerEntryUtils.toAttributesImpl( addContext.getEntry() );
     	
         Attribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -438,7 +440,8 @@ public class SubentryInterceptor extends BaseInterceptor
             }
             
             subentryCache.setSubentry( name.getNormName(), ss, getSubentryTypes( entry ) );
-            next.add( opContext );
+            
+            next.add( addContext );
 
             /* ----------------------------------------------------------------
              * Find the baseDn for the subentry and use that to search the tree
@@ -469,9 +472,11 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForAdd( candidate, operational )  ));
+                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForAdd( candidate, operational )  ));
                 }
             }
+
+            addContext.setEntry( ServerEntryUtils.toServerEntry( entry, name, addContext.getRegistries() ) );
         }
         else
         {
@@ -543,8 +548,10 @@ public class SubentryInterceptor extends BaseInterceptor
                     }
                 }
             }
+            
+            addContext.setEntry( ServerEntryUtils.toServerEntry( entry, name, addContext.getRegistries() ) );
 
-            next.add( opContext );
+            next.add( addContext );
         }
     }
 
@@ -595,7 +602,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForRemove( name, candidate ) ) );
+                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForRemove( name, candidate ) ) );
                 }
             }
         }
@@ -751,7 +758,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForReplace( name, newName, subentry, candidate ) ) );
+                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForReplace( name, newName, subentry, candidate ) ) );
                 }
             }
         }
@@ -776,7 +783,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( mods.size() > 0 )
             {
-                nexus.modify( new ModifyOperationContext( newName, mods ) );
+                nexus.modify( new ModifyOperationContext( registries, newName, mods ) );
             }
         }
     }
@@ -827,7 +834,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForReplace( oriChildName, newName, subentry,
+                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForReplace( oriChildName, newName, subentry,
                         candidate ) ) );
                 }
             }
@@ -852,7 +859,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( mods.size() > 0 )
             {
-                nexus.modify( new ModifyOperationContext( newName, mods ) );
+                nexus.modify( new ModifyOperationContext( registries, newName, mods ) );
             }
         }
     }
@@ -901,7 +908,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForReplace( oriChildName, newName, subentry,
+                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForReplace( oriChildName, newName, subentry,
                         candidate ) ) );
                 }
             }
@@ -925,7 +932,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( mods.size() > 0 )
             {
-                nexus.modify( new ModifyOperationContext( newName, mods ) );
+                nexus.modify( new ModifyOperationContext( registries, newName, mods ) );
             }
         }
     }
@@ -1032,7 +1039,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ssOld, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForRemove( name, candidate ) ) );
+                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForRemove( name, candidate ) ) );
                 }
             }
 
@@ -1052,7 +1059,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ssNew, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForAdd( candidate, operational ) )) ;
+                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForAdd( candidate, operational ) )) ;
                 }
             }
         }
@@ -1068,7 +1075,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 
 	            if ( subentriesOpAttrMods.size() > 0)
 	            {
-	            	nexus.modify( new ModifyOperationContext( name, subentriesOpAttrMods ) );
+	            	nexus.modify( new ModifyOperationContext( registries, name, subentriesOpAttrMods ) );
 	            }
             }
         }

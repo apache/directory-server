@@ -78,12 +78,12 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      * attributeType.
      *
      * @param attributeType the attribute type according to the schema
-     * @param val an initial value for this attribute
+     * @param vals an initial set of values for this attribute
      * @throws NamingException if there are problems creating the new attribute
      */
-    public DefaultServerAttribute( AttributeType attributeType, ServerValue<?> val ) throws NamingException
+    public DefaultServerAttribute( AttributeType attributeType, ServerValue<?>... vals ) throws NamingException
     {
-        this( null, attributeType, val );
+        this( null, attributeType, vals );
     }
 
 
@@ -98,17 +98,17 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      *
      * @param upId
      * @param attributeType the attribute type according to the schema
-     * @param val an initial value for this attribute
+     * @param vals an initial set of values for this attribute
      * @throws NamingException if there are problems creating the new attribute
      */
-    public DefaultServerAttribute( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException
+    public DefaultServerAttribute( String upId, AttributeType attributeType, ServerValue<?>... vals ) throws NamingException
     {
         assert checkAttributeType( attributeType) == null : logAssert( checkAttributeType( attributeType ) );
         
         this.attributeType = attributeType;
         
         // The value can be null, this is a valid value.
-        if ( val == null )
+        if ( vals == null )
         {
             if ( attributeType.getSyntax().isHumanReadable() )
             {
@@ -121,25 +121,28 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
         }
         else
         {
-            if ( attributeType.equals( val.getAttributeType() ) )
+            for ( ServerValue<?> val:vals )
             {
-                add( val );
-            }
-            else if ( val instanceof ServerStringValue )
-            {
-                ServerStringValue serverString = ( ServerStringValue ) val;
-                add( new ServerStringValue( attributeType, serverString.get() ) );
-            }
-            else if ( val instanceof ServerBinaryValue )
-            {
-                ServerBinaryValue serverBinary = ( ServerBinaryValue ) val;
-                add( new ServerBinaryValue( attributeType, serverBinary.getCopy() ) );
-            }
-            else
-            {
-                String message = "Unknown value type: " + val.getClass().getName();
-                LOG.error( message );
-                throw new IllegalStateException( message );
+                if ( attributeType.equals( val.getAttributeType() ) )
+                {
+                    add( val );
+                }
+                else if ( val instanceof ServerStringValue )
+                {
+                    ServerStringValue serverString = ( ServerStringValue ) val;
+                    add( new ServerStringValue( attributeType, serverString.get() ) );
+                }
+                else if ( val instanceof ServerBinaryValue )
+                {
+                    ServerBinaryValue serverBinary = ( ServerBinaryValue ) val;
+                    add( new ServerBinaryValue( attributeType, serverBinary.getCopy() ) );
+                }
+                else
+                {
+                    String message = "Unknown value type: " + val.getClass().getName();
+                    LOG.error( message );
+                    throw new IllegalStateException( message );
+                }
             }
         }
         
@@ -148,45 +151,45 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
 
 
     /**
-     * Create a new instance of a EntryAttribute, withoiut ID but with a value.
+     * Create a new instance of a EntryAttribute, without ID but with some values.
      */
-    public DefaultServerAttribute( AttributeType attributeType, String val ) throws NamingException
+    public DefaultServerAttribute( AttributeType attributeType, String... vals ) throws NamingException
     {
-        this( null, attributeType, val );
+        this( null, attributeType, vals );
     }
 
 
     /**
      * Create a new instance of a EntryAttribute.
      */
-    public DefaultServerAttribute( String upId, AttributeType attributeType, String val ) throws NamingException
+    public DefaultServerAttribute( String upId, AttributeType attributeType, String... vals ) throws NamingException
     {
         assert checkAttributeType( attributeType) == null : logAssert( checkAttributeType( attributeType ) );
 
         this.attributeType = attributeType;
-        add( val );
+        add( vals );
         setUpId( upId, attributeType );
     }
 
 
     /**
-     * Create a new instance of a EntryAttribute, with a byte[] value.
+     * Create a new instance of a EntryAttribute, with some byte[] values.
      */
-    public DefaultServerAttribute( AttributeType attributeType, byte[] val ) throws NamingException
+    public DefaultServerAttribute( AttributeType attributeType, byte[]... vals ) throws NamingException
     {
-        this( null, attributeType, val );
+        this( null, attributeType, vals );
     }
 
 
     /**
-     * Create a new instance of a EntryAttribute, with a String value.
+     * Create a new instance of a EntryAttribute, with some byte[] values.
      */
-    public DefaultServerAttribute( String upId, AttributeType attributeType, byte[] val ) throws NamingException
+    public DefaultServerAttribute( String upId, AttributeType attributeType, byte[]... vals ) throws NamingException
     {
         assert checkAttributeType( attributeType) == null : logAssert( checkAttributeType( attributeType ) );
 
         this.attributeType = attributeType;
-        add( val );
+        add( vals );
         setUpId( upId, attributeType );
     }
 
@@ -621,4 +624,27 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     {
         return values.iterator();
     }
+    
+    /**
+     * @see Object#toString() 
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        if ( ( values != null ) && ( values.size() != 0 ) )
+        {
+            for ( ServerValue<?> value:values )
+            {
+                sb.append( upId ).append( ": " ).append( value ).append( '\n' );
+            }
+        }
+        else
+        {
+            sb.append( upId ).append( ": (null)\n" );
+        }
+        
+        return sb.toString();
+    }
+
 }

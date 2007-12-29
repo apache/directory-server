@@ -32,6 +32,8 @@ import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.CosineSchema;
+import org.apache.directory.server.schema.bootstrap.InetorgpersonSchema;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
@@ -75,6 +77,8 @@ public class DefaultServerEntryTest
         bootstrapSchemas.add( new ApacheSchema() );
         bootstrapSchemas.add( new CoreSchema() );
         bootstrapSchemas.add( new SystemSchema() );
+        bootstrapSchemas.add( new InetorgpersonSchema() );
+        bootstrapSchemas.add( new CosineSchema() );
         loader.loadWithDependencies( bootstrapSchemas, registries );
     }
 

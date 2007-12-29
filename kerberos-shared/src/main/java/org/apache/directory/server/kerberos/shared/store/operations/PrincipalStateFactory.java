@@ -101,7 +101,7 @@ public class PrincipalStateFactory implements DirStateFactory
             if ( !AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
             {
                 oc.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
-                outAttrs.put( "apacheSamType", "7" );
+                outAttrs.put( KerberosAttribute.APACHE_SAM_TYPE_AT, "7" );
             }
 
             if ( !( AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.PERSON_OC ) || oc
@@ -141,7 +141,7 @@ public class PrincipalStateFactory implements DirStateFactory
 
                 try
                 {
-                    outAttrs.put( KerberosAttribute.KEY, EncryptionKeyEncoder.encode( encryptionKey ) );
+                    outAttrs.put( KerberosAttribute.KRB5_KEY_AT, EncryptionKeyEncoder.encode( encryptionKey ) );
                 }
                 catch ( IOException ioe )
                 {
@@ -150,8 +150,8 @@ public class PrincipalStateFactory implements DirStateFactory
 
                 int keyVersion = encryptionKey.getKeyVersion();
 
-                outAttrs.put( KerberosAttribute.PRINCIPAL, principal );
-                outAttrs.put( KerberosAttribute.VERSION, Integer.toString( keyVersion ) );
+                outAttrs.put( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal );
+                outAttrs.put( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, Integer.toString( keyVersion ) );
             }
 
             Result r = new Result( obj, outAttrs );

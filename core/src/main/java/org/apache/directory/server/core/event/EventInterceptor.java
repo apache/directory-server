@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -245,7 +246,7 @@ public class EventInterceptor extends BaseInterceptor
         //super.add( next, opContext );
         
     	LdapDN name = opContext.getDn();
-        Attributes entry = opContext.getEntry();
+        Attributes entry = ServerEntryUtils.toAttributesImpl( opContext.getEntry() );
         
         Set<EventSourceRecord> selecting = getSelectingSources( name, entry );
         

@@ -83,12 +83,12 @@ public class ServerEntryUtils
      * 
      * @throws InvalidAttributeIdentifierException If we had an incorrect attribute
      */
-    public static DefaultServerAttribute toServerAttribute( Attribute attribute, AttributeType attributeType )
+    public static ServerAttribute toServerAttribute( Attribute attribute, AttributeType attributeType )
             throws InvalidAttributeIdentifierException
     {
         try 
         {
-            DefaultServerAttribute serverAttribute = new DefaultServerAttribute( attributeType );
+            ServerAttribute serverAttribute = new DefaultServerAttribute( attributeType );
         
             for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
             {
@@ -127,21 +127,21 @@ public class ServerEntryUtils
      * 
      * @throws InvalidAttributeIdentifierException If we get an invalid attribute
      */
-    public static DefaultServerEntry toServerEntry( Attributes attributes, LdapDN dn, Registries registries ) 
+    public static ServerEntry toServerEntry( Attributes attributes, LdapDN dn, Registries registries ) 
             throws InvalidAttributeIdentifierException
     {
         if ( ( attributes instanceof BasicAttributes ) || ( attributes instanceof AttributesImpl ) )
         {
             try 
             {
-                DefaultServerEntry entry = new DefaultServerEntry( dn, registries );
+                ServerEntry entry = new DefaultServerEntry( dn, registries );
     
                 for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
                 {
                     Attribute attr = attrs.nextElement();
 
                     AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attr.getID() );
-                    DefaultServerAttribute serverAttribute = ServerEntryUtils.toServerAttribute( attr, attributeType );
+                    ServerAttribute serverAttribute = ServerEntryUtils.toServerAttribute( attr, attributeType );
                     
                     if ( serverAttribute != null )
                     {
@@ -220,7 +220,7 @@ public class ServerEntryUtils
      */
     public static Attribute toAttributeImpl( ServerAttribute attr )
     {
-        Attribute attribute = new AttributeImpl( attr.getUpId(), false );
+        Attribute attribute = new AttributeImpl( attr.getUpId() );
 
         for ( Iterator<ServerValue<?>> iter = attr.getAll(); iter.hasNext();)
         {

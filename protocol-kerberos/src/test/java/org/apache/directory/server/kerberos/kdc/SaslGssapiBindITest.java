@@ -29,6 +29,7 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -201,9 +202,9 @@ public class SaslGssapiBindITest extends AbstractServerTest
         attrs.put( "cn", cn );
         attrs.put( "sn", sn );
         attrs.put( "uid", uid );
-        attrs.put( "userPassword", userPassword );
-        attrs.put( KerberosAttribute.PRINCIPAL, principal );
-        attrs.put( KerberosAttribute.VERSION, "0" );
+        attrs.put( SchemaConstants.USER_PASSWORD_AT, userPassword );
+        attrs.put( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal );
+        attrs.put( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, "0" );
 
         return attrs;
     }

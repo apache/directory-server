@@ -34,6 +34,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -76,7 +77,7 @@ public class ChangePassword implements ContextOperation
         }
 
         ModificationItemImpl[] mods = new ModificationItemImpl[2];
-        Attribute newPasswordAttribute = new AttributeImpl( "userPassword", newPassword );
+        Attribute newPasswordAttribute = new AttributeImpl( SchemaConstants.USER_PASSWORD_AT, newPassword );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, newPasswordAttribute );
         Attribute principalAttribute = new AttributeImpl( "krb5PrincipalName", principal.getName() );
         mods[1] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, principalAttribute );
@@ -94,16 +95,16 @@ public class ChangePassword implements ContextOperation
     private String search( DirContext ctx, String principal ) throws NamingException
     {
         String[] attrIDs =
-            { KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION, KerberosAttribute.KEY };
+            { KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, KerberosAttribute.KRB5_KEY_AT };
 
         Attributes matchAttrs = new AttributesImpl( true );
-        matchAttrs.put( new AttributeImpl( KerberosAttribute.PRINCIPAL, principal ) );
+        matchAttrs.put( new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal ) );
 
-        NamingEnumeration answer = ctx.search( "", matchAttrs, attrIDs );
+        NamingEnumeration<SearchResult> answer = ctx.search( "", matchAttrs, attrIDs );
 
         if ( answer.hasMore() )
         {
-            SearchResult sr = ( SearchResult ) answer.next();
+            SearchResult sr = answer.next();
             if ( sr != null )
             {
                 return sr.getName();

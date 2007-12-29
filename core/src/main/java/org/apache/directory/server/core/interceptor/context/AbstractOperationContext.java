@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.naming.ldap.Control;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -45,6 +46,9 @@ public abstract class AbstractOperationContext implements OperationContext
     private Map<String, Control> responseControls = new HashMap<String, Control>(4);
 
     private boolean collateralOperation;
+    
+    /** The global registries reference */
+    private Registries registries;
 
     
     /**
@@ -54,9 +58,22 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public AbstractOperationContext()
     {
+        this.registries = null;
     }
 
 
+    /**
+     * 
+     * Creates a new instance of AbstractOperationContext.
+     *
+     * @param atRegistry The AttributeType registry
+     */
+    public AbstractOperationContext( Registries registries )
+    {
+        this.registries = registries;
+    }
+    
+    
     /**
      * Creates a new instance of AbstractOperationContext.
      *
@@ -65,6 +82,19 @@ public abstract class AbstractOperationContext implements OperationContext
     public AbstractOperationContext( LdapDN dn )
     {
         this.dn = dn;
+    }
+
+
+    /**
+     * Creates a new instance of AbstractOperationContext.
+     *
+     * @param atRegistry The AttributeType registry
+     * @param dn The associated DN
+     */
+    public AbstractOperationContext( Registries registries, LdapDN dn )
+    {
+        this.dn = dn;
+        this.registries = registries;
     }
 
 
@@ -82,6 +112,21 @@ public abstract class AbstractOperationContext implements OperationContext
 
 
     /**
+     * Creates a new instance of AbstractOperationContext.
+     *
+     * @param atRegistry The AttributeType registry
+     * @param dn the associated DN
+     * @param collateralOperation true if op is collateral, false otherwise
+     */
+    public AbstractOperationContext( Registries registries, LdapDN dn, boolean collateralOperation )
+    {
+        this.dn = dn;
+        this.collateralOperation = collateralOperation;
+        this.registries = registries; 
+    }
+
+
+    /**
      * Creates an operation context where the operation is considered a side
      * effect of a direct operation.
      *
@@ -93,6 +138,24 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
+    /**
+     * Creates an operation context where the operation is considered a side
+     * effect of a direct operation.
+     *
+     * @param atRegistry The AttributeType registry
+     * @param collateralOperation true if this is a side effect operation
+     */
+    public AbstractOperationContext( Registries registries, boolean collateralOperation )
+    {
+        this.collateralOperation = collateralOperation;
+        this.registries = registries;
+    }
+
+
+    /**
+     * Tells if the current operation is considered a side effect of the
+     * current context
+     */
     public boolean isCollateralOperation()
     {
         return collateralOperation;
@@ -190,5 +253,14 @@ public abstract class AbstractOperationContext implements OperationContext
         {
             this.requestControls.put( c.getID(), c );
         }
+    }
+
+    
+    /**
+     * @return The AttributeTypeRegistry
+     */
+    public Registries getRegistries()
+    {
+        return registries;
     }
 }

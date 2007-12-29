@@ -23,6 +23,8 @@ package org.apache.directory.server.core.jndi;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -37,6 +39,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
@@ -97,6 +100,9 @@ public abstract class ServerContext implements EventContext
 
     /** The directory service which owns this context **/
     private final DirectoryService service;
+
+    /** The AttributeType registry **/
+    protected final Registries registries;
 
     /** The interceptor proxy to the backend nexus */
     private final PartitionNexus nexusProxy;
@@ -161,6 +167,8 @@ public abstract class ServerContext implements EventContext
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
+        
+        registries = service.getRegistries();
     }
     
     
@@ -184,6 +192,7 @@ public abstract class ServerContext implements EventContext
         this.env.put( DirectoryService.JNDI_KEY, service );
         this.nexusProxy = new PartitionNexusProxy( this, service );
         this.principal = principal;
+        registries = service.getRegistries();
     }
     
     
@@ -203,10 +212,14 @@ public abstract class ServerContext implements EventContext
      * @param attributes
      * @param target
      */
-    protected void doAddOperation( LdapDN target, Attributes attributes ) throws NamingException
+    protected void doAddOperation( LdapDN target, ServerEntry entry ) throws NamingException
     {
         // setup the op context and populate with request controls
-        AddOperationContext opCtx = new AddOperationContext( target, attributes );
+        AddOperationContext opCtx = new AddOperationContext( 
+            service.getRegistries(), 
+            target, 
+            entry );
+        
         opCtx.addRequestControls( requestControls );
         
         // execute add operation
@@ -385,7 +398,7 @@ public abstract class ServerContext implements EventContext
     protected void doModifyOperation( LdapDN dn, List<ModificationItemImpl> modItems ) throws NamingException
     {
         // setup the op context and populate with request controls
-        ModifyOperationContext opCtx = new ModifyOperationContext( dn, modItems );
+        ModifyOperationContext opCtx = new ModifyOperationContext( registries, dn, modItems );
         opCtx.addRequestControls( requestControls );
         
         // execute modify operation
@@ -616,7 +629,7 @@ public abstract class ServerContext implements EventContext
          * we need to copy over the controls as well to propagate the complete 
          * environment besides whats in the hashtable for env.
          */
-        doAddOperation( target, attributes );
+        doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
         return new ServerLdapContext( service, principal, target );
     }
 
@@ -688,7 +701,7 @@ public abstract class ServerContext implements EventContext
         if ( outAttrs != null )
         {
             LdapDN target = buildTarget( name );
-            doAddOperation( target, outAttrs );
+            doAddOperation( target, ServerEntryUtils.toServerEntry( outAttrs, target, registries ) );
             return;
         }
 
@@ -697,7 +710,7 @@ public abstract class ServerContext implements EventContext
 			Attributes attributes = (Attributes)obj;
 			
 			LdapDN target = buildTarget( name );
-			doAddOperation( target, attributes );
+            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
 		}
         // Check for Referenceable
         else if ( obj instanceof Referenceable )
@@ -731,7 +744,7 @@ public abstract class ServerContext implements EventContext
 
             // Serialize object into entry attributes and add it.
             JavaLdapSupport.serialize( attributes, obj );
-            doAddOperation( target, attributes );
+            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
         }
         else if ( obj instanceof DirContext )
         {
@@ -749,7 +762,7 @@ public abstract class ServerContext implements EventContext
 
             LdapDN target = buildTarget( name );
             injectRdnAttributeValues( target, attributes );
-            doAddOperation( target, attributes );
+            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
         }
         else
         {

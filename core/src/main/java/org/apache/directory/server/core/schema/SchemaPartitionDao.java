@@ -100,6 +100,7 @@ public class SchemaPartitionDao
 
 
     private final Partition partition;
+    private final Registries registries;
     private final SchemaEntityFactory factory;
     private final OidRegistry oidRegistry;
     private final AttributeTypeRegistry attrRegistry;
@@ -130,12 +131,13 @@ public class SchemaPartitionDao
      * @param bootstrapRegistries the bootstrap registries that were used to start up the schema partition
      * @throws NamingException if there are problems initializing this schema partion dao
      */
-    public SchemaPartitionDao( Partition partition, Registries bootstrapRegistries ) throws NamingException
+    public SchemaPartitionDao( Partition partition, Registries registries ) throws NamingException
     {
         this.partition = partition;
-        this.factory = new SchemaEntityFactory( bootstrapRegistries );
-        this.oidRegistry = bootstrapRegistries.getOidRegistry();
-        this.attrRegistry = bootstrapRegistries.getAttributeTypeRegistry();
+        this.registries = registries;
+        this.factory = new SchemaEntityFactory( registries );
+        this.oidRegistry = registries.getOidRegistry();
+        this.attrRegistry = registries.getAttributeTypeRegistry();
         
         this.M_NAME_OID = oidRegistry.getOid( MetaSchemaConstants.M_NAME_AT );
         this.CN_OID = oidRegistry.getOid( SchemaConstants.CN_AT );
@@ -591,7 +593,7 @@ public class SchemaPartitionDao
         mods.add( new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
             new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) ) );
         
-        partition.modify( new ModifyOperationContext( dn, mods ) );
+        partition.modify( new ModifyOperationContext( registries, dn, mods ) );
     }
 
 

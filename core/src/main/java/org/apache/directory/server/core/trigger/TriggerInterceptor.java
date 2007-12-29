@@ -22,6 +22,7 @@ package org.apache.directory.server.core.trigger;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -250,7 +251,7 @@ public class TriggerInterceptor extends BaseInterceptor
     public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
     {
     	LdapDN name = addContext.getDn();
-    	Attributes entry = addContext.getEntry();
+    	Attributes entry = ServerEntryUtils.toAttributesImpl( addContext.getEntry() );
     	
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )

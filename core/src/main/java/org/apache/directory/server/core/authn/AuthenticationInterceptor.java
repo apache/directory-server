@@ -54,7 +54,6 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,7 +196,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if ( IS_DEBUG )
         {
             LOG.debug( "Adding the entry " +
-                    AttributeUtils.toString( opContext.getEntry() ) +
+                    opContext.getEntry() +
                     " for DN = '" + opContext.getDn().getUpName() + "'" );
         }
 
