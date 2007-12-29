@@ -287,6 +287,21 @@ public abstract class AbstractBinaryValue implements Value<byte[]>
     @Override
     public String toString()
     {
-        return "BinaryValue : " + StringTools.dumpBytes( wrapped );
+        if ( wrapped == null )
+        {
+            return "null";
+        }
+        else if ( wrapped.length > 16 )
+        {
+            byte[] copy = new byte[16];
+            
+            System.arraycopy( wrapped, 0, copy, 0, 16 );
+            
+            return "'" + StringTools.dumpBytes( copy ) + "...'";
+        }
+        else
+        {
+            return "'" + StringTools.dumpBytes( wrapped ) + "'";
+        }
     }
 }

@@ -38,7 +38,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Entry<T extends EntryAttribute<?>>
+public interface Entry<T extends EntryAttribute<?>> extends Cloneable
 {
     /**
      * Removes all the attributes.
@@ -97,6 +97,50 @@ public interface Entry<T extends EntryAttribute<?>>
     List<T> remove( T... attributes ) throws NamingException;
 
 
+    /**
+     * Checks if an entry contains an attribute with a given value.
+     *
+     * @param attribute The Attribute we are looking for
+     * @param value The searched value
+     * @return <code>true</code> if the value is found within the attribute
+     * @throws NamingException If the attribute does not exist
+     */
+    boolean contains( T attribute, Value<?> value ) throws NamingException;
+    
+    
+    /**
+     * Checks if an entry contains an attribute with a given value.
+     *
+     * @param id The Attribute ID we are looking for
+     * @param value The searched value
+     * @return <code>true</code> if the value is found within the attribute
+     * @throws NamingException If the attribute does not exist
+     */
+    boolean contains( String id, Value<?> value ) throws NamingException;
+    
+    
+    /**
+     * Checks if an entry contains an attribute with a given value.
+     *
+     * @param id The Attribute ID we are looking for
+     * @param value The searched value
+     * @return <code>true</code> if the value is found within the attribute
+     * @throws NamingException If the attribute does not exist
+     */
+    boolean contains( String id, String value ) throws NamingException;
+
+    
+    /**
+     * Checks if an entry contains an attribute with a given value.
+     *
+     * @param id The Attribute ID we are looking for
+     * @param value The searched value
+     * @return <code>true</code> if the value is found within the attribute
+     * @throws NamingException If the attribute does not exist
+     */
+    boolean contains( String id, byte[] value ) throws NamingException;
+
+    
     /**
       * Returns the number of attributes.
       *

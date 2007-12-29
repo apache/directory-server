@@ -105,7 +105,7 @@ public abstract class AbstractStringValue implements Value<String>
      */
     public String toString()
     {
-        return "StringValue : " + wrapped;
+        return "'" + wrapped + "'";
     }
 
 
