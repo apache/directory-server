@@ -156,6 +156,11 @@ public interface SchemaConstants
     String UNIQUE_MEMBER_AT = "uniqueMember";
     String UNIQUE_MEMBER_AT_OID = "2.5.4.50";
 
+    // ExcludeAllColectiveAttributes
+    String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT = "excludeAllCollectiveAttributes";
+    String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT_OID = "2.5.18.0";
+    
+    
     // CreateTimestamp
     String CREATE_TIMESTAMP_AT = "createTimestamp";
     String CREATE_TIMESTAMP_AT_OID = "2.5.18.1";
