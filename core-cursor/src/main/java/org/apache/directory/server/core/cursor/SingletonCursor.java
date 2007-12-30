@@ -51,6 +51,12 @@ public class SingletonCursor<E> extends AbstractCursor<E>
     }
 
 
+    public boolean available()
+    {
+        return onSingleton;
+    }
+    
+
     public void before( E element ) throws IOException
     {
         checkClosed( "before()" );

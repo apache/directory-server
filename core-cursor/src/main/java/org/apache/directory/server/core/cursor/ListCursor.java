@@ -187,6 +187,12 @@ public class ListCursor<E> extends AbstractCursor<E>
     }
 
 
+    public boolean available()
+    {
+        return index >= 0 && index < end;
+    }
+
+
     /**
      * @throws IllegalStateException if the underlying list is not sorted
      * and/or a comparator is not provided.
@@ -218,14 +224,6 @@ public class ListCursor<E> extends AbstractCursor<E>
         }
 
         throw new NotImplementedException( "don't know if list is sorted and checking that is not worth it" );
-
-        // check if increasing or decreasing order is in effect
-//        if ( comparator.compare( list.get( 0 ), list.get( list.size() - 1 ) ) > 0 )
-//        {
-//        }
-//        else
-//        {
-//        }
     }
 
 

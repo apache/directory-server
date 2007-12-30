@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.keyonly;
+package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.junit.*;
@@ -105,10 +105,35 @@ public class KeyCursorTest
 
 
     @Test
-    public void testAfter() throws IOException
+    public void testPreviousBeforePositioning() throws IOException
     {
         // test initial setup, advances after, and before inside elements
         assertInvalidCursor();
+
+        assertTrue( cursor.previous() );
+        assertEquals( "9", cursor.get() );
+    }
+
+
+    @Test
+    public void testNextBeforePositioning() throws IOException
+    {
+        // test initial setup, advances after, and before inside elements
+        assertInvalidCursor();
+
+        assertTrue( cursor.next() );
+        assertEquals( "0", cursor.get() );
+    }
+
+
+    @Test
+    public void testOperations() throws IOException
+    {
+        // test initial setup, advances after, and before inside elements
+        assertInvalidCursor();
+
+        assertTrue( cursor.next() );
+        assertEquals( "0", cursor.get() );
 
         cursor.after( "5" );
         assertInvalidCursor();

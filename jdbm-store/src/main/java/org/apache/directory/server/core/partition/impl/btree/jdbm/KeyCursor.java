@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.keyonly;
+package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import jdbm.btree.BTree;
@@ -69,6 +69,12 @@ public class KeyCursor<E> extends AbstractCursor<E>
         tuple.setKey( null );
         tuple.setValue( null );
         valueAvailable = false;
+    }
+
+
+    public boolean available()
+    {
+        return valueAvailable;
     }
 
 
@@ -155,6 +161,11 @@ public class KeyCursor<E> extends AbstractCursor<E>
 
     public boolean previous() throws IOException
     {
+        if ( browser == null )
+        {
+            browser = btree.browse( null );
+        }
+
         if ( browser.getPrevious( tuple ) )
         {
             return valueAvailable = true;
@@ -169,6 +180,11 @@ public class KeyCursor<E> extends AbstractCursor<E>
 
     public boolean next() throws IOException
     {
+        if ( browser == null )
+        {
+            browser = btree.browse();
+        }
+
         if ( browser.getNext( tuple ) )
         {
             return valueAvailable = true;

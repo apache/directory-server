@@ -30,6 +30,11 @@ import java.io.IOException;
  */
 public class EmptyCursor<E> extends AbstractCursor<E>
 {
+    public boolean available()
+    {
+        return false;
+    }
+
     public void before( E element ) throws IOException
     {
         checkClosed( "before()" );

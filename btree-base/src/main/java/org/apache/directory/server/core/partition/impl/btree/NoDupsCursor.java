@@ -100,6 +100,12 @@ public class NoDupsCursor extends AbstractCursor<Tuple>
     }
 
 
+    public boolean available()
+    {
+        throw new NotImplementedException();
+    }
+
+
     public void before( Tuple element ) throws IOException
     {
         throw new NotImplementedException();

@@ -40,6 +40,12 @@ public class IteratorCursor<E> extends AbstractCursor<E>
     }
 
 
+    public boolean available()
+    {
+        return current != null;    
+    }
+    
+
     public void before( E element ) throws IOException
     {
         throw new UnsupportedOperationException( "Cannot advance before an element on the underlying Iterator." );

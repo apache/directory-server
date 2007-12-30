@@ -43,6 +43,14 @@ import java.io.IOException;
 public interface Cursor<E>
 {
     /**
+     * Determines whether or not a call to get() will succeed.
+     *
+     * @return true if the cursor is valid get() will succeed, false otherwise
+     */
+    boolean available();
+
+
+    /**
      * Prepares this Cursor, so a subsequent call to Cursor#next() with a
      * true return value, will have positioned the Cursor on a dataset element
      * equal to or greater than the element argument but not less.  A call to
@@ -135,7 +143,10 @@ public interface Cursor<E>
 
 
     /**
-     * Advances this Cursor to the previous position.
+     * Advances this Cursor to the previous position.  If called before
+     * explicitly positioning this Cursor, the position is presumed to be
+     * after the last element and this method moves the cursor back to the
+     * last element.
      *
      * @return true if the advance succeeded, false otherwise
      * @throws IOException if there are problems advancing to the next position
@@ -145,7 +156,10 @@ public interface Cursor<E>
 
 
     /**
-     * Advances this Cursor to the next position.
+     * Advances this Cursor to the next position.  If called before
+     * explicitly positioning this Cursor, the position is presumed to be
+     * before the first element and this method moves the cursor forward to
+     * the first element.
      *
      * @return true if the advance succeeded, false otherwise
      * @throws IOException if there are problems advancing to this Cursor to

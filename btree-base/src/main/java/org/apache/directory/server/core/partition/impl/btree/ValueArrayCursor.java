@@ -73,6 +73,12 @@ public class ValueArrayCursor implements Cursor<Tuple>
     }
 
 
+    public boolean available()
+    {
+        return inRangeOnValue();
+    }
+
+
     public void before( Tuple element ) throws IOException
     {
         throw new NotImplementedException();

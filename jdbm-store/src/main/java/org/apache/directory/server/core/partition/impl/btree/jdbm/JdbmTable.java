@@ -29,8 +29,8 @@ import org.apache.directory.server.core.cursor.EmptyCursor;
 import org.apache.directory.server.core.cursor.IteratorCursor;
 import org.apache.directory.server.core.cursor.SingletonCursor;
 import org.apache.directory.server.core.partition.impl.btree.*;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.keyonly.KeyCursor;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.cursor.TupleCursor;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.KeyCursor;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.TupleCursor;
 import org.apache.directory.server.schema.SerializableComparator;
 
 import javax.naming.NamingException;
@@ -984,7 +984,7 @@ public class JdbmTable implements Table
         if ( values instanceof BTreeRedirect )
         {
             BTree tree = getBTree( ( BTreeRedirect ) values );
-            return new KeyCursor( tree );
+            return new KeyCursor( tree, comparator.getKeyComparator() );
         }
         
         throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
