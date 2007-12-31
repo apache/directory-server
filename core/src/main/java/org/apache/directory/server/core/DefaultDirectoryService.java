@@ -156,10 +156,38 @@ public class DefaultDirectoryService implements  DirectoryService
     /**
      * Creates a new instance.
      */
-    public DefaultDirectoryService()
+    public DefaultDirectoryService() throws NamingException
     {
         setDefaultInterceptorConfigurations();
         changeLog = new DefaultChangeLog();
+        
+        // --------------------------------------------------------------------
+        // Load the bootstrap schemas to start up the schema partition
+        // --------------------------------------------------------------------
+
+        // setup temporary loader and temp registry 
+        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
+        OidRegistry oidRegistry = new DefaultOidRegistry();
+        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
+
+        // load essential bootstrap schemas 
+        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
+        bootstrapSchemas.add( new ApachemetaSchema() );
+        bootstrapSchemas.add( new ApacheSchema() );
+        bootstrapSchemas.add( new CoreSchema() );
+        bootstrapSchemas.add( new SystemSchema() );
+        loader.loadWithDependencies( bootstrapSchemas, registries );
+
+        // run referential integrity tests
+        List<Throwable> errors = registries.checkRefInteg();
+        if ( !errors.isEmpty() )
+        {
+            NamingException e = new NamingException();
+            e.setRootCause( errors.get( 0 ) );
+            throw e;
+        }
+        
+        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
     }
 
 
@@ -1254,34 +1282,6 @@ public class DefaultDirectoryService implements  DirectoryService
         }
 
         // --------------------------------------------------------------------
-        // Load the bootstrap schemas to start up the schema partition
-        // --------------------------------------------------------------------
-
-        // setup temporary loader and temp registry 
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
-        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
-
-        // load essential bootstrap schemas 
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
-
-        // run referential integrity tests
-        List<Throwable> errors = registries.checkRefInteg();
-        if ( !errors.isEmpty() )
-        {
-            NamingException e = new NamingException();
-            e.setRootCause( errors.get( 0 ) );
-            throw e;
-        }
-        
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
-        
-        // --------------------------------------------------------------------
         // If not present extract schema partition from jar
         // --------------------------------------------------------------------
 
@@ -1381,7 +1381,7 @@ public class DefaultDirectoryService implements  DirectoryService
         // --------------------------------------------------------------------
         
         PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
-        Registries globalRegistries = new DefaultRegistries( "global", schemaLoader, oidRegistry );
+        Registries globalRegistries = new DefaultRegistries( "global", schemaLoader, registries.getOidRegistry() );
         schemaLoader.loadEnabled( globalRegistries );
         registries = globalRegistries;
         SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );

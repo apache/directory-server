@@ -18,6 +18,8 @@
  */
 package org.apache.directory.server.core.integ.state;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.InheritableSettings;
 import org.apache.directory.server.core.integ.SetupMode;
@@ -51,7 +53,7 @@ public class NonExistentState implements TestServiceState
     }
 
 
-    public void create( DirectoryServiceFactory factory )
+    public void create( DirectoryServiceFactory factory ) throws NamingException
     {
         LOG.debug( "calling create()" );
         context.setService( factory.newInstance() );

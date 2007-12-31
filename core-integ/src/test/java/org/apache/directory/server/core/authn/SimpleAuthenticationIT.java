@@ -22,8 +22,7 @@ package org.apache.directory.server.core.authn;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.apply;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
+import static org.apache.directory.server.core.integ.IntegrationUtils.*;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;

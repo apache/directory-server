@@ -45,7 +45,7 @@ public interface TestServiceState
      *
      * @param factory the factory to use for creating a configured service
      */
-    void create( DirectoryServiceFactory factory );
+    void create( DirectoryServiceFactory factory ) throws NamingException;
 
 
     /**

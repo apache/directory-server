@@ -48,7 +48,7 @@ import java.util.Set;
  */
 public class ServerContextFactoryTest extends AbstractAdminTestCase
 {
-    public ServerContextFactoryTest()
+    public ServerContextFactoryTest() throws NamingException
     {
     }
 

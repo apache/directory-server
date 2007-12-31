@@ -55,7 +55,7 @@ public class AutzIntegUtils
 
     public static class ServiceFactory implements DirectoryServiceFactory
     {
-        public DirectoryService newInstance()
+        public DirectoryService newInstance() throws NamingException
         {
             DefaultDirectoryService service = new DefaultDirectoryService();
             service.setAccessControlEnabled( true );
@@ -68,7 +68,7 @@ public class AutzIntegUtils
 
     public static class DefaultServiceFactory implements DirectoryServiceFactory
     {
-        public DirectoryService newInstance()
+        public DirectoryService newInstance() throws NamingException
         {
             DefaultDirectoryService service = new DefaultDirectoryService();
             service.setAccessControlEnabled( false );

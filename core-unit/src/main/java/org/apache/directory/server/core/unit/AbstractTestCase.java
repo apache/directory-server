@@ -109,7 +109,7 @@ public abstract class AbstractTestCase extends TestCase
     protected DirectoryService service;
 
 
-    protected AbstractTestCase( String username, String password )
+    protected AbstractTestCase( String username, String password ) throws NamingException
     {
         if ( username == null || password == null )
         {

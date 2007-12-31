@@ -22,6 +22,8 @@ package org.apache.directory.server.dns;
 
 import java.io.IOException;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.protocol.shared.DatagramAcceptor;
@@ -56,7 +58,7 @@ public class Main
     /**
      * Start an instance of the DNS server.
      */
-    public void go() throws IOException
+    public void go() throws IOException, NamingException
     {
         LOG.debug( "Starting the DNS server" );
         

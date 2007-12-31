@@ -19,8 +19,7 @@
 package org.apache.directory.server.core.integ;
 
 
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.integ.annotations.Mode;
+import org.apache.directory.server.core.integ.annotations.*;
 
 
 /**

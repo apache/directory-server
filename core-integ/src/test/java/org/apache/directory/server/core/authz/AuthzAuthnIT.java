@@ -24,7 +24,7 @@ import junit.framework.Assert;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.annotations.Factory;
+import org.apache.directory.server.core.integ.annotations.*;
 import org.apache.directory.server.core.DirectoryService;
 import org.junit.runner.RunWith;
 

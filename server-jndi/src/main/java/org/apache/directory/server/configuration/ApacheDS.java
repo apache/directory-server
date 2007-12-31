@@ -75,8 +75,15 @@ public class ApacheDS
 
 
     public ApacheDS( DirectoryService directoryService, LdapServer ldapServer, LdapServer ldapsServer )
+        throws NamingException
     {
-        this.directoryService = directoryService == null? new DefaultDirectoryService(): directoryService;
+        this.directoryService = directoryService;
+        
+        if ( this.directoryService == null )
+        {
+            directoryService = new DefaultDirectoryService();
+        }
+        
         this.ldapServer = ldapServer;
         this.ldapsServer = ldapsServer;
         ByteBuffer.setAllocator( new SimpleByteBufferAllocator() );
