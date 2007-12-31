@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -491,6 +492,12 @@ public class MaxImmSubFilterTest extends TestCase
         }
         
         public ChangeLog getChangeLog()
+        {
+            return null;
+        }
+
+
+        public ServerEntry newEntry( LdapDN dn ) throws NamingException
         {
             return null;
         }

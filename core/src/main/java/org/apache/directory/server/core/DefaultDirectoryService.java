@@ -32,6 +32,7 @@ import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.changelog.Tag;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.EventInterceptor;
@@ -848,6 +849,12 @@ public class DefaultDirectoryService implements  DirectoryService
     }
 
 
+    public ServerEntry newEntry( LdapDN dn ) throws NamingException
+    {
+        return new DefaultServerEntry( dn, registries );
+    }
+    
+    
     /**
      * Checks to make sure security environment parameters are set correctly.
      *
