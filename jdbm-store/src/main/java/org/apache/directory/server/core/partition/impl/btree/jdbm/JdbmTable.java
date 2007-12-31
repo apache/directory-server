@@ -1050,7 +1050,7 @@ public class JdbmTable implements Table
         
         if ( values instanceof BTreeRedirect )
         {
-            return new BTreeTupleEnumeration( getBTree( ( BTreeRedirect ) values ), key );
+            return new SameKeyTupleCursor( getBTree( ( BTreeRedirect ) values ), key, comparator.getValueComparator() );
         }
 
         throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
