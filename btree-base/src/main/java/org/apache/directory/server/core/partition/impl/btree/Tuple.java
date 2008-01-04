@@ -21,19 +21,17 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 /**
- * A key/value tuple for simple two column Tables.  Implemented to provide 
- * independence from the Jdbm Tuple class.  Key and value copying should be 
- * performed to transpose jdbm.helper.Tuple data into our generic Tuple.
+ * A key/value tuple for simple two column persistent Tables with sorted keys.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class Tuple
+public class Tuple<K, V>
 {
     /** the key for this Tuple */
-    private Object key;
+    private K key;
     /** the value for this Tuple */
-    private Object value;
+    private V value;
 
 
     /**
@@ -51,7 +49,7 @@ public class Tuple
      * @param key the key to set
      * @param value the value to set
      */
-    public Tuple( Object key, Object value )
+    public Tuple( K key, V value )
     {
         this.key = key;
         this.value = value;
@@ -63,7 +61,7 @@ public class Tuple
      *
      * @return the Tuple's key
      */
-    public Object getKey()
+    public K getKey()
     {
         return key;
     }
@@ -75,7 +73,7 @@ public class Tuple
      * @param key the new key to set
      * @return this Tuple itself to set and return
      */
-    public Tuple setKey( Object key )
+    public Tuple<K,V> setKey( K key )
     {
         this.key = key;
         return this;
@@ -87,7 +85,7 @@ public class Tuple
      *
      * @return the Tuple's value
      */
-    public Object getValue()
+    public V getValue()
     {
         return value;
     }
@@ -99,7 +97,7 @@ public class Tuple
      * @param value the new value to set
      * @return this Tuple itself to set and return
      */
-    public Tuple setValue( Object value )
+    public Tuple<K,V> setValue( V value )
     {
         this.value = value;
         return this;
@@ -115,7 +113,7 @@ public class Tuple
      * @param value the new value to set
      * @return this Tuple itself to set and return
      */
-    public Tuple setBoth( Object key, Object value )
+    public Tuple<K,V> setBoth( K key, V value )
     {
         this.key = key;
         this.value = value;

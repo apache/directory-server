@@ -21,13 +21,11 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
+import org.apache.directory.server.core.partition.impl.btree.Tuple;
 
 import java.io.IOException;
-import java.util.Comparator;
 
-import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
-import jdbm.btree.BTree;
 
 
 /**
@@ -39,34 +37,34 @@ import jdbm.btree.BTree;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class TupleCursor extends AbstractCursor<Tuple>
+public class JdbmNoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 {
-    private final Comparator comparator;
-    private final BTree btree;
+    private final JdbmTable table;
 
-    private Tuple tuple = new Tuple();
+    private jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
+    private Tuple<K,V> returnedTuple = new Tuple<K,V>();
     private TupleBrowser browser;
     private boolean valueAvailable;
 
 
     /**
-     * Creates a Cursor over the tuples of a JDBM BTree.
+     * Creates a Cursor over the tuples of a JDBM table.
      *
-     * @param btree the JDBM BTree to build a Cursor over
-     * @param comparator the Comparator used to determine <b>key</b> ordering
+     * @param table the JDBM Table to build a Cursor over
      * @throws IOException of there are problems accessing the BTree
      */
-    public TupleCursor( BTree btree, Comparator comparator ) throws IOException
+    public JdbmNoDupsCursor( JdbmTable table ) throws IOException
     {
-        this.btree = btree;
-        this.comparator = comparator;
+        this.table = table;
     }
 
 
     private void clearValue()
     {
-        tuple.setKey( null );
-        tuple.setValue( null );
+        returnedTuple.setKey( null );
+        returnedTuple.setValue( null );
+        jdbmTuple.setKey( null );
+        jdbmTuple.setValue( null );
         valueAvailable = false;
     }
 
@@ -85,14 +83,14 @@ public class TupleCursor extends AbstractCursor<Tuple>
      */
     public void before( Tuple element ) throws IOException
     {
-        browser = btree.browse( element.getKey() );
+        browser = table.getBTree().browse( element.getKey() );
         clearValue();
     }
 
 
     public void after( Tuple element ) throws IOException
     {
-        browser = btree.browse( element.getKey() );
+        browser = table.getBTree().browse( element.getKey() );
 
         /*
          * While the next value is less than or equal to the element keep
@@ -101,12 +99,12 @@ public class TupleCursor extends AbstractCursor<Tuple>
          * the element then we stop, backup, and return so subsequent calls
          * to getNext() will return a value greater than the element.
          */
-        while ( browser.getNext( tuple ) )
+        while ( browser.getNext( jdbmTuple ) )
         {
-            Object next = tuple.getKey();
+            Object next = jdbmTuple.getKey();
 
             //noinspection unchecked
-            int nextCompared = comparator.compare( next, element.getKey() );
+            int nextCompared = table.getComparator().getKeyComparator().compare( next, element.getKey() );
 
             if ( nextCompared <= 0 )
             {
@@ -120,12 +118,12 @@ public class TupleCursor extends AbstractCursor<Tuple>
                  * the call below to getPrevious() will fail.  In this special
                  * case we just reset the Cursor's browser and return.
                  */
-                if ( browser.getPrevious( tuple ) )
+                if ( browser.getPrevious( jdbmTuple ) )
                 {
                 }
                 else
                 {
-                    browser = btree.browse( element.getKey() );
+                    browser = table.getBTree().browse( element.getKey() );
                 }
 
                 clearValue();
@@ -140,14 +138,14 @@ public class TupleCursor extends AbstractCursor<Tuple>
 
     public void beforeFirst() throws IOException
     {
-        browser = btree.browse();
+        browser = table.getBTree().browse();
         clearValue();
     }
 
 
     public void afterLast() throws IOException
     {
-        browser = btree.browse( null );
+        browser = table.getBTree().browse( null );
     }
 
 
@@ -167,8 +165,12 @@ public class TupleCursor extends AbstractCursor<Tuple>
 
     public boolean previous() throws IOException
     {
-        if ( browser.getPrevious( tuple ) )
+        if ( browser.getPrevious( jdbmTuple ) )
         {
+            //noinspection unchecked
+            returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
+            //noinspection unchecked
+            returnedTuple.setValue( ( V ) jdbmTuple.getValue() );
             return valueAvailable = true;
         }
         else
@@ -181,8 +183,12 @@ public class TupleCursor extends AbstractCursor<Tuple>
 
     public boolean next() throws IOException
     {
-        if ( browser.getNext( tuple ) )
+        if ( browser.getNext( jdbmTuple ) )
         {
+            //noinspection unchecked
+            returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
+            //noinspection unchecked
+            returnedTuple.setValue( ( V ) jdbmTuple.getValue() );
             return valueAvailable = true;
         }
         else
@@ -193,12 +199,12 @@ public class TupleCursor extends AbstractCursor<Tuple>
     }
 
 
-    public Tuple get() throws IOException
+    public Tuple<K,V> get() throws IOException
     {
         if ( valueAvailable )
         {
             //noinspection unchecked
-            return tuple;
+            return returnedTuple;
         }
 
         throw new InvalidCursorPositionException();
@@ -208,11 +214,5 @@ public class TupleCursor extends AbstractCursor<Tuple>
     public boolean isElementReused()
     {
         return true;
-    }
-
-
-    BTree getBTree()
-    {
-        return btree;
     }
 }

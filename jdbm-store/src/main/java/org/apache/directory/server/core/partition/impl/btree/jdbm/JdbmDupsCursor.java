@@ -1,13 +1,12 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import jdbm.helper.Tuple;
 import jdbm.btree.BTree;
-import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.ListCursor;
-import org.apache.directory.server.core.partition.impl.btree.TupleComparator;
+import org.apache.directory.server.core.cursor.AbstractCursor;
+import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.shared.ldap.NotImplementedException;
 
 import java.io.IOException;
@@ -17,35 +16,62 @@ import java.util.*;
 /**
  * A Cursor over a BTree which manages duplicate keys.
  */
-public class DupsCursor extends AbstractCursor<Tuple> 
+public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 {
-    private final JdbmTable table;
-    private final TupleComparator comparator;
-    private final TupleCursor wrapped;
-    private final Tuple tuple = new Tuple();
+    /**
+     * The JDBM backed table this Cursor traverses over.
+     */
+    private final JdbmTable<K,V> table;
 
     /**
-     * A Cursor over a set of value objects for the same key.  It traverses
-     * over either a TreeSet of values in a multi valued key or it traverses
-     * over a BTree of values.
+     * The Tuple that is used to return values via the get() method. This
+     * same Tuple instance will be returned every time.  At different
+     * positions it may return different values for the same key if the table
+     * supports duplicate keys.
      */
-    private Cursor<Object> dupCursor;
+    private final Tuple<K,V> tuple = new Tuple<K,V>();
 
     /**
-     * The current Tuple returned from the underlying TupleCursor which may
-     * contain a TreeSet for Tuple values.  A TupleCursor on a Table that
-     * allows duplicates essentially returns Strings for keys and TreeSets or
-     * BTreeRedirect objects for their values.
+     * The underlying Cursor which is simply returns Tuples with key value
+     * pairs in the btree of the JDBM Table.  It does not return different
+     * values for the same key: hence it is not duplicate key aware.  So for
+     * tables supporting duplicate keys, it's Tuple vlaues may contain
+     * TreeSet or BTreeRedirect objects.  These objects are processed by
+     * this outer Cursor to mimic traversal over the Table as if duplicate
+     * keys are natively allowed by JDBM.
+     *
+     * In essence the TreeSet and the BTreeRedirect are used to store multiple
+     * values for the same key.
      */
-    private Tuple duplicates;
+    private final JdbmNoDupsCursor<K,V> noDupsCursor;
+
+    /**
+     * A Cursor over a set of value objects for the current key.  A new Cursor
+     * will be created for each new key as we traverse table's that allow for
+     * duplicate keys.  The Cursor traverses over either a TreeSet object full
+     * of values in a multi-valued key or it traverses over a BTree which
+     * contains the values in it's keys.
+     */
+    private Cursor<V> dupCursor;
+
+    /**
+     * The current Tuple returned from the underlying JdbmNoDupsCursor which
+     * may contain a TreeSet or BTreeRedirect for Tuple values.  A
+     * JdbmNoDupsCursor on a Table that allows duplicates returns TreeSets or
+     * BTreeRedirect objects for Tuple values.
+     */
+    private Tuple<K,V> noDupsTuple;
+
+    /**
+     * Whether or not a value is available when get() is called.
+     */
     private boolean valueAvailable;
 
 
-    public DupsCursor( JdbmTable table, TupleCursor wrapped, TupleComparator comparator )
+    public JdbmDupsCursor( JdbmTable<K,V> table ) throws IOException
     {
         this.table = table;
-        this.wrapped = wrapped;
-        this.comparator = comparator;
+        this.noDupsCursor = new JdbmNoDupsCursor<K,V>( table );
     }
 
 
@@ -95,18 +121,18 @@ public class DupsCursor extends AbstractCursor<Tuple>
 
     public boolean last() throws IOException
     {
-        if ( wrapped.last() )
+        if ( noDupsCursor.last() )
         {
-            duplicates = wrapped.get();
-            Object values = duplicates.getValue();
+            noDupsTuple = noDupsCursor.get();
+            Object values = noDupsTuple.getValue();
 
             if ( values instanceof TreeSet)
             {
                 //noinspection unchecked
-                TreeSet<Object> set = ( TreeSet ) duplicates.getValue();
-                List<Object> list = new ArrayList<Object>( set.size() );
+                TreeSet<V> set = ( TreeSet ) noDupsTuple.getValue();
+                List<V> list = new ArrayList<V>( set.size() );
                 list.addAll( set );
-                dupCursor = new ListCursor<Object>( list );
+                dupCursor = new ListCursor<V>( list );
                 if ( ! dupCursor.previous() )
                 {
                     clearValue();
@@ -117,7 +143,7 @@ public class DupsCursor extends AbstractCursor<Tuple>
             {
                 BTree tree = table.getBTree( ( BTreeRedirect ) values );
                 //noinspection unchecked
-                dupCursor = new KeyCursor( tree, comparator.getKeyComparator() );
+                dupCursor = new KeyCursor( tree, table.getComparator().getKeyComparator() );
                 if ( ! dupCursor.previous() )
                 {
                     clearValue();
@@ -127,12 +153,12 @@ public class DupsCursor extends AbstractCursor<Tuple>
 
             /*
              * If we get to this point then cursor has more elements and
-             * duplicates holds the Tuple containing the key and the btree or
+             * noDupsTuple holds the Tuple containing the key and the btree or
              * TreeSet of values for that key which the Cursor traverses.  All we
              * need to do is populate our tuple object with the key and the value
              * in the cursor.
              */
-            tuple.setKey( duplicates.getKey() );
+            tuple.setKey( noDupsTuple.getKey() );
             tuple.setValue( dupCursor.get() );
             return valueAvailable = true;
         }
@@ -155,25 +181,25 @@ public class DupsCursor extends AbstractCursor<Tuple>
              * key/TreeSet Tuple to work with and get a cursor over it's
              * values.
              */
-            if ( wrapped.previous() )
+            if ( noDupsCursor.previous() )
             {
-                duplicates = wrapped.get();
-                Object values = duplicates.getValue();
+                noDupsTuple = noDupsCursor.get();
+                Object values = noDupsTuple.getValue();
 
                 if ( values instanceof TreeSet )
                 {
                     //noinspection unchecked
-                    TreeSet<Object> set = ( TreeSet ) duplicates.getValue();
-                    List<Object> list = new ArrayList<Object>( set.size() );
+                    TreeSet<V> set = ( TreeSet ) noDupsTuple.getValue();
+                    List<V> list = new ArrayList<V>( set.size() );
                     list.addAll( set );
-                    dupCursor = new ListCursor<Object>( list );
+                    dupCursor = new ListCursor<V>( list );
                     dupCursor.previous();
                 }
                 else if ( values instanceof BTreeRedirect )
                 {
                     BTree tree = table.getBTree( ( BTreeRedirect ) values );
                     //noinspection unchecked
-                    dupCursor = new KeyCursor( tree, comparator.getKeyComparator() );
+                    dupCursor = new KeyCursor( tree, table.getComparator().getKeyComparator() );
                     dupCursor.previous();
                 }
             }
@@ -185,12 +211,12 @@ public class DupsCursor extends AbstractCursor<Tuple>
 
         /*
          * If we get to this point then cursor has more elements and
-         * duplicates holds the Tuple containing the key and the btree or
+         * noDupsTuple holds the Tuple containing the key and the btree or
          * TreeSet of values for that key which the Cursor traverses.  All we
          * need to do is populate our tuple object with the key and the value
          * in the cursor.
          */
-        tuple.setKey( duplicates.getKey() );
+        tuple.setKey( noDupsTuple.getKey() );
         tuple.setValue( dupCursor.get() );
         return valueAvailable = true;
     }
@@ -208,25 +234,25 @@ public class DupsCursor extends AbstractCursor<Tuple>
              * If the underlying cursor has more elements we get the next
              * key/TreeSet Tuple to work with and get a cursor over it.
              */
-            if ( wrapped.next() )
+            if ( noDupsCursor.next() )
             {
-                duplicates = wrapped.get();
-                Object values = duplicates.getValue();
+                noDupsTuple = noDupsCursor.get();
+                Object values = noDupsTuple.getValue();
 
                 if ( values instanceof TreeSet)
                 {
                     //noinspection unchecked
-                    TreeSet<Object> set = ( TreeSet ) duplicates.getValue();
-                    List<Object> list = new ArrayList<Object>( set.size() );
+                    TreeSet<V> set = ( TreeSet ) noDupsTuple.getValue();
+                    List<V> list = new ArrayList<V>( set.size() );
                     list.addAll( set );
-                    dupCursor = new ListCursor<Object>( list );
+                    dupCursor = new ListCursor<V>( list );
                     dupCursor.next();
                 }
                 else if ( values instanceof BTreeRedirect )
                 {
                     BTree tree = table.getBTree( ( BTreeRedirect ) values );
                     //noinspection unchecked
-                    dupCursor = new KeyCursor( tree, comparator.getKeyComparator() );
+                    dupCursor = new KeyCursor( tree, table.getComparator().getKeyComparator() );
                     dupCursor.next();
                 }
             }
@@ -238,18 +264,18 @@ public class DupsCursor extends AbstractCursor<Tuple>
 
         /*
          * If we get to this point then cursor has more elements and
-         * duplicates holds the Tuple containing the key and the btree or
+         * noDupsTuple holds the Tuple containing the key and the btree or
          * TreeSet of values for that key which the Cursor traverses.  All we
          * need to do is populate our tuple object with the key and the value
          * in the cursor.
          */
-        tuple.setKey( duplicates.getKey() );
+        tuple.setKey( noDupsTuple.getKey() );
         tuple.setValue( dupCursor.get() );
         return valueAvailable = true;
     }
 
 
-    public Tuple get() throws IOException
+    public Tuple<K,V> get() throws IOException
     {
         checkClosed( "get()" );
 

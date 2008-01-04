@@ -26,28 +26,27 @@ import java.io.IOException;
 
 
 /**
- * A wrapper interface around a BTree (that does not support duplicate keys) which 
- * transparently enables duplicate keys and translates underlying exceptions to
- * NamingExceptions.
+ * A wrapper interface around BTree implementations used to abstract away
+ * implementation details.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Table
+public interface Table<K, V>
 {
     /**
-     * Gets the comparator used by this Table: may be null if this Table was
-     * not initialized with one.
+     * Gets the comparator pair used by this Table: may be null if this Table
+     * was not initialized with one.
      *
-     * @return the final comparator instance or null if this Table was not
-     * created with one.
+     * @return the comparator pair or null if this Table was not created with
+     * one.
      */
     TupleComparator getComparator();
 
 
     /**
-     * Gets the data renderer used by this Table to display or log records keys
-     * and values.
+     * Gets an optional data renderer associated with this Table to display or
+     * log record keys and values.
      *
      * @return the renderer used
      */
@@ -72,9 +71,10 @@ public interface Table
 
 
     /**
-     * Checks to see if this Table has enabled the use of duplicate keys.
+     * Checks to see if this Table has allows for duplicate keys (a.k.a.
+     * multiple values for the same key).
      *
-     * @return true if duplicate keys are enabled, false otherwise.
+     * @return true if duplicate keys are enabled, false otherwise
      */
     boolean isDupsEnabled();
 
@@ -94,57 +94,57 @@ public interface Table
 
     
     /**
-     * Checks to see if this table has a key: same as a get call with a check to
-     * see if the returned value is null or not.
+     * Checks to see if this table has one or more tuples with a specific key:
+     * this is exactly the same as a get call with a check to see if the
+     * returned value is null or not.
      *
      * @param key the Object of the key to check for
-     * @return true if the key exists, false otherwise.
+     * @return true if the key exists, false otherwise
      * @throws IOException if there is a failure to read the underlying Db
      */
-    boolean has( Object key ) throws IOException;
+    boolean has( K key ) throws IOException;
 
 
     /**
      * Checks to see if this table has a key with a specific value.
      *
-     * @param key the key Object to check for
-     * @param value the value Object to check for
-     * @return true if a record with the key and value exists, false otherwise.
+     * @param key the key to check for
+     * @param value the value to check for
+     * @return true if a record with the key and value exists, false otherwise
      * @throws IOException if there is a failure to read the underlying Db
      */
-    boolean has( Object key, Object value ) throws IOException;
+    boolean has( K key, V value ) throws IOException;
 
 
     /**
      * Checks to see if this table has a record with a key greater/less than or
      * equal to the key argument.  The key argument need not exist for this
-     * call to return true.  The underlying database must be a BTree because
-     * this method depends on the use of sorted keys.
+     * call to return true.  The underlying database must sort keys based on a
+     * key comparator because this method depends on key ordering.
      *
-     * @param key the key Object to compare keys to
+     * @param key the key to compare keys to
      * @param isGreaterThan boolean for greater than or less then comparison
      * @return true if a record with a key greater/less than the key argument
      * exists, false otherwise
-     * @throws IOException if there is a failure to read the underlying Db,
-     * or if the underlying Db is not a Btree.
+     * @throws IOException if there is a failure to read the underlying Db
      */
-    boolean has( Object key, boolean isGreaterThan ) throws IOException;
+    boolean has( K key, boolean isGreaterThan ) throws IOException;
 
 
     /**
      * Checks to see if this table has a record with a key equal to the
      * argument key with a value greater/less than or equal to the value
      * argument provided.  The key argument <strong>MUST</strong> exist for
-     * this call to return true and the underlying Db must be a Btree that
-     * allows for sorted duplicate values.  The entire basis to this method
-     * depends on the fact that duplicate key values are sorted according to
-     * a valid value comparator function.
+     * this call to return true and the underlying Db must allows for sorted
+     * duplicate values.  The entire basis to this method depends on the fact
+     * that tuples of the same key have values sorted according to a valid
+     * value comparator.
      *
-     * If the table does not support duplicates then an 
+     * If the table does not support duplicates then an
      * UnsupportedOperationException is thrown.
      *
-     * @param key the key Object
-     * @param val the value Object to compare values to
+     * @param key the key
+     * @param val the value to compare values to
      * @param isGreaterThan boolean for greater than or less then comparison
      * @return true if a record with a key greater/less than the key argument
      * exists, false otherwise
@@ -152,7 +152,7 @@ public interface Table
      * or if the underlying Db is not of the Btree type that allows sorted
      * duplicate values.
      */
-    boolean has( Object key, Object val, boolean isGreaterThan ) throws IOException;
+    boolean has( K key, V val, boolean isGreaterThan ) throws IOException;
 
 
     // ------------------------------------------------------------------------
@@ -162,16 +162,16 @@ public interface Table
     /**
      * Gets the value of a record by key if the key exists.  If this Table
      * allows duplicate keys then the first key will be returned.  If this
-     * Table is also a Btree that first key will be the smallest key in the
-     * Table as specificed by this Table's comparator or the default berkeley
-     * bytewise lexical comparator.
+     * Table sorts keys then the key will be the smallest key in the Table as
+     * specificed by this Table's comparator or the default bytewise lexical
+     * comparator.
      *
      * @param key the key of the record
-     * @return the value of the record with key if key exists or null if
-     * no such record exists.
+     * @return the value of the record with the specified key if key exists or
+     * null if no such key exists.
      * @throws IOException if there is a failure to read the underlying Db
      */
-    Object get( Object key ) throws IOException;
+    V get( K key ) throws IOException;
 
 
     /**
@@ -179,27 +179,27 @@ public interface Table
      *
      * @param key the key of the record
      * @param value the value of the record.
-     * @return the last value present for key or null if this the key did not
+     * @return the last value present for the key or null if the key did not
      * exist before.
      * @throws IOException if there is a failure to read or write to
      * the underlying Db
      */
-    Object put( Object key, Object value ) throws IOException;
+    V put( K key, V value ) throws IOException;
 
 
     /**
-     * Puts a set of values into the Table.  If the Table does not support
-     * duplicate keys then only the first value found in the Cursor is added.
-     * If duplicate keys are not supported and there is more than one element
-     * in the Cursor an IllegalStateException will be raised without putting
-     * any values.
+     * Puts a set of values into the Table for a specific key.  If the Table
+     * does not support duplicate keys then only the first value found in the
+     * Cursor is added.  If duplicate keys are not supported and there is more
+     * than one element in the Cursor an IllegalStateException will be raised
+     * without putting any values into this Table.
      *
      * @param key the key to use for the values
      * @param values the values supplied as an cursor
      * @return the replaced object or null if one did not exist
      * @throws IOException if something goes wrong
      */
-    Object put( Object key, Cursor<Object> values ) throws IOException;
+    V put( K key, Cursor<V> values ) throws IOException;
 
 
     /**
@@ -210,7 +210,7 @@ public interface Table
      * @throws IOException if there is a failure to read or write to
      * the underlying Db
      */
-    Object remove( Object key ) throws IOException;
+    V remove( K key ) throws IOException;
 
 
     /**
@@ -223,7 +223,7 @@ public interface Table
      * @throws IOException if there is a failure to read or write to
      * the underlying Db
      */
-    Object remove( Object key, Object value ) throws IOException;
+    V remove( K key, V value ) throws IOException;
 
 
     /**
@@ -239,99 +239,23 @@ public interface Table
      * @throws IOException if there is a failure to read or write to
      * the underlying Db
      */
-    Object remove( Object key, Cursor<Object> values ) throws IOException;
+    V remove( K key, Cursor<V> values ) throws IOException;
 
 
     /**
-     * Sets a Cursor to the first record in the Table with a key value of
-     * key and enables single next steps across all duplicate records with
-     * this key.  This Cursor will only iterate over duplicates of the key.
-     * Unlike listTuples(Object) which returns Tuples from the enumerations 
-     * this just returns the values of the key as an Object.
-     * 
-     * @param key the key to iterate over
-     * @return the values of the key ONLY, not the Tuples
-     * @throws IOException if the underlying btree browser could not be set
+     * Creates a Cursor that traverses records in a Table.
+     *
+     * @return a Cursor over Tuples containing the key value pairs
+     * @throws IOException if there are failures accessing underlying stores
      */
-    Cursor<Object> listValues( Object key ) throws IOException;
-
-
-    // ------------------------------------------------------------------------
-    // listTuples overloads
-    // ------------------------------------------------------------------------
-
-    
-    /**
-     * Sets a cursor to the first record in the Table and enables single
-     * next steps across all records.
-     *
-     * @return the values as key value Tuples
-     * @throws IOException if the underlying cursor could not be set.
-     */
-    Cursor<Tuple> listTuples() throws IOException;
-
-
-    /**
-     * Sets a cursor to the first record in the Table with a key value of
-     * key and enables single next steps across all duplicate records with
-     * this key.  This cursor will only iterate over duplicates of the key.
-     *
-     * Unlike listValues(Object) this returns Tuples from the resulting 
-     * Cursor.
-     *
-     * @param key the key to iterate over
-     * @return the values as key value Tuples
-     * @throws IOException if the underlying cursor could not be set
-     */
-    Cursor<Tuple> listTuples( Object key ) throws IOException;
-
-
-    /**
-     * Sets a cursor to the first record in the Table with a key value
-     * greater/less than or equal to key and enables single next steps across
-     * all records with key values equal to or less/greater than key.
-     *
-     * @param key the key to use to position this cursor to record with a key
-     * greater/less than or equal to it
-     * @param isGreaterThan if true the cursor iterates up over ascending keys
-     * greater than or equal to the key argument, but if false this cursor
-     * iterates down over descending keys less than or equal to key argument
-     * @return the values as key value Tuples
-     * @throws IOException if the underlying cursor could not be set
-     */
-    Cursor<Tuple> listTuples( Object key, boolean isGreaterThan ) throws IOException;
-
-
-    /**
-     * Sets a cursor to the first record in the Table with a key equal to
-     * the key argument whose value is greater/less than or equal to val and
-     * enables single next steps across all records with key equal to key.
-     * Hence this cursor will only iterate over duplicate keys where values are
-     * less than or greater than or equal to val.
-     *
-     * If the table does not support duplicates then an 
-     * UnsupportedOperationException is thrown.
-     *
-     * @param key the key to use to position this cursor to record with a key
-     * equal to it.
-     * @param val the value to use to position this cursor to record with a
-     * value greater/less than or equal to it.
-     * @param isGreaterThan if true the cursor iterates up over ascending
-     * values greater than or equal to the val argument, but if false this
-     * cursor iterates down over descending values less than or equal to val
-     * argument starting from the largest value going down
-     * @return the values as key value Tuples
-     * @throws IOException if the underlying cursor could not be set or
-     * this method is called over a cursor on a table that does not have sorted
-     * duplicates enabled.
-     */
-    Cursor<Tuple> listTuples( Object key, Object val, boolean isGreaterThan ) throws IOException;
+    Cursor<Tuple<K,V>> cursor() throws IOException;
 
 
     // ------------------------------------------------------------------------
     // Table Record Count Methods
     // ------------------------------------------------------------------------
 
+    
     /**
      * Gets the count of the number of records in this Table.
      *
@@ -349,7 +273,7 @@ public interface Table
      * @return the number of duplicate records for a key.
      * @throws IOException if there is a failure to read the underlying Db
      */
-    int count( Object key ) throws IOException;
+    int count( K key ) throws IOException;
 
 
     /**
@@ -362,7 +286,7 @@ public interface Table
      * @return the number of keys greater or less than key.
      * @throws IOException if there is a failure to read the underlying Db
      */
-    int count( Object key, boolean isGreaterThan ) throws IOException;
+    int count( K key, boolean isGreaterThan ) throws IOException;
 
 
     /**
