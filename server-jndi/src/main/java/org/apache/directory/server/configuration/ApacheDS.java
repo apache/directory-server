@@ -75,7 +75,6 @@ public class ApacheDS
 
 
     public ApacheDS( DirectoryService directoryService, LdapServer ldapServer, LdapServer ldapsServer )
-        throws NamingException
     {
         this.directoryService = directoryService;
         

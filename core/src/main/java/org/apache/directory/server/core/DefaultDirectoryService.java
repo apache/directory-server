@@ -120,6 +120,10 @@ public class DefaultDirectoryService implements  DirectoryService
 {
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryService.class );
 
+    private static final String ILLEGAL_STATE_MSG = "Something has got to be severely " +
+    "wrong with the core packaging\nor the build to have " +
+    "resulted in this exception.";
+    
     private SchemaService schemaService;
 
     /** the registries for system schema objects */
@@ -157,7 +161,7 @@ public class DefaultDirectoryService implements  DirectoryService
     /**
      * Creates a new instance.
      */
-    public DefaultDirectoryService() throws NamingException
+    public DefaultDirectoryService() 
     {
         setDefaultInterceptorConfigurations();
         changeLog = new DefaultChangeLog();
@@ -177,7 +181,16 @@ public class DefaultDirectoryService implements  DirectoryService
         bootstrapSchemas.add( new ApacheSchema() );
         bootstrapSchemas.add( new CoreSchema() );
         bootstrapSchemas.add( new SystemSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
+        
+        
+        try
+        {
+            loader.loadWithDependencies( bootstrapSchemas, registries );
+        }
+        catch ( NamingException e )
+        {
+            throw new IllegalStateException( ILLEGAL_STATE_MSG, e );
+        }
 
         // run referential integrity tests
         List<Throwable> errors = registries.checkRefInteg();
@@ -185,7 +198,7 @@ public class DefaultDirectoryService implements  DirectoryService
         {
             NamingException e = new NamingException();
             e.setRootCause( errors.get( 0 ) );
-            throw e;
+            throw new IllegalStateException( ILLEGAL_STATE_MSG, e );
         }
         
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );

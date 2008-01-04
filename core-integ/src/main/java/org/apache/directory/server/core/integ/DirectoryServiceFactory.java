@@ -42,7 +42,7 @@ public interface DirectoryServiceFactory
      */
     DirectoryServiceFactory DEFAULT = new DirectoryServiceFactory()
     {
-        public DirectoryService newInstance() throws NamingException
+        public DirectoryService newInstance()
         {
             DirectoryService service = new DefaultDirectoryService();
             service.getChangeLog().setEnabled( true );
