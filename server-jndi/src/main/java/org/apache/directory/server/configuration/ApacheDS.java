@@ -29,6 +29,7 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -207,7 +208,7 @@ public class ApacheDS
     }
 
 
-    protected void setLdifFilters( List<LdifLoadFilter> filters )
+    public void setLdifFilters( List<LdifLoadFilter> filters )
     {
         this.ldifFilters.clear();
         this.ldifFilters.addAll( filters );
@@ -318,8 +319,15 @@ public class ApacheDS
         }
 
 
-        LdapPrincipal admin = new LdapPrincipal( new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN ),
-                AuthenticationLevel.STRONG );
+        LdapDN dn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
+    
+        // Must normalize the dn or - IllegalStateException!
+        AttributeTypeRegistry reg = directoryService.getRegistries().getAttributeTypeRegistry();
+        dn.normalize( reg.getNormalizerMapping() );
+    
+        LdapPrincipal admin = new LdapPrincipal( dn, AuthenticationLevel.STRONG );
+        
+        
         DirContext root = directoryService.getJndiContext( admin );
         ensureLdifFileBase( root );
 
