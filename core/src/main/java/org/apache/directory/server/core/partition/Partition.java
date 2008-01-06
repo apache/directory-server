@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -90,9 +91,17 @@ public interface Partition
      *
      * @return the entry for the suffix of this Partition.
      */
-    Attributes getContextEntry();
+    ServerEntry getContextEntry();
 
 
+    /**
+     * Gets the root entry of the partition, the entry for the suffix.
+     *
+     * @return the entry for the suffix of this Partition.
+     */
+    Attributes getContextEntryAttr();
+
+    
     /**
      * Sets the root entry of the partition, the entry for the suffix.
      *
@@ -100,6 +109,9 @@ public interface Partition
      */
     void setContextEntry( Attributes contextEntry );
 
+    void setContextEntry( ServerEntry contextEntry );
+
+    void setContextEntry( String contextEntry );
 
     /**
      * Gets the non-normalized suffix for this Partition as a string.

@@ -22,6 +22,9 @@ package org.apache.directory.server.core.bootstrap.plugin;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -202,7 +205,16 @@ public class BootstrapPlugin extends AbstractMojo
         }
 
         initializeSchemas();
-        initializePartition( schemaDirectory );
+        
+        try
+        {
+            initializePartition( schemaDirectory );
+        }
+        catch ( NamingException ne )
+        {
+            throw new MojoFailureException( "Failed to initialize the root partition :" + 
+                ne.getMessage() );
+        }
 
         try
         {
@@ -616,7 +628,7 @@ public class BootstrapPlugin extends AbstractMojo
      *
      * @throws MojoFailureException
      */
-    private void initializePartition( File workingDirectory ) throws MojoFailureException
+    private void initializePartition( File workingDirectory ) throws MojoFailureException, NamingException
     {
         store.setCacheSize( 1000 );
         store.setEnableOptimizer( false );
@@ -637,8 +649,8 @@ public class BootstrapPlugin extends AbstractMojo
         
         store.setUserIndices( userIndices );
 
-        Attributes rootEntry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, 
-            SchemaConstants.ORGANIZATIONAL_UNIT_OC, true );
+        ServerEntry rootEntry = new DefaultServerEntry( registries, new LdapDN( ServerDNConstants.OU_SCHEMA_DN ) );
+        rootEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         rootEntry.put( SchemaConstants.OU_AT, "schema" );
         store.setContextEntry( rootEntry );
 

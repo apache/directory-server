@@ -297,7 +297,7 @@ public abstract class ServerContext implements EventContext
     }
     
     
-    protected Attributes doGetRootDSEOperation( LdapDN target ) throws NamingException
+    protected ServerEntry doGetRootDSEOperation( LdapDN target ) throws NamingException
     {
         GetRootDSEOperationContext opCtx = new GetRootDSEOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
@@ -915,7 +915,7 @@ public abstract class ServerContext implements EventContext
         
         if ( name.size() == 0 )
         {
-            attributes = doGetRootDSEOperation( target );
+            attributes = ServerEntryUtils.toAttributesImpl( doGetRootDSEOperation( target ) );
         }
         else
         {

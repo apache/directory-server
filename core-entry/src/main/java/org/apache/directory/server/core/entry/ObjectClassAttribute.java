@@ -29,6 +29,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.Collections;
 
@@ -43,6 +44,13 @@ public class ObjectClassAttribute extends AbstractServerAttribute
 {
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ObjectClassAttribute.class );
+    
+    /** A speedup to get the ObjectClass attribute */
+    private static transient AttributeType OBJECT_CLASS_AT;
+    
+    /** A mutex to manage synchronization*/
+    private transient static Object MUTEX = new Object();
+
 
     // Sets dealing with objectClass operations
     private Set<ObjectClass> allObjectClasses = new HashSet<ObjectClass>();
@@ -57,15 +65,100 @@ public class ObjectClassAttribute extends AbstractServerAttribute
     private Registries registries;
 
 
+    /**
+     * This method is used to initialize the OBJECT_CLASS_AT attributeType.
+     * 
+     * We want to do it only once, so it's a synchronized method. Note that
+     * the alternative would be to call the lookup() every time, but this won't
+     * be very efficient, as it will get the AT from a map, which is also
+     * synchronized, so here, we have a very minimal cost.
+     * 
+     * We can't do it once as a static part in the body of this class, because
+     * the access to the registries is mandatory to get back the AttributeType.
+     */
+    private void initObjectClassAT( Registries registries )
+    {
+        if ( OBJECT_CLASS_AT == null )
+        {
+            try
+            {
+                synchronized ( MUTEX )
+                {
+                    OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
+                }
+            }
+            catch ( NamingException ne )
+            {
+                // do nothing...
+            }
+        }
+    }
+
 
     /**
-     * Creates a new ObjectClassAttribute with a null ID
+     * Creates a new ObjectClassAttribute with a null ID.
+     * <p>
+     * We will use the default name : 'objectClass'
      * 
      * @param registries The server registries to use
      */
-    public ObjectClassAttribute( Registries registries ) throws NamingException
+    public ObjectClassAttribute( Registries registries )
     {
-        this( registries, (String)null );
+        this( registries, SchemaConstants.OBJECT_CLASS_AT );
+    }
+
+
+    /**
+     * Creates a new ObjectClassAttribute with ServerAttribute.
+     * <p>
+     * The ServerAttribute must have the ObjectClass attributeType
+     * 
+     * @param registries The server registries to use
+     * @param serverAttribute The serverAttribute containing the objectClasses
+     */
+    public ObjectClassAttribute( Registries registries, ServerAttribute serverAttribute )
+    {
+        this( registries, SchemaConstants.OBJECT_CLASS_AT );
+
+        if ( serverAttribute == null )
+        {
+            LOG.error( "We cannot create an ObjectClassAttribute without any serverAttribute" );
+        }
+        else
+        {
+            if ( !serverAttribute.getType().getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+            {
+                LOG.error(  "The ServerAttribute does not represent an ObjectClass" );
+            }
+            else
+            {
+                // Iterate through the attribute values and store them in the ObjectClass,
+                // if they are valid.
+                for ( Iterator<ServerValue<?>> values = serverAttribute.getAll(); values.hasNext(); )
+                {
+                    ServerValue<?> value = values.next();
+                    
+                    if ( value instanceof ServerStringValue )
+                    {
+                        String objectClassName = ((ServerStringValue)value).get();
+                        
+                    
+                        try
+                        {
+                            // Fond the objectClass and update the internal structures
+                            ObjectClass objectClass =  registries.getObjectClassRegistry().lookup( objectClassName );
+
+                            addObjectClass( objectClass );
+                        }
+                        catch ( NamingException ne )
+                        {
+                            // We didn't found the objectClass. Just ditch it
+                            LOG.error(  "The '{}' objectclass does not exist or the associated schema is not loaded", objectClassName );
+                        }
+                    }
+                }
+            }
+        }
     }
 
 
@@ -76,10 +169,13 @@ public class ObjectClassAttribute extends AbstractServerAttribute
      * @param registries The atRegistry to use to initialize this object
      * @throws NamingException If something went wrong
      */
-    public ObjectClassAttribute( Registries registries, String upId ) throws NamingException
+    public ObjectClassAttribute( Registries registries, String upId )
     {
         this.registries = registries;
-        attributeType = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT_OID );
+        
+        initObjectClassAT( registries );
+        
+        attributeType = OBJECT_CLASS_AT;
         setUpId( upId, attributeType );
     }
 
@@ -358,7 +454,7 @@ public class ObjectClassAttribute extends AbstractServerAttribute
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( "ObjectClass : " );
+        sb.append( "    ObjectClass : " );
         
         if ( ( values != null ) && ( values.size() != 0 ) )
         {

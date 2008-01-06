@@ -41,7 +41,7 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerBinaryValue extends AbstractBinaryValue implements ServerValue<byte[]>
+public class ServerBinaryValue extends AbstractBinaryValue implements ServerValue<byte[]>, Cloneable
 {
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerBinaryValue.class );
@@ -431,5 +431,22 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
         }
 
         return mr.getComparator();
+    }
+    
+    
+    /**
+     * @return a copy of the current value
+     */
+    public ServerBinaryValue clone()
+    {
+        ServerBinaryValue clone = (ServerBinaryValue)super.clone();
+        
+        if ( normalizedValue != null )
+        {
+            clone.normalizedValue = new byte[ normalizedValue.length ];
+            System.arraycopy( normalizedValue, 0, clone.normalizedValue, 0, normalizedValue.length );
+        }
+        
+        return clone;
     }
 }

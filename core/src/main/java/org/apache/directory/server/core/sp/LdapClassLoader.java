@@ -85,6 +85,12 @@ public class LdapClassLoader extends ClassLoader
             while( searchContexts.hasMore() )
             {
                 currentSearchContextName = ( String ) searchContexts.next();
+                
+                if ( currentSearchContextName == null )
+                {
+                    continue;
+                }
+                
                 currentSearchContext = ( ServerLdapContext ) RootDSE.lookup( currentSearchContextName );
                 
                 javaClassEntries = currentSearchContext.search( LdapDN.EMPTY_LDAPDN, filter, controls );

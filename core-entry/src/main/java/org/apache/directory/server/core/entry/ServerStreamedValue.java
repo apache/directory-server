@@ -72,7 +72,7 @@ import java.net.URI;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerStreamedValue extends AbstractStreamedValue implements ServerValue<URI>
+public class ServerStreamedValue extends AbstractStreamedValue implements ServerValue<URI>, Cloneable
 {
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerStreamedValue.class );
@@ -245,5 +245,23 @@ public class ServerStreamedValue extends AbstractStreamedValue implements Server
         }
 
         return false;
+    }
+    
+
+    /**
+     * @return a copy of the current value
+     */
+    public ServerStreamedValue clone()
+    {
+        try
+        {
+            ServerStreamedValue clone = (ServerStreamedValue)super.clone();
+            
+            return clone;
+        }
+        catch ( CloneNotSupportedException cnse )
+        {
+            return null;
+        }
     }
 }

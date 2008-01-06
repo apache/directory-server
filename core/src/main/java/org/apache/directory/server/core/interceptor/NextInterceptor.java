@@ -27,6 +27,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -69,7 +70,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#getRootDSE( NextInterceptor, GetRootDSEOperationContext )}.
      */
-    Attributes getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException;
+    ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException;
 
 
     /**

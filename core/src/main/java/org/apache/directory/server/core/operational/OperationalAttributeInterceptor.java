@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -127,9 +128,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         atRegistry = registries.getAttributeTypeRegistry();
 
         // stuff for dealing with subentries (garbage for now)
-        String subschemaSubentry = ( String ) service.getPartitionNexus()
+        ServerValue<?> subschemaSubentry = service.getPartitionNexus()
                 .getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = new LdapDN( subschemaSubentry );
+        subschemaSubentryDn = new LdapDN( (String)subschemaSubentry.get() );
         subschemaSubentryDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
     }
 

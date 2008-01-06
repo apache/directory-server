@@ -26,6 +26,7 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -226,10 +227,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         enabled = directoryService.isAccessControlEnabled();
 
         // stuff for dealing with subentries (garbage for now)
-        String subschemaSubentry = 
-        	( String ) directoryService.getPartitionNexus().getRootDSE( null ).
+        ServerValue<?> subschemaSubentry = 
+        	directoryService.getPartitionNexus().getRootDSE( null ).
         		get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        LdapDN subschemaSubentryDnName = new LdapDN( subschemaSubentry );
+        LdapDN subschemaSubentryDnName = new LdapDN( (String)(subschemaSubentry.get()) );
         subschemaSubentryDnName.normalize( atRegistry.getNormalizerMapping() );
         subschemaSubentryDn = subschemaSubentryDnName.toNormName();
     }

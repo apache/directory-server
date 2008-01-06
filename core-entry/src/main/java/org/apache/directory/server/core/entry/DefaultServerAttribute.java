@@ -43,7 +43,8 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
 {
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultServerAttribute.class );
-
+    
+    
     // maybe have some additional convenience constructors which take
     // an initial value as a string or a byte[]
     /**
@@ -51,7 +52,10 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      */
     public DefaultServerAttribute( AttributeType attributeType )
     {
-        assert checkAttributeType( attributeType) == null : logAssert( checkAttributeType( attributeType ) );
+        if ( attributeType == null )
+        {
+            throw new IllegalArgumentException( getErrorMessage( attributeType ) );
+        }
         
         this.attributeType = attributeType;
         setUpId( null, attributeType );
@@ -63,7 +67,12 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      */
     public DefaultServerAttribute( String upId, AttributeType attributeType )
     {
-        assert checkAttributeType( attributeType) == null : logAssert( checkAttributeType( attributeType ) );
+        if ( attributeType == null ) 
+        {
+            String message = getErrorMessage( attributeType );
+            LOG.error( message );
+            throw new IllegalArgumentException( message );
+        }
 
         this.attributeType = attributeType;
         setUpId( upId, attributeType );
@@ -103,12 +112,15 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      */
     public DefaultServerAttribute( String upId, AttributeType attributeType, ServerValue<?>... vals ) throws NamingException
     {
-        assert checkAttributeType( attributeType) == null : logAssert( checkAttributeType( attributeType ) );
+        if ( attributeType == null )
+        {
+            throw new IllegalArgumentException( getErrorMessage( attributeType ) );
+        }
         
         this.attributeType = attributeType;
         
         // The value can be null, this is a valid value.
-        if ( vals == null )
+        if ( vals[0] == null )
         {
             if ( attributeType.getSyntax().isHumanReadable() )
             {
@@ -164,7 +176,10 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      */
     public DefaultServerAttribute( String upId, AttributeType attributeType, String... vals ) throws NamingException
     {
-        assert checkAttributeType( attributeType) == null : logAssert( checkAttributeType( attributeType ) );
+        if ( attributeType == null )
+        {
+            throw new IllegalArgumentException( getErrorMessage( attributeType ) );
+        }
 
         this.attributeType = attributeType;
         add( vals );
@@ -186,7 +201,10 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      */
     public DefaultServerAttribute( String upId, AttributeType attributeType, byte[]... vals ) throws NamingException
     {
-        assert checkAttributeType( attributeType) == null : logAssert( checkAttributeType( attributeType ) );
+        if ( attributeType == null )
+        {
+            throw new IllegalArgumentException( getErrorMessage( attributeType ) );
+        }
 
         this.attributeType = attributeType;
         add( vals );
@@ -254,6 +272,21 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     {
         if ( attributeType.getSyntax().isHumanReadable() )
         {
+            if ( val == null )
+            {
+                ServerValue<String> nullSV = new ServerStringValue( attributeType, (String)null );
+                
+                if ( values.contains( nullSV ) )
+                {
+                    return false;
+                }
+                else
+                {
+                    values.add( nullSV );
+                    return true;
+                }
+            }
+            
             if ( !( val instanceof AbstractStringValue ) )
             {
                 String message = "The value must be a String, as its AttributeType is H/R";
@@ -263,12 +296,32 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
         }
         else
         {
+            if ( val == null )
+            {
+                ServerValue<byte[]> nullSV = new ServerBinaryValue( attributeType, (byte[])null );
+                
+                if ( values.contains( nullSV ) )
+                {
+                    return false;
+                }
+                else
+                {
+                    values.add( nullSV );
+                    return true;
+                }
+            }
+            
             if ( !( val instanceof AbstractBinaryValue ) )
             {
                 String message = "The value must be a byte[], as its AttributeType is not H/R";
                 LOG.error( message );
                 throw new InvalidAttributeValueException( message );
             }
+        }
+        
+        if ( values.contains( val ) )
+        {
+            return false;
         }
         
         return values.add( val );
@@ -315,7 +368,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     /**
      * @see EntryAttribute#add(String...)
      */
-    public int add( String... vals ) throws InvalidAttributeValueException, NamingException
+    public int add( String... vals ) throws NamingException
     {
         int nbAdded = 0;
         
@@ -366,7 +419,8 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
         
         return nbAdded;
     }    
-
+    
+    
     /**
      * Remove all the values from this attribute type, including a 
      * null value. 
@@ -636,12 +690,12 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
         {
             for ( ServerValue<?> value:values )
             {
-                sb.append( upId ).append( ": " ).append( value ).append( '\n' );
+                sb.append( "    " ).append( upId ).append( ": " ).append( value ).append( '\n' );
             }
         }
         else
         {
-            sb.append( upId ).append( ": (null)\n" );
+            sb.append( "    " ).append( upId ).append( ": (null)\n" );
         }
         
         return sb.toString();

@@ -85,12 +85,14 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,8 +102,11 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -695,6 +700,7 @@ public class DefaultDirectoryService implements  DirectoryService
                 switch( reverse.getChangeType().getChangeType() )
                 {
                     case( ChangeType.ADD_ORDINAL ):
+                        System.out.println( "Reverted attributes : --> " + reverse.getAttributes() );
                         ctx.createSubcontext( reverse.getDn(), reverse.getAttributes() );
                         break;
                     case( ChangeType.DELETE_ORDINAL ):
@@ -864,7 +870,7 @@ public class DefaultDirectoryService implements  DirectoryService
 
     public ServerEntry newEntry( LdapDN dn ) throws NamingException
     {
-        return new DefaultServerEntry( dn, registries );
+        return new DefaultServerEntry( registries, dn );
     }
     
     
@@ -1350,9 +1356,10 @@ public class DefaultDirectoryService implements  DirectoryService
         schemaPartition.setIndexedAttributes( indexedAttributes );
         schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
         
-        Attributes entry = new AttributesImpl();
-        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+        ServerEntry entry = new DefaultServerEntry( registries, new LdapDN( ServerDNConstants.OU_SCHEMA_DN ) );
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, 
+                SchemaConstants.TOP_OC, 
+                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( SchemaConstants.OU_AT, "schema" );
         schemaPartition.setContextEntry( entry );
         schemaPartition.init( this );
@@ -1412,7 +1419,7 @@ public class DefaultDirectoryService implements  DirectoryService
         schemaService = new SchemaService( registries, schemaPartition, schemaControl );
 
 
-        partitionNexus = new DefaultPartitionNexus( new AttributesImpl() );
+        partitionNexus = new DefaultPartitionNexus( new DefaultServerEntry( registries, LdapDN.EMPTY_LDAPDN ) );
         partitionNexus.init( this );
         partitionNexus.addContextPartition( new AddContextPartitionOperationContext( registries, schemaPartition ) );
 
@@ -1429,4 +1436,86 @@ public class DefaultDirectoryService implements  DirectoryService
             LOG.debug( "<--- DefaultDirectoryService initialized" );
         }
     }
+    
+    /**
+     * Read an entry (without DN)
+     * 
+     * @param text The ldif format file
+     * @return An Attributes.
+     */
+    private Attributes readEntry( String text )
+    {
+        StringReader strIn = new StringReader( text );
+        BufferedReader in = new BufferedReader( strIn );
+
+        String line = null;
+        Attributes attributes = new AttributesImpl( true );
+
+        try
+        {
+            while ( ( line = in.readLine() ) != null )
+            {
+                if ( line.length() == 0 )
+                {
+                    continue;
+                }
+
+                String addedLine = line.trim();
+
+                if ( StringTools.isEmpty( addedLine ) )
+                {
+                    continue;
+                }
+
+                Attribute attribute = LdifReader.parseAttributeValue( addedLine );
+                Attribute oldAttribute = attributes.get( attribute.getID() );
+
+                if ( oldAttribute != null )
+                {
+                    try
+                    {
+                        oldAttribute.add( attribute.get() );
+                        attributes.put( oldAttribute );
+                    }
+                    catch (NamingException ne)
+                    {
+                        // Do nothing
+                    }
+                }
+                else
+                {
+                    attributes.put( attribute );
+                }
+            }
+        }
+        catch (IOException ioe)
+        {
+            // Do nothing : we can't reach this point !
+        }
+
+        return attributes;
+    }
+
+    
+    /**
+     * Create a new ServerEntry
+     * 
+     * @param dn The DN for this new entry
+     * @param ldif The String representing the attributes, as a LDIF file
+     */
+    public ServerEntry newEntry( String dn, String ldif )
+    {
+        try
+        {
+            Attributes entry = readEntry( ldif );
+            
+            return new DefaultServerEntry( registries, new LdapDN( dn) );
+        }
+        catch ( Exception e )
+        {
+            // do nothing
+            return null;
+        }
+    }
+    
 }

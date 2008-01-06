@@ -33,7 +33,10 @@ import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerCo
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerProtocolHandler;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -80,6 +83,7 @@ import javax.naming.directory.SearchResult;
 import java.net.InetSocketAddress;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -303,9 +307,10 @@ public class ReplicationInterceptor extends BaseInterceptor
      */
     public void purgeAgedData() throws NamingException
     {
-        Attributes rootDSE = nexus.getRootDSE( null );
-        Attribute namingContextsAttr = rootDSE.get( "namingContexts" );
-        if ( namingContextsAttr == null || namingContextsAttr.size() == 0 )
+        ServerEntry rootDSE = nexus.getRootDSE( null );
+        ServerAttribute namingContextsAttr = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        
+        if ( ( namingContextsAttr == null ) || ( namingContextsAttr.size() == 0 ) )
         {
             throw new NamingException( "No namingContexts attributes in rootDSE." );
         }
@@ -326,21 +331,15 @@ public class ReplicationInterceptor extends BaseInterceptor
         }
 
         // Iterate all context partitions to send all entries of them.
-        NamingEnumeration<?> e = namingContextsAttr.getAll();
+        Iterator<ServerValue<?>> namingContexts = namingContextsAttr.getAll();
         
-        while ( e.hasMore() )
+        while ( namingContexts.hasNext() )
         {
-            Object value = e.next();
+            ServerValue<?> namingContext = namingContexts.next();
             // Convert attribute value to JNDI name.
             LdapDN contextName;
-            if ( value instanceof LdapDN )
-            {
-                contextName = ( LdapDN ) value;
-            }
-            else
-            {
-                contextName = new LdapDN( String.valueOf( value ) );
-            }
+            
+            contextName = new LdapDN( (String)namingContext.get() );
 
             contextName.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             LOG.info( "[Replica-{}] Purging aged data under '{}'", configuration.getReplicaId(), contextName );

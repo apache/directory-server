@@ -21,6 +21,8 @@ package org.apache.directory.server.kerberos.kdc;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.core.partition.Partition;
@@ -33,8 +35,10 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -144,9 +148,8 @@ public class SaslGssapiBindITest extends AbstractServerTest
         users.createSubcontext( "uid=ldap", attrs );
     }
 
-    protected void configureDirectoryService()
+    protected void configureDirectoryService() throws NamingException
     {
-        Attributes attrs;
         Set<Partition> partitions = new HashSet<Partition>();
 
         // Add partition 'example'
@@ -160,15 +163,10 @@ public class SaslGssapiBindITest extends AbstractServerTest
         indexedAttrs.add( new JdbmIndex( "objectClass" ) );
         partition.setIndexedAttributes( indexedAttrs );
 
-        attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "objectClass" );
-        attr.add( "top" );
-        attr.add( "domain" );
-        attrs.put( attr );
-        attr = new AttributeImpl( "dc" );
-        attr.add( "example" );
-        attrs.put( attr );
-        partition.setContextEntry( attrs );
+        ServerEntry serverEntry = new DefaultServerEntry( directoryService.getRegistries(), new LdapDN( "dc=example, dc=com" ) );
+        serverEntry.put( "objectClass", "top", "domain" );
+        serverEntry.put( "dc", "example" );
+        partition.setContextEntry( serverEntry );
 
         partitions.add( partition );
         directoryService.setPartitions( partitions );

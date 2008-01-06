@@ -42,6 +42,9 @@ import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -60,6 +63,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.net.InetSocketAddress;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -347,9 +351,10 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
     private void sendAllEntries( ReplicationContext ctx ) throws NamingException
     {
-        Attributes rootDSE = ctx.getDirectoryService().getPartitionNexus().getRootDSE( null );
+        ServerEntry rootDSE = ctx.getDirectoryService().getPartitionNexus().getRootDSE( null );
 
-        Attribute namingContextsAttr = rootDSE.get( "namingContexts" );
+        ServerAttribute namingContextsAttr = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        
         if ( namingContextsAttr == null || namingContextsAttr.size() == 0 )
         {
             SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
@@ -358,22 +363,16 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         }
 
         // Iterate all context partitions to send all entries of them.
-        NamingEnumeration<?> e = namingContextsAttr.getAll();
+        Iterator<ServerValue<?>> namingContexts = namingContextsAttr.getAll();
         
-        while ( e.hasMore() )
+        while ( namingContexts.hasNext() )
         {
-            Object value = e.next();
+            ServerValue<?> namingContext = namingContexts.next();
 
             // Convert attribute value to JNDI name.
             LdapDN contextName;
-            if ( value instanceof LdapDN )
-            {
-                contextName = ( LdapDN ) value;
-            }
-            else
-            {
-                contextName = new LdapDN( String.valueOf( value ) );
-            }
+
+            contextName = new LdapDN( (String)namingContext.get() );
 
             SessionLog.info( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
                     "] Sending entries under '" + contextName + '\'' );

@@ -21,6 +21,8 @@ package org.apache.directory.server.core.exception;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -125,7 +127,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         nexus = directoryService.getPartitionNexus();
         normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
-        Attribute attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
+        ServerValue<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemSubentryDn = new LdapDN( ( String ) attr.get() );
         subschemSubentryDn.normalize( normalizerMap );
         registries = directoryService.getRegistries();
@@ -287,7 +289,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         if ( opContext.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
-            return nexus.getRootDSE( null );
+            return ServerEntryUtils.toAttributesImpl( nexus.getRootDSE( null ) );
         }
         
         // check if entry to lookup exists

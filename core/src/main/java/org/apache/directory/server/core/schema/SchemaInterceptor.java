@@ -23,6 +23,8 @@ package org.apache.directory.server.core.schema;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerStringValue;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -207,8 +209,8 @@ public class SchemaInterceptor extends BaseInterceptor
         schemaManager = directoryService.getSchemaService().getSchemaControl();
 
         // stuff for dealing with subentries (garbage for now)
-        String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        LdapDN subschemaSubentryDn = new LdapDN( subschemaSubentry );
+        ServerValue<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        LdapDN subschemaSubentryDn = new LdapDN( (String)(subschemaSubentry.get()) );
         subschemaSubentryDn.normalize( attributeTypeRegistry.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 

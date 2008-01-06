@@ -27,6 +27,8 @@ import org.apache.directory.server.configuration.ApacheDS;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -55,8 +57,8 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.Base64;
@@ -215,18 +217,21 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         }
 
         Set<Index> indexedAttributes = new HashSet<Index>();
+        
         for ( String attributeId : listing.getIndexedAttributes() )
         {
             indexedAttributes.add( new JdbmIndex( attributeId ) );
         }
+        
         schemaPartition.setIndexedAttributes( indexedAttributes );
         schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
         
-        Attributes entry = new AttributesImpl();
-        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-        entry.put( SchemaConstants.OU_AT, "schema" );
-        schemaPartition.setContextEntry( entry );
+        ServerEntry systemEntry = new DefaultServerEntry( registries, new LdapDN( "ou=schema" ) );
+        systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
+            SchemaConstants.TOP_OC,
+            SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+        systemEntry.put( SchemaConstants.OU_AT, "schema" );
+        schemaPartition.setContextEntry( systemEntry );
 
         DirectoryService directoryService = new DefaultDirectoryService();
         schemaPartition.init( directoryService );

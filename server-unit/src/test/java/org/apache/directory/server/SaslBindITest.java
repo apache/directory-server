@@ -79,7 +79,7 @@ public class SaslBindITest extends AbstractServerTest
 
 
     @Override
-    protected void configureDirectoryService()
+    protected void configureDirectoryService() throws NamingException
     {
 
         Set<Partition> partitions = new HashSet<Partition>();
@@ -102,6 +102,7 @@ public class SaslBindITest extends AbstractServerTest
         attr.add( "example" );
         attrs.put( attr );
         partition.setContextEntry( attrs );
+
 
         partitions.add( partition );
         directoryService.setPartitions( partitions );
@@ -173,11 +174,11 @@ public class SaslBindITest extends AbstractServerTest
             Attributes attrs = ctx.getAttributes( "ldap://localhost:" + port, new String[]
                 { "supportedSASLMechanisms" } );
 
-            NamingEnumeration answer = attrs.getAll();
+            NamingEnumeration<? extends Attribute> answer = attrs.getAll();
 
             if ( answer.hasMore() )
             {
-                Attribute result = ( Attribute ) answer.next();
+                Attribute result = answer.next();
                 assertTrue( result.size() == 3 );
                 assertTrue( result.contains( "GSSAPI" ) );
                 assertTrue( result.contains( "DIGEST-MD5" ) );

@@ -501,6 +501,11 @@ public class MaxImmSubFilterTest extends TestCase
         {
             return null;
         }
+        
+        public ServerEntry newEntry( String dn, String ldif )
+        {
+            return null;
+        }
     }
 
     class BogusEnumeration implements NamingEnumeration

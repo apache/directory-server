@@ -134,7 +134,7 @@ public class ServerEntryUtils
         {
             try 
             {
-                ServerEntry entry = new DefaultServerEntry( dn, registries );
+                ServerEntry entry = new DefaultServerEntry( registries, dn );
     
                 for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
                 {

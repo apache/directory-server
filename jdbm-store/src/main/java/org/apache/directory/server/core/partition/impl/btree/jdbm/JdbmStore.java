@@ -24,6 +24,9 @@ import jdbm.RecordManager;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
+
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
@@ -136,7 +139,7 @@ public class JdbmStore
     // -----------------------------------------------------------------------
 
 
-    private Attributes contextEntry;
+    private ServerEntry contextEntry;
     private String suffixDn;
     private boolean enableOptimizer;
     private int cacheSize = DEFAULT_CACHE_SIZE;
@@ -181,14 +184,14 @@ public class JdbmStore
     }
 
 
-    public void setContextEntry( Attributes contextEntry )
+    public void setContextEntry( ServerEntry contextEntry )
     {
         protect( "contextEntry" );
         this.contextEntry = contextEntry;
     }
 
 
-    public Attributes getContextEntry()
+    public ServerEntry getContextEntry()
     {
         return contextEntry;
     }
@@ -435,7 +438,7 @@ public class JdbmStore
      * @param entry the root entry of the store
      * @throws NamingException on failre to add the root entry
      */
-    protected void initSuffixEntry3( String suffix, Attributes entry ) throws NamingException
+    protected void initSuffixEntry3( String suffix, ServerEntry entry ) throws NamingException
     {
         // add entry for context, if it does not exist
         Attributes suffixOnDisk = getSuffixEntry();
@@ -444,7 +447,9 @@ public class JdbmStore
         {
             LdapDN dn = new LdapDN( suffix );
             LdapDN normalizedSuffix = LdapDN.normalize( dn, attributeTypeRegistry.getNormalizerMapping() );
-            add( normalizedSuffix, entry );
+            
+            //add( normalizedSuffix, entry );
+            add( normalizedSuffix, ServerEntryUtils.toAttributesImpl( entry ) );
         }
     }
 

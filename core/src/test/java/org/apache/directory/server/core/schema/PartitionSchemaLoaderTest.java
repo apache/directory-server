@@ -23,6 +23,8 @@ package org.apache.directory.server.core.schema;
 import junit.framework.TestCase;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -38,12 +40,14 @@ import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -92,11 +96,12 @@ public class PartitionSchemaLoaderTest extends TestCase
         loader.loadWithDependencies( bootstrapSchemas, registries );
         
         // run referential integrity tests
-        java.util.List errors = registries.checkRefInteg();
+        List<Throwable> errors = registries.checkRefInteg();
+        
         if ( !errors.isEmpty() )
         {
             NamingException e = new NamingException();
-            e.setRootCause( ( Throwable ) errors.get( 0 ) );
+            e.setRootCause( errors.get( 0 ) );
             throw e;
         }
 
@@ -136,9 +141,8 @@ public class PartitionSchemaLoaderTest extends TestCase
         schemaPartition.setIndexedAttributes( indexedAttributes );
         schemaPartition.setSuffix( "ou=schema" );
         
-        Attributes entry = new AttributesImpl();
-        entry.put( "objectClass", "top" );
-        entry.get( "objectClass" ).add( "organizationalUnit" );
+        ServerEntry entry = new DefaultServerEntry( registries, new LdapDN( "ou=schema" ) );
+        entry.put( "objectClass", "top", "organizationalUnit" );
         entry.put( "ou", "schema" );
         schemaPartition.setContextEntry( entry );
         schemaPartition.init( directoryService );

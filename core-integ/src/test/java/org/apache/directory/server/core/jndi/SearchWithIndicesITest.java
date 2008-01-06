@@ -22,6 +22,8 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
@@ -35,6 +37,8 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -126,11 +130,21 @@ public class SearchWithIndicesITest
 
             JdbmPartition partition = new JdbmPartition();
             partition.setId( "system" );
+            
+            /*
+            ServerEntry serverEntry = new DefaultServerEntry( new LdapDN( "ou=system" ), service.getRegistries() );
+            serverEntry.put( "objectClass", "top", "organizationalUnit" );
+            serverEntry.put( "ou", "system" );
+            partition.setContextEntry( serverEntry );
+            partition.setSuffix( "ou=system" );
+            */
+            
             Attributes attrs = new AttributesImpl( "objectClass", "top", true );
             attrs.get( "objectClass" ).add( "organizationalUnit" );
             attrs.put( "ou", "system" );
             partition.setContextEntry( attrs );
             partition.setSuffix( "ou=system" );
+            
 
             Set<Index> indices = new HashSet<Index>();
             indices.addAll( partition.getIndexedAttributes() );

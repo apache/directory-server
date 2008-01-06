@@ -29,6 +29,7 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -76,6 +77,7 @@ public class ApacheDS
 
     public ApacheDS( DirectoryService directoryService, LdapServer ldapServer, LdapServer ldapsServer )
     {
+        LOG.info(  "Starting the Apache Directory Server" );
         this.directoryService = directoryService;
         
         if ( this.directoryService == null )
@@ -166,6 +168,7 @@ public class ApacheDS
 
     public void setSynchPeriodMillis( long synchPeriodMillis )
     {
+        LOG.info( "Set the synchPeriodMillis to {}", synchPeriodMillis );
         this.synchPeriodMillis = synchPeriodMillis;
     }
 
@@ -189,20 +192,25 @@ public class ApacheDS
 
     public void setAllowAnonymousAccess( boolean allowAnonymousAccess )
     {
-        this.directoryService.setAllowAnonymousAccess( allowAnonymousAccess );
+        LOG.info( "Set the allowAnonymousAccess flag to {}", allowAnonymousAccess );
+        
+        directoryService.setAllowAnonymousAccess( allowAnonymousAccess );
+        
         if ( ldapServer != null )
         {
-            this.ldapServer.setAllowAnonymousAccess( allowAnonymousAccess );
+            ldapServer.setAllowAnonymousAccess( allowAnonymousAccess );
         }
+        
         if ( ldapsServer != null )
         {
-            this.ldapsServer.setAllowAnonymousAccess( allowAnonymousAccess );
+            ldapsServer.setAllowAnonymousAccess( allowAnonymousAccess );
         }
     }
 
 
     public void setLdifDirectory( File ldifDirectory )
     {
+        LOG.info( "The LDIF directory file is {}", ldifDirectory.getAbsolutePath() );
         this.ldifDirectory = ldifDirectory;
     }
 
@@ -213,10 +221,20 @@ public class ApacheDS
     }
 
 
-    protected void setLdifFilters( List<LdifLoadFilter> filters )
+    public void setLdifFilters( List<LdifLoadFilter> filters )
     {
-        this.ldifFilters.clear();
-        this.ldifFilters.addAll( filters );
+        if ( LOG.isInfoEnabled() )
+        {
+            LOG.info( "Set the ldif filters :" );
+            
+            for ( LdifLoadFilter filter:filters )
+            {
+                LOG.info( "    Ldif Filter {}", filter );
+            }
+        }
+        
+        ldifFilters.clear();
+        ldifFilters.addAll( filters );
     }
 
 
@@ -324,8 +342,15 @@ public class ApacheDS
         }
 
 
-        LdapPrincipal admin = new LdapPrincipal( new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN ),
-                AuthenticationLevel.STRONG );
+        LdapDN dn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        
+        // Must normailize the dn or - IllegalStateException!
+        AttributeTypeRegistry reg = directoryService.getRegistries().getAttributeTypeRegistry();
+            dn.normalize( reg.getNormalizerMapping() );
+        
+        LdapPrincipal admin = new LdapPrincipal( dn, AuthenticationLevel.STRONG );
+        
+        
         DirContext root = directoryService.getJndiContext( admin );
         ensureLdifFileBase( root );
 

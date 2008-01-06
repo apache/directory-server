@@ -40,7 +40,7 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerStringValue extends AbstractStringValue implements ServerValue<String>
+public class ServerStringValue extends AbstractStringValue implements ServerValue<String>, Cloneable
 {
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerStringValue.class );
@@ -395,5 +395,21 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
         }
 
         return mr.getComparator();
+    }
+    
+    
+    /**
+     * @return a copy of the current value
+     */
+    public ServerStringValue clone()
+    {
+        try
+        {
+            return (ServerStringValue)super.clone();
+        }
+        catch ( CloneNotSupportedException cnse )
+        {
+            return null;
+        }
     }
 }

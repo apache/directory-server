@@ -550,5 +550,11 @@ public class InterceptorChainTest extends TestCase
         {
             return null;
         }
+
+        
+        public ServerEntry newEntry( String dn, String ldif )
+        {
+            return null;
+        }
     }
 }

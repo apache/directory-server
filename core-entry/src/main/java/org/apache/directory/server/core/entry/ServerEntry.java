@@ -230,12 +230,10 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
     ServerAttribute put( String upId, String... values ) throws NamingException;
 
     ServerAttribute put( String upId, byte[]... values ) throws NamingException;
+    
+    List<ServerAttribute> set( String... upIds ) throws NamingException;
 
-    // no value put'ters
-    ServerAttribute put( String upId ) throws NamingException;
-
-    ServerAttribute put( AttributeType attributeType ) throws NamingException;
-
+    List<ServerAttribute> set( AttributeType... attributeTypes ) throws NamingException;
 
     /**
      * Places a new attribute of the supplied type and value into the attribute

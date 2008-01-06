@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -139,7 +140,7 @@ public interface Interceptor
     /**
      * Filters {@link PartitionNexus#getRootDSE( GetRootDSEOperationContext )} call.
      */
-    Attributes getRootDSE( NextInterceptor next, GetRootDSEOperationContext  opContext ) throws NamingException;
+    ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext  opContext ) throws NamingException;
 
 
     /**

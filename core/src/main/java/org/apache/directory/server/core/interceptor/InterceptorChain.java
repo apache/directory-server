@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -102,7 +103,7 @@ public class InterceptorChain
         }
 
 
-        public Attributes getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException
+        public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException
         {
             return nexus.getRootDSE( opContext );
         }
@@ -536,7 +537,7 @@ public class InterceptorChain
     }
 
 
-    public Attributes getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
+    public ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -1041,7 +1042,7 @@ public class InterceptorChain
                 }
 
 
-                public Attributes getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
+                public ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;

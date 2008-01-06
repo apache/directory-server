@@ -402,7 +402,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     private void startLDAP0( int port, IoFilterChainBuilder chainBuilder )
-        throws LdapNamingException, LdapConfigurationException
+        throws LdapNamingException, LdapConfigurationException, NamingException
     {
         for ( ExtendedOperationHandler h : getExtendedOperationHandlers() )
         {

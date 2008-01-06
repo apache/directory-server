@@ -82,4 +82,6 @@ public interface ServerValue<T> extends Value<T>, Comparable<ServerValue<T>>
 
     
     boolean instanceOf( AttributeType attributeType ) throws NamingException;
+    
+    ServerValue<T> clone();
 }
