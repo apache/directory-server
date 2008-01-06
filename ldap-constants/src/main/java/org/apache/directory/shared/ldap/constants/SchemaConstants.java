@@ -160,8 +160,7 @@ public interface SchemaConstants
     String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT = "excludeAllCollectiveAttributes";
     String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT_OID = "2.5.18.0";
     
-    
-    // CreateTimestamp
+        // CreateTimestamp
     String CREATE_TIMESTAMP_AT = "createTimestamp";
     String CREATE_TIMESTAMP_AT_OID = "2.5.18.1";
     
@@ -249,11 +248,39 @@ public interface SchemaConstants
     // UidObject
     String UID_OBJECT_AT = "uidObject";
     String UID_OBJECT_AT_OID = "1.3.6.1.1.3.1";
+    
+    // VendorName
+    String VENDOR_NAME_AT = "vendorName";
+    String VENDOR_NAME_AT_OID = "1.3.6.1.1.4";
+    
+    // VendorVersion
+    String VENDOR_VERSION_AT = "vendorVersion";
+    String VENDOR_VERSION_AT_OID = "1.3.6.1.1.5";
+    
+    // NamingContexts
+    String NAMING_CONTEXTS_AT = "namingContexts";
+    String NAMING_CONTEXTS_AT_OID = "1.3.6.1.4.1.1466.101.120.5";
+    
+    // SupportedExtension
+    String SUPPORTED_EXTENSION_AT = "supportedExtension";
+    String SUPPORTED_EXTENSION_AT_OID = "1.3.6.1.4.1.1466.101.120.7";
+    
+    // supportedControl
+    String SUPPORTED_CONTROL_AT = "supportedControl";
+    String SUPPORTED_CONTROL_AT_OID = "1.3.6.1.4.1.1466.101.120.13";
+    
+    // SupportedLdapVersion
+    String SUPPORTED_LDAP_VERSION_AT = "supportedLDAPVersion";
+    String SUPPORTED_LDAP_VERSION_AT_OID = "1.3.6.1.4.1.1466.101.120.15";
 
     // LdapSyntaxes
     String LDAP_SYNTAXES_AT = "ldapSyntaxes";
     String LDAP_SYNTAXES_AT_OID = "1.3.6.1.4.1.1466.101.120.16";
-
+    
+    // SupportedFeatures
+    String SUPPORTED_FEATURES_AT = "supportedFeatures";
+    String SUPPORTED_FEATURES_AT_OID = "1.3.6.1.4.1.4203.1.3.5";
+    
     // AccessControlSubentries
     String ACCESS_CONTROL_SUBENTRIES_AT = "accessControlSubentries";
     String ACCESS_CONTROL_SUBENTRIES_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.11";
@@ -310,4 +337,7 @@ public interface SchemaConstants
     String BIT_STRING_MR = "bitStringMatch";
     String GENERALIZED_TIME_MR = "generalizedTimeMatch";
     String GENERALIZED_TIME_ORDERING_MR = "generalizedTimeOrderingMatch";
+    
+    // ---- Features ----------------------------------------------------------
+    String FEATURE_ALL_OPERATIONAL_ATTRIBUTES = "1.3.6.1.4.1.4203.1.5.1";
 }

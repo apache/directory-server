@@ -50,6 +50,24 @@ public interface EntryAttribute<T extends Value<?>>
 
 
     /**
+     * Puts some values to this attribute.
+     * <p>
+     * The new values are replace the previous values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were put.
+     * </p>
+     *
+     * @param val some values to be put which may be null
+     * @return the number of added values, or 0 if none has been added
+     * @throws InvalidAttributeValueException If we try to add some values
+     * which conflicts with the AttributeType for this attribute
+     * @throws NamingException If the attributeType does not have a syntax
+     */
+    int put( String... vals ) throws InvalidAttributeValueException, NamingException;
+
+
+    /**
      * Adds some values to this attribute. If the new values are already present in
      * the attribute values, the method has no effect.
      * <p>
@@ -63,6 +81,21 @@ public interface EntryAttribute<T extends Value<?>>
      * @return the number of added values, or 0 if none has been added
      */
     int add( byte[]... vals ) throws InvalidAttributeValueException, NamingException;
+
+
+    /**
+     * Puts some values to this attribute.
+     * <p>
+     * The new values are replace the previous values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were put.
+     * </p>
+     *
+     * @param val some values to be put which may be null
+     * @return the number of added values, or 0 if none has been added
+     */
+    int put( byte[]... vals ) throws InvalidAttributeValueException, NamingException;
 
 
     /**
@@ -202,4 +235,27 @@ public interface EntryAttribute<T extends Value<?>>
      * @return the number of added values, or 0 if none has been added
      */
     int add( T... val ) throws InvalidAttributeValueException, NamingException;
+    
+    
+    /**
+     * Puts some values to this attribute.
+     * <p>
+     * The new values are replace the previous values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were put.
+     * </p>
+     *
+     * @param val some values to be put which may be null
+     * @return the number of added values, or 0 if none has been added
+     */
+    int put( T... vals ) throws InvalidAttributeValueException, NamingException;
+
+
+    /**
+     * Returns a cloned version of the current attribute.
+     *
+     * @return A copy of the current attribute
+     */
+    EntryAttribute<T> clone();
 }

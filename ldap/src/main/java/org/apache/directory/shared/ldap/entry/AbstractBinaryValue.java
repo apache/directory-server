@@ -37,7 +37,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractBinaryValue implements Value<byte[]>
+public abstract class AbstractBinaryValue implements Value<byte[]>, Cloneable
 {
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( AbstractBinaryValue.class );
@@ -201,21 +201,6 @@ public abstract class AbstractBinaryValue implements Value<byte[]>
 
 
     /**
-     * Makes a deep copy of the BinaryValue.
-     *
-     * @return a deep copy of the Value.
-     */
-    public AbstractBinaryValue clone() throws CloneNotSupportedException
-    {
-        AbstractBinaryValue cloned = (AbstractBinaryValue)super.clone();
-        
-        cloned.wrapped = getCopy();
-        
-        return cloned;
-    }
-
-
-    /**
      * @see Object#equals(Object)
      */
     @Override
@@ -276,6 +261,28 @@ public abstract class AbstractBinaryValue implements Value<byte[]>
         }
 
         return ByteArrayComparator.INSTANCE.compare( wrapped, value.getReference() );
+    }
+
+    
+    /**
+     * Makes a deep copy of the BinaryValue.
+     *
+     * @return a deep copy of the Value.
+     */
+    public AbstractBinaryValue clone()
+    {
+        try
+        {
+            AbstractBinaryValue clone = (AbstractBinaryValue)super.clone();
+            
+            clone.wrapped = getCopy();
+            
+            return clone;
+        }
+        catch ( CloneNotSupportedException cnse )
+        {
+            return null;
+        }
     }
 
     

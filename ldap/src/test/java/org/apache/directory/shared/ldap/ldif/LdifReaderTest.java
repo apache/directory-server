@@ -53,7 +53,7 @@ public class LdifReaderTest extends TestCase
     {
         File jpeg = File.createTempFile( name, "jpg" );
         
-	jpeg.createNewFile();
+        jpeg.createNewFile();
 
         DataOutputStream os = new DataOutputStream( new FileOutputStream( jpeg ) );
 
