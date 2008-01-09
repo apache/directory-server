@@ -60,7 +60,7 @@ public interface MasterTable extends Table
      * @return the newly created entry's Attributes
      * @throws NamingException if there is a write error on the underlying Db.
      */
-    Attributes put( Attributes entry, Object id ) throws NamingException;
+    Attributes put( Attributes entry, Object id ) throws IOException;
 
 
     /**
@@ -70,7 +70,7 @@ public interface MasterTable extends Table
      * @return the Attributes of the deleted entry
      * @throws NamingException if there is a write error on the underlying Db
      */
-    Attributes delete( Object id ) throws NamingException;
+    Attributes delete( Object id ) throws IOException;
 
 
     /**
@@ -81,7 +81,7 @@ public interface MasterTable extends Table
      * @throws NamingException if the admin table storing sequences cannot be
      * read.
      */
-    Object getCurrentId() throws NamingException;
+    Object getCurrentId() throws IOException;
 
 
     /**
@@ -92,7 +92,7 @@ public interface MasterTable extends Table
      * @throws NamingException if the admin table storing sequences cannot be
      * read and writen to.
      */
-    Object getNextId() throws NamingException;
+    Object getNextId() throws IOException;
 
 
     /**
@@ -102,7 +102,7 @@ public interface MasterTable extends Table
      * @return the value of the property
      * @throws NamingException when the underlying admin table cannot be read
      */
-    String getProperty( String property ) throws NamingException;
+    String getProperty( String property ) throws IOException;
 
 
     /**
@@ -112,5 +112,5 @@ public interface MasterTable extends Table
      * @param value the value of the property
      * @throws NamingException when the underlying admin table cannot be writen
      */
-    void setProperty( String property, String value ) throws NamingException;
+    void setProperty( String property, String value ) throws IOException;
 }

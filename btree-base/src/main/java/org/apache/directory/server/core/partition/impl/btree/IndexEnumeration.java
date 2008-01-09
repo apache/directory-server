@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import org.apache.directory.shared.ldap.NotImplementedException;
+
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
@@ -149,6 +151,7 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexRecord>
     // Private Methods 
     // ------------------------------------------------------------------------
 
+
     private void prefetch() throws NamingException
     {
         while ( underlying.hasMore() )
@@ -157,7 +160,8 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexRecord>
 
             if ( swapKeyVal )
             {
-                tmp.setSwapped( tuple, null );
+                throw new NotImplementedException();
+                // tmp.setSwapped( tuple, null );
             }
             else
             {

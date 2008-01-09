@@ -31,14 +31,14 @@ import org.apache.directory.server.schema.SerializableComparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class KeyOnlyComparator implements TupleComparator, Serializable
+public class KeyOnlyComparator<K,V> implements TupleComparator<K,V>, Serializable
 {
     private static final long serialVersionUID = 3544956549803161397L;
 
-    private SerializableComparator keyComparator = null;
+    private SerializableComparator<K> keyComparator;
 
 
-    public KeyOnlyComparator(SerializableComparator comparator)
+    public KeyOnlyComparator( SerializableComparator<K> comparator )
     {
         keyComparator = comparator;
     }
@@ -50,7 +50,7 @@ public class KeyOnlyComparator implements TupleComparator, Serializable
      *
      * @return the comparator for comparing keys.
      */
-    public SerializableComparator getKeyComparator()
+    public SerializableComparator<K> getKeyComparator()
     {
         return keyComparator;
     }
@@ -59,7 +59,7 @@ public class KeyOnlyComparator implements TupleComparator, Serializable
     /**
      * Will throw an UnsupportedOperationException every time.
      */
-    public SerializableComparator getValueComparator()
+    public SerializableComparator<V> getValueComparator()
     {
         throw new UnsupportedOperationException();
     }
@@ -75,7 +75,7 @@ public class KeyOnlyComparator implements TupleComparator, Serializable
      * is less than the second, or a postive value if the first is greater than
      * the second byte array.
      */
-    public int compareKey( Object key1, Object key2 )
+    public int compareKey( K key1, K key2 )
     {
         return keyComparator.compare( key1, key2 );
     }
@@ -91,7 +91,7 @@ public class KeyOnlyComparator implements TupleComparator, Serializable
      * is less than the second, or a postive value if the first is greater than
      * the second Object.
      */
-    public int compareValue( Object value1, Object value2 )
+    public int compareValue( V value1, V value2 )
     {
         throw new UnsupportedOperationException();
     }

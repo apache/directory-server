@@ -28,7 +28,6 @@ import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.schema.SerializableComparator;
 
-import javax.naming.NamingException;
 import java.io.IOException;
 import java.util.*;
 
@@ -41,31 +40,31 @@ import java.util.*;
  */
 public class JdbmTable<K,V> implements Table<K,V>
 {
-    /**  */
-    private static final String SZSUFFIX = "_btree_sz";
-
     private static final byte[] EMPTY_BYTES = new byte[0];
 
-    /** */
-    private final String name;
-    /** */
-    private final RecordManager recMan;
-    /** */
-    private final boolean allowsDuplicates;
-    /** */
-    private final TupleComparator comparator;
+    /** the key to store and retreive the count information */
+    private static final String SZSUFFIX = "_btree_sz";
 
-    /** */
+    /** the name of this table */
+    private final String name;
+    /** the JDBM record manager for the file this table is managed in */
+    private final RecordManager recMan;
+    /** whether or not this table allows for duplicates */
+    private final boolean allowsDuplicates;
+    /** a pair of comparators for the keys and values in this Table */
+    private final TupleComparator<K,V> comparator;
+
+    /** the current count of entries in this Table */
     private int count;
-    /** */
+    /** the underlying JDBM btree used in this Table */
     private BTree bt;
 
 
-    /** */
+    /** the renderer to use for btree tuples */
     private TupleRenderer renderer;
-
+    /** the limit at which we start using btree redirection for duplicates */
     private int numDupLimit = JdbmIndex.DEFAULT_DUPLICATE_LIMIT;
-
+    /** @TODO should really be a cache of duplicate BTrees */
     private Map<Long, BTree> duplicateBtrees = new HashMap<Long, BTree>();
     
     
@@ -73,6 +72,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     // C O N S T R U C T O R
     // ------------------------------------------------------------------------
 
+    
     /**
      * Creates a Jdbm BTree based tuple Table abstraction that enables 
      * duplicates.
@@ -87,12 +87,12 @@ public class JdbmTable<K,V> implements Table<K,V>
      * default Java serialization which could be very expensive
      * @param valueSerializer a serializer to use for the values instead of
      * using default Java serialization which could be very expensive
-     * @throws NamingException if the table's file cannot be created
+     * @throws IOException if the table's file cannot be created
      */
     public JdbmTable( String name, boolean allowsDuplicates, int numDupLimit,
-        RecordManager manager, TupleComparator comparator, Serializer keySerializer, 
+        RecordManager manager, TupleComparator<K,V> comparator, Serializer keySerializer, 
         Serializer valueSerializer )
-        throws NamingException
+        throws IOException
     {
         /*System.out.println( "Creating BTree for " + name + ", key serializer = " + 
             (keySerializer == null ? "null" : keySerializer.getClass().getName()) +
@@ -104,46 +104,25 @@ public class JdbmTable<K,V> implements Table<K,V>
         this.comparator = comparator;
         this.allowsDuplicates = allowsDuplicates;
 
-        long recId;
+        long recId = recMan.getNamedObject( name );
 
-        try
+        //
+        // Load existing BTree
+        //
+
+        if ( recId != 0 )
         {
-            recId = recMan.getNamedObject( name );
+            bt = BTree.load( recMan, recId );
+            recId = recMan.getNamedObject( name + SZSUFFIX );
+            count = ( Integer ) recMan.fetch( recId );
         }
-        catch ( IOException e )
+        else
         {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
-        }
-
-        try
-        {
-
-            //            
-            // Load existing BTree
-            //
-
-            if ( recId != 0 )
-            {
-                bt = BTree.load( recMan, recId );
-                recId = recMan.getNamedObject( name + SZSUFFIX );
-                count = ( Integer ) recMan.fetch( recId );
-            }
-            else
-            {
-                bt = BTree.createInstance( recMan, comparator.getKeyComparator(), keySerializer, valueSerializer );
-                recId = bt.getRecid();
-                recMan.setNamedObject( name, recId );
-                recId = recMan.insert( 0 );
-                recMan.setNamedObject( name + SZSUFFIX, recId );
-            }
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
+            bt = BTree.createInstance( recMan, comparator.getKeyComparator(), keySerializer, valueSerializer );
+            recId = bt.getRecid();
+            recMan.setNamedObject( name, recId );
+            recId = recMan.insert( 0 );
+            recMan.setNamedObject( name + SZSUFFIX, recId );
         }
     }
 
@@ -159,13 +138,13 @@ public class JdbmTable<K,V> implements Table<K,V>
      * default Java serialization which could be very expensive
      * @param valueSerializer a serializer to use for the values instead of
      * using default Java serialization which could be very expensive
-     * @throws NamingException if the table's file cannot be created
+     * @throws IOException if the table's file cannot be created
      */
-    public JdbmTable( String name, RecordManager manager, SerializableComparator keyComparator,
+    public JdbmTable( String name, RecordManager manager, SerializableComparator<K> keyComparator,
                       Serializer keySerializer, Serializer valueSerializer )
-        throws NamingException
+        throws IOException
     {
-        this( name, false, Integer.MAX_VALUE, manager, new KeyOnlyComparator( keyComparator ),
+        this( name, false, Integer.MAX_VALUE, manager, new KeyOnlyComparator<K,V>( keyComparator ),
                 keySerializer, valueSerializer );
     }
 
@@ -178,7 +157,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.Table#getComparator()
      */
-    public TupleComparator getComparator()
+    public TupleComparator<K,V> getComparator()
     {
         return comparator;
     }
@@ -212,34 +191,39 @@ public class JdbmTable<K,V> implements Table<K,V>
 
 
     /**
-     * @see Table#setRenderer(
-     * TupleRenderer)
+     * @see Table#setRenderer(TupleRenderer)
      */
     public void setRenderer( TupleRenderer renderer )
     {
         this.renderer = renderer;
     }
 
-
-    /**
-     * @see Table#isSortedDupsEnabled()
-     */
-    public boolean isSortedDupsEnabled()
+    
+    public boolean isCountExact()
     {
-        // If duplicates are enabled than duplicates will be maintained in
-        // sorted order.
-        return allowsDuplicates;
+        return false;
     }
-
+        
 
     // ------------------------------------------------------------------------
     // Count Overloads
     // ------------------------------------------------------------------------
 
+    
     /**
-     * @see Table#count(java.lang.Object, boolean)
+     * @see Table#greaterThanCount(Object)
      */
-    public int count( K key, boolean isGreaterThan ) throws IOException
+    public int greaterThanCount( K key ) throws IOException
+    {
+        // take a best guess
+        return count;
+    }
+    
+    
+    /**
+     * @see Table#lessThanCount(Object)
+     */
+    public int lessThanCount( K key ) throws IOException
     {
         // take a best guess
         return count;
@@ -375,12 +359,12 @@ public class JdbmTable<K,V> implements Table<K,V>
                 return true;
             }
             // val >= val and test is for greater then return true
-            else if ( comparator.compareValue( rval, val ) >= 1 && isGreaterThan )
+            else if ( comparator.compareValue( ( V ) rval, val ) >= 1 && isGreaterThan )
             {
                 return true;
             }
             // val <= val and test is for lesser then return true
-            else if ( comparator.compareValue( rval, val ) <= 1 && !isGreaterThan )
+            else if ( comparator.compareValue( ( V ) rval, val ) <= 1 && !isGreaterThan )
             {
                 return true;
             }
@@ -437,7 +421,8 @@ public class JdbmTable<K,V> implements Table<K,V>
         jdbm.helper.Tuple tuple = bt.findGreaterOrEqual( key );
 
         // Test for equality first since it satisfies both greater/less than
-        if ( null != tuple && comparator.compareKey( tuple.getKey(), key ) == 0 )
+        //noinspection unchecked
+        if ( null != tuple && comparator.compareKey( ( K ) tuple.getKey(), key ) == 0 )
         {
             return true;
         }
@@ -472,7 +457,8 @@ public class JdbmTable<K,V> implements Table<K,V>
             // comparator.
             if ( browser.getNext( tuple ) )
             {
-                return comparator.compareKey( tuple.getKey(), key ) <= 0;
+                //noinspection unchecked
+                return comparator.compareKey( ( K ) tuple.getKey(), key ) <= 0;
             }
         }
         else
@@ -485,7 +471,8 @@ public class JdbmTable<K,V> implements Table<K,V>
             // The above call positions the browser just before the given
             // key so we need to step forward once then back.  Remember this
             // key represents a key greater than or equal to key.
-            if ( comparator.compareKey( tuple.getKey(), key ) <= 0 )
+            //noinspection unchecked
+            if ( comparator.compareKey( ( K ) tuple.getKey(), key ) <= 0 )
             {
                 return true;
             }
@@ -497,7 +484,8 @@ public class JdbmTable<K,V> implements Table<K,V>
             // unneccessarily looping is nil since values get smaller.
             while ( browser.getPrevious( tuple ) )
             {
-                if ( comparator.compareKey( tuple.getKey(), key ) <= 0 )
+                //noinspection unchecked
+                if ( comparator.compareKey( ( K ) tuple.getKey(), key ) <= 0 )
                 {
                     return true;
                 }
@@ -1077,7 +1065,13 @@ public class JdbmTable<K,V> implements Table<K,V>
                 success = browser.getNext( tuple );
                 if ( success )
                 {
-                    Object biggerKey = tuple.getKey();
+                    /*
+                     * Note that keys in these embedded BTrees really store
+                     * duplicate values of similar keys in this BTree.
+                     */
+
+                    //noinspection unchecked
+                    V biggerKey = ( V ) tuple.getKey();
                     if ( comparator.compareValue( key, biggerKey ) == 0 )
                     {
                         return true;
@@ -1097,7 +1091,13 @@ public class JdbmTable<K,V> implements Table<K,V>
         boolean success = browser.getNext( tuple );
         if ( success )
         {
-            if ( comparator.compareValue( key, tuple.getKey() ) == 0 )
+            /*
+             * Note that keys in these embedded BTrees really store
+             * duplicate values of similar keys in this BTree.
+             */
+
+            //noinspection unchecked
+            if ( comparator.compareValue( key, ( V ) tuple.getKey() ) == 0 )
             {
                 return true;
             }

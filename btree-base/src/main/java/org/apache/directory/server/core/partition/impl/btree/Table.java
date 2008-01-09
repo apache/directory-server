@@ -41,7 +41,7 @@ public interface Table<K, V>
      * @return the comparator pair or null if this Table was not created with
      * one.
      */
-    TupleComparator getComparator();
+    TupleComparator<K,V> getComparator();
 
 
     /**
@@ -78,15 +78,20 @@ public interface Table<K, V>
      */
     boolean isDupsEnabled();
 
-
+    
     /**
-     * Checks to see if this Table has enabled sorting on the values of
-     * duplicate keys.
+     * Checks whether or not calls to count the number of keys greater than or
+     * less than the key are exact.
+     * 
+     * Checking to see the number of values greater than or less than some key
+     * may be excessively costly.  Since this is not a critical function but 
+     * one that assists in optimizing searches some implementations can just 
+     * return a worst case (maximum) guess.  
      *
-     * @return true if duplicate key values are sorted, false otherwise.
+     * @return true if the count is an exact value or a worst case guess 
      */
-    boolean isSortedDupsEnabled();
-
+    boolean isCountExact();
+    
 
     // ------------------------------------------------------------------------
     // Simple Table Key/Value Assertions 
@@ -277,16 +282,27 @@ public interface Table<K, V>
 
 
     /**
-     * Returns the number of records greater than or less than a key value.  The
-     * key need not exist for this call to return a non-zero value.
+     * Gets the number of records greater than or equal to a key value.  The 
+     * specific key argument provided need not exist for this call to return 
+     * a non-zero value.
      *
-     * @param key the Object key to count.
-     * @param isGreaterThan boolean set to true to count for greater than and
-     * equal to record keys, or false for less than or equal to keys.
-     * @return the number of keys greater or less than key.
-     * @throws IOException if there is a failure to read the underlying Db
+     * @param key the key to use in comparisons
+     * @return the number of keys greater than or equal to the key
+     * @throws IOException if there is a failure to read the underlying db
      */
-    int count( K key, boolean isGreaterThan ) throws IOException;
+    int greaterThanCount( K key ) throws IOException;
+
+
+    /**
+     * Gets the number of records less than or equal to a key value.  The 
+     * specific key argument provided need not exist for this call to return 
+     * a non-zero value.
+     *
+     * @param key the key to use in comparisons
+     * @return the number of keys less than or equal to the key
+     * @throws IOException if there is a failure to read the underlying db
+     */
+    int lessThanCount( K key ) throws IOException;
 
 
     /**

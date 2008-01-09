@@ -24,46 +24,33 @@ import javax.naming.directory.Attributes;
 
 
 /**
- * An index key value pair based on a tuple which can optionally reference the
- * indexed entry if one has been resusitated.
+ * An index key value pair based on a Tuple which can optionally reference the
+ * indexed entry if one has already been loaded.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class IndexRecord
+public class IndexRecord<K>
 {
     /** The underlying BTree Tuple */
-    private final Tuple tuple = new Tuple();
-    /** The referenced entry if resusitated */
-    private Attributes entry = null;
+    private final Tuple<K,Long> tuple = new Tuple<K,Long>();
+
+    /** The referenced entry if loaded from the store */
+    private Attributes entry;
 
 
     /**
      * Sets the key value tuple represented by this IndexRecord optionally 
-     * setting the entry if one was resusitated from the master table.
+     * setting the entry associated with the id if one was loaded from the
+     * master table.
      *
      * @param tuple the tuple for the IndexRecord
      * @param entry the resusitated entry if any
      */
-    public void setTuple( Tuple tuple, Attributes entry )
+    public void setTuple( Tuple<K,Long> tuple, Attributes entry )
     {
         this.tuple.setKey( tuple.getKey() );
         this.tuple.setValue( tuple.getValue() );
-        this.entry = entry;
-    }
-
-
-    /**
-     * Sets the key value tuple but swapping the key and the value and 
-     * optionally adding the entry if one was resusitated.
-     *
-     * @param tuple the tuple for the IndexRecord
-     * @param entry the resusitated entry if any
-     */
-    public void setSwapped( Tuple tuple, Attributes entry )
-    {
-        this.tuple.setKey( tuple.getValue() );
-        this.tuple.setValue( tuple.getKey() );
         this.entry = entry;
     }
 
@@ -73,7 +60,7 @@ public class IndexRecord
      *
      * @return the id of the entry indexed
      */
-    public Object getEntryId()
+    public Long getEntryId()
     {
         return tuple.getValue();
     }
@@ -84,7 +71,7 @@ public class IndexRecord
      *
      * @return the key of the entry indexed
      */
-    public Object getIndexKey()
+    public K getIndexKey()
     {
         return tuple.getKey();
     }
@@ -95,7 +82,7 @@ public class IndexRecord
      *
      * @param id the id of the entry
      */
-    public void setEntryId( Object id )
+    public void setEntryId( Long id )
     {
         tuple.setValue( id );
     }
@@ -106,7 +93,7 @@ public class IndexRecord
      *
      * @param key the key of the IndexRecord
      */
-    public void setIndexKey( Object key )
+    public void setIndexKey( K key )
     {
         tuple.setKey( key );
     }
@@ -157,7 +144,7 @@ public class IndexRecord
      * 
      * @param record the record whose contents we copy
      */
-    public void copy( IndexRecord record )
+    public void copy( IndexRecord<K> record )
     {
         entry = record.getAttributes();
         tuple.setKey( record.getIndexKey() );

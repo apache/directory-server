@@ -82,6 +82,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
         }
     };
 
+
     private final JdbmTable adminTbl;
 
 
@@ -91,29 +92,15 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @param recMan the jdbm record manager
      * @throws NamingException if there is an error opening the Db file.
      */
-    public JdbmMasterTable( RecordManager recMan ) throws NamingException
+    public JdbmMasterTable( RecordManager recMan ) throws IOException
     {
         super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new AttributesSerializer() );
         adminTbl = new JdbmTable( "admin", recMan, STRING_COMPARATOR, null, null );
-        try
-        {
-            String seqValue = ( String ) adminTbl.get( SEQPROP_KEY );
-        }
-        catch ( IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        String seqValue = ( String ) adminTbl.get( SEQPROP_KEY );
 
         if ( null == seqValue )
         {
-            try
-            {
-                adminTbl.put( SEQPROP_KEY, "0" );
-            }
-            catch ( IOException e )
-            {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
+            adminTbl.put( SEQPROP_KEY, "0" );
         }
     }
 
@@ -141,7 +128,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @return the Attributes of the entry put
      * @throws NamingException if there is a write error on the underlying Db.
      */
-    public Attributes put( Attributes entry, Object id ) throws NamingException
+    public Attributes put( Attributes entry, Object id ) throws IOException
     {
         return ( Attributes ) super.put( id, entry );
     }
@@ -154,7 +141,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @return the Attributes of the deleted entry
      * @throws NamingException if there is a write error on the underlying Db
      */
-    public Attributes delete( Object id ) throws NamingException
+    public Attributes delete( Object id ) throws IOException
     {
         return ( Attributes ) super.remove( id );
     }
@@ -168,32 +155,18 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @throws NamingException if the admin table storing sequences cannot be
      *                         read.
      */
-    public Long getCurrentId() throws NamingException
+    public Long getCurrentId() throws IOException
     {
-        Long id;
+        Long id = null;
 
         synchronized ( adminTbl )
         {
-            try
-            {
-                id = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
-            }
-            catch ( IOException e )
-            {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
+            id = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
 
             //noinspection ConstantConditions
             if ( null == id )
             {
-                try
-                {
-                    adminTbl.put( SEQPROP_KEY, "0" );
-                }
-                catch ( IOException e )
-                {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+                adminTbl.put( SEQPROP_KEY, "0" );
                 id = 0L;
             }
         }
@@ -212,45 +185,25 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @throws NamingException if the admin table storing sequences cannot be
      *                         read and writen to.
      */
-    public Long getNextId() throws NamingException
+    public Long getNextId() throws IOException
     {
-        Long lastVal;
         Long nextVal;
+        Long lastVal = null;
 
         synchronized ( adminTbl )
         {
-            try
-            {
-                lastVal = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
-            }
-            catch ( IOException e )
-            {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
+            lastVal = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
 
             //noinspection ConstantConditions
             if ( null == lastVal )
             {
-                try
-                {
-                    adminTbl.put( SEQPROP_KEY, "1" );
-                }
-                catch ( IOException e )
-                {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+                adminTbl.put( SEQPROP_KEY, "1" );
                 return 1L;
-            } else
+            }
+            else
             {
                 nextVal = lastVal + 1L;
-                try
-                {
-                    adminTbl.put( SEQPROP_KEY, nextVal.toString() );
-                }
-                catch ( IOException e )
-                {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+                adminTbl.put( SEQPROP_KEY, nextVal.toString() );
             }
         }
 
@@ -265,18 +218,11 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @return the value of the property
      * @throws NamingException when the underlying admin table cannot be read
      */
-    public String getProperty( String property ) throws NamingException
+    public String getProperty( String property ) throws IOException
     {
         synchronized ( adminTbl )
         {
-            try
-            {
-                return ( String ) adminTbl.get( property );
-            }
-            catch ( IOException e )
-            {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
+            return ( String ) adminTbl.get( property );
         }
     }
 
@@ -288,18 +234,11 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @param value    the value of the property
      * @throws NamingException when the underlying admin table cannot be writen
      */
-    public void setProperty( String property, String value ) throws NamingException
+    public void setProperty( String property, String value ) throws IOException
     {
         synchronized ( adminTbl )
         {
-            try
-            {
-                adminTbl.put( property, value );
-            }
-            catch ( IOException e )
-            {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
+            adminTbl.put( property, value );
         }
     }
 

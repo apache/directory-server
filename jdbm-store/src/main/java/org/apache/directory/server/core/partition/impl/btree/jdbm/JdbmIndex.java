@@ -28,16 +28,12 @@ import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
+import org.apache.directory.shared.ldap.NotImplementedException;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 
 /** 
@@ -48,7 +44,7 @@ import java.util.regex.Pattern;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmIndex implements Index
+public class JdbmIndex<K> implements Index<K>
 {
     /**
      * default duplicate limit before duplicate keys switch to using a btree for values
@@ -68,13 +64,13 @@ public class JdbmIndex implements Index
      * the value of the btree is the entry id of the entry containing an attribute with
      * that value
      */
-    private JdbmTable forward;
+    private JdbmTable<K, Long> forward;
     /**
      * the reverse btree where the btree key is the entry id of the entry containing a
      * value for the indexed attribute, and the btree value is the value of the indexed
      * attribute
      */
-    private JdbmTable reverse;
+    private JdbmTable<Long,K> reverse;
     /**
      * the JDBM record manager for the file containing this index
      */
@@ -139,7 +135,7 @@ public class JdbmIndex implements Index
     }
 
 
-    public void init( AttributeType attributeType, File wkDirPath ) throws NamingException
+    public void init( AttributeType attributeType, File wkDirPath ) throws IOException
     {
         this.keyCache = new SynchronizedLRUMap( cacheSize );
         this.attribute = attributeType;
@@ -149,21 +145,10 @@ public class JdbmIndex implements Index
         }
 
         File file = new File( this.wkDirPath.getPath() + File.separator + attribute.getName() );
-
-
-        try
-        {
-            String path = file.getAbsolutePath();
-            BaseRecordManager base = new BaseRecordManager( path );
-            base.disableTransactions();
-            this.recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException( "Could not initialize the record manager" );
-            ne.setRootCause( e );
-            throw ne;
-        }
+        String path = file.getAbsolutePath();
+        BaseRecordManager base = new BaseRecordManager( path );
+        base.disableTransactions();
+        this.recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
         initTables();
         initialized = true;
@@ -173,25 +158,33 @@ public class JdbmIndex implements Index
     /**
      * Initializes the forward and reverse tables used by this Index.
      * 
-     * @throws NamingException if we cannot initialize the forward and reverse 
+     * @throws IOException if we cannot initialize the forward and reverse
      * tables
      */
-    private void initTables() throws NamingException
+    private void initTables() throws IOException
     {
-        SerializableComparator comp;
-        comp = new SerializableComparator( attribute.getEquality().getOid() );
+        SerializableComparator<K> comp;
+
+        try
+        {
+            comp = new SerializableComparator<K>( attribute.getEquality().getOid() );
+        }
+        catch ( NamingException e )
+        {
+            throw new IOException( "Failed to find an equality matching rule for attribute type", e );
+        }
 
         /*
          * The forward key/value map stores attribute values to master table 
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        forward = new JdbmTable( 
+        forward = new JdbmTable<K, Long>(
             attribute.getName() + FORWARD_BTREE, 
             true,
             numDupLimit,
             recMan, 
-            new IndexComparator( comp, true ),
+            new ForwardIndexComparator<K>( comp ),
             null, null );
             //LongSerializer.INSTANCE );
 
@@ -201,12 +194,12 @@ public class JdbmIndex implements Index
          * is single valued according to its specification based on a schema 
          * then duplicate keys should not be allowed within the reverse table.
          */
-        reverse = new JdbmTable( 
+        reverse = new JdbmTable<Long,K>(
             attribute.getName() + REVERSE_BTREE, 
             !attribute.isSingleValue(),
             numDupLimit,
             recMan,
-            new IndexComparator( comp, false ),
+            new ReverseIndexComparator<K>( comp ),
             null, //LongSerializer.INSTANCE,
             null);
     }
@@ -356,18 +349,24 @@ public class JdbmIndex implements Index
     /**
      * @see Index#count(java.lang.Object)
      */
-    public int count( Object attrVal ) throws IOException
+    public int count( K attrVal ) throws IOException
     {
         return forward.count( getNormalized( attrVal ) );
     }
 
 
+    public int greaterThanCount( K attrVal ) throws IOException
+    {
+        return forward.greaterThanCount( getNormalized( attrVal ) );
+    }
+    
+    
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.Index#count(java.lang.Object, boolean)
      */
-    public int count( Object attrVal, boolean isGreaterThan ) throws IOException
+    public int lessThanCount( K attrVal ) throws IOException
     {
-        return forward.count( getNormalized( attrVal ), isGreaterThan );
+        return forward.lessThanCount( getNormalized( attrVal ) );
     }
 
 
@@ -379,16 +378,16 @@ public class JdbmIndex implements Index
     /**
      * @see Index#forwardLookup(java.lang.Object)
      */
-    public Long forwardLookup( Object attrVal ) throws IOException
+    public Long forwardLookup( K attrVal ) throws IOException
     {
-        return ( Long ) forward.get( getNormalized( attrVal ) );
+        return forward.get( getNormalized( attrVal ) );
     }
 
 
     /**
-     * @see Index#reverseLookup(Object)
+     * @see Index#reverseLookup(Long)
      */
-    public Object reverseLookup( Object id ) throws IOException
+    public K reverseLookup( Long id ) throws IOException
     {
         return reverse.get( id );
     }
@@ -400,9 +399,9 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see Index#add(Object,Object)
+     * @see Index#add(Object, Long)
      */
-    public synchronized void add( Object attrVal, Object id ) throws IOException
+    public synchronized void add( K attrVal, Long id ) throws IOException
     {
         forward.put( getNormalized( attrVal ), id );
         reverse.put( id, getNormalized( attrVal ) );
@@ -410,36 +409,9 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see Index#add(Attribute, Object)
+     * @see Index#drop(Object,Long)
      */
-    public synchronized void add( Attribute attr, Object id ) throws IOException
-    {
-        // Can efficiently batch add to the reverse table 
-        NamingEnumeration values = attr.getAll();
-        reverse.put( id, values );
-
-        // Have no choice but to add each value individually to forward table
-        values = attr.getAll();
-        while ( values.hasMore() )
-        {
-            forward.put( values.next(), id );
-        }
-    }
-
-
-    /**
-     * @see Index#add(Attributes, Object)
-     */
-    public synchronized void add( Attributes attrs, Object id ) throws IOException
-    {
-        add( AttributeUtils.getAttribute( attrs, attribute ), id );
-    }
-
-
-    /**
-     * @see Index#drop(Object,Object)
-     */
-    public synchronized void drop( Object attrVal, Object id ) throws IOException
+    public synchronized void drop( K attrVal, Long id ) throws IOException
     {
         forward.remove( getNormalized( attrVal ), id );
         reverse.remove( id, getNormalized( attrVal ) );
@@ -447,112 +419,37 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see Index#drop(Object)
+     * @see Index#drop(Long)
      */
-    public void drop( Object entryId ) throws IOException
+    public void drop( Long id ) throws IOException
     {
-        NamingEnumeration<Object> values = reverse.listValues( entryId );
+        Cursor<Tuple<Long,K>> values = reverse.cursor();
+        Tuple<Long,K> tuple = new Tuple<Long,K>( id, null );
+        values.before( tuple );
 
-        while ( values.hasMore() )
+        while ( values.next() )
         {
-            forward.remove( values.next(), entryId );
+            forward.remove( values.get().getValue(), id );
         }
 
-        reverse.remove( entryId );
-    }
-
-
-    /**
-     * @see Index#drop(Attribute, Object)
-     */
-    public void drop( Attribute attr, Object id ) throws IOException
-    {
-        // Can efficiently batch remove from the reverse table 
-        NamingEnumeration values = attr.getAll();
-
-        // If their are no values in attr this is a request to drop all
-        if ( !values.hasMore() )
-        {
-            drop( id );
-            return;
-        }
-
-        reverse.remove( id, values );
-
-        // Have no choice but to remove values individually from forward table
-        values = attr.getAll();
-        while ( values.hasMore() )
-        {
-            forward.remove( values.next(), id );
-        }
-    }
-
-
-    /**
-     * @see Index#drop(Attributes, Object)
-     */
-    public void drop( Attributes attrs, Object id ) throws IOException
-    {
-        drop( AttributeUtils.getAttribute( attrs, attribute ), id );
+        reverse.remove( id );
     }
 
 
     // ------------------------------------------------------------------------
-    // Index Listing Operations
+    // Index Cursor Operations
     // ------------------------------------------------------------------------
 
 
-    /**
-     * @see Index#listReverseIndices(Object)
-     */
-    public Cursor<IndexRecord> listReverseIndices( Object id ) throws IOException
+    public Cursor<IndexRecord> reverseCursor() throws IOException
     {
-        return new IndexEnumeration<Tuple>( reverse.listTuples( id ), true );
+        throw new NotImplementedException();
     }
 
 
-    /**
-     * @see Index#listIndices()
-     */
-    public Cursor<IndexRecord> listIndices() throws IOException
+    public Cursor<IndexRecord> cursor() throws IOException
     {
-        return new IndexEnumeration<Tuple>( forward.listTuples() );
-    }
-
-
-    /**
-     * @see Index#listIndices(Object)
-     */
-    public Cursor<IndexRecord> listIndices( Object attrVal ) throws IOException
-    {
-        return new IndexEnumeration<Tuple>( forward.listTuples( getNormalized( attrVal ) ) );
-    }
-
-
-    /**
-     * @see Index#listIndices(Object,boolean)
-     */
-    public Cursor<IndexRecord> listIndices( Object attrVal, boolean isGreaterThan ) throws IOException
-    {
-        return new IndexEnumeration<Tuple>( forward.listTuples( getNormalized( attrVal ), isGreaterThan ) );
-    }
-
-
-    /**
-     * @see Index#listIndices(Pattern)
-     */
-    public Cursor<IndexRecord> listIndices( Pattern regex ) throws IOException
-    {
-        return new IndexEnumeration<Tuple>( forward.listTuples(), false, regex );
-    }
-
-
-    /**
-     * @see Index#listIndices(Pattern,String)
-     */
-    public Cursor<IndexRecord> listIndices( Pattern regex, String prefix ) throws IOException
-    {
-        return new IndexEnumeration<Tuple>( forward.listTuples( getNormalized( prefix ), true ), false, regex );
+        throw new NotImplementedException();
     }
 
 
@@ -562,34 +459,20 @@ public class JdbmIndex implements Index
 
     
     /**
-     * @see Index#hasValue(java.lang.Object,
-     * Object)
+     * @see Index#hasValue(Object,Long)
      */
-    public boolean hasValue( Object attrVal, Object id ) throws IOException
+    public boolean hasValue( K attrVal, Long id ) throws IOException
     {
         return forward.has( getNormalized( attrVal ), id );
     }
 
 
     /**
-     * @see Index#hasValue(java.lang.Object,
-     * Object, boolean)
+     * @see Index#hasValue(Object, Long, boolean)
      */
-    public boolean hasValue( Object attrVal, Object id, boolean isGreaterThan ) throws IOException
+    public boolean hasValue( K attrVal, Long id, boolean isGreaterThan ) throws IOException
     {
         return forward.has( getNormalized( attrVal ), id, isGreaterThan );
-    }
-
-
-    /**
-     * @see Index#hasValue(Pattern,Object)
-     */
-    public boolean hasValue( Pattern regex, Object id ) throws IOException
-    {
-        IndexEnumeration<Tuple> list = new IndexEnumeration<Tuple>( reverse.listTuples( id ), true, regex );
-        boolean hasValue = list.hasMore();
-        list.close();
-        return hasValue;
     }
 
 
@@ -623,20 +506,22 @@ public class JdbmIndex implements Index
      * TODO I don't think the keyCache is required anymore since the normalizer
      * will cache values for us.
      */
-    public Object getNormalized( Object attrVal ) throws IOException
+    public K getNormalized( K attrVal ) throws IOException
     {
         if ( attrVal instanceof Long )
         {
             return attrVal;
         }
-        
-        Object normalized = keyCache.get( attrVal );
+
+        //noinspection unchecked
+        K normalized = ( K ) keyCache.get( attrVal );
 
         if ( null == normalized )
         {
             try
             {
-                normalized = attribute.getEquality().getNormalizer().normalize( attrVal );
+                //noinspection unchecked
+                normalized = ( K ) attribute.getEquality().getNormalizer().normalize( attrVal );
             }
             catch ( NamingException e )
             {

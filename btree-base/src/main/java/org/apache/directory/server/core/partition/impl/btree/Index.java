@@ -20,25 +20,23 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.util.regex.Pattern;
 import java.io.File;
 import java.io.IOException;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.server.core.cursor.Cursor;
 
 
 /**
- * Required interfaces for an index.
+ * An index into the master table which returns one or more entry's positions
+ * in the master table for those entries which posses an attribute with the
+ * specified value.  Cursors over indices can also be gotten to traverse the
+ * values of the index.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Index
+public interface Index<K>
 {
     int DEFAULT_INDEX_CACHE_SIZE = 100;
     
@@ -119,7 +117,7 @@ public interface Index
      * @return the normalized value.
      * @throws IOException if something goes wrong.
      */
-    Object getNormalized( Object attrVal ) throws IOException;
+    K getNormalized( K attrVal ) throws IOException;
 
 
     /**
@@ -139,72 +137,40 @@ public interface Index
      * @return the number of key/value pairs in this index with the value value
      * @throws IOException on failure to access index db files
      */
-    int count( Object attrVal ) throws IOException;
+    int count( K attrVal ) throws IOException;
 
 
-    int count( Object attrVal, boolean isGreaterThan ) throws IOException;
+    int greaterThanCount( K attrVal ) throws IOException;
 
 
-    Object forwardLookup( Object attrVal ) throws IOException;
+    int lessThanCount( K attrVal ) throws IOException;
 
 
-    Object reverseLookup( Object id ) throws IOException;
+    Long forwardLookup( K attrVal ) throws IOException;
 
 
-    void add( Object attrVal, Object id ) throws IOException;
+    K reverseLookup( Long id ) throws IOException;
 
 
-    void add( Attribute attr, Object id ) throws IOException;
+    void add( K attrVal, Long id ) throws IOException;
 
 
-    void add( Attributes attrs, Object id ) throws IOException;
+    void drop( Long id ) throws IOException;
 
 
-    void drop( Object entryId ) throws IOException;
+    void drop( K attrVal, Long id ) throws IOException;
 
 
-    void drop( Object attrVal, Object id ) throws IOException;
+    Cursor<IndexRecord> reverseCursor() throws IOException;
 
 
-    /**
-     * If the Attribute does not have any values then this reduces to a 
-     * drop(BigInteger) call.
-     */
-    void drop( Attribute attr, Object id ) throws IOException;
+    Cursor<IndexRecord> cursor() throws IOException;
 
 
-    /**
-     * If the Attribute for this index within the Attributes does not have any 
-     * values then this reduces to a drop(BigInteger) call.
-     */
-    void drop( Attributes attrs, Object id ) throws IOException;
+    boolean hasValue( K attrVal, Long id ) throws IOException;
 
 
-    Cursor<IndexRecord> listReverseIndices( Object id ) throws IOException;
-
-
-    Cursor<IndexRecord> listIndices() throws IOException;
-
-
-    Cursor<IndexRecord> listIndices( Object attrVal ) throws IOException;
-
-
-    Cursor<IndexRecord> listIndices( Object attrVal, boolean isGreaterThan ) throws IOException;
-
-
-    Cursor<IndexRecord> listIndices( Pattern regex ) throws IOException;
-
-
-    Cursor<IndexRecord> listIndices( Pattern regex, String prefix ) throws IOException;
-
-
-    boolean hasValue( Object attrVal, Object id ) throws IOException;
-
-
-    boolean hasValue( Object attrVal, Object id, boolean isGreaterThan ) throws IOException;
-
-
-    boolean hasValue( Pattern regex, Object id ) throws IOException;
+    boolean hasValue( K attrVal, Long id, boolean isGreaterThan ) throws IOException;
 
 
     void close() throws IOException;
