@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -189,8 +190,6 @@ public class DefaultPartitionNexus extends PartitionNexus
             SchemaConstants.TOP_OC,
             SchemaConstants.EXTENSIBLE_OBJECT_OC );
 
-        rootDSE.set( SchemaConstants.NAMING_CONTEXTS_AT );
-        
         // Add the 'vendor' name and version infos
         rootDSE.put( SchemaConstants.VENDOR_NAME_AT, ASF );
 
@@ -385,7 +384,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         
         if ( override != null )
         {
-            ServerEntry systemEntry = ServerEntryUtils.toServerEntry( override.getContextEntryAttr(), new LdapDN( override.getSuffix() ), registries );
+            ServerEntry systemEntry = override.getContextEntry();
             ServerAttribute objectClassAttr = systemEntry.get( SchemaConstants.OBJECT_CLASS_AT );
             
             if ( objectClassAttr == null )
@@ -491,7 +490,18 @@ public class DefaultPartitionNexus extends PartitionNexus
             partitions.put( key, system );
             partitionLookupTree.recursivelyAddPartition( partitionLookupTree, system.getSuffixDn(), 0, system );
             ServerAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
-            namingContexts.add( system.getUpSuffixDn().getUpName() );
+            
+            if ( namingContexts == null )
+            {
+                namingContexts = new DefaultServerAttribute( 
+                    registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), 
+                    system.getUpSuffixDn().getUpName() );
+                rootDSE.put( namingContexts );
+            }
+            else
+            {
+                namingContexts.add( system.getUpSuffixDn().getUpName() );
+            }
         }
 
         return system;
@@ -685,7 +695,16 @@ public class DefaultPartitionNexus extends PartitionNexus
         		throw new ConfigurationException( "The current partition does not have any user provided suffix: " + partition.getId() );
         	}
         	
-            namingContexts.add( partitionUpSuffix.getUpName() );
+        	if ( namingContexts == null )
+        	{
+        	    namingContexts = new DefaultServerAttribute( 
+        	        registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), partitionUpSuffix.getUpName() );
+        	    rootDSE.put( namingContexts );
+        	}
+        	else
+        	{
+        	    namingContexts.add( partitionUpSuffix.getUpName() );
+        	}
         }
     }
 
@@ -701,7 +720,11 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         ServerAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
-        namingContexts.remove( partition.getUpSuffixDn().getUpName() );
+        
+        if ( namingContexts != null )
+        {
+            namingContexts.remove( partition.getUpSuffixDn().getUpName() );
+        }
 
         // Create a new partition list. 
         // This is easier to create a new structure from scratch than to reorganize
@@ -811,7 +834,12 @@ public class DefaultPartitionNexus extends PartitionNexus
     private void unregister( Partition partition ) throws NamingException
     {
         ServerAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
-        namingContexts.remove( partition.getSuffixDn().getUpName() );
+        
+        if ( namingContexts != null )
+        {
+            namingContexts.remove( partition.getSuffixDn().getUpName() );
+        }
+        
         partitions.remove( partition.getSuffixDn().toString() );
     }
 

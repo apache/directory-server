@@ -26,22 +26,20 @@ import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.ldif.Entry;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
 /**
@@ -73,7 +71,7 @@ public class NegationOperatorITest extends AbstractServerTest
 
 
     @Override
-    protected void configureDirectoryService()
+    protected void configureDirectoryService() throws NamingException
     {
         if ( this.getName().indexOf( "Indexed" ) != -1 )
         {
@@ -92,16 +90,14 @@ public class NegationOperatorITest extends AbstractServerTest
             system.setIndexedAttributes( indexedAttrs );
 
             // Add context entry for system partition
-            Attributes systemEntry = new AttributesImpl();
-            Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClassAttr.add( SchemaConstants.TOP_OC );
-            objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
-            systemEntry.put( objectClassAttr );
+            LdapDN systemDn = new LdapDN( "ou=system" );
+            ServerEntry systemEntry = new DefaultServerEntry( directoryService.getRegistries(), systemDn );
+            
+            systemEntry.put( "objectClass", "top", "organizationalUnit", "extensibleObject" ); 
+
             systemEntry.put( SchemaConstants.CREATORS_NAME_AT, "uid=admin, ou=system" );
             systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            systemEntry.put( NamespaceTools.getRdnAttribute( "ou=system" ),
-                NamespaceTools.getRdnValue( "ou=system" ) );
+            systemEntry.put( "ou", "system" );
             system.setContextEntry( systemEntry );
 
             directoryService.setSystemPartition( system );

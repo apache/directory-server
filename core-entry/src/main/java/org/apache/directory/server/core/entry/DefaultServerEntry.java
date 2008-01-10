@@ -548,7 +548,7 @@ public final class DefaultServerEntry implements ServerEntry
      */
     public ServerAttribute put( String upId, String... values ) throws NamingException
     {
-        return put( getAttributeType( upId ), values );
+        return put( upId, getAttributeType( upId ), values );
     }
 
 
@@ -976,7 +976,9 @@ public final class DefaultServerEntry implements ServerEntry
 
         if ( attributeType.equals( OBJECT_CLASS_AT ) )
         {
-            throw new UnsupportedOperationException( "Only String values supported for objectClass attribute" );
+            String message = "Only String values supported for objectClass attribute";
+            LOG.error(  message  );
+            throw new UnsupportedOperationException( message );
         }
 
         ServerAttribute serverAttribute = new DefaultServerAttribute( upId, attributeType );
@@ -1002,7 +1004,10 @@ public final class DefaultServerEntry implements ServerEntry
             }
             else
             {
-                attributes.add( serverAttributeMap.remove( attributeType ) );
+                if ( serverAttributeMap.containsKey( attributeType ) )
+                {
+                    attributes.add( serverAttributeMap.remove( attributeType ) );
+                }
             }
         }
         
@@ -1181,6 +1186,31 @@ public final class DefaultServerEntry implements ServerEntry
     /**
      * Checks if an entry contains an attribute with a given value.
      *
+     * @param attributeType The Attribute we are looking for
+     * @param value The searched value
+     * @return <code>true</code> if the value is found within the attribute
+     * @throws NamingException If the attribute does not exists
+     */
+    public boolean contains( AttributeType attributeType, String value ) throws NamingException
+    {
+        if ( attributeType == null )
+        {
+            return false;
+        }
+        else if ( serverAttributeMap.containsKey( attributeType ) )
+        {
+            return serverAttributeMap.get( attributeType ).contains( value );
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    
+    /**
+     * Checks if an entry contains an attribute with a given value.
+     *
      * @param id The Attribute we are looking for
      * @param value The searched value
      * @return <code>true</code> if the value is found within the attribute
@@ -1211,6 +1241,31 @@ public final class DefaultServerEntry implements ServerEntry
     
     
     /**
+     * Checks if an entry contains an attribute with a given value.
+     *
+     * @param attributeType The Attribute we are looking for
+     * @param value The searched value
+     * @return <code>true</code> if the value is found within the attribute
+     * @throws NamingException If the attribute does not exists
+     */
+    public boolean contains( AttributeType attributeType, byte[] value ) throws NamingException
+    {
+        if ( attributeType == null )
+        {
+            return false;
+        }
+        else if ( serverAttributeMap.containsKey( attributeType ) )
+        {
+            return serverAttributeMap.get( attributeType ).contains( value );
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    
+    /**
      * Gets all the attributes type (ObjectClasses, May and Must)
      *
      * @return The combined set of all the attributes, including ObjectClass.
@@ -1221,6 +1276,279 @@ public final class DefaultServerEntry implements ServerEntry
     }
     
     
+    /**
+     * Add an attribute (represented by its ID and some String values) into an 
+     * entry.
+     * <p> 
+     * If we already have an attribute with the same value, nothing is done
+     *
+     * @param attributeType The attribute Type
+     * @param values The list of String values to inject. It can be empty
+     * @throws NamingException If the attribute does not exist
+     */
+    public void add( AttributeType attributeType, String... values ) throws NamingException
+    {
+        if ( attributeType == null )
+        {
+            String message = "The attributeType should not be null";
+            LOG.error( message );
+            throw new IllegalArgumentException( message );
+        }
+        
+        ServerAttribute existing = serverAttributeMap.get( attributeType );
+
+        if ( existing != null )
+        {
+            existing.add( values );
+        }
+        else
+        {
+            if ( attributeType.equals( OBJECT_CLASS_AT ) )
+            {
+                setObjectClassAttribute( new ObjectClassAttribute( registries, OBJECT_CLASS_AT.getName(), values ) );
+            }
+            else
+            {
+                put( null, attributeType, values );
+            }
+        }
+    }
+
+    
+    /**
+     * Add an attribute (represented by its ID and some Binary values) into an 
+     * entry.
+     * <p> 
+     * If we already have an attribute with the same value, nothing is done
+     *
+     * @param attributeType The attribute Type
+     * @param values The list of binary values to inject. It can be empty
+     * @throws NamingException If the attribute does not exist
+     */
+    public void add( AttributeType attributeType, byte[]... values ) throws NamingException
+    {
+        if ( attributeType == null )
+        {
+            String message = "The attributeType should not be null";
+            LOG.error( message );
+            throw new IllegalArgumentException( message );
+        }
+        
+        ServerAttribute existing = serverAttributeMap.get( attributeType );
+
+        if ( existing != null )
+        {
+            existing.add( values );
+        }
+        else
+        {
+            if ( attributeType.equals( OBJECT_CLASS_AT ) )
+            {
+                String message = "Only String values supported for objectClass attribute";
+                LOG.error(  message  );
+                throw new UnsupportedOperationException( message );
+            }
+            else
+            {
+                put( null, attributeType, values );
+            }
+        }
+    }
+
+
+    /**
+     * Add a new attribute with some ServerValue values into the entry.
+     * <p>
+     * 
+     * @param attributeType The attributeType to add
+     * @param values The associated ServerValue values
+     * @throws NamingException If some values conflict with the attributeType
+     * 
+     */
+    public void add( AttributeType attributeType, ServerValue<?>... values ) throws NamingException
+    {
+        if ( attributeType == null )
+        {
+            String message = "The attributeType should not be null";
+            LOG.error( message );
+            throw new IllegalArgumentException( message );
+        }
+        
+        ServerAttribute existing = serverAttributeMap.get( attributeType );
+
+        if ( existing != null )
+        {
+            // Adds the new values into the attribute
+            existing.add( values );
+        }
+        else
+        {
+            ServerAttribute serverAttribute = new DefaultServerAttribute( attributeType, values );
+            put( serverAttribute );
+        }
+    }
+
+
+    /**
+     * Add an attribute (represented by its ID and string values) into an entry. 
+     *
+     * @param upId The attribute ID
+     * @param values The list of string values to inject. It can be empty
+     * @throws NamingException If the attribute does not exist
+     */
+    public void add( String upId, String... values ) throws NamingException
+    {
+        add( upId, getAttributeType( upId ), values );
+    }
+
+
+    /**
+     * Add an attribute (represented by its ID and binary values) into an entry. 
+     *
+     * @param upId The attribute ID
+     * @param values The list of binary values to inject. It can be empty
+     * @throws NamingException If the attribute does not exist
+     */
+    public void add( String upId, byte[]... values ) throws NamingException
+    {
+        add( upId, getAttributeType( upId ), values );
+    }
+
+
+    /**
+     * Add an attribute (represented by its ID and ServerValue values) into an entry. 
+     *
+     * @param upId The attribute ID
+     * @param values The list of ServerValue values to inject. It can be empty
+     * @throws NamingException If the attribute does not exist
+     */
+    public void add( String upId, ServerValue<?>... values ) throws NamingException
+    {
+        add( upId, getAttributeType( upId ), values );
+    }
+
+
+    /**
+     * Adds a new attribute with some String values into an entry, setting
+     * the User Provided ID in the same time.
+     *
+     * @param upId The User provided ID
+     * @param attributeType The associated AttributeType
+     * @param values The String values to store into the new Attribute
+     * @throws NamingException 
+     */
+    public void add( String upId, AttributeType attributeType, String... values ) throws NamingException
+    {
+        upId = getUpId( upId, attributeType );
+        attributeType = getAttributeType( upId, attributeType );
+        
+        ServerAttribute existing = serverAttributeMap.get( attributeType );
+        
+        if ( existing == null )
+        {
+            put( upId, attributeType, values );
+        }
+        else
+        {
+            if ( attributeType.equals( OBJECT_CLASS_AT ) )
+            {
+                // If the AttributeType is the ObjectClass AttributeType, then
+                // we don't add it to the entry, as it has already been added
+                // before. But we have to store the upId.
+                objectClassAttribute.setUpId( upId, OBJECT_CLASS_AT );
+                objectClassAttribute.add( values );
+            }
+            else
+            {
+                // We simply have to set the current attribute values
+                // and to change its upId
+                existing.add( values );
+                existing.setUpId( upId, attributeType );
+            }
+        }
+    }
+
+
+    /**
+     * Adds a new attribute with some Binary values into an entry, setting
+     * the User Provided ID in the same time.
+     *
+     * @param upId The User provided ID
+     * @param attributeType The associated AttributeType
+     * @param values The Binary values to store into the new Attribute
+     * @throws NamingException 
+     */
+    public void add( String upId, AttributeType attributeType, byte[]... values ) throws NamingException
+    {
+        upId = getUpId( upId, attributeType );
+        attributeType = getAttributeType( upId, attributeType );
+        
+        ServerAttribute existing = serverAttributeMap.get( attributeType );
+        
+        if ( existing == null )
+        {
+            put( upId, attributeType, values );
+        }
+        else
+        {
+            if ( attributeType.equals( OBJECT_CLASS_AT ) )
+            {
+                String message = "Only String values supported for objectClass attribute";
+                LOG.error(  message  );
+                throw new UnsupportedOperationException( message );
+            }
+            else
+            {
+                // We simply have to set the current attribute values
+                // and to change its upId
+                existing.add( values );
+                existing.setUpId( upId, attributeType );
+            }
+        }
+    }
+
+
+    /**
+     * Adds a new attribute with some ServerValue values into an entry, setting
+     * the User Provided ID in the same time.
+     *
+     * @param upId The User provided ID
+     * @param attributeType The associated AttributeType
+     * @param values The ServerValue values to store into the new Attribute
+     * @throws NamingException 
+     */
+    public void add( String upId, AttributeType attributeType, ServerValue<?>... values ) throws NamingException
+    {
+        upId = getUpId( upId, attributeType );
+        attributeType = getAttributeType( upId, attributeType );
+        
+        ServerAttribute existing = serverAttributeMap.get( attributeType );
+        
+        if ( existing == null )
+        {
+            put( upId, attributeType, values );
+        }
+        else
+        {
+            if ( attributeType.equals( OBJECT_CLASS_AT ) )
+            {
+                // If the AttributeType is the ObjectClass AttributeType, then
+                // we don't add it to the entry, as it has already been added
+                // before. But we have to store the upId.
+                objectClassAttribute.setUpId( upId, OBJECT_CLASS_AT );
+                objectClassAttribute.add( values );
+            }
+            else
+            {
+                // We simply have to set the current attribute values
+                // and to change its upId
+                existing.add( values );
+                existing.setUpId( upId, attributeType );
+            }
+        }
+    }
+
+
     /**
      * @see Object#toString()
      */
@@ -1233,7 +1561,7 @@ public final class DefaultServerEntry implements ServerEntry
         
         if ( objectClassAttribute != null )
         {
-            sb.append( "    " ).append( objectClassAttribute );
+            sb.append( objectClassAttribute );
         }
 
         if ( serverAttributeMap.size() != 0 )

@@ -121,7 +121,7 @@ import java.util.Set;
  * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultDirectoryService implements  DirectoryService
+public class DefaultDirectoryService implements DirectoryService
 {
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryService.class );
 
@@ -1500,22 +1500,23 @@ public class DefaultDirectoryService implements  DirectoryService
     /**
      * Create a new ServerEntry
      * 
-     * @param dn The DN for this new entry
      * @param ldif The String representing the attributes, as a LDIF file
+     * @param dn The DN for this new entry
      */
-    public ServerEntry newEntry( String dn, String ldif )
+    public ServerEntry newEntry( String ldif, String dn )
     {
         try
         {
             Attributes entry = readEntry( ldif );
             
-            return new DefaultServerEntry( registries, new LdapDN( dn) );
+            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( entry, new LdapDN( dn ), registries );
+            return serverEntry;
         }
         catch ( Exception e )
         {
+        	LOG.error( "Cannot build an entry for '{}' and this DN :'{}'", ldif, dn );
             // do nothing
             return null;
         }
     }
-    
 }

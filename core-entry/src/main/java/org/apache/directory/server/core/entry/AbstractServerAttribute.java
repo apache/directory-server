@@ -115,7 +115,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute, Clonea
      * @param upId The attribute ID
      * @param attributeType The associated attributeType
      */
-    protected void setUpId( String upId, AttributeType attributeType )
+    public void setUpId( String upId, AttributeType attributeType )
     {
         if ( StringTools.isEmpty( upId ) )
         {
@@ -177,8 +177,8 @@ public abstract class AbstractServerAttribute implements ServerAttribute, Clonea
             }
         }
     }
-
-
+    
+    
     // -----------------------------------------------------------------------
     // API
     // -----------------------------------------------------------------------

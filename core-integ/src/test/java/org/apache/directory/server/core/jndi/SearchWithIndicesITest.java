@@ -131,20 +131,19 @@ public class SearchWithIndicesITest
             JdbmPartition partition = new JdbmPartition();
             partition.setId( "system" );
             
-            /*
-            ServerEntry serverEntry = new DefaultServerEntry( new LdapDN( "ou=system" ), service.getRegistries() );
-            serverEntry.put( "objectClass", "top", "organizationalUnit" );
-            serverEntry.put( "ou", "system" );
-            partition.setContextEntry( serverEntry );
-            partition.setSuffix( "ou=system" );
-            */
-            
-            Attributes attrs = new AttributesImpl( "objectClass", "top", true );
-            attrs.get( "objectClass" ).add( "organizationalUnit" );
-            attrs.put( "ou", "system" );
-            partition.setContextEntry( attrs );
-            partition.setSuffix( "ou=system" );
-            
+            try
+            {
+                ServerEntry serverEntry = new DefaultServerEntry( service.getRegistries(), new LdapDN( "ou=system" ) );
+                serverEntry.put( "objectClass", "top", "organizationalUnit" );
+                serverEntry.put( "ou", "system" );
+                partition.setContextEntry( serverEntry );
+                partition.setSuffix( "ou=system" );
+
+            }
+            catch ( NamingException ne )
+            {
+                // Do nothing
+            }
 
             Set<Index> indices = new HashSet<Index>();
             indices.addAll( partition.getIndexedAttributes() );

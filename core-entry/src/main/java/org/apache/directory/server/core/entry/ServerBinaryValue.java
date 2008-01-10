@@ -51,6 +51,9 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
 
     /** the canonical representation of the wrapped binary value */
     private transient byte[] normalizedValue;
+    
+    /** A flag set if the normalized data is different from the wrapped data */
+    private transient boolean same;
 
     /** cached results of the isValid() method call */
     private transient Boolean valid;
@@ -161,6 +164,15 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
             else
             {
                 normalizedValue = ( byte[] ) normalizer.normalize( getCopy() );
+            }
+            
+            if ( Arrays.equals( super.getReference(), normalizedValue ) )
+            {
+                same = true;
+            }
+            else
+            {
+                same = false;
             }
         }
 

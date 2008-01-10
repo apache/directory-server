@@ -232,4 +232,72 @@ public class OpenLdapSchemaParserTest extends TestCase
         assertEquals( "personalSignature", objectClass.getMay()[18] );
 
     }
+
+    public void testSimpleAttributeTypeEmptyDesc() throws Exception
+    {
+        String attributeTypeData = "attributetype ( 2.5.4.14 NAME 'searchGuide'\n"
+            + "        DESC ''\n"
+            + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.25 )";
+
+        parser.parse( attributeTypeData );
+        List attributeTypeList = parser.getAttributeTypes();
+        Map attributeTypes = mapAttributeTypes( attributeTypeList );
+        AttributeTypeLiteral type = ( AttributeTypeLiteral ) attributeTypes.get( "2.5.4.14" );
+
+        assertNotNull( type );
+        assertEquals( "2.5.4.14", type.getOid() );
+        assertEquals( "searchGuide", type.getNames()[0] );
+        assertEquals( "", type.getDescription() );
+        assertEquals( "1.3.6.1.4.1.1466.115.121.1.25", type.getSyntax() );
+    }
+
+
+    public void testObjectClassEmptyDesc() throws Exception
+    {
+        String objectClassData = "objectclass ( 0.9.2342.19200300.100.4.4\n"
+            + "\tNAME ( 'pilotPerson' 'newPilotPerson' )\n"
+            + "\tDESC ''\n"
+            + "\tSUP person STRUCTURAL\n"
+            + "\tMAY ( userid $ textEncodedORAddress $ rfc822Mailbox $\n"
+            + "\t\tfavouriteDrink $ roomNumber $ userClass $\n"
+            + "\t\thomeTelephoneNumber $ homePostalAddress $ secretary $\n"
+            + "\t\tpersonalTitle $ preferredDeliveryMethod $ businessCategory $\n"
+            + "\t\tjanetMailbox $ otherMailbox $ mobileTelephoneNumber $\n"
+            + "\t\tpagerTelephoneNumber $ organizationalStatus $\n"
+            + "\t\tmailPreferenceOption $ personalSignature )\n" + "\t)";
+        parser.parse( objectClassData );
+        List objectClassesList = parser.getObjectClassTypes();
+        Map objectClasses = mapObjectClasses( objectClassesList );
+        ObjectClassLiteral objectClass = ( ObjectClassLiteral ) objectClasses.get( "0.9.2342.19200300.100.4.4" );
+
+        assertNotNull( objectClass );
+        assertEquals( "0.9.2342.19200300.100.4.4", objectClass.getOid() );
+        assertEquals( "pilotPerson", objectClass.getNames()[0] );
+        assertEquals( "newPilotPerson", objectClass.getNames()[1] );
+        assertEquals( "", objectClass.getDescription() );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, objectClass.getClassType() );
+        assertEquals( "person", objectClass.getSuperiors()[0] );
+
+        assertEquals( "userid", objectClass.getMay()[0] );
+        assertEquals( "textEncodedORAddress", objectClass.getMay()[1] );
+        assertEquals( "rfc822Mailbox", objectClass.getMay()[2] );
+        assertEquals( "favouriteDrink", objectClass.getMay()[3] );
+        assertEquals( "roomNumber", objectClass.getMay()[4] );
+        assertEquals( "userClass", objectClass.getMay()[5] );
+        assertEquals( "homeTelephoneNumber", objectClass.getMay()[6] );
+        assertEquals( "homePostalAddress", objectClass.getMay()[7] );
+        assertEquals( "secretary", objectClass.getMay()[8] );
+        assertEquals( "personalTitle", objectClass.getMay()[9] );
+        assertEquals( "preferredDeliveryMethod", objectClass.getMay()[10] );
+        assertEquals( "businessCategory", objectClass.getMay()[11] );
+        assertEquals( "janetMailbox", objectClass.getMay()[12] );
+        assertEquals( "otherMailbox", objectClass.getMay()[13] );
+        assertEquals( "mobileTelephoneNumber", objectClass.getMay()[14] );
+        assertEquals( "pagerTelephoneNumber", objectClass.getMay()[15] );
+        assertEquals( "organizationalStatus", objectClass.getMay()[16] );
+        assertEquals( "mailPreferenceOption", objectClass.getMay()[17] );
+        assertEquals( "personalSignature", objectClass.getMay()[18] );
+
+    }
+
 }

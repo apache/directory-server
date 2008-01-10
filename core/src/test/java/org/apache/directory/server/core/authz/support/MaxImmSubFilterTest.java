@@ -502,7 +502,7 @@ public class MaxImmSubFilterTest extends TestCase
             return null;
         }
         
-        public ServerEntry newEntry( String dn, String ldif )
+        public ServerEntry newEntry( String ldif, String dn )
         {
             return null;
         }

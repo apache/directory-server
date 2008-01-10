@@ -53,6 +53,22 @@ public interface ServerAttribute extends EntryAttribute<ServerValue<?>>, Iterabl
      * @return the user provided identifier for this attribute
      */
     String getUpId();
+    
+    
+    /**
+     * Set the user provided ID. If we have none, the upId is assigned
+     * the attributetype's name. If it does not have any name, we will
+     * use the OID.
+     * <p>
+     * If we have an upId and an AttributeType, they must be compatible. :
+     *  - if the upId is an OID, it must be the AttributeType's OID
+     *  - otherwise, its normalized form must be equals to ones of
+     *  the attributeType's names.
+     *
+     * @param upId The attribute ID
+     * @param attributeType The associated attributeType
+     */
+    public void setUpId( String upId, AttributeType attributeType );
 
     
     /**

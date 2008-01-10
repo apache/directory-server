@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.entry;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +29,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
@@ -47,11 +47,6 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -73,7 +68,7 @@ public class DefaultServerEntryTest
     private static BootstrapSchemaLoader loader;
     private static Registries registries;
     private static OidRegistry oidRegistry;
-    private static AttributeType AT;
+    //private static AttributeType AT;
     
     /**
      * Initialize the registries once for the whole test suite
@@ -95,6 +90,7 @@ public class DefaultServerEntryTest
         bootstrapSchemas.add( new CosineSchema() );
         loader.loadWithDependencies( bootstrapSchemas, registries );
         
+        /*
         AT = new AttributeType()
         {
             private static final long serialVersionUID = 1L;
@@ -367,14 +363,10 @@ public class DefaultServerEntryTest
             public void setSchema( String schemaName )
             {
             }
-        };
+        };*/
     }
 
 
-    //-------------------------------------------------------------------------
-    // Test the constructors
-    //-------------------------------------------------------------------------
-    
     /**
      * Test a conversion from a ServerEntry to an AttributesImpl
      */
@@ -454,7 +446,7 @@ public class DefaultServerEntryTest
     /**
      * Test the set(AT...) method
      */
-    @Test public void tesSetATElipsis() throws NamingException
+    @Test public void testSetATElipsis() throws NamingException
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -968,6 +960,10 @@ public class DefaultServerEntryTest
         assertEquals( 2, entry.get( atCN ).size() );
         assertTrue( entry.contains( "cn", "test1" ) );
         assertTrue( entry.contains( "cn", "test2" ) );
+        
+        // Check the UpId
+        entry.put( "CN", "test4" );
+        assertEquals( "CN", entry.get( atCN ).getUpId() );
     }
     
 
@@ -1287,4 +1283,795 @@ public class DefaultServerEntryTest
         assertTrue( entry.contains( "CN", "test2" ) );
         assertTrue( entry.contains( "commonName", "test3" ) );
     }
+
+    
+    //-------------------------------------------------------------------------
+    // Test the Add methods
+    //-------------------------------------------------------------------------
+
+    /**
+     * Test the add( AT, String... ) method
+     */
+    @Test public void testAddAtStringElipsis() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=test" );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        
+        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        
+        // Test a simple addition
+        entry.add( atCN, "test1" );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 1, entry.get( atCN ).size() );
+        assertEquals( "test1", entry.get( atCN ).get().get() );
+        
+        // Test some more addition
+        entry.add( atCN, "test2", "test3" );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 3, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        
+        // Test some addition of existing values
+        entry.add( atCN, "test2" );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 3, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        
+        // Test the addition of a null value
+        entry.add( atCN, (String)null );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 4, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        assertTrue( entry.contains( atCN, (String )null ) ); 
+        
+        entry.clear();
+        
+        // Test the addition of a binary value
+        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+        
+        try
+        {
+            entry.add( atCN, test4 );
+            fail();
+        }
+        catch ( InvalidAttributeValueException iave )
+        {
+            assertTrue( true );
+        }
+    }
+
+
+    /**
+     * Test the add( AT, byte[]... ) method
+     */
+    @Test public void testAddAtBytesElipsis() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=test" );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        
+        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        
+        byte[] test1 = StringTools.getBytesUtf8( "test1" );
+        byte[] test2 = StringTools.getBytesUtf8( "test2" );
+        byte[] test3 = StringTools.getBytesUtf8( "test3" );
+        
+        // Test a simple addition
+        entry.add( atPassword, test1 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( Arrays.equals( test1, (byte[])entry.get( atPassword ).get().get() ) );
+        
+        // Test some more addition
+        entry.add( atPassword, test2, test3 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 3, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test1 ) );
+        assertTrue( entry.contains( atPassword, test2 ) );
+        assertTrue( entry.contains( atPassword, test3 ) );
+        
+        // Test some addition of existing values
+        entry.add( atPassword, test2 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 3, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test1 ) );
+        assertTrue( entry.contains( atPassword, test2 ) );
+        assertTrue( entry.contains( atPassword, test3 ) );
+        
+        // Test the addition of a null value
+        entry.add( atPassword, (byte[])null );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 4, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test1 ) );
+        assertTrue( entry.contains( atPassword, test2 ) );
+        assertTrue( entry.contains( atPassword, test3 ) );
+        assertTrue( entry.contains( atPassword, (byte[] )null ) ); 
+        
+        entry.clear();
+        
+        // Test the addition of a String value. It should be converted to a byte array
+        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+
+        entry.add( atPassword, "test4" );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test4 ) );
+    }
+
+
+    /**
+     * Test the add( AT, SV... ) method
+     */
+    @Test public void testAddAtServerValueElipsis() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=test" );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        
+        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        
+        byte[] b1 = StringTools.getBytesUtf8( "test1" );
+        byte[] b2 = StringTools.getBytesUtf8( "test2" );
+        byte[] b3 = StringTools.getBytesUtf8( "test3" );
+
+        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
+        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
+        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        
+        ServerValue<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
+        ServerValue<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        ServerValue<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
+        
+        // Test a simple addition in atCN
+        entry.add( atCN, test1 );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 1, entry.get( atCN ).size() );
+        assertEquals( "test1", entry.get( atCN ).get().get() );
+        
+        // Test some more addition
+        entry.add( atCN, test2, test3 );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 3, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        
+        // Test some addition of existing values
+        entry.add( atCN, test2 );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 3, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        
+        // Test the addition of a null value
+        entry.add( atCN, (String)null );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 4, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        assertTrue( entry.contains( atCN, (String )null ) ); 
+        
+        entry.clear();
+        
+        // Test the addition of a String value. It should be converted to a byte array
+        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+
+        try
+        {
+            entry.add( atCN, test4 );
+            fail();
+        }
+        catch ( InvalidAttributeValueException iave )
+        {
+            assertTrue( true );
+        }
+
+        // Now, work with a binary attribute
+        // Test a simple addition
+        entry.add( atPassword, testB1 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( Arrays.equals( b1, (byte[])entry.get( atPassword ).get().get() ) );
+        
+        // Test some more addition
+        entry.add( atPassword, testB2, testB3 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 3, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b1 ) );
+        assertTrue( entry.contains( atPassword, b2 ) );
+        assertTrue( entry.contains( atPassword, b3 ) );
+        
+        // Test some addition of existing values
+        entry.add( atPassword, testB2 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 3, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b1 ) );
+        assertTrue( entry.contains( atPassword, b2 ) );
+        assertTrue( entry.contains( atPassword, b3 ) );
+        
+        // Test the addition of a null value
+        entry.add( atPassword, (byte[])null );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 4, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b1 ) );
+        assertTrue( entry.contains( atPassword, b2 ) );
+        assertTrue( entry.contains( atPassword, b3 ) );
+        assertTrue( entry.contains( atPassword, (byte[] )null ) ); 
+        
+        entry.clear();
+        
+        // Test the addition of a String value. It should be converted to a byte array
+        byte[] b4 = StringTools.getBytesUtf8( "test4" );
+
+        entry.add( atPassword, "test4" );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b4 ) );
+    }
+
+
+    /**
+     * Test the add( upId, String... ) method
+     */
+    @Test public void testAddUpIdStringElipsis() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=test" );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        
+        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        
+        // Test a simple addition
+        entry.add( "CN", "test1" );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "CN", entry.get( atCN ).getUpId() );
+        assertEquals( 1, entry.get( atCN ).size() );
+        assertEquals( "test1", entry.get( atCN ).get().get() );
+        
+        // Test some more addition
+        entry.add( "CN", "test2", "test3" );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 3, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        
+        // Test some addition of existing values
+        entry.add( "CN", "test2" );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 3, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        
+        // Test the addition of a null value
+        entry.add( "CN", (String)null );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 4, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        assertTrue( entry.contains( atCN, (String )null ) ); 
+        
+        entry.clear();
+        
+        // Test the addition of a binary value
+        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+        
+        try
+        {
+            entry.add( "CN", test4 );
+            fail();
+        }
+        catch ( InvalidAttributeValueException iave )
+        {
+            assertTrue( true );
+        }
+    }
+
+
+    /**
+     * Test the add( upId, byte[]... ) method
+     */
+    @Test public void testAddUpIdBytesElipsis() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=test" );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        
+        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        
+        byte[] test1 = StringTools.getBytesUtf8( "test1" );
+        byte[] test2 = StringTools.getBytesUtf8( "test2" );
+        byte[] test3 = StringTools.getBytesUtf8( "test3" );
+        
+        // Test a simple addition
+        entry.add( "userPassword", test1 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( Arrays.equals( test1, (byte[])entry.get( atPassword ).get().get() ) );
+        
+        // Test some more addition
+        entry.add( "userPassword", test2, test3 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 3, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test1 ) );
+        assertTrue( entry.contains( atPassword, test2 ) );
+        assertTrue( entry.contains( atPassword, test3 ) );
+        
+        // Test some addition of existing values
+        entry.add( "userPassword", test2 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 3, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test1 ) );
+        assertTrue( entry.contains( atPassword, test2 ) );
+        assertTrue( entry.contains( atPassword, test3 ) );
+        
+        // Test the addition of a null value
+        entry.add( "userPassword", (byte[])null );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 4, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test1 ) );
+        assertTrue( entry.contains( atPassword, test2 ) );
+        assertTrue( entry.contains( atPassword, test3 ) );
+        assertTrue( entry.contains( atPassword, (byte[] )null ) ); 
+        
+        entry.clear();
+        
+        // Test the addition of a String value. It should be converted to a byte array
+        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+
+        entry.add( "userPassword", "test4" );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test4 ) );
+    }
+
+
+    /**
+     * Test the add( upId, SV... ) method
+     */
+    @Test public void testAddUpIdServerValueElipsis() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=test" );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        
+        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        
+        byte[] b1 = StringTools.getBytesUtf8( "test1" );
+        byte[] b2 = StringTools.getBytesUtf8( "test2" );
+        byte[] b3 = StringTools.getBytesUtf8( "test3" );
+
+        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
+        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
+        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        
+        ServerValue<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
+        ServerValue<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        ServerValue<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
+        
+        // Test a simple addition in atCN
+        entry.add( "cN", test1 );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 1, entry.get( atCN ).size() );
+        assertEquals( "test1", entry.get( atCN ).get().get() );
+        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( "cN", entry.get( atCN ).getUpId() );
+        
+        // Test some more addition
+        entry.add( "cN", test2, test3 );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 3, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( "cN", entry.get( atCN ).getUpId() );
+        
+        // Test some addition of existing values
+        entry.add( "cN", test2 );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 3, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        
+        // Test the addition of a null value
+        entry.add( "cN", (String)null );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 4, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        assertTrue( entry.contains( atCN, (String )null ) ); 
+        
+        entry.clear();
+        
+        // Test the addition of a String value. It should be converted to a byte array
+        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+
+        try
+        {
+            entry.add( "cN", test4 );
+            fail();
+        }
+        catch ( InvalidAttributeValueException iave )
+        {
+            assertTrue( true );
+        }
+
+        // Now, work with a binary attribute
+        // Test a simple addition
+        entry.add( "userPASSWORD", testB1 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( Arrays.equals( b1, (byte[])entry.get( atPassword ).get().get() ) );
+        assertEquals( atPassword, entry.get( atPassword ).getType() );
+        assertEquals( "userPASSWORD", entry.get( atPassword ).getUpId() );
+        
+        // Test some more addition
+        entry.add( "userPASSWORD", testB2, testB3 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 3, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b1 ) );
+        assertTrue( entry.contains( atPassword, b2 ) );
+        assertTrue( entry.contains( atPassword, b3 ) );
+        
+        // Test some addition of existing values
+        entry.add( "userPASSWORD", testB2 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 3, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b1 ) );
+        assertTrue( entry.contains( atPassword, b2 ) );
+        assertTrue( entry.contains( atPassword, b3 ) );
+        
+        // Test the addition of a null value
+        entry.add( "userPASSWORD", (byte[])null );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 4, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b1 ) );
+        assertTrue( entry.contains( atPassword, b2 ) );
+        assertTrue( entry.contains( atPassword, b3 ) );
+        assertTrue( entry.contains( atPassword, (byte[] )null ) ); 
+        
+        entry.clear();
+        
+        // Test the addition of a String value. It should be converted to a byte array
+        byte[] b4 = StringTools.getBytesUtf8( "test4" );
+
+        entry.add( "userPASSWORD", "test4" );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b4 ) );
+    }
+
+
+    /**
+     * Test the add( UpId, AT, String... ) method
+     */
+    @Test public void testAddUpIdAtStringElipsis() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=test" );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        
+        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        
+        // Test a simple addition
+        entry.add( "cn", atCN, "test1" );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 1, entry.get( atCN ).size() );
+        assertEquals( "test1", entry.get( atCN ).get().get() );
+        
+        // Test some more addition
+        entry.add( "CN", atCN, "test2", "test3" );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 3, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        
+        // Test some addition of existing values
+        entry.add( "commonName", atCN, "test2" );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 3, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        
+        // Test the addition of a null value
+        entry.add( "COMMONname", atCN, (String)null );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 4, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        assertTrue( entry.contains( atCN, (String )null ) ); 
+        
+        entry.clear();
+        
+        // Test the addition of a binary value
+        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+        
+        try
+        {
+            entry.add( "cn", atCN, test4 );
+            fail();
+        }
+        catch ( InvalidAttributeValueException iave )
+        {
+            assertTrue( true );
+        }
+    }
+
+
+    /**
+     * Test the add( upId, AT, byte[]... ) method
+     */
+    @Test public void testAddUpIdAtBytesElipsis() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=test" );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        
+        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        
+        byte[] test1 = StringTools.getBytesUtf8( "test1" );
+        byte[] test2 = StringTools.getBytesUtf8( "test2" );
+        byte[] test3 = StringTools.getBytesUtf8( "test3" );
+        
+        // Test a simple addition
+        entry.add( "userPassword", atPassword, test1 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( Arrays.equals( test1, (byte[])entry.get( atPassword ).get().get() ) );
+        
+        // Test some more addition
+        entry.add( "userPassword", atPassword, test2, test3 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 3, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test1 ) );
+        assertTrue( entry.contains( atPassword, test2 ) );
+        assertTrue( entry.contains( atPassword, test3 ) );
+        
+        // Test some addition of existing values
+        entry.add( "userPassword", atPassword, test2 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 3, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test1 ) );
+        assertTrue( entry.contains( atPassword, test2 ) );
+        assertTrue( entry.contains( atPassword, test3 ) );
+        
+        // Test the addition of a null value
+        entry.add( "userPassword", atPassword, (byte[])null );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 4, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test1 ) );
+        assertTrue( entry.contains( atPassword, test2 ) );
+        assertTrue( entry.contains( atPassword, test3 ) );
+        assertTrue( entry.contains( atPassword, (byte[] )null ) ); 
+        
+        entry.clear();
+        
+        // Test the addition of a String value. It should be converted to a byte array
+        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+
+        entry.add( "userPassword", atPassword, "test4" );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, test4 ) );
+    }
+
+
+    /**
+     * Test the add( upId, AT, SV... ) method
+     */
+    @Test public void testAddUpIdAtServerValueElipsis() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=test" );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        
+        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        
+        byte[] b1 = StringTools.getBytesUtf8( "test1" );
+        byte[] b2 = StringTools.getBytesUtf8( "test2" );
+        byte[] b3 = StringTools.getBytesUtf8( "test3" );
+
+        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
+        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
+        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        
+        ServerValue<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
+        ServerValue<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        ServerValue<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
+        
+        // Test a simple addition in atCN
+        entry.add( "cN", atCN, test1 );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 1, entry.get( atCN ).size() );
+        assertEquals( "test1", entry.get( atCN ).get().get() );
+        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( "cN", entry.get( atCN ).getUpId() );
+        
+        // Test some more addition
+        entry.add( "cN", atCN, test2, test3 );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 3, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( "cN", entry.get( atCN ).getUpId() );
+        
+        // Test some addition of existing values
+        entry.add( "cN", atCN, test2 );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 3, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        
+        // Test the addition of a null value
+        entry.add( "cN", atCN, (String)null );
+        assertNotNull( entry.get( atCN ) );
+        assertEquals( 4, entry.get( atCN ).size() );
+        assertTrue( entry.contains( atCN, "test1" ) );
+        assertTrue( entry.contains( atCN, "test2" ) );
+        assertTrue( entry.contains( atCN, "test3" ) );
+        assertTrue( entry.contains( atCN, (String )null ) ); 
+        
+        entry.clear();
+        
+        // Test the addition of a String value. It should be converted to a byte array
+        byte[] test4 = StringTools.getBytesUtf8( "test4" );
+
+        try
+        {
+            entry.add( "cN", atCN, test4 );
+            fail();
+        }
+        catch ( InvalidAttributeValueException iave )
+        {
+            assertTrue( true );
+        }
+
+        // Now, work with a binary attribute
+        // Test a simple addition
+        entry.add( "userPASSWORD", atPassword, testB1 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( Arrays.equals( b1, (byte[])entry.get( atPassword ).get().get() ) );
+        assertEquals( atPassword, entry.get( atPassword ).getType() );
+        assertEquals( "userPASSWORD", entry.get( atPassword ).getUpId() );
+        
+        // Test some more addition
+        entry.add( "userPASSWORD", atPassword, testB2, testB3 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 3, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b1 ) );
+        assertTrue( entry.contains( atPassword, b2 ) );
+        assertTrue( entry.contains( atPassword, b3 ) );
+        
+        // Test some addition of existing values
+        entry.add( "userPASSWORD", atPassword, testB2 );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 3, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b1 ) );
+        assertTrue( entry.contains( atPassword, b2 ) );
+        assertTrue( entry.contains( atPassword, b3 ) );
+        
+        // Test the addition of a null value
+        entry.add( "userPASSWORD", atPassword, (byte[])null );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 4, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b1 ) );
+        assertTrue( entry.contains( atPassword, b2 ) );
+        assertTrue( entry.contains( atPassword, b3 ) );
+        assertTrue( entry.contains( atPassword, (byte[] )null ) ); 
+        
+        entry.clear();
+        
+        // Test the addition of a String value. It should be converted to a byte array
+        byte[] b4 = StringTools.getBytesUtf8( "test4" );
+
+        entry.add( "userPASSWORD", atPassword, "test4" );
+        assertNotNull( entry.get( atPassword ) );
+        assertEquals( 1, entry.get( atPassword ).size() );
+        assertTrue( entry.contains( atPassword, b4 ) );
+    }
+
+    //-------------------------------------------------------------------------
+    // Test the remove method
+    //-------------------------------------------------------------------------
+
+    /**
+     * Test the remove( AT...) method
+     */
+    @Test public void testRemoveAtElipsis()
+    {
+        
+    }
+
+    /**
+     * Test the remove( upId...) method
+     */
+    @Test public void testRemoveUpIdElipsis() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=test" );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        
+        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
+        
+        byte[] b1 = StringTools.getBytesUtf8( "test1" );
+        byte[] b2 = StringTools.getBytesUtf8( "test2" );
+        byte[] b3 = StringTools.getBytesUtf8( "test3" );
+
+        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
+        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
+        
+        ServerValue<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
+        ServerValue<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        
+        // test a removal of an non existing attribute
+        List<ServerAttribute> removed = entry.remove( atCN );
+        assertEquals( 0, removed.size() );
+        
+        // Test a simple removal
+        entry.add( "cN", atCN, test1 );
+        assertEquals( 2, entry.size() );
+        assertNotNull( entry.get( atCN ) );
+        entry.remove( "CN" );
+        assertEquals( 1, entry.size() );
+        assertNull( entry.get( atCN ) );
+        
+        // Test a removal of many elements
+        entry.put( "CN", test1, test2 );
+        entry.put( "userPassword", testB1, testB2 );
+        assertEquals( 3, entry.size() );
+        assertNotNull( entry.get( atCN ) );
+        assertNotNull( entry.get( atPassword ) );
+        
+        AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
+        
+        entry.remove( "cN", "UsErPaSsWoRd" );
+        assertEquals( 1, entry.size() );
+        assertNull( entry.get( atCN ) );
+        assertNull( entry.get( atPassword ) );
+        assertTrue( entry.contains( OBJECT_CLASS_AT, "top" ) );
+        
+        // test the removal of a bad Attribute
+        entry.put( "CN", test1, test2 );
+        entry.put( "userPassword", testB1, testB2 );
+        assertEquals( 3, entry.size() );
+        assertNotNull( entry.get( atCN ) );
+        assertNotNull( entry.get( atPassword ) );
+        
+        try
+        {
+            entry.remove( "badAttribute" );
+            fail();
+        }
+        catch ( NamingException ne )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Test the remove( SA...) method
+     */
+    @Test public void testRemoveSaElipsis()
+    {
+        
+    }
+
 }
+
