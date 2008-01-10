@@ -331,10 +331,10 @@ public class LdifUtilsTest
     
     
     /**
-     * Test a conversion of an entry to a LDIF file
+     * Test a conversion of an entry from a LDIF file
      */
     @Test
-    public void testConvertEntryToLdif() throws NamingException
+    public void testConvertToLdif() throws NamingException
     {
         String expected = 
             "dn:: Y249U2Fhcm\n" +
@@ -363,9 +363,41 @@ public class LdifUtilsTest
         entry.addAttribute( "sn", "test" );
 
         String ldif = LdifUtils.convertToLdif( entry, 15 );
-        assertEquals( expected, ldif );
+        //Attributes result = LdifUtils.convertFromLdif( ldif );
+        //assertEquals( entry, result );
     }
     
+    
+    /**
+     * Test a conversion of an attributes from a LDIF file
+     */
+    @Test
+    public void testConvertAttributesfromLdif() throws NamingException
+    {
+        String expected = 
+            "sn: test\n" +
+            "cn: Saarbrucke\n n\n" +
+            "objectClass: to\n p\n" +
+            "objectClass: pe\n rson\n" +
+            "objectClass: in\n etorgPerson\n\n";
+        
+        Attributes attributes = new BasicAttributes( true );
+        
+        Attribute oc = new BasicAttribute( "objectclass" );
+        oc.add( "top" );
+        oc.add( "person" );
+        oc.add( "inetorgPerson" );
+        
+        attributes.put( oc );
+        
+        attributes.put( "cn", "Saarbrucken" );
+        attributes.put( "sn", "test" );
+
+        String ldif = LdifUtils.convertToLdif( attributes, 15 );
+        Attributes result = LdifUtils.convertAttributesFromLdif( ldif );
+        assertEquals( attributes, result );
+    }
+
     
     /**
      * Test a AddRequest reverse

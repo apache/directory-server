@@ -144,6 +144,19 @@ public class LdifUtils
     
     
     /**
+     * Convert a LDIF String to an attributes.
+     * 
+     * @param ldif The LDIF string containing an attribute value
+     * @return An Attributes instance
+     */
+    public static Attributes convertAttributesFromLdif( String ldif ) throws NamingException
+    {
+        LdifAttributesReader reader = new  LdifAttributesReader();
+        
+        return reader.parseAttributes( ldif );
+    }
+    
+    /**
      * Convert an Attributes as LDIF
      * @param attrs the Attributes to convert
      * @param length the expected line length
