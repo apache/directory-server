@@ -22,6 +22,8 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
@@ -36,6 +38,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -70,19 +73,19 @@ public class MixedCaseITest
 {
     public static DirectoryService service;
 
-    private static final String SUFFIX = "dc=Apache,dc=Org";
+    private static final String SUFFIX_DN = "dc=Apache,dc=Org";
 
 
     public static class MyFactory implements DirectoryServiceFactory
     {
-        public DirectoryService newInstance() 
+        public DirectoryService newInstance() throws NamingException
         {
             DirectoryService service = new DefaultDirectoryService();
             service.getChangeLog().setEnabled( true );
 
             JdbmPartition partition = new JdbmPartition();
             partition.setId( "apache" );
-            partition.setSuffix( SUFFIX );
+            partition.setSuffix( SUFFIX_DN );
 
             HashSet<Index> indexedAttributes = new HashSet<Index>();
             indexedAttributes.add( new JdbmIndex( "objectClass" ) );
@@ -90,15 +93,11 @@ public class MixedCaseITest
             indexedAttributes.add( new JdbmIndex( "uid" ) );
             partition.setIndexedAttributes( indexedAttributes );
 
-            Attributes attrs = new AttributesImpl( true );
-            Attribute objectClass = new AttributeImpl( "objectClass" );
-            objectClass.add( "top" );
-            objectClass.add( "domain" );
-            objectClass.add( "extensibleObject" );
-            attrs.put( objectClass );
-            attrs.put( "dc", "Apache" );
+            ServerEntry serverEntry = new DefaultServerEntry( service.getRegistries(), new LdapDN( SUFFIX_DN ) );
+            serverEntry.put( "objectClass", "top", "domain", "extensibleObject" );
+            serverEntry.put( "dc", "Apache" );
 
-            partition.setContextEntry( attrs );
+            partition.setContextEntry( serverEntry );
 
             Set<Partition> partitions = new HashSet<Partition>();
             partitions.add( partition );
@@ -112,7 +111,7 @@ public class MixedCaseITest
     @Test
     public void testSearch() throws NamingException
     {
-        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX );
+        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX_DN );
 
         SearchControls sc = new SearchControls();
         sc.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -121,7 +120,7 @@ public class MixedCaseITest
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
         SearchResult sr = ne.next();
-        assertEquals( "The entry returned should be the root entry.", SUFFIX, sr.getName() );
+        assertEquals( "The entry returned should be the root entry.", SUFFIX_DN, sr.getName() );
         assertFalse( "Search should return no more entries.", ne.hasMore() );
     }
 
@@ -129,7 +128,7 @@ public class MixedCaseITest
     @Test
     public void testAdd() throws NamingException
     {
-        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX );
+        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX_DN );
 
         String dn = "ou=Test";
 
@@ -150,7 +149,7 @@ public class MixedCaseITest
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
         SearchResult sr = ne.next();
-        assertEquals( "The entry returned should be the entry added earlier.", dn + "," + SUFFIX, sr.getName() );
+        assertEquals( "The entry returned should be the entry added earlier.", dn + "," + SUFFIX_DN, sr.getName() );
         assertFalse( "Search should return no more entries.", ne.hasMore() );
     }
 
@@ -158,7 +157,7 @@ public class MixedCaseITest
     @Test
     public void testModify() throws NamingException
     {
-        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX );
+        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX_DN );
 
         String dn = "ou=Test";
         String description = "New Value";
@@ -186,7 +185,7 @@ public class MixedCaseITest
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
         SearchResult sr = ( SearchResult ) ne.next();
-        assertEquals( "The entry returned should be the entry added earlier.", dn + "," + SUFFIX, sr.getName() );
+        assertEquals( "The entry returned should be the entry added earlier.", dn + "," + SUFFIX_DN, sr.getName() );
 
         attributes = sr.getAttributes();
         attribute = attributes.get( "description" );
@@ -199,7 +198,7 @@ public class MixedCaseITest
     @Test
     public void testDelete() throws NamingException
     {
-        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX );
+        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX_DN );
 
         String dn = "ou=Test";
 

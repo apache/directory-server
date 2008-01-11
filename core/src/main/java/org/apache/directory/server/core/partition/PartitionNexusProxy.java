@@ -241,18 +241,6 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void setContextEntry( Attributes contextEntry )
-    {
-        throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
-    }
-
-
-    public void setContextEntry( String contextEntry )
-    {
-        throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
-    }
-
-
     public String getSuffix()
     {
         throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );

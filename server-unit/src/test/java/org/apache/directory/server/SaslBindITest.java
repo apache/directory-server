@@ -20,6 +20,8 @@
 package org.apache.directory.server;
 
 
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -27,6 +29,7 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -93,15 +96,12 @@ public class SaslBindITest extends AbstractServerTest
         indexedAttrs.add( new JdbmIndex( "objectClass" ) );
         partition.setIndexedAttributes( indexedAttrs );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "objectClass" );
-        attr.add( "top" );
-        attr.add( "domain" );
-        attrs.put( attr );
-        attr = new AttributeImpl( "dc" );
-        attr.add( "example" );
-        attrs.put( attr );
-        partition.setContextEntry( attrs );
+        LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );
+        ServerEntry serverEntry = new DefaultServerEntry( directoryService.getRegistries(), exampleDn );
+        serverEntry.put( "objectClass", "top", "domain" );
+        serverEntry.put( "dc", "example" );
+
+        partition.setContextEntry( serverEntry );
 
 
         partitions.add( partition );

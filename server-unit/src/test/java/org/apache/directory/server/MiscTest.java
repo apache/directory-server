@@ -26,6 +26,7 @@ import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
 import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.Attribute;
@@ -39,6 +40,9 @@ import javax.naming.ldap.InitialLdapContext;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
+
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -48,6 +52,7 @@ import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.MutableControl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
@@ -89,7 +94,7 @@ public class MiscTest extends AbstractServerTest
 
 
     @Override
-    protected void configureDirectoryService()
+    protected void configureDirectoryService() throws NamingException
     {
         if ( this.getName().equals( "testUserAuthOnMixedCaseSuffix" ) )
         {
@@ -97,32 +102,35 @@ public class MiscTest extends AbstractServerTest
             partitions.addAll( directoryService.getPartitions() );
             JdbmPartition partition = new JdbmPartition();
             partition.setSuffix( "dc=aPache,dc=org" );
-            Attributes entry = new AttributesImpl( "dc", "aPache", true );
-            Attribute oc = new AttributeImpl( "objectClass" );
-            entry.put( oc );
-            oc.add( "top" );
-            oc.add( "domain" );
+            
+            LdapDN apacheDn = new LdapDN( "dc=aPache,dc=org" );
+            ServerEntry serverEntry = new DefaultServerEntry( directoryService.getRegistries(), apacheDn );
+            serverEntry.put( "dc", "aPache" );
+            serverEntry.put( "objectClass", "top", "domain" );
+
             partition.setId( "apache" );
-            partition.setContextEntry( entry );
+            partition.setContextEntry( serverEntry );
             Set<Index> indexedAttributes = new HashSet<Index>();
             indexedAttributes.add( new JdbmIndex( "dc" ) );
             partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
             directoryService.setPartitions( partitions );
-        } else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
+        } 
+        else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
         {
             // create a partition to search
             Set partitions = new HashSet();
             partitions.addAll( directoryService.getPartitions() );
             JdbmPartition partition = new JdbmPartition();
             partition.setSuffix( "dc=apache,dc=org" );
-            Attributes entry = new AttributesImpl( "dc", "apache", true );
-            Attribute oc = new AttributeImpl( "objectClass" );
-            entry.put( oc );
-            oc.add( "top" );
-            oc.add( "domain" );
+            
+            LdapDN apacheDn = new LdapDN( "dc=apache,dc=org" );
+            ServerEntry serverEntry = new DefaultServerEntry( directoryService.getRegistries(), apacheDn );
+            serverEntry.put( "dc", "apache" );
+            serverEntry.put( "objectClass", "top", "domain" );
+            
             partition.setId( "apache" );
-            partition.setContextEntry( entry );
+            partition.setContextEntry( serverEntry );
             Set<Index> indexedAttributes = new HashSet<Index>();
             indexedAttributes.add( new JdbmIndex( "dc" ) );
             partition.setIndexedAttributes( indexedAttributes );

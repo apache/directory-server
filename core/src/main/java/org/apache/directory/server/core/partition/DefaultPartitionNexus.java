@@ -267,15 +267,6 @@ public class DefaultPartitionNexus extends PartitionNexus
         throw new UnsupportedOperationException( "Setting the RootDSE is not allowed." );
     }
 
-    public void setContextEntry( Attributes rootEntry )
-    {
-        throw new UnsupportedOperationException( "Setting the RootDSE is not allowed." );
-    }
-
-    public void setContextEntry( String rootEntry )
-    {
-        throw new UnsupportedOperationException( "Setting the RootDSE is not allowed." );
-    }
 
     /**
      * Always returns the empty String "".
