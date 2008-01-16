@@ -25,16 +25,24 @@ import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
+import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -62,6 +70,10 @@ import static org.junit.Assert.fail;
  */
 public class ServerStringValueTest
 {
+    static private S s;
+    static private AT at;
+    static private MR mr;
+    
     /**
      * A local Syntax class for tests
      */
@@ -364,6 +376,26 @@ public class ServerStringValueTest
 
     
     /**
+     * Initialize an AttributeType and the associated MatchingRule 
+     * and Syntax
+     */
+    @Before public void initAT()
+    {
+        s = new S( "1.1.1.1", false );
+        s.setSyntaxChecker( new AcceptAllSyntaxChecker( "1.1.1.1" ) );
+        mr = new MR( "1.1.2.1" );
+        mr.syntax = s;
+        mr.comparator = new ByteArrayComparator();
+        mr.normalizer = new DeepTrimToLowerNormalizer();
+        at = new AT( "1.1.3.1" );
+        at.setEquality( mr );
+        at.setOrdering( mr );
+        at.setSubstr( mr );
+        at.setSyntax( s );
+    }
+    
+
+    /**
      * Test the constructor with bad AttributeType
      */
     @Test public void testBadConstructor()
@@ -657,18 +689,6 @@ public class ServerStringValueTest
      */
     @Test public void testAcceptAllNoNormalization() throws Exception
     {
-        S s = new S( "1.1.1.1", false );
-        s.setSyntaxChecker( new AcceptAllSyntaxChecker( "1.1.1.1" ) );
-        final MR mr = new MR( "1.1.2.1" );
-        mr.syntax = s;
-        mr.comparator = new ByteArrayComparator();
-        mr.normalizer = new NoOpNormalizer();
-        AT at = new AT( "1.1.3.1" );
-        at.setEquality( mr );
-        at.setOrdering( mr );
-        at.setSubstr( mr );
-        at.setSyntax( s );
-
         // check that normalization and syntax checks work as expected
         ServerStringValue value = new ServerStringValue( at, "hello" );
         assertEquals( value.get(), value.get() );
@@ -772,4 +792,129 @@ public class ServerStringValueTest
     }
 
     
+    /**
+     * Test serialization of a StringValue which has a normalized value
+     */
+    @Test public void testNormalizedStringValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        // First check with a value which will be normalized
+        ServerStringValue sv = new ServerStringValue( at, "  Test   Test  " );
+        
+        sv.normalize();
+        String normalized = sv.getNormalized();
+        
+        assertEquals( "test test", normalized );
+        assertEquals( "  Test   Test  ", sv.get() );
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+        
+        sv.writeExternal( out );
+        
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+        
+        ServerStringValue sv2 = new ServerStringValue( at );
+        sv2.readExternal( in );
+        
+        assertEquals( sv, sv2 );
+   }
+
+
+    /**
+     * Test serialization of a StringValue which does not have a normalized value
+     */
+    @Test public void testNoNormalizedStringValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        // First check with a value which will be normalized
+        ServerStringValue sv = new ServerStringValue( at, "test" );
+        
+        sv.normalize();
+        String normalized = sv.getNormalized();
+        
+        assertEquals( "test", normalized );
+        assertEquals( "test", sv.get() );
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+        
+        sv.writeExternal( out );
+        
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+        
+        ServerStringValue sv2 = new ServerStringValue( at );
+        sv2.readExternal( in );
+        
+        assertEquals( sv, sv2 );
+   }
+
+
+    /**
+     * Test serialization of a null StringValue
+     */
+    @Test public void testNullStringValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        // First check with a value which will be normalized
+        ServerStringValue sv = new ServerStringValue( at );
+        
+        sv.normalize();
+        String normalized = sv.getNormalized();
+        
+        assertEquals( null, normalized );
+        assertEquals( null, sv.get() );
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+        
+        sv.writeExternal( out );
+        
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+        
+        ServerStringValue sv2 = new ServerStringValue( at );
+        sv2.readExternal( in );
+        
+        assertEquals( sv, sv2 );
+   }
+
+
+    /**
+     * Test serialization of an empty StringValue
+     */
+    @Test public void testEmptyStringValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        // First check with a value which will be normalized
+        ServerStringValue sv = new ServerStringValue( at, "" );
+        
+        sv.normalize();
+        String normalized = sv.getNormalized();
+        
+        assertEquals( "", normalized );
+        assertEquals( "", sv.get() );
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+        
+        sv.writeExternal( out );
+        
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+        
+        ServerStringValue sv2 = new ServerStringValue( at );
+        sv2.readExternal( in );
+        
+        assertEquals( sv, sv2 );
+   }
 }

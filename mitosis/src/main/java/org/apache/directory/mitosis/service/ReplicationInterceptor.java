@@ -397,7 +397,8 @@ public class ReplicationInterceptor extends BaseInterceptor
 
     public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws NamingException
     {
-        Operation op = operationFactory.newAdd( addContext.getDn(), ServerEntryUtils.toAttributesImpl( addContext.getEntry() ) );
+        Operation op = operationFactory.newAdd( 
+            addContext.getDn(), addContext.getEntry() );
         op.execute( nexus, store, registries );
     }
 

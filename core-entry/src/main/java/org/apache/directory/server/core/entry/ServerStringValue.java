@@ -28,6 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Comparator;
 
 
@@ -40,8 +45,11 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerStringValue extends AbstractStringValue implements ServerValue<String>, Cloneable
+public class ServerStringValue extends AbstractStringValue implements ServerValue<String>, Externalizable
 {
+    /** Used for serialization */
+    public static final long serialVersionUID = 2L;
+    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerStringValue.class );
 
@@ -49,7 +57,7 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
     private transient AttributeType attributeType;
 
     /** the canonical representation of the wrapped String value */
-    private transient String normalizedValue;
+    private String normalizedValue;
 
     /** cached results of the isValid() method call */
     private transient Boolean valid;
@@ -111,7 +119,7 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
     {
         // Why should we invalidate the normalized value if it's we're setting the
         // wrapper to it's current value?
-        if ( wrapped.equals( get() ) )
+        if ( ( wrapped != null ) && wrapped.equals( get() ) )
         {
             return;
         }
@@ -125,10 +133,28 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
     // -----------------------------------------------------------------------
     // ServerValue<String> Methods
     // -----------------------------------------------------------------------
+    /**
+     * Compute the normalized (canonical) representation for the wrapped string.
+     * If the wrapped String is null, the normalized form will be null too.  
+     *
+     * @throws NamingException if the value cannot be properly normalized
+     */
+    public void normalize() throws NamingException
+    {
+        Normalizer normalizer = getNormalizer();
 
+        if ( normalizer == null )
+        {
+            normalizedValue = get();
+        }
+        else
+        {
+            normalizedValue = ( String ) normalizer.normalize( get() );
+        }
+    }
 
     /**
-     * Gets the normalized (cannonical) representation for the wrapped string.
+     * Gets the normalized (canonical) representation for the wrapped string.
      * If the wrapped String is null, null is returned, otherwise the normalized
      * form is returned.  If no the normalizedValue is null, then this method
      * will attempt to generate it from the wrapped value: repeated calls to
@@ -147,16 +173,7 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
 
         if ( normalizedValue == null )
         {
-            Normalizer normalizer = getNormalizer();
-
-            if ( normalizer == null )
-            {
-                normalizedValue = get();
-            }
-            else
-            {
-                normalizedValue = ( String ) normalizer.normalize( get() );
-            }
+            normalize();
         }
 
         return normalizedValue;
@@ -410,6 +427,66 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
         catch ( CloneNotSupportedException cnse )
         {
             return null;
+        }
+    }
+    
+    
+    /**
+     * @see Externalizable#writeExternal(ObjectOutput)
+     * 
+     * We will write the value and the normalized value, only
+     * if the normalized value is different.
+     * 
+     * The data will be stored following this structure :
+     * 
+     *  [UP value]
+     *  [Norm value] (will be null if normValue == upValue)
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        if ( get() != null )
+        {
+            out.writeUTF( get() );
+            
+            if ( normalizedValue.equals( get() ) )
+            {
+                // If the normalized value is equal to the UP value,
+                // don't save it
+                out.writeUTF( "" );
+            }
+            else
+            {
+                out.writeUTF( normalizedValue );
+            }
+        }
+        
+        out.flush();
+    }
+
+    
+    /**
+     * @see Externalizable#readExternal(ObjectInput)
+     */
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        if ( in.available() == 0 )
+        {
+            set( null );
+            normalizedValue = null;
+        }
+        else
+        {
+            String wrapped = in.readUTF();
+            
+            set( wrapped );
+            
+            normalizedValue = in.readUTF();
+            
+            if ( ( normalizedValue.length() == 0 ) &&  ( wrapped.length() != 0 ) )
+            {
+                // In this case, the normalized value is equal to the UP value
+                normalizedValue = wrapped;
+            }
         }
     }
 }

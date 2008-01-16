@@ -72,8 +72,11 @@ import java.net.URI;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerStreamedValue extends AbstractStreamedValue implements ServerValue<URI>, Cloneable
+public class ServerStreamedValue extends AbstractStreamedValue implements ServerValue<URI>
 {
+    /** Used for serialization */
+    public static final long serialVersionUID = 2L;
+    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerStreamedValue.class );
 
@@ -143,6 +146,10 @@ public class ServerStreamedValue extends AbstractStreamedValue implements Server
     // -----------------------------------------------------------------------
     // ServerValue<String> Methods
     // -----------------------------------------------------------------------
+    public void normalize() throws NamingException
+    {
+        
+    }
 
 
     /**

@@ -44,6 +44,7 @@ import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -58,8 +59,6 @@ import org.apache.mina.util.SessionLog;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.net.InetSocketAddress;
@@ -399,10 +398,14 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
             while ( e.hasMore() )
             {
                 SearchResult sr = e.next();
-                Attributes attrs = sr.getAttributes();
+                ServerEntry attrs = ServerEntryUtils.toServerEntry( 
+                    sr.getAttributes(), 
+                    new LdapDN( sr.getName() ), 
+                    ctx.getDirectoryService().getRegistries() ) ;
 
                 // Skip entries without entryCSN attribute.
-                Attribute entryCSNAttr = attrs.get( org.apache.directory.mitosis.common.Constants.ENTRY_CSN );
+                ServerAttribute entryCSNAttr = attrs.get( org.apache.directory.mitosis.common.Constants.ENTRY_CSN );
+                
                 if ( entryCSNAttr == null )
                 {
                     continue;
@@ -410,6 +413,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
                 // Get entryCSN of the entry.  Skip if entryCSN value is invalid. 
                 CSN csn;
+                
                 try
                 {
                     Object val = entryCSNAttr.get();

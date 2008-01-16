@@ -42,6 +42,9 @@ import java.util.Collections;
  */
 public class ObjectClassAttribute extends AbstractServerAttribute
 {
+    /** Used for serialization */
+    public static final long serialVersionUID = 2L;
+    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ObjectClassAttribute.class );
     
@@ -62,7 +65,7 @@ public class ObjectClassAttribute extends AbstractServerAttribute
     private Set<AttributeType> mustList = new HashSet<AttributeType>();
     
     /** The global registries */
-    private Registries registries;
+    private transient Registries registries;
 
 
     /**

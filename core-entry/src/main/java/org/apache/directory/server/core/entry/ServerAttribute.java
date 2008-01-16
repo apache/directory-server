@@ -32,7 +32,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerAttribute extends EntryAttribute<ServerValue<?>>, Iterable<ServerValue<?>>, Cloneable
+public interface ServerAttribute extends EntryAttribute<ServerValue<?>>
 {
     /**
      * Gets the attribute type associated with this ServerAttribute.

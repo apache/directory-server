@@ -31,6 +31,8 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.mina.util.AvailablePortFinder;
+import org.junit.After;
+import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +55,7 @@ import java.util.Random;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractReplicationServiceTestCase extends TestCase
+public abstract class AbstractReplicationServiceTestCase
 {
     private static final Logger LOG = LoggerFactory.getLogger( AbstractReplicationServiceTestCase.class );
     protected Map<String, LdapContext> contexts = new HashMap<String, LdapContext>();
@@ -61,13 +63,13 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
     protected Map<String, ReplicationInterceptor> replicationServices = new HashMap<String, ReplicationInterceptor>();
 
 
-    protected void setUp() throws Exception
+    @Before public void setUp() throws Exception
     {
         createReplicas( new String[] { "A", "B", "C" } );
     }
 
 
-    protected void tearDown() throws Exception
+    @After public void tearDown() throws Exception
     {
         destroyAllReplicas();
     }
@@ -78,6 +80,7 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
         int lastAvailablePort = 1024;
 
         Replica[] replicas = new Replica[ names.length ];
+        
         for( int i = 0; i < names.length; i++ )
         {
             int replicationPort = AvailablePortFinder.getNextAvailable( lastAvailablePort );

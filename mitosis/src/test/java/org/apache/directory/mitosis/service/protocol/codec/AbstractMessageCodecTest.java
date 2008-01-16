@@ -30,11 +30,12 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.apache.mina.filter.codec.support.SimpleProtocolEncoderOutput;
+import org.junit.Test;
 
 import sun.misc.Queue;
 
 
-public abstract class AbstractMessageCodecTest extends TestCase
+public abstract class AbstractMessageCodecTest
 {
     private final BaseMessage message;
     private final MessageEncoder encoder;
@@ -62,7 +63,7 @@ public abstract class AbstractMessageCodecTest extends TestCase
     }
 
 
-    public void testMessageCodec() throws Exception
+    @Test public void testMessageCodec() throws Exception
     {
         SimpleProtocolEncoderOutput encoderOut = new SimpleProtocolEncoderOutput()
         {

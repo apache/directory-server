@@ -24,10 +24,16 @@ import org.apache.directory.shared.ldap.entry.AbstractBinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -41,8 +47,11 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerBinaryValue extends AbstractBinaryValue implements ServerValue<byte[]>, Cloneable
+public class ServerBinaryValue extends AbstractBinaryValue implements ServerValue<byte[]>, Externalizable
 {
+    /** Used for serialization */
+    public static final long serialVersionUID = 2L;
+    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerBinaryValue.class );
 
@@ -131,10 +140,40 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
 
 
     // -----------------------------------------------------------------------
-    // ServerValue<String> Methods
+    // ServerValue<byte[]> Methods
     // -----------------------------------------------------------------------
+    public void normalize() throws NamingException
+    {
+        if ( getReference() != null )
+        {
+            Normalizer normalizer = getNormalizer();
+    
+            if ( normalizer == null )
+            {
+                normalizedValue = getCopy();
+            }
+            else
+            {
+                normalizedValue = ( byte[] ) normalizer.normalize( getCopy() );
+            }
+            
+            if ( Arrays.equals( super.getReference(), normalizedValue ) )
+            {
+                same = true;
+            }
+            else
+            {
+                same = false;
+            }
+        }
+        else
+        {
+            normalizedValue = null;
+            same = true;
+        }
+    }
 
-
+    
     /**
      * Gets the normalized (cannonical) representation for the wrapped string.
      * If the wrapped String is null, null is returned, otherwise the normalized
@@ -155,25 +194,7 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
 
         if ( normalizedValue == null )
         {
-            Normalizer normalizer = getNormalizer();
-
-            if ( normalizer == null )
-            {
-                normalizedValue = getCopy();
-            }
-            else
-            {
-                normalizedValue = ( byte[] ) normalizer.normalize( getCopy() );
-            }
-            
-            if ( Arrays.equals( super.getReference(), normalizedValue ) )
-            {
-                same = true;
-            }
-            else
-            {
-                same = false;
-            }
+            normalize();
         }
 
         return normalizedValue;
@@ -460,5 +481,108 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
         }
         
         return clone;
+    }
+
+
+    /**
+     * @see Externalizable#writeExternal(ObjectOutput)
+     * 
+     * We will write the value and the normalized value, only
+     * if the normalized value is different.
+     * 
+     * The data will be stored following this structure :
+     * 
+     *  [UP value]
+     *  [Norm value] (will be null if normValue == upValue)
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        if ( getReference() != null )
+        {
+            out.writeInt( getReference().length );
+            out.write( getReference() );
+            
+            if ( same )
+            {
+                // If the normalized value is equal to the UP value,
+                // don't save it
+                out.writeInt( 0 );
+            }
+            else
+            {
+                out.writeInt( normalizedValue.length );
+                out.write( normalizedValue );
+            }
+        }
+        else
+        {
+            out.writeInt( -1 );
+        }
+        
+        out.flush();
+    }
+
+    
+    /**
+     * @see Externalizable#readExternal(ObjectInput)
+     */
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        if ( in.available() == 0 )
+        {
+            set( null );
+            normalizedValue = null;
+        }
+        else
+        {
+            int wrappedLength = in.readInt();
+            byte[] wrapped = null;
+            
+            switch ( wrappedLength )
+            {
+                case -1 :
+                    // No value, no normalized value
+                    same = true;
+                    break;
+                    
+                case 0 :
+                    // Empty value, so is the normalized value
+                    wrapped = StringTools.EMPTY_BYTES;
+                    normalizedValue = wrapped;
+                    same = true;
+                    break;
+                    
+                default :
+                    wrapped = new byte[wrappedLength];
+                    in.readFully( wrapped );
+                    
+                    int normalizedLength = in.readInt();
+                    
+                    // The normalized length should be either 0 or N, 
+                    // but it can't be -1
+                    switch ( normalizedLength )
+                    {
+                        case -1 :
+                            String message = "The normalized value cannot be null when the User Provide value is not";
+                            LOG.error(  message  );
+                            throw new IOException( message );
+                            
+                        case 0 :
+                            normalizedValue = StringTools.EMPTY_BYTES;
+                            same = true;
+                            break;
+                            
+                        default :
+                            same = false;
+                            normalizedValue = new byte[normalizedLength];
+                            in.readFully( normalizedValue );
+                            break;
+                    }
+                    
+                    break;
+            }
+            
+            set( wrapped );
+        }
     }
 }

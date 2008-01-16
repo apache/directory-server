@@ -28,6 +28,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -56,7 +57,7 @@ public class AddEntryOperation extends Operation
      * 
      * @param entry an entry
      */
-    public AddEntryOperation( CSN csn, LdapDN normalizedName, Attributes entry )
+    public AddEntryOperation( CSN csn, LdapDN normalizedName, ServerEntry entry )
     {
         super( csn );
 
@@ -64,7 +65,7 @@ public class AddEntryOperation extends Operation
         assert entry != null;
 
         this.normalizedName = normalizedName;
-        this.entry = ( Attributes ) entry.clone();
+        this.entry = ServerEntryUtils.toAttributesImpl( entry );
     }
 
 
@@ -85,9 +86,7 @@ public class AddEntryOperation extends Operation
         EntryUtil.createGlueEntries( registries, nexus, normalizedName, false );
 
         // Replace the entry if an entry with the same name exists.
-        Attributes oldEntry = nexus.lookup( new LookupOperationContext( registries, normalizedName ) );
-        
-        if ( oldEntry != null )
+        if ( nexus.lookup( new LookupOperationContext( registries, normalizedName ) ) != null )
         {
             recursiveDelete( nexus, normalizedName, registries );
         }
@@ -101,6 +100,7 @@ public class AddEntryOperation extends Operation
         throws NamingException
     {
         NamingEnumeration<SearchResult> ne = nexus.list( new ListOperationContext( registries, normalizedName ) );
+        
         if ( !ne.hasMore() )
         {
             nexus.delete( new DeleteOperationContext( registries, normalizedName ) );

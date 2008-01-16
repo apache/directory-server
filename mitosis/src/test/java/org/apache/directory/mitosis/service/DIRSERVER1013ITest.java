@@ -24,6 +24,10 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -39,14 +43,14 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  */
 public class DIRSERVER1013ITest extends AbstractReplicationServiceTestCase
 {
-    protected void setUp() throws Exception
+    @Before public void setUp() throws Exception
     {
         // Create two replicas as we currently can't have the
         // replication service enabled without more than one.
         createReplicas( new String[] { "A", "B" } );
     }
     
-    public void testNoRDNOID () throws Exception
+    @Test public void testNoRDNOID () throws Exception
     {
         LdapContext ctxA = getReplicaContext( "A" );
         

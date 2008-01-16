@@ -69,6 +69,7 @@ public class OperationCodec
     public Operation decode( byte[] data )
     {
         ObjectInputStream in;
+        
         try
         {
             in = new ObjectInputStream( new ByteArrayInputStream( data ) );
@@ -76,6 +77,7 @@ public class OperationCodec
         }
         catch ( IOException e )
         {
+            e.printStackTrace();
             throw ( InternalError ) new InternalError().initCause( e );
         }
         catch ( ClassNotFoundException e )

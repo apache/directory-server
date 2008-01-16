@@ -19,6 +19,9 @@
  */
 package org.apache.directory.mitosis.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -34,6 +37,11 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * A test case for {@link ReplicationServiceITest}
@@ -43,12 +51,26 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
 {
-    protected void setUp() throws Exception
+    private Map<String, OidNormalizer> oids;
+    
+    @Before public void setUp() throws Exception
     {
         createReplicas( new String[] { "A", "B", "C" } );
+
+        
+        // Initialize OIDs maps for normalization
+        oids = new HashMap<String, OidNormalizer>();
+
+        oids.put( "ou", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "cn", new OidNormalizer( "cn", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "commonName", new OidNormalizer( "cn", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "2.5.4.3", new OidNormalizer( "cn", new DeepTrimToLowerNormalizer() ) );
     }
 
-    public void testOneWay() throws Exception
+    @Ignore
+    @Test public void testOneWay() throws Exception
     {
         String dn1 = "cn=test,ou=system";
         String dn2 = "cn=test2,ou=system";

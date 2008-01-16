@@ -25,6 +25,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
@@ -32,8 +34,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -120,7 +120,7 @@ public class EntryUtil
         }
 
         // Create a glue entry.
-        Attributes entry = new AttributesImpl( true );
+        ServerEntry entry = new DefaultServerEntry( registries, name );
         
         //// Add RDN attribute. 
         String rdn = name.get( name.size() - 1 );
@@ -129,13 +129,10 @@ public class EntryUtil
         entry.put( rdnAttribute, rdnValue );
         
         //// Add objectClass attribute. 
-        Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        objectClassAttr.add( SchemaConstants.TOP_OC );
-        objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
-        entry.put( objectClassAttr );
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
 
         // And add it to the nexus.
-        nexus.add( new AddOperationContext( registries, name, ServerEntryUtils.toServerEntry( entry, name, registries ) ) );
+        nexus.add( new AddOperationContext( registries, name, entry ) );
     }
 
 

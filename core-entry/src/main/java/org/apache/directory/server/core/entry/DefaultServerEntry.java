@@ -19,6 +19,10 @@
 package org.apache.directory.server.core.entry;
 
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,8 +54,11 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class DefaultServerEntry implements ServerEntry
+public final class DefaultServerEntry implements ServerEntry, Externalizable
 {
+    /** Used for serialization */
+    public static final long serialVersionUID = 2L;
+    
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultServerEntry.class );
 
@@ -111,12 +118,12 @@ public final class DefaultServerEntry implements ServerEntry
      * <p>
      * This entry <b>must</b> be initialized before being used !
      */
-    public DefaultServerEntry()
+    /*public DefaultServerEntry()
     {
         registries = null;
         
         initObjectClassAT( registries );
-    }
+    }*/
 
 
     /**
@@ -1548,7 +1555,116 @@ public final class DefaultServerEntry implements ServerEntry
         }
     }
 
+    
+    /**
+     * @see Externalizable#writeExternal(ObjectOutput)<p>
+     * 
+     * This is the place where we serialize entries, and all theirs
+     * elements. the reason why we don't call the underlying methods
+     * (<code>ServerAttribute.write(), Value.write()</code>) is that we need
+     * access to the registries to read back the values.
+     * <p>
+     * The structure used to store the entry is the following :
+     * <li><b>[DN length]</b> : can be -1 if we don't have a DN, 0 if the 
+     * DN is empty, otherwise contains the DN's length.<p> 
+     * <b>NOTE :</b>This should be unnecessary, as the DN should always exists
+     * <p>
+     * </li>
+     * <li>
+     * <b>DN</b> : The entry's DN. Can be empty (rootDSE=<p>
+     * </li>
+     * We have to store the UPid, and all the values, if any.
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        if ( dn == null )
+        {
+            // We don't have a DN, so write a -1 instead of a real length
+            out.writeInt( -1 );
+        }
+        else
+        {
+            // Here, we should ask ourselves if it would not be better
+            // to serialize the current LdapDN instead of a String.
+            String dnString = dn.getUpName();
+            out.writeInt( dnString.length() );
+            out.writeUTF( dnString );
+            
+        }
+        
+        out.flush();
+    }
 
+    
+    /**
+     * @see Externalizable#readExternal(ObjectInput)
+     */
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        if ( in.available() == 0 )
+        {
+            String message = "Cannot read an null Attribute";
+            LOG.error( message );
+            throw new IOException( message );
+        }
+        else
+        {
+            // Read the HR flag
+            boolean hr = in.readBoolean();
+        }
+        /*
+            // Read the UPid
+            upId = in.readUTF();
+
+            // Read the number of values
+            int nbValues = in.readInt();
+            
+            switch ( nbValues )
+            {
+                case -1 :
+                    values = null;
+                    break;
+                    
+                case 0 :
+                    values = new ArrayList<ServerValue<?>>();
+                    break;
+                    
+                default :
+                    values = new ArrayList<ServerValue<?>>();
+                
+                    for ( int i = 0; i < nbValues; i++ )
+                    {
+                        if ( hr )
+                        {
+                            ServerStringValue value = new ServerStringValue( attributeType ); 
+                    }
+                    
+                    break;
+            }
+            if ( nbValues != 0 )
+            {
+                
+            }
+            else
+            {
+                
+            }
+            //
+            String wrapped = in.readUTF();
+            
+            set( wrapped );
+            
+            normalizedValue = in.readUTF();
+            
+            if ( ( normalizedValue.length() == 0 ) &&  ( wrapped.length() != 0 ) )
+            {
+                // In this case, the normalized value is equal to the UP value
+                normalizedValue = wrapped;
+            }
+        }*/
+    }
+
+        
     /**
      * @see Object#toString()
      */

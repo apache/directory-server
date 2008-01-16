@@ -20,19 +20,32 @@
 package org.apache.directory.server.core.entry;
 
 
+import org.apache.directory.server.core.entry.ServerStringValueTest.AT;
+import org.apache.directory.server.core.entry.ServerStringValueTest.MR;
+import org.apache.directory.server.core.entry.ServerStringValueTest.S;
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
 import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
+import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -58,6 +71,10 @@ import static org.junit.Assert.fail;
  */
 public class ServerBinaryValueTest
 {
+    static private S s;
+    static private AT at;
+    static private MR mr;
+    
     /**
      * A local Syntax class for tests
      */
@@ -259,7 +276,7 @@ public class ServerBinaryValueTest
                 if ( value instanceof byte[] )
                 {
                     byte[] val = (byte[])value;
-                    // each byte will be changed to be > 0
+                    // each byte will be changed to be > 0, and spaces will be trimmed
                     byte[] newVal = new byte[ val.length ];
                     int i = 0;
                     
@@ -268,7 +285,7 @@ public class ServerBinaryValueTest
                         newVal[i++] = (byte)(b & 0x007F); 
                     }
                     
-                    return newVal;
+                    return StringTools.trim( newVal );
                 }
 
                 throw new IllegalStateException( "expected byte[] to normalize" );
@@ -281,6 +298,49 @@ public class ServerBinaryValueTest
     }
 
     
+    /**
+     * Initialize an AttributeType and the associated MatchingRule 
+     * and Syntax
+     */
+    @Before public void initAT()
+    {
+        s = new S( "1.1.1.1", false );
+        s.setSyntaxChecker( new AcceptAllSyntaxChecker( "1.1.1.1" ) );
+        mr = new MR( "1.1.2.1" );
+        mr.syntax = s;
+        mr.comparator = new ByteArrayComparator();
+        mr.normalizer = new Normalizer()
+        {
+            public static final long serialVersionUID = 1L;
+            
+            public Object normalize( Object value ) throws NamingException
+            {
+                if ( value instanceof byte[] )
+                {
+                    byte[] val = (byte[])value;
+                    // each byte will be changed to be > 0, and spaces will be trimmed
+                    byte[] newVal = new byte[ val.length ];
+                    int i = 0;
+                    
+                    for ( byte b:val )
+                    {
+                        newVal[i++] = (byte)(b & 0x007F); 
+                    }
+                    
+                    return StringTools.trim( newVal );
+                }
+
+                throw new IllegalStateException( "expected byte[] to normalize" );
+            }
+        };
+        at = new AT( "1.1.3.1" );
+        at.setEquality( mr );
+        at.setOrdering( mr );
+        at.setSubstr( mr );
+        at.setSyntax( s );
+    }
+    
+
     /**
      * Test the constructor with bad AttributeType
      */
@@ -413,4 +473,138 @@ public class ServerBinaryValueTest
         assertFalse( v3.equals( v2 ) );
         assertTrue( v3.isValid() );
     }
+
+
+
+    /**
+     * Test serialization of a BinaryValue which has a normalized value
+     */
+    @Test public void testNormalizedBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        byte[] v1 = StringTools.getBytesUtf8( "  Test   Test  " );
+        byte[] v1Norm = StringTools.getBytesUtf8( "Test   Test" );
+        
+        // First check with a value which will be normalized
+        ServerBinaryValue sv = new ServerBinaryValue( at, v1 );
+        
+        sv.normalize();
+        byte[] normalized = sv.getNormalizedReference();
+        
+        assertTrue( Arrays.equals( v1Norm, normalized ) );
+        assertTrue( Arrays.equals( v1, sv.getReference() ) );
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+        
+        sv.writeExternal( out );
+        
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+        
+        ServerBinaryValue sv2 = new ServerBinaryValue( at );
+        sv2.readExternal( in );
+        
+        assertEquals( sv, sv2 );
+    }
+
+
+    /**
+     * Test serialization of a BinaryValue which does not have a normalized value
+     */
+    @Test public void testNoNormalizedBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        byte[] v1 = StringTools.getBytesUtf8( "test" );
+        byte[] v1Norm = StringTools.getBytesUtf8( "test" );
+
+        // First check with a value which will be normalized
+        ServerBinaryValue sv = new ServerBinaryValue( at, v1 );
+        
+        sv.normalize();
+        byte[] normalized = sv.getNormalizedReference();
+        
+        assertTrue( Arrays.equals( v1Norm, normalized ) );
+        assertTrue( Arrays.equals( v1, sv.get() ) );
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+        
+        sv.writeExternal( out );
+        
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+        
+        ServerBinaryValue sv2 = new ServerBinaryValue( at );
+        sv2.readExternal( in );
+        
+        assertEquals( sv, sv2 );
+   }
+
+
+    /**
+     * Test serialization of a null BinaryValue
+     */
+    @Test public void testNullBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        // First check with a value which will be normalized
+        ServerBinaryValue sv = new ServerBinaryValue( at );
+        
+        sv.normalize();
+        byte[] normalized = sv.getNormalizedReference();
+        
+        assertEquals( null, normalized );
+        assertEquals( null, sv.get() );
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+        
+        sv.writeExternal( out );
+        
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+        
+        ServerBinaryValue sv2 = new ServerBinaryValue( at );
+        sv2.readExternal( in );
+        
+        assertEquals( sv, sv2 );
+   }
+
+
+    /**
+     * Test serialization of an empty BinaryValue
+     */
+    @Test public void testEmptyBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        // First check with a value which will be normalized
+        ServerBinaryValue sv = new ServerBinaryValue( at, StringTools.EMPTY_BYTES );
+        
+        sv.normalize();
+        byte[] normalized = sv.getNormalizedReference();
+        
+        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, normalized ) );
+        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, sv.get() ) );
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+        
+        sv.writeExternal( out );
+        
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+        
+        ServerBinaryValue sv2 = new ServerBinaryValue( at );
+        sv2.readExternal( in );
+        
+        assertEquals( sv, sv2 );
+   }
 }

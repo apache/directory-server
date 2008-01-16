@@ -41,7 +41,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractServerAttribute implements ServerAttribute, Cloneable
+public abstract class AbstractServerAttribute implements ServerAttribute
 {
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( AbstractServerAttribute.class );
@@ -50,7 +50,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute, Clonea
     protected List<ServerValue<?>> values = new ArrayList<ServerValue<?>>();
     
     /** The associated AttributeType */
-    protected AttributeType attributeType;
+    protected transient AttributeType attributeType;
     
     /** The User provided ID */
     protected String upId;

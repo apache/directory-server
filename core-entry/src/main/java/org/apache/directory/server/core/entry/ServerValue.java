@@ -84,4 +84,13 @@ public interface ServerValue<T> extends Value<T>, Comparable<ServerValue<T>>
     boolean instanceOf( AttributeType attributeType ) throws NamingException;
     
     ServerValue<T> clone();
+    
+    
+    /**
+     * Compute the normalized value
+     *
+     * @throws NamingException If the normalized has not been created of if
+     * there is a problem during the normalization
+     */
+    void normalize() throws NamingException;
 }
