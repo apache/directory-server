@@ -41,6 +41,9 @@ import java.util.Iterator;
  */
 public final class DefaultClientAttribute extends AbstractClientAttribute
 {
+    /** Used for serialization */
+    public static final long serialVersionUID = 2L;
+    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultClientAttribute.class );
     

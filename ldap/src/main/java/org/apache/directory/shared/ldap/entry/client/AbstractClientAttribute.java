@@ -41,7 +41,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractClientAttribute implements ClientAttribute, Cloneable
+public abstract class AbstractClientAttribute implements ClientAttribute
 {
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( AbstractClientAttribute.class );

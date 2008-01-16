@@ -33,7 +33,7 @@ import java.net.URI;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractStreamedValue implements Value<URI>, Cloneable
+public abstract class AbstractStreamedValue implements Value<URI>
 {
     /** The URI pointing to the stored data */
     private URI wrapped;

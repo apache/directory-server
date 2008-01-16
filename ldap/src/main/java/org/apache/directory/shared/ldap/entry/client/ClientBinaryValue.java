@@ -41,8 +41,11 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ClientBinaryValue extends AbstractBinaryValue implements ClientValue<byte[]>, Cloneable
+public class ClientBinaryValue extends AbstractBinaryValue implements ClientValue<byte[]>
 {
+    /** Used for serialization */
+    public static final long serialVersionUID = 2L;
+    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ClientBinaryValue.class );
 

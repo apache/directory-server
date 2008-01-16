@@ -32,7 +32,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ClientAttribute extends EntryAttribute<ClientValue<?>>, Iterable<ClientValue<?>>, Cloneable
+public interface ClientAttribute extends EntryAttribute<ClientValue<?>>
 {
     /**
      * Get's the user provided identifier for this entry.  This is the value

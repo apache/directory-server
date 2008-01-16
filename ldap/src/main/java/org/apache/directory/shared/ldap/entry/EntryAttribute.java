@@ -18,6 +18,7 @@
  */
 package org.apache.directory.shared.ldap.entry;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 import javax.naming.NamingException;
@@ -31,7 +32,7 @@ import javax.naming.directory.InvalidAttributeValueException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface EntryAttribute<T extends Value<?>>
+public interface EntryAttribute<T extends Value<?>> extends Iterable<T>, Serializable, Cloneable
 {
     /**
      * Adds some values to this attribute. If the new values are already present in

@@ -20,6 +20,11 @@
 package org.apache.directory.shared.ldap.name;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Iterator;
 
 import javax.naming.InvalidNameException;
@@ -33,6 +38,7 @@ import junit.framework.TestCase;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.name.RdnParser;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
 
 /**
@@ -611,5 +617,214 @@ public class RdnTest extends TestCase
         // hash must be escaped at the beginning of a string
         assertEquals( "\\#a#b", Rdn.escapeValue( "#a#b" ) );
         assertEquals( "\\##a#b", Rdn.escapeValue( "##a#b" ) );
+    }
+
+
+    /** Serialization tests ------------------------------------------------- */
+
+    /**
+     * Test serialization of an empty RDN
+     */
+    @Test
+    public void testEmptyRDNSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        Rdn rdn = new Rdn( "" );
+
+        rdn.normalize();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        rdn.writeExternal( out );
+
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+        Rdn rdn2 = new Rdn();
+        rdn2.readExternal( in );
+
+        assertEquals( rdn, rdn2 );
+    }
+
+
+    @Test
+    public void testNullRdnSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        Rdn rdn = new Rdn();
+
+        rdn.normalize();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        rdn.writeExternal( out );
+
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+        Rdn rdn2 = new Rdn();
+        rdn2.readExternal( in );
+
+        assertEquals( rdn, rdn2 );
+    }
+
+
+    /**
+     * Test serialization of a simple Rdn
+     */
+    @Test
+    public void testSimpleRdnSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        Rdn rdn = new Rdn( "a=b" );
+        rdn.normalize();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        rdn.writeExternal( out );
+
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+        Rdn rdn2 = new Rdn();
+        rdn2.readExternal( in );
+
+        assertEquals( rdn, rdn2 );
+    }
+
+
+    /**
+     * Test serialization of a simple Rdn
+     */
+    @Test
+    public void testSimpleRdn2Serialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        Rdn rdn = new Rdn( " ABC  = DEF " );
+        rdn.normalize();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        rdn.writeExternal( out );
+
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+        Rdn rdn2 = new Rdn();
+        rdn2.readExternal( in );
+
+        assertEquals( rdn, rdn2 );
+    }
+
+    
+    /**
+     * Test serialization of a simple Rdn with no value
+     */
+    @Test
+    public void testSimpleRdnNoValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        Rdn rdn = new Rdn( " ABC  =" );
+        rdn.normalize();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        rdn.writeExternal( out );
+
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+        Rdn rdn2 = new Rdn();
+        rdn2.readExternal( in );
+
+        assertEquals( rdn, rdn2 );
+    }
+
+    
+    /**
+     * Test serialization of a simple Rdn with one value
+     */
+    @Test
+    public void testSimpleRdnOneValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        Rdn rdn = new Rdn( " ABC  = def " );
+        rdn.normalize();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        rdn.writeExternal( out );
+
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+        Rdn rdn2 = new Rdn();
+        rdn2.readExternal( in );
+
+        assertEquals( rdn, rdn2 );
+    }
+
+    
+    /**
+     * Test serialization of a simple Rdn with three values
+     */
+    @Test
+    public void testSimpleRdnThreeValuesSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        Rdn rdn = new Rdn( " A = a + B = b + C = c " );
+        rdn.normalize();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        rdn.writeExternal( out );
+
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+        Rdn rdn2 = new Rdn();
+        rdn2.readExternal( in );
+
+        assertEquals( rdn, rdn2 );
+    }
+
+    
+    /**
+     * Test serialization of a simple Rdn with three unordered values
+     */
+    @Test
+    public void testSimpleRdnThreeValuesUnorderedSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        Rdn rdn = new Rdn( " B = b + A = a + C = c " );
+        rdn.normalize();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        rdn.writeExternal( out );
+
+        ObjectInputStream in = null;
+
+        byte[] data = baos.toByteArray();
+        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+        Rdn rdn2 = new Rdn();
+        rdn2.readExternal( in );
+
+        assertEquals( rdn, rdn2 );
     }
 }

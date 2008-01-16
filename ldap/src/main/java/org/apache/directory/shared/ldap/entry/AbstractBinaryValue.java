@@ -37,7 +37,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractBinaryValue implements Value<byte[]>, Cloneable
+public abstract class AbstractBinaryValue implements Value<byte[]>
 {
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( AbstractBinaryValue.class );

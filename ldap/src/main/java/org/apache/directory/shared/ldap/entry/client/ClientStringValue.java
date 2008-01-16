@@ -40,8 +40,11 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ClientStringValue extends AbstractStringValue implements ClientValue<String>, Cloneable
+public class ClientStringValue extends AbstractStringValue implements ClientValue<String>
 {
+    /** Used for serialization */
+    public static final long serialVersionUID = 2L;
+    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ClientStringValue.class );
 
