@@ -57,7 +57,8 @@ public class JdbmTableWithDuplicatesTest
     private static final Logger LOG = LoggerFactory.getLogger( KeyCursorTest.class.getSimpleName() );
     private static final String EMPTY_STRING = "";
     private static final String TEST_OUTPUT_PATH = "test.output.path";
-
+    private static final int DUP_LIMIT = 15; // point at which the JDBM table starts using btrees
+    
     transient Table<String,String> table;
     transient File dbFile;
     transient RecordManager recman;
@@ -71,17 +72,17 @@ public class JdbmTableWithDuplicatesTest
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
         }
 
-        dbFile = File.createTempFile( "test", "db", tmpDir );
+        dbFile = File.createTempFile( "JdbmTableWithDuplicatesTest", "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
         // gosh this is a terrible use of a global static variable
-        SerializableComparator.setRegistry( new TestComparatorRegistry() );
+        SerializableComparator.setRegistry( new MockComparatorRegistry() );
 
         TupleComparator<String,String> comparator = 
                 new DefaultTupleComparator<String,String>(
                         new SerializableComparator<String>( "" ),
                         new SerializableComparator<String>( "" ) );
-        table = new JdbmTable<String,String>( "test", true, 100, recman, comparator, null, null );
+        table = new JdbmTable<String,String>( "test", true, DUP_LIMIT, recman, comparator, null, null );
         LOG.debug( "Created new table and populated it with data" );
     }
 
@@ -98,38 +99,6 @@ public class JdbmTableWithDuplicatesTest
     }
 
 
-    public void loadDataNoDupKeys() throws IOException
-    {
-        // add some data to it
-        table.put( "0", EMPTY_STRING );
-        table.put( "1", EMPTY_STRING );
-        table.put( "2", EMPTY_STRING );
-        table.put( "3", EMPTY_STRING );
-        table.put( "4", EMPTY_STRING );
-        table.put( "5", EMPTY_STRING );
-        table.put( "6", EMPTY_STRING );
-        table.put( "7", EMPTY_STRING );
-        table.put( "8", EMPTY_STRING );
-        table.put( "9", EMPTY_STRING );
-    }
-
-    
-    public void loadDataWithDupKeys() throws IOException
-    {
-        // add some data to it
-        table.put( "0", "0" );
-        table.put( "1", "0" );
-        table.put( "1", "1" );
-        table.put( "1", "2" );
-        table.put( "4", "4" );
-        table.put( "5", "5" );
-        table.put( "6", "6" );
-        table.put( "7", "7" );
-        table.put( "8", "8" );
-        table.put( "9", "9" );
-    }
-
-    
     @Test
     public void testCloseReopen() throws Exception
     {
@@ -139,8 +108,9 @@ public class JdbmTableWithDuplicatesTest
             new DefaultTupleComparator<String,String>(
                     new SerializableComparator<String>( "" ),
                     new SerializableComparator<String>( "" ) );
-        table = new JdbmTable<String,String>( "test", true, 100, recman, comparator, null, null );
-        assertEquals( "value", table.get( "key" ) );
+        table = new JdbmTable<String,String>( "test", true, DUP_LIMIT, recman, comparator, null, null );
+        Object storedValue = table.get( "key" );
+        assertEquals( "value", storedValue );
     }
 
     
@@ -189,8 +159,154 @@ public class JdbmTableWithDuplicatesTest
         assertFalse( table.has( "1", "0", false ) );
     }
 
+    
+    @Test
+    public void testLoadData() throws Exception
+    {
+        // add some data to it
+        table.put( "0", "zero" );
+        table.put( "1", "one" );
+        table.put( "2", "two" );
+        table.put( "3", "three" );
+        table.put( "4", "four" );
+        table.put( "5", "five" );
+        table.put( "6", "six" );
+        table.put( "7", "seven" );
+        table.put( "8", "eight" );
+        table.put( "9", "nine" );
 
-    private class TestComparatorRegistry implements ComparatorRegistry
+        assertEquals( 10, table.count() );
+        assertEquals( 1, table.count( "0" ) );
+        
+        /*
+         * If counts are exact then we can test for exact values.  Again this 
+         * is not a critical function but one used for optimization so worst 
+         * case guesses are allowed.
+         */
+        
+        if ( table.isCountExact() )
+        {
+            assertEquals( 5, table.lessThanCount( "5" ) );
+            assertEquals( 4, table.greaterThanCount( "5" ) );
+        }
+        else
+        {
+            assertEquals( 10, table.lessThanCount( "5" ) );
+            assertEquals( 10, table.greaterThanCount( "5" ) );
+        }
+    }
+    
+
+    @Test
+    public void testDuplicateLimit() throws Exception
+    {
+        for ( int ii = 0; ii < DUP_LIMIT-1; ii++ )
+        {
+            table.put( "key", String.valueOf( ii ) );
+        }
+        assertEquals( DUP_LIMIT-1, table.count() );
+        
+        table.put( "key", String.valueOf( DUP_LIMIT-1 ) );
+        assertEquals( DUP_LIMIT, table.count() );
+        
+        // this switches to B+Trees in JDBM implementations
+        table.put( "key", String.valueOf( DUP_LIMIT ) );
+        assertEquals( DUP_LIMIT+1, table.count() );
+        
+        table.put( "key", String.valueOf( DUP_LIMIT+1 ) );
+        assertEquals( DUP_LIMIT+2, table.count() );
+        
+        
+        // now start removing and see what happens 
+
+        table.remove( "key", String.valueOf( DUP_LIMIT+1 ) );
+        assertFalse( table.has( "key", String.valueOf( DUP_LIMIT+1 ) ) );
+        assertEquals( DUP_LIMIT+1, table.count() );
+    
+        table.remove( "key", String.valueOf( DUP_LIMIT ) );
+        assertFalse( table.has( "key", String.valueOf( DUP_LIMIT ) ) );
+        assertEquals( DUP_LIMIT, table.count() );
+    
+        for ( int ii = DUP_LIMIT-1; ii >= 0; ii-- )
+        {
+            table.remove( "key", String.valueOf( ii ) );
+        }
+        assertEquals( 0, table.count() );
+    }
+    
+    
+    /**
+     * Let's test keys with a null or lack of any values.
+     */
+    @Test
+    public void testNullOrEmptyValueAfterDuplicateLimit() throws Exception
+    {
+        testDuplicateLimit();
+        assertEquals( 0, table.count() );
+        table.put( "key", null );
+        assertEquals( 1, table.count() );
+        assertEquals( null, table.get( "key" ) );
+        
+        // Let's add the key with two valid values and remove all values
+        table.remove( "key" );
+        table.put( "key", "1" );
+        table.put( "key", "2" );
+        assertEquals( 2, table.count( "key" ) );
+        table.remove( "key", "1" );
+        assertEquals( 1, table.count( "key" ) );
+        assertEquals( "2", table.get( "key" ) );
+
+        
+        table.remove( "key", "2" );
+        String remainingValue = table.get( "key" );
+        assertNull( remainingValue );
+        assertEquals( 0, table.count( "key" ) );
+        assertTrue( table.has( "key" ) );
+        
+        table.remove( "key", "1" );
+        remainingValue = table.get( "key" );
+        assertNull( remainingValue );
+        assertEquals( 0, table.count( "key" ) );
+        assertTrue( table.has( "key" ) );
+    }
+    
+    
+    /**
+     * Let's test keys with a null or lack of any values.
+     */
+    @Test
+    public void testNullOrEmptyValue() throws Exception
+    {
+        assertEquals( 0, table.count() );
+        table.put( "key", null );
+        assertEquals( 1, table.count() );
+        assertEquals( null, table.get( "key" ) );
+        
+        // Let's add the key with two valid values and remove all values
+        table.remove( "key" );
+        table.put( "key", "1" );
+        table.put( "key", "2" );
+        assertEquals( 2, table.count( "key" ) );
+        table.remove( "key", "1" );
+        assertEquals( 1, table.count( "key" ) );
+        assertEquals( "2", table.get( "key" ) );
+
+        
+        table.remove( "key", "2" );
+        String remainingValue = table.get( "key" );
+        assertNull( remainingValue );
+        assertEquals( 0, table.count( "key" ) );
+        assertTrue( table.has( "key" ) );
+        
+        table.remove( "key", "1" );
+        remainingValue = table.get( "key" );
+        assertNull( remainingValue );
+        assertEquals( 0, table.count( "key" ) );
+        assertTrue( table.has( "key" ) );
+    }
+    
+    
+    private class MockComparatorRegistry implements ComparatorRegistry
     {
         private StringComparator comparator = new StringComparator();
 

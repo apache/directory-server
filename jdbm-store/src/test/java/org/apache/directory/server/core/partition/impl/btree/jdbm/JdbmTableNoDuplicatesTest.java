@@ -72,7 +72,7 @@ public class JdbmTableNoDuplicatesTest
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
         // gosh this is a terrible use of a global static variable
-        SerializableComparator.setRegistry( new TestComparatorRegistry() );
+        SerializableComparator.setRegistry( new MockComparatorRegistry() );
         table = new JdbmTable<String,String>( "test", recman, new SerializableComparator<String>( "" ), null, null );
         LOG.debug( "Created new table and populated it with data" );
     }
@@ -183,7 +183,7 @@ public class JdbmTableNoDuplicatesTest
     }
     
     
-    private class TestComparatorRegistry implements ComparatorRegistry
+    private class MockComparatorRegistry implements ComparatorRegistry
     {
         private StringComparator comparator = new StringComparator();
 

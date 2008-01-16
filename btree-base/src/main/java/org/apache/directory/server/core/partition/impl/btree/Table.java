@@ -193,21 +193,6 @@ public interface Table<K, V>
 
 
     /**
-     * Puts a set of values into the Table for a specific key.  If the Table
-     * does not support duplicate keys then only the first value found in the
-     * Cursor is added.  If duplicate keys are not supported and there is more
-     * than one element in the Cursor an IllegalStateException will be raised
-     * without putting any values into this Table.
-     *
-     * @param key the key to use for the values
-     * @param values the values supplied as an cursor
-     * @return the replaced object or null if one did not exist
-     * @throws IOException if something goes wrong
-     */
-    V put( K key, Cursor<V> values ) throws IOException;
-
-
-    /**
      * Removes all records with a specified key from this Table.
      *
      * @param key the key of the records to remove
@@ -229,22 +214,6 @@ public interface Table<K, V>
      * the underlying Db
      */
     V remove( K key, V value ) throws IOException;
-
-
-    /**
-     * Removes a set of values with the same key from this Table.  If this 
-     * table does not allow duplicates the method will attempt to remove the 
-     * first value in the Cursor if one exists.  If there is more than one
-     * value within the Cursor after the first an IllegalStateException is
-     * thrown.
-     *
-     * @param key the key of the records to remove
-     * @param values the values supplied as an enumeration
-     * @return the first value removed
-     * @throws IOException if there is a failure to read or write to
-     * the underlying Db
-     */
-    V remove( K key, Cursor<V> values ) throws IOException;
 
 
     /**

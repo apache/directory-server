@@ -106,22 +106,15 @@ public class KeyCursor<E> extends AbstractCursor<E>
             {
                 // just continue
             }
-            else if ( nextCompared > 0 )
+            else 
             {
                 /*
                  * If we just have values greater than the element argument
-                 * then we are before the first element and cannot backup, and
-                 * the call below to getPrevious() will fail.  In this special
-                 * case we just reset the Cursor's browser and return.
+                 * then we are before the first element and must backup to
+                 * before the first element state for the JDBM browser which 
+                 * apparently the browser supports.
                  */
-                if ( browser.getPrevious( tuple ) )
-                {
-                }
-                else
-                {
-                    browser = btree.browse( element );
-                }
-
+                browser.getPrevious( tuple );
                 clearValue();
                 return;
             }

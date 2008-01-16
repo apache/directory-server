@@ -599,7 +599,8 @@ public class JdbmTable<K,V> implements Table<K,V>
         if ( values instanceof BTreeRedirect )
         {
             BTree tree = getBTree( ( BTreeRedirect ) values );
-            if ( insertDupIntoBTree( tree, value ) )
+            
+            if ( value != null insertDupIntoBTree( tree, value ) )
             {
                 count++;
             }
@@ -609,97 +610,6 @@ public class JdbmTable<K,V> implements Table<K,V>
         throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
     
-
-    /**
-     * @see Table#put(Object, Cursor
-     */
-    @SuppressWarnings("unchecked")
-    public V put( K key, Cursor<V> values ) throws IOException
-    {
-        /*
-         * If we do not allow duplicates call the single add put using the
-         * first value in the enumeration if it exists.  If it does not we
-         * just return null without doing anything.  If more than one value
-         * is in the enumeration than we blow a UnsupportedOperationException.
-         */
-        if ( !allowsDuplicates )
-        {
-            if ( values.next() )
-            {
-                V value = values.get();
-
-                if ( values.next() )
-                {
-                    throw new IllegalStateException( "Attempting to put duplicate keys into table " + name
-                        + " which does not support duplicates" );
-                }
-
-                return put( key, value );
-            }
-
-            return null;
-        }
-
-        Object storedValues = getRaw( key );
-        if ( storedValues == null )
-        {
-            storedValues = new TreeSet<V>( comparator.getValueComparator() );
-        }
-        
-        if ( storedValues instanceof TreeSet )
-        {
-            /*
-             * Here the table allows duplicates so we get the TreeSet from the 
-             * Table holding all the duplicate key values or create one if it
-             * does not exist for key.  We check if the value is present and
-             * if it is we add it and increment the table entry counter.
-             */
-            TreeSet<V> set = ( TreeSet<V> ) storedValues;
-            while ( values.next() )
-            {
-                V val = values.get();
-    
-                if ( !set.contains( val ) )
-                {
-                    boolean isAddSuccessful = set.add( val );
-                    if ( isAddSuccessful )
-                    {
-                        count++;
-                    }
-                }
-            }
-    
-            if ( set.size() > numDupLimit )
-            {
-                BTree tree = convertToBTree( set );
-                BTreeRedirect redirect = new BTreeRedirect( tree.getRecid() );
-                return ( V ) bt.insert( key, redirect, true );
-            }
-            else
-            {
-                return ( V ) bt.insert( key, set, true );
-            }
-        }
-        
-        if ( storedValues instanceof BTreeRedirect )
-        {
-            BTree tree = getBTree( ( BTreeRedirect ) storedValues );
-            while ( values.next() )
-            {
-                V val = values.get();
-                
-                if ( insertDupIntoBTree( tree, val ) )
-                {
-                    count++;
-                }
-            }
-
-            return null;
-        }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
-    }
-
 
     /**
      * @see Table#remove(java.lang.Object,
@@ -735,15 +645,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             // If removal succeeds then remove if set is empty else replace it
             if ( set.remove( value ) )
             {
-                if ( set.isEmpty() )
-                {
-                }
-                else
-                {
-                    bt.insert( key, set, true );
-                }
-
-                // Decrement counter if removal occurs.
+                bt.insert( key, set, true );
                 count--;
                 return value;
             }
@@ -768,108 +670,6 @@ public class JdbmTable<K,V> implements Table<K,V>
             }
             
             return null;
-        }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
-    }
-
-
-    /**
-     * @see Table#remove(Object, Cursor
-     */
-    public V remove( K key, Cursor<V> values ) throws IOException
-    {
-        /*
-         * If we do not allow dupliicates call the single remove using the
-         * first value in the enumeration if it exists.  If it does not we
-         * just return null without doing anything.  If more than one value
-         * is in the enumeration than we blow a UnsupportedOperationException.
-         */
-        if ( !allowsDuplicates )
-        {
-            if ( values.next() )
-            {
-                V value = values.get();
-
-                if ( values.next() )
-                {
-                    throw new IllegalStateException( "Attempting to remove duplicate keys from table " + name
-                        + " which does not support duplicates" );
-                }
-
-                return remove( key, value );
-            }
-
-            return null;
-        }
-
-        Object storedValues = getRaw( key );
-        
-        if ( storedValues == null )
-        {
-            return null;
-        }
-        
-        if ( storedValues instanceof TreeSet )
-        {
-            /*
-             * Here the table allows duplicates so we get the TreeSet from the 
-             * Table holding all the duplicate key values or return null if it
-             * does not exist for key - nothing to do here.
-             */
-            //noinspection unchecked
-            TreeSet<V> set = ( TreeSet<V> ) storedValues;
-    
-            /*
-             * So we have a valid TreeSet with values in it.  We check if each value
-             * is in the set and remove it if it is present.  We decrement the 
-             * counter while doing so.
-             */
-            V firstValue = null;
-            while ( values.next() )
-            {
-                V val = values.get();
-    
-                // get the first value
-                if ( firstValue == null )
-                {
-                    firstValue = val;
-                }
-
-                if ( set.contains( val ) )
-                {
-                    set.remove( val );
-                    count--;
-                }
-            }
-    
-            // Return the raw TreeSet and put the changed one back.
-            bt.insert( key, set, true );
-            return firstValue;
-        }
-        
-        // TODO might be nice to add code here that reverts to a TreeSet
-        // if the number of duplicates falls below the numDupLimit value
-        if ( storedValues instanceof BTreeRedirect )
-        {
-            BTree tree = getBTree( ( BTreeRedirect ) storedValues );
-            V first = null;
-            while ( values.next() )
-            {
-                V val = values.get();
-                
-                if ( removeDupFromBTree( tree, val ) )
-                {
-                    count--;
-                    
-                    if ( first == null )
-                    {
-                        first = val;
-                    }
-                }
-            }
-            
-            return first;
         }
         
         throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );

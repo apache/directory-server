@@ -182,7 +182,7 @@ public class KeyCursorTest
         assertFalse( cursor.previous() );
         assertTrue( cursor.next() );
         assertEquals( "0", cursor.get() );
-
+        
         bt.remove( "0" );
         bt.remove( "1" );
         bt.remove( "2" );
@@ -266,6 +266,27 @@ public class KeyCursorTest
         assertEquals( "1", tuple.getKey() );
     }
 
+    
+    @Test
+    public void testMiscelleneous() throws IOException
+    {
+        // Test available()
+        
+        assertFalse( cursor.available() );
+        cursor.beforeFirst();
+        assertFalse( cursor.available() );
+        cursor.afterLast();
+        assertFalse( cursor.available() );
+        cursor.first();
+        assertTrue( cursor.available() );
+        cursor.last();
+        assertTrue( cursor.available() );
+        
+        // Test isElementReused()
+        
+        assertFalse( cursor.isElementReused() );
+    }
+    
 
     private void assertInvalidCursor()
     {
