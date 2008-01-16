@@ -19,7 +19,6 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.AbstractBinaryValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.AbstractStringValue;
@@ -571,6 +570,54 @@ public final class DefaultServerAttribute extends AbstractServerAttribute implem
         }
         
         return values.iterator().next();
+    }
+
+    
+    /**
+     * Get the String value, if and only if the value is known to be a String,
+     * otherwise a InvalidAttributeValueException will be thrown
+     *
+     * @return The value as a String
+     * @throws InvalidAttributeValueException If the value is a byte[]
+     */
+    public String getString() throws InvalidAttributeValueException
+    {
+        ServerValue<?> value = get();
+        
+        if ( value instanceof ServerStringValue )
+        {
+            return (String)value.get();
+        }
+        else
+        {
+            String message = "The value is expected to be a String";
+            LOG.error( message );
+            throw new InvalidAttributeValueException( message );
+        }
+    }
+
+
+    /**
+     * Get the byte[] value, if and only if the value is known to be Binary,
+     * otherwise a InvalidAttributeValueException will be thrown
+     *
+     * @return The value as a String
+     * @throws InvalidAttributeValueException If the value is a String
+     */
+    public byte[] getBytes() throws InvalidAttributeValueException
+    {
+        ServerValue<?> value = get();
+        
+        if ( value instanceof ServerBinaryValue )
+        {
+            return (byte[])value.get();
+        }
+        else
+        {
+            String message = "The value is expected to be a byte[]";
+            LOG.error( message );
+            throw new InvalidAttributeValueException( message );
+        }
     }
 
 

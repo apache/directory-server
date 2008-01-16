@@ -20,13 +20,13 @@
 package org.apache.directory.server.core.schema;
 
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
 
 /**
@@ -46,40 +46,40 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
 
 
     @Override
-    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, 
+    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
         boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
 
 
-    public void add( LdapDN name, Attributes entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
 
 
-    public void delete( LdapDN name, Attributes entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
-        Attributes entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
 
 
     public void replace( LdapDN oriChildName, LdapDN newParentName,
-                         Attributes entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
 
 
-    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

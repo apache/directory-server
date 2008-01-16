@@ -21,12 +21,14 @@ package org.apache.directory.server.core.schema;
 
 
 import java.text.ParseException;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
@@ -132,7 +134,7 @@ public class DescriptionParsers
     }
 
     
-    public SyntaxCheckerDescription[] parseSyntaxCheckers( Attribute attr ) throws NamingException
+    public SyntaxCheckerDescription[] parseSyntaxCheckers( ServerAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -141,17 +143,22 @@ public class DescriptionParsers
         
         SyntaxCheckerDescription[] syntaxCheckerDescriptions = new SyntaxCheckerDescription[attr.size()];
         
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        Iterator<ServerValue<?>> values = attr.getAll();
+        int pos = 0;
+        
+        while ( values.hasNext() )
         {
+            String value = (String)values.next().get();
+            
             try
             {
-                syntaxCheckerDescriptions[ii] = 
-                    syntaxCheckerParser.parseSyntaxCheckerDescription( ( String ) attr.get( ii ) );
+                syntaxCheckerDescriptions[pos++] = 
+                    syntaxCheckerParser.parseSyntaxCheckerDescription( value );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the syntaxCheckerDescription syntax: " + attr.get( ii ), 
+                    "The following does not conform to the syntaxCheckerDescription syntax: " + value, 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -162,7 +169,7 @@ public class DescriptionParsers
     }
     
     
-    public NormalizerDescription[] parseNormalizers( Attribute attr ) throws NamingException
+    public NormalizerDescription[] parseNormalizers( ServerAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -171,16 +178,21 @@ public class DescriptionParsers
         
         NormalizerDescription[] normalizerDescriptions = new NormalizerDescription[attr.size()];
         
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        Iterator<ServerValue<?>> values = attr.getAll();
+        int pos = 0;
+        
+        while( values.hasNext() )
         {
+            ServerValue<?> value = values.next();
+        
             try
             {
-                normalizerDescriptions[ii] = normalizerParser.parseNormalizerDescription( ( String ) attr.get( ii ) );
+                normalizerDescriptions[pos++] = normalizerParser.parseNormalizerDescription( (String)value.get() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the normalizerDescription syntax: " + attr.get( ii ), 
+                    "The following does not conform to the normalizerDescription syntax: " + value.get(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -191,7 +203,7 @@ public class DescriptionParsers
     }
     
 
-    public ComparatorDescription[] parseComparators( Attribute attr ) throws NamingException
+    public ComparatorDescription[] parseComparators( ServerAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -200,16 +212,21 @@ public class DescriptionParsers
         
         ComparatorDescription[] comparatorDescriptions = new ComparatorDescription[attr.size()];
         
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        Iterator<ServerValue<?>> values = attr.getAll();
+        int pos = 0;
+        
+        while( values.hasNext() )
         {
+            ServerValue<?> value = values.next();
+
             try
             {
-                comparatorDescriptions[ii] = comparatorParser.parseComparatorDescription( ( String ) attr.get( ii ) );
+                comparatorDescriptions[pos++] = comparatorParser.parseComparatorDescription( ( String ) value.get() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the comparatorDescription syntax: " + attr.get( ii ), 
+                    "The following does not conform to the comparatorDescription syntax: " + value.get(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -228,7 +245,7 @@ public class DescriptionParsers
      * @return the set of attributeType objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public AttributeType[] parseAttributeTypes( Attribute attr ) throws NamingException
+    public AttributeType[] parseAttributeTypes( ServerAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -237,18 +254,23 @@ public class DescriptionParsers
         
         AttributeType[] attributeTypes = new AttributeType[attr.size()];
         
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        Iterator<ServerValue<?>> values = attr.getAll();
+        int pos = 0;
+        
+        while( values.hasNext() )
         {
+            ServerValue<?> value = values.next();
+        
             AttributeTypeDescription desc = null;
             
             try
             {
-                desc = attributeTypeParser.parseAttributeTypeDescription( ( String ) attr.get( ii ) );
+                desc = attributeTypeParser.parseAttributeTypeDescription( ( String ) value.get() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the attributeTypeDescription syntax: " + attr.get( ii ), 
+                    "The following does not conform to the attributeTypeDescription syntax: " + value.get(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -346,7 +368,7 @@ public class DescriptionParsers
             
             setSchemaObjectProperties( desc, at );
 
-            attributeTypes[ii] = at;
+            attributeTypes[pos++] = at;
         }
         
         return attributeTypes;
@@ -361,7 +383,7 @@ public class DescriptionParsers
      * @return the set of objectClass objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public ObjectClass[] parseObjectClasses( Attribute attr ) throws NamingException
+    public ObjectClass[] parseObjectClasses( ServerAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -370,18 +392,23 @@ public class DescriptionParsers
         
         ObjectClass[] objectClasses = new ObjectClass[attr.size()];
         
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        Iterator<ServerValue<?>> values = attr.getAll();
+        int pos = 0;
+        
+        while( values.hasNext() )
         {
+            ServerValue<?> value = values.next();
+
             ObjectClassDescription desc = null;
             
             try
             {
-                desc = objectClassParser.parseObjectClassDescription( ( String ) attr.get( ii ) );
+                desc = objectClassParser.parseObjectClassDescription( ( String ) value.get() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the objectClassDescription syntax: " + attr.get( ii ), 
+                    "The following does not conform to the objectClassDescription syntax: " + value.get(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -445,7 +472,7 @@ public class DescriptionParsers
             oc.setType( desc.getKind() );
             setSchemaObjectProperties( desc, oc );
             
-            objectClasses[ii] = oc;
+            objectClasses[pos++] = oc;
         }
         
         return objectClasses;
@@ -460,7 +487,7 @@ public class DescriptionParsers
      * @return the set of matchingRuleUse objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public MatchingRuleUse[] parseMatchingRuleUses( Attribute attr ) throws NamingException
+    public MatchingRuleUse[] parseMatchingRuleUses( ServerAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -469,18 +496,23 @@ public class DescriptionParsers
         
         MatchingRuleUse[] matchingRuleUses = new MatchingRuleUse[attr.size()];
         
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        Iterator<ServerValue<?>> values = attr.getAll();
+        int pos = 0;
+        
+        while( values.hasNext() )
         {
+            ServerValue<?> value = values.next();
+
             MatchingRuleUseDescription desc = null;
             
             try
             {
-                desc = matchingRuleUseParser.parseMatchingRuleUseDescription( ( String ) attr.get( ii ) );
+                desc = matchingRuleUseParser.parseMatchingRuleUseDescription( ( String ) value.get() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the matchingRuleUseDescription syntax: " + attr.get( ii ), 
+                    "The following does not conform to the matchingRuleUseDescription syntax: " + value.get(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -490,7 +522,7 @@ public class DescriptionParsers
             mru.setApplicableAttributesOids( desc.getApplicableAttributes().toArray( EMPTY ) );
             setSchemaObjectProperties( desc, mru );
             
-            matchingRuleUses[ii] = mru;
+            matchingRuleUses[pos++] = mru;
         }
 
         return matchingRuleUses;
@@ -505,7 +537,7 @@ public class DescriptionParsers
      * @return the set of Syntax objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public Syntax[] parseSyntaxes( Attribute attr ) throws NamingException
+    public Syntax[] parseSyntaxes( ServerAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -513,19 +545,23 @@ public class DescriptionParsers
         }
         
         Syntax[] syntaxes = new Syntax[attr.size()];
+
+        Iterator<ServerValue<?>> values = attr.getAll();
+        int pos = 0;
         
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        while( values.hasNext() )
         {
+            ServerValue<?> value = values.next();
             LdapSyntaxDescription desc = null;
             
             try
             {
-                desc = syntaxParser.parseLdapSyntaxDescription( ( String ) attr.get( ii ) );
+                desc = syntaxParser.parseLdapSyntaxDescription( ( String ) value.get() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the ldapSyntaxDescription syntax: " + attr.get( ii ), 
+                    "The following does not conform to the ldapSyntaxDescription syntax: " + value.get(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -542,7 +578,7 @@ public class DescriptionParsers
             SyntaxImpl syntax = new SyntaxImpl( desc.getNumericOid(), globalRegistries.getSyntaxCheckerRegistry() );
             setSchemaObjectProperties( desc, syntax );
             syntax.setHumanReadable( isHumanReadable( desc ) );
-            syntaxes[ii] = syntax;
+            syntaxes[pos++] = syntax;
         }
         
         return syntaxes;
@@ -557,7 +593,7 @@ public class DescriptionParsers
      * @return the set of matchingRule objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public MatchingRule[] parseMatchingRules( Attribute attr ) throws NamingException
+    public MatchingRule[] parseMatchingRules( ServerAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -566,18 +602,23 @@ public class DescriptionParsers
         
         MatchingRule[] matchingRules = new MatchingRule[attr.size()];
 
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        Iterator<ServerValue<?>> values = attr.getAll();
+        int pos = 0;
+        
+        while( values.hasNext() )
         {
+            ServerValue<?> value = values.next();
+
             MatchingRuleDescription desc = null;
 
             try
             {
-                desc = matchingRuleParser.parseMatchingRuleDescription( ( String ) attr.get( ii ) );
+                desc = matchingRuleParser.parseMatchingRuleDescription( ( String ) value.get() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the matchingRuleDescription syntax: " + attr.get( ii ), 
+                    "The following does not conform to the matchingRuleDescription syntax: " + value.get(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -593,7 +634,7 @@ public class DescriptionParsers
             MatchingRuleImpl mr = new MatchingRuleImpl( desc.getNumericOid(), desc.getSyntax(), globalRegistries );
             setSchemaObjectProperties( desc, mr );
             
-            matchingRules[ii] = mr;
+            matchingRules[pos++] = mr;
         }
         
         return matchingRules;
@@ -608,7 +649,7 @@ public class DescriptionParsers
      * @return the set of DITStructureRule objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public DITStructureRule[] parseDitStructureRules( Attribute attr ) throws NamingException
+    public DITStructureRule[] parseDitStructureRules( ServerAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -617,18 +658,22 @@ public class DescriptionParsers
         
         DITStructureRule[] ditStructureRules = new DITStructureRule[attr.size()];
         
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        Iterator<ServerValue<?>> values = attr.getAll();
+        int pos = 0;
+        
+        while( values.hasNext() )
         {
+            ServerValue<?> value = values.next();
             DITStructureRuleDescription desc = null;
      
             try
             {
-                desc = ditStructureRuleParser.parseDITStructureRuleDescription( ( String ) attr.get( ii  ) );
+                desc = ditStructureRuleParser.parseDITStructureRuleDescription( ( String ) value.get() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the ditStructureRuleDescription syntax: " + attr.get( ii ), 
+                    "The following does not conform to the ditStructureRuleDescription syntax: " + value.get(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -640,7 +685,7 @@ public class DescriptionParsers
             
             setSchemaObjectProperties( desc, dsr );
 
-            ditStructureRules[ii] = dsr;
+            ditStructureRules[pos++] = dsr;
         }
         
         return ditStructureRules;
@@ -655,7 +700,7 @@ public class DescriptionParsers
      * @return the set of DITContentRule objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public DITContentRule[] parseDitContentRules( Attribute attr ) throws NamingException
+    public DITContentRule[] parseDitContentRules( ServerAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -663,19 +708,23 @@ public class DescriptionParsers
         }
         
         DITContentRule[] ditContentRules = new DITContentRule[attr.size()];
+
+        Iterator<ServerValue<?>> values = attr.getAll();
+        int pos = 0;
         
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        while( values.hasNext() )
         {
+            ServerValue<?> value = values.next();
             DITContentRuleDescription desc = null;
      
             try
             {
-                desc = ditContentRuleParser.parseDITContentRuleDescription( ( String ) attr.get( ii  ) );
+                desc = ditContentRuleParser.parseDITContentRuleDescription( ( String ) value.get() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the ditContentRuleDescription syntax: " + attr.get( ii ), 
+                    "The following does not conform to the ditContentRuleDescription syntax: " + value.get(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -689,7 +738,7 @@ public class DescriptionParsers
             
             setSchemaObjectProperties( desc, dcr );
 
-            ditContentRules[ii] = dcr;
+            ditContentRules[pos++] = dcr;
         }
         
         return ditContentRules;
@@ -704,7 +753,7 @@ public class DescriptionParsers
      * @return the set of NameFormRule objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public NameForm[] parseNameForms( Attribute attr ) throws NamingException
+    public NameForm[] parseNameForms( ServerAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -712,19 +761,23 @@ public class DescriptionParsers
         }
         
         NameForm[] nameForms = new NameForm[attr.size()];
+
+        Iterator<ServerValue<?>> values = attr.getAll();
+        int pos = 0;
         
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        while( values.hasNext() )
         {
+            ServerValue<?> value = values.next();
             NameFormDescription desc = null;
             
             try
             {
-                desc = nameFormParser.parseNameFormDescription( ( String  ) attr.get( ii ) );
+                desc = nameFormParser.parseNameFormDescription( ( String  ) value.get() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the nameFormDescription syntax: " + attr.get( ii ), 
+                    "The following does not conform to the nameFormDescription syntax: " + value.get(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -737,7 +790,7 @@ public class DescriptionParsers
             
             setSchemaObjectProperties( desc, nf );
             
-            nameForms[ii] = nf;
+            nameForms[pos++] = nf;
         }
         
         return nameForms;

@@ -23,6 +23,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 
 import javax.naming.NamingException;
+import javax.naming.directory.InvalidAttributeValueException;
 
 
 /**
@@ -78,4 +79,24 @@ public interface ServerAttribute extends EntryAttribute<ServerValue<?>>
      * @throws NamingException if there is a failure to check syntaxes of values
      */
     boolean isValid() throws NamingException;
+    
+    
+    /**
+     * Get the String value, if and only if the value is known to be a String,
+     * otherwise a InvalidAttributeValueException will be thrown
+     *
+     * @return The value as a String
+     * @throws InvalidAttributeValueException If the value is a byte[]
+     */
+    String getString() throws InvalidAttributeValueException;
+
+
+    /**
+     * Get the byte[] value, if and only if the value is known to be Binary,
+     * otherwise a InvalidAttributeValueException will be thrown
+     *
+     * @return The value as a String
+     * @throws InvalidAttributeValueException If the value is a String
+     */
+    byte[] getBytes() throws InvalidAttributeValueException;
 }

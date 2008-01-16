@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +35,10 @@ import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -69,6 +74,7 @@ import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -285,13 +291,18 @@ public class SchemaOperationControl
     }
 
 
-    public void add( LdapDN name, Attributes entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws NamingException
     {
-        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
+        ServerAttribute oc = entry.get( objectClassAT );
         
-        for ( int ii = 0; ii < oc.size(); ii++ )
+        Iterator<ServerValue<?>> values = oc.getAll();
+        
+        while ( values.hasNext() )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            ServerValue<?> value = values.next();
+
+            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
+            
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
@@ -301,14 +312,14 @@ public class SchemaOperationControl
             }
         }
         
-        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
+        if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
             metaSchemaHandler.add( name, entry );
             updateSchemaModificationAttributes();
             return;
         }
         
-        if ( AttributeUtils.containsValue( oc, SchemaConstants.ORGANIZATIONAL_UNIT_OC, objectClassAT ) )
+        if ( oc.contains( SchemaConstants.ORGANIZATIONAL_UNIT_OC ) )
         {
             if ( name.size() != 3 )
             {
@@ -332,13 +343,18 @@ public class SchemaOperationControl
     }
     
 
-    public void delete( LdapDN name, Attributes entry, boolean doCascadeDelete ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean doCascadeDelete ) throws NamingException
     {
-        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
+        ServerAttribute oc = entry.get( objectClassAT );
         
-        for ( int ii = 0; ii < oc.size(); ii++ )
+        Iterator<ServerValue<?>> values = oc.getAll();
+        
+        while ( values.hasNext() )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            ServerValue<?> value = values.next();
+            
+            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
+            
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
@@ -348,14 +364,14 @@ public class SchemaOperationControl
             }
         }
 
-        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
+        if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
             metaSchemaHandler.delete( name, entry, doCascadeDelete );
             updateSchemaModificationAttributes();
             return;
         }
         
-        if ( AttributeUtils.containsValue( oc, SchemaConstants.ORGANIZATIONAL_UNIT_OC, objectClassAT ) )
+        if ( oc.contains( SchemaConstants.ORGANIZATIONAL_UNIT_OC ) )
         {
             if ( name.size() != 3 )
             {
@@ -379,14 +395,19 @@ public class SchemaOperationControl
     }
     
 
-    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, 
-        Attributes targetEntry, boolean cascade ) throws NamingException
+    public void modify( LdapDN name, int modOp, ServerEntry mods, ServerEntry entry, 
+        ServerEntry targetEntry, boolean cascade ) throws NamingException
     {
-        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
+        ServerAttribute oc = entry.get( objectClassAT );
         
-        for ( int ii = 0; ii < oc.size(); ii++ )
+        Iterator<ServerValue<?>> values = oc.getAll();
+        
+        while ( values.hasNext() )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            ServerValue<?> value = values.next();
+
+            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
+            
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
@@ -396,7 +417,7 @@ public class SchemaOperationControl
             }
         }
 
-        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
+        if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
             metaSchemaHandler.modify( name, modOp, mods, entry, targetEntry, cascade );
             updateSchemaModificationAttributes();
@@ -407,14 +428,18 @@ public class SchemaOperationControl
     }
 
 
-    public void modify( LdapDN name, List<ModificationItemImpl> mods, Attributes entry, Attributes targetEntry,
+    public void modify( LdapDN name, List<ModificationItemImpl> mods, ServerEntry entry, ServerEntry targetEntry,
         boolean doCascadeModify ) throws NamingException
     {
-        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
+        ServerAttribute oc = entry.get( objectClassAT );
         
-        for ( int ii = 0; ii < oc.size(); ii++ )
+        Iterator<ServerValue<?>> values = oc.getAll();
+        
+        while ( values.hasNext() )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            ServerValue<?> value = values.next();
+
+            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -425,7 +450,7 @@ public class SchemaOperationControl
             }
         }
 
-        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
+        if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
             metaSchemaHandler.modify( name, mods, entry, targetEntry, doCascadeModify );
             updateSchemaModificationAttributes();
@@ -438,14 +463,19 @@ public class SchemaOperationControl
     }
 
 
-    public void modifyRn( LdapDN name, Rdn newRdn, boolean deleteOldRn, Attributes entry, boolean doCascadeModify ) 
+    public void modifyRn( LdapDN name, Rdn newRdn, boolean deleteOldRn, ServerEntry entry, boolean doCascadeModify ) 
         throws NamingException
     {
-        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
+        ServerAttribute oc = entry.get( objectClassAT );
         
-        for ( int ii = 0; ii < oc.size(); ii++ )
+        Iterator<ServerValue<?>> values = oc.getAll();
+        
+        while ( values.hasNext() )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            ServerValue<?> value = values.next();
+
+            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
+            
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
@@ -455,7 +485,7 @@ public class SchemaOperationControl
             }
         }
 
-        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
+        if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
             metaSchemaHandler.rename( name, entry, newRdn, doCascadeModify );
             updateSchemaModificationAttributes();
@@ -466,14 +496,18 @@ public class SchemaOperationControl
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, 
+    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, 
         boolean cascade ) throws NamingException
     {
-        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
+        ServerAttribute oc = entry.get( objectClassAT );
         
-        for ( int ii = 0; ii < oc.size(); ii++ )
+        Iterator<ServerValue<?>> values = oc.getAll();
+        
+        while ( values.hasNext() )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            ServerValue<?> value = values.next();
+
+            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -484,7 +518,7 @@ public class SchemaOperationControl
             }
         }
 
-        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
+        if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
             metaSchemaHandler.replace( oriChildName, newParentName, entry, cascade );
             updateSchemaModificationAttributes();
@@ -496,13 +530,18 @@ public class SchemaOperationControl
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
-        Attributes entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws NamingException
     {
-        Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
+        ServerAttribute oc = entry.get( objectClassAT );
         
-        for ( int ii = 0; ii < oc.size(); ii++ )
+        Iterator<ServerValue<?>> values = oc.getAll();
+        
+        while ( values.hasNext() )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            ServerValue<?> value = values.next();
+
+            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
+            
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
@@ -512,7 +551,7 @@ public class SchemaOperationControl
             }
         }
 
-        if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
+        if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
             metaSchemaHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry, cascade );
             updateSchemaModificationAttributes();
@@ -536,21 +575,28 @@ public class SchemaOperationControl
      * to effect all dependents on the changed entity
      * @throws NamingException if the operation fails
      */
-    public void modifySchemaSubentry( LdapDN name, List<ModificationItemImpl> mods, Attributes subentry, 
-        Attributes targetSubentry, boolean doCascadeModify ) throws NamingException 
+    public void modifySchemaSubentry( LdapDN name, List<ModificationItemImpl> mods, ServerEntry subentry, 
+        ServerEntry targetSubentry, boolean doCascadeModify ) throws NamingException 
     {
         for ( ModificationItem mod : mods )
         {
             String opAttrOid = registries.getOidRegistry().getOid( mod.getAttribute().getID() );
             
+            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( 
+                mod.getAttribute().getID() );
+        
+            ServerAttribute serverAttribute = 
+                ServerEntryUtils.toServerAttribute( mod.getAttribute(), attributeType );
+
             switch ( mod.getModificationOp() )
             {
                 case( DirContext.ADD_ATTRIBUTE ):
-                    modifyAddOperation( opAttrOid, mod.getAttribute(), doCascadeModify );
+
+                    modifyAddOperation( opAttrOid, serverAttribute, doCascadeModify );
                     break;
                     
                 case( DirContext.REMOVE_ATTRIBUTE ):
-                    modifyRemoveOperation( opAttrOid, mod.getAttribute(), doCascadeModify );
+                    modifyRemoveOperation( opAttrOid, serverAttribute, doCascadeModify );
                     break; 
                     
                 case( DirContext.REPLACE_ATTRIBUTE ):
@@ -587,30 +633,31 @@ public class SchemaOperationControl
      * to effect all dependents on the changed entity
      * @throws NamingException if the modify fails
      */
-    public void modifySchemaSubentry( LdapDN name, int modOp, Attributes mods, Attributes subentry, 
-        Attributes targetSubentry, boolean doCascadeModify ) throws NamingException
+    public void modifySchemaSubentry( LdapDN name, int modOp, ServerEntry mods, ServerEntry subentry, 
+        ServerEntry targetSubentry, boolean doCascadeModify ) throws NamingException
     {
-        NamingEnumeration<String> ids = mods.getIDs();
+        Set<AttributeType> attributeTypes = mods.getAttributeTypes();
+        
         switch ( modOp )
         {
             case( DirContext.ADD_ATTRIBUTE ):
-                while ( ids.hasMore() )
+                for ( AttributeType attributeType:attributeTypes )
                 {
-                    String id = ids.next();
-                    AttributeType opAttrAT = registries.getAttributeTypeRegistry().lookup( id );
-                    modifyAddOperation( opAttrAT.getOid(), 
-                        AttributeUtils.getAttribute( mods, opAttrAT ), doCascadeModify );
+                    modifyAddOperation( attributeType.getOid(), 
+                        mods.get( attributeType ), doCascadeModify );
                 }
+            
                 break;
+                
             case( DirContext.REMOVE_ATTRIBUTE ):
-                while ( ids.hasMore() )
+                for ( AttributeType attributeType:attributeTypes )
                 {
-                    String id = ids.next();
-                    AttributeType opAttrAT = registries.getAttributeTypeRegistry().lookup( id );
-                    modifyRemoveOperation( opAttrAT.getOid(), 
-                        AttributeUtils.getAttribute( mods, opAttrAT ), doCascadeModify );
+                    modifyRemoveOperation( attributeType.getOid(), 
+                        mods.get( attributeType ), doCascadeModify );
                 }
+            
                 break;
+                
             case( DirContext.REPLACE_ATTRIBUTE ):
                 throw new LdapOperationNotSupportedException( 
                     "Modify REPLACE operations on schema subentries are not allowed: " +
@@ -618,9 +665,11 @@ public class SchemaOperationControl
                     "that reside in schema operational attributes.  Instead use \na " +
                     "targeted combination of modify ADD and REMOVE operations.", 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
+            
             default:
                 throw new IllegalStateException( "Undefined modify operation: " + modOp );
         }
+        
         updateSchemaModificationAttributes();
     }
 
@@ -646,11 +695,12 @@ public class SchemaOperationControl
      * @throws NamingException if there are problems updating the registries and the
      * schema partition
      */
-    private void modifyRemoveOperation( String opAttrOid, Attribute mods, boolean doCascadeModify ) 
+    private void modifyRemoveOperation( String opAttrOid, ServerAttribute mods, boolean doCascadeModify ) 
         throws NamingException
     {
         int index = opAttr2handlerIndex.get( opAttrOid );
         SchemaChangeHandler handler = opAttr2handlerMap.get( opAttrOid );
+        
         switch( index )
         {
             case( COMPARATOR_INDEX ):
@@ -779,7 +829,7 @@ public class SchemaOperationControl
      * @throws NamingException if there are problems updating the registries and the
      * schema partition
      */
-    private void modifyAddOperation( String opAttrOid, Attribute mods, boolean doCascadeModify ) throws NamingException
+    private void modifyAddOperation( String opAttrOid, ServerAttribute mods, boolean doCascadeModify ) throws NamingException
     {
         if ( doCascadeModify )
         {

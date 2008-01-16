@@ -86,6 +86,11 @@ public class ServerEntryUtils
     public static ServerAttribute toServerAttribute( Attribute attribute, AttributeType attributeType )
             throws InvalidAttributeIdentifierException
     {
+        if ( attribute == null )
+        {
+            return null;
+        }
+        
         try 
         {
             ServerAttribute serverAttribute = new DefaultServerAttribute( attributeType );

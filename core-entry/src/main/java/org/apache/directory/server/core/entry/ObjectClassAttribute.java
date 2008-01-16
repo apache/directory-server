@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeIdentifierException;
+import javax.naming.directory.InvalidAttributeValueException;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -399,6 +400,45 @@ public class ObjectClassAttribute extends AbstractServerAttribute
     }
 
     
+    /**
+     * Get the String value, if and only if the value is known to be a String,
+     * otherwise a InvalidAttributeValueException will be thrown
+     *
+     * @return The value as a String
+     * @throws InvalidAttributeValueException If the value is a byte[]
+     */
+    public String getString() throws InvalidAttributeValueException
+    {
+        ServerValue<?> value = get();
+        
+        if ( value instanceof ServerStringValue )
+        {
+            return (String)value.get();
+        }
+        else
+        {
+            String message = "The value is expected to be a String";
+            LOG.error( message );
+            throw new InvalidAttributeValueException( message );
+        }
+    }
+
+
+    /**
+     * Get the byte[] value, if and only if the value is known to be Binary,
+     * otherwise a InvalidAttributeValueException will be thrown
+     *
+     * @return The value as a String
+     * @throws InvalidAttributeValueException If the value is a String
+     */
+    public byte[] getBytes() throws InvalidAttributeValueException
+    {
+        String message = "The value for an objectClass is expected to be a String";
+        LOG.error( message );
+        throw new InvalidAttributeValueException( message );
+    }
+
+
     public boolean add( byte[] val )
     {
         String message = "Binary values are not accepted by ObjectClassAttributes";

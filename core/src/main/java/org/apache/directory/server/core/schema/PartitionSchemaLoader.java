@@ -36,10 +36,13 @@ import java.util.Stack;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -201,15 +204,19 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         while ( ne.hasMore() )
         {
-            Attributes attrs = ne.next().getAttributes();
-            String oid = ( String ) AttributeUtils.getAttribute( attrs, mOidAT ).get();
-            Attribute names = AttributeUtils.getAttribute( attrs, mNameAT );
+            ServerEntry entry = ServerEntryUtils.toServerEntry( ne.next().getAttributes(), new LdapDN( "" ), registries );
+            String oid = entry.get( mOidAT ).getString();
+            ServerAttribute names = entry.get( mNameAT );
             targetRegistries.getOidRegistry().register( oid, oid );
-            for ( int ii = 0; ii < names.size(); ii++ )
+            
+            Iterator<ServerValue<?>> namesValues = names.getAll();
+            
+            while ( namesValues.hasNext() )
             {
-                targetRegistries.getOidRegistry().register( ( String ) names.get( ii ), oid );
+                targetRegistries.getOidRegistry().register( ( String ) namesValues.next().get( ), oid );
             }
         }
+        
         ne.close();
         
         
@@ -254,7 +261,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         for ( SearchResult sr: results )
         {
             Attribute cn = AttributeUtils.getAttribute( sr.getAttributes(), cnAT );
-            dependees.add( ( String ) cn.get() );
+            dependees.add( (String)cn.get() );
         }
         
         return dependees;
@@ -282,7 +289,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         for ( SearchResult sr: results )
         {
             Attribute cn = AttributeUtils.getAttribute( sr.getAttributes(), cnAT );
-            dependees.add( ( String ) cn.get() );
+            dependees.add( (String)cn.get() );
         }
         
         return dependees;
@@ -430,7 +437,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( atRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
+            ServerEntry attrs = lookupPartition( resultDN );
             ObjectClass oc = factory.getObjectClass( attrs, targetRegistries, schema.getSchemaName() );
             
             try
@@ -531,7 +538,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( atRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
+            ServerEntry attrs = lookupPartition( resultDN );
             AttributeType at = factory.getAttributeType( attrs, targetRegistries, schema.getSchemaName() );
             try
             {
@@ -629,7 +636,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( atRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
+            ServerEntry attrs = lookupPartition( resultDN );
             MatchingRule mrule = factory.getMatchingRule( attrs, targetRegistries, schema.getSchemaName() );
             targetRegistries.getMatchingRuleRegistry().register( mrule );
 
@@ -662,7 +669,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( atRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
+            ServerEntry attrs = lookupPartition( resultDN );
             Syntax syntax = factory.getSyntax( attrs, targetRegistries, schema.getSchemaName() );
             targetRegistries.getSyntaxRegistry().register( syntax );
         }
@@ -694,7 +701,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( atRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
+            ServerEntry attrs = lookupPartition( resultDN );
             SyntaxChecker sc = factory.getSyntaxChecker( attrs, targetRegistries );
             SyntaxCheckerDescription syntaxCheckerDescription = 
                 getSyntaxCheckerDescription( schema.getSchemaName(), attrs );
@@ -728,7 +735,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( atRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
+            ServerEntry attrs = lookupPartition( resultDN );
             Normalizer normalizer = factory.getNormalizer( attrs, targetRegistries );
             NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), attrs );
             targetRegistries.getNormalizerRegistry().register( normalizerDescription, normalizer );
@@ -736,42 +743,53 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    private String getOid( Attributes entry ) throws NamingException
+    private String getOid( ServerEntry entry ) throws NamingException
     {
-        Attribute oid = AttributeUtils.getAttribute( entry, mOidAT );
+        ServerAttribute oid = entry.get( mOidAT );
+        
         if ( oid == null )
         {
             return null;
         }
-        return ( String ) oid.get();
+        
+        return oid.getString();
     }
 
     
-    private NormalizerDescription getNormalizerDescription( String schemaName, Attributes entry ) throws NamingException
+    private NormalizerDescription getNormalizerDescription( String schemaName, ServerEntry entry ) throws NamingException
     {
         NormalizerDescription description = new NormalizerDescription();
         description.setNumericOid( getOid( entry ) );
         List<String> values = new ArrayList<String>();
         values.add( schemaName );
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
-        description.setFqcn( ( String ) AttributeUtils.getAttribute( entry, fqcnAT ).get() );
+        description.setFqcn( entry.get( fqcnAT ).getString() );
         
-        Attribute desc = AttributeUtils.getAttribute( entry, descAT );
+        ServerAttribute desc = entry.get( descAT );
         if ( desc != null && desc.size() > 0 )
         {
-            description.setDescription( ( String ) desc.get() );
+            description.setDescription( desc.getString() );
         }
         
-        Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+        ServerAttribute bytecode = entry.get( byteCodeAT );
+        
         if ( bytecode != null && bytecode.size() > 0 )
         {
-            byte[] bytes = ( byte[] ) bytecode.get();
+            byte[] bytes = bytecode.getBytes();
             description.setBytecode( new String( Base64.encode( bytes ) ) );
         }
 
         return description;
     }
 
+    
+    private ServerEntry lookupPartition( LdapDN dn ) throws NamingException
+    {
+        return ServerEntryUtils.toServerEntry( 
+            partition.lookup( 
+                new LookupOperationContext( registries, dn ) ), 
+            dn, registries );
+    }
     
     private void loadComparators( Schema schema, Registries targetRegistries ) throws NamingException
     {
@@ -798,7 +816,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SearchResult result = list.next();
             LdapDN resultDN = new LdapDN( result.getName() );
             resultDN.normalize( atRegistry.getNormalizerMapping() );
-            Attributes attrs = partition.lookup( new LookupOperationContext( registries, resultDN ) );
+            ServerEntry attrs = lookupPartition( resultDN );
             Comparator comparator = factory.getComparator( attrs, targetRegistries );
             ComparatorDescription comparatorDescription = getComparatorDescription( schema.getSchemaName(), attrs );
             targetRegistries.getComparatorRegistry().register( comparatorDescription, comparator );
@@ -806,25 +824,27 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    private ComparatorDescription getComparatorDescription( String schemaName, Attributes entry ) throws NamingException
+    private ComparatorDescription getComparatorDescription( String schemaName, ServerEntry entry ) throws NamingException
     {
         ComparatorDescription description = new ComparatorDescription();
         description.setNumericOid( getOid( entry ) );
         List<String> values = new ArrayList<String>();
         values.add( schemaName );
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
-        description.setFqcn( ( String ) AttributeUtils.getAttribute( entry, fqcnAT ).get() );
+        description.setFqcn( entry.get( fqcnAT ).getString() );
         
-        Attribute desc = AttributeUtils.getAttribute( entry, descAT );
+        ServerAttribute desc = entry.get( descAT );
+        
         if ( desc != null && desc.size() > 0 )
         {
-            description.setDescription( ( String ) desc.get() );
+            description.setDescription( desc.getString() );
         }
         
-        Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+        ServerAttribute bytecode = entry.get( byteCodeAT );
+        
         if ( bytecode != null && bytecode.size() > 0 )
         {
-            byte[] bytes = ( byte[] ) bytecode.get();
+            byte[] bytes = bytecode.getBytes();
             description.setBytecode( new String( Base64.encode( bytes ) ) );
         }
 
@@ -832,7 +852,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
     
-    private SyntaxCheckerDescription getSyntaxCheckerDescription( String schemaName, Attributes entry ) 
+    private SyntaxCheckerDescription getSyntaxCheckerDescription( String schemaName, ServerEntry entry ) 
         throws NamingException
     {
         SyntaxCheckerDescription description = new SyntaxCheckerDescription();
@@ -840,18 +860,20 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         List<String> values = new ArrayList<String>();
         values.add( schemaName );
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
-        description.setFqcn( ( String ) AttributeUtils.getAttribute( entry, fqcnAT ).get() );
+        description.setFqcn( entry.get( fqcnAT ).getString() );
         
-        Attribute desc = AttributeUtils.getAttribute( entry, descAT );
+        ServerAttribute desc = entry.get( descAT );
+        
         if ( desc != null && desc.size() > 0 )
         {
-            description.setDescription( ( String ) desc.get() );
+            description.setDescription( desc.getString() );
         }
         
-        Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+        ServerAttribute bytecode = entry.get( byteCodeAT );
+        
         if ( bytecode != null && bytecode.size() > 0 )
         {
-            byte[] bytes = ( byte[] ) bytecode.get();
+            byte[] bytes = bytecode.getBytes();
             description.setBytecode( new String( Base64.encode( bytes ) ) );
         }
 

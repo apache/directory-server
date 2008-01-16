@@ -22,6 +22,8 @@ package org.apache.directory.server.core.schema;
 
 import jdbm.helper.IntegerComparator;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
@@ -265,7 +267,10 @@ public class SubschemaSubentryIT
             attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
             assertNotNull( attrs );
             SchemaEntityFactory factory = new SchemaEntityFactory( service.getRegistries() );
-            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( attrs, service.getRegistries() );
+            
+            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
+
+            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( serverEntry, service.getRegistries() );
             assertEquals( oid, syntaxChecker.getSyntaxOid() );
         }
         else
@@ -1394,10 +1399,12 @@ public class SubschemaSubentryIT
         
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeTypeDescription attributeTypeDescription = null; 
+        AttributeTypeDescription attributeTypeDescription = null;
+        
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
+            
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
                 attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
@@ -1410,7 +1417,10 @@ public class SubschemaSubentryIT
         attrs = getSchemaContext( service ).getAttributes( "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory( service.getRegistries() );
-        AttributeType at = factory.getAttributeType( attrs, service.getRegistries(), "nis" );
+        
+        ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
+        
+        AttributeType at = factory.getAttributeType( serverEntry, service.getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );
@@ -1444,6 +1454,7 @@ public class SubschemaSubentryIT
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
         AttributeTypeDescription attributeTypeDescription = null; 
+        
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
@@ -1468,7 +1479,10 @@ public class SubschemaSubentryIT
                 "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory( service.getRegistries() );
-        AttributeType at = factory.getAttributeType( attrs, service.getRegistries(), "nis" );
+        
+        ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
+
+        AttributeType at = factory.getAttributeType( serverEntry, service.getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );

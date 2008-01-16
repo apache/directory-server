@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -166,7 +167,11 @@ public class SchemaPartitionDao
         while( list.hasMore() )
         {
             SearchResult sr = list.next();
-            Schema schema = factory.getSchema( sr.getAttributes() ); 
+            Schema schema = factory.getSchema( 
+                ServerEntryUtils.toServerEntry( 
+                    sr.getAttributes(),
+                    LdapDN.EMPTY_LDAPDN,
+                    registries ) ); 
             schemas.put( schema.getSchemaName(), schema );
         }
         
@@ -206,7 +211,11 @@ public class SchemaPartitionDao
     {
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
         dn.normalize( attrRegistry.getNormalizerMapping() );
-        return factory.getSchema( partition.lookup( new LookupOperationContext( registries, dn ) ) );
+        return factory.getSchema( 
+            ServerEntryUtils.toServerEntry( 
+                partition.lookup( new LookupOperationContext( registries, dn ) ),
+                dn,
+                registries ) );
     }
 
 

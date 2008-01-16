@@ -22,8 +22,8 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -1080,7 +1080,10 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
 
-        Attributes entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
+        ServerEntry entry = ServerEntryUtils.toServerEntry( 
+            nexus.lookup( new LookupOperationContext( registries, oriChildName ) ),
+            oriChildName,
+            registries );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
@@ -1099,7 +1102,10 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
         
-        Attributes entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
+        ServerEntry entry = ServerEntryUtils.toServerEntry(
+            nexus.lookup( new LookupOperationContext( registries, oriChildName ) ),
+            oriChildName,
+            registries );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
@@ -1117,7 +1123,10 @@ public class SchemaInterceptor extends BaseInterceptor
         Rdn newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
         
-        Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+        ServerEntry entry = ServerEntryUtils.toServerEntry(
+            nexus.lookup( new LookupOperationContext( registries, name ) ),
+            name,
+            registries );
 
         if ( name.startsWith( schemaBaseDN ) )
         {
@@ -1437,14 +1446,22 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             LOG.debug( "Modification attempt on schema partition {}: \n{}", name, opContext );
         
-            schemaManager.modify( name, mods, entry, targetEntry,
+            schemaManager.modify( 
+                name, 
+                mods, 
+                ServerEntryUtils.toServerEntry( entry, name, registries ), 
+                ServerEntryUtils.toServerEntry( targetEntry, name, registries ),
                 opContext.hasRequestControl( CascadeControl.CONTROL_OID ));
         }
         else if ( subschemaSubentryDnNorm.equals( name.getNormName() ) )
         {
             LOG.debug( "Modification attempt on schema subentry {}: \n{}", name, opContext );
 
-            schemaManager.modifySchemaSubentry( name, mods, entry, targetEntry,
+            schemaManager.modifySchemaSubentry( 
+                name, 
+                mods, 
+                ServerEntryUtils.toServerEntry( entry, name, registries ), 
+                ServerEntryUtils.toServerEntry( targetEntry, name, registries ),
                 opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
             return;
         }
@@ -1645,7 +1662,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.add( name, entry );
+            schemaManager.add( name, ServerEntryUtils.toServerEntry( entry, name, registries ) );
         }
 
         next.add( addContext );
@@ -1696,7 +1713,10 @@ public class SchemaInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
-        Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+        ServerEntry entry = ServerEntryUtils.toServerEntry( 
+            nexus.lookup( new LookupOperationContext( registries, name ) ),
+            name, 
+            registries );
         
         if ( name.startsWith( schemaBaseDN ) )
         {
