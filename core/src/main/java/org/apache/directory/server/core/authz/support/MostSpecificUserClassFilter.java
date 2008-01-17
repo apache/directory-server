@@ -23,7 +23,6 @@ package org.apache.directory.server.core.authz.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
@@ -56,7 +55,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             PartitionNexusProxy proxy,
-            Collection<Name> userGroupNames, 
+            Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
             Attributes userEntry, 
             AuthenticationLevel authenticationLevel,

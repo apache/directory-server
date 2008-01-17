@@ -48,10 +48,8 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-//import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -92,7 +90,7 @@ public class GroupCache
     /** the normalized dn of the administrators group */
     private LdapDN administratorsGroupDn;
     
-    private static final Set<Name> EMPTY_GROUPS = new HashSet<Name>();
+    private static final Set<LdapDN> EMPTY_GROUPS = new HashSet<LdapDN>();
     
     /**
      * Creates a static group cache.
@@ -493,7 +491,7 @@ public class GroupCache
      * @return a Set of Name objects representing the groups
      * @throws NamingException if there are problems accessing attribute  values
      */
-    public Set<Name> getGroups( String member ) throws NamingException
+    public Set<LdapDN> getGroups( String member ) throws NamingException
     {
     	LdapDN normMember;
     	
@@ -507,7 +505,7 @@ public class GroupCache
             return EMPTY_GROUPS;
         }
 
-        Set<Name> memberGroups = null;
+        Set<LdapDN> memberGroups = null;
 
         for ( String group:groups.keySet() )
         {
@@ -522,7 +520,7 @@ public class GroupCache
             {
                 if ( memberGroups == null )
                 {
-                    memberGroups = new HashSet<Name>();
+                    memberGroups = new HashSet<LdapDN>();
                 }
 
                 memberGroups.add( parseNormalized( group ) );

@@ -44,15 +44,12 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.text.ParseException;
@@ -143,8 +140,9 @@ public class TupleCache
             while ( results.hasMore() )
             {
                 SearchResult result = results.next();
-                String subentryDn = result.getName();
-                Attribute aci = AttributeUtils.getAttribute( result.getAttributes(), prescriptiveAciAT );
+                LdapDN subentryDn = new LdapDN( result.getName() ).normalize( normalizerMap );
+                ServerEntry serverEntry = ServerEntryUtils.toServerEntry( result.getAttributes(), subentryDn, registries );
+                ServerAttribute aci = serverEntry.get( prescriptiveAciAT );
                 
                 if ( aci == null )
                 {
@@ -153,8 +151,7 @@ public class TupleCache
                     continue;
                 }
 
-                LdapDN normName = parseNormalized( subentryDn );
-                subentryAdded( normName, ServerEntryUtils.toServerEntry( result.getAttributes(), normName, registries ) );
+                subentryAdded( subentryDn, serverEntry );
             }
             
             results.close();
@@ -258,14 +255,14 @@ public class TupleCache
     }
 
 
-    public void subentryModified( LdapDN normName, Attributes mods, ServerEntry entry ) throws NamingException
+    public void subentryModified( LdapDN normName, ServerEntry mods, ServerEntry entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
             return;
         }
 
-        if ( AttributeUtils.getAttribute( mods, prescriptiveAciAT ) != null )
+        if ( mods.get( prescriptiveAciAT ) != null )
         {
             subentryDeleted( normName, entry );
             subentryAdded( normName, entry );

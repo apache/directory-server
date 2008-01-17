@@ -27,8 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.Name;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -39,6 +37,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
@@ -50,7 +49,7 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
  */
 public class MostSpecificUserClassFilterTest extends TestCase
 {
-    private static final Set<Name> EMPTY_NAME_SET = Collections.unmodifiableSet( new HashSet<Name>() );
+    private static final Set<LdapDN> EMPTY_NAME_SET = Collections.unmodifiableSet( new HashSet<LdapDN>() );
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
     private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
     private static final Collection<SubtreeSpecification> EMPTY_SUBTREE_SPECIFICATION_COLLECTION = Collections.unmodifiableCollection( new ArrayList<SubtreeSpecification>() );

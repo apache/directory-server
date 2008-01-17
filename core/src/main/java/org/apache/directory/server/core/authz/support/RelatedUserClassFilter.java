@@ -23,7 +23,6 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
@@ -65,7 +64,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             PartitionNexusProxy proxy,
-            Collection<Name> userGroupNames, 
+            Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
             Attributes userEntry, 
             AuthenticationLevel authenticationLevel,
@@ -117,7 +116,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( Collection<Name> userGroupNames, LdapDN userName, ServerEntry userEntry, 
+    private boolean isRelated( Collection<LdapDN> userGroupNames, LdapDN userName, ServerEntry userEntry, 
         LdapDN entryName, Collection<UserClass> userClasses ) throws NamingException
     {
         for ( UserClass userClass : userClasses )
@@ -145,7 +144,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
             {
                 UserClass.UserGroup userGroupUserClass = ( UserClass.UserGroup ) userClass;
                 
-                for ( Name userGroupName : userGroupNames )
+                for ( LdapDN userGroupName : userGroupNames )
                 {
                     if ( userGroupName != null && userGroupUserClass.getNames().contains( userGroupName ) )
                     {

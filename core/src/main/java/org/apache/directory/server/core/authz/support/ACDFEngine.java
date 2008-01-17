@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
@@ -132,7 +131,7 @@ public class ACDFEngine
     public void checkPermission( 
         Registries registries, 
         PartitionNexusProxy proxy, 
-        Collection<Name> userGroupNames, 
+        Collection<LdapDN> userGroupNames, 
         LdapDN username,
         AuthenticationLevel authenticationLevel, 
         LdapDN entryName, 
@@ -190,7 +189,7 @@ public class ACDFEngine
     public boolean hasPermission( 
         Registries registries, 
         PartitionNexusProxy proxy, 
-        Collection<Name> userGroupNames, 
+        Collection<LdapDN> userGroupNames, 
         LdapDN userName,
         AuthenticationLevel authenticationLevel, 
         LdapDN entryName, 

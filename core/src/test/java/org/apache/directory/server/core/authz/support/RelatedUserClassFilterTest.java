@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 
 import junit.framework.Assert;
@@ -58,8 +57,8 @@ public class RelatedUserClassFilterTest extends TestCase
 
     private static final LdapDN GROUP_NAME;
     private static final LdapDN USER_NAME;
-    private static final Set<Name> USER_NAMES = new HashSet<Name>();
-    private static final Set<Name> GROUP_NAMES = new HashSet<Name>();
+    private static final Set<LdapDN> USER_NAMES = new HashSet<LdapDN>();
+    private static final Set<LdapDN> GROUP_NAMES = new HashSet<LdapDN>();
 
     private static final SubtreeEvaluator SUBTREE_EVALUATOR;
 
@@ -129,7 +128,7 @@ public class RelatedUserClassFilterTest extends TestCase
         Assert.assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, GROUP_NAMES, USER_NAME, null,
             AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
 
-        Set<Name> wrongGroupNames = new HashSet<Name>();
+        Set<LdapDN> wrongGroupNames = new HashSet<LdapDN>();
         wrongGroupNames.add( new LdapDN( "ou=unrelatedgroup" ) );
 
         Assert.assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, wrongGroupNames, USER_NAME, null,
@@ -192,7 +191,7 @@ public class RelatedUserClassFilterTest extends TestCase
         }
         else
         {
-            Set<Name> names = new HashSet<Name>();
+            Set<LdapDN> names = new HashSet<LdapDN>();
             
             try
             {
