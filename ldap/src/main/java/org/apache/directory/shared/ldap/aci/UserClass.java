@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
@@ -127,7 +128,7 @@ public abstract class UserClass implements Serializable
      */
     private static abstract class NamedUserClass extends UserClass
     {
-        protected final Set<javax.naming.Name> names;
+        protected final Set<LdapDN> names;
 
 
         /**
@@ -135,16 +136,16 @@ public abstract class UserClass implements Serializable
          * 
          * @param names a set of names
          */
-        protected NamedUserClass( Set<javax.naming.Name> names )
+        protected NamedUserClass( Set<LdapDN> names )
         {
-            this.names = Collections.unmodifiableSet( new HashSet<javax.naming.Name>( names ) );
+            this.names = Collections.unmodifiableSet( new HashSet<LdapDN>( names ) );
         }
 
 
         /**
          * Returns the set of all names.
          */
-        public Set<javax.naming.Name> getNames()
+        public Set<LdapDN> getNames()
         {
             return names;
         }
@@ -217,7 +218,7 @@ public abstract class UserClass implements Serializable
          * @param usernames
          *            the set of user DNs.
          */
-        public Name( Set<javax.naming.Name> usernames )
+        public Name( Set<LdapDN> usernames )
         {
             super( usernames );
         }
@@ -253,7 +254,7 @@ public abstract class UserClass implements Serializable
          * @param groupNames
          *            the set of group DNs.
          */
-        public UserGroup( Set<javax.naming.Name> groupNames )
+        public UserGroup( Set<LdapDN> groupNames )
         {
             super( groupNames );
         }
