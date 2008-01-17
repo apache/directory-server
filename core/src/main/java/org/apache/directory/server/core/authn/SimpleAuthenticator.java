@@ -32,8 +32,6 @@ import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -50,6 +48,11 @@ import org.apache.directory.server.core.operational.OperationalAttributeIntercep
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerStringValue;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.schema.registries.Registries;
@@ -579,14 +582,17 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // ---- lookup the principal entry's userPassword attribute
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes userEntry;
+        ServerEntry userEntry;
 
         try
         {
             LookupOperationContext lookupContex  = new LookupOperationContext( registries, new String[] { SchemaConstants.USER_PASSWORD_AT } );
             lookupContex.setDn( principalDn );
             
-            userEntry = proxy.lookup( lookupContex, USERLOOKUP_BYPASS );
+            userEntry = ServerEntryUtils.toServerEntry( 
+                proxy.lookup( lookupContex, USERLOOKUP_BYPASS ), 
+                principalDn,
+                registries );
 
             if ( userEntry == null )
             {
@@ -601,26 +607,28 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             throw e;
         }
 
-        Object userPassword;
+        ServerValue<?> userPassword;
 
-        Attribute userPasswordAttr = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
+        ServerAttribute userPasswordAttr = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
 
         // ---- assert that credentials match
         if ( userPasswordAttr == null )
         {
-            userPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
+            return StringTools.EMPTY_BYTES;
         }
         else
         {
             userPassword = userPasswordAttr.get();
 
-            if ( userPassword instanceof String )
+            if ( userPassword instanceof ServerStringValue )
             {
-                userPassword = StringTools.getBytesUtf8( ( String ) userPassword );
+                return StringTools.getBytesUtf8( (String)userPassword.get() );
+            }
+            else
+            {
+                return (byte[])userPassword.get();
             }
         }
-        
-        return ( byte[] ) userPassword;
     }
 
     /**
