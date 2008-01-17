@@ -35,7 +35,6 @@ import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -83,7 +82,6 @@ import javax.naming.directory.SearchResult;
 import java.net.InetSocketAddress;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -331,11 +329,8 @@ public class ReplicationInterceptor extends BaseInterceptor
         }
 
         // Iterate all context partitions to send all entries of them.
-        Iterator<ServerValue<?>> namingContexts = namingContextsAttr.getAll();
-        
-        while ( namingContexts.hasNext() )
+        for ( ServerValue<?> namingContext:namingContextsAttr )
         {
-            ServerValue<?> namingContext = namingContexts.next();
             // Convert attribute value to JNDI name.
             LdapDN contextName;
             

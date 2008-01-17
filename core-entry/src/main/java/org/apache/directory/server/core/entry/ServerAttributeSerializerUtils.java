@@ -20,21 +20,6 @@
 package org.apache.directory.server.core.entry;
 
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Iterator;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.primitives.OID;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Attr;
 
 /**
  * Serializes a ServerAttribute object using a custom serialization mechanism

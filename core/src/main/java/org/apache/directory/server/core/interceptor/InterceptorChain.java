@@ -1419,6 +1419,7 @@ public class InterceptorChain
 
     private static void throwInterceptorException( Interceptor interceptor, Throwable e ) throws InterceptorException
     {
+        e.printStackTrace();
         throw new InterceptorException( interceptor, "Unexpected exception.", e );
     }
 }

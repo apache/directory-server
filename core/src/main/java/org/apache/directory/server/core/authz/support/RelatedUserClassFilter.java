@@ -27,6 +27,8 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.server.schema.registries.Registries;
@@ -86,7 +88,11 @@ public class RelatedUserClassFilter implements ACITupleFilter
             
             if ( tuple.isGrant() )
             {
-                if ( !isRelated( userGroupNames, userName, userEntry, entryName, tuple.getUserClasses() )
+                if ( !isRelated( userGroupNames, 
+                                 userName, 
+                                 ServerEntryUtils.toServerEntry( userEntry, userName, registries ), 
+                                 entryName, 
+                                 tuple.getUserClasses() )
                     || authenticationLevel.compareTo( tuple.getAuthenticationLevel() ) < 0 )
                 {
                     ii.remove();
@@ -95,7 +101,11 @@ public class RelatedUserClassFilter implements ACITupleFilter
             else
             // Denials
             {
-                if ( !isRelated( userGroupNames, userName, userEntry, entryName, tuple.getUserClasses() )
+                if ( !isRelated( userGroupNames, 
+                                 userName, 
+                                 ServerEntryUtils.toServerEntry( userEntry, userName, registries ), 
+                                 entryName, 
+                                 tuple.getUserClasses() )
                     && authenticationLevel.compareTo( tuple.getAuthenticationLevel() ) >= 0 )
                 {
                     ii.remove();
@@ -107,7 +117,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( Collection<Name> userGroupNames, LdapDN userName, Attributes userEntry, 
+    private boolean isRelated( Collection<Name> userGroupNames, LdapDN userName, ServerEntry userEntry, 
         LdapDN entryName, Collection<UserClass> userClasses ) throws NamingException
     {
         for ( UserClass userClass : userClasses )
@@ -161,7 +171,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
-    private boolean matchUserClassSubtree( LdapDN userName, Attributes userEntry, UserClass.Subtree subtree )
+    private boolean matchUserClassSubtree( LdapDN userName, ServerEntry userEntry, UserClass.Subtree subtree )
         throws NamingException
     {
         for ( SubtreeSpecification subtreeSpec : subtree.getSubtreeSpecifications() )

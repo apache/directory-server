@@ -26,12 +26,13 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -52,6 +53,11 @@ public class ServerEntryUtils
      */
     public static Attributes toAttributesImpl( ServerEntry entry )
     {
+        if ( entry == null )
+        {
+            return null;
+        }
+        
         Attributes attributes = new AttributesImpl();
 
         for ( AttributeType attributeType:entry.getAttributeTypes() )
@@ -207,10 +213,8 @@ public class ServerEntryUtils
     {
         Attribute attribute = new BasicAttribute( attr.getUpId(), false );
 
-        for ( Iterator<ServerValue<?>> iter = attr.getAll(); iter.hasNext();)
+        for ( ServerValue<?> value:attr )
         {
-            Value<?> value = iter.next();
-            
             attribute.add( value.get() );
         }
         
@@ -227,13 +231,83 @@ public class ServerEntryUtils
     {
         Attribute attribute = new AttributeImpl( attr.getUpId() );
 
-        for ( Iterator<ServerValue<?>> iter = attr.getAll(); iter.hasNext();)
+        for ( ServerValue<?> value:attr )
         {
-            Value<?> value = iter.next();
-            
             attribute.add( value.get() );
         }
         
         return attribute;
+    }
+
+
+    /**
+     * Gets the target entry as it would look after a modification operation 
+     * was performed on it.
+     * 
+     * @param mod the modification
+     * @param entry the source entry that is modified
+     * @return the resultant entry after the modification has taken place
+     * @throws NamingException if there are problems accessing attributes
+     */
+    public static ServerEntry getTargetEntry( ModificationItemImpl mod, ServerEntry entry, Registries registries ) throws NamingException
+    {
+        ServerEntry targetEntry = ( ServerEntry ) entry.clone();
+        int modOp = mod.getModificationOp();
+        String id = mod.getAttribute().getID();
+        AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( id );
+        
+        switch ( modOp )
+        {
+            case ( DirContext.REPLACE_ATTRIBUTE  ):
+                targetEntry.put( toServerAttribute( mod.getAttribute(), attributeType ) );
+                break;
+                
+            case ( DirContext.REMOVE_ATTRIBUTE  ):
+                ServerAttribute toBeRemoved = toServerAttribute( mod.getAttribute(), attributeType );
+
+                if ( toBeRemoved.size() == 0 )
+                {
+                    targetEntry.remove( id );
+                }
+                else
+                {
+                    ServerAttribute existing = targetEntry.get( id );
+
+                    if ( existing != null )
+                    {
+                        for ( ServerValue<?> value:toBeRemoved )
+                        {
+                            existing.remove( value );
+                        }
+                    }
+                }
+                break;
+                
+            case ( DirContext.ADD_ATTRIBUTE  ):
+                ServerAttribute combined = new DefaultServerAttribute( id, attributeType );
+                ServerAttribute toBeAdded = toServerAttribute( mod.getAttribute(), attributeType );
+                ServerAttribute existing = entry.get( id );
+
+                if ( existing != null )
+                {
+                    for ( ServerValue<?> value:existing )
+                    {
+                        combined.add( value );
+                    }
+                }
+
+                for ( ServerValue<?> value:toBeAdded )
+                {
+                    combined.add( value );
+                }
+                
+                targetEntry.put( combined );
+                break;
+                
+            default:
+                throw new IllegalStateException( "undefined modification type: " + modOp );
+        }
+
+        return targetEntry;
     }
 }

@@ -21,7 +21,6 @@ package org.apache.directory.mitosis.service.protocol.codec;
 
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.mina.common.ByteBuffer;

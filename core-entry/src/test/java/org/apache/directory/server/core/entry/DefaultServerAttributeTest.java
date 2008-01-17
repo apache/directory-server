@@ -21,7 +21,6 @@ package org.apache.directory.server.core.entry;
 
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.naming.NamingException;
@@ -391,10 +390,8 @@ public class DefaultServerAttributeTest
         expected.add( "test" );
         expected.add( "test2" );
         
-        for ( Iterator<ServerValue<?>> iter = attr.getAll(); iter.hasNext(); )
+        for ( ServerValue<?> val:attr )
         {
-            ServerStringValue val = (ServerStringValue)iter.next();
-            
             if ( expected.contains( val.get() ) )
             {
                 expected.remove( val.get() );
@@ -427,10 +424,8 @@ public class DefaultServerAttributeTest
         expected.add( "test" );
         expected.add( "test2" );
         
-        for ( Iterator<ServerValue<?>> iter = attr.getAll(); iter.hasNext(); )
+        for ( ServerValue<?> val:attr )
         {
-            ServerStringValue val = (ServerStringValue)iter.next();
-            
             if ( expected.contains( val.get() ) )
             {
                 expected.remove( val.get() );

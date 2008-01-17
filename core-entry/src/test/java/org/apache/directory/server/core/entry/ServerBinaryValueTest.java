@@ -20,15 +20,11 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.server.core.entry.ServerStringValueTest.AT;
-import org.apache.directory.server.core.entry.ServerStringValueTest.MR;
-import org.apache.directory.server.core.entry.ServerStringValueTest.S;
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
 import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
-import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.Syntax;

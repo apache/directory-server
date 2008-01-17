@@ -27,11 +27,12 @@ import java.util.HashSet;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
@@ -139,8 +140,8 @@ public class ACDFEngine
         Object attrValue, 
         Collection<MicroOperation> microOperations, 
         Collection<ACITuple> aciTuples, 
-        Attributes entry, 
-        Attributes entryView ) throws NamingException
+        ServerEntry entry, 
+        ServerEntry entryView ) throws NamingException
     {
         if ( !hasPermission( registries, proxy, userGroupNames, username, authenticationLevel, entryName, attrId, attrValue,
             microOperations, aciTuples, entry, entryView ) )
@@ -197,15 +198,18 @@ public class ACDFEngine
         Object attrValue, 
         Collection<MicroOperation> microOperations, 
         Collection<ACITuple> aciTuples, 
-        Attributes entry, 
-        Attributes entryView ) throws NamingException
+        ServerEntry entry, 
+        ServerEntry entryView ) throws NamingException
     {
         if ( entryName == null )
         {
             throw new NullPointerException( "entryName" );
         }
 
-        Attributes userEntry = proxy.lookup( new LookupOperationContext( registries, userName ), USER_LOOKUP_BYPASS );
+        ServerEntry userEntry = ServerEntryUtils.toServerEntry( 
+            proxy.lookup( new LookupOperationContext( registries, userName ), USER_LOOKUP_BYPASS ),
+            userName, 
+            registries );
 
         // Determine the scope of the requested operation.
         OperationScope scope;
@@ -229,8 +233,21 @@ public class ACDFEngine
         // Filter unrelated and invalid tuples
         for ( ACITupleFilter filter : filters )
         {
-            aciTuples = filter.filter( registries, aciTuples, scope, proxy, userGroupNames, userName, userEntry,
-                authenticationLevel, entryName, attrId, attrValue, entry, microOperations, entryView );
+            aciTuples = filter.filter( 
+                registries, 
+                aciTuples, 
+                scope, 
+                proxy, 
+                userGroupNames, 
+                userName, 
+                ServerEntryUtils.toAttributesImpl( userEntry ),
+                authenticationLevel, 
+                entryName, 
+                attrId, 
+                attrValue, 
+                ServerEntryUtils.toAttributesImpl( entry ), 
+                microOperations, 
+                ServerEntryUtils.toAttributesImpl( entryView ) );
         }
 
         // Deny access if no tuples left.

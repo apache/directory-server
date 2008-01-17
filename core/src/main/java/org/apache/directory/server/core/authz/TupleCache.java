@@ -23,7 +23,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -200,11 +199,9 @@ public class TupleCache
 
         List<ACITuple> entryTuples = new ArrayList<ACITuple>();
         
-        Iterator<ServerValue<?>> acis = aciAttr.getAll();
-        
-        while ( acis.hasNext() )
+        for ( ServerValue<?> value:aciAttr )
         {
-            String aci = ((ServerStringValue)acis.next()).get();
+            String aci = (String)value.get();
             ACIItem item = null;
 
             try

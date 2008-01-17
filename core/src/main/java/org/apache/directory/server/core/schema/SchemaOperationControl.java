@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,16 +71,12 @@ import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
@@ -295,11 +290,8 @@ public class SchemaOperationControl
     {
         ServerAttribute oc = entry.get( objectClassAT );
         
-        Iterator<ServerValue<?>> values = oc.getAll();
-        
-        while ( values.hasNext() )
+        for ( ServerValue<?> value:oc )
         {
-            ServerValue<?> value = values.next();
 
             String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
             
@@ -347,12 +339,8 @@ public class SchemaOperationControl
     {
         ServerAttribute oc = entry.get( objectClassAT );
         
-        Iterator<ServerValue<?>> values = oc.getAll();
-        
-        while ( values.hasNext() )
+        for ( ServerValue<?> value:oc )
         {
-            ServerValue<?> value = values.next();
-            
             String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
@@ -400,12 +388,8 @@ public class SchemaOperationControl
     {
         ServerAttribute oc = entry.get( objectClassAT );
         
-        Iterator<ServerValue<?>> values = oc.getAll();
-        
-        while ( values.hasNext() )
+        for ( ServerValue<?> value:oc )
         {
-            ServerValue<?> value = values.next();
-
             String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
@@ -433,12 +417,8 @@ public class SchemaOperationControl
     {
         ServerAttribute oc = entry.get( objectClassAT );
         
-        Iterator<ServerValue<?>> values = oc.getAll();
-        
-        while ( values.hasNext() )
+        for ( ServerValue<?> value:oc )
         {
-            ServerValue<?> value = values.next();
-
             String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
@@ -468,12 +448,8 @@ public class SchemaOperationControl
     {
         ServerAttribute oc = entry.get( objectClassAT );
         
-        Iterator<ServerValue<?>> values = oc.getAll();
-        
-        while ( values.hasNext() )
+        for ( ServerValue<?> value:oc )
         {
-            ServerValue<?> value = values.next();
-
             String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
@@ -501,12 +477,8 @@ public class SchemaOperationControl
     {
         ServerAttribute oc = entry.get( objectClassAT );
         
-        Iterator<ServerValue<?>> values = oc.getAll();
-        
-        while ( values.hasNext() )
+        for ( ServerValue<?> value:oc )
         {
-            ServerValue<?> value = values.next();
-
             String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
@@ -534,12 +506,8 @@ public class SchemaOperationControl
     {
         ServerAttribute oc = entry.get( objectClassAT );
         
-        Iterator<ServerValue<?>> values = oc.getAll();
-        
-        while ( values.hasNext() )
+        for ( ServerValue<?> value:oc )
         {
-            ServerValue<?> value = values.next();
-
             String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )

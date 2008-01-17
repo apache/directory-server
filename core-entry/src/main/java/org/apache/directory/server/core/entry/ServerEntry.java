@@ -35,7 +35,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttribute>, Cloneable
+public interface ServerEntry extends Entry<ServerAttribute>, Cloneable
 {
     // -----------------------------------------------------------------------
     // Schema Related Methods

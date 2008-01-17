@@ -209,11 +209,9 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             ServerAttribute names = entry.get( mNameAT );
             targetRegistries.getOidRegistry().register( oid, oid );
             
-            Iterator<ServerValue<?>> namesValues = names.getAll();
-            
-            while ( namesValues.hasNext() )
+            for ( ServerValue<?> value:names )
             {
-                targetRegistries.getOidRegistry().register( ( String ) namesValues.next().get( ), oid );
+                targetRegistries.getOidRegistry().register( ( String ) value.get(), oid );
             }
         }
         

@@ -30,7 +30,6 @@ import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.InvalidAttributeValueException;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Collections;
 
@@ -138,10 +137,8 @@ public class ObjectClassAttribute extends AbstractServerAttribute
             {
                 // Iterate through the attribute values and store them in the ObjectClass,
                 // if they are valid.
-                for ( Iterator<ServerValue<?>> values = serverAttribute.getAll(); values.hasNext(); )
+                for ( ServerValue<?> value:serverAttribute )
                 {
-                    ServerValue<?> value = values.next();
-                    
                     if ( value instanceof ServerStringValue )
                     {
                         String objectClassName = ((ServerStringValue)value).get();

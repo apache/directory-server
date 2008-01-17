@@ -62,7 +62,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.net.InetSocketAddress;
-import java.util.Iterator;
 import java.util.Map;
 
 
@@ -362,12 +361,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         }
 
         // Iterate all context partitions to send all entries of them.
-        Iterator<ServerValue<?>> namingContexts = namingContextsAttr.getAll();
-        
-        while ( namingContexts.hasNext() )
+        for ( ServerValue<?> namingContext:namingContextsAttr )
         {
-            ServerValue<?> namingContext = namingContexts.next();
-
             // Convert attribute value to JNDI name.
             LdapDN contextName;
 

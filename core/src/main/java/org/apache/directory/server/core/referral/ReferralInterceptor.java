@@ -199,11 +199,9 @@ public class ReferralInterceptor extends BaseInterceptor
                 throw new NamingException( message );
             }
             
-            Iterator<ServerValue<?>> refs = refAttr.getAll();
-            
-            while ( refs.hasNext() )
+            for ( ServerValue<?> value:refAttr )
             {
-                ServerStringValue ref = (ServerStringValue)refs.next(); 
+                ServerStringValue ref = (ServerStringValue)value; 
                 
                 String refVal = ref.get();
                 
@@ -302,10 +300,9 @@ public class ReferralInterceptor extends BaseInterceptor
         // handle referral here
         List<String> list = new ArrayList<String>( refs.size() );
         
-        Iterator<ServerValue<?>> refUrls = refs.getAll();
-        while ( refUrls.hasNext() )
+        for ( ServerValue<?> value:refs )
         {
-            String val = (String)(refUrls.next().get());
+            String val = (String)value.get();
 
             // need to add non-ldap URLs as-is
             if ( !val.startsWith( "ldap" ) )

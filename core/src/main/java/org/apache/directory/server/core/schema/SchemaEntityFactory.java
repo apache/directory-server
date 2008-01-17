@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -127,11 +126,9 @@ public class SchemaEntityFactory
             Set<String> depsSet = new HashSet<String>();
             ServerAttribute depsAttr = entry.get( MetaSchemaConstants.M_DEPENDENCIES_AT );
             
-            Iterator<ServerValue<?>> values = depsAttr.getAll();
-            
-            while ( values.hasNext() )
+            for ( ServerValue<?> value:depsAttr )
             {
-                depsSet.add( (String)values.next().get() );
+                depsSet.add( (String)value.get() );
             }
 
             dependencies = depsSet.toArray( EMPTY );
@@ -590,12 +587,11 @@ public class SchemaEntityFactory
         
         String[] strings = new String[attr.size()];
         
-        Iterator<ServerValue<?>> values = attr.getAll();
         int pos = 0;
         
-        while ( values.hasNext() )
+        for ( ServerValue<?> value:attr )
         {
-            strings[pos++] = (String)values.next().get();
+            strings[pos++] = (String)value.get();
         }
         
         return strings;
@@ -717,11 +713,9 @@ public class SchemaEntityFactory
         {
             List<String> values = new ArrayList<String>();
             
-            Iterator<ServerValue<?>> namesValues = names.getAll();
-            
-            while ( namesValues.hasNext() )
+            for ( ServerValue<?> name:names )
             {
-                values.add( (String)namesValues.next().get() );
+                values.add( (String)name.get() );
             }
             
             mso.setNames( values.toArray( EMPTY ) );

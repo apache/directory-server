@@ -20,16 +20,6 @@
 package org.apache.directory.server.core.entry;
 
 
-import java.io.IOException;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-
 /**
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

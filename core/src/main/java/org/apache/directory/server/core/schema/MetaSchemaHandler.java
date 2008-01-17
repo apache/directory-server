@@ -499,11 +499,9 @@ public class MetaSchemaHandler implements SchemaChangeHandler
             // check to make sure all the dependencies are also enabled
             Map<String,Schema> loaded = globalRegistries.getLoadedSchemas();
             
-            Iterator<ServerValue<?>> values = dependencies.getAll();
-            
-            while ( values.hasNext() )
+            for ( ServerValue<?> value:dependencies )
             {
-                String dependency = ( String ) values.next().get();
+                String dependency = ( String ) value.get();
                 
                 if ( ! loaded.containsKey( dependency ) )
                 {
@@ -517,11 +515,9 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         {
             Set<String> allSchemas = loader.getSchemaNames();
             
-            Iterator<ServerValue<?>> values = dependencies.getAll();
-            
-            while ( values.hasNext() )
+            for ( ServerValue<?> value:dependencies )
             {
-                String dependency = ( String ) values.next().get();
+                String dependency = ( String ) value.get();
                 
                 if ( ! allSchemas.contains( dependency ) )
                 {

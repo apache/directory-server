@@ -979,25 +979,24 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( SchemaConstants.PERSON_OC );
-            objectClass.add( SchemaConstants.ORGANIZATIONAL_PERSON_OC );
-            objectClass.add( SchemaConstants.INET_ORG_PERSON_OC );
-            attributes.put( objectClass );
+            ServerEntry serverEntry = new DefaultServerEntry( registries, PartitionNexus.getAdminName() );
+            
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
+                                SchemaConstants.TOP_OC,
+                                SchemaConstants.PERSON_OC,
+                                SchemaConstants.ORGANIZATIONAL_PERSON_OC,
+                                SchemaConstants.INET_ORG_PERSON_OC );
 
-            attributes.put( SchemaConstants.UID_AT, PartitionNexus.ADMIN_UID );
-            attributes.put( SchemaConstants.USER_PASSWORD_AT, PartitionNexus.ADMIN_PASSWORD );
-            attributes.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
-            attributes.put( SchemaConstants.CN_AT, "system administrator" );
-            attributes.put( SchemaConstants.SN_AT, "administrator" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            attributes.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
+            serverEntry.put( SchemaConstants.UID_AT, PartitionNexus.ADMIN_UID );
+            serverEntry.put( SchemaConstants.USER_PASSWORD_AT, PartitionNexus.ADMIN_PASSWORD );
+            serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
+            serverEntry.put( SchemaConstants.CN_AT, "system administrator" );
+            serverEntry.put( SchemaConstants.SN_AT, "administrator" );
+            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
 
-            ServerEntry entry = ServerEntryUtils.toServerEntry( attributes, PartitionNexus.getAdminName(), registries );
-            partitionNexus.add( new AddOperationContext( registries, PartitionNexus.getAdminName(), entry ) );
+            partitionNexus.add( new AddOperationContext( registries, PartitionNexus.getAdminName(), serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1012,18 +1011,17 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            attributes.put( objectClass );
+            ServerEntry serverEntry = new DefaultServerEntry( registries, userDn );
+            
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
+                                SchemaConstants.TOP_OC,
+                                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
-            attributes.put( SchemaConstants.OU_AT, "users" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.put( SchemaConstants.OU_AT, "users" );
+            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            ServerEntry entry = ServerEntryUtils.toServerEntry( attributes, userDn, registries );
-            partitionNexus.add( new AddOperationContext( registries, userDn, entry ) );
+            partitionNexus.add( new AddOperationContext( registries, userDn, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1037,18 +1035,17 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            attributes.put( objectClass );
+            ServerEntry serverEntry = new DefaultServerEntry( registries, userDn );
+            
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
+                                SchemaConstants.TOP_OC,
+                                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
-            attributes.put( SchemaConstants.OU_AT, "groups" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.put( SchemaConstants.OU_AT, "groups" );
+            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            ServerEntry entry = ServerEntryUtils.toServerEntry( attributes, groupDn, registries );
-            partitionNexus.add( new AddOperationContext( registries, groupDn, entry ) );
+            partitionNexus.add( new AddOperationContext( registries, groupDn, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1062,18 +1059,18 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
-            attributes.put( objectClass );
-            attributes.put( SchemaConstants.CN_AT, "Administrators" );
-            attributes.put( SchemaConstants.UNIQUE_MEMBER_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            ServerEntry serverEntry = new DefaultServerEntry( registries, userDn );
+            
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
+                                SchemaConstants.TOP_OC,
+                                SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
 
-            ServerEntry entry = ServerEntryUtils.toServerEntry( attributes, name, registries );
-            partitionNexus.add( new AddOperationContext( registries, name, entry ) );
+            serverEntry.put( SchemaConstants.CN_AT, "Administrators" );
+            serverEntry.put( SchemaConstants.UNIQUE_MEMBER_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+
+            partitionNexus.add( new AddOperationContext( registries, name, serverEntry ) );
             
             Interceptor authzInterceptor = interceptorChain.get( AciAuthorizationInterceptor.class.getName() );
             
@@ -1092,7 +1089,7 @@ public class DefaultDirectoryService implements DirectoryService
             }
 
             AciAuthorizationInterceptor authzSrvc = ( AciAuthorizationInterceptor ) authzInterceptor;
-            authzSrvc.cacheNewGroup( name, attributes );
+            authzSrvc.cacheNewGroup( name, serverEntry );
 
         }
 

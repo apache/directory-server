@@ -39,11 +39,9 @@ import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExt
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;

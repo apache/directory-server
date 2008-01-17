@@ -981,12 +981,10 @@ public class DefaultPartitionNexus extends PartitionNexus
                 
                 ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
                 
-                Iterator<ServerAttribute> attributes = getRootDSE( new GetRootDSEOperationContext( registries ) ).iterator();
+                ServerEntry rootDSE = getRootDSE( new GetRootDSEOperationContext( registries ) );
                 
-                while ( attributes.hasNext() )
+                for ( ServerAttribute attribute:rootDSE )
                 {
-                    ServerAttribute attribute = attributes.next();
-                    
                     AttributeType type = atRegistry.lookup( attribute.getUpId() );
                     
                     if ( realIds.contains( type.getOid() ) )

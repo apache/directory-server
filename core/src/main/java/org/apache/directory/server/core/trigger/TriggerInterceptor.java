@@ -22,6 +22,8 @@ package org.apache.directory.server.core.trigger;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
@@ -59,7 +61,6 @@ import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -446,25 +447,28 @@ public class TriggerInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        Attributes importedEntry = proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        ServerEntry importedEntry = ServerEntryUtils.toServerEntry( 
+            proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS ),
+            oriChildName,
+            registries );
+        
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
-        Attributes fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
-        NamingEnumeration<? extends Attribute> attrList = importedEntry.getAll();
+        ServerEntry fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
         
-        while ( attrList.hasMore() )
+        for ( ServerAttribute attribute:importedEntry )
         {
-            fakeImportedEntry.put( attrList.next() );
+            fakeImportedEntry.put( attribute );
         }
         
         // Gather Trigger Specifications which apply to the entry being imported.
         // Note: Entry Trigger Specifications are not valid for Import.
         List<TriggerSpecification> importTriggerSpecs = new ArrayList<TriggerSpecification>();
-        addPrescriptiveTriggerSpecs( importTriggerSpecs, proxy, newDN, fakeImportedEntry );
+        addPrescriptiveTriggerSpecs( importTriggerSpecs, proxy, newDN, ServerEntryUtils.toAttributesImpl( fakeImportedEntry ) );
         
         Map<ActionTime, List<TriggerSpecification>> exportTriggerMap = getActionTimeMappedTriggerSpecsForOperation( exportTriggerSpecs, LdapOperation.MODIFYDN_EXPORT );
         
@@ -521,25 +525,28 @@ public class TriggerInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        Attributes importedEntry = proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        ServerEntry importedEntry = ServerEntryUtils.toServerEntry( 
+            proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS ),
+            oriChildName,
+            registries );
+
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
-        Attributes fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
-        NamingEnumeration <? extends Attribute> attrList = importedEntry.getAll();
+        ServerEntry fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
         
-        while ( attrList.hasMore() )
+        for ( ServerAttribute attribute:importedEntry )
         {
-            fakeImportedEntry.put( attrList.next() );
+            fakeImportedEntry.put( attribute );
         }
         
         // Gather Trigger Specifications which apply to the entry being imported.
         // Note: Entry Trigger Specifications are not valid for Import.
         List<TriggerSpecification> importTriggerSpecs = new ArrayList<TriggerSpecification>();
-        addPrescriptiveTriggerSpecs( importTriggerSpecs, proxy, newDN, fakeImportedEntry );
+        addPrescriptiveTriggerSpecs( importTriggerSpecs, proxy, newDN, ServerEntryUtils.toAttributesImpl( fakeImportedEntry ) );
         
         Map<ActionTime, List<TriggerSpecification>> exportTriggerMap = getActionTimeMappedTriggerSpecsForOperation( exportTriggerSpecs, LdapOperation.MODIFYDN_EXPORT );
         

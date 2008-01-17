@@ -20,27 +20,21 @@
 package org.apache.directory.server.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Set;
 
 

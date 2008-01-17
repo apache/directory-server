@@ -20,7 +20,6 @@
 
 package org.apache.directory.mitosis.service;
 
-import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;

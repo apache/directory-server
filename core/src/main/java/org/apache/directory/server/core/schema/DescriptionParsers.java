@@ -21,7 +21,6 @@ package org.apache.directory.server.core.schema;
 
 
 import java.text.ParseException;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -143,17 +142,14 @@ public class DescriptionParsers
         
         SyntaxCheckerDescription[] syntaxCheckerDescriptions = new SyntaxCheckerDescription[attr.size()];
         
-        Iterator<ServerValue<?>> values = attr.getAll();
         int pos = 0;
         
-        while ( values.hasNext() )
+        for ( ServerValue<?> value:attr )
         {
-            String value = (String)values.next().get();
-            
             try
             {
                 syntaxCheckerDescriptions[pos++] = 
-                    syntaxCheckerParser.parseSyntaxCheckerDescription( value );
+                    syntaxCheckerParser.parseSyntaxCheckerDescription( (String)value.get() );
             }
             catch ( ParseException e )
             {
@@ -178,13 +174,10 @@ public class DescriptionParsers
         
         NormalizerDescription[] normalizerDescriptions = new NormalizerDescription[attr.size()];
         
-        Iterator<ServerValue<?>> values = attr.getAll();
         int pos = 0;
         
-        while( values.hasNext() )
+        for ( ServerValue<?> value:attr )
         {
-            ServerValue<?> value = values.next();
-        
             try
             {
                 normalizerDescriptions[pos++] = normalizerParser.parseNormalizerDescription( (String)value.get() );
@@ -212,13 +205,10 @@ public class DescriptionParsers
         
         ComparatorDescription[] comparatorDescriptions = new ComparatorDescription[attr.size()];
         
-        Iterator<ServerValue<?>> values = attr.getAll();
         int pos = 0;
         
-        while( values.hasNext() )
+        for ( ServerValue<?> value:attr )
         {
-            ServerValue<?> value = values.next();
-
             try
             {
                 comparatorDescriptions[pos++] = comparatorParser.parseComparatorDescription( ( String ) value.get() );
@@ -254,13 +244,10 @@ public class DescriptionParsers
         
         AttributeType[] attributeTypes = new AttributeType[attr.size()];
         
-        Iterator<ServerValue<?>> values = attr.getAll();
         int pos = 0;
         
-        while( values.hasNext() )
+        for ( ServerValue<?> value:attr )
         {
-            ServerValue<?> value = values.next();
-        
             AttributeTypeDescription desc = null;
             
             try
@@ -392,13 +379,10 @@ public class DescriptionParsers
         
         ObjectClass[] objectClasses = new ObjectClass[attr.size()];
         
-        Iterator<ServerValue<?>> values = attr.getAll();
         int pos = 0;
         
-        while( values.hasNext() )
+        for ( ServerValue<?> value:attr )
         {
-            ServerValue<?> value = values.next();
-
             ObjectClassDescription desc = null;
             
             try
@@ -496,13 +480,10 @@ public class DescriptionParsers
         
         MatchingRuleUse[] matchingRuleUses = new MatchingRuleUse[attr.size()];
         
-        Iterator<ServerValue<?>> values = attr.getAll();
         int pos = 0;
         
-        while( values.hasNext() )
+        for ( ServerValue<?> value:attr )
         {
-            ServerValue<?> value = values.next();
-
             MatchingRuleUseDescription desc = null;
             
             try
@@ -546,12 +527,10 @@ public class DescriptionParsers
         
         Syntax[] syntaxes = new Syntax[attr.size()];
 
-        Iterator<ServerValue<?>> values = attr.getAll();
         int pos = 0;
         
-        while( values.hasNext() )
+        for ( ServerValue<?> value:attr )
         {
-            ServerValue<?> value = values.next();
             LdapSyntaxDescription desc = null;
             
             try
@@ -602,13 +581,10 @@ public class DescriptionParsers
         
         MatchingRule[] matchingRules = new MatchingRule[attr.size()];
 
-        Iterator<ServerValue<?>> values = attr.getAll();
         int pos = 0;
         
-        while( values.hasNext() )
+        for ( ServerValue<?> value:attr )
         {
-            ServerValue<?> value = values.next();
-
             MatchingRuleDescription desc = null;
 
             try
@@ -658,12 +634,10 @@ public class DescriptionParsers
         
         DITStructureRule[] ditStructureRules = new DITStructureRule[attr.size()];
         
-        Iterator<ServerValue<?>> values = attr.getAll();
         int pos = 0;
         
-        while( values.hasNext() )
+        for ( ServerValue<?> value:attr )
         {
-            ServerValue<?> value = values.next();
             DITStructureRuleDescription desc = null;
      
             try
@@ -709,12 +683,10 @@ public class DescriptionParsers
         
         DITContentRule[] ditContentRules = new DITContentRule[attr.size()];
 
-        Iterator<ServerValue<?>> values = attr.getAll();
         int pos = 0;
         
-        while( values.hasNext() )
+        for ( ServerValue<?> value:attr )
         {
-            ServerValue<?> value = values.next();
             DITContentRuleDescription desc = null;
      
             try
@@ -762,12 +734,10 @@ public class DescriptionParsers
         
         NameForm[] nameForms = new NameForm[attr.size()];
 
-        Iterator<ServerValue<?>> values = attr.getAll();
         int pos = 0;
         
-        while( values.hasNext() )
+        for ( ServerValue<?> value:attr )
         {
-            ServerValue<?> value = values.next();
             NameFormDescription desc = null;
             
             try
