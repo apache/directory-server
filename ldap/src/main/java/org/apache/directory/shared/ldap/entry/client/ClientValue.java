@@ -20,7 +20,6 @@ package org.apache.directory.shared.ldap.entry.client;
 
 
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import javax.naming.NamingException;
 

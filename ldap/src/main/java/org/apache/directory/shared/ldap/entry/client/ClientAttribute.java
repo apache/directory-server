@@ -19,7 +19,6 @@
 package org.apache.directory.shared.ldap.entry.client;
 
 
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 
 import javax.naming.NamingException;

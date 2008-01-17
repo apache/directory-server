@@ -21,8 +21,6 @@ package org.apache.directory.shared.ldap.entry;
 
 import java.io.Serializable;
 
-import javax.naming.NamingException;
-
 
 /**
  * A interface for wrapping attribute values stored into an EntryAttribute. These

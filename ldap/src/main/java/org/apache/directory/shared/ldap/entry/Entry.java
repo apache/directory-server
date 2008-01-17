@@ -23,7 +23,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,7 +39,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Entry<T extends EntryAttribute<?>> extends Cloneable
+public interface Entry<T extends EntryAttribute<?>> extends Cloneable, Iterable<T>
 {
     /**
      * Removes all the attributes.
