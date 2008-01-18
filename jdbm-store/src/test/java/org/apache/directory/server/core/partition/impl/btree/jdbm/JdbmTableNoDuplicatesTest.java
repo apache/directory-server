@@ -54,7 +54,7 @@ public class JdbmTableNoDuplicatesTest
     private static final Logger LOG = LoggerFactory.getLogger( KeyCursorTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
-    transient Table<String,String> table;
+    transient Table<Integer,Integer> table;
     transient File dbFile;
     transient RecordManager recman;
 
@@ -73,7 +73,7 @@ public class JdbmTableNoDuplicatesTest
 
         // gosh this is a terrible use of a global static variable
         SerializableComparator.setRegistry( new MockComparatorRegistry() );
-        table = new JdbmTable<String,String>( "test", recman, new SerializableComparator<String>( "" ), null, null );
+        table = new JdbmTable<Integer,Integer>( "test", recman, new SerializableComparator<Integer>( "" ), null, null );
         LOG.debug( "Created new table and populated it with data" );
     }
 
@@ -93,10 +93,10 @@ public class JdbmTableNoDuplicatesTest
     @Test
     public void testCloseReopen() throws Exception
     {
-        table.put( "key", "value" );
+        table.put( 1, 2 );
         table.close();
-        table = new JdbmTable<String,String>( "test", recman, new SerializableComparator<String>( "" ), null, null );
-        assertEquals( "value", table.get( "key" ) );
+        table = new JdbmTable<Integer,Integer>( "test", recman, new SerializableComparator<Integer>( "" ), null, null );
+        assertTrue( 2 == table.get( 1 ) );
     }
 
     
@@ -128,21 +128,21 @@ public class JdbmTableNoDuplicatesTest
     {
         // Test the count methods
         assertEquals( 0, table.count() );
-        assertEquals( 0, table.count( "1" ) );
+        assertEquals( 0, table.count( 1 ) );
 
         // Test get method
-        assertNull( table.get( "0" ) );
+        assertNull( table.get( 0 ) );
         
         // Test remove methods
-        assertNull( table.remove( "1" ) );
+        assertNull( table.remove( 1 ) );
         
         // Test has operations
-        assertFalse( table.has( "1" ) );
-        assertFalse( table.has( "1", "0" ) );
-        assertFalse( table.has( "1", true ) );
-        assertFalse( table.has( "1", false ) );
-        assertFalse( table.has( "1", "0", true ) );
-        assertFalse( table.has( "1", "0", false ) );
+        assertFalse( table.has( 1 ) );
+        assertFalse( table.has( 1, 0 ) );
+        assertFalse( table.has( 1, true ) );
+        assertFalse( table.has( 1, false ) );
+        assertFalse( table.has( 1, 0, true ) );
+        assertFalse( table.has( 1, 0, false ) );
     }
 
     
@@ -150,19 +150,13 @@ public class JdbmTableNoDuplicatesTest
     public void testLoadData() throws Exception
     {
         // add some data to it
-        table.put( "0", "zero" );
-        table.put( "1", "one" );
-        table.put( "2", "two" );
-        table.put( "3", "three" );
-        table.put( "4", "four" );
-        table.put( "5", "five" );
-        table.put( "6", "six" );
-        table.put( "7", "seven" );
-        table.put( "8", "eight" );
-        table.put( "9", "nine" );
+        for ( int ii = 0; ii < 10; ii++ )
+        {
+            table.put( ii, ii );
+        }
         
         assertEquals( 10, table.count() );
-        assertEquals( 1, table.count( "0" ) );
+        assertEquals( 1, table.count( 0 ) );
         
         /*
          * If counts are exact then we can test for exact values.  Again this 
@@ -172,20 +166,115 @@ public class JdbmTableNoDuplicatesTest
         
         if ( table.isCountExact() )
         {
-            assertEquals( 5, table.lessThanCount( "5" ) );
-            assertEquals( 4, table.greaterThanCount( "5" ) );
+            assertEquals( 5, table.lessThanCount( 5 ) );
+            assertEquals( 4, table.greaterThanCount( 5 ) );
         }
         else
         {
-            assertEquals( 10, table.lessThanCount( "5" ) );
-            assertEquals( 10, table.greaterThanCount( "5" ) );
+            assertEquals( 10, table.lessThanCount( 5 ) );
+            assertEquals( 10, table.greaterThanCount( 5 ) );
+        }
+    }
+    
+    
+    /**
+     * Let's test keys with a null or lack of any values.
+     */
+    @Test
+    public void testNullOrEmptyKeyValue() throws Exception
+    {
+        assertEquals( 0, table.count() );
+        
+        try
+        {
+            table.put( 1, null );
+            fail( "should never get here due to IllegalArgumentException" );
+        }
+        catch( IllegalArgumentException e )
+        {
+            assertNotNull( e );
+        }
+        
+        try
+        {
+            table.put( null, 2 );
+            fail( "should never get here due to IllegalArgumentException" );
+        }
+        catch( IllegalArgumentException e )
+        {
+            assertNotNull( e );
+        }
+        
+        assertEquals( 0, table.count() );
+        assertEquals( null, table.get( 1 ) );
+        
+        // Let's add the key with a valid value and remove just the value
+        assertEquals( 0, table.count( 1 ) );
+        table.remove( 1 );
+        assertEquals( 0, table.count( 1 ) );
+        table.put( 1, 1 );
+        assertEquals( 1, table.count( 1 ) );
+        table.remove( 1, 1 );
+        assertEquals( 0, table.count( 1 ) );
+        assertNull( table.get( 1 ) );
+        assertFalse( table.has( 1 ) );
+    }
+    
+    
+    @Test
+    public void testHas() throws Exception
+    {
+        assertFalse( table.has( 1 ) );
+        final int SIZE = 15;
+        
+        for ( int ii = 0; ii < SIZE; ii++ )
+        {
+            table.put( ii, ii );
+        }
+        assertEquals( SIZE, table.count() );
+
+        assertFalse( table.has( -1 ) );
+        assertTrue( table.has( -1 , true ) );
+        assertFalse( table.has( -1 , false ) );
+        
+        assertTrue( table.has( 0 ) );
+        assertTrue( table.has( 0 , true ) );
+        assertTrue( table.has( 0 , false ) );
+        
+        assertTrue( table.has( SIZE-1 ) );
+        assertTrue( table.has( SIZE-1, true ) );
+        assertTrue( table.has( SIZE-1, false ) );
+        
+        assertFalse( table.has( SIZE ) );
+        assertFalse( table.has( SIZE, true ) );
+        assertTrue( table.has( SIZE, false ) );
+        
+        assertTrue( table.has( 1, 1, true ) );
+        assertTrue( table.has( 1, 1, false ) );
+        
+        try
+        {
+            assertTrue( table.has( 1, 2, false ) );
+            fail( "Should never get here since no dups tables " +
+            		"freak when they cannot find a value comparator" );
+        } 
+        catch ( UnsupportedOperationException e )
+        {
+            assertNotNull( e );
         }
     }
     
     
     private class MockComparatorRegistry implements ComparatorRegistry
     {
-        private StringComparator comparator = new StringComparator();
+        private Comparator comparator = new Comparator<Integer>()
+        {
+            public int compare( Integer i1, Integer i2 )
+            {
+                return i1.compareTo( i2 );
+            }
+        };
+        
 
         public String getSchemaName( String oid ) throws NamingException
         {

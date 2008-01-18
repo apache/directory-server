@@ -180,7 +180,8 @@ public interface Table<K, V>
 
 
     /**
-     * Puts a record into this Table.
+     * Puts a record into this Table.  Null is not allowed for keys or values
+     * and should result in an IllegalArgumentException.
      *
      * @param key the key of the record
      * @param value the value of the record.
@@ -188,6 +189,7 @@ public interface Table<K, V>
      * exist before.
      * @throws IOException if there is a failure to read or write to
      * the underlying Db
+     * @throws IllegalArgumentException if a null key or value is used
      */
     V put( K key, V value ) throws IOException;
 

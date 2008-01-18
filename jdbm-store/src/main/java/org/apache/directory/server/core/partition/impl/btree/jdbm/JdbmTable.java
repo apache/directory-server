@@ -267,12 +267,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         // Handle the use of a BTree for storing duplicates
         // -------------------------------------------------------------------
 
-        if ( values instanceof BTreeRedirect )
-        {
-            return getBTree( ( BTreeRedirect ) values ).size();
-        }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+        return getBTree( ( BTreeRedirect ) values ).size();
     }
 
 
@@ -308,32 +303,20 @@ public class JdbmTable<K,V> implements Table<K,V>
         {
             //noinspection unchecked
             TreeSet<V> set = ( TreeSet<V> ) values;
-            
-            if ( set.size() == 0 )
-            {
-                return null;
-            }
-            else
-            {
-                return set.first();
-            }
+            return set.first();
         }
 
-        if ( values instanceof BTreeRedirect )
-        {
-            BTree tree = getBTree( ( BTreeRedirect ) values );
-            
-            if ( tree.size() == 0 )
-            {
-                return null;
-            }
-            else
-            {
-                return firstKey( tree );
-            }
-        }
+        // Handle values if they are stored in another BTree
+        BTree tree = getBTree( ( BTreeRedirect ) values );
         
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+        if ( tree.size() == 0 )
+        {
+            return null;
+        }
+        else
+        {
+            return firstKey( tree );
+        }
     }
 
     
@@ -358,18 +341,34 @@ public class JdbmTable<K,V> implements Table<K,V>
             {
                 return true;
             }
-            // val >= val and test is for greater then return true
-            else if ( comparator.compareValue( ( V ) rval, val ) >= 1 && isGreaterThan )
-            {
-                return true;
-            }
-            // val <= val and test is for lesser then return true
-            else if ( comparator.compareValue( ( V ) rval, val ) <= 1 && !isGreaterThan )
-            {
-                return true;
-            }
-
-            return false;
+            
+            /*
+             * Any comparisons below here would require use to use a value 
+             * comparator to determine ordering.  However since this Table
+             * has duplicate keys disabled (multiple values), there is no
+             * way to set a value comparator.  Perhaps this can change but 
+             * for now this will throw an unsupported operation exception.
+             * 
+             * If a value comparator is available then the following code 
+             * below will allow us to return the correct values.
+             */
+            
+            throw new UnsupportedOperationException( "Unfortunately this Table without duplicates enabled " +
+            		"does not contain a value comparator which is needed to answer your ordering question." );
+            
+//            // val >= val and test is for greater then return true
+//            else if ( comparator.compareValue( ( V ) rval, val ) >= 1 && isGreaterThan )
+//            {
+//                return true;
+//            }
+//            // val <= val and test is for lesser then return true
+//            else if ( comparator.compareValue( ( V ) rval, val ) <= 1 && !isGreaterThan )
+//            {
+//                return true;
+//            }
+//
+//            return false;
+            
         }
 
         Object values = getRaw( key );
@@ -384,11 +383,6 @@ public class JdbmTable<K,V> implements Table<K,V>
             TreeSet set = ( TreeSet ) values;
             SortedSet subset;
     
-            if ( set.size() == 0 )
-            {
-                return false;
-            }
-    
             if ( isGreaterThan )
             {
                 subset = set.tailSet( val );
@@ -401,13 +395,9 @@ public class JdbmTable<K,V> implements Table<K,V>
             return subset.size() > 0 || set.contains( val );
         }
         
-        if ( values instanceof BTreeRedirect )
-        {
-            BTree tree = getBTree( ( BTreeRedirect ) values );
-            return tree.size() != 0 && btreeHas( tree, val, isGreaterThan );
-        }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+        // last option is to try a btree with BTreeRedirects
+        BTree tree = getBTree( ( BTreeRedirect ) values );
+        return tree.size() != 0 && btreeHas( tree, val, isGreaterThan );
     }
     
 
@@ -520,12 +510,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             return ( ( TreeSet ) values ).contains( value );
         }
         
-        if ( values instanceof BTreeRedirect )
-        {
-            return btreeHas( getBTree( ( BTreeRedirect ) values ), value );
-        }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+        return btreeHas( getBTree( ( BTreeRedirect ) values ), value );
     }
     
 
@@ -545,6 +530,11 @@ public class JdbmTable<K,V> implements Table<K,V>
     @SuppressWarnings("unchecked")
     public V put( K key, V value ) throws IOException
     {
+        if ( value == null || key == null )
+        {
+            throw new IllegalArgumentException( "null for key or value is not valid" );
+        }
+        
         V replaced;
 
         if ( ! allowsDuplicates )
@@ -596,18 +586,13 @@ public class JdbmTable<K,V> implements Table<K,V>
             return null;
         }
         
-        if ( values instanceof BTreeRedirect )
-        {
-            BTree tree = getBTree( ( BTreeRedirect ) values );
-            
-            if ( value != null insertDupIntoBTree( tree, value ) )
-            {
-                count++;
-            }
-            return null;
-        }
+        BTree tree = getBTree( ( BTreeRedirect ) values );
         
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+        if ( insertDupIntoBTree( tree, value ) )
+        {
+            count++;
+        }
+        return null;
     }
     
 
@@ -624,6 +609,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             // Remove the value only if it is the same as value.
             if ( oldValue != null && oldValue.equals( value ) )
             {
+                bt.remove( key );
                 count--;
                 return oldValue;
             }
@@ -645,7 +631,14 @@ public class JdbmTable<K,V> implements Table<K,V>
             // If removal succeeds then remove if set is empty else replace it
             if ( set.remove( value ) )
             {
-                bt.insert( key, set, true );
+                if ( set.isEmpty() )
+                {
+                    bt.remove( key );
+                }
+                else
+                {
+                    bt.insert( key, set, true );
+                }
                 count--;
                 return value;
             }
@@ -655,24 +648,18 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         // TODO might be nice to add code here that reverts to a TreeSet
         // if the number of duplicates falls below the numDupLimit value
-        if ( values instanceof BTreeRedirect )
+        BTree tree = getBTree( ( BTreeRedirect ) values );
+        if ( removeDupFromBTree( tree, value ) )
         {
-            BTree tree = getBTree( ( BTreeRedirect ) values );
-            
-            if ( removeDupFromBTree( tree, value ) )
+            if ( tree.size() == 0 )
             {
-                if ( tree.size() == 0 )
-                {
-                }
-                
-                count--;
-                return value;
             }
             
-            return null;
+            count--;
+            return value;
         }
         
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+        return null;
     }
 
 
@@ -703,14 +690,9 @@ public class JdbmTable<K,V> implements Table<K,V>
             return set.first();
         }
         
-        if ( returned instanceof BTreeRedirect )
-        {
-            BTree tree = getBTree( ( BTreeRedirect ) returned );
-            this.count -= tree.size();
-            return removeAll( tree );
-        }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+        BTree tree = getBTree( ( BTreeRedirect ) returned );
+        this.count -= tree.size();
+        return removeAll( tree );
     }
 
 
