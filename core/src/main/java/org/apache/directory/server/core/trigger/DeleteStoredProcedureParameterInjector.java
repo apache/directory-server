@@ -24,8 +24,9 @@ package org.apache.directory.server.core.trigger;
 import java.util.Map;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
@@ -37,7 +38,7 @@ import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 public class DeleteStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private LdapDN deletedEntryName;
-    private Attributes deletedEntry;
+    private ServerEntry deletedEntry;
     
     public DeleteStoredProcedureParameterInjector( Registries registries, Invocation invocation, LdapDN deletedEntryName ) throws NamingException
     {
@@ -66,14 +67,18 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         }
     };
     
-    private Attributes getDeletedEntry( Registries registries ) throws NamingException
+    private ServerEntry getDeletedEntry( Registries registries ) throws NamingException
     {
         PartitionNexusProxy proxy = getInvocation().getProxy();
         /**
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
          * especially subentry related ones like "triggerExecutionSubentries".
          */
-        Attributes deletedEntry = proxy.lookup( new LookupOperationContext( registries, deletedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        ServerEntry deletedEntry = ServerEntryUtils.toServerEntry( 
+            proxy.lookup( new LookupOperationContext( registries, deletedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS ),
+            deletedEntryName,
+            registries );
+        
         return deletedEntry;
     }
 }

@@ -25,9 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -41,7 +42,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
 {
     private LdapDN modifiedEntryName;
     private List<ModificationItemImpl> modifications;
-    private Attributes oldEntry;
+    private ServerEntry oldEntry;
     
     
     public ModifyStoredProcedureParameterInjector( Invocation invocation, ModifyOperationContext opContext ) throws NamingException
@@ -104,14 +105,17 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         }
     };
     
-    private Attributes getEntry( Registries registries ) throws NamingException
+    private ServerEntry getEntry( Registries registries ) throws NamingException
     {
         PartitionNexusProxy proxy = getInvocation().getProxy();
         /**
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
          * especially subentry related ones like "triggerExecutionSubentries".
          */
-        return proxy.lookup( new LookupOperationContext( registries, modifiedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        return ServerEntryUtils.toServerEntry( 
+            proxy.lookup( new LookupOperationContext( registries, modifiedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS ),
+            modifiedEntryName,
+            registries );
     }
 
 }

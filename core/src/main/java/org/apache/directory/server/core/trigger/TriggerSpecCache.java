@@ -22,6 +22,10 @@ package org.apache.directory.server.core.trigger;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -42,8 +46,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.text.ParseException;
@@ -120,8 +122,9 @@ public class TriggerSpecCache
             while ( results.hasMore() )
             {
                 SearchResult result = results.next();
-                String subentryDn = result.getName();
-                Attribute triggerSpec = result.getAttributes().get( PRESCRIPTIVE_TRIGGER_ATTR );
+                LdapDN subentryDn = new LdapDN( result.getName() );
+                ServerEntry resultEntry = ServerEntryUtils.toServerEntry( result.getAttributes(), subentryDn, registries );
+                ServerAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
                 
                 if ( triggerSpec == null )
                 {
@@ -129,9 +132,8 @@ public class TriggerSpecCache
                     continue;
                 }
 
-                LdapDN normSubentryName = new LdapDN( subentryDn );
-                normSubentryName.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-                subentryAdded( normSubentryName, result.getAttributes() );
+                LdapDN normSubentryName = subentryDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+                subentryAdded( normSubentryName, resultEntry );
             }
             
             results.close();
@@ -139,19 +141,19 @@ public class TriggerSpecCache
     }
 
 
-    private boolean hasPrescriptiveTrigger( Attributes entry )
+    private boolean hasPrescriptiveTrigger( ServerEntry entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveTrigger
-        Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+        ServerAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
 
         return triggerSpec != null;
     }
 
 
-    public void subentryAdded( LdapDN normName, Attributes entry ) throws NamingException
+    public void subentryAdded( LdapDN normName, ServerEntry entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveTrigger
-        Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+        ServerAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
         
         if ( triggerSpec == null )
         {
@@ -160,13 +162,13 @@ public class TriggerSpecCache
         
         List<TriggerSpecification> subentryTriggerSpecs = new ArrayList<TriggerSpecification>();
         
-        for ( int ii = 0; ii < triggerSpec.size(); ii++ )
+        for ( ServerValue<?> value:triggerSpec )
         {
             TriggerSpecification item = null;
 
             try
             {
-                item = triggerSpecParser.parse( ( String ) triggerSpec.get( ii ) );
+                item = triggerSpecParser.parse( ( String ) value.get() );
                 subentryTriggerSpecs.add( item );
             }
             catch ( ParseException e )
@@ -181,7 +183,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryDeleted( LdapDN normName, Attributes entry )
+    public void subentryDeleted( LdapDN normName, ServerEntry entry ) throws NamingException
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
@@ -192,7 +194,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( ModifyOperationContext opContext, Attributes entry ) throws NamingException
+    public void subentryModified( ModifyOperationContext opContext, ServerEntry entry ) throws NamingException
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {

@@ -25,6 +25,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -62,8 +63,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -123,7 +122,7 @@ public class TriggerInterceptor extends BaseInterceptor
      * @param proxy the partition nexus proxy 
      */
     private void addPrescriptiveTriggerSpecs( List<TriggerSpecification> triggerSpecs, PartitionNexusProxy proxy,
-        LdapDN dn, Attributes entry ) throws NamingException
+        LdapDN dn, ServerEntry entry ) throws NamingException
     {
         
         /*
@@ -135,21 +134,26 @@ public class TriggerInterceptor extends BaseInterceptor
          * to be in the same naming context as their access point so the subentries
          * effecting their parent entry applies to them as well.
          */
-        if ( entry.get( SchemaConstants.OBJECT_CLASS_AT ).contains( SchemaConstants.SUBENTRY_OC ) )
+        if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
             LdapDN parentDn = ( LdapDN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
-            entry = proxy.lookup( new LookupOperationContext( registries, parentDn ), PartitionNexusProxy.LOOKUP_BYPASS );
+            entry = ServerEntryUtils.toServerEntry( 
+                proxy.lookup( new LookupOperationContext( registries, parentDn ), PartitionNexusProxy.LOOKUP_BYPASS ),
+                parentDn,
+                registries );
         }
 
-        Attribute subentries = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+        ServerAttribute subentries = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+        
         if ( subentries == null )
         {
             return;
         }
-        for ( int ii = 0; ii < subentries.size(); ii++ )
+        
+        for ( ServerValue<?> value:subentries )
         {
-            String subentryDn = ( String ) subentries.get( ii );
+            String subentryDn = ( String ) value.get();
             triggerSpecs.addAll( triggerSpecCache.getSubentryTriggerSpecs( subentryDn ) );
         }
     }
@@ -163,17 +167,18 @@ public class TriggerInterceptor extends BaseInterceptor
      * @param entry the target entry that is considered as the trigger source
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addEntryTriggerSpecs( List<TriggerSpecification> triggerSpecs, Attributes entry ) throws NamingException
+    private void addEntryTriggerSpecs( List<TriggerSpecification> triggerSpecs, ServerEntry entry ) throws NamingException
     {
-        Attribute entryTrigger = entry.get( ENTRY_TRIGGER_ATTR );
+        ServerAttribute entryTrigger = entry.get( ENTRY_TRIGGER_ATTR );
+        
         if ( entryTrigger == null )
         {
             return;
         }
 
-        for ( int ii = 0; ii < entryTrigger.size(); ii++ )
+        for ( ServerValue<?> value:entryTrigger )
         {
-            String triggerString = ( String ) entryTrigger.get( ii );
+            String triggerString = ( String ) value.get();
             TriggerSpecification item;
 
             try
@@ -261,7 +266,7 @@ public class TriggerInterceptor extends BaseInterceptor
     public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
     {
     	LdapDN name = addContext.getDn();
-    	Attributes entry = ServerEntryUtils.toAttributesImpl( addContext.getEntry() );
+    	ServerEntry entry = addContext.getEntry();
     	
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -308,7 +313,11 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes deletedEntry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
+        ServerEntry deletedEntry = ServerEntryUtils.toServerEntry( 
+            proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS ),
+            name,
+            registries );
+        
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( registries, invocation, name );
 
@@ -341,7 +350,11 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( registries, normName ), PartitionNexusProxy.LOOKUP_BYPASS );
+        ServerEntry modifiedEntry = ServerEntryUtils.toServerEntry( 
+            proxy.lookup( new LookupOperationContext( registries, normName ), PartitionNexusProxy.LOOKUP_BYPASS ),
+            normName,
+            registries );
+        
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, opContext );
 
@@ -377,7 +390,11 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes renamedEntry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
+        ServerEntry renamedEntry = ServerEntryUtils.toServerEntry( 
+            proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS ),
+            name,
+            registries );
+        
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( name.getRdn().getUpName() );
@@ -423,7 +440,11 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes movedEntry = proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
+        ServerEntry movedEntry = ServerEntryUtils.toServerEntry( 
+            proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS ),
+            oriChildName,
+            registries );
+        
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
@@ -468,7 +489,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather Trigger Specifications which apply to the entry being imported.
         // Note: Entry Trigger Specifications are not valid for Import.
         List<TriggerSpecification> importTriggerSpecs = new ArrayList<TriggerSpecification>();
-        addPrescriptiveTriggerSpecs( importTriggerSpecs, proxy, newDN, ServerEntryUtils.toAttributesImpl( fakeImportedEntry ) );
+        addPrescriptiveTriggerSpecs( importTriggerSpecs, proxy, newDN, fakeImportedEntry );
         
         Map<ActionTime, List<TriggerSpecification>> exportTriggerMap = getActionTimeMappedTriggerSpecsForOperation( exportTriggerSpecs, LdapOperation.MODIFYDN_EXPORT );
         
@@ -500,7 +521,11 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes movedEntry = proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
+        ServerEntry movedEntry = ServerEntryUtils.toServerEntry( 
+            proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS ),
+            oriChildName,
+            registries );
+        
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
@@ -546,7 +571,7 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather Trigger Specifications which apply to the entry being imported.
         // Note: Entry Trigger Specifications are not valid for Import.
         List<TriggerSpecification> importTriggerSpecs = new ArrayList<TriggerSpecification>();
-        addPrescriptiveTriggerSpecs( importTriggerSpecs, proxy, newDN, ServerEntryUtils.toAttributesImpl( fakeImportedEntry ) );
+        addPrescriptiveTriggerSpecs( importTriggerSpecs, proxy, newDN, fakeImportedEntry );
         
         Map<ActionTime, List<TriggerSpecification>> exportTriggerMap = getActionTimeMappedTriggerSpecsForOperation( exportTriggerSpecs, LdapOperation.MODIFYDN_EXPORT );
         
@@ -612,12 +637,13 @@ public class TriggerInterceptor extends BaseInterceptor
         
         try
         {
-            Attributes spUnit = manager.findStoredProcUnit( ctx, procedure );
+            ServerEntry spUnit = manager.findStoredProcUnit( ctx, procedure, registries );
             StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
             return engine.invokeProcedure( ctx, procedure, values );
         }
         catch ( NamingException e )
         {
+            e.printStackTrace();
             LdapNamingException lne = new LdapNamingException( ResultCodeEnum.OTHER );
             lne.setRootCause( e );
             throw lne;
