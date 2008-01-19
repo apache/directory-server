@@ -19,9 +19,6 @@
 package org.apache.directory.server.core.cursor;
 
 
-import java.io.IOException;
-
-
 /**
  * Thrown to indicate a condition in the Cursor where the state seems
  * inconsistent based on internal accounting.  This may indicate the
@@ -30,7 +27,7 @@ import java.io.IOException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class InconsistentCursorStateException extends IOException
+public class InconsistentCursorStateException extends Exception
 {
     public InconsistentCursorStateException()
     {

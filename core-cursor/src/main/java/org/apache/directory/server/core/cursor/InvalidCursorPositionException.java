@@ -18,8 +18,6 @@
  */
 package org.apache.directory.server.core.cursor;
 
-import java.io.IOException;
-
 
 /**
  * Thrown to indicate an illegal position state for a Cursor when a call to
@@ -28,7 +26,7 @@ import java.io.IOException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class InvalidCursorPositionException extends IOException
+public class InvalidCursorPositionException extends Exception
 {
     public InvalidCursorPositionException ()
     {

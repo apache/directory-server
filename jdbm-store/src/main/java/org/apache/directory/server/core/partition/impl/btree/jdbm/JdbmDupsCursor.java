@@ -9,7 +9,6 @@ import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.shared.ldap.NotImplementedException;
 
-import java.io.IOException;
 import java.util.*;
 
 
@@ -68,7 +67,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     private boolean valueAvailable;
 
 
-    public JdbmDupsCursor( JdbmTable<K,V> table ) throws IOException
+    public JdbmDupsCursor( JdbmTable<K,V> table ) throws Exception
     {
         this.table = table;
         this.noDupsCursor = new JdbmNoDupsCursor<K,V>( table );
@@ -81,31 +80,31 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     }
 
 
-    public void before( Tuple element ) throws IOException
+    public void before( Tuple element ) throws Exception
     {
         throw new NotImplementedException();
     }
 
 
-    public void after(Tuple element) throws IOException
+    public void after(Tuple element) throws Exception
     {
         throw new NotImplementedException();
     }
 
 
-    public void beforeFirst() throws IOException
+    public void beforeFirst() throws Exception
     {
         throw new NotImplementedException();
     }
 
 
-    public void afterLast() throws IOException
+    public void afterLast() throws Exception
     {
         throw new NotImplementedException();
     }
 
 
-    public boolean first() throws IOException
+    public boolean first() throws Exception
     {
         throw new NotImplementedException();
     }
@@ -119,7 +118,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     }
 
 
-    public boolean last() throws IOException
+    public boolean last() throws Exception
     {
         if ( noDupsCursor.last() )
         {
@@ -168,7 +167,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     }
 
 
-    public boolean previous() throws IOException
+    public boolean previous() throws Exception
     {
         /*
          * If the iterator over the values of the current key is null or is
@@ -222,7 +221,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     }
 
 
-    public boolean next() throws IOException
+    public boolean next() throws Exception
     {
         /*
          * If the iterator over the values of the current key is null or is
@@ -275,7 +274,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     }
 
 
-    public Tuple<K,V> get() throws IOException
+    public Tuple<K,V> get() throws Exception
     {
         checkClosed( "get()" );
 

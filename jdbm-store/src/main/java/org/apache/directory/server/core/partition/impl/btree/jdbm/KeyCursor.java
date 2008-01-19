@@ -25,10 +25,7 @@ import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Comparator;
 
 
@@ -41,7 +38,6 @@ import java.util.Comparator;
  */
 public class KeyCursor<E> extends AbstractCursor<E>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( KeyCursor.class );
     private final Tuple tuple = new Tuple();
 
     private final BTree btree;
@@ -55,9 +51,9 @@ public class KeyCursor<E> extends AbstractCursor<E>
      *
      * @param btree the JDBM BTree to build a Cursor over
      * @param comparator the Comparator used to determine key ordering
-     * @throws IOException of there are problems accessing the BTree
+     * @throws Exception of there are problems accessing the BTree
      */
-    public KeyCursor( BTree btree, Comparator<E> comparator ) throws IOException
+    public KeyCursor( BTree btree, Comparator<E> comparator ) throws Exception
     {
         this.btree = btree;
         this.comparator = comparator;
@@ -78,14 +74,14 @@ public class KeyCursor<E> extends AbstractCursor<E>
     }
 
 
-    public void before( E element ) throws IOException
+    public void before( E element ) throws Exception
     {
         browser = btree.browse( element );
         clearValue();
     }
 
 
-    public void after( E element ) throws IOException
+    public void after( E element ) throws Exception
     {
         browser = btree.browse( element );
 
@@ -125,34 +121,34 @@ public class KeyCursor<E> extends AbstractCursor<E>
     }
 
 
-    public void beforeFirst() throws IOException
+    public void beforeFirst() throws Exception
     {
         browser = btree.browse();
         clearValue();
     }
 
 
-    public void afterLast() throws IOException
+    public void afterLast() throws Exception
     {
         browser = btree.browse( null );
     }
 
 
-    public boolean first() throws IOException
+    public boolean first() throws Exception
     {
         beforeFirst();
         return next();
     }
 
 
-    public boolean last() throws IOException
+    public boolean last() throws Exception
     {
         afterLast();
         return previous();
     }
 
 
-    public boolean previous() throws IOException
+    public boolean previous() throws Exception
     {
         if ( browser == null )
         {
@@ -171,7 +167,7 @@ public class KeyCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean next() throws IOException
+    public boolean next() throws Exception
     {
         if ( browser == null )
         {
@@ -190,7 +186,7 @@ public class KeyCursor<E> extends AbstractCursor<E>
     }
 
 
-    public E get() throws IOException
+    public E get() throws Exception
     {
         if ( valueAvailable )
         {

@@ -119,7 +119,7 @@ public class JdbmIndex<K> implements Index<K>
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
-    // ------------------------------------------------------------------------
+    // ----------------------------------------------------------------------
 
 
     public JdbmIndex()
@@ -362,7 +362,7 @@ public class JdbmIndex<K> implements Index<K>
     
     
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Index#count(java.lang.Object, boolean)
+     * @see org.apache.directory.server.core.partition.impl.btree.Index#lessThanCount(java.lang.Object)
      */
     public int lessThanCount( K attrVal ) throws IOException
     {
@@ -378,7 +378,7 @@ public class JdbmIndex<K> implements Index<K>
     /**
      * @see Index#forwardLookup(java.lang.Object)
      */
-    public Long forwardLookup( K attrVal ) throws IOException
+    public Long forwardLookup( K attrVal ) throws Exception
     {
         return forward.get( getNormalized( attrVal ) );
     }
@@ -387,7 +387,7 @@ public class JdbmIndex<K> implements Index<K>
     /**
      * @see Index#reverseLookup(Long)
      */
-    public K reverseLookup( Long id ) throws IOException
+    public K reverseLookup( Long id ) throws Exception
     {
         return reverse.get( id );
     }
@@ -421,7 +421,7 @@ public class JdbmIndex<K> implements Index<K>
     /**
      * @see Index#drop(Long)
      */
-    public void drop( Long id ) throws IOException
+    public void drop( Long id ) throws Exception
     {
         Cursor<Tuple<Long,K>> values = reverse.cursor();
         Tuple<Long,K> tuple = new Tuple<Long,K>( id, null );
@@ -441,7 +441,7 @@ public class JdbmIndex<K> implements Index<K>
     // ------------------------------------------------------------------------
 
 
-    public Cursor<IndexRecord> reverseCursor() throws IOException
+    public Cursor<IndexRecord> reverseCursor() throws Exception
     {
         throw new NotImplementedException();
     }

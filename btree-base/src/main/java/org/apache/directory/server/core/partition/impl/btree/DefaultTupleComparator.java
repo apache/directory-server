@@ -42,13 +42,13 @@ public class DefaultTupleComparator<K,V> implements TupleComparator<K,V>
     }
 
 
-    public SerializableComparator getKeyComparator()
+    public SerializableComparator<K> getKeyComparator()
     {
         return keyComparator;
     }
 
 
-    public SerializableComparator getValueComparator()
+    public SerializableComparator<V> getValueComparator()
     {
         return valueComparator;
     }

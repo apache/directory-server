@@ -236,7 +236,7 @@ public class ListCursorTest extends TestCase
         {
             assertEquals( msg, expected, cursor.isClosed() );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             fail( "cursor.isClosed() test should not fail after closing the cursor" );
         }
@@ -245,7 +245,7 @@ public class ListCursorTest extends TestCase
         {
             cursor.close();
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             fail( "cursor.close() after closing the cursor should not fail with exceptions" );
         }
@@ -256,7 +256,7 @@ public class ListCursorTest extends TestCase
             cursor.afterLast();
             fail( "cursor.afterLast() after closing the cursor should fail with an IOException" );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             assertNotNull( e );
         }
@@ -266,7 +266,7 @@ public class ListCursorTest extends TestCase
             cursor.beforeFirst();
             fail( "cursor.beforeFirst() after closing the cursor should fail with an IOException" );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             assertNotNull( e );
         }
@@ -276,7 +276,7 @@ public class ListCursorTest extends TestCase
             cursor.first();
             fail( "cursor.first() after closing the cursor should fail with an IOException" );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             assertNotNull( e );
         }
@@ -286,7 +286,7 @@ public class ListCursorTest extends TestCase
             cursor.get();
             fail( "cursor.get() after closing the cursor should fail with an IOException" );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             assertNotNull( e );
         }
@@ -296,7 +296,7 @@ public class ListCursorTest extends TestCase
             cursor.last();
             fail( "cursor.last() after closing the cursor should fail with an IOException" );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             assertNotNull( e );
         }
@@ -306,7 +306,7 @@ public class ListCursorTest extends TestCase
             cursor.next();
             fail( "cursor.next() after closing the cursor should fail with an IOException" );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             assertNotNull( e );
         }
@@ -316,7 +316,7 @@ public class ListCursorTest extends TestCase
             cursor.previous();
             fail( "cursor.previous() after closing the cursor should fail with an IOException" );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             assertNotNull( e );
         }

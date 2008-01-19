@@ -19,8 +19,6 @@
 package org.apache.directory.server.core.cursor;
 
 
-import org.apache.directory.shared.ldap.NotImplementedException;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -197,7 +195,7 @@ public class ListCursor<E> extends AbstractCursor<E>
      * @throws IllegalStateException if the underlying list is not sorted
      * and/or a comparator is not provided.
      */
-    public void before( E element ) throws IOException
+    public void before( E element ) throws Exception
     {
         checkClosed( "before()" );
 
@@ -223,11 +221,12 @@ public class ListCursor<E> extends AbstractCursor<E>
             }
         }
 
-        throw new NotImplementedException( "don't know if list is sorted and checking that is not worth it" );
+        // TODO might want to add some code here to utilize the comparator
+        throw new UnsupportedOperationException( "don't know if list is sorted and checking that is not worth it" );
     }
 
 
-    public void after( E element ) throws IOException
+    public void after( E element ) throws Exception
     {
         checkClosed( "after()" );
 
@@ -253,25 +252,26 @@ public class ListCursor<E> extends AbstractCursor<E>
             }
         }
 
-        throw new NotImplementedException( "don't know if list is sorted and checking that is not worth it" );
+        // TODO might want to add some code here to utilize the comparator
+        throw new UnsupportedOperationException( "don't know if list is sorted and checking that is not worth it" );
     }
 
 
-    public void beforeFirst() throws IOException
+    public void beforeFirst() throws Exception
     {
         checkClosed( "beforeFirst()" );
         this.index = -1;
     }
 
 
-    public void afterLast() throws IOException
+    public void afterLast() throws Exception
     {
         checkClosed( "afterLast()" );
         this.index = end;
     }
 
 
-    public boolean first() throws IOException
+    public boolean first() throws Exception
     {
         checkClosed( "first()" );
 
@@ -285,7 +285,7 @@ public class ListCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean last() throws IOException
+    public boolean last() throws Exception
     {
         checkClosed( "last()" );
 
@@ -299,36 +299,35 @@ public class ListCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean isFirst() throws IOException
+    public boolean isFirst() throws Exception
     {
         checkClosed( "isFirst()" );
         return list.size() > 0 && index == start;
     }
 
 
-    public boolean isLast() throws IOException
+    public boolean isLast() throws Exception
     {
         checkClosed( "isLast()" );
         return list.size() > 0 && index == end - 1;
-
     }
 
 
-    public boolean isAfterLast() throws IOException
+    public boolean isAfterLast() throws Exception
     {
         checkClosed( "isAfterLast()" );
         return index == end;
     }
 
 
-    public boolean isBeforeFirst() throws IOException
+    public boolean isBeforeFirst() throws Exception
     {
         checkClosed( "isBeforeFirst()" );
         return index == -1;
     }
 
 
-    public boolean previous() throws IOException
+    public boolean previous() throws Exception
     {
         checkClosed( "previous()" );
 
@@ -361,7 +360,7 @@ public class ListCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean next() throws IOException
+    public boolean next() throws Exception
     {
         checkClosed( "next()" );
 
@@ -395,7 +394,7 @@ public class ListCursor<E> extends AbstractCursor<E>
     }
 
 
-    public E get() throws IOException
+    public E get() throws Exception
     {
         checkClosed( "get()" );
         if ( index < start || index >= end )

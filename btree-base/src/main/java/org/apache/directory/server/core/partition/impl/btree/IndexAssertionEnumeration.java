@@ -160,36 +160,45 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexRecord>
             rec = underlying.next();
 
             // If value is valid then we set it as the next candidate to return
-            if ( assertion.assertCandidate( rec ) )
+            try
             {
-                if ( checkDups )
+                if ( assertion.assertCandidate( rec ) )
                 {
-                    boolean dup = candidates.containsKey( rec.getEntryId() );
+                    if ( checkDups )
+                    {
+                        boolean dup = candidates.containsKey( rec.getEntryId() );
 
-                    if ( dup )
-                    {
-                        /*
-                         * Dup checking is on and candidate is a duplicate that
-                         * has already been seen so we need to skip it.
-                         */
-                        continue;
+                        if ( dup )
+                        {
+                            /*
+                             * Dup checking is on and candidate is a duplicate that
+                             * has already been seen so we need to skip it.
+                             */
+                            continue;
+                        }
+                        else
+                        {
+                            /*
+                             * Dup checking is on and the candidate is not in the
+                             * dup LUT so we need to set it as the next to return
+                             * and add it to the LUT in case we encounter it another
+                             * time.
+                             */
+                            prefetched.copy( rec );
+                            candidates.put( rec.getEntryId(), rec.getEntryId() );
+                            return;
+                        }
                     }
-                    else
-                    {
-                        /*
-                         * Dup checking is on and the candidate is not in the 
-                         * dup LUT so we need to set it as the next to return 
-                         * and add it to the LUT in case we encounter it another
-                         * time.
-                         */
-                        prefetched.copy( rec );
-                        candidates.put( rec.getEntryId(), rec.getEntryId() );
-                        return;
-                    }
+
+                    prefetched.copy( rec );
+                    return;
                 }
-
-                prefetched.copy( rec );
-                return;
+            }
+            catch ( Exception e )
+            {
+                NamingException ne = new NamingException();
+                ne.setRootCause( e );
+                throw ne;
             }
         }
 

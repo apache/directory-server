@@ -18,7 +18,7 @@
  */
 package org.apache.directory.server.core.cursor;
 
-import java.io.IOException;
+
 import java.util.Iterator;
 
 
@@ -46,49 +46,49 @@ public class IteratorCursor<E> extends AbstractCursor<E>
     }
     
 
-    public void before( E element ) throws IOException
+    public void before( E element )
     {
         throw new UnsupportedOperationException( "Cannot advance before an element on the underlying Iterator." );
     }
 
 
-    public void after( E element ) throws IOException
+    public void after( E element )
     {
         throw new UnsupportedOperationException( "Cannot advance after an element on the underlying Iterator." );
     }
 
 
-    public void beforeFirst() throws IOException
+    public void beforeFirst()
     {
         throw new UnsupportedOperationException( "Cannot advance before first on the underlying Iterator." );
     }
 
 
-    public void afterLast() throws IOException
+    public void afterLast()
     {
         throw new UnsupportedOperationException( "Cannot adanvce after last on the underlying Iterator." );
     }
 
 
-    public boolean first() throws IOException
+    public boolean first()
     {
         throw new UnsupportedOperationException( "Cannot advance to first position on the underlying Iterator." );
     }
 
 
-    public boolean last() throws IOException
+    public boolean last()
     {
         throw new UnsupportedOperationException( "Cannot advance to last position on the underlying Iterator." );
     }
 
 
-    public boolean previous() throws IOException
+    public boolean previous()
     {
         throw new UnsupportedOperationException( "Cannot back up on the underlying Iterator." );
     }
 
 
-    public boolean next() throws IOException
+    public boolean next() throws CursorClosedException
     {
         checkClosed( "next()" );
         if ( values.hasNext() )
@@ -101,7 +101,7 @@ public class IteratorCursor<E> extends AbstractCursor<E>
     }
 
 
-    public E get() throws IOException
+    public E get() throws CursorClosedException
     {
         checkClosed( "get()" );
         return current;

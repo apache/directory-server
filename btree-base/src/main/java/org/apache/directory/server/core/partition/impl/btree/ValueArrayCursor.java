@@ -24,7 +24,6 @@ import org.apache.directory.server.core.cursor.CursorClosedException;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,19 +34,19 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ValueArrayCursor implements Cursor<Tuple>
+public class ValueArrayCursor<K,V> implements Cursor<Tuple>
 {
     private static final int BEFORE_FIRST = -1;
 
-    private final Object key;
-    private final List<Object> values;
-    private final Tuple tuple = new Tuple();
+    private final K key;
+    private final List<V> values;
+    private final Tuple<K,V> tuple = new Tuple<K,V>();
 
     private boolean closed;
     private int pos = BEFORE_FIRST;
 
 
-    public ValueArrayCursor( final Object key, final Object[] values )
+    public ValueArrayCursor( final K key, final V[] values )
     {
         this.key = key;
         this.tuple.setKey( key );
@@ -55,7 +54,7 @@ public class ValueArrayCursor implements Cursor<Tuple>
     }
 
 
-    public ValueArrayCursor( final Object key, final List<Object> values )
+    public ValueArrayCursor( final K key, final List<V> values )
     {
         this.key = key;
         this.tuple.setKey( key );
@@ -63,7 +62,7 @@ public class ValueArrayCursor implements Cursor<Tuple>
     }
 
 
-    protected void checkClosed( String operation ) throws IOException
+    protected void checkClosed( String operation ) throws Exception
     {
         if ( closed )
         {
@@ -79,33 +78,33 @@ public class ValueArrayCursor implements Cursor<Tuple>
     }
 
 
-    public void before( Tuple element ) throws IOException
+    public void before( Tuple element ) throws Exception
     {
         throw new NotImplementedException();
     }
 
 
-    public void after( Tuple element ) throws IOException
+    public void after( Tuple element ) throws Exception
     {
         throw new NotImplementedException();
     }
 
 
-    public void beforeFirst() throws IOException
+    public void beforeFirst() throws Exception
     {
         checkClosed( "beforeFirst()" );
         pos = BEFORE_FIRST;
     }
 
 
-    public void afterLast() throws IOException
+    public void afterLast() throws Exception
     {
         checkClosed( "afterLast()" );
         pos = values.size();
     }
 
 
-    public boolean absolute( int absolutePosition ) throws IOException
+    public boolean absolute( int absolutePosition ) throws Exception
     {
         checkClosed( "absolute()" );
         if ( absolutePosition >= values.size() )
@@ -125,7 +124,7 @@ public class ValueArrayCursor implements Cursor<Tuple>
     }
 
 
-    public boolean relative( int relativePosition ) throws IOException
+    public boolean relative( int relativePosition ) throws Exception
     {
         checkClosed( "relative()" );
         if ( ( relativePosition + pos ) >= values.size() )
@@ -145,7 +144,7 @@ public class ValueArrayCursor implements Cursor<Tuple>
     }
 
 
-    public boolean first() throws IOException
+    public boolean first() throws Exception
     {
         checkClosed( "first()" );
         pos = 0;
@@ -153,7 +152,7 @@ public class ValueArrayCursor implements Cursor<Tuple>
     }
 
 
-    public boolean last() throws IOException
+    public boolean last() throws Exception
     {
         checkClosed( "last()" );
         pos = values.size() - 1;
@@ -161,41 +160,41 @@ public class ValueArrayCursor implements Cursor<Tuple>
     }
 
 
-    public boolean isFirst() throws IOException
+    public boolean isFirst() throws Exception
     {
         checkClosed( "isFirst()" );
         return pos == 0;
     }
 
 
-    public boolean isLast() throws IOException
+    public boolean isLast() throws Exception
     {
         checkClosed( "isLast()" );
         return pos == values.size() - 1;
     }
 
 
-    public boolean isAfterLast() throws IOException
+    public boolean isAfterLast() throws Exception
     {
         checkClosed( "isAfterLast()" );
         return pos == values.size();
     }
 
 
-    public boolean isBeforeFirst() throws IOException
+    public boolean isBeforeFirst() throws Exception
     {
         checkClosed( "isBeforeFirst()" );
         return pos == BEFORE_FIRST;
     }
 
 
-    public boolean isClosed() throws IOException
+    public boolean isClosed() throws Exception
     {
         return closed;
     }
 
 
-    public boolean previous() throws IOException
+    public boolean previous() throws Exception
     {
         checkClosed( "previous()" );
         if ( pos <= BEFORE_FIRST )
@@ -214,7 +213,7 @@ public class ValueArrayCursor implements Cursor<Tuple>
     }
 
 
-    public boolean next() throws IOException
+    public boolean next() throws Exception
     {
         checkClosed( "next()" );
         if ( pos >= values.size() )
@@ -227,7 +226,7 @@ public class ValueArrayCursor implements Cursor<Tuple>
     }
 
 
-    public Tuple get() throws IOException
+    public Tuple get() throws Exception
     {
         checkClosed( "get()" );
         if ( inRangeOnValue() )
@@ -246,7 +245,7 @@ public class ValueArrayCursor implements Cursor<Tuple>
     }
 
 
-    public void close() throws IOException
+    public void close() throws Exception
     {
         closed = true;
     }

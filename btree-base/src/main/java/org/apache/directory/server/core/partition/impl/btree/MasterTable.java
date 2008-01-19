@@ -20,20 +20,15 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import java.io.IOException;
-
-
 /**
- * The master table used to store the Attributes of entries.
+ * A master table used to store indexible entries.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface MasterTable extends Table
+public interface MasterTable<E> extends Table<Long, E>
 {
-    /** the name of the dbf file for this table */
+    /** the base name for the db file for this table */
     String DBF = "master";
 
     /** the sequence key - stores last sequence value in the admin table */
@@ -41,76 +36,74 @@ public interface MasterTable extends Table
 
 
     /**
-     * Gets the Attributes of an entry from this MasterTable.
+     * Gets an entry from this MasterTable.
      *
      * @param id the BigInteger id of the entry to retrieve.
-     * @return the Attributes of the entry with operational attributes and all.
-     * @throws NamingException if there is a read error on the underlying Db.
+     * @return the entry with operational attributes and all.
+     * @throws Exception if there is a read error on the underlying Db.
      */
-    Attributes get( Object id ) throws IOException;
+    E get( Long id ) throws Exception;
 
 
     /**
-     * Puts the Attributes of an entry into this master table at an index 
-     * specified by id.  Used both to create new entries and update existing 
-     * ones.
+     * Puts an entry into this MasterTable with a specified unique id.  Used
+     * both to create new entries and update existing ones.
      *
-     * @param entry the Attributes of entry w/ operational attributes
-     * @param id the BigInteger id of the entry to put
-     * @return the newly created entry's Attributes
-     * @throws NamingException if there is a write error on the underlying Db.
+     * @param entry the entry to add
+     * @param id unique identifier of the entry to put
+     * @return the newly created entry
+     * @throws Exception if there is a write error on the underlying Db.
      */
-    Attributes put( Attributes entry, Object id ) throws IOException;
+    E put( Long id, E entry ) throws Exception;
 
 
     /**
-     * Deletes a entry from the master table at an index specified by id.
+     * Deletes a entry from this MasterTable at an index specified by id.
      *
-     * @param id the BigInteger id of the entry to delete
-     * @return the Attributes of the deleted entry
-     * @throws NamingException if there is a write error on the underlying Db
+     * @param id unique identifier of the entry to delete
+     * @return the deleted entry
+     * @throws Exception if there is a write error on the underlying Db
      */
-    Attributes delete( Object id ) throws IOException;
+    E delete( Long id ) throws Exception;
 
 
     /**
-     * Get's the current id value from this master database's sequence without
-     * affecting the seq.
+     * Gets the value of the id sequence from this MasterTable's sequence
+     * without affecting the value.
      *
-     * @return the current value.
-     * @throws NamingException if the admin table storing sequences cannot be
-     * read.
+     * @return the current value
+     * @throws Exception if the admin table storing sequences cannot be read
      */
-    Object getCurrentId() throws IOException;
+    Long getCurrentId() throws Exception;
 
 
     /**
-     * Get's the next value from this SequenceBDb.  This has the side-effect of
-     * changing the current sequence values perminantly in memory and on disk.
+     * Gets the next value from the sequence of this MasterTable.  This has
+     * the side-effect of incrementing the sequence values perminantly.
      *
-     * @return the current value incremented by one.
-     * @throws NamingException if the admin table storing sequences cannot be
-     * read and writen to.
+     * @return the current value of this MasterTable's sequence incremented
+     * by one
+     * @throws Exception on failure to update the id sequence
      */
-    Object getNextId() throws IOException;
+    Long getNextId() throws Exception;
 
 
     /**
-     * Gets a persistant property stored in the admin table of this MasterTable.
+     * Gets a persistant property associated with this MasterTable.
      *
      * @param property the key of the property to get the value of
      * @return the value of the property
-     * @throws NamingException when the underlying admin table cannot be read
+     * @throws Exception on failure to read the property
      */
-    String getProperty( String property ) throws IOException;
+    String getProperty( String property ) throws Exception;
 
 
     /**
-     * Sets a persistant property stored in the admin table of this MasterTable.
+     * Sets a persistant property associated with this MasterTable.
      *
      * @param property the key of the property to set the value of
      * @param value the value of the property
-     * @throws NamingException when the underlying admin table cannot be writen
+     * @throws Exception on failure to write the property
      */
-    void setProperty( String property, String value ) throws IOException;
+    void setProperty( String property, String value ) throws Exception;
 }

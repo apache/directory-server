@@ -19,7 +19,6 @@
 package org.apache.directory.server.core.cursor;
 
 
-import java.io.IOException;
 import java.util.Comparator;
 
 
@@ -57,7 +56,7 @@ public class SingletonCursor<E> extends AbstractCursor<E>
     }
     
 
-    public void before( E element ) throws IOException
+    public void before( E element ) throws Exception
     {
         checkClosed( "before()" );
 
@@ -80,7 +79,7 @@ public class SingletonCursor<E> extends AbstractCursor<E>
     }
 
 
-    public void after( E element ) throws IOException
+    public void after( E element ) throws Exception
     {
         checkClosed( "after()" );
 
@@ -103,7 +102,7 @@ public class SingletonCursor<E> extends AbstractCursor<E>
     }
 
 
-    public void beforeFirst() throws IOException
+    public void beforeFirst() throws Exception
     {
         checkClosed( "()" );
         beforeFirst = true;
@@ -112,7 +111,7 @@ public class SingletonCursor<E> extends AbstractCursor<E>
     }
 
 
-    public void afterLast() throws IOException
+    public void afterLast() throws Exception
     {
         checkClosed( "()" );
         beforeFirst = false;
@@ -121,7 +120,7 @@ public class SingletonCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean first() throws IOException
+    public boolean first() throws Exception
     {
         checkClosed( "()" );
         beforeFirst = false;
@@ -131,7 +130,7 @@ public class SingletonCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean last() throws IOException
+    public boolean last() throws Exception
     {
         checkClosed( "()" );
         beforeFirst = false;
@@ -141,35 +140,35 @@ public class SingletonCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean isFirst() throws IOException
+    public boolean isFirst() throws Exception
     {
         checkClosed( "()" );
         return onSingleton;
     }
 
 
-    public boolean isLast() throws IOException
+    public boolean isLast() throws Exception
     {
         checkClosed( "()" );
         return onSingleton;
     }
 
 
-    public boolean isAfterLast() throws IOException
+    public boolean isAfterLast() throws Exception
     {
         checkClosed( "()" );
         return afterLast;
     }
 
 
-    public boolean isBeforeFirst() throws IOException
+    public boolean isBeforeFirst() throws Exception
     {
         checkClosed( "()" );
         return beforeFirst;
     }
 
 
-    public boolean previous() throws IOException
+    public boolean previous() throws Exception
     {
         checkClosed( "()" );
         if ( beforeFirst )
@@ -193,7 +192,7 @@ public class SingletonCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean next() throws IOException
+    public boolean next() throws Exception
     {
         checkClosed( "()" );
         if ( beforeFirst )
@@ -217,7 +216,7 @@ public class SingletonCursor<E> extends AbstractCursor<E>
     }
 
 
-    public E get() throws IOException
+    public E get() throws Exception
     {
         checkClosed( "()" );
         if ( onSingleton )

@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.server.core.cursor.Cursor;
@@ -115,18 +114,18 @@ public interface Index<K>
      *
      * @param attrVal the user provided value to normalize
      * @return the normalized value.
-     * @throws IOException if something goes wrong.
+     * @throws Exception if something goes wrong.
      */
-    K getNormalized( K attrVal ) throws IOException;
+    K getNormalized( K attrVal ) throws Exception;
 
 
     /**
      * Gets the total scan count for this index.
      *
      * @return the number of key/value pairs in this index
-     * @throws IOException on failure to access index db files
+     * @throws Exception on failure to access index db files
      */
-    int count() throws IOException;
+    int count() throws Exception;
 
 
     /**
@@ -135,46 +134,46 @@ public interface Index<K>
      *
      * @param attrVal the value of the attribute to get a scan count for
      * @return the number of key/value pairs in this index with the value value
-     * @throws IOException on failure to access index db files
+     * @throws Exception on failure to access index db files
      */
-    int count( K attrVal ) throws IOException;
+    int count( K attrVal ) throws Exception;
 
 
-    int greaterThanCount( K attrVal ) throws IOException;
+    int greaterThanCount( K attrVal ) throws Exception;
 
 
-    int lessThanCount( K attrVal ) throws IOException;
+    int lessThanCount( K attrVal ) throws Exception;
 
 
-    Long forwardLookup( K attrVal ) throws IOException;
+    Long forwardLookup( K attrVal ) throws Exception;
 
 
-    K reverseLookup( Long id ) throws IOException;
+    K reverseLookup( Long id ) throws Exception;
 
 
-    void add( K attrVal, Long id ) throws IOException;
+    void add( K attrVal, Long id ) throws Exception;
 
 
-    void drop( Long id ) throws IOException;
+    void drop( Long id ) throws Exception;
 
 
-    void drop( K attrVal, Long id ) throws IOException;
+    void drop( K attrVal, Long id ) throws Exception;
 
 
-    Cursor<IndexRecord> reverseCursor() throws IOException;
+    Cursor<IndexRecord> reverseCursor() throws Exception;
 
 
-    Cursor<IndexRecord> cursor() throws IOException;
+    Cursor<IndexRecord> cursor() throws Exception;
 
 
-    boolean hasValue( K attrVal, Long id ) throws IOException;
+    boolean hasValue( K attrVal, Long id ) throws Exception;
 
 
-    boolean hasValue( K attrVal, Long id, boolean isGreaterThan ) throws IOException;
+    boolean hasValue( K attrVal, Long id, boolean isGreaterThan ) throws Exception;
 
 
-    void close() throws IOException;
+    void close() throws Exception;
 
 
-    void sync() throws IOException;
+    void sync() throws Exception;
 }

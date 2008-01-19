@@ -19,9 +19,6 @@
 package org.apache.directory.server.core.cursor;
 
 
-import java.io.IOException;
-
-
 /**
  * A Cursor for bidirectional traversal over elements in a dataset. Cursors
  * unlike Iterators or Enumerations may advance to an element by calling
@@ -62,10 +59,10 @@ public interface Cursor<E>
      * in the dataset are greater than the argument.
      *
      * @param element the element to be positioned before
-     * @throws IOException with problems accessing the underlying btree
+     * @throws Exception with problems accessing the underlying btree
      * @throws UnsupportedOperationException if this method is not supported
      */
-    void before( E element ) throws IOException;
+    void before( E element ) throws Exception;
 
 
     /**
@@ -80,31 +77,31 @@ public interface Cursor<E>
      * and all elements in the dataset are greater than the argument.
      *
      * @param element the element to be positioned after
-     * @throws IOException if there are problems positioning this cursor or if
+     * @throws Exception if there are problems positioning this cursor or if
      * this Cursor is closed
      * @throws UnsupportedOperationException if this method is not supported
      */
-    void after( E element ) throws IOException;
+    void after( E element ) throws Exception;
 
 
     /**
      * Positions this Curser before the first element.
      *
-     * @throws IOException if there are problems positioning this cursor or if
+     * @throws Exception if there are problems positioning this cursor or if
      * this Cursor is closed
      * @throws UnsupportedOperationException if this method is not supported
      */
-    void beforeFirst() throws IOException;
+    void beforeFirst() throws Exception;
 
 
     /**
      * Positions this Curser after the last element.
      *
-     * @throws IOException if there are problems positioning this Cursor or if
+     * @throws Exception if there are problems positioning this Cursor or if
      * this Cursor is closed
      * @throws UnsupportedOperationException if this method is not supported
      */
-    void afterLast() throws IOException;
+    void afterLast() throws Exception;
 
 
     /**
@@ -112,11 +109,11 @@ public interface Cursor<E>
      *
      * @return true if the position has been successfully changed to the first
      * element, false otherwise
-     * @throws IOException if there are problems positioning this Cursor or if
+     * @throws Exception if there are problems positioning this Cursor or if
      * this Cursor is closed
      * @throws UnsupportedOperationException if this method is not supported
      */
-    boolean first() throws IOException;
+    boolean first() throws Exception;
 
 
     /**
@@ -124,11 +121,11 @@ public interface Cursor<E>
      *
      * @return true if the position has been successfully changed to the last
      * element, false otherwise
-     * @throws IOException if there are problems positioning this Cursor or if
+     * @throws Exception if there are problems positioning this Cursor or if
      * this Cursor is closed
      * @throws UnsupportedOperationException if this method is not supported
      */
-    boolean last() throws IOException;
+    boolean last() throws Exception;
 
 
     /**
@@ -136,10 +133,10 @@ public interface Cursor<E>
      * fail with exceptions if and only if the cursor is in the closed state.
      *
      * @return true if this Cursor is closed, false otherwise
-     * @throws IOException if there are problems determining the cursor's closed state
+     * @throws Exception if there are problems determining the cursor's closed state
      * @throws UnsupportedOperationException if this method is not supported
      */
-    boolean isClosed() throws IOException;
+    boolean isClosed() throws Exception;
 
 
     /**
@@ -149,10 +146,10 @@ public interface Cursor<E>
      * last element.
      *
      * @return true if the advance succeeded, false otherwise
-     * @throws IOException if there are problems advancing to the next position
+     * @throws Exception if there are problems advancing to the next position
      * @throws UnsupportedOperationException if this method is not supported
      */
-    boolean previous() throws IOException;
+    boolean previous() throws Exception;
 
 
     /**
@@ -162,11 +159,11 @@ public interface Cursor<E>
      * the first element.
      *
      * @return true if the advance succeeded, false otherwise
-     * @throws IOException if there are problems advancing to this Cursor to
+     * @throws Exception if there are problems advancing to this Cursor to
      * the next position, or if this Cursor is closed
      * @throws UnsupportedOperationException if this method is not supported
      */
-    boolean next() throws IOException;
+    boolean next() throws Exception;
 
 
     /**
@@ -175,10 +172,10 @@ public interface Cursor<E>
      * instead of creating new objects on each advance.
      *
      * @return the object at the current position
-     * @throws IOException if the object at this Cursor's current position
+     * @throws Exception if the object at this Cursor's current position
      * cannot be retrieved, or if this Cursor is closed
      */
-    E get() throws IOException;
+    E get() throws Exception;
 
 
     /**
@@ -201,7 +198,7 @@ public interface Cursor<E>
      * Repeated calls to this method after this Cursor has already been
      * called should not fail with exceptions.
      *
-     * @throws IOException if for some reason this Cursor could not be closed
+     * @throws Exception if for some reason this Cursor could not be closed
      */
-    void close() throws IOException;
+    void close() throws Exception;
 }

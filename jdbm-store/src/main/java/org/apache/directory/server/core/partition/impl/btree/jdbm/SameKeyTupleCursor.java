@@ -23,7 +23,6 @@ import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 
-import java.io.IOException;
 import java.util.Comparator;
 
 import jdbm.helper.TupleBrowser;
@@ -56,9 +55,9 @@ public class SameKeyTupleCursor extends AbstractCursor<Tuple>
      * @param btree the JDBM BTree to build a Cursor over
      * @param key the constant key for which values are returned
      * @param comparator the Comparator used to determine <b>key</b> ordering
-     * @throws IOException of there are problems accessing the BTree
+     * @throws Exception of there are problems accessing the BTree
      */
-    public SameKeyTupleCursor( BTree btree, Object key, Comparator comparator ) throws IOException
+    public SameKeyTupleCursor( BTree btree, Object key, Comparator comparator ) throws Exception
     {
         this.key = key;
         this.btree = btree;
@@ -86,16 +85,16 @@ public class SameKeyTupleCursor extends AbstractCursor<Tuple>
      * all.
      *
      * @param element the valueTuple who's value is used to position this Cursor
-     * @throws IOException if there are failures to position the Cursor
+     * @throws Exception if there are failures to position the Cursor
      */
-    public void before( Tuple element ) throws IOException
+    public void before( Tuple element ) throws Exception
     {
         browser = btree.browse( element.getValue() );
         clearValue();
     }
 
 
-    public void after( Tuple element ) throws IOException
+    public void after( Tuple element ) throws Exception
     {
         browser = btree.browse( element.getValue() );
 
@@ -143,34 +142,34 @@ public class SameKeyTupleCursor extends AbstractCursor<Tuple>
     }
 
 
-    public void beforeFirst() throws IOException
+    public void beforeFirst() throws Exception
     {
         browser = btree.browse();
         clearValue();
     }
 
 
-    public void afterLast() throws IOException
+    public void afterLast() throws Exception
     {
         browser = btree.browse( null );
     }
 
 
-    public boolean first() throws IOException
+    public boolean first() throws Exception
     {
         beforeFirst();
         return next();
     }
 
 
-    public boolean last() throws IOException
+    public boolean last() throws Exception
     {
         afterLast();
         return previous();
     }
 
 
-    public boolean previous() throws IOException
+    public boolean previous() throws Exception
     {
         if ( browser.getPrevious( valueTuple ) )
         {
@@ -186,7 +185,7 @@ public class SameKeyTupleCursor extends AbstractCursor<Tuple>
     }
 
 
-    public boolean next() throws IOException
+    public boolean next() throws Exception
     {
         if ( browser.getNext( valueTuple ) )
         {
@@ -202,7 +201,7 @@ public class SameKeyTupleCursor extends AbstractCursor<Tuple>
     }
 
 
-    public Tuple get() throws IOException
+    public Tuple get() throws Exception
     {
         if ( valueAvailable )
         {

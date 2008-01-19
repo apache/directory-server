@@ -19,9 +19,6 @@
 package org.apache.directory.server.core.cursor;
 
 
-import java.io.IOException;
-
-
 /**
  * An empty Cursor implementation.
  *
@@ -35,13 +32,13 @@ public class EmptyCursor<E> extends AbstractCursor<E>
         return false;
     }
 
-    public void before( E element ) throws IOException
+    public void before( E element ) throws CursorClosedException
     {
         checkClosed( "before()" );
     }
 
 
-    public void after( E element ) throws IOException
+    public void after( E element ) throws CursorClosedException
     {
         checkClosed( "after()" );
     }
@@ -87,7 +84,7 @@ public class EmptyCursor<E> extends AbstractCursor<E>
     }
 
 
-    public E get() throws IOException
+    public E get() throws Exception
     {
         checkClosed( "get()" );
         throw new InvalidCursorPositionException( "This cursor is empty and cannot return elements!" );

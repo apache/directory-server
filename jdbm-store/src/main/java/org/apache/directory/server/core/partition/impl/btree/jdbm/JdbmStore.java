@@ -56,7 +56,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,7 +82,7 @@ public class JdbmStore
     /** the working directory to use for files */
     private File workingDirectory;
     /** the master table storing entries by primary key */
-    private JdbmMasterTable master;
+    private JdbmMasterTable<Attributes> master;
     /** a map of attributeType numeric ids to user userIndices */
     private Map<String, JdbmIndex> userIndices = new HashMap<String, JdbmIndex>();
     /** a map of attributeType numeric ids to system userIndices */
@@ -272,10 +271,10 @@ public class JdbmStore
      * @param oidRegistry an OID registry to resolve numeric identifiers from names
      * @param attributeTypeRegistry an attributeType specification registry to lookup type specs
      * @throws NamingException on failure to lookup elements in registries
-     * @throws IOException on failure to create database files
+     * @throws Exception on failure to create database files
      */
     public synchronized void init( OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry )
-            throws IOException, NamingException
+            throws Exception
     {
         this.oidRegistry = oidRegistry;
         this.attributeTypeRegistry = attributeTypeRegistry;
@@ -287,42 +286,33 @@ public class JdbmStore
         this.normSuffix = LdapDN.normalize( upSuffix, attributeTypeRegistry.getNormalizerMapping() );
         workingDirectory.mkdirs();
 
-        try
+        // First, check if the file storing the data exists
+        String path = workingDirectory.getPath() + File.separator + "master";
+        BaseRecordManager base = new BaseRecordManager( path );
+        base.disableTransactions();
+
+        if ( cacheSize < 0 )
         {
-        	// First, check if the file storing the data exists
-            String path = workingDirectory.getPath() + File.separator + "master";
-            BaseRecordManager base = new BaseRecordManager( path );
-            base.disableTransactions();
+            cacheSize = DEFAULT_CACHE_SIZE;
 
-            if ( cacheSize < 0 )
+            if ( LOG.isDebugEnabled() )
             {
-                cacheSize = DEFAULT_CACHE_SIZE;
-
-                if ( LOG.isDebugEnabled() )
-                {
-	                LOG.debug( "Using the default entry cache size of {} for {} partition", cacheSize, name );
-                }
+                LOG.debug( "Using the default entry cache size of {} for {} partition", cacheSize, name );
             }
-            else
-            {
-            	if ( LOG.isDebugEnabled() )
-            	{
-	                LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, name );
-            	}
-            }
-
-            // Now, create the entry cache for this partition
-            recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
         }
-        catch ( IOException e )
+        else
         {
-            NamingException ne = new NamingException( "Could not initialize RecordManager" );
-            ne.setRootCause( e );
-            throw ne;
+            if ( LOG.isDebugEnabled() )
+            {
+                LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, name );
+            }
         }
+
+        // Now, create the entry cache for this partition
+        recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
         // Create the master table (the table wcontaining all the entries)
-        master = new JdbmMasterTable( recMan );
+        master = new JdbmMasterTable<Attributes>( recMan );
 
         // -------------------------------------------------------------------
         // Initializes the user and system indices
@@ -337,7 +327,7 @@ public class JdbmStore
     }
 
 
-    private void setupSystemIndices() throws NamingException, IOException
+    private void setupSystemIndices() throws Exception
     {
         if ( systemIndices.size() > 0 )
         {
@@ -409,7 +399,7 @@ public class JdbmStore
     }
 
 
-    private void setupUserIndices() throws NamingException, IOException
+    private void setupUserIndices() throws Exception
     {
         if ( userIndices != null && userIndices.size() > 0 )
         {
@@ -436,9 +426,9 @@ public class JdbmStore
      * @param suffix the suffix for the store
      * @param entry the root entry of the store
      * @throws NamingException on failre to add the root entry
-     * @throws IOException failure to access btrees
+     * @throws Exception failure to access btrees
      */
-    protected void initSuffixEntry3( String suffix, Attributes entry ) throws NamingException, IOException
+    protected void initSuffixEntry3( String suffix, Attributes entry ) throws Exception
     {
         // add entry for context, if it does not exist
         Attributes suffixOnDisk = getSuffixEntry();
@@ -554,9 +544,9 @@ public class JdbmStore
      * This method is called when the synch thread is waking up, to write
      * the modified data.
      * 
-     * @throws IOException on failures to sync database files to disk
+     * @throws Exception on failures to sync database files to disk
      */
-    public synchronized void sync() throws IOException
+    public synchronized void sync() throws Exception
     {
         if ( !initialized )
         {
@@ -792,45 +782,45 @@ public class JdbmStore
     }
 
 
-    public Long getEntryId( String dn ) throws IOException
+    public Long getEntryId( String dn ) throws Exception
     {
         return ndnIdx.forwardLookup( dn );
     }
 
 
-    public String getEntryDn( Long id ) throws IOException
+    public String getEntryDn( Long id ) throws Exception
     {
         return ndnIdx.reverseLookup( id );
     }
 
 
-    public Long getParentId( String dn ) throws IOException
+    public Long getParentId( String dn ) throws Exception
     {
         Long childId = ndnIdx.forwardLookup( dn );
         return hierarchyIdx.reverseLookup( childId );
     }
 
 
-    public Long getParentId( Long childId ) throws IOException
+    public Long getParentId( Long childId ) throws Exception
     {
         return hierarchyIdx.reverseLookup( childId );
     }
 
 
-    public String getEntryUpdn( Long id ) throws IOException
+    public String getEntryUpdn( Long id ) throws Exception
     {
         return updnIdx.reverseLookup( id );
     }
 
 
-    public String getEntryUpdn( String dn ) throws IOException
+    public String getEntryUpdn( String dn ) throws Exception
     {
         Long id = ndnIdx.forwardLookup( dn );
         return updnIdx.reverseLookup( id );
     }
 
 
-    public int count() throws IOException
+    public int count() throws Exception
     {
         return master.count();
     }
@@ -843,9 +833,9 @@ public class JdbmStore
      * @todo Optimize this by walking the hierarchy index instead of the name 
      * @param aliasId the id of the alias entry in the master table
      * @throws NamingException if we cannot parse ldap names
-     * @throws IOException if we cannot delete index values in the database
+     * @throws Exception if we cannot delete index values in the database
      */
-    private void dropAliasIndices( Long aliasId ) throws NamingException, IOException
+    private void dropAliasIndices( Long aliasId ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
         Long targetId = getEntryId( targetDn );
@@ -889,9 +879,9 @@ public class JdbmStore
      * @param aliasId the id of alias entry to add
      * @throws NamingException if index addition fails, and if the alias is
      * not allowed due to chaining or cycle formation.
-     * @throws IOException if the underlying btrees cannot be altered
+     * @throws Exception if the underlying btrees cannot be altered
      */
-    private void addAliasIndices( Long aliasId, LdapDN aliasDn, String aliasTarget ) throws IOException, NamingException
+    private void addAliasIndices( Long aliasId, LdapDN aliasDn, String aliasTarget ) throws Exception
     {
         LdapDN normalizedAliasTargetDn; // Name value of aliasedObjectName
         Long targetId; // Id of the aliasedObjectName
@@ -1016,7 +1006,7 @@ public class JdbmStore
     }
 
     
-    public void add( LdapDN normName, Attributes entry ) throws NamingException, IOException
+    public void add( LdapDN normName, Attributes entry ) throws Exception
     {
         Long id;
         Long parentId;
@@ -1111,13 +1101,13 @@ public class JdbmStore
     }
 
 
-    public Attributes lookup( Long id ) throws IOException
+    public Attributes lookup( Long id ) throws Exception
     {
         return master.get( id );
     }
 
 
-    public void delete( Long id ) throws IOException, NamingException
+    public void delete( Long id ) throws Exception, NamingException
     {
         Attributes entry = lookup( id );
         Long parentId = getParentId( id );
@@ -1171,7 +1161,7 @@ public class JdbmStore
     }
 
 
-    public Cursor<IndexRecord> list( Long id ) throws IOException
+    public Cursor<IndexRecord> list( Long id ) throws Exception
     {
         Cursor<IndexRecord> cursor = hierarchyIdx.cursor();
         IndexRecord record = new IndexRecord();
@@ -1181,7 +1171,7 @@ public class JdbmStore
     }
 
 
-    public int getChildCount( Long id ) throws IOException
+    public int getChildCount( Long id ) throws Exception
     {
         return hierarchyIdx.count( id );
     }
@@ -1199,7 +1189,7 @@ public class JdbmStore
     }
 
 
-    public Attributes getSuffixEntry() throws IOException
+    public Attributes getSuffixEntry() throws Exception
     {
         Long id = getEntryId( normSuffix.toNormName() );
 
@@ -1212,19 +1202,19 @@ public class JdbmStore
     }
 
 
-    public void setProperty( String propertyName, String propertyValue ) throws IOException
+    public void setProperty( String propertyName, String propertyValue ) throws Exception
     {
         master.setProperty( propertyName, propertyValue );
     }
 
 
-    public String getProperty( String propertyName ) throws IOException
+    public String getProperty( String propertyName ) throws Exception
     {
         return master.getProperty( propertyName );
     }
 
 
-    public Attributes getIndices( Long id ) throws IOException, NamingException
+    public Attributes getIndices( Long id ) throws Exception
     {
         Attributes attributes = new AttributesImpl();
 
@@ -1314,10 +1304,9 @@ public class JdbmStore
      * @param id the primary key of the entry
      * @param entry the entry to alter
      * @param mods the attribute and values to add 
-     * @throws NamingException if index alteration or attribute addition
-     * fails.
+     * @throws Exception if index alteration or attribute addition fails
      */
-    private void add( Long id, Attributes entry, Attribute mods ) throws IOException, NamingException
+    private void add( Long id, Attributes entry, Attribute mods ) throws Exception
     {
         String modsOid = oidRegistry.getOid( mods.getID() );
         
@@ -1367,10 +1356,9 @@ public class JdbmStore
      * @param id the primary key of the entry
      * @param entry the entry to alter
      * @param mods the attribute and its values to delete
-     * @throws NamingException if index alteration or attribute modification 
-     * fails.
+     * @throws Exception if index alteration or attribute modification fails.
      */
-    private void remove( Long id, Attributes entry, Attribute mods ) throws NamingException, IOException
+    private void remove( Long id, Attributes entry, Attribute mods ) throws Exception
     {
         String modsOid = oidRegistry.getOid( mods.getID() );
         
@@ -1437,7 +1425,7 @@ public class JdbmStore
      * @throws NamingException if index alteration or attribute modification 
      * fails.
      */
-    private void replace( Long id, Attributes entry, Attribute mods ) throws NamingException, IOException
+    private void replace( Long id, Attributes entry, Attribute mods ) throws Exception
     {
         String modsOid = oidRegistry.getOid( mods.getID() );
         
@@ -1484,7 +1472,7 @@ public class JdbmStore
     }
 
 
-    public void modify( LdapDN dn, int modOp, Attributes mods ) throws NamingException, IOException
+    public void modify( LdapDN dn, int modOp, Attributes mods ) throws Exception
     {
         NamingEnumeration<String> attrs;
         Long id = getEntryId( dn.toString() );
@@ -1541,7 +1529,7 @@ public class JdbmStore
     }
 
 
-    public void modify( LdapDN dn, List<ModificationItemImpl> mods ) throws NamingException, IOException
+    public void modify( LdapDN dn, List<ModificationItemImpl> mods ) throws Exception
     {
         Long id = getEntryId( dn.toString() );
         Attributes entry = master.get( id );
@@ -1592,10 +1580,9 @@ public class JdbmStore
      * @param dn the normalized distinguished name of the entry to alter
      * @param newRdn the new Rdn to set
      * @param deleteOldRdn whether or not to remove the old Rdn attr/val
-     * @throws NamingException if there are any errors propagating the name
-     *        changes.
+     * @throws Exception if there are any errors propagating the name changes
      */
-    public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws NamingException, IOException
+    public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
     {
         String newRdnAttr = newRdn.getNormType();
         String newRdnValue = ( String ) newRdn.getValue();
@@ -1722,7 +1709,7 @@ public class JdbmStore
      * which affects alias userIndices.
      * @throws NamingException if something goes wrong
      */
-    private void modifyDn( Long id, LdapDN updn, boolean isMove ) throws NamingException, IOException
+    private void modifyDn( Long id, LdapDN updn, boolean isMove ) throws Exception
     {
         String aliasTarget;
 
@@ -1750,7 +1737,7 @@ public class JdbmStore
          */
         if ( isMove )
         {
-            aliasTarget = ( String ) aliasIdx.reverseLookup( id );
+            aliasTarget = aliasIdx.reverseLookup( id );
 
             if ( null != aliasTarget )
             {
@@ -1783,8 +1770,7 @@ public class JdbmStore
     }
 
 
-    public void move( LdapDN oldChildDn, LdapDN newParentDn, Rdn newRdn, boolean deleteOldRdn )
-            throws NamingException, IOException
+    public void move( LdapDN oldChildDn, LdapDN newParentDn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
     {
         Long childId = getEntryId( oldChildDn.toString() );
         rename( oldChildDn, newRdn, deleteOldRdn );
@@ -1797,7 +1783,7 @@ public class JdbmStore
     }
 
 
-    public void move( LdapDN oldChildDn, LdapDN newParentDn ) throws NamingException, IOException
+    public void move( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception
     {
         Long childId = getEntryId( oldChildDn.toString() );
         move( oldChildDn, childId, newParentDn );
@@ -1823,7 +1809,7 @@ public class JdbmStore
      * @param newParentDn the normalized dn of the new parent for the child
      * @throws NamingException if something goes wrong
      */
-    private void move( LdapDN oldChildDn, Long childId, LdapDN newParentDn ) throws NamingException, IOException
+    private void move( LdapDN oldChildDn, Long childId, LdapDN newParentDn ) throws Exception
     {
         // Get the child and the new parent to be entries and Ids
         Long newParentId = getEntryId( newParentDn.toString() );
@@ -1843,22 +1829,8 @@ public class JdbmStore
          * Drop the old parent child relationship and add the new one
          * Set the new parent id for the child replacing the old parent id
          */
-        try
-        {
-            hierarchyIdx.drop( oldParentId, childId );
-        }
-        catch ( IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        try
-        {
-            hierarchyIdx.add( newParentId, childId );
-        }
-        catch ( IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        hierarchyIdx.drop( oldParentId, childId );
+        hierarchyIdx.add( newParentId, childId );
 
         /*
          * Build the new user provided DN (updn) for the child using the child's
@@ -1883,22 +1855,14 @@ public class JdbmStore
      * @param movedBase the base at which the move occured - the moved node
      * @throws NamingException if system userIndices fail
      */
-    private void dropMovedAliasIndices( final LdapDN movedBase ) throws NamingException, IOException
+    private void dropMovedAliasIndices( final LdapDN movedBase ) throws Exception
     {
         // Find all the aliases from movedBase down
         IndexAssertion isBaseDescendant = new IndexAssertion()
         {
-            public boolean assertCandidate( IndexRecord rec ) throws NamingException
+            public boolean assertCandidate( IndexRecord rec ) throws Exception
             {
-                String dn = null;
-                try
-                {
-                    dn = getEntryDn( (Long)rec.getEntryId() );
-                }
-                catch ( IOException e )
-                {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+                String dn = getEntryDn( rec.getEntryId() );
                 return dn.endsWith( movedBase.toString() );
             }
         };
@@ -1929,9 +1893,9 @@ public class JdbmStore
      * 
      * @param aliasId the id of the alias 
      * @param movedBase the base where the move occured
-     * @throws NamingException if userIndices fail
+     * @throws Exception if userIndices fail
      */
-    private void dropAliasIndices( Long aliasId, LdapDN movedBase ) throws NamingException, IOException
+    private void dropAliasIndices( Long aliasId, LdapDN movedBase ) throws Exception
     {
         String targetDn = aliasIdx.reverseLookup( aliasId );
         Long targetId = getEntryId( targetDn );

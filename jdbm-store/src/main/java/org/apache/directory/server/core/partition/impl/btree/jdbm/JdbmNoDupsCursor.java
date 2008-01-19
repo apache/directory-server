@@ -199,7 +199,7 @@ public class JdbmNoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     }
 
 
-    public Tuple<K,V> get() throws IOException
+    public Tuple<K,V> get() throws Exception
     {
         if ( valueAvailable )
         {

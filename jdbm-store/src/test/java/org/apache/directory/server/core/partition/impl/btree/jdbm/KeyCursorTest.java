@@ -38,7 +38,6 @@ import jdbm.btree.BTree;
 import jdbm.recman.BaseRecordManager;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Comparator;
 
 
@@ -105,7 +104,7 @@ public class KeyCursorTest
 
 
     @Test
-    public void testPreviousBeforePositioning() throws IOException
+    public void testPreviousBeforePositioning() throws Exception
     {
         // test initial setup, advances after, and before inside elements
         assertInvalidCursor();
@@ -116,7 +115,7 @@ public class KeyCursorTest
 
 
     @Test
-    public void testNextBeforePositioning() throws IOException
+    public void testNextBeforePositioning() throws Exception
     {
         // test initial setup, advances after, and before inside elements
         assertInvalidCursor();
@@ -127,7 +126,7 @@ public class KeyCursorTest
 
 
     @Test
-    public void testOperations() throws IOException
+    public void testOperations() throws Exception
     {
         // test initial setup, advances after, and before inside elements
         assertInvalidCursor();
@@ -268,7 +267,7 @@ public class KeyCursorTest
 
     
     @Test
-    public void testMiscelleneous() throws IOException
+    public void testMiscelleneous() throws Exception
     {
         // Test available()
         
@@ -295,7 +294,7 @@ public class KeyCursorTest
             cursor.get();
             fail( "Invalid Cursor should not return valid value from get()" );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             assertNotNull( e );
         }

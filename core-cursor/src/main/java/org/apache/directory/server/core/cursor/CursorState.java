@@ -19,9 +19,6 @@
 package org.apache.directory.server.core.cursor;
 
 
-import java.io.IOException;
-
-
 /**
  * A Cursor's state: cursor states leverage the State Pattern to isolate state
  * specific transition logic with certain operations.  Not every Cursor is
@@ -33,19 +30,19 @@ import java.io.IOException;
  */
 public interface CursorState<E>
 {
-    void before( E element ) throws IOException;
+    void before( E element ) throws Exception;
 
-    void after( E element ) throws IOException;
+    void after( E element ) throws Exception;
 
-    void beforeFirst() throws IOException;
+    void beforeFirst() throws Exception;
 
-    void afterLast() throws IOException;
+    void afterLast() throws Exception;
 
-    boolean first() throws IOException;
+    boolean first() throws Exception;
 
-    boolean last() throws IOException;
+    boolean last() throws Exception;
 
-    boolean previous() throws IOException;
+    boolean previous() throws Exception;
 
-    boolean next() throws IOException;
+    boolean next() throws Exception;
 }

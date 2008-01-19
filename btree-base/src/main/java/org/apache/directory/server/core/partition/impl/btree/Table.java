@@ -22,8 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import org.apache.directory.server.core.cursor.Cursor;
 
-import java.io.IOException;
-
 
 /**
  * A wrapper interface around BTree implementations used to abstract away
@@ -105,9 +103,9 @@ public interface Table<K, V>
      *
      * @param key the Object of the key to check for
      * @return true if the key exists, false otherwise
-     * @throws IOException if there is a failure to read the underlying Db
+     * @throws Exception if there is a failure to read the underlying Db
      */
-    boolean has( K key ) throws IOException;
+    boolean has( K key ) throws Exception;
 
 
     /**
@@ -116,9 +114,9 @@ public interface Table<K, V>
      * @param key the key to check for
      * @param value the value to check for
      * @return true if a record with the key and value exists, false otherwise
-     * @throws IOException if there is a failure to read the underlying Db
+     * @throws Exception if there is a failure to read the underlying Db
      */
-    boolean has( K key, V value ) throws IOException;
+    boolean has( K key, V value ) throws Exception;
 
 
     /**
@@ -131,9 +129,9 @@ public interface Table<K, V>
      * @param isGreaterThan boolean for greater than or less then comparison
      * @return true if a record with a key greater/less than the key argument
      * exists, false otherwise
-     * @throws IOException if there is a failure to read the underlying Db
+     * @throws Exception if there is a failure to read the underlying Db
      */
-    boolean has( K key, boolean isGreaterThan ) throws IOException;
+    boolean has( K key, boolean isGreaterThan ) throws Exception;
 
 
     /**
@@ -153,11 +151,11 @@ public interface Table<K, V>
      * @param isGreaterThan boolean for greater than or less then comparison
      * @return true if a record with a key greater/less than the key argument
      * exists, false otherwise
-     * @throws IOException if there is a failure to read the underlying Db
+     * @throws Exception if there is a failure to read the underlying Db
      * or if the underlying Db is not of the Btree type that allows sorted
      * duplicate values.
      */
-    boolean has( K key, V val, boolean isGreaterThan ) throws IOException;
+    boolean has( K key, V val, boolean isGreaterThan ) throws Exception;
 
 
     // ------------------------------------------------------------------------
@@ -174,9 +172,9 @@ public interface Table<K, V>
      * @param key the key of the record
      * @return the value of the record with the specified key if key exists or
      * null if no such key exists.
-     * @throws IOException if there is a failure to read the underlying Db
+     * @throws Exception if there is a failure to read the underlying Db
      */
-    V get( K key ) throws IOException;
+    V get( K key ) throws Exception;
 
 
     /**
@@ -187,11 +185,11 @@ public interface Table<K, V>
      * @param value the value of the record.
      * @return the last value present for the key or null if the key did not
      * exist before.
-     * @throws IOException if there is a failure to read or write to
-     * the underlying Db
+     * @throws Exception if there is a failure to read or write to the
+     * underlying Db
      * @throws IllegalArgumentException if a null key or value is used
      */
-    V put( K key, V value ) throws IOException;
+    V put( K key, V value ) throws Exception;
 
 
     /**
@@ -199,10 +197,10 @@ public interface Table<K, V>
      *
      * @param key the key of the records to remove
      * @return the removed object or null if one did not exist for the key
-     * @throws IOException if there is a failure to read or write to
+     * @throws Exception if there is a failure to read or write to
      * the underlying Db
      */
-    V remove( K key ) throws IOException;
+    V remove( K key ) throws Exception;
 
 
     /**
@@ -212,19 +210,19 @@ public interface Table<K, V>
      * @param key the key of the record to remove
      * @param value the value of the record to remove
      * @return the removed value object or null if one did not exist
-     * @throws IOException if there is a failure to read or write to
+     * @throws Exception if there is a failure to read or write to
      * the underlying Db
      */
-    V remove( K key, V value ) throws IOException;
+    V remove( K key, V value ) throws Exception;
 
 
     /**
      * Creates a Cursor that traverses records in a Table.
      *
      * @return a Cursor over Tuples containing the key value pairs
-     * @throws IOException if there are failures accessing underlying stores
+     * @throws Exception if there are failures accessing underlying stores
      */
-    Cursor<Tuple<K,V>> cursor() throws IOException;
+    Cursor<Tuple<K,V>> cursor() throws Exception;
 
 
     // ------------------------------------------------------------------------
@@ -236,9 +234,9 @@ public interface Table<K, V>
      * Gets the count of the number of records in this Table.
      *
      * @return the number of records
-     * @throws IOException if there is a failure to read the underlying Db
+     * @throws Exception if there is a failure to read the underlying Db
      */
-    int count() throws IOException;
+    int count() throws Exception;
 
 
     /**
@@ -247,9 +245,9 @@ public interface Table<K, V>
      *
      * @param key the Object key to count.
      * @return the number of duplicate records for a key.
-     * @throws IOException if there is a failure to read the underlying Db
+     * @throws Exception if there is a failure to read the underlying Db
      */
-    int count( K key ) throws IOException;
+    int count( K key ) throws Exception;
 
 
     /**
@@ -259,9 +257,9 @@ public interface Table<K, V>
      *
      * @param key the key to use in comparisons
      * @return the number of keys greater than or equal to the key
-     * @throws IOException if there is a failure to read the underlying db
+     * @throws Exception if there is a failure to read the underlying db
      */
-    int greaterThanCount( K key ) throws IOException;
+    int greaterThanCount( K key ) throws Exception;
 
 
     /**
@@ -271,15 +269,15 @@ public interface Table<K, V>
      *
      * @param key the key to use in comparisons
      * @return the number of keys less than or equal to the key
-     * @throws IOException if there is a failure to read the underlying db
+     * @throws Exception if there is a failure to read the underlying db
      */
-    int lessThanCount( K key ) throws IOException;
+    int lessThanCount( K key ) throws Exception;
 
 
     /**
      * Closes the underlying Db of this Table.
      *
-     * @throws IOException on any failures
+     * @throws Exception on any failures
      */
-    void close() throws IOException;
+    void close() throws Exception;
 }

@@ -19,9 +19,6 @@
 package org.apache.directory.server.core.cursor;
 
 
-import java.io.IOException;
-
-
 /**
  * A specific form of IOException to note that an operation is being
  * attempted on a closed Cursor.
@@ -29,7 +26,7 @@ import java.io.IOException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class CursorClosedException extends IOException
+public class CursorClosedException extends Exception
 {
     public CursorClosedException()
     {
