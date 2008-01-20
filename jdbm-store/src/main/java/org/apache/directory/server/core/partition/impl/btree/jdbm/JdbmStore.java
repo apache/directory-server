@@ -97,7 +97,7 @@ public class JdbmStore
     /** the user provided distinguished name index */
     private JdbmIndex<String> updnIdx;
     /** the attribute existance index */
-    private JdbmIndex existanceIdx;
+    private JdbmIndex<String> existanceIdx;
     /** the parent child relationship index */
     private JdbmIndex<Long> hierarchyIdx;
     /** the one level scope alias index */
@@ -359,7 +359,7 @@ public class JdbmStore
 
         if ( existanceIdx == null )
         {
-            existanceIdx = new JdbmIndex();
+            existanceIdx = new JdbmIndex<String>();
             existanceIdx.setAttributeId( Oid.EXISTANCE );
             systemIndices.put( Oid.EXISTANCE, existanceIdx );
             existanceIdx.init( attributeTypeRegistry.lookup( Oid.EXISTANCE ), workingDirectory );
@@ -591,7 +591,7 @@ public class JdbmStore
     }
 
 
-    public void setExistanceIndex( JdbmIndex index ) throws NamingException
+    public void setExistanceIndex( JdbmIndex<String> index ) throws NamingException
     {
         protect( "existanceIndex" );
         existanceIdx = index;
@@ -1107,7 +1107,7 @@ public class JdbmStore
     }
 
 
-    public void delete( Long id ) throws Exception, NamingException
+    public void delete( Long id ) throws Exception
     {
         Attributes entry = lookup( id );
         Long parentId = getParentId( id );
