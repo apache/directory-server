@@ -33,15 +33,29 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.naming.*;
-import javax.naming.directory.*;
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.ReferralException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -75,7 +89,6 @@ public class ReferralIT
         LdapContext rootCtx;
         Name ctxDn;
         LdapContext refCtx;
-        List refs;
     }
 
 
@@ -157,7 +170,7 @@ public class ReferralIT
 
 
     /**
-     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * Checks for correct core behavior when Context.REFERRAL is set to <b>throw</b>
      * for an add operation with the parent context being a referral.
      * 
      * @throws Exception if something goes wrong.
@@ -967,11 +980,12 @@ public class ReferralIT
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration list = td.rootCtx.search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> list = td.rootCtx.search( "", "(objectClass=*)", controls );
         Map<String, SearchResult> results = new HashMap<String, SearchResult>();
+        
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             results.put( result.getName(), result );
         }
 

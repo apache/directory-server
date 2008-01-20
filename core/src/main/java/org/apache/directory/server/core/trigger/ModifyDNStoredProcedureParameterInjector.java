@@ -21,6 +21,7 @@
 package org.apache.directory.server.core.trigger;
 
 import org.apache.directory.server.core.invocation.Invocation;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
@@ -51,7 +52,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
 		this.oldDN = oldDN;
 		this.newDN = newDN;
 		
-		Map<Class, MicroInjector> injectors = super.getInjectors();
+		Map<Class<?>, MicroInjector> injectors = super.getInjectors();
 		injectors.put( StoredProcedureParameter.ModifyDN_ENTRY.class, $entryInjector );
 		injectors.put( StoredProcedureParameter.ModifyDN_NEW_RDN.class, $newrdnInjector );
 		injectors.put( StoredProcedureParameter.ModifyDN_DELETE_OLD_RDN.class, $deleteoldrdnInjector );
@@ -66,7 +67,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
 	 */
 	MicroInjector $entryInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( oldDN.getUpName() );
@@ -78,7 +79,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $newrdnInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( newRDN.getUpName() );
@@ -90,7 +91,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $deleteoldrdnInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return deleteOldRn;
@@ -102,7 +103,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $newSuperiorInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( newSuperiorDN.getUpName() );
@@ -114,7 +115,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $oldRDNInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( oldRDN.getUpName() );
@@ -126,7 +127,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $oldSuperiorDNInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( oldSuperiorDN.getUpName() );
@@ -138,7 +139,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $newDNInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( newDN.getUpName() );

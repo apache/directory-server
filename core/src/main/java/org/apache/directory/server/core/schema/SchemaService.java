@@ -373,7 +373,7 @@ public class SchemaService
         if ( schemaSubentry == null )
         {
             generateSchemaSubentry( schemaPartition.lookup(
-                    new LookupOperationContext( schemaModificationAttributesDN ) ) );
+                    new LookupOperationContext( registries, schemaModificationAttributesDN ) ) );
         }
 
         return new ImmutableAttributesWrapper( schemaSubentry );
@@ -391,7 +391,7 @@ public class SchemaService
         if ( schemaSubentry == null )
         {
             generateSchemaSubentry( schemaPartition.lookup(
-                    new LookupOperationContext( schemaModificationAttributesDN ) ) );
+                    new LookupOperationContext( registries, schemaModificationAttributesDN ) ) );
         }
 
         return ( Attributes ) schemaSubentry.clone();
@@ -423,14 +423,13 @@ public class SchemaService
             // Check if we need an update by looking at timestamps on disk
             // ---------------------------------------------------------------
 
-            Attributes mods = schemaPartition.lookup( new LookupOperationContext( schemaModificationAttributesDN ) );
-            Attribute modifyTimeDisk = mods.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
-
-            Attribute modifyTimeMemory = null;
-
-            // @todo enable this optimization at some point but for now it
-            // is causing some problems so I will just turn it off
-
+            Attributes mods = schemaPartition.lookup( new LookupOperationContext( registries, schemaModificationAttributesDN ) );
+// @todo enable this optimization at some point but for now it
+// is causing some problems so I will just turn it off
+//          Attribute modifyTimeDisk = mods.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
+//
+//          Attribute modifyTimeMemory = null;
+//
 //            if ( schemaSubentry != null )
 //            {
 //                modifyTimeMemory = schemaSubentry.get( SchemaConstants.MODIFY_TIMESTAMP_AT );

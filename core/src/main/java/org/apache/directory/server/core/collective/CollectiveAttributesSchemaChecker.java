@@ -22,6 +22,7 @@ package org.apache.directory.server.core.collective;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -30,9 +31,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -60,11 +63,9 @@ public class CollectiveAttributesSchemaChecker
         this.attrTypeRegistry = attrTypeRegistry;
     }
     
-    public void checkAdd( LdapDN normName, Attributes entry ) throws LdapSchemaViolationException, NamingException
+    /* package scope*/ void checkAdd( LdapDN normName, ServerEntry entry ) throws LdapSchemaViolationException, NamingException
     {
-        Attribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
-        
-        if ( AttributeUtils.containsValueCaseIgnore( objectClass, "collectiveAttributeSubentry" ) )
+        if ( entry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
             return;
         }
@@ -80,7 +81,7 @@ public class CollectiveAttributesSchemaChecker
         }
     }
     
-    public void checkModify( LdapDN normName, int modOp, Attributes mods ) throws NamingException
+    public void checkModify( Registries registries, LdapDN normName, int modOp, Attributes mods ) throws NamingException
     {
         ArrayList<ModificationItemImpl> modsAsArray = new ArrayList<ModificationItemImpl>( mods.size() );
         NamingEnumeration<? extends Attribute> allAttrs = mods.getAll();
@@ -91,17 +92,17 @@ public class CollectiveAttributesSchemaChecker
             modsAsArray.add( new ModificationItemImpl( modOp, attr ) );
         }
         
-        checkModify( normName, modsAsArray );
+        checkModify( registries, normName, modsAsArray );
     }
     
     
-    public void checkModify( LdapDN normName, List<ModificationItemImpl> mods ) throws NamingException
+    public void checkModify( Registries registries, LdapDN normName, List<ModificationItemImpl> mods ) throws NamingException
     {
-        Attributes originalEntry = nexus.lookup( new LookupOperationContext( normName ) );
+        Attributes originalEntry = nexus.lookup( new LookupOperationContext( registries, normName ) );
         Attributes targetEntry = SchemaUtils.getTargetEntry( mods, originalEntry );
         Attribute targetObjectClasses = targetEntry.get( SchemaConstants.OBJECT_CLASS_AT );
         
-        if ( AttributeUtils.containsValueCaseIgnore( targetObjectClasses, "collectiveAttributeSubentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( targetObjectClasses, SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
             return;
         }
@@ -138,16 +139,13 @@ public class CollectiveAttributesSchemaChecker
     }
     
     
-    private boolean containsAnyCollectiveAttributes( Attributes entry ) throws NamingException
+    private boolean containsAnyCollectiveAttributes( ServerEntry entry ) throws NamingException
     {
-        NamingEnumeration<String> allIDs = entry.getIDs();
+        Set<AttributeType> attributeTypes = entry.getAttributeTypes();
         
-        while ( allIDs.hasMoreElements() )
+        for ( AttributeType attributeType:attributeTypes )
         {
-            String attrTypeStr = allIDs.nextElement();
-            AttributeType attrType = attrTypeRegistry.lookup( attrTypeStr );
-            
-            if ( attrType.isCollective() )
+            if ( attributeType.isCollective() )
             {
                 return true;
             }

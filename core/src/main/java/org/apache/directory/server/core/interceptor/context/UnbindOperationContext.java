@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -28,14 +29,14 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class UnbindOperationContext  extends AbstractOperationContext
+public class UnbindOperationContext extends AbstractOperationContext
 {
     /**
      * Creates a new instance of UnbindOperationContext.
      */
-    public UnbindOperationContext()
+    public UnbindOperationContext( Registries registries )
     {
-        super();
+        super( registries );
     }
     
     /**
@@ -43,9 +44,9 @@ public class UnbindOperationContext  extends AbstractOperationContext
      *
      * @param unbindDn The principal DN to unbind
      */
-    public UnbindOperationContext( LdapDN unbindDn )
+    public UnbindOperationContext( Registries registries, LdapDN unbindDn )
     {
-        super( unbindDn );
+        super( registries, unbindDn );
     }
     
     /**

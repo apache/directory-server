@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.changelog;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -73,7 +74,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
     private final Queue<StringBuilder> queue = new LinkedList<StringBuilder>();
     
     /** a handle on the attributeType registry to determine the binary nature of attributes */
-    private AttributeTypeRegistry registry;
+    private AttributeTypeRegistry atRegistry;
     
     /** determines if this service has been activated */
     private boolean isActive;
@@ -92,7 +93,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
         super.init( directoryService );
 
         // Get a handle on the attribute registry to check if attributes are binary
-        registry = directoryService.getRegistries().getAttributeTypeRegistry();
+        atRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
 
         // Open a print stream to use for flushing LDIFs into
         File changes = new File( directoryService.getWorkingDirectory(), "changes.LOG" );
@@ -232,7 +233,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
         buf.append( DateUtils.getGeneralizedTime() );
         
         // Append the LDIF entry now
-        buf.append( LdifUtils.convertToLdif( opContext.getEntry() ) );
+        buf.append( LdifUtils.convertToLdif( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) ) );
 
         // Enqueue the buffer onto a queue that is emptied by another thread asynchronously. 
         synchronized ( queue )
@@ -449,7 +450,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
     {
         String id = attr.getID();
         int sz = attr.size();
-        boolean isBinary = ! registry.lookup( id ).getSyntax().isHumanReadable();
+        boolean isBinary = ! atRegistry.lookup( id ).getSyntax().isHumanReadable();
         
         if ( isBinary )
         {

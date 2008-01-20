@@ -19,8 +19,12 @@
 package org.apache.directory.server.core.changelog;
 
 
+import java.util.Set;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -29,6 +33,7 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -45,9 +50,7 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 
@@ -59,10 +62,13 @@ public class ChangeLogInterceptor extends BaseInterceptor
 {
     /** for debugging */
     private static final Logger LOG = LoggerFactory.getLogger( ChangeLogInterceptor.class );
+    
     /** used to ignore modify operations to tombstone entries */
     private AttributeType entryDeleted;
+    
     /** the changelog service to log changes to */
     private ChangeLog changeLog;
+    
     /** we need the schema service to deal with special conditions */
     private SchemaService schemaService;
 
@@ -98,11 +104,14 @@ public class ChangeLogInterceptor extends BaseInterceptor
         Entry forward = new Entry();
         forward.setChangeType( ChangeType.Add );
         forward.setDn( opContext.getDn().getUpName() );
-        NamingEnumeration<? extends Attribute> list = opContext.getEntry().getAll();
         
-        while ( list.hasMore() )
+        ServerEntry addEntry = opContext.getEntry();
+
+        Set<AttributeType> list = addEntry.getAttributeTypes();
+        
+        for ( AttributeType attributeType:list )
         {
-            forward.addAttribute( ( Attribute ) list.next() );
+            forward.addAttribute( ServerEntryUtils.toAttributeImpl( addEntry.get( attributeType ) ) );
         }
         
         Entry reverse = LdifUtils.reverseAdd( opContext.getDn() );
@@ -122,7 +131,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         if ( changeLog.isEnabled() && ! opContext.isCollateralOperation() )
         {
-            attributes = getAttributes( opContext.getDn() );
+            attributes = getAttributes( opContext );
         }
 
         next.delete( opContext );
@@ -147,8 +156,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
      * @return the entry's attributes (may be immutable if the schema subentry)
      * @throws NamingException on error accessing the entry's attributes
      */
-    private Attributes getAttributes( LdapDN dn ) throws NamingException
+    private Attributes getAttributes( OperationContext opContext ) throws NamingException
     {
+        LdapDN dn = opContext.getDn();
         Attributes attributes;
 
         // @todo make sure we're not putting in operational attributes that cannot be user modified
@@ -161,7 +171,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
         else
         {
-            attributes = proxy.lookup( new LookupOperationContext( dn ), PartitionNexusProxy.LOOKUP_BYPASS );
+            attributes = proxy.lookup( new LookupOperationContext( opContext.getRegistries(), dn ), PartitionNexusProxy.LOOKUP_BYPASS );
         }
 
         return attributes;
@@ -176,7 +186,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         if ( ! isDelete && ( changeLog.isEnabled() && ! opContext.isCollateralOperation() ) )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
-            attributes = getAttributes( opContext.getDn() );
+            attributes = getAttributes( opContext );
         }
 
         next.modify( opContext );
@@ -216,7 +226,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         if ( changeLog.isEnabled() && ! renameContext.isCollateralOperation() )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
-            attributes = getAttributes( renameContext.getDn() );
+            attributes = getAttributes( renameContext );
         }
 
         next.rename( renameContext );
@@ -246,7 +256,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             // @todo make sure we're not putting in operational attributes that cannot be user modified
             Invocation invocation = InvocationStack.getInstance().peek();
             PartitionNexusProxy proxy = invocation.getProxy();
-            attributes = proxy.lookup( new LookupOperationContext( opCtx.getDn() ),
+            attributes = proxy.lookup( new LookupOperationContext( opCtx.getRegistries(), opCtx.getDn() ),
                     PartitionNexusProxy.LOOKUP_BYPASS );
         }
 

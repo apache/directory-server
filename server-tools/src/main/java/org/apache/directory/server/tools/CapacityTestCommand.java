@@ -36,6 +36,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.directory.daemon.AvailablePortFinder;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
@@ -143,7 +144,7 @@ public class CapacityTestCommand extends BaseToolCommand
         attrs.put( "cn", RandomStringUtils.randomAlphabetic( 15 ) );
         attrs.put( "initials", RandomStringUtils.randomAlphabetic( 2 ) );
         attrs.put( "mail", RandomStringUtils.randomAlphabetic( 15 ) );
-        attrs.put( "userPassword", "password" );
+        attrs.put( SchemaConstants.USER_PASSWORD_AT, "password" );
         attrs.put( "telephoneNumber", RandomStringUtils.randomNumeric( 10 ) );
         attrs.put( "homePhone", RandomStringUtils.randomNumeric( 10 ) );
         attrs.put( "pager", RandomStringUtils.randomNumeric( 10 ) );

@@ -19,9 +19,16 @@
  */
 package org.apache.directory.mitosis.operation;
 
-import org.apache.directory.mitosis.common.*;
+import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.CSNFactory;
+import org.apache.directory.mitosis.common.Constants;
+import org.apache.directory.mitosis.common.ReplicaId;
+import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -29,6 +36,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -36,12 +44,17 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import java.util.List;
 
 
@@ -75,16 +88,21 @@ public class OperationFactory
     private final PartitionNexus nexus;
     private final UUIDFactory uuidFactory;
     private final CSNFactory csnFactory;
+    
+    /** The attributeType registry */
     private final AttributeTypeRegistry attributeRegistry;
 
+    /** The global registries */
+    private Registries registries;
 
     public OperationFactory( DirectoryService directoryService, ReplicationConfiguration cfg )
     {
-        this.replicaId = cfg.getReplicaId();
-        this.nexus = directoryService.getPartitionNexus();
-        this.uuidFactory = cfg.getUuidFactory();
-        this.csnFactory = cfg.getCsnFactory();
-        this.attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
+        replicaId = cfg.getReplicaId();
+        nexus = directoryService.getPartitionNexus();
+        uuidFactory = cfg.getUuidFactory();
+        csnFactory = cfg.getCsnFactory();
+        registries = directoryService.getRegistries();
+        attributeRegistry = registries.getAttributeTypeRegistry();
     }
 
 
@@ -92,7 +110,7 @@ public class OperationFactory
      * Creates a new {@link Operation} that performs LDAP "add" operation
      * with a newly generated {@link CSN}.
      */
-    public Operation newAdd( LdapDN normalizedName, Attributes entry ) throws NamingException
+    public Operation newAdd( LdapDN normalizedName, ServerEntry entry ) throws NamingException
     {
         return newAdd( newCSN(), normalizedName, entry );
     }
@@ -104,24 +122,24 @@ public class OperationFactory
      * additional attributes; {@link Constants#ENTRY_CSN} ({@link CSN}),
      * {@link Constants#ENTRY_UUID}, and {@link Constants#ENTRY_DELETED}.
      */
-    private Operation newAdd( CSN csn, LdapDN normalizedName, Attributes entry ) throws NamingException
+    private Operation newAdd( CSN csn, LdapDN normalizedName, ServerEntry entry ) throws NamingException
     {
         // Check an entry already exists.
         checkBeforeAdd( normalizedName );
 
         // Insert 'entryUUID' and 'entryDeleted'.
-        entry = ( Attributes ) entry.clone();
-        entry.remove( Constants.ENTRY_UUID );
-        entry.remove( Constants.ENTRY_DELETED );
-        entry.put( Constants.ENTRY_UUID, uuidFactory.newInstance().toOctetString() );
-        entry.put( Constants.ENTRY_DELETED, "FALSE" );
+        ServerEntry cloneEntry = ( ServerEntry ) entry.clone();
+        cloneEntry.remove( Constants.ENTRY_UUID );
+        cloneEntry.remove( Constants.ENTRY_DELETED );
+        cloneEntry.put( Constants.ENTRY_UUID, uuidFactory.newInstance().toOctetString() );
+        cloneEntry.put( Constants.ENTRY_DELETED, "FALSE" );
 
         // NOTE: We inlined addDefaultOperations() because ApacheDS currently
         // creates an index entry only for ADD operation (and not for
         // MODIFY operation)
-        entry.put( Constants.ENTRY_CSN, csn.toOctetString() );
+        cloneEntry.put( Constants.ENTRY_CSN, csn.toOctetString() );
 
-        return new AddEntryOperation( csn, normalizedName, entry );
+        return new AddEntryOperation( csn, normalizedName, cloneEntry );
     }
 
 
@@ -238,8 +256,9 @@ public class OperationFactory
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        
         NamingEnumeration<SearchResult> e = nexus.search( 
-            new SearchOperationContext( oldName, AliasDerefMode.DEREF_ALWAYS,
+            new SearchOperationContext( registries, oldName, AliasDerefMode.DEREF_ALWAYS,
                     new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         while ( e.hasMore() )
@@ -255,17 +274,21 @@ public class OperationFactory
                 "TRUE" ) ) );
 
             // Get the old entry attributes and replace RDN if required
-            Attributes entry = sr.getAttributes();
+            LdapDN entryName = new LdapDN( sr.getName() ); 
+            ServerEntry entry = ServerEntryUtils.toServerEntry( sr.getAttributes(), entryName, registries );
+            
             if ( oldEntryName.size() == oldName.size() )
             {
                 if ( deleteOldRn )
                 {
                     // Delete the old RDN attribute value
                     String oldRDNAttributeID = oldName.getRdn().getUpType();
-                    Attribute oldRDNAttribute = entry.get( oldRDNAttributeID );
+                    ServerAttribute oldRDNAttribute = entry.get( oldRDNAttributeID );
+                    
                     if ( oldRDNAttribute != null )
                     {
-                        boolean removed = oldRDNAttribute.remove( oldName.getRdn().getUpValue() );
+                        boolean removed = oldRDNAttribute.remove( (String)oldName.getRdn().getUpValue() );
+                        
                         if ( removed && oldRDNAttribute.size() == 0 )
                         {
                             // Now an empty attribute, remove it.
@@ -273,10 +296,12 @@ public class OperationFactory
                         }
                     }
                 }
+                
                 // Add the new RDN attribute value.
                 String newRDNAttributeID = newRdn.getUpType();
                 String newRDNAttributeValue = ( String ) newRdn.getUpValue();
-                Attribute newRDNAttribute = entry.get( newRDNAttributeID );
+                ServerAttribute newRDNAttribute = entry.get( newRDNAttributeID );
+                
                 if ( newRDNAttribute != null )
                 {
                     newRDNAttribute.add( newRDNAttributeValue );
@@ -290,10 +315,12 @@ public class OperationFactory
             // Calculate new name from newParentName, oldEntryName, and newRdn.
             LdapDN newEntryName = ( LdapDN ) newParentName.clone();
             newEntryName.add( newRdn );
+            
             for ( int i = oldEntryName.size() - newEntryName.size(); i > 0; i-- )
             {
                 newEntryName.add( oldEntryName.get( oldEntryName.size() - i ) );
             }
+            
             newEntryName.normalize( attributeRegistry.getNormalizerMapping() );
 
             // Add the new entry
@@ -318,9 +345,9 @@ public class OperationFactory
      */
     private void checkBeforeAdd( LdapDN newEntryName ) throws NamingException
     {
-        if ( nexus.hasEntry( new EntryOperationContext( newEntryName ) ) )
+        if ( nexus.hasEntry( new EntryOperationContext( registries, newEntryName ) ) )
         {
-            Attributes entry = nexus.lookup( new LookupOperationContext( newEntryName ) );
+            Attributes entry = nexus.lookup( new LookupOperationContext( registries, newEntryName ) );
             Attribute deleted = entry.get( Constants.ENTRY_DELETED );
             Object value = deleted == null ? null : deleted.get();
 

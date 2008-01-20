@@ -28,6 +28,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -51,9 +52,9 @@ public class ModifyOperationContext extends AbstractOperationContext
      * Creates a new instance of ModifyOperationContext.
      *
      */
-    public ModifyOperationContext()
+    public ModifyOperationContext( Registries registries )
     {
-    	super();
+    	super( registries );
     }
 
 
@@ -63,9 +64,9 @@ public class ModifyOperationContext extends AbstractOperationContext
      * @param dn the dn of the entry to be modified
      * @param modItems the modifications to be performed on the entry
      */
-    public ModifyOperationContext( LdapDN dn, List<ModificationItemImpl> modItems )
+    public ModifyOperationContext( Registries registries, LdapDN dn, List<ModificationItemImpl> modItems )
     {
-        super( dn );
+        super( registries, dn );
         this.modItems = modItems;
     }
 
@@ -77,9 +78,9 @@ public class ModifyOperationContext extends AbstractOperationContext
      * @param modItems the modifications to be performed on the entry
      * @param collateralOperation true if op is collateral, false otherwise
      */
-    public ModifyOperationContext( LdapDN dn, List<ModificationItemImpl> modItems, boolean collateralOperation )
+    public ModifyOperationContext( Registries registries, LdapDN dn, List<ModificationItemImpl> modItems, boolean collateralOperation )
     {
-        super( dn, collateralOperation );
+        super( registries, dn, collateralOperation );
         this.modItems = modItems;
     }
 

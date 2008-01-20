@@ -26,8 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
+import javax.naming.directory.InvalidAttributeIdentifierException;
+import javax.naming.directory.InvalidAttributeValueException;
+
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Collections;
 
@@ -38,19 +40,20 @@ import java.util.Collections;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ObjectClassAttribute implements ServerAttribute
+public class ObjectClassAttribute extends AbstractServerAttribute
 {
-    /** A logger */
-    private static final Logger LOG = LoggerFactory.getLogger( ObjectClassAttribute.class );
-
-    /** An unordered set storing the values */
-    private HashSet<ServerValue<?>> values = new HashSet<ServerValue<?>>();
-
-    /** The associated Attribute Type */
-    private AttributeType attributeType;
+    /** Used for serialization */
+    public static final long serialVersionUID = 2L;
     
-    /** The attribute User Provided ID */
-    private String upId;
+    /** logger for reporting errors that might not be handled properly upstream */
+    private static final Logger LOG = LoggerFactory.getLogger( ObjectClassAttribute.class );
+    
+    /** A speedup to get the ObjectClass attribute */
+    private static transient AttributeType OBJECT_CLASS_AT;
+    
+    /** A mutex to manage synchronization*/
+    private transient static Object MUTEX = new Object();
+
 
     // Sets dealing with objectClass operations
     private Set<ObjectClass> allObjectClasses = new HashSet<ObjectClass>();
@@ -60,20 +63,103 @@ public class ObjectClassAttribute implements ServerAttribute
 
     private Set<AttributeType> mayList = new HashSet<AttributeType>();
     private Set<AttributeType> mustList = new HashSet<AttributeType>();
-
-
-
-    // maybe have some additional convenience constructors which take
-    // an initial value as a string or a byte[]
     
+    /** The global registries */
+    private transient Registries registries;
+
+
     /**
-     * Creates a new ObjectClassAttribute with a null ID
+     * This method is used to initialize the OBJECT_CLASS_AT attributeType.
+     * 
+     * We want to do it only once, so it's a synchronized method. Note that
+     * the alternative would be to call the lookup() every time, but this won't
+     * be very efficient, as it will get the AT from a map, which is also
+     * synchronized, so here, we have a very minimal cost.
+     * 
+     * We can't do it once as a static part in the body of this class, because
+     * the access to the registries is mandatory to get back the AttributeType.
+     */
+    private void initObjectClassAT( Registries registries )
+    {
+        if ( OBJECT_CLASS_AT == null )
+        {
+            try
+            {
+                synchronized ( MUTEX )
+                {
+                    OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
+                }
+            }
+            catch ( NamingException ne )
+            {
+                // do nothing...
+            }
+        }
+    }
+
+
+    /**
+     * Creates a new ObjectClassAttribute with a null ID.
+     * <p>
+     * We will use the default name : 'objectClass'
      * 
      * @param registries The server registries to use
      */
-    public ObjectClassAttribute( Registries registries ) throws NamingException
+    public ObjectClassAttribute( Registries registries )
     {
-        this( null, registries );
+        this( registries, SchemaConstants.OBJECT_CLASS_AT );
+    }
+
+
+    /**
+     * Creates a new ObjectClassAttribute with ServerAttribute.
+     * <p>
+     * The ServerAttribute must have the ObjectClass attributeType
+     * 
+     * @param registries The server registries to use
+     * @param serverAttribute The serverAttribute containing the objectClasses
+     */
+    public ObjectClassAttribute( Registries registries, ServerAttribute serverAttribute )
+    {
+        this( registries, SchemaConstants.OBJECT_CLASS_AT );
+
+        if ( serverAttribute == null )
+        {
+            LOG.error( "We cannot create an ObjectClassAttribute without any serverAttribute" );
+        }
+        else
+        {
+            if ( !serverAttribute.getType().getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+            {
+                LOG.error(  "The ServerAttribute does not represent an ObjectClass" );
+            }
+            else
+            {
+                // Iterate through the attribute values and store them in the ObjectClass,
+                // if they are valid.
+                for ( ServerValue<?> value:serverAttribute )
+                {
+                    if ( value instanceof ServerStringValue )
+                    {
+                        String objectClassName = ((ServerStringValue)value).get();
+                        
+                    
+                        try
+                        {
+                            // Fond the objectClass and update the internal structures
+                            ObjectClass objectClass =  registries.getObjectClassRegistry().lookup( objectClassName );
+
+                            addObjectClass( objectClass );
+                        }
+                        catch ( NamingException ne )
+                        {
+                            // We didn't found the objectClass. Just ditch it
+                            LOG.error(  "The '{}' objectclass does not exist or the associated schema is not loaded", objectClassName );
+                        }
+                    }
+                }
+            }
+        }
     }
 
 
@@ -81,135 +167,91 @@ public class ObjectClassAttribute implements ServerAttribute
      * Creates a new instance of ObjectClassAttribute.
      *
      * @param upId The ObjectClass ID
-     * @param registries The registries to use to initialize this object
+     * @param registries The atRegistry to use to initialize this object
      * @throws NamingException If something went wrong
      */
-    public ObjectClassAttribute( String upId, Registries registries ) throws NamingException
+    public ObjectClassAttribute( Registries registries, String upId )
     {
-        setAttributeTypeAndRegistries( registries );
-        setUpId( upId );
-    }
-
-
-    /**
-     * Doc me more!
-     *
-     * If the value does not correspond to the same attributeType, then it's
-     * wrapped value is copied into a new ServerValue which uses the specified
-     * attributeType.
-     */
-    public ObjectClassAttribute( Registries registries, ServerValue<?> val ) throws NamingException
-    {
-        this( null, registries, val );
-    }
-
-
-    /**
-     * Doc me more!
-     *
-     * If the value does not correspond to the same attributeType, then it's
-     * wrapped value is copied into a new ServerValue which uses the specified
-     * attributeType.
-     */
-    public ObjectClassAttribute( String upId, Registries registries, ServerValue<?> val ) throws NamingException
-    {
-        setAttributeTypeAndRegistries( registries );
-
-        if ( val == null )
-        {
-            values.add( new ServerStringValue( attributeType ) );
-        }
-        else if ( ! ( val instanceof ServerStringValue ) )
-        {
-            throw new UnsupportedOperationException( "Only String values supported for objectClass attribute" );
-        }
-        else
-        {
-            values.add( val );
-        }
-
-        setUpId( upId );
-    }
-
-
-    public ObjectClassAttribute( Registries registries, String val ) throws NamingException
-    {
-        this( null, registries, val );
-    }
-
-
-    public ObjectClassAttribute( String upId, Registries registries, String val ) throws NamingException
-    {
-        setAttributeTypeAndRegistries( registries );
+        this.registries = registries;
         
-        if ( val == null )
+        initObjectClassAT( registries );
+        
+        attributeType = OBJECT_CLASS_AT;
+        setUpId( upId, attributeType );
+    }
+
+
+    /**
+     * Doc me more!
+     *
+     * If the values does not correspond to the same attributeType, then it's
+     * wrapped value is copied into a new ServerValue which uses the specified
+     * attributeType.
+     */
+    public ObjectClassAttribute( Registries registries, ServerValue<?>... values ) throws NamingException
+    {
+        this( registries, null, values );
+    }
+
+
+    /**
+     * Doc me more!
+     *
+     * If the value does not correspond to the same attributeType, then it's
+     * wrapped value is copied into a new ServerValue which uses the specified
+     * attributeType.
+     */
+    public ObjectClassAttribute( Registries registries, String upId, ServerValue<?>... vals ) throws NamingException
+    {
+        this.registries = registries;
+        attributeType = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT_OID );
+
+        if ( vals == null )
         {
             values.add( new ServerStringValue( attributeType ) );
         }
         else
         {
-            values.add( new ServerStringValue( attributeType, val ) );
+            for ( ServerValue<?> val:vals )
+            {
+                if ( ! ( val instanceof ServerStringValue ) )
+                {
+                    String message = "Only String values supported for objectClass attribute";
+                    LOG.error( message );
+                    throw new UnsupportedOperationException( message );
+                }
+                else
+                {
+                    values.add( val );
+                }
+            }
         }
 
-        setUpId( upId );
+        setUpId( upId, attributeType );
+    }
+
+
+    public ObjectClassAttribute( Registries registries, String upId, String... vals ) throws NamingException
+    {
+        this.registries = registries;
+        attributeType = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT_OID );
+        
+        if ( vals == null )
+        {
+            values.add( new ServerStringValue( attributeType ) );
+        }
+        else
+        {
+            for ( String val:vals )
+            {
+                values.add( new ServerStringValue( attributeType, val ) );
+            }
+        }
+
+        setUpId( upId, attributeType );
     }
 
     
-    /**
-     * Initialize the ObjectClass attributeType, using the ObjectClass' OID.
-     * 
-     * TODO This is a strange method : we _know_ that the ObjectClass' attributeType
-     * will always be the same, but we can't initialize it to its default value,
-     * unless the server is already started, or if we call this method only once, 
-     * but then we need to synchronize this class, which can be a burden.
-     * 
-     * This is was seems the best anyway...
-     *
-     * @param registries The registries used to extract the AttributeType
-     * 
-     * @throws NamingException If something went wrong (very unlikely)
-     */
-    private void setAttributeTypeAndRegistries( Registries registries ) throws NamingException
-    {
-        synchronized ( attributeType )
-        {
-            if ( attributeType == null )
-            {
-                attributeType = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT_OID );
-            }
-        }
-    }
-
-
-    /**
-     * Set the user provided value for this objectClass.
-     *
-     * @param upId The user provided ID
-     * @param attributeType 
-     */
-    private void setUpId( String upId )
-    {
-        if ( upId == null )
-        {
-            String name = attributeType.getName();
-            
-            if ( name == null )
-            {
-                this.upId = attributeType.getOid();
-            }
-            else
-            {
-                this.upId = name;
-            }
-        }
-        else
-        {
-            this.upId = upId;
-        }
-    }
-
-
-
     // -----------------------------------------------------------------------
 
 
@@ -268,9 +310,13 @@ public class ObjectClassAttribute implements ServerAttribute
                     break;
                     
                 default:
-                    throw new IllegalStateException( "Unrecognized objectClass type value: " + oc.getType() );
+                    String message = "Unrecognized objectClass type value: " + oc.getType();
+                    LOG.error( message );
+                    throw new UnsupportedOperationException( message );
             }
 
+            allObjectClasses.add( oc );
+            
             // now go through all objectClassses to collect the must an may list attributes
             Collections.addAll( mayList, oc.getMayList() );
             Collections.addAll( mustList, oc.getMustList() );
@@ -294,6 +340,12 @@ public class ObjectClassAttribute implements ServerAttribute
 
 
     public boolean hasObjectClass( ObjectClass objectClass )
+    {
+        return allObjectClasses.contains( objectClass );
+    }
+
+
+    public boolean hasObjectClass( String objectClass )
     {
         return allObjectClasses.contains( objectClass );
     }
@@ -344,145 +396,131 @@ public class ObjectClassAttribute implements ServerAttribute
         return Collections.unmodifiableSet( mayList );
     }
 
-
+    
     /**
-     * Gets the attribute type associated with this ServerAttribute.
+     * Get the String value, if and only if the value is known to be a String,
+     * otherwise a InvalidAttributeValueException will be thrown
      *
-     * @return the attributeType associated with this entry attribute
+     * @return The value as a String
+     * @throws InvalidAttributeValueException If the value is a byte[]
      */
-    public AttributeType getType()
+    public String getString() throws InvalidAttributeValueException
     {
-        return attributeType;
-    }
-
-
-    /**
-     * Get's the user provided identifier for this entry.  This is the value
-     * that will be used as the identifier for the attribute within the
-     * entry.  If this is a commonName attribute for example and the user
-     * provides "COMMONname" instead when adding the entry then this is
-     * the format the user will have that entry returned by the directory
-     * server.  To do so we store this value as it was given and track it
-     * in the attribute using this property.
-     *
-     * @return the user provided identifier for this attribute
-     */
-    public String getUpId()
-    {
-        return upId;
-    }
-
-
-    /**
-     * Checks to see if this attribute is valid along with the values it contains.
-     *
-     * @return true if the attribute and it's values are valid, false otherwise
-     * @throws NamingException if there is a failure to check syntaxes of values
-     */
-    public boolean isValid() throws NamingException
-    {
-        for ( ServerValue<?> value:values )
+        ServerValue<?> value = get();
+        
+        if ( value instanceof ServerStringValue )
         {
-            if ( ! value.isValid() )
-            {
-                return false;
-            }
+            return (String)value.get();
         }
-
-        return true;
+        else
+        {
+            String message = "The value is expected to be a String";
+            LOG.error( message );
+            throw new InvalidAttributeValueException( message );
+        }
     }
 
 
     /**
-     * Add a value to the current objectClass
+     * Get the byte[] value, if and only if the value is known to be Binary,
+     * otherwise a InvalidAttributeValueException will be thrown
+     *
+     * @return The value as a String
+     * @throws InvalidAttributeValueException If the value is a String
      */
-    public boolean add( ServerValue<?> val )
+    public byte[] getBytes() throws InvalidAttributeValueException
     {
-        return values.add( val );
-    }
-
-
-    public boolean add( String val )
-    {
-        return values.add( new ServerStringValue( attributeType, val ) );
+        String message = "The value for an objectClass is expected to be a String";
+        LOG.error( message );
+        throw new InvalidAttributeValueException( message );
     }
 
 
     public boolean add( byte[] val )
     {
-        throw new UnsupportedOperationException( "Binary values are not accepted by ObjectClassAttributes" );
+        String message = "Binary values are not accepted by ObjectClassAttributes";
+        LOG.error( message );
+        throw new UnsupportedOperationException( message );
     }
 
 
-    public void clear()
+    public boolean add( String val ) throws InvalidAttributeIdentifierException, NamingException
     {
-        values.clear();
+        ObjectClass objectClass = registries.getObjectClassRegistry().lookup( val );
+        
+        return addObjectClass( objectClass );
     }
 
 
-    public boolean contains( ServerValue<?> val )
+    public boolean add( ServerStringValue val ) throws InvalidAttributeIdentifierException, NamingException
     {
-        return values.contains( val );
-    }
-
-
-    public boolean contains( String val )
-    {
-        ServerStringValue ssv = new ServerStringValue( attributeType, val );
-        return values.contains( ssv );
+        //boolean added = super.add( val );
+        
+        ObjectClass objectClass = registries.getObjectClassRegistry().lookup( val.get() );
+        
+        if ( objectClass == null )
+        {
+            return false;
+        }
+        else
+        {
+            return addObjectClass( objectClass, val.get() );
+        }
+        
+        //return added;
     }
 
 
     public boolean contains( byte[] val )
     {
-        throw new UnsupportedOperationException( "There are no binary values in an ObjectClass attribute." );
-    }
-
-
-    public ServerValue<?> get()
-    {
-        if ( values.isEmpty() )
-        {
-            return null;
-        }
-
-        return values.iterator().next();
-    }
-
-
-    public Iterator<? extends ServerValue<?>> getAll()
-    {
-        return iterator();
-    }
-
-
-    public int size()
-    {
-        return values.size();
-    }
-
-
-    public boolean remove( ServerValue<?> val )
-    {
-        return values.remove( val );
+        String message = "There are no binary values in an ObjectClass attribute.";
+        LOG.error( message );
+        throw new UnsupportedOperationException( message );
     }
 
 
     public boolean remove( byte[] val )
     {
-        throw new UnsupportedOperationException( "There are no binary values in an ObjectClass attribute." );
+        String message = "There are no binary values in an ObjectClass attribute.";
+        LOG.error( message );
+        throw new UnsupportedOperationException( message );
     }
-
-
-    public boolean remove( String val )
+    
+    
+    /**
+     * @see Object#toString() 
+     */
+    public String toString()
     {
-        ServerStringValue ssv = new ServerStringValue( attributeType, val );
-        return values.remove( ssv );
-    }
-
-
-    public Iterator<ServerValue<?>> iterator()
-    {
-        return values.iterator();
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "    ObjectClass : " );
+        
+        if ( ( values != null ) && ( values.size() != 0 ) )
+        {
+            boolean isFirst = true;
+            
+            for ( ServerValue<?> objectClass:values )
+            {
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    sb.append( ", " );
+                }
+                
+                sb.append( objectClass.get() );
+            }
+        }
+        else
+        {
+            sb.append( "(null)" );
+        }
+        
+        sb.append( '\n' );
+        
+        return sb.toString();
     }
 }

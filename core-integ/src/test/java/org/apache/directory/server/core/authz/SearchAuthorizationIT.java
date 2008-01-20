@@ -21,7 +21,13 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.*;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteAccessControlSubentry;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.addEntryACI;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.addSubentryACI;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.server.core.integ.annotations.Factory;
@@ -30,14 +36,23 @@ import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.HashMap;
 import java.util.Map;
@@ -151,10 +166,11 @@ public class SearchAuthorizationIT
     private void recursivelyDelete( Name rdn ) throws NamingException
     {
         LdapContext sysRoot = getSystemContext( service );
-        NamingEnumeration results = sysRoot.search( rdn, "(objectClass=*)", new SearchControls() );
+        NamingEnumeration<SearchResult> results = sysRoot.search( rdn, "(objectClass=*)", new SearchControls() );
+        
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             Name childRdn = new LdapDN( result.getName() );
             childRdn.remove( 0 );
             recursivelyDelete( childRdn );
@@ -240,11 +256,12 @@ public class SearchAuthorizationIT
         {
             results.clear();
             DirContext userCtx = getContextAs( userDn, password );
-            NamingEnumeration list = userCtx.search( base, filter, cons );
+            NamingEnumeration<SearchResult> list = userCtx.search( base, filter, cons );
             int counter = 0;
+            
             while ( list.hasMore() )
             {
-                SearchResult result = ( SearchResult ) list.next();
+                SearchResult result = list.next();
                 results.put( result.getName(), result );
                 counter++;
             }
@@ -289,11 +306,12 @@ public class SearchAuthorizationIT
         {
             results.clear();
             DirContext userCtx = getContextAs( userDn, password );
-            NamingEnumeration list = userCtx.search( base, "(objectClass=*)", cons );
+            NamingEnumeration<SearchResult> list = userCtx.search( base, "(objectClass=*)", cons );
             int counter = 0;
+            
             while ( list.hasMore() )
             {
-                SearchResult result = ( SearchResult ) list.next();
+                SearchResult result = list.next();
                 results.put( result.getName(), result );
                 counter++;
             }
@@ -324,8 +342,9 @@ public class SearchAuthorizationIT
         Name base = addSearchData( new LdapDN(), 3, 10 );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration results = sysRoot.search( base, "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = sysRoot.search( base, "(objectClass=*)", controls );
         int counter = 0;
+        
         while ( results.hasMore() )
         {
             results.next();
@@ -760,7 +779,7 @@ public class SearchAuthorizationIT
         SearchControls cons = new SearchControls();
         cons.setSearchScope( SearchControls.OBJECT_SCOPE );
         SearchResult result = null;
-        NamingEnumeration list = null;
+        NamingEnumeration<SearchResult> list = null;
 
         //noinspection EmptyCatchBlock
         try
@@ -768,7 +787,7 @@ public class SearchAuthorizationIT
             list = userCtx.search( rdn, "(objectClass=*)", cons );
             if ( list.hasMore() )
             {
-                result = ( SearchResult ) list.next();
+                result = list.next();
                 list.close();
                 return result;
             }

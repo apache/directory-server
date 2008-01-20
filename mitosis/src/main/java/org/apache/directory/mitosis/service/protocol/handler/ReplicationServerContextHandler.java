@@ -26,7 +26,14 @@ import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.service.ReplicationContext;
 import org.apache.directory.mitosis.service.ReplicationContext.State;
 import org.apache.directory.mitosis.service.protocol.Constants;
-import org.apache.directory.mitosis.service.protocol.message.*;
+import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
+import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesMessage;
+import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesAckMessage;
+import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesMessage;
+import org.apache.directory.mitosis.service.protocol.message.LogEntryAckMessage;
+import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
+import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
+import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.util.SessionLog;
@@ -185,7 +192,7 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
         try
         {
             op.execute( ctx.getDirectoryService().getPartitionNexus(), ctx.getConfiguration().getStore(),
-                ctx.getDirectoryService().getRegistries().getAttributeTypeRegistry() );
+                ctx.getDirectoryService().getRegistries() );
             ack = new LogEntryAckMessage( message.getSequence(), Constants.OK );
         }
         catch ( Exception e )

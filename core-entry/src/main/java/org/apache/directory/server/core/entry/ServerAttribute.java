@@ -23,21 +23,80 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 
 import javax.naming.NamingException;
+import javax.naming.directory.InvalidAttributeValueException;
 
 
 /**
- * Document me!
+ * The server specific interface extending the EntryAttribute interface. It adds
+ * three more methods which are Server side.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerAttribute extends EntryAttribute<ServerValue<?>>, Iterable<ServerValue<?>>
+public interface ServerAttribute extends EntryAttribute<ServerValue<?>>
 {
+    /**
+     * Gets the attribute type associated with this ServerAttribute.
+     *
+     * @return the attributeType associated with this entry attribute
+     */
     AttributeType getType();
 
-
+    /**
+     * Get's the user provided identifier for this entry.  This is the value
+     * that will be used as the identifier for the attribute within the
+     * entry.  If this is a commonName attribute for example and the user
+     * provides "COMMONname" instead when adding the entry then this is
+     * the format the user will have that entry returned by the directory
+     * server.  To do so we store this value as it was given and track it
+     * in the attribute using this property.
+     *
+     * @return the user provided identifier for this attribute
+     */
     String getUpId();
+    
+    
+    /**
+     * Set the user provided ID. If we have none, the upId is assigned
+     * the attributetype's name. If it does not have any name, we will
+     * use the OID.
+     * <p>
+     * If we have an upId and an AttributeType, they must be compatible. :
+     *  - if the upId is an OID, it must be the AttributeType's OID
+     *  - otherwise, its normalized form must be equals to ones of
+     *  the attributeType's names.
+     *
+     * @param upId The attribute ID
+     * @param attributeType The associated attributeType
+     */
+    public void setUpId( String upId, AttributeType attributeType );
 
-
+    
+    /**
+     * Checks to see if this attribute is valid along with the values it contains.
+     *
+     * @return true if the attribute and it's values are valid, false otherwise
+     * @throws NamingException if there is a failure to check syntaxes of values
+     */
     boolean isValid() throws NamingException;
+    
+    
+    /**
+     * Get the String value, if and only if the value is known to be a String,
+     * otherwise a InvalidAttributeValueException will be thrown
+     *
+     * @return The value as a String
+     * @throws InvalidAttributeValueException If the value is a byte[]
+     */
+    String getString() throws InvalidAttributeValueException;
+
+
+    /**
+     * Get the byte[] value, if and only if the value is known to be Binary,
+     * otherwise a InvalidAttributeValueException will be thrown
+     *
+     * @return The value as a String
+     * @throws InvalidAttributeValueException If the value is a String
+     */
+    byte[] getBytes() throws InvalidAttributeValueException;
 }

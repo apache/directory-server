@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -101,7 +102,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupOperationContext( dn ) );
+            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
         }
         catch ( Exception e )
         {
@@ -127,7 +128,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupOperationContext( dn ) );
+            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
         }
         catch ( Exception e )
         {
@@ -156,7 +157,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupOperationContext( dn ) );
+            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
         }
         catch ( Exception e )
         {
@@ -185,7 +186,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupOperationContext( dn ) );
+            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
         }
         catch ( Exception e )
         {
@@ -213,7 +214,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupOperationContext( dn ) );
+            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
         }
         catch ( Exception e )
         {
@@ -238,7 +239,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupOperationContext( dn ) );
+            chain.lookup( new LookupOperationContext(ds.getRegistries(),  dn ) );
         }
         catch ( Exception e )
         {
@@ -540,6 +541,18 @@ public class InterceptorChainTest extends TestCase
         }
         
         public ChangeLog getChangeLog()
+        {
+            return null;
+        }
+
+
+        public ServerEntry newEntry( LdapDN dn ) throws NamingException
+        {
+            return null;
+        }
+
+        
+        public ServerEntry newEntry( String ldif, String dn )
         {
             return null;
         }

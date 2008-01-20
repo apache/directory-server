@@ -34,7 +34,13 @@ import org.junit.runner.RunWith;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import java.util.Hashtable;
 
 /**
@@ -105,12 +111,12 @@ public class DIRSERVER783IT
         String base = "";
 
         // Check entry
-        NamingEnumeration enm = ctx.search(base, filter, sctls);
+        NamingEnumeration<SearchResult> enm = ctx.search(base, filter, sctls);
         assertTrue(enm.hasMore());
 
         while (enm.hasMore()) 
         {
-            SearchResult sr = (SearchResult) enm.next();
+            SearchResult sr = enm.next();
             Attribute desc = sr.getAttributes().get("description");
             assertNotNull(desc);
             assertTrue(desc.contains(description1));

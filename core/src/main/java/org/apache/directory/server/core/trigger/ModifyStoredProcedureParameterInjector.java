@@ -25,13 +25,15 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
@@ -40,7 +42,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
 {
     private LdapDN modifiedEntryName;
     private List<ModificationItemImpl> modifications;
-    private Attributes oldEntry;
+    private ServerEntry oldEntry;
     
     
     public ModifyStoredProcedureParameterInjector( Invocation invocation, ModifyOperationContext opContext ) throws NamingException
@@ -48,8 +50,8 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         super( invocation );
         modifiedEntryName = opContext.getDn();
         modifications = opContext.getModItems();
-        this.oldEntry = getEntry();
-        Map<Class, MicroInjector> injectors = super.getInjectors();
+        this.oldEntry = getEntry( opContext.getRegistries() );
+        Map<Class<?>, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.Modify_OBJECT.class, $objectInjector );
         injectors.put( StoredProcedureParameter.Modify_MODIFICATION.class, $modificationInjector );
         injectors.put( StoredProcedureParameter.Modify_OLD_ENTRY.class, $oldEntryInjector );
@@ -58,7 +60,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     
     MicroInjector $objectInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( modifiedEntryName.getUpName() );
@@ -67,7 +69,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     
     MicroInjector $modificationInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
             List<ModificationItem> newMods = new ArrayList<ModificationItem>();
             
@@ -89,7 +91,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     
     MicroInjector $oldEntryInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
             return oldEntry;
         }
@@ -97,20 +99,23 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     
     MicroInjector $newEntryInjector = new MicroInjector()
     {
-        public Object inject( StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
-            return getEntry();
+            return getEntry( registries );
         }
     };
     
-    private Attributes getEntry() throws NamingException
+    private ServerEntry getEntry( Registries registries ) throws NamingException
     {
         PartitionNexusProxy proxy = getInvocation().getProxy();
         /**
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
          * especially subentry related ones like "triggerExecutionSubentries".
          */
-        return proxy.lookup( new LookupOperationContext( modifiedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        return ServerEntryUtils.toServerEntry( 
+            proxy.lookup( new LookupOperationContext( registries, modifiedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS ),
+            modifiedEntryName,
+            registries );
     }
 
 }

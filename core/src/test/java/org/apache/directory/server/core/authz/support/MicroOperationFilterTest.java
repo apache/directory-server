@@ -70,7 +70,7 @@ public class MicroOperationFilterTest extends TestCase
     {
         MicroOperationFilter filter = new MicroOperationFilter();
 
-        Assert.assertEquals( 0, filter.filter( EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, 
+        Assert.assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, 
             null, null, null, null, null, null, null, null, null, null, null ).size() );
     }
 
@@ -83,9 +83,9 @@ public class MicroOperationFilterTest extends TestCase
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, 
             TUPLE_OPERATIONS, true, 0 ) );
 
-        Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
+        Assert.assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
             null, null, USER_OPERATIONS_A, null ).size() );
-        Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
+        Assert.assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
             null, null, USER_OPERATIONS_B, null ).size() );
     }
 }

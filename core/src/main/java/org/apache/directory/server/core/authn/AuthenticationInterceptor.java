@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -54,7 +55,6 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,7 +197,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if ( IS_DEBUG )
         {
             LOG.debug( "Adding the entry " +
-                    AttributeUtils.toString( opContext.getEntry() ) +
+                    opContext.getEntry() +
                     " for DN = '" + opContext.getDn().getUpName() + "'" );
         }
 
@@ -231,7 +231,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public Attributes getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException
+    public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {

@@ -4,6 +4,7 @@ number:
    https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang/
 
 
+Sun Jan 20 11:07:38 EST 2008
 ----------------------------
-svn merge -r : https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang .
+svn merge -r 604350:613587 https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang .
 

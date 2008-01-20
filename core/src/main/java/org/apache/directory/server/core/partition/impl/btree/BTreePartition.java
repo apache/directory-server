@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -89,7 +90,12 @@ public abstract class BTreePartition implements Partition
     protected int cacheSize = -1;
     protected LdapDN suffixDn;
     protected String suffix;
-    protected Attributes contextEntry = new AttributesImpl( true );
+    
+    /** The rootDSE context */
+    protected ServerEntry contextEntry;
+
+    /** The rootDSE context */
+    protected Attributes contextEntryAttr;
 
 
     // ------------------------------------------------------------------------
@@ -139,9 +145,34 @@ public abstract class BTreePartition implements Partition
      *
      * @return the root suffix entry for this BTreePartition
      */
-    public Attributes getContextEntry()
+    public ServerEntry getContextEntry()
     {
-        return ( Attributes ) contextEntry.clone();
+        if ( contextEntry != null )
+        {
+            return ( ServerEntry ) contextEntry.clone();
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+
+    /**
+     * Returns root entry for this BTreePartition.
+     *
+     * @return the root suffix entry for this BTreePartition
+     */
+    public Attributes getContextEntryAttr()
+    {
+        if ( contextEntryAttr != null )
+        {
+            return ( Attributes ) contextEntryAttr.clone();
+        }
+        else
+        {
+            return null;
+        }
     }
 
 
@@ -150,12 +181,34 @@ public abstract class BTreePartition implements Partition
      *
      * @param rootEntry the root suffix entry of this BTreePartition
      */
-    public void setContextEntry( Attributes rootEntry )
+    public void setContextEntry( ServerEntry rootEntry )
     {
-        this.contextEntry = ( Attributes ) rootEntry.clone();
+        this.contextEntry = ( ServerEntry ) rootEntry.clone();
     }
 
+    
+    /**
+     * Sets root entry for this BTreePartition.
+     *
+     * @param rootEntry the root suffix entry of this BTreePartition
+     */
+    public void setContextEntry( String rootEntry )
+    {
+        System.out.println( rootEntry );
+    }
 
+    
+    /**
+     * Sets root entry for this BTreePartition.
+     *
+     * @param rootEntry the root suffix entry of this BTreePartition
+     */
+    public void setContextEntry( Attributes rootEntryAttr )
+    {
+        this.contextEntryAttr = ( AttributesImpl ) rootEntryAttr.clone();
+    }
+
+    
     /**
      * Gets the unique identifier for this partition.
      *

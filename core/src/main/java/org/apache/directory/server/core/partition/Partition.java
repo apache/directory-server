@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -58,8 +59,10 @@ public interface Partition
 {
     /** The name of reserved system partition */
     String SYSTEM_PARTITION_NAME = "system";
+    
     /** default partition implementation class */
     String DEFAULT_PARTITION_IMPLEMENTATION = "org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition";
+    
     /** the default entry cache size to use for a partition */
     int DEFAULT_CACHE_SIZE = 10000;
     
@@ -90,17 +93,25 @@ public interface Partition
      *
      * @return the entry for the suffix of this Partition.
      */
-    Attributes getContextEntry();
+    ServerEntry getContextEntry();
 
 
+    /**
+     * Gets the root entry of the partition, the entry for the suffix.
+     *
+     * @return the entry for the suffix of this Partition.
+     */
+    Attributes getContextEntryAttr();
+
+    
     /**
      * Sets the root entry of the partition, the entry for the suffix.
      *
      * @param contextEntry the entry for the suffix of this Partition.
      */
-    void setContextEntry( Attributes contextEntry );
+    void setContextEntry( ServerEntry contextEntry );
 
-
+    
     /**
      * Gets the non-normalized suffix for this Partition as a string.
      *

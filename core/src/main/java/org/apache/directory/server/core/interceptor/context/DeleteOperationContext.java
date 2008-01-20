@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -28,14 +29,14 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DeleteOperationContext  extends AbstractOperationContext
+public class DeleteOperationContext extends AbstractOperationContext
 {
     /**
      * Creates a new instance of DeleteOperationContext.
      */
-    public DeleteOperationContext()
+    public DeleteOperationContext( Registries registries )
     {
-        super();
+        super( registries );
     }
     
 
@@ -44,9 +45,9 @@ public class DeleteOperationContext  extends AbstractOperationContext
      *
      * @param collateralOperation true if this is a side effect operation
      */
-    public DeleteOperationContext( boolean collateralOperation )
+    public DeleteOperationContext( Registries registries, boolean collateralOperation )
     {
-        super( collateralOperation );
+        super( registries, collateralOperation );
     }
 
 
@@ -55,9 +56,9 @@ public class DeleteOperationContext  extends AbstractOperationContext
      *
      * @param deleteDn The entry DN to delete
      */
-    public DeleteOperationContext( LdapDN deleteDn )
+    public DeleteOperationContext( Registries registries, LdapDN deleteDn )
     {
-        super( deleteDn );
+        super( registries, deleteDn );
     }
 
 
@@ -67,9 +68,9 @@ public class DeleteOperationContext  extends AbstractOperationContext
      * @param deleteDn The entry DN to delete
      * @param collateralOperation true if this is a side effect operation
      */
-    public DeleteOperationContext( LdapDN deleteDn, boolean collateralOperation )
+    public DeleteOperationContext( Registries registries, LdapDN deleteDn, boolean collateralOperation )
     {
-        super( deleteDn, collateralOperation );
+        super( registries, deleteDn, collateralOperation );
     }
 
 

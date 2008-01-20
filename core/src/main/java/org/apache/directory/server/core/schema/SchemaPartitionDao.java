@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -100,6 +101,7 @@ public class SchemaPartitionDao
 
 
     private final Partition partition;
+    private final Registries registries;
     private final SchemaEntityFactory factory;
     private final OidRegistry oidRegistry;
     private final AttributeTypeRegistry attrRegistry;
@@ -130,12 +132,13 @@ public class SchemaPartitionDao
      * @param bootstrapRegistries the bootstrap registries that were used to start up the schema partition
      * @throws NamingException if there are problems initializing this schema partion dao
      */
-    public SchemaPartitionDao( Partition partition, Registries bootstrapRegistries ) throws NamingException
+    public SchemaPartitionDao( Partition partition, Registries registries ) throws NamingException
     {
         this.partition = partition;
-        this.factory = new SchemaEntityFactory( bootstrapRegistries );
-        this.oidRegistry = bootstrapRegistries.getOidRegistry();
-        this.attrRegistry = bootstrapRegistries.getAttributeTypeRegistry();
+        this.registries = registries;
+        this.factory = new SchemaEntityFactory( registries );
+        this.oidRegistry = registries.getOidRegistry();
+        this.attrRegistry = registries.getAttributeTypeRegistry();
         
         this.M_NAME_OID = oidRegistry.getOid( MetaSchemaConstants.M_NAME_AT );
         this.CN_OID = oidRegistry.getOid( SchemaConstants.CN_AT );
@@ -159,11 +162,16 @@ public class SchemaPartitionDao
     public Map<String,Schema> getSchemas() throws NamingException
     {
         Map<String,Schema> schemas = new HashMap<String,Schema>();
-        NamingEnumeration list = listSchemas();
+        NamingEnumeration<SearchResult> list = listSchemas();
+        
         while( list.hasMore() )
         {
-            SearchResult sr = ( SearchResult ) list.next();
-            Schema schema = factory.getSchema( sr.getAttributes() ); 
+            SearchResult sr = list.next();
+            Schema schema = factory.getSchema( 
+                ServerEntryUtils.toServerEntry( 
+                    sr.getAttributes(),
+                    LdapDN.EMPTY_LDAPDN,
+                    registries ) ); 
             schemas.put( schema.getSchemaName(), schema );
         }
         
@@ -174,10 +182,11 @@ public class SchemaPartitionDao
     public Set<String> getSchemaNames() throws NamingException
     {
         Set<String> schemaNames = new HashSet<String>();
-        NamingEnumeration list = listSchemas();
+        NamingEnumeration<SearchResult> list = listSchemas();
+        
         while( list.hasMore() )
         {
-            SearchResult sr = ( SearchResult ) list.next();
+            SearchResult sr = list.next();
             schemaNames.add( ( String ) sr.getAttributes().get( SchemaConstants.CN_AT ).get() );
         }
         
@@ -185,7 +194,7 @@ public class SchemaPartitionDao
     }
     
 
-    private NamingEnumeration listSchemas() throws NamingException
+    private NamingEnumeration<SearchResult> listSchemas() throws NamingException
     {
         LdapDN base = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
         base.normalize( attrRegistry.getNormalizerMapping() );
@@ -194,7 +203,7 @@ public class SchemaPartitionDao
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         searchControls.setReturningAttributes( SCHEMA_ATTRIBUTES );
         return partition.search( 
-            new SearchOperationContext( base, AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            new SearchOperationContext( registries, base, AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
     }
 
 
@@ -202,7 +211,11 @@ public class SchemaPartitionDao
     {
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
         dn.normalize( attrRegistry.getNormalizerMapping() );
-        return factory.getSchema( partition.lookup( new LookupOperationContext( dn ) ) );
+        return factory.getSchema( 
+            ServerEntryUtils.toServerEntry( 
+                partition.lookup( new LookupOperationContext( registries, dn ) ),
+                dn,
+                registries ) );
     }
 
 
@@ -226,7 +239,7 @@ public class SchemaPartitionDao
 
         try
         {
-            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
@@ -273,7 +286,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext(
-                    partition.getSuffixDn(), AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+                registries, partition.getSuffixDn(), AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -318,7 +331,7 @@ public class SchemaPartitionDao
 
         try
         {
-            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
@@ -364,7 +377,7 @@ public class SchemaPartitionDao
 
         try
         {
-            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
@@ -410,7 +423,7 @@ public class SchemaPartitionDao
 
         try
         {
-            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(), AliasDerefMode.DEREF_ALWAYS,
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(), AliasDerefMode.DEREF_ALWAYS,
                         filter, searchControls ) );
             
             if ( ! ne.hasMore() )
@@ -505,7 +518,7 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
@@ -565,7 +578,7 @@ public class SchemaPartitionDao
     {
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
         dn.normalize( attrRegistry.getNormalizerMapping() );
-        Attributes entry = partition.lookup( new LookupOperationContext( dn ) );
+        Attributes entry = partition.lookup( new LookupOperationContext( registries, dn ) );
         Attribute disabledAttr = AttributeUtils.getAttribute( entry, disabledAttributeType );
         List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>( 3 );
         
@@ -591,7 +604,7 @@ public class SchemaPartitionDao
         mods.add( new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
             new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) ) );
         
-        partition.modify( new ModifyOperationContext( dn, mods ) );
+        partition.modify( new ModifyOperationContext( registries, dn, mods ) );
     }
 
 
@@ -624,7 +637,7 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
@@ -673,7 +686,7 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                      AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
@@ -701,7 +714,7 @@ public class SchemaPartitionDao
         // (& (m-oid=*) (m-name=*) )
         filter.addNode( new PresenceNode( M_OID_OID ) );
         filter.addNode( new PresenceNode( M_NAME_OID ) );
-        return partition.search( new SearchOperationContext( partition.getSuffixDn(),
+        return partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                  AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
     }
 
@@ -750,7 +763,7 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
@@ -798,7 +811,7 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
@@ -840,7 +853,7 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                      AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
@@ -920,7 +933,7 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {

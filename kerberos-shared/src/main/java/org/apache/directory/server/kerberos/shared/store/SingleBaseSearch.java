@@ -22,7 +22,11 @@ package org.apache.directory.server.kerberos.shared.store;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.kerberos.shared.store.operations.*;
+import org.apache.directory.server.kerberos.shared.store.operations.AddPrincipal;
+import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
+import org.apache.directory.server.kerberos.shared.store.operations.DeletePrincipal;
+import org.apache.directory.server.kerberos.shared.store.operations.GetAllPrincipals;
+import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 
 import javax.naming.directory.DirContext;

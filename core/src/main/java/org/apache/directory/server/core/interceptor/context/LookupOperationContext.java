@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -33,7 +34,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LookupOperationContext  extends AbstractOperationContext
+public class LookupOperationContext extends AbstractOperationContext
 {
     /** The list of attributes id to return */
     private List<String> attrsId;
@@ -46,9 +47,9 @@ public class LookupOperationContext  extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupOperationContext()
+    public LookupOperationContext( Registries registries )
     {
-    	super();
+    	super( registries );
     }
 
     /**
@@ -56,9 +57,9 @@ public class LookupOperationContext  extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupOperationContext( LdapDN dn )
+    public LookupOperationContext( Registries registries, LdapDN dn )
     {
-        super( dn );
+        super( registries, dn );
     }
 
     /**
@@ -66,9 +67,9 @@ public class LookupOperationContext  extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupOperationContext( String attrsId[] )
+    public LookupOperationContext( Registries registries, String attrsId[] )
     {
-    	super();
+    	super( registries );
         this.attrsId = new ArrayList<String>();
         attrsOid = new ArrayList<String>();
         setAttrsId( attrsId );
@@ -79,9 +80,9 @@ public class LookupOperationContext  extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupOperationContext( LdapDN dn, String attrsId[] )
+    public LookupOperationContext( Registries registries, LdapDN dn, String attrsId[] )
     {
-        super( dn );
+        super( registries, dn );
         this.attrsId = new ArrayList<String>();
         attrsOid = new ArrayList<String>();
         setAttrsId( attrsId );

@@ -20,30 +20,45 @@
 package org.apache.directory.mitosis.service.protocol.handler;
 
 
-import org.apache.directory.mitosis.common.*;
+import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.CSNVector;
+import org.apache.directory.mitosis.common.DefaultCSN;
+import org.apache.directory.mitosis.common.Replica;
+import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.AddEntryOperation;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.service.ReplicationContext;
 import org.apache.directory.mitosis.service.ReplicationContext.State;
 import org.apache.directory.mitosis.service.protocol.Constants;
-import org.apache.directory.mitosis.service.protocol.message.*;
+import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
+import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
+import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesMessage;
+import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesAckMessage;
+import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesMessage;
+import org.apache.directory.mitosis.service.protocol.message.LogEntryAckMessage;
+import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
+import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
+import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.WriteFuture;
 import org.apache.mina.util.SessionLog;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.net.InetSocketAddress;
@@ -334,9 +349,10 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
     private void sendAllEntries( ReplicationContext ctx ) throws NamingException
     {
-        Attributes rootDSE = ctx.getDirectoryService().getPartitionNexus().getRootDSE( null );
+        ServerEntry rootDSE = ctx.getDirectoryService().getPartitionNexus().getRootDSE( null );
 
-        Attribute namingContextsAttr = rootDSE.get( "namingContexts" );
+        ServerAttribute namingContextsAttr = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        
         if ( namingContextsAttr == null || namingContextsAttr.size() == 0 )
         {
             SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
@@ -345,21 +361,12 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         }
 
         // Iterate all context partitions to send all entries of them.
-        NamingEnumeration e = namingContextsAttr.getAll();
-        while ( e.hasMore() )
+        for ( ServerValue<?> namingContext:namingContextsAttr )
         {
-            Object value = e.next();
-
             // Convert attribute value to JNDI name.
             LdapDN contextName;
-            if ( value instanceof LdapDN )
-            {
-                contextName = ( LdapDN ) value;
-            }
-            else
-            {
-                contextName = new LdapDN( String.valueOf( value ) );
-            }
+
+            contextName = new LdapDN( (String)namingContext.get() );
 
             SessionLog.info( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
                     "] Sending entries under '" + contextName + '\'' );
@@ -377,19 +384,23 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration e = ctx.getDirectoryService().getPartitionNexus().search(
-            new SearchOperationContext( contextName, AliasDerefMode.DEREF_ALWAYS,
+        NamingEnumeration<SearchResult> e = ctx.getDirectoryService().getPartitionNexus().search(
+            new SearchOperationContext( ctx.getDirectoryService().getRegistries(), contextName, AliasDerefMode.DEREF_ALWAYS,
             new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         try
         {
             while ( e.hasMore() )
             {
-                SearchResult sr = ( SearchResult ) e.next();
-                Attributes attrs = sr.getAttributes();
+                SearchResult sr = e.next();
+                ServerEntry attrs = ServerEntryUtils.toServerEntry( 
+                    sr.getAttributes(), 
+                    new LdapDN( sr.getName() ), 
+                    ctx.getDirectoryService().getRegistries() ) ;
 
                 // Skip entries without entryCSN attribute.
-                Attribute entryCSNAttr = attrs.get( org.apache.directory.mitosis.common.Constants.ENTRY_CSN );
+                ServerAttribute entryCSNAttr = attrs.get( org.apache.directory.mitosis.common.Constants.ENTRY_CSN );
+                
                 if ( entryCSNAttr == null )
                 {
                     continue;
@@ -397,9 +408,19 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
                 // Get entryCSN of the entry.  Skip if entryCSN value is invalid. 
                 CSN csn;
+                
                 try
                 {
-                    csn = new DefaultCSN( String.valueOf( entryCSNAttr.get() ) );
+                    Object val = entryCSNAttr.get();
+                    
+                    if ( val instanceof byte[] )
+                    {
+                        csn = new DefaultCSN( StringTools.utf8ToString( (byte[])val ) );
+                    }
+                    else
+                    {
+                        csn = new DefaultCSN( (String)val );
+                    }
                 }
                 catch ( IllegalArgumentException ex )
                 {

@@ -35,8 +35,12 @@ header {
  */
 package org.apache.directory.server.core.tools.schema;
 
-import java.util.* ;
-import org.apache.directory.shared.ldap.schema.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
+import org.apache.directory.shared.ldap.schema.UsageEnum;
 
 }
 
@@ -98,7 +102,7 @@ IDENTIFIER options { testLiterals=true; }
 
 DESC
     :
-        "desc" WS QUOTE ( ~'\'' )+ QUOTE
+        "desc" WS QUOTE ( ~'\'' )* QUOTE
     ;
 
 SYNTAX
@@ -117,8 +121,8 @@ options    {
 {
     public static final String[] EMPTY = new String[0];
 
-    private List attributeTypes = new ArrayList();
-    private List objectClasses = new ArrayList();
+    private List<AttributeTypeLiteral> attributeTypes = new ArrayList<AttributeTypeLiteral>();
+    private List<ObjectClassLiteral> objectClasses = new ArrayList<ObjectClassLiteral>();
     private ParserMonitor monitor = null;
 
 
@@ -293,30 +297,40 @@ objectClassDesc [ObjectClassLiteral objectClass]
 }
     : d:DESC
     {
-        String desc = d.getText().split( "'" )[1];
-        String[] quoted = desc.split( "\"" );
-
-        if ( quoted.length == 1 )
-        {
-            objectClass.setDescription( desc );
+        String text = d.getText();
+        String[] elems = text.split( "'" );
+        
+        if ( elems.length == 1 )
+        { 
+            objectClass.setDescription( "" );
         }
         else
         {
-            StringBuffer buf = new StringBuffer();
-            for ( int ii = 0; ii < quoted.length; ii++ )
-            {
-                if ( ii < quoted.length - 1 )
-                {
-                    buf.append( quoted[ii] ).append( "\\" ).append( "\"" );
-                }
-                else
-                {
-                    buf.append( quoted[ii] );
-                }
-            }
-
-            objectClass.setDescription( buf.toString() );
-        }
+	        String desc = elems[1];
+	        String[] quoted = desc.split( "\"" );
+	
+	        if ( quoted.length == 1 )
+	        {
+	            objectClass.setDescription( desc );
+	        }
+	        else
+	        {
+	            StringBuffer buf = new StringBuffer();
+	            for ( int ii = 0; ii < quoted.length; ii++ )
+	            {
+	                if ( ii < quoted.length - 1 )
+	                {
+	                    buf.append( quoted[ii] ).append( "\\" ).append( "\"" );
+	                }
+	                else
+	                {
+	                    buf.append( quoted[ii] );
+	                }
+	            }
+	
+	            objectClass.setDescription( buf.toString() );
+	        }
+	    }
     }
     ;
 
@@ -392,29 +406,39 @@ desc [AttributeTypeLiteral type]
 }
     : d:DESC
     {
-        String desc = d.getText().split( "'" )[1];
-        String[] quoted = desc.split( "\"" );
-
-        if ( quoted.length == 1 )
+        String text = d.getText();
+        String[] elems = text.split( "'" );
+        
+        if ( elems.length == 1 )
         {
-            type.setDescription( desc );
+            type.setDescription( "" );
         }
         else
         {
-            StringBuffer buf = new StringBuffer();
-            for ( int ii = 0; ii < quoted.length; ii++ )
-            {
-                if ( ii < quoted.length - 1 )
-                {
-                    buf.append( quoted[ii] ).append( "\\" ).append( "\"" );
-                }
-                else
-                {
-                    buf.append( quoted[ii] );
-                }
-            }
+            String desc = elems[1];
+            String[] quoted = desc.split( "\"" );
 
-            type.setDescription( buf.toString() );
+            if ( quoted.length == 1 )
+            {
+                type.setDescription( desc );
+            }
+            else
+            {
+                StringBuffer buf = new StringBuffer();
+                for ( int ii = 0; ii < quoted.length; ii++ )
+                {
+                    if ( ii < quoted.length - 1 )
+                    {
+                        buf.append( quoted[ii] ).append( "\\" ).append( "\"" );
+                    }
+                    else
+                    {
+                        buf.append( quoted[ii] );
+                    }
+                }
+
+                type.setDescription( buf.toString() );
+            }
         }
     }
     ;

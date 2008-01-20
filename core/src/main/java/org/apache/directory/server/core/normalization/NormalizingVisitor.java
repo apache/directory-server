@@ -21,7 +21,6 @@ package org.apache.directory.server.core.normalization;
 
 
 import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -88,36 +87,18 @@ public class NormalizingVisitor implements FilterVisitor
     	{
 	    	Object normalized;
 	    	
-	        if ( OID.isOID( attribute ) )
-	        {
-	            if ( value instanceof String )
-	            {
-	                normalized = ncn.normalizeByOid( attribute, ( String ) value );
-	            }
-	            else if ( value instanceof byte [] )
-	            {
-	                normalized = ncn.normalizeByOid( attribute, ( byte[] ) value );
-	            }
-	            else
-	            {
-	                normalized = ncn.normalizeByOid( attribute, value.toString() );
-	            }
-	        }
-	        else
-	        {
-	            if ( value instanceof String )
-	            {
-	                normalized = ncn.normalizeByName( attribute, ( String ) value );
-	            }
-	            else if ( value instanceof byte [] )
-	            {
-	                normalized = ncn.normalizeByName( attribute, ( byte[] ) value );
-	            }
-	            else
-	            {
-	                normalized = ncn.normalizeByName( attribute, value.toString() );
-	            }
-	        }
+            if ( value instanceof String )
+            {
+                normalized = ncn.normalizeByName( attribute, ( String ) value );
+            }
+            else if ( value instanceof byte [] )
+            {
+                normalized = ncn.normalizeByName( attribute, ( byte[] ) value );
+            }
+            else
+            {
+                normalized = ncn.normalizeByOid( attribute, value.toString() );
+            }
 	        
 	        return normalized;
 	    }

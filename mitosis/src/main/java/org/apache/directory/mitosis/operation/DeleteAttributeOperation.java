@@ -23,6 +23,7 @@ package org.apache.directory.mitosis.operation;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -61,12 +62,12 @@ public class DeleteAttributeOperation extends AttributeOperation
     }
 
 
-    protected void execute1( PartitionNexus nexus ) throws NamingException
+    protected void execute1( PartitionNexus nexus, Registries registries ) throws NamingException
     {
         Attributes attrs = new AttributesImpl( true );
         attrs.put( getAttribute() );
         List<ModificationItemImpl> items = ModifyOperationContext.createModItems( attrs, DirContext.REMOVE_ATTRIBUTE );
 
-        nexus.modify( new ModifyOperationContext( getName(), items ) );
+        nexus.modify( new ModifyOperationContext( registries, getName(), items ) );
     }
 }

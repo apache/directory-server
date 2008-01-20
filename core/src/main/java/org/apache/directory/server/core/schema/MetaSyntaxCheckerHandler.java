@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
@@ -36,14 +36,12 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 
 
@@ -76,7 +74,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    private SyntaxCheckerDescription getSyntaxCheckerDescription( String schemaName, Attributes entry ) 
+    private SyntaxCheckerDescription getSyntaxCheckerDescription( String schemaName, ServerEntry entry ) 
         throws NamingException
     {
         SyntaxCheckerDescription description = new SyntaxCheckerDescription();
@@ -84,18 +82,20 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
         List<String> values = new ArrayList<String>();
         values.add( schemaName );
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
-        description.setFqcn( ( String ) AttributeUtils.getAttribute( entry, fqcnAT ).get() );
+        description.setFqcn( entry.get( fqcnAT ).getString() );
         
-        Attribute desc = AttributeUtils.getAttribute( entry, descAT );
+        ServerAttribute desc = entry.get( descAT );
+        
         if ( desc != null && desc.size() > 0 )
         {
-            description.setDescription( ( String ) desc.get() );
+            description.setDescription( desc.getString() );
         }
         
-        Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+        ServerAttribute bytecode = entry.get( byteCodeAT );
+        
         if ( bytecode != null && bytecode.size() > 0 )
         {
-            byte[] bytes = ( byte[] ) bytecode.get();
+            byte[] bytes = bytecode.getBytes();
             description.setBytecode( new String( Base64.encode( bytes ) ) );
         }
 
@@ -103,7 +103,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
     
-    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, boolean cascade ) throws NamingException
+    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws NamingException
     {
         String oid = getOid( entry );
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( targetEntry, targetRegistries );
@@ -120,7 +120,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( LdapDN name, Attributes entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws NamingException
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
@@ -164,7 +164,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, Attributes entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
     {
         delete( getOid( entry ), cascade );
     }
@@ -187,7 +187,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         String oldOid = getOid( entry );
 
@@ -200,7 +200,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
         }
 
         Schema schema = getSchema( name );
-        Attributes targetEntry = ( Attributes ) entry.clone();
+        ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRdn.getValue();
         if ( super.targetRegistries.getSyntaxCheckerRegistry().hasSyntaxChecker( newOid ) )
         {
@@ -208,7 +208,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.OTHER );
         }
 
-        targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
+        targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         if ( ! schema.isDisabled() )
         {
             SyntaxChecker syntaxChecker = factory.getSyntaxChecker( targetEntry, targetRegistries );
@@ -222,7 +222,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn, 
-        Attributes entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws NamingException
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
@@ -237,7 +237,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
 
         Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
-        Attributes targetEntry = ( Attributes ) entry.clone();
+        ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         
         String newOid = ( String ) newRdn.getValue();
         if ( super.targetRegistries.getSyntaxCheckerRegistry().hasSyntaxChecker( newOid ) )
@@ -246,7 +246,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.OTHER );
         }
 
-        targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
+        targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( targetEntry, targetRegistries );
 
         if ( ! oldSchema.isDisabled() )
@@ -264,7 +264,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, boolean cascade ) 
+    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
         throws NamingException
     {
         checkNewParent( newParentName );

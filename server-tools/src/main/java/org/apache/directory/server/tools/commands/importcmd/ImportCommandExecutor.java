@@ -31,7 +31,11 @@ import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.*;
+import org.apache.directory.shared.ldap.codec.LdapConstants;
+import org.apache.directory.shared.ldap.codec.LdapDecoder;
+import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
+import org.apache.directory.shared.ldap.codec.LdapResult;
 import org.apache.directory.shared.ldap.codec.add.AddRequest;
 import org.apache.directory.shared.ldap.codec.bind.BindRequest;
 import org.apache.directory.shared.ldap.codec.bind.BindResponse;
@@ -62,7 +66,10 @@ import javax.naming.directory.DirContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.SocketAddress;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
@@ -225,13 +232,13 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         // Copy the attributes
         addRequest.initAttributes();
 
-        for ( NamingEnumeration attrs = attributes.getAll(); attrs.hasMoreElements(); )
+        for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
         {
-            Attribute attribute = ( Attribute ) attrs.nextElement();
+            Attribute attribute = attrs.nextElement();
 
             addRequest.addAttributeType( attribute.getID() );
 
-            for ( NamingEnumeration values = attribute.getAll(); values.hasMoreElements(); )
+            for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
             {
                 Object value = values.nextElement();
                 addRequest.addAttributeValue( value );
@@ -455,7 +462,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
             modifyRequest.addAttributeTypeAndValues( modificationItem.getAttribute().getID() );
 
-            for ( NamingEnumeration values = modificationItem.getAttribute().getAll(); values.hasMoreElements(); )
+            for ( NamingEnumeration<?> values = modificationItem.getAttribute().getAll(); values.hasMoreElements(); )
             {
                 Object value = values.nextElement();
                 modifyRequest.addAttributeValue( value );
@@ -835,13 +842,13 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         if ( ldifReader.containsEntries() )
         {
             // Parse the file and inject every entry
-            Iterator entries = ldifReader.iterator();
+            Iterator<Entry> entries = ldifReader.iterator();
             long t0 = System.currentTimeMillis();
             int nbAdd = 0;
 
             while ( entries.hasNext() )
             {
-                Entry entry = ( Entry ) entries.next();
+                Entry entry = entries.next();
 
                 // Check if we have had some error, has next() does not throw any exception
                 if ( ldifReader.hasError() )
@@ -900,13 +907,13 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         else
         {
             // Parse the file and inject every modification
-            Iterator entries = ldifReader.iterator();
+            Iterator<Entry> entries = ldifReader.iterator();
             long t0 = System.currentTimeMillis();
             int nbMod = 0;
 
             while ( entries.hasNext() )
             {
-                Entry entry = ( Entry ) entries.next();
+                Entry entry = entries.next();
 
                 // Check if we have had some error, has next() does not throw any exception
                 if ( ldifReader.hasError() )

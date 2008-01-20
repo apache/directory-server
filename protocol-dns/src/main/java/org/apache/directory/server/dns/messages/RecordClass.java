@@ -56,7 +56,7 @@ public enum RecordClass implements EnumConverter<Short>
 
     private RecordClass( int value )
     {
-        this.value = ( byte ) value;
+        this.value = ( short ) value;
     }
 
 

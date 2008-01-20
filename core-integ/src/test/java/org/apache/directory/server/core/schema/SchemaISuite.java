@@ -18,9 +18,10 @@
  */
 package org.apache.directory.server.core.schema;
 
+
 import org.apache.directory.server.core.integ.CiSuite;
 import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.annotations.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

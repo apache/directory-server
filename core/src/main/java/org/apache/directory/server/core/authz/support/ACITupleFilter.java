@@ -22,11 +22,11 @@ package org.apache.directory.server.core.authz.support;
 
 import java.util.Collection;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -64,10 +64,11 @@ public interface ACITupleFilter
      * @throws NamingException if failed to filter the specific tuples
      */
     Collection<ACITuple> filter( 
+            Registries registries, 
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             PartitionNexusProxy proxy,
-            Collection<Name> userGroupNames, 
+            Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
             Attributes userEntry,
             AuthenticationLevel authenticationLevel, 

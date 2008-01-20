@@ -239,7 +239,7 @@ public abstract class AbstractServerTest extends TestCase
         setContexts( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
 
-    protected void configureDirectoryService()
+    protected void configureDirectoryService() throws NamingException
     {
     }
 

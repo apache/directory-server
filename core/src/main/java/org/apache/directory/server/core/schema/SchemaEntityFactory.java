@@ -28,11 +28,12 @@ import java.util.List;
 import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -50,7 +51,6 @@ import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 
 
@@ -63,9 +63,11 @@ import org.apache.directory.shared.ldap.util.Base64;
 public class SchemaEntityFactory
 {
     /** Used for looking up the setRegistries(Registries) method */
-    private final static Class[] parameterTypes = new Class[] { Registries.class };
+    private final static Class<?>[] parameterTypes = new Class[] { Registries.class };
+    
     /** Used for looking up the setSyntaxOid(String) method */
-    private final static Class[] setOidParameterTypes = new Class[] { String.class };
+    private final static Class<?>[] setOidParameterTypes = new Class[] { String.class };
+    
     private static final String[] EMPTY = new String[0];
     
     /** Used for dependency injection of Registries via setter into schema objects */
@@ -85,7 +87,7 @@ public class SchemaEntityFactory
     }
 
     
-    public Schema getSchema( Attributes entry ) throws NamingException
+    public Schema getSchema( ServerEntry entry ) throws NamingException
     {
         String name;
         String owner;
@@ -101,18 +103,20 @@ public class SchemaEntityFactory
         {
             throw new NullPointerException( "entry must have a valid cn attribute" );
         }
-        name = ( String ) entry.get( SchemaConstants.CN_AT ).get();
+        
+        name = entry.get( SchemaConstants.CN_AT ).getString();
         
         if ( entry.get( SchemaConstants.CREATORS_NAME_AT ) == null )
         {
             throw new NullPointerException( "entry must have a valid " 
                 + SchemaConstants.CREATORS_NAME_AT + " attribute" );
         }
-        owner = ( String ) entry.get( SchemaConstants.CREATORS_NAME_AT ).get();
+        
+        owner = entry.get( SchemaConstants.CREATORS_NAME_AT ).getString();
         
         if ( entry.get( MetaSchemaConstants.M_DISABLED_AT ) != null )
         {
-            String value = ( String ) entry.get( MetaSchemaConstants.M_DISABLED_AT ).get();
+            String value = entry.get( MetaSchemaConstants.M_DISABLED_AT ).getString();
             value = value.toUpperCase();
             isDisabled = value.equals( "TRUE" );
         }
@@ -120,11 +124,13 @@ public class SchemaEntityFactory
         if ( entry.get( MetaSchemaConstants.M_DEPENDENCIES_AT ) != null )
         {
             Set<String> depsSet = new HashSet<String>();
-            Attribute depsAttr = entry.get( MetaSchemaConstants.M_DEPENDENCIES_AT );
-            for ( int ii = 0; ii < depsAttr.size(); ii++ )
+            ServerAttribute depsAttr = entry.get( MetaSchemaConstants.M_DEPENDENCIES_AT );
+            
+            for ( ServerValue<?> value:depsAttr )
             {
-               depsSet.add( ( String ) depsAttr.get( ii ) ); 
+                depsSet.add( (String)value.get() );
             }
+
             dependencies = depsSet.toArray( EMPTY );
         }
         
@@ -132,10 +138,10 @@ public class SchemaEntityFactory
     }
     
     
-    private SyntaxChecker getSyntaxChecker( String syntaxOid, String className, Attribute bytecode, Registries targetRegistries )
+    private SyntaxChecker getSyntaxChecker( String syntaxOid, String className, ServerAttribute bytecode, Registries targetRegistries )
         throws NamingException
     {
-        Class clazz = null;
+        Class<?> clazz = null;
         SyntaxChecker syntaxChecker = null;
         
         try
@@ -192,7 +198,7 @@ public class SchemaEntityFactory
      * @return the loaded SyntaxChecker
      * @throws NamingException if anything fails during loading
      */
-    public SyntaxChecker getSyntaxChecker( Attributes entry, Registries targetRegistries ) throws NamingException
+    public SyntaxChecker getSyntaxChecker( ServerEntry entry, Registries targetRegistries ) throws NamingException
     {
         if ( entry == null )
         {
@@ -205,9 +211,9 @@ public class SchemaEntityFactory
                 + MetaSchemaConstants.M_FQCN_AT + " attribute" );
         }
 
-        String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get();
-        String syntaxOid = ( String ) AttributeUtils.getAttribute( entry, oidAT ).get();
-        return getSyntaxChecker( syntaxOid, className, AttributeUtils.getAttribute( entry, byteCodeAT ), 
+        String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get().get();
+        String syntaxOid = ( String ) entry.get( oidAT ).get().get();
+        return getSyntaxChecker( syntaxOid, className, entry.get( byteCodeAT ), 
             targetRegistries );
     }
     
@@ -215,12 +221,13 @@ public class SchemaEntityFactory
     public SyntaxChecker getSyntaxChecker( SyntaxCheckerDescription syntaxCheckerDescription, 
         Registries targetRegistries ) throws NamingException
     {
-        BasicAttribute attr = null;
+        ServerAttribute attr = null;
         
         if ( syntaxCheckerDescription.getBytecode() != null )
         {
             byte[] bytecode = Base64.decode( syntaxCheckerDescription.getBytecode().toCharArray() );
-            attr = new BasicAttribute( MetaSchemaConstants.M_BYTECODE_AT, bytecode );
+            AttributeType byteCodeAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
+            attr = new DefaultServerAttribute( byteCodeAT, bytecode );
         }
         
         return getSyntaxChecker( syntaxCheckerDescription.getNumericOid(), 
@@ -228,11 +235,11 @@ public class SchemaEntityFactory
     }
     
     
-    private Comparator getComparator( String className, Attribute bytecode, Registries targetRegistries ) 
+    private Comparator getComparator( String className, ServerAttribute bytecode, Registries targetRegistries ) 
         throws NamingException
     {
         Comparator comparator = null;
-        Class clazz = null;
+        Class<?> clazz = null;
         
         if ( bytecode == null ) 
         {
@@ -251,6 +258,7 @@ public class SchemaEntityFactory
         else
         {
             classLoader.setAttribute( bytecode );
+            
             try
             {
                 clazz = classLoader.loadClass( className );
@@ -291,12 +299,13 @@ public class SchemaEntityFactory
     public Comparator getComparator( ComparatorDescription comparatorDescription, Registries targetRegistries ) 
         throws NamingException
     {
-        BasicAttribute attr = null;
+        ServerAttribute attr = null;
         
         if ( comparatorDescription.getBytecode() != null )
         { 
             byte[] bytecode = Base64.decode( comparatorDescription.getBytecode().toCharArray() );
-            attr = new BasicAttribute( MetaSchemaConstants.M_BYTECODE_AT, bytecode );
+            AttributeType byteCodeAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
+            attr = new DefaultServerAttribute( byteCodeAT, bytecode );
         }
         
         return getComparator( comparatorDescription.getFqcn(), attr, targetRegistries );
@@ -310,7 +319,7 @@ public class SchemaEntityFactory
      * @return the loaded Comparator
      * @throws NamingException if anything fails during loading
      */
-    public Comparator getComparator( Attributes entry, Registries targetRegistries ) throws NamingException
+    public Comparator getComparator( ServerEntry entry, Registries targetRegistries ) throws NamingException
     {
         if ( entry == null )
         {
@@ -323,15 +332,15 @@ public class SchemaEntityFactory
                 + MetaSchemaConstants.M_FQCN_AT + " attribute" );
         }
         
-        String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get();
+        String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get().get();
         return getComparator( className, entry.get( MetaSchemaConstants.M_BYTECODE_AT ), targetRegistries );
     }
     
     
-    private Normalizer getNormalizer( String className, Attribute bytecode, Registries targetRegistries ) 
+    private Normalizer getNormalizer( String className, ServerAttribute bytecode, Registries targetRegistries ) 
         throws NamingException
     {
-        Class clazz = null;
+        Class<?> clazz = null;
         Normalizer normalizer = null;
         
         try
@@ -383,12 +392,13 @@ public class SchemaEntityFactory
     public Normalizer getNormalizer( NormalizerDescription normalizerDescription, Registries targetRegistries )
         throws NamingException
     {
-        BasicAttribute attr = null;
+        ServerAttribute attr = null;
         
         if ( normalizerDescription.getBytecode() != null )
         {
             byte[] bytecode = Base64.decode( normalizerDescription.getBytecode().toCharArray() );
-            attr = new BasicAttribute( MetaSchemaConstants.M_BYTECODE_AT, bytecode );
+            AttributeType byteCodeAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
+            attr = new DefaultServerAttribute( byteCodeAT, bytecode );
         }
         
         return getNormalizer( normalizerDescription.getFqcn(), attr, targetRegistries );
@@ -402,7 +412,7 @@ public class SchemaEntityFactory
      * @return the loaded Normalizer
      * @throws NamingException if anything fails during loading
      */
-    public Normalizer getNormalizer( Attributes entry, Registries targetRegistries ) throws NamingException
+    public Normalizer getNormalizer( ServerEntry entry, Registries targetRegistries ) throws NamingException
     {
         if ( entry == null )
         {
@@ -415,7 +425,7 @@ public class SchemaEntityFactory
                 + MetaSchemaConstants.M_FQCN_AT + " attribute" );
         }
         
-        String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get();
+        String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get().get();
         return getNormalizer( className, entry.get( MetaSchemaConstants.M_BYTECODE_AT ), targetRegistries );
     }
     
@@ -536,31 +546,31 @@ public class SchemaEntityFactory
     }
 
 
-    public Syntax getSyntax( Attributes entry, Registries targetRegistries, String schema ) throws NamingException
+    public Syntax getSyntax( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
     {
-        String oid = ( String ) entry.get( MetaSchemaConstants.M_OID_AT ).get();
+        String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
         SyntaxImpl syntax = new SyntaxImpl( oid, targetRegistries.getSyntaxCheckerRegistry() );
         syntax.setSchema( schema );
         
         if ( entry.get( MetaSchemaConstants.X_HUMAN_READABLE_AT ) != null )
         {
-            String val = ( String ) entry.get( MetaSchemaConstants.X_HUMAN_READABLE_AT ).get();
+            String val = entry.get( MetaSchemaConstants.X_HUMAN_READABLE_AT ).getString();
             syntax.setHumanReadable( val.toUpperCase().equals( "TRUE" ) );
         }
         
         if ( entry.get( MetaSchemaConstants.M_DESCRIPTION_AT ) != null )
         {
-            syntax.setDescription( ( String ) entry.get( MetaSchemaConstants.M_DESCRIPTION_AT ).get() ); 
+            syntax.setDescription( entry.get( MetaSchemaConstants.M_DESCRIPTION_AT ).getString() ); 
         }
         
         return syntax;
     }
 
     
-    public MatchingRule getMatchingRule( Attributes entry, Registries targetRegistries, String schema ) throws NamingException
+    public MatchingRule getMatchingRule( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
     {
-        String oid = ( String ) entry.get( MetaSchemaConstants.M_OID_AT ).get();
-        String syntaxOid = ( String ) entry.get( MetaSchemaConstants.M_SYNTAX_AT ).get();
+        String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
+        String syntaxOid = entry.get( MetaSchemaConstants.M_SYNTAX_AT ).getString();
         MatchingRuleImpl mr = new MatchingRuleImpl( oid, syntaxOid, targetRegistries );
         mr.setSchema( schema );
         setSchemaObjectProperties( mr, entry );
@@ -568,7 +578,7 @@ public class SchemaEntityFactory
     }
     
     
-    private String[] getStrings( Attribute attr ) throws NamingException
+    private String[] getStrings( ServerAttribute attr ) throws NamingException
     {
         if ( attr == null )
         {
@@ -576,17 +586,21 @@ public class SchemaEntityFactory
         }
         
         String[] strings = new String[attr.size()];
-        for ( int ii = 0; ii < strings.length; ii++ )
+        
+        int pos = 0;
+        
+        for ( ServerValue<?> value:attr )
         {
-            strings[ii] = ( String ) attr.get( ii );
+            strings[pos++] = (String)value.get();
         }
+        
         return strings;
     }
     
     
-    public ObjectClass getObjectClass( Attributes entry, Registries targetRegistries, String schema ) throws NamingException
+    public ObjectClass getObjectClass( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
     {
-        String oid = ( String ) entry.get( MetaSchemaConstants.M_OID_AT ).get();
+        String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
         ObjectClassImpl oc = new ObjectClassImpl( oid, targetRegistries );
         oc.setSchema( schema );
         
@@ -607,7 +621,7 @@ public class SchemaEntityFactory
         
         if ( entry.get( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT ) != null )
         {
-            String type = ( String ) entry.get( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT ).get();
+            String type = entry.get( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT ).getString();
             oc.setType( ObjectClassTypeEnum.getClassType( type ) );
         }
         else
@@ -621,86 +635,89 @@ public class SchemaEntityFactory
     }
     
     
-    public AttributeType getAttributeType( Attributes entry, Registries targetRegistries, String schema ) throws NamingException
+    public AttributeType getAttributeType( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
     {
-        String oid = ( String ) entry.get( MetaSchemaConstants.M_OID_AT ).get();
+        String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
         AttributeTypeImpl at = new AttributeTypeImpl( oid, targetRegistries );
         at.setSchema( schema );
         setSchemaObjectProperties( at, entry );
         
         if ( entry.get( MetaSchemaConstants.M_SYNTAX_AT ) != null )
         {
-            at.setSyntaxOid( ( String ) entry.get( MetaSchemaConstants.M_SYNTAX_AT ).get() );
+            at.setSyntaxOid( entry.get( MetaSchemaConstants.M_SYNTAX_AT ).getString() );
         }
         
         if ( entry.get( MetaSchemaConstants.M_EQUALITY_AT ) != null )
         {
-            at.setEqualityOid( ( String ) entry.get( MetaSchemaConstants.M_EQUALITY_AT ).get() );
+            at.setEqualityOid( entry.get( MetaSchemaConstants.M_EQUALITY_AT ).getString() );
         }
         
         if ( entry.get( MetaSchemaConstants.M_ORDERING_AT ) != null )
         {
-            at.setOrderingOid( ( String ) entry.get( MetaSchemaConstants.M_ORDERING_AT ).get() );
+            at.setOrderingOid( entry.get( MetaSchemaConstants.M_ORDERING_AT ).getString() );
         }
         
         if ( entry.get( MetaSchemaConstants.M_SUBSTR_AT ) != null )
         {
-            at.setSubstrOid( ( String ) entry.get( MetaSchemaConstants.M_SUBSTR_AT ).get() );
+            at.setSubstrOid( entry.get( MetaSchemaConstants.M_SUBSTR_AT ).getString() );
         }
         
         if ( entry.get( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT ) != null )
         {
-            at.setSuperiorOid( ( String ) entry.get( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT ).get() );
+            at.setSuperiorOid( entry.get( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT ).getString() );
         }
         
         if ( entry.get( MetaSchemaConstants.M_COLLECTIVE_AT ) != null )
         {
-            String val = ( String ) entry.get( MetaSchemaConstants.M_COLLECTIVE_AT ).get();
+            String val = entry.get( MetaSchemaConstants.M_COLLECTIVE_AT ).getString();
             at.setCollective( val.equalsIgnoreCase( "TRUE" ) );
         }
         
         if ( entry.get( MetaSchemaConstants.M_SINGLE_VALUE_AT ) != null )
         {
-            String val = ( String ) entry.get( MetaSchemaConstants.M_SINGLE_VALUE_AT ).get();
+            String val = entry.get( MetaSchemaConstants.M_SINGLE_VALUE_AT ).getString();
             at.setSingleValue( val.equalsIgnoreCase( "TRUE" ) );
         }
         
         if ( entry.get( MetaSchemaConstants.M_NO_USER_MODIFICATION_AT ) != null )
         {
-            String val = ( String ) entry.get( MetaSchemaConstants.M_NO_USER_MODIFICATION_AT ).get();
+            String val = entry.get( MetaSchemaConstants.M_NO_USER_MODIFICATION_AT ).getString();
             at.setCanUserModify( ! val.equalsIgnoreCase( "TRUE" ) );
         }
         
         if ( entry.get( MetaSchemaConstants.M_USAGE_AT ) != null )
         {
-            at.setUsage( UsageEnum.getUsage( ( String ) entry.get( MetaSchemaConstants.M_USAGE_AT ).get() ) );
+            at.setUsage( UsageEnum.getUsage( entry.get( MetaSchemaConstants.M_USAGE_AT ).getString() ) );
         }
         
         return at;
     }
     
 
-    private void setSchemaObjectProperties( MutableSchemaObject mso, Attributes entry ) throws NamingException
+    private void setSchemaObjectProperties( MutableSchemaObject mso, ServerEntry entry ) throws NamingException
     {
         if ( entry.get( MetaSchemaConstants.M_OBSOLETE_AT ) != null )
         {
-            String val = ( String ) entry.get( MetaSchemaConstants.M_OBSOLETE_AT ).get();
+            String val = entry.get( MetaSchemaConstants.M_OBSOLETE_AT ).getString();
             mso.setObsolete( val.equalsIgnoreCase( "TRUE" ) );
         }
         
         if ( entry.get( MetaSchemaConstants.M_DESCRIPTION_AT ) != null )
         {
-            mso.setDescription( ( String ) entry.get( MetaSchemaConstants.M_DESCRIPTION_AT ).get() ); 
+            mso.setDescription( entry.get( MetaSchemaConstants.M_DESCRIPTION_AT ).getString() ); 
         }
 
-        Attribute names = entry.get( MetaSchemaConstants.M_NAME_AT );
+        ServerAttribute names = entry.get( MetaSchemaConstants.M_NAME_AT );
+        
         if ( names != null )
         {
             List<String> values = new ArrayList<String>();
-            for ( int ii = 0; ii < names.size(); ii++ )
+            
+            for ( ServerValue<?> name:names )
             {
-                values.add( ( String ) names.get( ii ) );
+                values.add( (String)name.get() );
             }
+            
             mso.setNames( values.toArray( EMPTY ) );
         }
     }

@@ -31,11 +31,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.sp.StoredProcEngine;
 import org.apache.directory.server.core.sp.StoredProcEngineConfig;
@@ -100,7 +100,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         StoredProcedure spBean = decodeBean( req.getPayload() );
         
         String procedure = StringTools.utf8ToString( spBean.getProcedure() );
-        Attributes spUnit = manager.findStoredProcUnit( ctx, procedure );
+        ServerEntry spUnit = manager.findStoredProcUnit( ctx, procedure, ctx.getService().getRegistries() );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
         
         List<Object> valueList = new ArrayList<Object>( spBean.getParameters().size() );

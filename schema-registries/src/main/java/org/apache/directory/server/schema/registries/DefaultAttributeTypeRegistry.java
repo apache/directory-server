@@ -190,18 +190,18 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
 
     public AttributeType lookup( String id ) throws NamingException
     {
-        id = oidRegistry.getOid( id );
+        String oid = oidRegistry.getOid( id );
 
-        if ( !byOid.containsKey( id ) )
+        if ( !byOid.containsKey( oid ) )
         {
-            throw new NamingException( "attributeType w/ OID " + id + " not registered!" );
+            throw new NamingException( "attributeType w/ OID " + oid + " not registered!" );
         }
 
-        AttributeType attributeType = byOid.get( id );
+        AttributeType attributeType = byOid.get( oid );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "lookup with id" + id + "' of attributeType: " + attributeType );
+            LOG.debug( "lookup with id" + oid + "' of attributeType: " + attributeType );
         }
         
         return attributeType;

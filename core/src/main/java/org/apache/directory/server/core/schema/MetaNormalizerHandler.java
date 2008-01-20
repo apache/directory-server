@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.server.schema.registries.NormalizerRegistry;
@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 
 
@@ -77,25 +76,27 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
 
     
     
-    private NormalizerDescription getNormalizerDescription( String schemaName, Attributes entry ) throws NamingException
+    private NormalizerDescription getNormalizerDescription( String schemaName, ServerEntry entry ) throws NamingException
     {
         NormalizerDescription description = new NormalizerDescription();
         description.setNumericOid( getOid( entry ) );
         List<String> values = new ArrayList<String>();
         values.add( schemaName );
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
-        description.setFqcn( ( String ) AttributeUtils.getAttribute( entry, fqcnAT ).get() );
+        description.setFqcn( entry.get( fqcnAT ).getString() );
         
-        Attribute desc = AttributeUtils.getAttribute( entry, descAT );
-        if ( desc != null && desc.size() > 0 )
+        ServerAttribute desc = entry.get( descAT );
+        
+        if ( ( desc != null ) && ( desc.size() > 0 ) )
         {
-            description.setDescription( ( String ) desc.get() );
+            description.setDescription( desc.getString() );
         }
         
-        Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
-        if ( bytecode != null && bytecode.size() > 0 )
+        ServerAttribute bytecode =  entry.get( byteCodeAT );
+        
+        if ( ( bytecode != null ) && ( bytecode.size() > 0 ) )
         {
-            byte[] bytes = ( byte[] ) bytecode.get();
+            byte[] bytes = bytecode.getBytes();
             description.setBytecode( new String( Base64.encode( bytes ) ) );
         }
 
@@ -103,7 +104,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
     
     
-    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, boolean cascade ) throws NamingException
+    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws NamingException
     {
         String oid = getOid( entry );
         Normalizer normalizer = factory.getNormalizer( targetEntry, targetRegistries );
@@ -119,7 +120,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( LdapDN name, Attributes entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws NamingException
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
@@ -156,7 +157,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, Attributes entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
     {
         delete( getOid( entry ), cascade );
     }
@@ -179,7 +180,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
     
 
-    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         String oldOid = getOid( entry );
 
@@ -209,7 +210,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
-        Attributes entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws NamingException
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
@@ -244,7 +245,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, boolean cascade ) 
+    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
         throws NamingException
     {
         checkNewParent( newParentName );
@@ -286,7 +287,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    private void checkOidIsUniqueForNormalizer( Attributes entry ) throws NamingException
+    private void checkOidIsUniqueForNormalizer( ServerEntry entry ) throws NamingException
     {
         String oid = getOid( entry );
         

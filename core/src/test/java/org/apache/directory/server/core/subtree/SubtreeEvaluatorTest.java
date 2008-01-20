@@ -23,13 +23,12 @@ package org.apache.directory.server.core.subtree;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import junit.framework.TestCase;
 
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
@@ -40,8 +39,6 @@ import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
@@ -90,11 +87,9 @@ public class SubtreeEvaluatorTest extends TestCase
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapDN( "ou=system" );
-        Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass" );
-        Attributes entry = new AttributesImpl();
-        entry.put( objectClasses );
+        LdapDN apDn = new LdapDN( "ou=system" );
+        LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
+        ServerEntry entry = new DefaultServerEntry( registries, entryDn, "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -111,11 +106,9 @@ public class SubtreeEvaluatorTest extends TestCase
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         modifier.setBase( new LdapDN( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapDN( "ou=system" );
-        Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass" );
-        Attributes entry = new AttributesImpl();
-        entry.put( objectClasses );
+        LdapDN apDn = new LdapDN( "ou=system" );
+        LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
+        ServerEntry entry = new DefaultServerEntry( registries, entryDn, "objectClass" );
 
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -134,11 +127,9 @@ public class SubtreeEvaluatorTest extends TestCase
         modifier.setMaxBaseDistance( 3 );
         modifier.setBase( new LdapDN( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapDN( "ou=system" );
-        Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass" );
-        Attributes entry = new AttributesImpl();
-        entry.put( objectClasses );
+        LdapDN apDn = new LdapDN( "ou=system" );
+        LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
+        ServerEntry entry = new DefaultServerEntry( registries, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -170,11 +161,9 @@ public class SubtreeEvaluatorTest extends TestCase
         modifier.setMaxBaseDistance( 3 );
         modifier.setBase( new LdapDN( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapDN( "ou=system" );
-        Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass" );
-        Attributes entry = new AttributesImpl();
-        entry.put( objectClasses );
+        LdapDN apDn = new LdapDN( "ou=system" );
+        LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
+        ServerEntry entry = new DefaultServerEntry( registries, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -206,11 +195,9 @@ public class SubtreeEvaluatorTest extends TestCase
         modifier.setMaxBaseDistance( 3 );
         modifier.setBase( new LdapDN( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapDN( "ou=system" );
-        Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass" );
-        Attributes entry = new AttributesImpl();
-        entry.put( objectClasses );
+        LdapDN apDn = new LdapDN( "ou=system" );
+        LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
+        ServerEntry entry = new DefaultServerEntry( registries, entryDn, "objectClass" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -241,11 +228,10 @@ public class SubtreeEvaluatorTest extends TestCase
         modifier.setMaxBaseDistance( 3 );
         modifier.setBase( new LdapDN( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapDN( "ou=system" );
-        Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass", "person" );
-        Attributes entry = new AttributesImpl();
-        entry.put( objectClasses );
+        LdapDN apDn = new LdapDN( "ou=system" );
+        LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
+        ServerEntry entry = new DefaultServerEntry( registries, entryDn );
+        entry.put( "objectClass", "person" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -265,9 +251,9 @@ public class SubtreeEvaluatorTest extends TestCase
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
         // now change the refinement so the entry is rejected
-        objectClasses = new AttributeImpl( "objectClass", "organizationalUnit" );
-        entry = new AttributesImpl();
-        entry.put( objectClasses );
+        entry = new DefaultServerEntry( registries, entryDn );
+        entry.put( "objectClass", "organizationalUnit" );
+        
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -299,13 +285,12 @@ public class SubtreeEvaluatorTest extends TestCase
         modifier.setMaxBaseDistance( 3 );
         modifier.setBase( new LdapDN( "ou=users" ) );
         SubtreeSpecification ss = modifier.getSubtreeSpecification();
-        Name apDn = new LdapDN( "ou=system" );
-        Name entryDn = new LdapDN( "ou=users,ou=system" );
-        Attribute objectClasses = new AttributeImpl( "objectClass", "person" );
-        Attribute cn = new AttributeImpl( "cn", "Ersin" );
-        Attributes entry = new AttributesImpl();
-        entry.put( objectClasses );
-        entry.put( cn );
+        LdapDN apDn = new LdapDN( "ou=system" );
+        LdapDN entryDn = new LdapDN( "ou=users,ou=system" );
+
+        ServerEntry entry = new DefaultServerEntry( registries, entryDn );;
+        entry.put( "objectClass", "person" );
+        entry.put( "cn", "Ersin" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
@@ -313,11 +298,9 @@ public class SubtreeEvaluatorTest extends TestCase
         assertTrue( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 
         // now change the filter so the entry is rejected
-        objectClasses = new AttributeImpl( "objectClass", "person" );
-        cn = new AttributeImpl( "cn", "Alex" );
-        entry = new AttributesImpl();
-        entry.put( objectClasses );
-        entry.put( cn );
+        entry = new DefaultServerEntry( registries, entryDn );;
+        entry.put( "objectClass", "person" );
+        entry.put( "cn", "Alex" );
 
         assertFalse( evaluator.evaluate( ss, apDn, entryDn, entry ) );
 

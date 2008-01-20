@@ -21,6 +21,8 @@ package org.apache.directory.server.core.schema;
 
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -29,11 +31,8 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 import java.util.HashSet;
 import java.util.List;
@@ -63,7 +62,7 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
     
     
-    protected void checkOidIsUnique( Attributes entry ) throws NamingException
+    protected void checkOidIsUnique( ServerEntry entry ) throws NamingException
     {
         String oid = getOid( entry );
 
@@ -97,19 +96,19 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
     
     
-    protected abstract void modify( LdapDN name, Attributes entry, Attributes targetEntry, boolean cascade ) 
+    protected abstract void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
         throws NamingException;
     
     
-    public final void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry, 
+    public final void modify( LdapDN name, int modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, 
         boolean cascade ) throws NamingException
     {
         modify( name, entry, targetEntry, cascade );
     }
 
 
-    public final void modify( LdapDN name, List<ModificationItemImpl> mods, Attributes entry,
-        Attributes targetEntry, boolean cascade ) throws NamingException
+    public final void modify( LdapDN name, List<ModificationItemImpl> mods, ServerEntry entry,
+        ServerEntry targetEntry, boolean cascade ) throws NamingException
     {
         modify( name, entry, targetEntry, cascade );
     }
@@ -130,14 +129,16 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
     
     
-    protected String getOid( Attributes entry ) throws NamingException
+    protected String getOid( ServerEntry entry ) throws NamingException
     {
-        Attribute oid = AttributeUtils.getAttribute( entry, m_oidAT );
+        ServerAttribute oid = entry.get( m_oidAT );
+        
         if ( oid == null )
         {
             return null;
         }
-        return ( String ) oid.get();
+        
+        return oid.getString();
     }
     
     

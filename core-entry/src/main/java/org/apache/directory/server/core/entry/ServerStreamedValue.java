@@ -20,7 +20,7 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.entry.StreamedValue;
+import org.apache.directory.shared.ldap.entry.AbstractStreamedValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,8 +72,11 @@ import java.net.URI;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerStreamedValue extends StreamedValue implements ServerValue<URI>
+public class ServerStreamedValue extends AbstractStreamedValue implements ServerValue<URI>
 {
+    /** Used for serialization */
+    public static final long serialVersionUID = 2L;
+    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerStreamedValue.class );
 
@@ -143,6 +146,10 @@ public class ServerStreamedValue extends StreamedValue implements ServerValue<UR
     // -----------------------------------------------------------------------
     // ServerValue<String> Methods
     // -----------------------------------------------------------------------
+    public void normalize() throws NamingException
+    {
+        
+    }
 
 
     /**
@@ -245,5 +252,23 @@ public class ServerStreamedValue extends StreamedValue implements ServerValue<UR
         }
 
         return false;
+    }
+    
+
+    /**
+     * @return a copy of the current value
+     */
+    public ServerStreamedValue clone()
+    {
+        try
+        {
+            ServerStreamedValue clone = (ServerStreamedValue)super.clone();
+            
+            return clone;
+        }
+        catch ( CloneNotSupportedException cnse )
+        {
+            return null;
+        }
     }
 }

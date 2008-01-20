@@ -22,6 +22,8 @@ package org.apache.directory.server.core;
 
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryFactory;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
@@ -47,7 +49,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface DirectoryService
+public interface DirectoryService extends ServerEntryFactory
 {
     String JNDI_KEY = DirectoryService.class.getName();
 
@@ -379,4 +381,13 @@ public interface DirectoryService
      * @param changeLog the change log service to set
      */
     void setChangeLog( ChangeLog changeLog );
+    
+
+    /**
+     * Create a new ServerEntry
+     * 
+     * @param ldif The String representing the attributes, as a LDIF file
+     * @param dn The DN for this new entry
+     */
+    ServerEntry newEntry( String ldif, String dn );
 }

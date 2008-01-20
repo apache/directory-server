@@ -22,18 +22,19 @@ package org.apache.directory.server.core.configuration;
 
 import junit.framework.Assert;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
-import javax.naming.directory.Attributes;
 import java.util.Hashtable;
 
 
@@ -55,7 +56,8 @@ public class PartitionConfigurationIT
         Partition partition = new JdbmPartition();
         partition.setId( "removable" );
         partition.setSuffix( "ou=removable" );
-        Attributes ctxEntry = new AttributesImpl( true );
+        
+        ServerEntry ctxEntry = new DefaultServerEntry( service.getRegistries(), new LdapDN( "ou=removable" ) );
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.get( "objectClass" ).add( "organizationalUnit" );
         ctxEntry.put( "ou", "removable" );

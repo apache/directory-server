@@ -23,6 +23,8 @@ package org.apache.directory.server.core.jndi;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -37,6 +39,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
@@ -98,6 +101,9 @@ public abstract class ServerContext implements EventContext
     /** The directory service which owns this context **/
     private final DirectoryService service;
 
+    /** The global registries **/
+    protected final Registries registries;
+
     /** The interceptor proxy to the backend nexus */
     private final PartitionNexus nexusProxy;
 
@@ -157,7 +163,9 @@ public abstract class ServerContext implements EventContext
         doBindOperation( props.getBindDn(), props.getCredentials(), props.getAuthenticationMechanisms(), 
             props.getSaslAuthId() );
         
-        if ( ! nexusProxy.hasEntry( new EntryOperationContext( dn ) ) )
+        registries = service.getRegistries();
+
+        if ( ! nexusProxy.hasEntry( new EntryOperationContext( registries, dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
@@ -184,6 +192,7 @@ public abstract class ServerContext implements EventContext
         this.env.put( DirectoryService.JNDI_KEY, service );
         this.nexusProxy = new PartitionNexusProxy( this, service );
         this.principal = principal;
+        registries = service.getRegistries();
     }
     
     
@@ -203,10 +212,14 @@ public abstract class ServerContext implements EventContext
      * @param attributes
      * @param target
      */
-    protected void doAddOperation( LdapDN target, Attributes attributes ) throws NamingException
+    protected void doAddOperation( LdapDN target, ServerEntry entry ) throws NamingException
     {
         // setup the op context and populate with request controls
-        AddOperationContext opCtx = new AddOperationContext( target, attributes );
+        AddOperationContext opCtx = new AddOperationContext( 
+            service.getRegistries(), 
+            target, 
+            entry );
+        
         opCtx.addRequestControls( requestControls );
         
         // execute add operation
@@ -225,7 +238,7 @@ public abstract class ServerContext implements EventContext
     protected void doDeleteOperation( LdapDN target ) throws NamingException
     {
         // setup the op context and populate with request controls
-        DeleteOperationContext opCtx = new DeleteOperationContext( target );
+        DeleteOperationContext opCtx = new DeleteOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
         
         // execute delete operation
@@ -250,7 +263,7 @@ public abstract class ServerContext implements EventContext
         throws NamingException
     {
         // setup the op context and populate with request controls
-        SearchOperationContext opCtx = new SearchOperationContext( dn, aliasDerefMode, filter, searchControls );
+        SearchOperationContext opCtx = new SearchOperationContext( registries, dn, aliasDerefMode, filter, searchControls );
         opCtx.addRequestControls( requestControls );
         
         // execute search operation
@@ -270,7 +283,7 @@ public abstract class ServerContext implements EventContext
     protected NamingEnumeration<SearchResult> doListOperation( LdapDN target ) throws NamingException
     {
         // setup the op context and populate with request controls
-        ListOperationContext opCtx = new ListOperationContext( target );
+        ListOperationContext opCtx = new ListOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
         
         // execute list operation
@@ -284,9 +297,9 @@ public abstract class ServerContext implements EventContext
     }
     
     
-    protected Attributes doGetRootDSEOperation( LdapDN target ) throws NamingException
+    protected ServerEntry doGetRootDSEOperation( LdapDN target ) throws NamingException
     {
-        GetRootDSEOperationContext opCtx = new GetRootDSEOperationContext( target );
+        GetRootDSEOperationContext opCtx = new GetRootDSEOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
         
         // do not reset request controls since this is not an external 
@@ -304,7 +317,7 @@ public abstract class ServerContext implements EventContext
         LookupOperationContext opCtx;
         
         // execute lookup/getRootDSE operation
-        opCtx = new LookupOperationContext( target );
+        opCtx = new LookupOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
         Attributes attributes = nexusProxy.lookup( opCtx );
 
@@ -324,7 +337,7 @@ public abstract class ServerContext implements EventContext
         LookupOperationContext opCtx;
         
         // execute lookup/getRootDSE operation
-        opCtx = new LookupOperationContext( target, attrIds );
+        opCtx = new LookupOperationContext( registries, target, attrIds );
         opCtx.addRequestControls( requestControls );
         Attributes attributes = nexusProxy.lookup( opCtx );
 
@@ -343,7 +356,7 @@ public abstract class ServerContext implements EventContext
         throws NamingException
     {
         // setup the op context and populate with request controls
-        BindOperationContext opCtx = new BindOperationContext();
+        BindOperationContext opCtx = new BindOperationContext( registries );
         opCtx.setDn( bindDn );
         opCtx.setCredentials( credentials );
         opCtx.setMechanisms( mechanisms );
@@ -367,7 +380,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         MoveAndRenameOperationContext opCtx =
-                new MoveAndRenameOperationContext( oldDn, parent, new Rdn( newRdn ), delOldDn );
+                new MoveAndRenameOperationContext( registries, oldDn, parent, new Rdn( newRdn ), delOldDn );
         opCtx.addRequestControls( requestControls );
         
         // execute moveAndRename operation
@@ -385,7 +398,7 @@ public abstract class ServerContext implements EventContext
     protected void doModifyOperation( LdapDN dn, List<ModificationItemImpl> modItems ) throws NamingException
     {
         // setup the op context and populate with request controls
-        ModifyOperationContext opCtx = new ModifyOperationContext( dn, modItems );
+        ModifyOperationContext opCtx = new ModifyOperationContext( registries, dn, modItems );
         opCtx.addRequestControls( requestControls );
         
         // execute modify operation
@@ -403,7 +416,7 @@ public abstract class ServerContext implements EventContext
     protected void doMove( LdapDN oldDn, LdapDN target ) throws NamingException
     {
         // setup the op context and populate with request controls
-        MoveOperationContext opCtx = new MoveOperationContext( oldDn, target );
+        MoveOperationContext opCtx = new MoveOperationContext( registries, oldDn, target );
         opCtx.addRequestControls( requestControls );
         
         // execute move operation
@@ -421,7 +434,7 @@ public abstract class ServerContext implements EventContext
     protected void doRename( LdapDN oldDn, String newRdn, boolean delOldRdn ) throws NamingException
     {
         // setup the op context and populate with request controls
-        RenameOperationContext opCtx = new RenameOperationContext( oldDn, new Rdn( newRdn ), delOldRdn );
+        RenameOperationContext opCtx = new RenameOperationContext( registries, oldDn, new Rdn( newRdn ), delOldRdn );
         opCtx.addRequestControls( requestControls );
         
         // execute rename operation
@@ -616,7 +629,7 @@ public abstract class ServerContext implements EventContext
          * we need to copy over the controls as well to propagate the complete 
          * environment besides whats in the hashtable for env.
          */
-        doAddOperation( target, attributes );
+        doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
         return new ServerLdapContext( service, principal, target );
     }
 
@@ -688,7 +701,7 @@ public abstract class ServerContext implements EventContext
         if ( outAttrs != null )
         {
             LdapDN target = buildTarget( name );
-            doAddOperation( target, outAttrs );
+            doAddOperation( target, ServerEntryUtils.toServerEntry( outAttrs, target, registries ) );
             return;
         }
 
@@ -697,7 +710,7 @@ public abstract class ServerContext implements EventContext
 			Attributes attributes = (Attributes)obj;
 			
 			LdapDN target = buildTarget( name );
-			doAddOperation( target, attributes );
+            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
 		}
         // Check for Referenceable
         else if ( obj instanceof Referenceable )
@@ -731,7 +744,7 @@ public abstract class ServerContext implements EventContext
 
             // Serialize object into entry attributes and add it.
             JavaLdapSupport.serialize( attributes, obj );
-            doAddOperation( target, attributes );
+            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
         }
         else if ( obj instanceof DirContext )
         {
@@ -749,7 +762,7 @@ public abstract class ServerContext implements EventContext
 
             LdapDN target = buildTarget( name );
             injectRdnAttributeValues( target, attributes );
-            doAddOperation( target, attributes );
+            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
         }
         else
         {
@@ -847,7 +860,7 @@ public abstract class ServerContext implements EventContext
     {
         LdapDN target = buildTarget( name );
         
-        if ( nexusProxy.hasEntry( new EntryOperationContext( target ) ) )
+        if ( nexusProxy.hasEntry( new EntryOperationContext( registries, target ) ) )
         {
             doDeleteOperation( target );
         }
@@ -902,7 +915,7 @@ public abstract class ServerContext implements EventContext
         
         if ( name.size() == 0 )
         {
-            attributes = doGetRootDSEOperation( target );
+            attributes = ServerEntryUtils.toAttributesImpl( doGetRootDSEOperation( target ) );
         }
         else
         {

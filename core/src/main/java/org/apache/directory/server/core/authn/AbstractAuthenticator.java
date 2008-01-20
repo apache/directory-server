@@ -36,7 +36,7 @@ import javax.naming.NamingException;
 public abstract class AbstractAuthenticator implements Authenticator
 {
     private DirectoryService directoryService;
-
+    
     /** authenticator type */
     private final String authenticatorType;
 

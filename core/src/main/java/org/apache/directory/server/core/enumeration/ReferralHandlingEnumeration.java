@@ -34,7 +34,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.referral.ReferralLut;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -68,16 +68,25 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
      * The OIDs normalizer map
      */
     private Map<String, OidNormalizer> normalizerMap;
+    
+    /** The global registries */
+    private Registries registries;
 
-    public ReferralHandlingEnumeration( NamingEnumeration<SearchResult> underlying, ReferralLut lut, 
-        AttributeTypeRegistry registry, PartitionNexus nexus, int scope, boolean doThrow ) throws NamingException
+    public ReferralHandlingEnumeration( 
+            NamingEnumeration<SearchResult> underlying, 
+            ReferralLut lut, 
+            Registries registries, 
+            PartitionNexus nexus, 
+            int scope, 
+            boolean doThrow ) throws NamingException
     {
-    	normalizerMap = registry.getNormalizerMapping();
+    	normalizerMap = registries.getAttributeTypeRegistry().getNormalizerMapping();
         this.underlying = underlying;
         this.doThrow = doThrow;
         this.lut = lut;
         this.scope = scope;
         this.nexus = nexus;
+        this.registries = registries;
         prefetch();
     }
 
@@ -104,7 +113,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
         prefetched = referrals.get( refIndex );
         if ( doThrow )
         {
-            doReferralExceptionOnSearchBase();
+            doReferralExceptionOnSearchBase( registries );
         }
     }
 
@@ -170,7 +179,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
     }
 
 
-    public void doReferralExceptionOnSearchBase() throws NamingException
+    public void doReferralExceptionOnSearchBase( Registries registries ) throws NamingException
     {
         // the refs attribute may be filtered out so we might need to lookup the entry
         Attribute refs = prefetched.getAttributes().get( SchemaConstants.REF_AT );
@@ -179,7 +188,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
         {
             LdapDN prefetchedDn = new LdapDN( prefetched.getName() );
             prefetchedDn.normalize( normalizerMap );
-            refs = nexus.lookup( new LookupOperationContext( prefetchedDn ) ).get( SchemaConstants.REF_AT );
+            refs = nexus.lookup( new LookupOperationContext( registries, prefetchedDn ) ).get( SchemaConstants.REF_AT );
         }
 
         if ( refs == null )

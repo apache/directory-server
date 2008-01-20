@@ -20,7 +20,6 @@ package org.apache.directory.server.core.unit;
 
 
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;

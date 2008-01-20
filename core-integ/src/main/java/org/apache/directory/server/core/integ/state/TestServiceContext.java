@@ -103,7 +103,7 @@ public class TestServiceContext
      *
      * @param factory the factory to use for creating a configured service
      */
-    public static void create( DirectoryServiceFactory factory )
+    public static void create( DirectoryServiceFactory factory ) throws NamingException
     {
         get().state.create( factory );
     }

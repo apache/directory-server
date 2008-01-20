@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -467,7 +468,7 @@ public class JdbmPartition extends BTreePartition
     
     public final void add( AddOperationContext addContext ) throws NamingException
     {
-        store.add( addContext.getDn(), addContext.getEntry() );
+        store.add( addContext.getDn(), ServerEntryUtils.toAttributesImpl( addContext.getEntry() ) );
     }
 
 

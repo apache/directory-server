@@ -17,27 +17,23 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.protocol.shared.store;
+package org.apache.directory.server.core.entry;
+
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 
 /**
+ * Empty test for the ServerStreamedValue class 
+ * TODO ServerStreamedValueTest.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KerberosAttribute
+public class ServerStreamedValueTest
 {
-    // ------------------------------------------------------------------------
-    // Krb5 Schema Attributes
-    // ------------------------------------------------------------------------
-
-    /** the krb5kdc schema key for a krb5KDCEntry */
-    public static final String KEY = "krb5Key";
-    /** the krb5kdc schema key encryption type for a krb5KDCEntry */
-    public static final String TYPE = "krb5EncryptionType";
-    /** the krb5kdc schema principal name for a krb5KDCEntry */
-    public static final String PRINCIPAL = "krb5PrincipalName";
-    /** the krb5kdc schema key version identifier for a krb5KDCEntry */
-    public static final String VERSION = "krb5KeyVersionNumber";
-    /** the Apache specific SAM type attribute */
-    public static final String SAM_TYPE = "apacheSamType";
+    @Test public void testEmpty()
+    {
+        assertTrue( true );
+    }
 }

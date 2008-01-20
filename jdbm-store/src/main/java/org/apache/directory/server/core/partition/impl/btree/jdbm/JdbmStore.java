@@ -24,6 +24,9 @@ import jdbm.RecordManager;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
+
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
@@ -136,7 +139,7 @@ public class JdbmStore
     // -----------------------------------------------------------------------
 
 
-    private Attributes contextEntry;
+    private ServerEntry contextEntry;
     private String suffixDn;
     private boolean enableOptimizer;
     private int cacheSize = DEFAULT_CACHE_SIZE;
@@ -181,14 +184,14 @@ public class JdbmStore
     }
 
 
-    public void setContextEntry( Attributes contextEntry )
+    public void setContextEntry( ServerEntry contextEntry )
     {
         protect( "contextEntry" );
         this.contextEntry = contextEntry;
     }
 
 
-    public Attributes getContextEntry()
+    public ServerEntry getContextEntry()
     {
         return contextEntry;
     }
@@ -428,7 +431,7 @@ public class JdbmStore
      * @throws NamingException on failre to add the root entry
      * @throws Exception failure to access btrees
      */
-    protected void initSuffixEntry3( String suffix, Attributes entry ) throws Exception
+    protected void initSuffixEntry3( String suffix, ServerEntry entry ) throws Exception
     {
         // add entry for context, if it does not exist
         Attributes suffixOnDisk = getSuffixEntry();
@@ -437,7 +440,10 @@ public class JdbmStore
         {
             LdapDN dn = new LdapDN( suffix );
             LdapDN normalizedSuffix = LdapDN.normalize( dn, attributeTypeRegistry.getNormalizerMapping() );
-            add( normalizedSuffix, entry );
+            
+            //add( normalizedSuffix, entry );
+            // TODO just start using ServerEntry here!!!!
+            add( normalizedSuffix, ServerEntryUtils.toAttributesImpl( entry ) );
         }
     }
 
@@ -518,7 +524,7 @@ public class JdbmStore
         try
         {
             recMan.close();
-            LOG.debug( "Cloased record manager for {} partition.",  suffixDn );
+            LOG.debug( "Closed record manager for {} partition.",  suffixDn );
         }
         catch ( Throwable t )
         {

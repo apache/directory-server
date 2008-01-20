@@ -422,8 +422,16 @@ public class KdcServer extends DirectoryBackedService
      */
     public void start() throws IOException
     {
-        PrincipalStore store = new JndiPrincipalStoreImpl( getSearchBaseDn(),
-                getSearchBaseDn(), getDirectoryService() );
+        PrincipalStore store;
+
+        if ( isCatelogBased() )
+        {
+            store = new JndiPrincipalStoreImpl( getSearchBaseDn(), null, getDirectoryService() );
+        }
+        else
+        {
+            store = new JndiPrincipalStoreImpl( null, getSearchBaseDn(), getDirectoryService() );
+        }
 
         if ( getDatagramAcceptor() != null )
         {

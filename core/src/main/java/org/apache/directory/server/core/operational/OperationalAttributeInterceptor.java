@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -43,6 +45,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -101,11 +104,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     };
 
 
-    private AttributeTypeRegistry registry;
+    private AttributeTypeRegistry atRegistry;
 
     private DirectoryService service;
 
     private LdapDN subschemaSubentryDn;
+    
+    private Registries registries;
 
 
     /**
@@ -119,12 +124,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws NamingException
     {
         service = directoryService;
-        registry = directoryService.getRegistries().getAttributeTypeRegistry();
+        registries = directoryService.getRegistries();
+        atRegistry = registries.getAttributeTypeRegistry();
 
         // stuff for dealing with subentries (garbage for now)
-        String subschemaSubentry = ( String ) service.getPartitionNexus()
+        ServerValue<?> subschemaSubentry = service.getPartitionNexus()
                 .getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = new LdapDN( subschemaSubentry );
+        subschemaSubentryDn = new LdapDN( (String)subschemaSubentry.get() );
         subschemaSubentryDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
     }
 
@@ -137,20 +143,16 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * Adds extra operational attributes to the entry before it is added.
      */
-    public void add(NextInterceptor nextInterceptor, AddOperationContext opContext )
+    public void add( NextInterceptor nextInterceptor, AddOperationContext opContext )
         throws NamingException
     {
         String principal = getPrincipal().getName();
-        Attributes entry = opContext.getEntry();
+        
+        ServerEntry entry = opContext.getEntry();
 
-        Attribute attribute = new AttributeImpl( SchemaConstants.CREATORS_NAME_AT );
-        attribute.add( principal );
-        entry.put( attribute );
-
-        attribute = new AttributeImpl( SchemaConstants.CREATE_TIMESTAMP_AT );
-        attribute.add( DateUtils.getGeneralizedTime() );
-        entry.put( attribute );
-
+        entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
+        entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        
         nextInterceptor.add( opContext );
     }
 
@@ -187,7 +189,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // Make the modify() call happen
         // -------------------------------------------------------------------
 
-        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getDn(), modItemList );
+        ModifyOperationContext newModify = new ModifyOperationContext( registries, opContext.getDn(), modItemList );
         service.getPartitionNexus().modify( newModify );
     }
 
@@ -210,11 +212,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         LdapDN newDn = ( LdapDN ) opContext.getDn().clone();
         newDn.remove( opContext.getDn().size() - 1 );
         newDn.add( opContext.getNewRdn() );
-        newDn.normalize( registry.getNormalizerMapping() );
+        newDn.normalize( atRegistry.getNormalizerMapping() );
         
         List<ModificationItemImpl> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
 
-        ModifyOperationContext newModify = new ModifyOperationContext( newDn, items );
+        ModifyOperationContext newModify = new ModifyOperationContext( registries, newDn, items );
         
         service.getPartitionNexus().modify( newModify );
     }
@@ -238,7 +240,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
 
         ModifyOperationContext newModify = 
-            new ModifyOperationContext( opContext.getParent(), items );
+            new ModifyOperationContext( registries, opContext.getParent(), items );
         
         service.getPartitionNexus().modify( newModify );
     }
@@ -262,7 +264,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         List<ModificationItemImpl> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = 
-            new ModifyOperationContext( 
+            new ModifyOperationContext( registries, 
         		opContext.getParent(), items );
         
         service.getPartitionNexus().modify( newModify );
@@ -338,9 +340,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             AttributeType type = null;
 
-            if ( registry.hasAttributeType( attrId ) )
+            if ( atRegistry.hasAttributeType( attrId ) )
             {
-                type = registry.lookup( attrId );
+                type = atRegistry.lookup( attrId );
             }
 
             if ( type != null && type.getUsage() != UsageEnum.USER_APPLICATIONS )
@@ -399,7 +401,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         if ( service.isDenormalizeOpAttrsEnabled() )
         {
-            AttributeType type = registry.lookup( SchemaConstants.CREATORS_NAME_AT );
+            AttributeType type = atRegistry.lookup( SchemaConstants.CREATORS_NAME_AT );
             Attribute attr = AttributeUtils.getAttribute( entry, type );
 
             if ( attr != null )
@@ -410,7 +412,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 attr.add( denormalizeTypes( creatorsName ).getUpName() );
             }
             
-            type = registry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
+            type = atRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
             attr = AttributeUtils.getAttribute( entry, type );
             
             if ( attr != null )
@@ -421,7 +423,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 attr.add( denormalizeTypes( modifiersName ).getUpName() );
             }
 
-            type = registry.lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
+            type = atRegistry.lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
             attr = AttributeUtils.getAttribute( entry, type );
             
             if ( attr != null )
@@ -457,7 +459,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             }
             else if ( rdn.size() == 1 )
             {
-            	String name = registry.lookup( rdn.getNormType() ).getName();
+            	String name = atRegistry.lookup( rdn.getNormType() ).getName();
             	String value = (String)rdn.getAtav().getValue(); 
                 newDn.add( new Rdn( name, name, value, value ) );
                 continue;
@@ -469,7 +471,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             for ( Iterator<AttributeTypeAndValue> atavs = rdn.iterator(); atavs.hasNext(); /**/ )
             {
                 AttributeTypeAndValue atav = atavs.next();
-                String type = registry.lookup( rdn.getNormType() ).getName();
+                String type = atRegistry.lookup( rdn.getNormType() ).getName();
                 buf.append( type ).append( '=' ).append( atav.getValue() );
                 
                 if ( atavs.hasNext() )
