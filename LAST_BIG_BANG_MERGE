@@ -1,0 +1,9 @@
+This file shows the last time I merged from the big bang branch here as a commit
+number:
+
+   https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang/
+
+
+----------------------------
+svn merge -r : https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang .
+
