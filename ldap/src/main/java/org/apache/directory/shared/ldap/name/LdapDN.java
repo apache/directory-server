@@ -21,6 +21,10 @@
 package org.apache.directory.shared.ldap.name;
 
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -57,10 +61,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapDN implements Name
+public class LdapDN implements Name, Externalizable
 {
     /** The LoggerFactory used by this class */
-    protected static final Logger log = LoggerFactory.getLogger( LdapDN.class );
+    protected static final Logger LOG = LoggerFactory.getLogger( LdapDN.class );
 
     /**
      * Declares the Serial Version Uid.
@@ -406,7 +410,7 @@ public class LdapDN implements Name
         if ( posn > rdns.size() )
         {
             String message = "Impossible to get the position " + posn + ", the DN only has " + rdns.size() + " RDNs";
-            log.error( message );
+            LOG.error( message );
             throw new ArrayIndexOutOfBoundsException( message );
         }
 
@@ -485,13 +489,13 @@ public class LdapDN implements Name
      */
     public int hashCode()
     {
-        int result = 17;
+        int result = 37;
 
         if ( ( rdns != null ) && ( rdns.size() != 0 ) )
         {
             for ( Rdn rdn : rdns )
             {
-                result = result * 37 + rdn.hashCode();
+                result = result * 17 + rdn.hashCode();
             }
         }
 
@@ -636,7 +640,7 @@ public class LdapDN implements Name
                 catch ( InvalidNameException e )
                 {
                     e.printStackTrace();
-                    log.error( "Failed to parse RDN for name " + name.toString(), e );
+                    LOG.error( "Failed to parse RDN for name " + name.toString(), e );
                     return false;
                 }
 
@@ -833,7 +837,7 @@ public class LdapDN implements Name
             {
                 if ( pos >= rdns.size() )
                 {
-                    log.error( "Exceeded number of elements in the current object" );
+                    LOG.error( "Exceeded number of elements in the current object" );
                     throw new NoSuchElementException();
                 }
 
@@ -876,7 +880,7 @@ public class LdapDN implements Name
             {
                 if ( pos >= rdns.size() )
                 {
-                    log.error( "Exceeded number of elements in the current object" );
+                    LOG.error( "Exceeded number of elements in the current object" );
                     throw new NoSuchElementException();
                 }
 
@@ -912,7 +916,7 @@ public class LdapDN implements Name
         if ( ( posn < 0 ) || ( posn > rdns.size() ) )
         {
             String message = "The posn(" + posn + ") should be in the range [0, " + rdns.size() + "]";
-            log.error( message );
+            LOG.error( message );
             throw new ArrayIndexOutOfBoundsException( message );
         }
 
@@ -956,7 +960,7 @@ public class LdapDN implements Name
         if ( ( posn < 0 ) || ( posn > rdns.size() ) )
         {
             String message = "The posn(" + posn + ") should be in the range [0, " + rdns.size() + "]";
-            log.error( message );
+            LOG.error( message );
             throw new ArrayIndexOutOfBoundsException( message );
         }
 
@@ -1222,7 +1226,7 @@ public class LdapDN implements Name
         if ( ( posn < 0 ) || ( posn > size() ) )
         {
             String message = "The posn(" + posn + ") should be in the range [0, " + rdns.size() + "]";
-            log.error( message );
+            LOG.error( message );
             throw new ArrayIndexOutOfBoundsException( message );
         }
 
@@ -1264,7 +1268,7 @@ public class LdapDN implements Name
         if ( ( posn < 0 ) || ( posn >= rdns.size() ) )
         {
             String message = "The posn(" + posn + ") should be in the range [0, " + rdns.size() + "]";
-            log.error( message );
+            LOG.error( message );
             throw new ArrayIndexOutOfBoundsException( message );
         }
 
@@ -1301,7 +1305,7 @@ public class LdapDN implements Name
         }
         catch ( CloneNotSupportedException cnse )
         {
-            log.error( "The clone operation has failed" );
+            LOG.error( "The clone operation has failed" );
             throw new Error( "Assertion failure : cannot clone the object" );
         }
     }
@@ -1433,7 +1437,7 @@ public class LdapDN implements Name
         else
         {
             // The type is empty : this is not possible...
-            log.error( "Empty type not allowed in a DN" );
+            LOG.error( "Empty type not allowed in a DN" );
             throw new InvalidNameException( "Empty type not allowed in a DN" );
         }
 
@@ -1538,7 +1542,7 @@ public class LdapDN implements Name
             else
             {
                 // The type is empty : this is not possible...
-                log.error( "We should not have an empty DN" );
+                LOG.error( "We should not have an empty DN" );
                 throw new InvalidNameException( "Empty type not allowed in a DN" );
             }
         }
@@ -1655,5 +1659,130 @@ public class LdapDN implements Name
     public boolean isNormalized()
     {
         return normalized;
+    }
+
+
+    /**
+     * @see Externalizable#readExternal(ObjectInput)<p>
+     * 
+     * We have to store a DN data efficiently. Here is the structure :
+     * 
+     * <li>upName</li> The User provided DN<p>
+     * <li>normName</li> May be null if the normName is equaivalent to 
+     * the upName<p>
+     * <li>rdns</li> The rdn's List.<p>
+     * 
+     * for each rdn :
+     * <li>call the RDN write method</li>
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        if ( upName == null )
+        {
+            String message = "Cannot serialize a NULL DN";
+            LOG.error( message );
+            throw new IOException( message );
+        }
+        
+        // Write the UPName
+        out.writeUTF( upName );
+        
+        // Write the NormName if different
+        if ( isNormalized() )
+        {
+            if ( upName.equals( normName ) )
+            {
+                out.writeUTF( "" );
+            }
+            else
+            {
+                out.writeUTF( normName );
+            }
+        }
+        else
+        {
+            String message = "The DN should have been normalized before being serialized";
+            LOG.error( message );
+            throw new IOException( message );
+        }
+        
+        // Should we store the byte[] ???
+        
+        // Write the RDNs. Is it's null, the number will be -1. 
+        if ( rdns == null )
+        {
+            out.writeInt( -1 );
+        }
+        else if ( rdns.size() == 0 )
+        {
+            out.writeInt( 0 );
+        }
+        else
+        {
+            out.writeInt( rdns.size() );
+            
+            // Loop on the RDNs
+            for ( Rdn rdn:rdns )
+            {
+                out.writeObject( rdn );
+            }
+        }
+    }
+
+
+    /**
+     * @see Externalizable#readExternal(ObjectInput)
+     * 
+     * We read back the data to create a new LdapDN. The structure 
+     * read is exposed in the {@link LdapDN#writeExternal(ObjectOutput)} 
+     * method<p>
+     */
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        // Read the UPName
+        upName = in.readUTF();
+        
+        // Read the NormName
+        normName = in.readUTF();
+        
+        if ( normName.length() == 0 )
+        {
+            // As the normName is equal to the upName,
+            // we didn't saved the nbnormName on disk.
+            // restore it by copying the upName.
+            normName = upName;
+        }
+        
+        // A serialized DN is always normalized.
+        normalized = true;
+            
+        // Should we read the byte[] ???
+        bytes = StringTools.getBytesUtf8( upName );
+        
+        // Read the RDNs. Is it's null, the number will be -1.
+        int nbRdns = in.readInt();
+        
+        switch ( nbRdns )
+        {
+            case -1 :
+                // No RDN at all... 
+                rdns = null;
+                break;
+                
+            case 0 :
+                // No RDN, but we have to initialize the list
+                // Note : this may not be a different case than -1
+                rdns = new ArrayList<Rdn>();
+                break;
+                
+            default :
+                for ( int i = 0; i < nbRdns; i++ )
+                {
+                    Rdn rdn = (Rdn)in.readObject();
+                    rdns.add( rdn );
+                }
+            
+                break;
+        }
     }
 }

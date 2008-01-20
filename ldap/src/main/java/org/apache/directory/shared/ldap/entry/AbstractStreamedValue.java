@@ -33,15 +33,16 @@ import java.net.URI;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class StreamedValue implements Value<URI>
+public abstract class AbstractStreamedValue implements Value<URI>
 {
+    /** The URI pointing to the stored data */
     private URI wrapped;
 
 
     /**
      * Creates a streamed value without a wrapped URI.
      */
-    public StreamedValue()
+    public AbstractStreamedValue()
     {
     }
 
@@ -51,7 +52,7 @@ public class StreamedValue implements Value<URI>
      *
      * @param wrapped the URI to wrap
      */
-    public StreamedValue( URI wrapped )
+    public AbstractStreamedValue( URI wrapped )
     {
         this.wrapped = wrapped;
     }
@@ -107,16 +108,20 @@ public class StreamedValue implements Value<URI>
 
     public int compareTo( Value<URI> value )
     {
-        if ( value == null && get() == null )
-        {
-            return 0;
-        }
-
         if ( value == null )
         {
-            return 1;
+            if ( get() == null )
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
         }
-
-        throw new NotImplementedException();
+        else
+        {
+            throw new NotImplementedException();
+        }
     }
 }

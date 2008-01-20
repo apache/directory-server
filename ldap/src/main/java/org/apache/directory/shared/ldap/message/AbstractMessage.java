@@ -232,11 +232,11 @@ public abstract class AbstractMessage implements Message
      */
     public int hashCode()
     {
-        int hash = 7;
-        hash = hash*31 + id;
-        hash = hash*31 + ( type == null ? 0 : type.hashCode() );
-        hash = hash*31 + ( parameters == null ? 0 : parameters.hashCode() );
-        hash = hash*31 + ( controls == null ? 0 : controls.hashCode() );
+        int hash = 37;
+        hash = hash*17 + id;
+        hash = hash*17 + ( type == null ? 0 : type.hashCode() );
+        hash = hash*17 + ( parameters == null ? 0 : parameters.hashCode() );
+        hash = hash*17 + ( controls == null ? 0 : controls.hashCode() );
         
         return hash;
     }

@@ -18,64 +18,85 @@
  */
 package org.apache.directory.shared.ldap.entry;
 
-
+import java.io.Serializable;
 import java.util.Iterator;
+
+import javax.naming.NamingException;
+import javax.naming.directory.InvalidAttributeValueException;
 
 
 /**
- * Document me!
+ * A generic interface mocking the Attribute JNDI interface. This interface
+ * will be the base interface for the ServerAttribute and ClientAttribute.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface EntryAttribute<E extends Value<?>>
+public interface EntryAttribute<T extends Value<?>> extends Iterable<T>, Serializable, Cloneable
 {
     /**
-     * Adds a value to this attribute. If the new value is already present in
+     * Adds some values to this attribute. If the new values are already present in
      * the attribute values, the method has no effect.
      * <p>
-     * The new value is added at the end of list of values.
+     * The new values are added at the end of list of values.
      * </p>
      * <p>
-     * This method returns true or false to indicate whether a value was added.
+     * This method returns the number of values that were added.
      * </p>
      *
-     * @param val a new value to be added which may be null
-     * @return true if a value was added, otherwise false
+     * @param vals some new values to be added which may be null
+     * @return the number of added values, or 0 if none has been added
      */
-    boolean add( E val );
+    int add( String... vals ) throws InvalidAttributeValueException, NamingException;
 
 
     /**
-     * Adds a value to this attribute. If the new value is already present in
-     * the attribute values, the method has no effect.
+     * Puts some values to this attribute.
      * <p>
-     * The new value is added at the end of list of values.
+     * The new values are replace the previous values.
      * </p>
      * <p>
-     * This method returns true or false to indicate whether a value was added.
+     * This method returns the number of values that were put.
      * </p>
      *
-     * @param val a new value to be added which may be null
-     * @return true if a value was added, otherwise false
+     * @param vals some values to be put which may be null
+     * @return the number of added values, or 0 if none has been added
+     * @throws InvalidAttributeValueException If we try to add some values
+     * which conflicts with the AttributeType for this attribute
+     * @throws NamingException If the attributeType does not have a syntax
      */
-    boolean add( String val );
+    int put( String... vals ) throws InvalidAttributeValueException, NamingException;
 
 
     /**
-     * Adds a value to this attribute. If the new value is already present in
+     * Adds some values to this attribute. If the new values are already present in
      * the attribute values, the method has no effect.
      * <p>
-     * The new value is added at the end of list of values.
+     * The new values are added at the end of list of values.
      * </p>
      * <p>
-     * This method returns true or false to indicate whether a value was added.
+     * This method returns the number of values that were added.
      * </p>
      *
-     * @param val a new value to be added which may be null
-     * @return true if a value was added, otherwise false
+     * @param vals some new values to be added which may be null
+     * @return the number of added values, or 0 if none has been added
      */
-    boolean add( byte[] val );
+    int add( byte[]... vals ) throws InvalidAttributeValueException, NamingException;
+
+
+    /**
+     * Puts some values to this attribute.
+     * <p>
+     * The new values are replace the previous values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were put.
+     * </p>
+     *
+     * @param vals some values to be put which may be null
+     * @return the number of added values, or 0 if none has been added
+     */
+    int put( byte[]... vals ) throws InvalidAttributeValueException, NamingException;
 
 
     /**
@@ -85,58 +106,21 @@ public interface EntryAttribute<E extends Value<?>>
 
 
     /**
-     * Indicates whether the specified value is one of the attribute's values.
+     * Indicates whether the specified values are some of the attribute's values.
      *
-     * @param val the value which may be null
-     * @return true if this attribute contains the value, otherwise false
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
      */
-    boolean contains( E val );
+    boolean contains( String... vals );
 
 
     /**
-     * Indicates whether the specified value is one of the attribute's values.
+     * Indicates whether the specified values are some of the attribute's values.
      *
-     * @param val the value which may be null
-     * @return true if this attribute contains the value, otherwise false
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
      */
-    boolean contains( String val );
-
-
-    /**
-     * Indicates whether the specified value is one of the attribute's values.
-     *
-     * @param val the value which may be null
-     * @return true if this attribute contains the value, otherwise false
-     */
-    boolean contains( byte[] val );
-
-
-    /**
-     * Gets the first value of this attribute. <code>null</code> is a valid value.
-     *
-     * <p>
-     * If the attribute has no values this method throws
-     * <code>NoSuchElementException</code>.
-     * </p>
-     *
-     * @return a value of this attribute
-     */
-    E get();
-
-
-    /**
-     * Returns an iterator over all the attribute's values.
-     * <p>
-     * The effect on the returned enumeration of adding or removing values of
-     * the attribute is not specified.
-     * </p>
-     * <p>
-     * This method will throw any <code>NamingException</code> that occurs.
-     * </p>
-     *
-     * @return an enumeration of all values of the attribute
-     */
-    Iterator<? extends E> getAll();
+    boolean contains( byte[]... vals );
 
 
    /**
@@ -149,40 +133,130 @@ public interface EntryAttribute<E extends Value<?>>
 
 
     /**
-     * Removes a value that is equal to the given value.
+     * Removes all the  values that are equal to the given values.
      * <p>
      * Returns true if a value is removed. If there is no value equal to <code>
      * val</code> this method simply returns false.
      * </p>
      *
-     * @param val the value to be removed
-     * @return true if the value is removed, otherwise false
+     * @param val the values to be removed
+     * @return true if all the values are removed, otherwise false
      */
-    boolean remove( E val );
+    boolean remove( byte[]... val );
 
 
     /**
-     * Removes a value that is equal to the given value.
+     * Removes all the  values that are equal to the given values.
      * <p>
      * Returns true if a value is removed. If there is no value equal to <code>
      * val</code> this method simply returns false.
      * </p>
      *
-     * @param val the value to be removed
-     * @return true if the value is removed, otherwise false
+     * @param vals the values to be removed
+     * @return true if all the values are removed, otherwise false
      */
-    boolean remove( byte[] val );
+    boolean remove( String... vals );
+    
+    
+    /**
+     * Gets the first value of this attribute. <code>null</code> is a valid value.
+     *
+     * <p>
+     * If the attribute has no values this method throws
+     * <code>NoSuchElementException</code>.
+     * </p>
+     *
+     * @return a value of this attribute
+     */
+    T get();
 
 
     /**
-     * Removes a value that is equal to the given value.
+     * Get's the user provided identifier for this entry.  This is the value
+     * that will be used as the identifier for the attribute within the
+     * entry.  If this is a commonName attribute for example and the user
+     * provides "COMMONname" instead when adding the entry then this is
+     * the format the user will have that entry returned by the directory
+     * server.  To do so we store this value as it was given and track it
+     * in the attribute using this property.
+     *
+     * @return the user provided identifier for this attribute
+     */
+    String getUpId();
+
+    
+    /**
+     * Returns an iterator over all the attribute's values.
+     * <p>
+     * The effect on the returned enumeration of adding or removing values of
+     * the attribute is not specified.
+     * </p>
+     * <p>
+     * This method will throw any <code>NamingException</code> that occurs.
+     * </p>
+     *
+     * @return an enumeration of all values of the attribute
+     */
+    Iterator<T> getAll();
+
+
+    /**
+     * Removes all the  values that are equal to the given values.
      * <p>
      * Returns true if a value is removed. If there is no value equal to <code>
      * val</code> this method simply returns false.
      * </p>
      *
-     * @param val the value to be removed
-     * @return true if the value is removed, otherwise false
+     * @param vals the values to be removed
+     * @return true if all the values are removed, otherwise false
      */
-    boolean remove( String val );
+    boolean remove( T... vals );
+
+    
+    /**
+     * Indicates whether the specified values are some of the attribute's values.
+     *
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
+     */
+    boolean contains( T... vals );
+
+    
+    /**
+     * Adds some values to this attribute. If the new values are already present in
+     * the attribute values, the method has no effect.
+     * <p>
+     * The new values are added at the end of list of values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were added.
+     * </p>
+     *
+     * @param val some new values to be added which may be null
+     * @return the number of added values, or 0 if none has been added
+     */
+    int add( T... val ) throws InvalidAttributeValueException, NamingException;
+    
+    
+    /**
+     * Puts some values to this attribute.
+     * <p>
+     * The new values are replace the previous values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were put.
+     * </p>
+     *
+     * @param vals some values to be put which may be null
+     * @return the number of added values, or 0 if none has been added
+     */
+    int put( T... vals ) throws InvalidAttributeValueException, NamingException;
+
+
+    /**
+     * Returns a cloned version of the current attribute.
+     *
+     * @return A copy of the current attribute
+     */
+    EntryAttribute<T> clone();
 }

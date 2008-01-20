@@ -53,6 +53,15 @@ public class EqualityNode extends SimpleNode
 
 
     /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        return super.hashCode();
+    }
+
+    
+    /**
      * @see Object#toString()
      */
     public String toString()

@@ -20,6 +20,10 @@
 package org.apache.directory.shared.ldap.name;
 
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +39,8 @@ import org.apache.commons.collections.MultiHashMap;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -103,7 +109,10 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class Rdn implements Cloneable, Comparable, Serializable
 {
-   /**
+    /** The LoggerFactory used by this class */
+    protected static final Logger LOG = LoggerFactory.getLogger( Rdn.class );
+
+    /**
     * Declares the Serial Version Uid.
     *
     * @see <a
@@ -1245,7 +1254,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
     */
    public int hashCode()
    {
-       int result = 17;
+       int result = 37;
 
        switch ( nbAtavs )
        {
@@ -1255,7 +1264,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
            case 1:
                // We have a single AttributeTypeAndValue
-               result = result * 37 + atav.hashCode();
+               result = result * 17 + atav.hashCode();
                break;
 
            default:
@@ -1263,10 +1272,126 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
                for ( AttributeTypeAndValue ata:atavs )
                {
-                   result = result * 37 + ata.hashCode();
+                   result = result * 17 + ata.hashCode();
                }
        }
 
        return result;
+   }
+
+
+   /**
+    * @see Externalizable#readExternal(ObjectInput)<p>
+    * 
+    * A RDN is composed of on to many ATAVs (AttributeType And Value).
+    * We should write all those ATAVs sequencially, following the 
+    * structure :
+    * 
+    * <li>nbAtavs</li> The number of ATAVs to write. Can't be 0.
+    * <li>upName</li> The User provided RDN
+    * <li>normName</li> The normalized RDN. It can be empty if the normalized
+    * name equals the upName.
+    * <li>atavs</li>
+    * <p>
+    * For each ATAV :<p>
+    * <li>start</li> The position of this ATAV in the upName string
+    * <li>length</li> The ATAV user provided length
+    * <li>Call the ATAV write method</li> The ATAV itself
+    *  
+    */
+   public void writeExternal( ObjectOutput out ) throws IOException
+   {
+       out.writeInt( nbAtavs );
+       out.writeUTF( upName );
+       
+       if ( upName.equals( normName ) )
+       {
+           out.writeUTF( "" );
+       }
+       else
+       {
+           out.writeUTF( normName );
+       }
+
+       out.writeInt( start );
+       out.writeInt( length );
+
+       switch ( nbAtavs )
+       {
+           case 0 :
+               break;
+
+           case 1 :
+               out.writeObject( atav );
+               break;
+               
+           default :
+               for ( AttributeTypeAndValue atav:atavs )
+               {
+                   out.writeObject( atav );
+               }
+           
+               break;
+       }
+       
+       out.flush();
+   }
+
+
+   /**
+    * @see Externalizable#readExternal(ObjectInput)
+    * 
+    * We read back the data to create a new RDB. The structure 
+    * read is exposed in the {@link Rdn#writeExternal(ObjectOutput)} 
+    * method<p>
+    */
+   public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+   {
+       // Read the ATAV number
+       nbAtavs = in.readInt();
+       
+       // Read the UPName
+       upName = in.readUTF();
+       
+       // Read the normName
+       normName = in.readUTF();
+       
+       if ( StringTools.isEmpty( normName ) )
+       {
+           normName = upName;
+       }
+       
+       start = in.readInt();
+       length = in.readInt();
+
+       switch ( nbAtavs )
+       {
+           case 0 :
+               atav = null;
+               break;
+               
+           case 1 :
+               atav = (AttributeTypeAndValue)in.readObject();
+               atavType = atav.getNormType();
+               
+               break;
+               
+           default :
+               atavs = new TreeSet<AttributeTypeAndValue>();
+
+               atavTypes = new MultiHashMap();
+
+               for ( int i = 0; i < nbAtavs; i++  )
+               {
+                   AttributeTypeAndValue atav = (AttributeTypeAndValue)in.readObject();
+                   atavs.add( atav );
+                   atavTypes.put( atav.getNormType(), atav );
+               }
+           
+               atav = null;
+               atavType = null;
+
+               break;
+       }
    }
 }

@@ -20,11 +20,15 @@
 package org.apache.directory.shared.ldap.entry;
 
 
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.Comparator;
+
+import javax.naming.NamingException;
 
 
 /**
@@ -33,20 +37,60 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BinaryValue implements Value<byte[]>
+public abstract class AbstractBinaryValue implements Value<byte[]>
 {
-    /** A byte array comparator instance */
-	@SuppressWarnings ( { "unchecked" } )
-    private static final Comparator<byte[]> BYTE_ARRAY_COMPARATOR = new ByteArrayComparator();
+    /** logger for reporting errors that might not be handled properly upstream */
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractBinaryValue.class );
+
     
     /** the wrapped binary value */
     private byte[] wrapped;
 
 
+    // -----------------------------------------------------------------------
+    // utility methods
+    // -----------------------------------------------------------------------
+    /**
+     * Utility method to get some logs if an assert fails
+     */
+    protected String logAssert( String message )
+    {
+        LOG.error(  message );
+        return message;
+    }
+
+    
+    /**
+     *  Check the attributeType member. It should not be null, 
+     *  and it should contains a syntax.
+     */
+    protected String checkAttributeType( AttributeType attributeType )
+    {
+        try
+        {
+            if ( attributeType == null )
+            {
+                return "The AttributeType parameter should not be null";
+            }
+            
+            if ( attributeType.getSyntax() == null )
+            {
+                return "There is no Syntax associated with this attributeType";
+            }
+
+            return null;
+        }
+        catch ( NamingException ne )
+        {
+            return "This AttributeType is incorrect";
+        }
+    }
+
+    
     /**
      * Creates a new instance of BinaryValue with no initial wrapped value.
      */
-    public BinaryValue()
+    public AbstractBinaryValue()
     {
     }
 
@@ -56,26 +100,30 @@ public class BinaryValue implements Value<byte[]>
      *
      * @param wrapped the binary value to wrap
      */
-    public BinaryValue( byte[] wrapped )
+    public AbstractBinaryValue( byte[] wrapped )
     {
         set( wrapped );
     }
 
 
     /**
-     * Dumps binary in hex with label.
+     * Creates a new instance of BinaryValue copying an existing BinaryValue
      *
-     * @see Object#toString()
+     * @param value the binary value to copy
      */
-    public String toString()
+    public AbstractBinaryValue( AbstractBinaryValue value )
     {
-        return "BinaryValue : " + StringTools.dumpBytes( wrapped );
+        if ( value != null )
+        {
+            wrapped = value.getCopy();
+        }
     }
 
 
     /**
      * @see Object#hashCode()
      */
+    @Override
     public int hashCode()
     {
         return Arrays.hashCode( wrapped );
@@ -114,6 +162,17 @@ public class BinaryValue implements Value<byte[]>
 
     
     /**
+     * Gets a copy of the wrapped binary value.
+     * 
+     * @return a copy of the binary value that is wrapped
+     */
+    public byte[] get()
+    {
+        return getCopy();
+    }
+
+    
+    /**
      * Returns <code>true</code> if the wrapper contains no value.
      */
     public final boolean isNull()
@@ -142,27 +201,9 @@ public class BinaryValue implements Value<byte[]>
 
 
     /**
-     * Makes a deep copy of the BinaryValue.
-     *
-     * @return a deep copy of the Value.
-     */
-    public BinaryValue clone() throws CloneNotSupportedException
-    {
-        BinaryValue cloned = (BinaryValue)super.clone();
-        
-        if ( wrapped != null )
-        {
-            cloned.wrapped = new byte[ wrapped.length ];
-            System.arraycopy( wrapped, 0, cloned.wrapped, 0, wrapped.length );
-        }
-        
-        return cloned;
-    }
-
-
-    /**
      * @see Object#equals(Object)
      */
+    @Override
     public boolean equals( Object obj )
     {
         if ( this == obj )
@@ -170,30 +211,28 @@ public class BinaryValue implements Value<byte[]>
             return true;
         }
 
-        if ( obj == null )
+        if ( ! ( obj instanceof AbstractBinaryValue ) )
         {
             return false;
         }
 
-        if ( obj.getClass() != this.getClass() )
-        {
-            return false;
-        }
-
-        BinaryValue binaryValue = ( BinaryValue ) obj;
+        AbstractBinaryValue binaryValue = ( AbstractBinaryValue ) obj;
         
-        if ( ( wrapped == null ) && ( binaryValue.wrapped == null ) )
+        if ( isNull() ) 
         {
-            return true;
+            return binaryValue.isNull();
         }
-
-        //noinspection SimplifiableIfStatement
-        if ( isNull() != binaryValue.isNull() )
+        else
         {
-            return false;
+            if ( binaryValue.isNull() )
+            {
+                return false;
+            }
+            else
+            {
+                return Arrays.equals( wrapped, binaryValue.wrapped );
+            }
         }
-
-        return Arrays.equals( wrapped, binaryValue.wrapped );
     }
 
 
@@ -202,8 +241,7 @@ public class BinaryValue implements Value<byte[]>
      *
      * @see Comparable#compareTo(Object) 
      */
-    @SuppressWarnings ( { "JavaDoc" } )
-    public int compareTo( BinaryValue value )
+    public int compareTo( AbstractBinaryValue value )
     {
         if ( value == null )
         {
@@ -222,6 +260,55 @@ public class BinaryValue implements Value<byte[]>
             return -1;
         }
 
-        return BYTE_ARRAY_COMPARATOR.compare( wrapped, value.getReference() );
+        return ByteArrayComparator.INSTANCE.compare( wrapped, value.getReference() );
+    }
+
+    
+    /**
+     * Makes a deep copy of the BinaryValue.
+     *
+     * @return a deep copy of the Value.
+     */
+    public AbstractBinaryValue clone()
+    {
+        try
+        {
+            AbstractBinaryValue clone = (AbstractBinaryValue)super.clone();
+            
+            clone.wrapped = getCopy();
+            
+            return clone;
+        }
+        catch ( CloneNotSupportedException cnse )
+        {
+            return null;
+        }
+    }
+
+    
+    /**
+     * Dumps binary in hex with label.
+     *
+     * @see Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        if ( wrapped == null )
+        {
+            return "null";
+        }
+        else if ( wrapped.length > 16 )
+        {
+            byte[] copy = new byte[16];
+            
+            System.arraycopy( wrapped, 0, copy, 0, 16 );
+            
+            return "'" + StringTools.dumpBytes( copy ) + "...'";
+        }
+        else
+        {
+            return "'" + StringTools.dumpBytes( wrapped ) + "'";
+        }
     }
 }

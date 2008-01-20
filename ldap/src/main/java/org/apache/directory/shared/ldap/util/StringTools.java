@@ -624,6 +624,11 @@ public class StringTools
      */
     public static final String toLowerCase( String value )
     {
+        if ( ( null == value ) || ( value.length() == 0 ) )
+        {
+            return "";
+        }
+        
         char[] chars = value.toCharArray();
         
         for ( int i = 0; i < chars.length; i++ )
@@ -644,6 +649,11 @@ public class StringTools
      */
     public static final String toUpperCase( String value )
     {
+        if ( ( null == value ) || ( value.length() == 0 ) )
+        {
+            return "";
+        }
+        
         char[] chars = value.toCharArray();
         
         for ( int i = 0; i < chars.length; i++ )

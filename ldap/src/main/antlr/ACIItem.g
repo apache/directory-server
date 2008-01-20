@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.Enumeration;
 
 import javax.naming.directory.Attribute;
-import javax.naming.Name;
 
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.AndNode;
@@ -883,7 +882,7 @@ thisEntry
 name
 {
     log.debug( "entered name()" );
-    Set<Name> names = new HashSet<Name>();
+    Set<LdapDN> names = new HashSet<LdapDN>();
     LdapDN distinguishedName = null;
 }
     :
@@ -906,7 +905,7 @@ name
 userGroup
 {
     log.debug( "entered userGroup()" );
-    Set<Name> userGroup = new HashSet<Name>();
+    Set<LdapDN> userGroup = new HashSet<LdapDN>();
     LdapDN distinguishedName = null;
 }
     :

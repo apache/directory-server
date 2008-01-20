@@ -265,7 +265,7 @@ public class Control extends AbstractAsn1Object
         }
 
         // The control type
-        Value.encode( buffer, controlType.getBytes() );
+        Value.encode( buffer, getControlType().getBytes() );
 
         // The control criticality, if true
         if ( criticality )

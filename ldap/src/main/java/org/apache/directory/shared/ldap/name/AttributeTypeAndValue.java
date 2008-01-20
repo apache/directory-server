@@ -20,7 +20,10 @@
 package org.apache.directory.shared.ldap.name;
 
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Arrays;
 
 import javax.naming.InvalidNameException;
@@ -45,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AttributeTypeAndValue implements Cloneable, Comparable, Serializable
+public class AttributeTypeAndValue implements Cloneable, Comparable, Externalizable
 {
     /**
      * Declares the Serial Version Uid.
@@ -57,14 +60,13 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
     private static final long serialVersionUID = 1L;
 
     /** The LoggerFactory used by this class */
-    private static Logger log = LoggerFactory.getLogger( AttributeTypeAndValue.class );
+    private static Logger LOG = LoggerFactory.getLogger( AttributeTypeAndValue.class );
 
     /** The normalized Name type */
     private String normType;
 
     /** The user provided Name type */
     private String upType;
-    
 
     /** The name value. It can be a String or a byte array */
     private Object value;
@@ -105,36 +107,87 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
 
     /**
      * Construct an AttributeTypeAndValue. The type and value are normalized :
-     * - the type is trimmed and lowercased
-     * - the value is trimmed
+     * <li> the type is trimmed and lowercased </li>
+     * <li> the value is trimmed </li>
+     * <p>
+     * Note that the upValue should <b>not</b> be null or empty, or resolved
+     * to an empty string after having trimmed it. 
      *
-     * @param type
-     *            The type
-     * @param value
-     *            the value
+     * @param upType The Usrr Provided type
+     * @param normType The normalized type
+     * @param upValue The User Provided value
+     * @param normValue The normalized value
      */
-    public AttributeTypeAndValue( String upType, String type, Object upValue, Object value ) throws InvalidNameException
+    public AttributeTypeAndValue( String upType, String normType, Object upValue, Object normValue ) throws InvalidNameException
     {
-        if ( StringTools.isEmpty( type ) || StringTools.isEmpty( type.trim() ) )
+        String upTypeTrimmed = StringTools.trim( upType );
+        String normTypeTrimmed = StringTools.trim( normType );
+        
+        if ( StringTools.isEmpty( upTypeTrimmed ) )
         {
-            log.error( "The type cannot be empty or null" );
-            throw new InvalidNameException( "Null or empty type is not allowed" );
+            if ( StringTools.isEmpty( normTypeTrimmed ) )
+            {
+                String message =  "The type cannot be empty or null";
+                LOG.error( message );
+                throw new InvalidNameException( message );
+            }
+            else
+            {
+                // In this case, we will use the normType instead
+                this.normType = StringTools.lowerCaseAscii( normTypeTrimmed );
+                this.upType = normType;
+            }
         }
-
-        normType = StringTools.lowerCaseAscii( type.trim() );
-        this.upType = upType;
-        this.upValue = upValue;
-
-        if ( value instanceof String )
+        else if ( StringTools.isEmpty( normTypeTrimmed ) )
         {
-            this.value = StringTools.isEmpty( ( String ) value ) ? "" : value;
+            // In this case, we will use the upType instead
+            this.normType = StringTools.lowerCaseAscii( upTypeTrimmed );
+            this.upType = upType;
         }
         else
         {
-            this.value = value;
+            this.normType = StringTools.lowerCaseAscii( normTypeTrimmed );
+            this.upType = upType;
+            
+        }
+            
+
+        if ( ( normValue == null ) || ( upValue == null ) )
+        {
+            if ( normValue instanceof String )
+            {
+                this.value = StringTools.isEmpty( ( String ) normValue ) ? "" : normValue;
+            }
+            else
+            {
+                this.value = normValue;
+            }
+
+            if ( upValue instanceof String )
+            {
+                this.upValue = StringTools.isEmpty( ( String ) upValue ) ? "" : upValue;
+            }
+            else
+            {
+                this.upValue = upValue;
+            }
+        }
+        else
+        {
+    
+            this.upValue = upValue;
+    
+            if ( normValue instanceof String )
+            {
+                this.value = StringTools.isEmpty( ( String ) normValue ) ? "" : normValue;
+            }
+            else
+            {
+                this.value = normValue;
+            }
         }
 
-        upName = upType + '=' + upValue;
+        upName = this.upType + '=' + ( this.upValue == null ? "" : this.upValue );
         start = 0;
         length = upName.length();
     }
@@ -162,22 +215,42 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
 
 
     /**
-     * Store the type
+     * Store a new type
      *
-     * @param type
-     *            The AttributeTypeAndValue type
+     * @param upType The AttributeTypeAndValue User Provided type
+     * @param type The AttributeTypeAndValue type
+     * 
+     * @throws InvalidNameException if the type or upType are empty or null.
+     * If the upName is invalid.
      */
     public void setType( String upType, String type ) throws InvalidNameException
     {
         if ( StringTools.isEmpty( type ) || StringTools.isEmpty( type.trim() ) )
         {
-            log.error( "The type cannot be empty or null" );
-            throw new InvalidNameException( "The AttributeTypeAndValue type cannot be null or empty " );
+            String message = "The type cannot be empty or null";
+            LOG.error( message );
+            throw new InvalidNameException( message );
+        }
+        
+        if ( StringTools.isEmpty( upType ) || StringTools.isEmpty( upType.trim() ) )
+        {
+            String message = "The User Provided type cannot be empty or null";
+            LOG.error( message );
+            throw new InvalidNameException( message );
+        }
+        
+        int equalPosition = upName.indexOf( '=' );
+        
+        if ( equalPosition <= 1 )
+        {
+            String message = "The User provided name does not contains an '='"; 
+            LOG.error( message );
+            throw new InvalidNameException( message );
         }
 
         normType = type.trim().toLowerCase();
         this.upType = upType;
-        upName = upType + upName.substring( upName.indexOf( '=' ) );
+        upName = upType + upName.substring( equalPosition );
         start = -1;
         length = upName.length();
     }
@@ -193,7 +266,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
     {
         if ( StringTools.isEmpty( type ) || StringTools.isEmpty( type.trim() ) )
         {
-            log.error( "The type cannot be empty or null" );
+            LOG.error( "The type cannot be empty or null" );
             throw new InvalidNameException( "The AttributeTypeAndValue type cannot be null or empty " );
         }
 
@@ -619,10 +692,10 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
      */
     public int hashCode()
     {
-        int result = 17;
+        int result = 37;
 
-        result = result * 37 + ( normType != null ? normType.hashCode() : 0 );
-        result = result * 37 + ( value != null ? value.hashCode() : 0 );
+        result = result*17 + ( normType != null ? normType.hashCode() : 0 );
+        result = result*17 + ( value != null ? value.hashCode() : 0 );
 
         return result;
     }
@@ -637,12 +710,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
             return true;
         }
         
-        if ( obj == null )
-        {
-            return false;
-        }
-        
-        if ( obj.getClass() != this.getClass() )
+        if ( !( obj instanceof AttributeTypeAndValue ) )
         {
             return false;
         }
@@ -665,12 +733,170 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
             }
         }
             
-        // Compare the value
-        return ( value == null ? 
-            instance.value == null  :
-            value.equals( instance.value ) );
+        // Compare the values
+        if ( value == null )
+        {
+            return instance.value == null;
+        }
+        else if ( value instanceof String )
+        {
+            if ( instance.value instanceof String )
+            {
+                return value.equals( instance.value );
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else if ( value instanceof byte[] )
+        {
+            if ( instance.value instanceof byte[] )
+            {
+                return Arrays.equals( (byte[])value, (byte[])instance.value );
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
     }
 
+    
+    /**
+     * @see Externalizable#readExternal(ObjectInput)<p>
+     * 
+     * An AttributeTypeAndValue is composed of  a type and a value.
+     * The data are stored following the structure :
+     * 
+     * <li>upName</li> The User provided ATAV
+     * <li>start</li> The position of this ATAV in the DN
+     * <li>length</li> The ATAV length
+     * <li>upType</li> The user Provided Type
+     * <li>normType</li> The normalized AttributeType
+     * <li>isHR<li> Tells if the value is a String or not
+     * <p>
+     * if the value is a String :
+     * <li>upValue</li> The User Provided value.
+     * <li>value</li> The normalized value.
+     * <p>
+     * if the value is binary :
+     * <li>upValueLength</li>
+     * <li>upValue</li> The User Provided value.
+     * <li>valueLength</li>
+     * <li>value</li> The normalized value.
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        if ( StringTools.isEmpty( upName ) || 
+             StringTools.isEmpty( upType ) ||
+             StringTools.isEmpty( normType ) ||
+             ( start < 0 ) ||
+             ( length < 2 ) ||             // At least a type and '='
+             ( upValue == null ) ||
+             ( value == null ) )
+        {
+            String message = "Cannot serialize an wrong ATAV, ";
+            
+            if ( StringTools.isEmpty( upName ) )
+            {
+                message += "the upName should not be null or empty";
+            }
+            else if ( StringTools.isEmpty( upType ) )
+            {
+                message += "the upType should not be null or empty";
+            }
+            else if ( StringTools.isEmpty( normType ) )
+            {
+                message += "the normType should not be null or empty";
+            }
+            else if ( start < 0 )
+            {
+                message += "the start should not be < 0";
+            }
+            else if ( length < 2 )
+            {
+                message += "the length should not be < 2";
+            }
+            else if ( upValue == null )
+            {
+                message += "the upValue should not be null";
+            }
+            else if ( value == null )
+            {
+                message += "the value should not be null";
+            }
+                
+            LOG.error( message );
+            throw new IOException( message );
+        }
+        
+        out.writeUTF( upName );
+        out.writeInt( start );
+        out.writeInt( length );
+        out.writeUTF( upType );
+        out.writeUTF( normType );
+        
+        boolean isHR = ( value instanceof String );
+        
+        out.writeBoolean( isHR );
+        
+        if ( isHR )
+        {
+            out.writeUTF( (String)upValue );
+            out.writeUTF( (String)value );
+        }
+        else
+        {
+            out.writeInt( ((byte[])upValue).length );
+            out.write( (byte[])upValue );
+            out.writeInt( ((byte[])value).length );
+            out.write( (byte[])value );
+        }
+        
+        out.flush();
+    }
+    
+    
+    /**
+     * @see Externalizable#readExternal(ObjectInput)
+     * 
+     * We read back the data to create a new ATAV. The structure 
+     * read is exposed in the {@link AttributeTypeAndValue#writeExternal(ObjectOutput)} 
+     * method<p>
+     */
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        upName = in.readUTF();
+        start = in.readInt();
+        length = in.readInt();
+        upType = in.readUTF();
+        normType = in.readUTF();
+        
+        boolean isHR = in.readBoolean();
+        
+        if ( isHR )
+        {
+            upValue = in.readUTF();
+            value = in.readUTF();
+        }
+        else
+        {
+            int upValueLength = in.readInt();
+            upValue = new byte[upValueLength];
+            in.readFully( (byte[])upValue );
+
+            int valueLength = in.readInt();
+            value = new byte[valueLength];
+            in.readFully( (byte[])value );
+        }
+    }
+    
+    
     /**
      * A String representation of a AttributeTypeAndValue.
      *

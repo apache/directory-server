@@ -371,14 +371,14 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
      */
     public int hashCode()
     {
-        int hash = 7;
-        hash = hash*31 + ( credentials == null ? 0 : hCredentials );
-        hash = hash*31 + ( isSimple ? 0 : 1 );
-        hash = hash*31 + ( isVersion3 ? 0 : 1 );
-        hash = hash*31 + ( mechanism == null ? 0 : mechanism.hashCode() );
-        hash = hash*31 + ( name == null ? 0 : name.hashCode() );
-        hash = hash*31 + ( response == null ? 0 : response.hashCode() );
-        hash = hash*31 + super.hashCode();
+        int hash = 37;
+        hash = hash*17 + ( credentials == null ? 0 : hCredentials );
+        hash = hash*17 + ( isSimple ? 0 : 1 );
+        hash = hash*17 + ( isVersion3 ? 0 : 1 );
+        hash = hash*17 + ( mechanism == null ? 0 : mechanism.hashCode() );
+        hash = hash*17 + ( name == null ? 0 : name.hashCode() );
+        hash = hash*17 + ( response == null ? 0 : response.hashCode() );
+        hash = hash*17 + super.hashCode();
         
         return hash;
     }

@@ -22,7 +22,9 @@ package org.apache.directory.shared.ldap.entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
+
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -37,7 +39,7 @@ import java.util.Iterator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Entry<T extends EntryAttribute<?>>
+public interface Entry<T extends EntryAttribute<?>> extends Cloneable, Iterable<T>
 {
     /**
      * Removes all the attributes.
@@ -72,29 +74,74 @@ public interface Entry<T extends EntryAttribute<?>>
 
 
     /**
-     * Places a non-null attribute in the attribute collection. If there is
-     * already an attribute with the same OID as the new attribute, the old one
-     * is removed from the collection and is returned by this method. If there
-     * was no attribute with the same OID the return value is <code>null</code>.
+     * Places non-null attributes in the attribute collection. If there is
+     * already an attribute with the same OID as any of the new attributes, 
+     * the old ones are removed from the collection and are returned by this 
+     * method. If there was no attribute with the same OID the return value 
+     * is <code>null</code>.
      *
-     * @param attribute the attribute to be put
-     * @return the old attribute with the same OID, if exists; otherwise
+     * @param attributes the attributes to be put
+     * @return the old attributes with the same OID, if exist; otherwise
      *         <code>null</code>
      */
-    T put( T attribute ) throws NamingException;
+    List<T> put( T... attributes ) throws NamingException;
 
 
     /**
-      * Removes the specified attribute. The removed attribute is
+      * Removes the specified attributes. The removed attributes are
       * returned by this method. If there were no attribute the return value
       * is <code>null</code>.
       *
-      * @param attribute the attribute to be removed
+      * @param attributes the attributes to be removed
       * @return the removed attribute, if exists; otherwise <code>null</code>
       */
-    T remove( T attribute ) throws NamingException;
+    List<T> remove( T... attributes ) throws NamingException;
 
 
+    /**
+     * Checks if an entry contains an attribute with a given value.
+     *
+     * @param attribute The Attribute we are looking for
+     * @param value The searched value
+     * @return <code>true</code> if the value is found within the attribute
+     * @throws NamingException If the attribute does not exist
+     */
+    boolean contains( T attribute, Value<?> value ) throws NamingException;
+    
+    
+    /**
+     * Checks if an entry contains an attribute with a given value.
+     *
+     * @param id The Attribute ID we are looking for
+     * @param value The searched value
+     * @return <code>true</code> if the value is found within the attribute
+     * @throws NamingException If the attribute does not exist
+     */
+    boolean contains( String id, Value<?> value ) throws NamingException;
+    
+    
+    /**
+     * Checks if an entry contains an attribute with a given value.
+     *
+     * @param id The Attribute ID we are looking for
+     * @param value The searched value
+     * @return <code>true</code> if the value is found within the attribute
+     * @throws NamingException If the attribute does not exist
+     */
+    boolean contains( String id, String value ) throws NamingException;
+
+    
+    /**
+     * Checks if an entry contains an attribute with a given value.
+     *
+     * @param id The Attribute ID we are looking for
+     * @param value The searched value
+     * @return <code>true</code> if the value is found within the attribute
+     * @throws NamingException If the attribute does not exist
+     */
+    boolean contains( String id, byte[] value ) throws NamingException;
+
+    
     /**
       * Returns the number of attributes.
       *

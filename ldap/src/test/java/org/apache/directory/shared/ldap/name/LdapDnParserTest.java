@@ -574,15 +574,13 @@ public class LdapDnParserTest extends TestCase
 
         try
         {
-            String res = parser.parse( input ).toString();
-            System.out.println( res );
+            parser.parse( input ).toString();
+            fail( "Should never rech this point" );
         }
         catch ( NamingException ne )
         {
             assertTrue( true );
             return;
         }
-
-        fail( "Should never rech this point" );
     }
 }

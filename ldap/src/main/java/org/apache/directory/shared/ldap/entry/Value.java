@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.entry;
 
+import java.io.Serializable;
+
 
 /**
  * A interface for wrapping attribute values stored into an EntryAttribute. These
@@ -27,16 +29,8 @@ package org.apache.directory.shared.ldap.entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Value<T>
+public interface Value<T> extends Cloneable, Serializable
 {
-//    /**
-//     * Get the wrapped value.
-//     *
-//     * @return the wrapped value, as its original type (String,byte[],URI)
-//     */
-//    T get();
-
-
     /**
      * Sets the wrapped value.
      *
@@ -51,4 +45,11 @@ public interface Value<T>
      */
     boolean isNull();
     
+    
+    /**
+     * Get the stored value.
+     *
+     * @return The stored value
+     */
+    T get();
 }

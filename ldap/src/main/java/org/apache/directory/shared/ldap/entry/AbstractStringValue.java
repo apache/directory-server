@@ -19,23 +19,72 @@
  */
 package org.apache.directory.shared.ldap.entry;
 
+import javax.naming.NamingException;
+
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
- * A warpper around an EntryAttribute's String value.
+ * A wrapper around an EntryAttribute's String value.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class StringValue implements Value<String>
+public abstract class AbstractStringValue implements Value<String>
 {
+    /** logger for reporting errors that might not be handled properly upstream */
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractStringValue.class );
+
     /** the wrapped string value */
     private String wrapped;
 
 
+    // -----------------------------------------------------------------------
+    // utility methods
+    // -----------------------------------------------------------------------
+    /**
+     * Utility method to get some logs if an assert fails
+     */
+    protected String logAssert( String message )
+    {
+        LOG.error(  message );
+        return message;
+    }
+
+    
+    /**
+     *  Check the attributeType member. It should not be null, 
+     *  and it should contains a syntax.
+     */
+    protected String checkAttributeType( AttributeType attributeType )
+    {
+        try
+        {
+            if ( attributeType == null )
+            {
+                return "The AttributeType parameter should not be null";
+            }
+            
+            if ( attributeType.getSyntax() == null )
+            {
+                return "There is no Syntax associated with this attributeType";
+            }
+
+            return null;
+        }
+        catch ( NamingException ne )
+        {
+            return "This AttributeType is incorrect";
+        }
+    }
+
+    
     /**
      * Creates a new instance of StringValue with no value.
      */
-    public StringValue()
+    public AbstractStringValue()
     {
     }
 
@@ -45,7 +94,7 @@ public class StringValue implements Value<String>
      *
      * @param wrapped the actual String value to wrap
      */
-    public StringValue( String wrapped )
+    public AbstractStringValue( String wrapped )
     {
         this.wrapped = wrapped;
     }
@@ -56,7 +105,7 @@ public class StringValue implements Value<String>
      */
     public String toString()
     {
-        return "StringValue : " + wrapped;
+        return "'" + wrapped + "'";
     }
 
 
@@ -89,25 +138,29 @@ public class StringValue implements Value<String>
             return false;
         }
 
-        if ( ! ( obj instanceof StringValue ) )
+        if ( ! ( obj instanceof AbstractStringValue ) )
         {
             return false;
         }
 
-        StringValue stringValue = ( StringValue ) obj;
-        if ( this.wrapped == null && stringValue.wrapped == null )
+        AbstractStringValue stringValue = ( AbstractStringValue ) obj;
+        
+        if ( this.wrapped == null ) 
         {
-            return true;
+            if ( stringValue.wrapped == null )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-
-        //noinspection SimplifiableIfStatement
-        if ( this.wrapped == null && stringValue.wrapped != null ||
-             this.wrapped != null && stringValue.wrapped == null )
+        else if ( stringValue.wrapped == null )
         {
             return false;
         }
 
-        //noinspection ConstantConditions
         return this.wrapped.equals( stringValue.wrapped );
     }
 

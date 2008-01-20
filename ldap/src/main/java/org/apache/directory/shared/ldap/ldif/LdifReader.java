@@ -158,7 +158,7 @@ public class LdifReader implements Iterator<Entry>
     private static final Logger LOG = LoggerFactory.getLogger( LdifReader.class );
 
     /** A private class to track the current position in a line */
-    private class Position
+    protected class Position
     {
         public int pos;
 
@@ -179,54 +179,54 @@ public class LdifReader implements Iterator<Entry>
     }
 
     /** A list of read lines */
-    private List<String> lines;
+    protected List<String> lines;
 
     /** The current position */
-    private Position position;
+    protected Position position;
 
     /** The ldif file version default value */
-    private static final int DEFAULT_VERSION = 1;
+    protected static final int DEFAULT_VERSION = 1;
 
     /** The ldif version */
-    private int version;
+    protected int version;
 
     /** Type of element read */
-    private static final int ENTRY = 0;
+    protected static final int ENTRY = 0;
 
-    private static final int CHANGE = 1;
+    protected static final int CHANGE = 1;
 
-    private static final int UNKNOWN = 2;
+    protected static final int UNKNOWN = 2;
 
     /** Size limit for file contained values */
-    private long sizeLimit = SIZE_LIMIT_DEFAULT;
+    protected long sizeLimit = SIZE_LIMIT_DEFAULT;
 
     /** The default size limit : 1Mo */
-    private static final long SIZE_LIMIT_DEFAULT = 1024000;
+    protected static final long SIZE_LIMIT_DEFAULT = 1024000;
 
     /** State values for the modify operation */
-    private static final int MOD_SPEC = 0;
+    protected static final int MOD_SPEC = 0;
 
-    private static final int ATTRVAL_SPEC = 1;
+    protected static final int ATTRVAL_SPEC = 1;
 
-    private static final int ATTRVAL_SPEC_OR_SEP = 2;
+    protected static final int ATTRVAL_SPEC_OR_SEP = 2;
 
     /** Iterator prefetched entry */
-    private Entry prefetched;
+    protected Entry prefetched;
 
     /** The ldif Reader */
-    private Reader in;
+    protected Reader in;
 
     /** A flag set if the ldif contains entries */
-    private boolean containsEntries;
+    protected boolean containsEntries;
 
     /** A flag set if the ldif contains changes */
-    private boolean containsChanges;
+    protected boolean containsChanges;
 
     /**
      * An Exception to handle error message, has Iterator.next() can't throw
      * exceptions
      */
-    private Exception error;
+    protected Exception error;
 
     /**
      * Constructors
@@ -551,7 +551,7 @@ public class LdifReader implements Iterator<Entry>
      *            The starting position in the line
      * @return A String or a byte[], depending of the kind of value we get
      */
-    private static Object parseSimpleValue( String line, int pos )
+    protected static Object parseSimpleValue( String line, int pos )
     {
         if ( line.length() > pos + 1 )
         {
@@ -585,7 +585,7 @@ public class LdifReader implements Iterator<Entry>
      * @throws NamingException
      *             If something went wrong
      */
-    private Object parseValue( String line, int pos ) throws NamingException
+    protected Object parseValue( String line, int pos ) throws NamingException
     {
         if ( line.length() > pos + 1 )
         {
@@ -1408,7 +1408,7 @@ public class LdifReader implements Iterator<Entry>
      * 
      * @throws NamingException If something went wrong
      */
-    private void readLines() throws NamingException
+    protected void readLines() throws NamingException
     {
         String line = null;
         boolean insideComment = true;

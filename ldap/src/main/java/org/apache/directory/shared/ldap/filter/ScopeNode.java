@@ -132,6 +132,23 @@ public class ScopeNode extends AbstractExprNode
         }
     }
     
+
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int h = 37;
+        
+        h = h*17 + super.hashCode();
+        h = h*17 + ( aliasDerefAliases != null ? aliasDerefAliases.hashCode() : 0 );
+        h = h*17 + ( baseDn != null ? baseDn.hashCode() : 0 );
+        h = h*17 + scope;
+        
+        return h;
+    }
+
+
     /**
      * @see Object#toString()
      */

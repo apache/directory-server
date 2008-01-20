@@ -175,6 +175,29 @@ public abstract class BranchNode extends AbstractExprNode
         }
     }
     
+    
+    /**
+     * (non-Javadoc)
+     * 
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int h = 37;
+        
+        h = h*17 + super.hashCode();
+        
+        if ( children != null )
+        {
+            for ( ExprNode child:children )
+            {
+                h = h*17 + child.hashCode();
+            }
+        }
+        
+        return h;
+    }
+    
     /*
      * (non-Javadoc)
      * 

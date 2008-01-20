@@ -221,11 +221,11 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
      */
     public int hashCode()
     {
-        int hash = 7;
-        hash = hash*31 + ( attributes == null ? 0 : attributes.hashCode() );
-        hash = hash*31 + ( entry == null ? 0 : entry.hashCode() );
-        hash = hash*31 + ( response == null ? 0 : response.hashCode() );
-        hash = hash*31 + super.hashCode();
+        int hash = 37;
+        hash = hash*17 + ( attributes == null ? 0 : attributes.hashCode() );
+        hash = hash*17 + ( entry == null ? 0 : entry.hashCode() );
+        hash = hash*17 + ( response == null ? 0 : response.hashCode() );
+        hash = hash*17 + super.hashCode();
         
         return hash;
     }
