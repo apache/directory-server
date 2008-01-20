@@ -19,7 +19,6 @@
  */
 package org.apache.directory.shared.ldap.entry;
 
-
 /**
  * An internal interface for a ModificationItem. The name has been
  * chosen so that it does not conflict with @see ModificationItem
@@ -27,14 +26,14 @@ package org.apache.directory.shared.ldap.entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Modification
+public interface Modification<T extends EntryAttribute<?>>
 {
     /**
      *  @return the operation
      */
     ModificationOperation getOperation();
-    
-    
+
+
     /**
      * Store the modification operation
      *
@@ -42,7 +41,7 @@ public interface Modification
      */
     void setOperation( int operation );
 
-    
+
     /**
      * Store the modification operation
      *
@@ -50,17 +49,17 @@ public interface Modification
      */
     void setOperation( ModificationOperation operation );
 
-    
+
     /**
      * @return the attribute containing the modifications
      */
-    EntryAttribute<? extends Value<?>> getAttribute();
-    
-    
+    T getAttribute();
+
+
     /**
      * Set the attribute's modification
      *
-     * @param attribute The modified attribute 
+     * @param attribute The modified attribute
      */
-    void setAttribute( EntryAttribute<? extends Value<?>> attribute );
+    void setAttribute( T attribute );
 }
