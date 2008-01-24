@@ -211,6 +211,29 @@ public abstract class AbstractClientAttribute implements ClientAttribute
     
     
     /**
+     * @see EntryAttribute#put(List<String>)
+     */
+    public int put( List<?> vals ) throws InvalidAttributeValueException, NamingException
+    {
+        values.clear();
+        
+        for ( Object value:vals )
+        {
+            if ( value instanceof String )
+            {
+                add( (String)value );
+            }
+            else
+            {
+                add( (byte[])value );
+            }
+        }
+        
+        return size();
+    }
+
+    
+    /**
      * @see EntryAttribute#add(byte[]...)
      */
     public int add( byte[]... vals ) throws InvalidAttributeValueException, NamingException

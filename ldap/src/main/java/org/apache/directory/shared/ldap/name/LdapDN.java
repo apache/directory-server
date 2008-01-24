@@ -639,7 +639,6 @@ public class LdapDN implements Name, Externalizable
                 }
                 catch ( InvalidNameException e )
                 {
-                    e.printStackTrace();
                     LOG.error( "Failed to parse RDN for name " + name.toString(), e );
                     return false;
                 }

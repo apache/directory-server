@@ -20,6 +20,7 @@ package org.apache.directory.shared.ldap.entry;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
@@ -53,7 +54,7 @@ public interface EntryAttribute<T extends Value<?>> extends Iterable<T>, Seriali
     /**
      * Puts some values to this attribute.
      * <p>
-     * The new values are replace the previous values.
+     * The new values will replace the previous values.
      * </p>
      * <p>
      * This method returns the number of values that were put.
@@ -66,6 +67,24 @@ public interface EntryAttribute<T extends Value<?>> extends Iterable<T>, Seriali
      * @throws NamingException If the attributeType does not have a syntax
      */
     int put( String... vals ) throws InvalidAttributeValueException, NamingException;
+
+
+    /**
+     * Puts some values to this attribute.
+     * <p>
+     * The new values will replace the previous values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were put.
+     * </p>
+     *
+     * @param vals some values to be put which may be null
+     * @return the number of added values, or 0 if none has been added
+     * @throws InvalidAttributeValueException If we try to add some values
+     * which conflicts with the AttributeType for this attribute
+     * @throws NamingException If the attributeType does not have a syntax
+     */
+    int put( List<?> vals ) throws InvalidAttributeValueException, NamingException;
 
 
     /**
@@ -87,7 +106,7 @@ public interface EntryAttribute<T extends Value<?>> extends Iterable<T>, Seriali
     /**
      * Puts some values to this attribute.
      * <p>
-     * The new values are replace the previous values.
+     * The new values will replace the previous values.
      * </p>
      * <p>
      * This method returns the number of values that were put.
@@ -121,6 +140,15 @@ public interface EntryAttribute<T extends Value<?>> extends Iterable<T>, Seriali
      * @return true if this attribute contains all the values, otherwise false
      */
     boolean contains( byte[]... vals );
+
+
+    /**
+     * Indicates whether the specified values are some of the attribute's values.
+     *
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
+     */
+    boolean contains( Object... vals );
 
 
    /**

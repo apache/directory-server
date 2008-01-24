@@ -404,6 +404,64 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     
     
     /**
+     * @see EntryAttribute#contains(Object...)
+     */
+    public boolean contains( Object... vals )
+    {
+        boolean isHR = true;
+        boolean seen = false;
+        
+        // Iterate through all the values, and quit if we 
+        // don't find one in the values
+        for ( Object val:vals )
+        {
+            if ( ( val instanceof String ) ) 
+            {
+                if ( !seen )
+                {
+                    isHR = true;
+                    seen = true;
+                }
+
+                if ( isHR )
+                {
+                    if ( !contains( (String)val ) )
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if ( !seen )
+                {
+                    isHR = false;
+                    seen = true;
+                }
+
+                if ( !isHR )
+                {
+                    if ( !contains( (byte[])val ) )
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+
+    
+    /**
      * Get the first value of this attribute. If there is none, 
      * null is returned.
      * 
@@ -538,6 +596,7 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
         return values.iterator();
     }
     
+    
     /**
      * @see Object#toString() 
      */
@@ -559,5 +618,4 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
         
         return sb.toString();
     }
-
 }
