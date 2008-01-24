@@ -23,24 +23,24 @@ package org.apache.directory.server.core.subtree;
 import junit.framework.TestCase;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-
-import java.util.Set;
-import java.util.HashSet;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -49,38 +49,39 @@ import java.util.HashSet;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RefinementLeafEvaluatorTest extends TestCase
+public class RefinementLeafEvaluatorTest
 {
-    /** the global registries */
-    private Registries registries;
+    /** The ObjectClass AttributeType */
+    private static AttributeType OBJECT_CLASS;
+
+    /** A reference to the directory service */
+    private static DirectoryService service;
+    
+    /** the registries */
+    private static Registries registries;
+
     /** the refinement leaf evaluator to test */
     private RefinementLeafEvaluator evaluator;
 
 
     /**
      * Initializes the global registries.
-     * @throws NamingException if there is a failure loading the schema
+     * @throws javax.naming.NamingException if there is a failure loading the schema
      */
-    private void init() throws NamingException
+    @BeforeClass public static void init() throws NamingException
     {
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
-        Set<Schema> schemas = new HashSet<Schema>();
-        schemas.add( new SystemSchema() );
-        schemas.add( new ApacheSchema() );
-        schemas.add( new CoreSchema() );
-        loader.loadWithDependencies( schemas, bsRegistries );
-        registries = bsRegistries;
+        service = new DefaultDirectoryService();
+        registries = service.getRegistries();
+        OBJECT_CLASS = registries.getAttributeTypeRegistry().lookup( "objectClass" );
     }
-
+    
 
     /**
      * Initializes registries and creates the leaf evalutator
      * @throws Exception if there are schema initialization problems
      */
-    protected void setUp() throws Exception
+    @Before public void setUp() throws Exception
     {
-        init();
         OidRegistry registry = registries.getOidRegistry();
         evaluator = new RefinementLeafEvaluator( registry );
     }
@@ -89,10 +90,9 @@ public class RefinementLeafEvaluatorTest extends TestCase
     /**
      * Sets evaluator and registries to null.
      */
-    protected void tearDown()
+    @After public void tearDown()
     {
         evaluator = null;
-        registries = null;
     }
 
 
@@ -100,9 +100,9 @@ public class RefinementLeafEvaluatorTest extends TestCase
      * Test cases for various bad combinations of arguments
      * @throws Exception if something goes wrongg
      */
-    public void testForBadArguments() throws Exception
+    @Test public void testForBadArguments() throws Exception
     {
-        Attribute objectClasses = null;
+        ServerAttribute objectClasses = null;
 
         try
         {
@@ -142,7 +142,7 @@ public class RefinementLeafEvaluatorTest extends TestCase
 
         try
         {
-            objectClasses = new AttributeImpl( "incorrectAttrId" );
+            objectClasses = new DefaultServerAttribute( "cn", OBJECT_CLASS );
             assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", "" ), objectClasses ) );
             fail( "should never get here due to an IAE" );
         }
@@ -152,46 +152,43 @@ public class RefinementLeafEvaluatorTest extends TestCase
     }
 
 
-    public void testMatchByName() throws Exception
+    @Test public void testMatchByName() throws Exception
     {
-        Attribute objectClasses = null;
-
         // positive test
-        objectClasses = new AttributeImpl( "objectClass", "person" );
+        ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
         assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", "person" ), objectClasses ) );
 
-        objectClasses = new AttributeImpl( "objectClass" );
+        objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
         assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", "person" ), objectClasses ) );
 
         // negative tests
-        objectClasses = new AttributeImpl( "objectClass", "person" );
+        objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
         assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", "blah" ), objectClasses ) );
 
-        objectClasses = new AttributeImpl( "objectClass", "blah" );
+        objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "blah" );
         assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", "person" ), objectClasses ) );
     }
 
 
-    public void testMatchByOID() throws Exception
+    @Test public void testMatchByOID() throws Exception
     {
-        Attribute objectClasses = null;
+        ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
 
         // positive test
-        objectClasses = new AttributeImpl( "objectClass", "person" );
         assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", "2.5.6.6" ), objectClasses ) );
 
-        objectClasses = new AttributeImpl( "objectClass" );
+        objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
         assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", "2.5.6.6" ), objectClasses ) );
 
         // negative tests
-        objectClasses = new AttributeImpl( "objectClass", "person" );
+        objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
         assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", "2.5.6.5" ), objectClasses ) );
 
-        objectClasses = new AttributeImpl( "objectClass", "blah" );
+        objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "blah" );
         assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", "2.5.6.5" ), objectClasses ) );
     }
 }

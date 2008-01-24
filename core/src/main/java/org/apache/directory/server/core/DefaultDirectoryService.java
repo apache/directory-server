@@ -1235,8 +1235,9 @@ public class DefaultDirectoryService implements DirectoryService
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
-        Attributes adminEntry = partitionNexus.lookup( new LookupOperationContext( registries, adminDn ) );
+        ServerEntry adminEntry = partitionNexus.lookup( new LookupOperationContext( registries, adminDn ) );
         Object userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
+        
         if ( userPassword instanceof byte[] )
         {
             needToChangeAdminPassword = PartitionNexus.ADMIN_PASSWORD.equals( new String(

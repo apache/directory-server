@@ -223,7 +223,7 @@ public class DIRSERVER791IT
         DirContext ctx = new InitialDirContext( env );
 
 
-        Attribute attr = new AttributeImpl("bootParameter", "test");
+        Attribute attr = new AttributeImpl("javaDoc", "test");
         ModificationItemImpl modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, attr);
     
         try 

@@ -159,7 +159,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     private Attributes getAttributes( OperationContext opContext ) throws NamingException
     {
         LdapDN dn = opContext.getDn();
-        Attributes attributes;
+        ServerEntry serverEntry;
 
         // @todo make sure we're not putting in operational attributes that cannot be user modified
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -167,14 +167,14 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         if ( schemaService.isSchemaSubentry( dn.toNormName() ) )
         {
-            return schemaService.getSubschemaEntryCloned();
+            return ServerEntryUtils.toAttributesImpl( schemaService.getSubschemaEntryCloned() );
         }
         else
         {
-            attributes = proxy.lookup( new LookupOperationContext( opContext.getRegistries(), dn ), PartitionNexusProxy.LOOKUP_BYPASS );
+            serverEntry = proxy.lookup( new LookupOperationContext( opContext.getRegistries(), dn ), PartitionNexusProxy.LOOKUP_BYPASS );
         }
 
-        return attributes;
+        return ServerEntryUtils.toAttributesImpl( serverEntry );
     }
 
 
@@ -250,13 +250,14 @@ public class ChangeLogInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opCtx )
         throws NamingException
     {
-        Attributes attributes = null;
+        ServerEntry serverEntry = null;
+        
         if ( changeLog.isEnabled() && ! opCtx.isCollateralOperation() )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
             Invocation invocation = InvocationStack.getInstance().peek();
             PartitionNexusProxy proxy = invocation.getProxy();
-            attributes = proxy.lookup( new LookupOperationContext( opCtx.getRegistries(), opCtx.getDn() ),
+            serverEntry = proxy.lookup( new LookupOperationContext( opCtx.getRegistries(), opCtx.getDn() ),
                     PartitionNexusProxy.LOOKUP_BYPASS );
         }
 
@@ -274,7 +275,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setNewRdn( opCtx.getNewRdn().getUpName() );
         forward.setNewSuperior( opCtx.getParent().getUpName() );
 
-        Entry reverse = LdifUtils.reverseModifyRdn( attributes, opCtx.getParent(), opCtx.getDn(),
+        Entry reverse = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), opCtx.getParent(), opCtx.getDn(),
                 new Rdn( opCtx.getNewRdn() ) );
         changeLog.log( getPrincipal(), forward, reverse );
     }

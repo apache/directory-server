@@ -25,8 +25,9 @@ import java.util.Iterator;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
@@ -77,14 +78,14 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             PartitionNexusProxy proxy,
             Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
-            Attributes userEntry,
+            ServerEntry userEntry,
             AuthenticationLevel authenticationLevel, 
             LdapDN entryName, 
             String attrId,
             Object attrValue, 
-            Attributes entry, 
+            ServerEntry entry, 
             Collection<MicroOperation> microOperations,
-            Attributes entryView )
+            ServerEntry entryView )
         throws NamingException
     {
         if ( tuples.size() == 0 )
@@ -95,6 +96,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
         for ( Iterator<ACITuple> i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = i.next();
+            
             if ( !isRelated( tuple, scope, userName, entryName, attrId, attrValue, entry ) )
             {
                 i.remove();
@@ -106,9 +108,10 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
 
     private boolean isRelated( ACITuple tuple, OperationScope scope, LdapDN userName, LdapDN entryName, String attrId,
-                               Object attrValue, Attributes entry ) throws NamingException, InternalError
+                               Object attrValue, ServerEntry entry ) throws NamingException, InternalError
     {
         String oid = null;
+        
         if ( attrId != null )
         {
             oid = oidRegistry.getOid( attrId );
@@ -225,6 +228,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             else if ( item instanceof ProtectedItem.RangeOfValues )
             {
                 ProtectedItem.RangeOfValues rov = ( ProtectedItem.RangeOfValues ) item;
+                
                 if ( entryEvaluator.evaluate( rov.getFilter(), entryName.toString(), entry ) )
                 {
                     return true;
@@ -261,11 +265,11 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     if ( oid.equals( oidRegistry.getOid( svItem ) ) )
                     {
                         AttributeType attrType = attrRegistry.lookup( oid );
-                        Attribute attr = AttributeUtils.getAttribute( entry, attrType );
+                        ServerAttribute attr = entry.get( oid );
                         
                         if ( ( attr != null ) && 
-                             ( ( AttributeUtils.containsValue( attr, userName.toNormName(), attrType ) || 
-                               ( AttributeUtils.containsValue( attr, userName.getUpName(), attrType ) ) ) ) )
+                             ( ( attr.contains( userName.toNormName() ) || 
+                               ( attr.contains( userName.getUpName() ) ) ) ) )
                         {
                             return true;
                         }

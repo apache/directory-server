@@ -281,7 +281,7 @@ public interface Partition
      * @return an Attributes object representing the entry
      * @throws NamingException if there are any problems
      */
-    Attributes lookup( LookupOperationContext lookupContext ) throws NamingException;
+    ServerEntry lookup( LookupOperationContext lookupContext ) throws NamingException;
 
     /**
      * Fast operation to check and see if a particular entry exists.

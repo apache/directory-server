@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 import java.util.Iterator;
 
@@ -212,7 +211,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#lookup( LookupOperationContext )} call.
      */
-    Attributes lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException;
+    ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException;
 
 
     /**

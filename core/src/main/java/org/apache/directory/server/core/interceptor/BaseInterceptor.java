@@ -49,7 +49,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.Iterator;
@@ -176,7 +175,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public Attributes lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
     {
         return next.lookup( opContext );
     }

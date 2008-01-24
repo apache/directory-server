@@ -29,6 +29,8 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -63,7 +65,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -90,7 +91,7 @@ import javax.naming.directory.SearchResult;
 public class SchemaPartitionDao
 {
     /** static class logger */
-    private static final Logger LOG = LoggerFactory.getLogger( SchemaPartitionDao.class );
+    private final Logger LOG = LoggerFactory.getLogger( getClass() );
     private static final NumericOidSyntaxChecker NUMERIC_OID_CHECKER = new NumericOidSyntaxChecker();
     private static final String[] SCHEMA_ATTRIBUTES = new String[] { 
         SchemaConstants.CREATORS_NAME_AT, 
@@ -212,10 +213,7 @@ public class SchemaPartitionDao
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
         dn.normalize( attrRegistry.getNormalizerMapping() );
         return factory.getSchema( 
-            ServerEntryUtils.toServerEntry( 
-                partition.lookup( new LookupOperationContext( registries, dn ) ),
-                dn,
-                registries ) );
+            partition.lookup( new LookupOperationContext( registries, dn ) ) );
     }
 
 
@@ -578,8 +576,8 @@ public class SchemaPartitionDao
     {
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
         dn.normalize( attrRegistry.getNormalizerMapping() );
-        Attributes entry = partition.lookup( new LookupOperationContext( registries, dn ) );
-        Attribute disabledAttr = AttributeUtils.getAttribute( entry, disabledAttributeType );
+        ServerEntry entry = partition.lookup( new LookupOperationContext( registries, dn ) );
+        ServerAttribute disabledAttr = entry.get( disabledAttributeType );
         List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>( 3 );
         
         if ( disabledAttr == null )
@@ -588,7 +586,7 @@ public class SchemaPartitionDao
             return;
         }
         
-        boolean isDisabled = ( ( String ) disabledAttr.get() ).equalsIgnoreCase( "TRUE" );
+        boolean isDisabled = disabledAttr.contains( "TRUE" );
         if ( ! isDisabled )
         {
             LOG.warn( "Does not make sense: you're trying to enable {} schema which is already enabled", schemaName );

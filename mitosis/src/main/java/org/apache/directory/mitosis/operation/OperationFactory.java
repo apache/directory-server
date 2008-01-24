@@ -49,7 +49,6 @@ import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -347,8 +346,8 @@ public class OperationFactory
     {
         if ( nexus.hasEntry( new EntryOperationContext( registries, newEntryName ) ) )
         {
-            Attributes entry = nexus.lookup( new LookupOperationContext( registries, newEntryName ) );
-            Attribute deleted = entry.get( Constants.ENTRY_DELETED );
+            ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, newEntryName ) );
+            ServerAttribute deleted = entry.get( Constants.ENTRY_DELETED );
             Object value = deleted == null ? null : deleted.get();
 
             /*

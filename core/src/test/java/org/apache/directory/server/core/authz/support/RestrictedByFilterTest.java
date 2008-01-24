@@ -26,22 +26,26 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
+import javax.naming.NamingException;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.server.core.authz.support.RestrictedByFilter;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -50,7 +54,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RestrictedByFilterTest extends TestCase
+public class RestrictedByFilterTest
 {
     private static final Collection<UserClass> UC_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
     private static final Collection<ACITuple> AT_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
@@ -58,23 +62,33 @@ public class RestrictedByFilterTest extends TestCase
     private static final Set<MicroOperation> MO_EMPTY_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
     private static final Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
-    private static final Attributes ENTRY = new AttributesImpl();
+    private static ServerEntry ENTRY;
 
     static
     {
         Collection<RestrictedByItem> mvcItems = new ArrayList<RestrictedByItem>();
-        mvcItems.add( new RestrictedByItem( "choice", "option" ) );
+        mvcItems.add( new RestrictedByItem( "sn", "cn" ) );
         PROTECTED_ITEMS.add( new ProtectedItem.RestrictedBy( mvcItems ) );
-
-        Attribute attr = new AttributeImpl( "option" );
-        attr.add( "1" );
-        attr.add( "2" );
-
-        ENTRY.put( attr );
     }
 
 
-    public void testWrongScope() throws Exception
+    /** A reference to the directory service */
+    private static DirectoryService service;
+
+    
+    @BeforeClass public static void setup() throws NamingException
+    {
+        service = new DefaultDirectoryService();
+
+        LdapDN entryName = new LdapDN( "ou=test, ou=system" );
+        PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
+        ENTRY = new DefaultServerEntry( service.getRegistries(), entryName );
+
+        ENTRY.put( "cn", "1", "2" );
+    }
+
+
+    @Test public void testWrongScope() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
@@ -82,24 +96,24 @@ public class RestrictedByFilterTest extends TestCase
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        Assert.assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null,
+        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null,
             null, null, null, null, null, null, null ) );
 
-        Assert.assertEquals( tuples, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null,
+        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null,
             null, null, null, null, null ) );
     }
 
 
-    public void testZeroTuple() throws Exception
+    @Test public void testZeroTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
 
-        Assert.assertEquals( 0, filter.filter( null, AT_EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
+        assertEquals( 0, filter.filter( null, AT_EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
             null, null, null, null, null, null, null, null, null ).size() );
     }
 
 
-    public void testDenialTuple() throws Exception
+    @Test public void testDenialTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
@@ -107,24 +121,24 @@ public class RestrictedByFilterTest extends TestCase
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        Assert.assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
+        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
             null, null, null, "testAttr", null, ENTRY, null, null ) );
     }
 
 
-    public void testGrantTuple() throws Exception
+    @Test public void testGrantTuple() throws Exception
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, MO_EMPTY_SET, true, 0 ) );
 
-        Assert.assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "choice", "1", ENTRY, null, null ).size() );
+        assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
+            null, null, "sn", "1", ENTRY, null, null ).size() );
 
-        Assert.assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "choice", "2", ENTRY, null, null ).size() );
+        assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
+            null, null, "sn", "2", ENTRY, null, null ).size() );
 
-        Assert.assertEquals( 0, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "choice", "3", ENTRY, null, null ).size() );
+        assertEquals( 0, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
+            null, null, "sn", "3", ENTRY, null, null ).size() );
     }
 }

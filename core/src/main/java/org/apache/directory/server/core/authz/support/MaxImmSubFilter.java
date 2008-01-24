@@ -23,6 +23,7 @@ package org.apache.directory.server.core.authz.support;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
@@ -43,7 +44,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.util.Collection;
@@ -80,14 +80,14 @@ public class MaxImmSubFilter implements ACITupleFilter
             PartitionNexusProxy proxy,
             Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
-            Attributes userEntry, 
+            ServerEntry userEntry, 
             AuthenticationLevel authenticationLevel,
             LdapDN entryName, 
             String attrId, 
             Object attrValue, 
-            Attributes entry, 
+            ServerEntry entry, 
             Collection<MicroOperation> microOperations,
-            Attributes entryView )
+            ServerEntry entryView )
         throws NamingException
     {
         if ( entryName.size() == 0 )

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
+import javax.naming.directory.NoSuchAttributeException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +111,7 @@ public class DefaultOidRegistry implements OidRegistry
             return oid;
         }
 
-        NamingException fault = new NamingException( "OID for name '" + name + "' was not "
+        NamingException fault = new NoSuchAttributeException( "OID for name '" + name + "' was not "
             + "found within the OID registry" );
         LOG.error( fault.getMessage() );
         throw fault;

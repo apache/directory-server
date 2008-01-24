@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.partition.tree;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.partition.Partition;
 
 
@@ -70,13 +68,6 @@ public class LeafNode implements Node
      */
     public String toString()
     {
-        try
-        {
-            return partition.getSuffixDn().getUpName();
-        }
-        catch ( NamingException ne )
-        {
-            return "Unkown partition";
-        }
+        return partition.getSuffix();
     }
 }

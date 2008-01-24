@@ -26,7 +26,6 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -196,7 +195,7 @@ public class SubtreeEvaluator
          */
         if ( subtree.getRefinement() != null )
         {
-            return evaluator.evaluate( subtree.getRefinement(), entryLdapDn.toNormName(), ServerEntryUtils.toAttributesImpl( entry ) );
+            return evaluator.evaluate( subtree.getRefinement(), entryLdapDn.toNormName(), entry );
         }
 
         /*

@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -59,14 +59,14 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
             PartitionNexusProxy proxy,
             Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
-            Attributes userEntry, 
+            ServerEntry userEntry, 
             AuthenticationLevel authenticationLevel,
             LdapDN entryName, 
             String attrId, 
             Object attrValue, 
-            Attributes entry, 
+            ServerEntry entry, 
             Collection<MicroOperation> microOperations,
-            Attributes entryView )
+            ServerEntry entryView )
         throws NamingException
     {
         if ( tuples.size() <= 1 )

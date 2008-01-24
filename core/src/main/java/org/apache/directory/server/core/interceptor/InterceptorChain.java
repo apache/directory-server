@@ -58,7 +58,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.ConfigurationException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 
@@ -157,9 +156,9 @@ public class InterceptorChain
         }
 
 
-        public Attributes lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
+        public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
         {
-            return ( Attributes ) nexus.lookup( opContext ).clone();
+            return ( ServerEntry ) nexus.lookup( opContext ).clone();
         }
 
 
@@ -841,7 +840,7 @@ public class InterceptorChain
     }
 
 
-    public Attributes lookup( LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -1229,7 +1228,7 @@ public class InterceptorChain
                 }
 
 
-                public Attributes lookup( LookupOperationContext opContext ) throws NamingException
+                public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;

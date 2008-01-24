@@ -32,7 +32,6 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
@@ -76,7 +75,6 @@ import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -295,7 +293,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes userEntry;
+        ServerEntry userEntry;
 
         LookupOperationContext lookupContext = 
             new LookupOperationContext( modContext.getRegistries(),
@@ -315,9 +313,9 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             throw new LdapAuthenticationException( "Failed to authenticate user '" + principalDn + "'." );
         }
 
-        Attribute objectClass = userEntry.get( SchemaConstants.OBJECT_CLASS_AT );
+        ServerAttribute objectClass = userEntry.get( SchemaConstants.OBJECT_CLASS_AT );
         
-        if ( !AttributeUtils.containsValueCaseIgnore( objectClass, SchemaConstants.KRB5_PRINCIPAL_OC ) )
+        if ( !objectClass.contains( SchemaConstants.KRB5_PRINCIPAL_OC ) )
         {
             return;
         }
@@ -329,13 +327,13 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         if ( subContext.getPrincipalName() == null )
         {
-            Attribute principalAttribute = userEntry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
-            String principalName = ( String ) principalAttribute.get();
+            ServerAttribute principalAttribute = userEntry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
+            String principalName = principalAttribute.getString();
             subContext.setPrincipalName( principalName );
             log.debug( "Found principal '{}' from lookup.", principalName );
         }
 
-        Attribute keyVersionNumberAttr = userEntry.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
+        ServerAttribute keyVersionNumberAttr = userEntry.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
 
         if ( keyVersionNumberAttr == null )
         {
@@ -344,7 +342,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         }
         else
         {
-            int oldKeyVersionNumber = Integer.valueOf( ( String ) keyVersionNumberAttr.get() );
+            int oldKeyVersionNumber = Integer.valueOf( keyVersionNumberAttr.getString() );
             int newKeyVersionNumber = oldKeyVersionNumber + 1;
             subContext.setNewKeyVersionNumber( newKeyVersionNumber );
             log.debug( "Found key version number '{}', setting to '{}'.", oldKeyVersionNumber, newKeyVersionNumber );

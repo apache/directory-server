@@ -33,7 +33,6 @@ import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.ReferralHandlingEnumeration;
@@ -88,7 +87,6 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -409,11 +407,9 @@ public class ReferralInterceptor extends BaseInterceptor
                 return;
             }
 
-            ServerEntry referral = ServerEntryUtils.toServerEntry( 
-                invocation.getProxy().lookup( 
+            ServerEntry referral = invocation.getProxy().lookup( 
                     new LookupOperationContext( registries, farthest ), 
-                    PartitionNexusProxy.LOOKUP_BYPASS ),
-                farthest, registries );
+                    PartitionNexusProxy.LOOKUP_BYPASS );
             
             AttributeType refsType = atRegistry.lookup( oidRegistry.getOid( SchemaConstants.REF_AT ) );
             ServerAttribute refs = referral.get( refsType );
@@ -454,11 +450,10 @@ public class ReferralInterceptor extends BaseInterceptor
                 return next.compare( opContext );
             }
 
-            ServerEntry referral = ServerEntryUtils.toServerEntry( 
-                invocation.getProxy().lookup( 
+            ServerEntry referral = invocation.getProxy().lookup( 
                     new LookupOperationContext( registries, farthest ), 
-                    PartitionNexusProxy.LOOKUP_BYPASS ),
-                farthest, registries );
+                    PartitionNexusProxy.LOOKUP_BYPASS );
+            
             ServerAttribute refs = referral.get( SchemaConstants.REF_AT );
             doReferralException( farthest, new LdapDN( name.getUpName() ), refs );
 
@@ -513,11 +508,10 @@ public class ReferralInterceptor extends BaseInterceptor
                 return;
             }
 
-            ServerEntry referral = ServerEntryUtils.toServerEntry( 
-                invocation.getProxy().lookup( 
+            ServerEntry referral = invocation.getProxy().lookup( 
                     new LookupOperationContext( registries, farthest ), 
-                    PartitionNexusProxy.LOOKUP_BYPASS ),
-                farthest, registries );
+                    PartitionNexusProxy.LOOKUP_BYPASS );
+            
             ServerAttribute refs = referral.get( SchemaConstants.REF_AT );
             doReferralException( farthest, new LdapDN( name.getUpName() ), refs );
             
@@ -590,11 +584,10 @@ public class ReferralInterceptor extends BaseInterceptor
             }
             else if ( farthestSrc != null )
             {
-                ServerEntry referral = ServerEntryUtils.toServerEntry( 
-                    invocation.getProxy().lookup( 
+                ServerEntry referral = invocation.getProxy().lookup( 
                         new LookupOperationContext( registries, farthestSrc ), 
-                        PartitionNexusProxy.LOOKUP_BYPASS ),
-                    farthestSrc, registries );
+                        PartitionNexusProxy.LOOKUP_BYPASS );
+                
                 ServerAttribute refs = referral.get( SchemaConstants.REF_AT );
                 doReferralException( farthestSrc, new LdapDN( oldName.getUpName() ), refs );
             }
@@ -665,11 +658,10 @@ public class ReferralInterceptor extends BaseInterceptor
             }
             else if ( farthestSrc != null )
             {
-                ServerEntry referral = ServerEntryUtils.toServerEntry( 
-                    invocation.getProxy().lookup( 
+                ServerEntry referral = invocation.getProxy().lookup( 
                         new LookupOperationContext( registries, farthestSrc ), 
-                        PartitionNexusProxy.LOOKUP_BYPASS ),
-                    farthestSrc, registries );
+                        PartitionNexusProxy.LOOKUP_BYPASS );
+                
                 ServerAttribute refs = referral.get( SchemaConstants.REF_AT );
                 doReferralException( farthestSrc, new LdapDN( oldName.getUpName() ), refs );
                 
@@ -746,11 +738,10 @@ public class ReferralInterceptor extends BaseInterceptor
             
             if ( farthestSrc != null )
             {
-                ServerEntry referral = ServerEntryUtils.toServerEntry( 
-                    invocation.getProxy().lookup( 
+                ServerEntry referral = invocation.getProxy().lookup( 
                         new LookupOperationContext( registries, farthestSrc ), 
-                        PartitionNexusProxy.LOOKUP_BYPASS ),
-                    farthestSrc, registries );
+                        PartitionNexusProxy.LOOKUP_BYPASS );
+                
                 ServerAttribute refs = referral.get( SchemaConstants.REF_AT );
                 doReferralException( farthestSrc, new LdapDN( oldName.getUpName() ), refs );
                 
@@ -879,11 +870,10 @@ public class ReferralInterceptor extends BaseInterceptor
                 return;
             }
 
-            ServerEntry referral = ServerEntryUtils.toServerEntry( 
-                invocation.getProxy().lookup( 
+            ServerEntry referral = invocation.getProxy().lookup( 
                     new LookupOperationContext( registries, farthest ), 
-                    PartitionNexusProxy.LOOKUP_BYPASS ),
-                    farthest, registries );
+                    PartitionNexusProxy.LOOKUP_BYPASS );
+            
             ServerAttribute refs = referral.get( SchemaConstants.REF_AT );
             doReferralException( farthest, new LdapDN( name.getUpName() ), refs );
         }
@@ -1009,8 +999,8 @@ public class ReferralInterceptor extends BaseInterceptor
         {
             if ( lut.isReferral( base ) )
             {
-                Attributes referral = invocation.getProxy().lookup( new LookupOperationContext( registries, base ), PartitionNexusProxy.LOOKUP_BYPASS );
-                Attribute refs = referral.get( SchemaConstants.REF_AT );
+                ServerEntry referral = invocation.getProxy().lookup( new LookupOperationContext( registries, base ), PartitionNexusProxy.LOOKUP_BYPASS );
+                ServerAttribute refs = referral.get( SchemaConstants.REF_AT );
                 doReferralExceptionOnSearchBase( base, refs, controls.getSearchScope() );
             }
 
@@ -1021,8 +1011,8 @@ public class ReferralInterceptor extends BaseInterceptor
                 return next.search( opContext );
             }
 
-            Attributes referral = invocation.getProxy().lookup( new LookupOperationContext( registries, farthest ), PartitionNexusProxy.LOOKUP_BYPASS );
-            Attribute refs = referral.get( SchemaConstants.REF_AT );
+            ServerEntry referral = invocation.getProxy().lookup( new LookupOperationContext( registries, farthest ), PartitionNexusProxy.LOOKUP_BYPASS );
+            ServerAttribute refs = referral.get( SchemaConstants.REF_AT );
             doReferralExceptionOnSearchBase( farthest, new LdapDN( base.getUpName() ), refs, controls.getSearchScope() );
             throw new IllegalStateException( "Should never get here: shutting up compiler" );
         }
@@ -1031,8 +1021,8 @@ public class ReferralInterceptor extends BaseInterceptor
         {
             if ( lut.isReferral( base ) )
             {
-                Attributes referral = invocation.getProxy().lookup( new LookupOperationContext( registries, base ), PartitionNexusProxy.LOOKUP_BYPASS );
-                Attribute refs = referral.get( SchemaConstants.REF_AT );
+                ServerEntry referral = invocation.getProxy().lookup( new LookupOperationContext( registries, base ), PartitionNexusProxy.LOOKUP_BYPASS );
+                ServerAttribute refs = referral.get( SchemaConstants.REF_AT );
                 doReferralExceptionOnSearchBase( base, refs, controls.getSearchScope() );
             }
 
@@ -1045,8 +1035,8 @@ public class ReferralInterceptor extends BaseInterceptor
                 return new ReferralHandlingEnumeration( srfe, lut, opContext.getRegistries(), nexus, controls.getSearchScope(), true );
             }
 
-            Attributes referral = invocation.getProxy().lookup( new LookupOperationContext( registries, farthest ), PartitionNexusProxy.LOOKUP_BYPASS );
-            Attribute refs = referral.get( SchemaConstants.REF_AT );
+            ServerEntry referral = invocation.getProxy().lookup( new LookupOperationContext( registries, farthest ), PartitionNexusProxy.LOOKUP_BYPASS );
+            ServerAttribute refs = referral.get( SchemaConstants.REF_AT );
             doReferralExceptionOnSearchBase( farthest, new LdapDN( base.getUpName() ), refs, controls.getSearchScope() );
             throw new IllegalStateException( "Should never get here: shutting up compiler" );
         }
@@ -1071,14 +1061,14 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public void doReferralExceptionOnSearchBase( LdapDN base, Attribute refs, int scope ) throws NamingException
+    public void doReferralExceptionOnSearchBase( LdapDN base, ServerAttribute refs, int scope ) throws NamingException
     {
         // handle referral here
         List<String> list = new ArrayList<String>( refs.size() );
         
-        for ( int ii = 0; ii < refs.size(); ii++ )
+        for ( ServerValue<?> value:refs )
         {
-            String val = ( String ) refs.get( ii );
+            String val = ( String ) value.get();
 
             // need to add non-ldap URLs as-is
             if ( !val.startsWith( "ldap" ) )
@@ -1137,15 +1127,15 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public void doReferralExceptionOnSearchBase( LdapDN farthest, LdapDN targetUpdn, Attribute refs, int scope )
+    public void doReferralExceptionOnSearchBase( LdapDN farthest, LdapDN targetUpdn, ServerAttribute refs, int scope )
         throws NamingException
     {
         // handle referral here
         List<String> list = new ArrayList<String>( refs.size() );
         
-        for ( int ii = 0; ii < refs.size(); ii++ )
+        for ( ServerValue<?> value:refs )
         {
-            String val = ( String ) refs.get( ii );
+            String val = ( String ) value.get();
 
             // need to add non-ldap URLs as-is
             if ( !val.startsWith( "ldap" ) )

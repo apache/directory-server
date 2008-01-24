@@ -318,6 +318,29 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     
     
     /**
+     * @see EntryAttribute#put(List<String>)
+     */
+    public int put( List<?> vals ) throws InvalidAttributeValueException, NamingException
+    {
+        values.clear();
+        
+        for ( Object value:vals )
+        {
+            if ( value instanceof String )
+            {
+                add( (String)value );
+            }
+            else
+            {
+                add( (byte[])value );
+            }
+        }
+        
+        return size();
+    }
+
+    
+    /**
      * @see EntryAttribute#add(byte[]...)
      */
     public int add( byte[]... vals ) throws InvalidAttributeValueException, NamingException
@@ -508,6 +531,54 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     
     
     /**
+     * @see EntryAttribute#contains(Object...)
+     */
+    public boolean contains( Object... vals )
+    {
+        boolean isHR = false;
+        
+        try
+        {
+            if ( attributeType.getSyntax().isHumanReadable() )
+            {
+                isHR = true;
+            }
+        }
+        catch ( NamingException ne )
+        {
+            // We have had a pb while getting the syntax...
+            return false;
+        }
+        
+        // Iterate through all the values, and quit if we 
+        // don't find one in the values
+        for ( Object val:vals )
+        {
+            if ( ( val instanceof String ) && isHR ) 
+            {
+                if ( !contains( (String)val ) )
+                {
+                    return false;
+                }
+            }
+            else if ( !isHR )
+            {
+                if ( !contains( (byte[])val ) )
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    
+    /**
      * Get the first value of this attribute. If there is none, 
      * null is returned.
      * 
@@ -641,4 +712,31 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     {
         return values.iterator();
     }
+    
+    
+    /**
+     * Check if the current attribute type is of the expected attributeType 
+     *
+     * @param attributeId The AttributeType ID to check
+     * @return True if the current attribute is of the expected attributeType
+     * @throws InvalidAttributeValueException If there is no AttributeType
+     */
+    public boolean isA( String attributeId ) throws InvalidAttributeValueException
+    {
+        if ( StringTools.isEmpty( attributeId ) )
+        {
+            return false;
+        }
+        
+        for ( String name:attributeType.getNames() )
+        {
+            if ( attributeId.equalsIgnoreCase( name ) )
+            {
+                return true;
+            }
+        }
+        
+        return attributeId.equalsIgnoreCase( attributeType.getOid() );
+    }
+    
 }

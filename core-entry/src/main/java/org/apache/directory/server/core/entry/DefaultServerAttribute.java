@@ -218,6 +218,21 @@ public final class DefaultServerAttribute extends AbstractServerAttribute implem
         add( vals );
         setUpId( upId, attributeType );
     }
+    
+    
+    /**
+     * Clone an attribute. All the element are duplicated, so a modification on
+     * the original object won't affect the cloned object, as a modification
+     * on the cloned object has no impact on the original object
+     */
+    public ServerAttribute clone()
+    {
+        // clone the structure by cloner the inherited class
+        ServerAttribute clone = (ServerAttribute)super.clone();
+        
+        // We are done !
+        return clone;
+    }
 
 
     /**

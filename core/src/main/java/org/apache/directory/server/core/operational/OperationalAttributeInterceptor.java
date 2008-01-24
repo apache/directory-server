@@ -27,7 +27,9 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -44,6 +46,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -55,7 +58,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
 import javax.naming.NamingEnumeration;
@@ -85,8 +87,21 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) 
             throws NamingException
         {
-            return controls.getReturningAttributes() == null || filterDenormalized( result.getAttributes() );
-
+            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( 
+                result.getAttributes(), 
+                new LdapDN( result.getName() ), 
+                ((ServerLdapContext)invocation.getCaller()).getService().getRegistries() );
+            
+            if ( controls.getReturningAttributes() == null )
+            {
+                return true;
+            }
+            
+            boolean denormalized = filterDenormalized( serverEntry );
+            
+            result.setAttributes( ServerEntryUtils.toAttributesImpl( serverEntry ) );
+            
+            return denormalized;
         }
     };
 
@@ -98,8 +113,12 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
             throws NamingException
         {
-            return controls.getReturningAttributes() != null || filter( result.getAttributes() );
-
+            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( 
+                result.getAttributes(), 
+                new LdapDN( result.getName() ), 
+                ((ServerLdapContext)invocation.getCaller()).getService().getRegistries() );
+            
+            return controls.getReturningAttributes() != null || filterOperationalAttributes( serverEntry );
         }
     };
 
@@ -271,9 +290,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( opContext );
+        ServerEntry result = nextInterceptor.lookup( opContext );
         
         if ( result == null )
         {
@@ -282,7 +301,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         if ( opContext.getAttrsId() == null )
         {
-            filter( result );
+            filterOperationalAttributes( result );
         }
         else
         {
@@ -330,32 +349,30 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * @return true always
      * @throws NamingException if there are failures in evaluation
      */
-    private boolean filter( Attributes attributes ) throws NamingException
+    private boolean filterOperationalAttributes( ServerEntry attributes ) throws NamingException
     {
-        NamingEnumeration<String> list = attributes.getIDs();
+        Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
 
-        while ( list.hasMore() )
+        // Build a list of attributeType to remove
+        for ( AttributeType attributeType:attributes.getAttributeTypes() )
         {
-            String attrId =  list.next();
-
-            AttributeType type = null;
-
-            if ( atRegistry.hasAttributeType( attrId ) )
+            if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
             {
-                type = atRegistry.lookup( attrId );
+                removedAttributes.add( attributeType );
             }
-
-            if ( type != null && type.getUsage() != UsageEnum.USER_APPLICATIONS )
-            {
-                attributes.remove( attrId );
-            }
+        }
+        
+        // Now remove the attributes which are not USERs
+        for ( AttributeType attributeType:removedAttributes )
+        {
+            attributes.remove( attributeType );
         }
         
         return true;
     }
 
 
-    private void filter( LookupOperationContext lookupContext, Attributes entry ) throws NamingException
+    private void filter( LookupOperationContext lookupContext, ServerEntry entry ) throws NamingException
     {
         LdapDN dn = lookupContext.getDn();
         List<String> ids = lookupContext.getAttrsId();
@@ -363,28 +380,19 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // still need to protect against returning op attrs when ids is null
         if ( ids == null )
         {
-            filter( entry );
+            filterOperationalAttributes( entry );
             return;
         }
 
+        Set<AttributeType> attributeTypes = entry.getAttributeTypes();
+
         if ( dn.size() == 0 )
         {
-            Set<String> idsSet = new HashSet<String>( ids.size() );
-
-            for ( String id:ids  )
+            for ( AttributeType attributeType:attributeTypes )
             {
-                idsSet.add( id.toLowerCase() );
-            }
-
-            NamingEnumeration<String> list = entry.getIDs();
-
-            while ( list.hasMore() )
-            {
-                String attrId = list.nextElement().toLowerCase();
-
-                if ( !idsSet.contains( attrId ) )
+                if ( !ids.contains( attributeType.getOid() ) )
                 {
-                    entry.remove( attrId );
+                    entry.remove( attributeType );
                 }
             }
         }
@@ -397,38 +405,35 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
     
-    public void denormalizeEntryOpAttrs( Attributes entry ) throws NamingException
+    public void denormalizeEntryOpAttrs( ServerEntry entry ) throws NamingException
     {
         if ( service.isDenormalizeOpAttrsEnabled() )
         {
-            AttributeType type = atRegistry.lookup( SchemaConstants.CREATORS_NAME_AT );
-            Attribute attr = AttributeUtils.getAttribute( entry, type );
+            ServerAttribute attr = entry.get( SchemaConstants.CREATORS_NAME_AT );
 
             if ( attr != null )
             {
-                LdapDN creatorsName = new LdapDN( ( String ) attr.get() );
+                LdapDN creatorsName = new LdapDN( attr.getString() );
                 
                 attr.clear();
                 attr.add( denormalizeTypes( creatorsName ).getUpName() );
             }
             
-            type = atRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
-            attr = AttributeUtils.getAttribute( entry, type );
+            attr = entry.get( SchemaConstants.MODIFIERS_NAME_AT );
             
             if ( attr != null )
             {
-                LdapDN modifiersName = new LdapDN( ( String ) attr.get() );
+                LdapDN modifiersName = new LdapDN( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getUpName() );
             }
 
-            type = atRegistry.lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
-            attr = AttributeUtils.getAttribute( entry, type );
+            attr = entry.get( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
             
             if ( attr != null )
             {
-                LdapDN modifiersName = new LdapDN( ( String ) attr.get() );
+                LdapDN modifiersName = new LdapDN( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getUpName() );
@@ -487,7 +492,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    private boolean filterDenormalized( Attributes entry ) throws NamingException
+    private boolean filterDenormalized( ServerEntry entry ) throws NamingException
     {
         denormalizeEntryOpAttrs( entry );
         return true;

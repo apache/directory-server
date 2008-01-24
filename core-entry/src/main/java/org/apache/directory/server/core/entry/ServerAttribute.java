@@ -99,4 +99,14 @@ public interface ServerAttribute extends EntryAttribute<ServerValue<?>>
      * @throws InvalidAttributeValueException If the value is a String
      */
     byte[] getBytes() throws InvalidAttributeValueException;
+    
+    
+    /**
+     * Check if the current attribute type is of the expected attributeType 
+     *
+     * @param attributeId The AttributeType ID to check
+     * @return True if the current attribute is of the expected attributeType
+     * @throws InvalidAttributeValueException If there is no AttributeType
+     */
+    boolean isA( String attributeId ) throws InvalidAttributeValueException;
 }

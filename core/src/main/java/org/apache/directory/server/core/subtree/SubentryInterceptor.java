@@ -422,8 +422,8 @@ public class SubentryInterceptor extends BaseInterceptor
             // get the name of the administrative point and its administrativeRole attributes
             LdapDN apName = ( LdapDN ) name.clone();
             apName.remove( name.size() - 1 );
-            Attributes ap = nexus.lookup( new LookupOperationContext( registries, apName ) );
-            Attribute administrativeRole = ap.get( "administrativeRole" );
+            ServerEntry ap = nexus.lookup( new LookupOperationContext( registries, apName ) );
+            ServerAttribute administrativeRole = ap.get( "administrativeRole" );
 
             // check that administrativeRole has something valid in it for us
             if ( administrativeRole == null || administrativeRole.size() <= 0 )
@@ -595,10 +595,10 @@ public class SubentryInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
-        Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
-        Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
+    	ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+        ServerAttribute objectClasses = entry.get( objectClassType );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
+        if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
             SubtreeSpecification ss = subentryCache.removeSubentry( name.toNormName() ).getSubtreeSpecification();
             next.delete( opContext );
@@ -753,10 +753,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         LdapDN name = opContext.getDn();
 
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            nexus.lookup( new LookupOperationContext( registries, name ) ),
-            name,
-            registries );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         
         ServerAttribute objectClasses = entry.get( objectClassType );
 
@@ -831,10 +828,7 @@ public class SubentryInterceptor extends BaseInterceptor
         LdapDN oriChildName = opContext.getDn();
         LdapDN parent = opContext.getParent();
 
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            nexus.lookup( new LookupOperationContext( registries, oriChildName ) ),
-            oriChildName,
-            registries );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
         
         ServerAttribute objectClasses = entry.get( objectClassType );
 
@@ -909,10 +903,7 @@ public class SubentryInterceptor extends BaseInterceptor
         LdapDN oriChildName = opContext.getDn();
         LdapDN newParentName = opContext.getParent();
         
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            nexus.lookup( new LookupOperationContext( registries, oriChildName ) ),
-            oriChildName,
-            registries );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
 
         ServerAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -1029,10 +1020,7 @@ public class SubentryInterceptor extends BaseInterceptor
         LdapDN name = opContext.getDn();
         List<ModificationItemImpl> mods = opContext.getModItems();
         
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            nexus.lookup( new LookupOperationContext( registries, name ) ),
-            name,
-            registries );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         
         ServerEntry oldEntry = (ServerEntry) entry.clone();
         ServerAttribute objectClasses = entry.get( objectClassType );
@@ -1119,10 +1107,7 @@ public class SubentryInterceptor extends BaseInterceptor
             
             if ( !objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
             {
-                ServerEntry newEntry = ServerEntryUtils.toServerEntry( 
-                    nexus.lookup( new LookupOperationContext( registries, name ) ),
-                    name,
-                    registries );
+                ServerEntry newEntry = nexus.lookup( new LookupOperationContext( registries, name ) );
 
 	            List<ModificationItemImpl> subentriesOpAttrMods = getModsOnEntryModification( name, oldEntry, newEntry );
                 

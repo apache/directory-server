@@ -72,7 +72,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -298,10 +297,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             LdapDN parentDn = ( LdapDN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
-            entry = ServerEntryUtils.toServerEntry( 
-                proxy.lookup( new LookupOperationContext( registries, parentDn), PartitionNexusProxy.LOOKUP_BYPASS ),
-                parentDn,
-                registries );
+            entry = proxy.lookup( new LookupOperationContext( registries, parentDn), PartitionNexusProxy.LOOKUP_BYPASS );
         }
 
         ServerAttribute subentries = entry.get( acSubentryType );
@@ -380,12 +376,14 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will contain the subentryACI attributes that effect subentries
         LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( dn.size() - 1 );
-        ServerEntry administrativeEntry = ServerEntryUtils.toServerEntry( 
+        ServerEntry administrativeEntry =  
             proxy.lookup( 
-        		new LookupOperationContext( registries, parentDn, new String[]
-            { SchemaConstants.SUBENTRY_ACI_AT }) , PartitionNexusProxy.LOOKUP_BYPASS ),
-            parentDn,
-            registries );
+        		new LookupOperationContext( 
+        		    registries, 
+        		    parentDn, 
+        		    new String[]
+        		               { SchemaConstants.SUBENTRY_ACI_AT }) , 
+        		PartitionNexusProxy.LOOKUP_BYPASS );
         
         ServerAttribute subentryAci = administrativeEntry.get( subentryAciType );
 
@@ -520,10 +518,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            proxy.lookup( new LookupOperationContext( registries, name ) , PartitionNexusProxy.LOOKUP_BYPASS ),
-            name,
-            registries );
+        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, name ) , PartitionNexusProxy.LOOKUP_BYPASS );
 
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = principal.getJndiName();
@@ -569,10 +564,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN name = opContext.getDn();
 
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS ),
-            name,
-            registries );
+        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
         
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = principal.getJndiName();
@@ -593,8 +585,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             /**
              * @TODO: A virtual entry can be created here for not hitting the backend again.
              */
-            Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
-            tupleCache.subentryModified( name, mods, ServerEntryUtils.toServerEntry( modifiedEntry, name, registries ) );
+            ServerEntry modifiedEntry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
+            tupleCache.subentryModified( name, mods, modifiedEntry );
             groupCache.groupModified( name, mods, entry, registries );
             return;
         }
@@ -680,8 +672,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         /**
          * @TODO: A virtual entry can be created here for not hitting the backend again.
          */
-        Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
-        tupleCache.subentryModified( name, mods, ServerEntryUtils.toServerEntry( modifiedEntry, name, registries ) );
+        ServerEntry modifiedEntry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
+        tupleCache.subentryModified( name, mods, modifiedEntry );
         groupCache.groupModified( name, mods, entry, registries );
     }
 
@@ -691,10 +683,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS ),
-            name,
-            registries );
+        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
+            
         
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = principal.getJndiName();
@@ -778,7 +768,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
@@ -795,10 +785,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         PartitionNexusProxy proxy = invocation.getProxy();
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            proxy.lookup( lookupContext, PartitionNexusProxy.LOOKUP_BYPASS ),
-            lookupContext.getDn(),
-            registries );
+        ServerEntry entry = proxy.lookup( lookupContext, PartitionNexusProxy.LOOKUP_BYPASS );
+
         checkLookupAccess( principal, lookupContext.getDn(), entry );
         return next.lookup( lookupContext );
     }
@@ -811,10 +799,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS ),
-            name,
-            registries );
+        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
         
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = principal.getJndiName();
@@ -869,10 +854,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         
-        ServerEntry entry = ServerEntryUtils.toServerEntry(
-            proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS ),
-            oriChildName,
-            registries );
+        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
         
             LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = principal.getJndiName();
@@ -911,11 +893,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        ServerEntry importedEntry = ServerEntryUtils.toServerEntry( 
-            proxy.lookup( new LookupOperationContext( registries, oriChildName ), 
-                PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS ),
-            oriChildName,
-            registries );
+        ServerEntry importedEntry = proxy.lookup( 
+            new LookupOperationContext( registries, oriChildName ), 
+                PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
             
         
         // As the target entry does not exist yet and so
@@ -954,11 +934,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS ),
-            oriChildName,
-            registries );
-        
+        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
+       
         LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
@@ -996,11 +973,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        ServerEntry importedEntry = ServerEntryUtils.toServerEntry( 
-            proxy.lookup( new LookupOperationContext( registries, oriChildName ), 
-                PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS ),
-            oriChildName,
-            registries );
+        ServerEntry importedEntry = proxy.lookup( 
+            new LookupOperationContext( registries, oriChildName ), 
+                PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
             
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
@@ -1083,12 +1058,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            proxy.lookup( 
+        ServerEntry entry = proxy.lookup( 
         		new LookupOperationContext( registries, name ), 
-        		PartitionNexusProxy.LOOKUP_BYPASS ),
-        	name,
-        	registries );
+        		PartitionNexusProxy.LOOKUP_BYPASS );
 
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = principal.getJndiName();
@@ -1135,10 +1107,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // that but if permission is granted then short the process and return the dn
         while ( matched.size() > 0 )
         {
-            entry = ServerEntryUtils.toServerEntry( 
-                proxy.lookup( new LookupOperationContext( registries, matched ), PartitionNexusProxy.GETMATCHEDDN_BYPASS ),
-                matched,
-                registries );
+            entry = proxy.lookup( new LookupOperationContext( registries, matched ), PartitionNexusProxy.GETMATCHEDDN_BYPASS );
             
             Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
             Collection<ACITuple> tuples = new HashSet<ACITuple>();
@@ -1174,11 +1143,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          * tests.  If we hasPermission() returns false we immediately short the
          * process and return false.
          */
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            invocation.getProxy().lookup( 
-                new LookupOperationContext( registries, normName ), PartitionNexusProxy.LOOKUP_BYPASS ),
-            normName,
-            registries );
+        ServerEntry entry = invocation.getProxy().lookup( 
+                new LookupOperationContext( registries, normName ), PartitionNexusProxy.LOOKUP_BYPASS );
         
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapDN userDn = ctx.getPrincipal().getJndiName();

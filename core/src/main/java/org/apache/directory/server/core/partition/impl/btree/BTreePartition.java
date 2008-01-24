@@ -20,7 +20,10 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -45,7 +48,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -327,20 +329,23 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public Attributes lookup( LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
     {
-        Attributes entry = lookup( getEntryId( opContext.getDn().getNormName() ) );
+        ServerEntry entry = ServerEntryUtils.toServerEntry( 
+            lookup( getEntryId( opContext.getDn().getNormName() ) ),
+                opContext.getDn(),
+                opContext.getRegistries() );
 
         if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) )
         {
             return entry;
         }
 
-        Attributes retval = new AttributesImpl();
+        ServerEntry retval = new DefaultServerEntry( opContext.getRegistries(), opContext.getDn() );
 
         for ( String attrId:opContext.getAttrsId() )
         {
-            Attribute attr = entry.get( attrId );
+            ServerAttribute attr = entry.get( attrId );
 
             if ( attr != null )
             {

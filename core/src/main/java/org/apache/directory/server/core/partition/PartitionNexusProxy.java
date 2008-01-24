@@ -44,7 +44,6 @@ import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.event.EventInterceptor;
@@ -573,7 +572,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Attributes lookup( LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
     {
         if ( opContext.getDn().size() == 0 )
         {
@@ -585,11 +584,11 @@ public class PartitionNexusProxy extends PartitionNexus
                 {
                     if ( ROOT_DSE_NO_OPERATIONNAL == null )
                     {
-                        ROOT_DSE_NO_OPERATIONNAL = ServerEntryUtils.toServerEntry( lookup( opContext, null ), opContext.getDn(), opContext.getRegistries() );
+                        ROOT_DSE_NO_OPERATIONNAL = lookup( opContext, null );
                     }
                 }
 
-                return ServerEntryUtils.toAttributesImpl( ROOT_DSE_NO_OPERATIONNAL );
+                return ROOT_DSE_NO_OPERATIONNAL;
             } 
             else if ( ( attrs.size() == 1 ) && ( attrs.contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) ) )
             {
@@ -597,11 +596,11 @@ public class PartitionNexusProxy extends PartitionNexus
                 {
                     if ( ROOT_DSE_ALL == null )
                     {
-                        ROOT_DSE_ALL = ServerEntryUtils.toServerEntry( lookup( opContext, null ), opContext.getDn(), opContext.getRegistries() );
+                        ROOT_DSE_ALL = lookup( opContext, null );
                     }
                 }
 
-                return ServerEntryUtils.toAttributesImpl( ROOT_DSE_ALL );
+                return ROOT_DSE_ALL;
             }
 
         }
@@ -610,7 +609,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Attributes lookup( LookupOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();

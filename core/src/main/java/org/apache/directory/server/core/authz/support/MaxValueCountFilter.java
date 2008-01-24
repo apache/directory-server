@@ -24,9 +24,9 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -53,14 +53,14 @@ public class MaxValueCountFilter implements ACITupleFilter
             PartitionNexusProxy proxy,
             Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
-            Attributes userEntry, 
+            ServerEntry userEntry, 
             AuthenticationLevel authenticationLevel,
             LdapDN entryName, 
             String attrId, 
             Object attrValue, 
-            Attributes entry, 
+            ServerEntry entry, 
             Collection<MicroOperation> microOperations,
-            Attributes entryView )
+            ServerEntry entryView )
         throws NamingException
     {
         if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
@@ -76,6 +76,7 @@ public class MaxValueCountFilter implements ACITupleFilter
         for ( Iterator<ACITuple> i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = i.next();
+            
             if ( !tuple.isGrant() )
             {
                 continue;
@@ -84,9 +85,11 @@ public class MaxValueCountFilter implements ACITupleFilter
             for ( Iterator<ProtectedItem> j = tuple.getProtectedItems().iterator(); j.hasNext(); )
             {
                 ProtectedItem item = j.next();
+                
                 if ( item instanceof ProtectedItem.MaxValueCount )
                 {
                     ProtectedItem.MaxValueCount mvc = ( ProtectedItem.MaxValueCount ) item;
+                    
                     if ( isRemovable( mvc, attrId, entryView ) )
                     {
                         i.remove();
@@ -100,15 +103,16 @@ public class MaxValueCountFilter implements ACITupleFilter
     }
 
 
-    private boolean isRemovable( ProtectedItem.MaxValueCount mvc, String attrId, Attributes entryView )
+    private boolean isRemovable( ProtectedItem.MaxValueCount mvc, String attrId, ServerEntry entryView ) throws NamingException
     {
         for ( Iterator<ProtectedItem.MaxValueCountItem> k = mvc.iterator(); k.hasNext(); )
         {
             MaxValueCountItem mvcItem = k.next();
             if ( attrId.equalsIgnoreCase( mvcItem.getAttributeType() ) )
             {
-                Attribute attr = entryView.get( attrId );
+                ServerAttribute attr = entryView.get( attrId );
                 int attrCount = attr == null ? 0 : attr.size();
+                
                 if ( attrCount > mvcItem.getMaxCount() )
                 {
                     return true;

@@ -319,12 +319,12 @@ public abstract class ServerContext implements EventContext
         // execute lookup/getRootDSE operation
         opCtx = new LookupOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
-        Attributes attributes = nexusProxy.lookup( opCtx );
+        ServerEntry serverEntry = nexusProxy.lookup( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
-        return attributes;
+        return ServerEntryUtils.toAttributesImpl( serverEntry );
     }
     
     
@@ -339,13 +339,25 @@ public abstract class ServerContext implements EventContext
         // execute lookup/getRootDSE operation
         opCtx = new LookupOperationContext( registries, target, attrIds );
         opCtx.addRequestControls( requestControls );
-        Attributes attributes = nexusProxy.lookup( opCtx );
+        ServerEntry serverEntry = nexusProxy.lookup( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
         
-        return attributes;
+        
+        Attributes result = ServerEntryUtils.toAttributesImpl( serverEntry );
+
+        // Now remove the ObjectClass attribute if it has not been requested
+        if ( ( opCtx.getAttrsId() != null ) && ( opCtx.getAttrsId().size() != 0 ) )
+        {
+            if ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 )
+            {
+                result.remove( SchemaConstants.OBJECT_CLASS_AT );
+            }
+        }
+        
+        return result;
     }
     
     

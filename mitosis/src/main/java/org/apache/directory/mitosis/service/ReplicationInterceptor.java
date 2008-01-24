@@ -73,8 +73,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -378,7 +376,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             try
             {
                 name.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-                Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+                ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
                 LOG.info( "[Replica-{}] Purge: " + name + " (" + entry + ')', configuration.getReplicaId() );
                 nexus.delete( new DeleteOperationContext( registries, name ) );
             }
@@ -450,7 +448,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             // Check DELETED attribute.
             try
             {
-                Attributes entry = nextInterceptor.lookup( new LookupOperationContext( registries, entryContext.getDn() ) );
+                ServerEntry entry = nextInterceptor.lookup( new LookupOperationContext( registries, entryContext.getDn() ) );
                 hasEntry = !isDeleted( entry );
             }
             catch ( NameNotFoundException e )
@@ -464,7 +462,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws NamingException
     {
         if ( lookupContext.getAttrsId() != null )
         {
@@ -492,7 +490,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             }
         }
 
-        Attributes result = nextInterceptor.lookup( lookupContext );
+        ServerEntry result = nextInterceptor.lookup( lookupContext );
         ensureNotDeleted( lookupContext.getDn(), result );
         return result;
     }
@@ -535,7 +533,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     }
 
 
-    private void ensureNotDeleted( LdapDN name, Attributes entry ) throws NamingException {
+    private void ensureNotDeleted( LdapDN name, ServerEntry entry ) throws NamingException {
         if ( isDeleted( entry ) )
         {
             LdapNameNotFoundException e = new LdapNameNotFoundException( "Deleted entry: " + name.getUpName() );
@@ -545,15 +543,14 @@ public class ReplicationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean isDeleted( Attributes entry ) throws NamingException
+    private boolean isDeleted( ServerEntry entry ) throws NamingException
     {
         if ( entry == null )
         {
             return true;
         }
 
-        Attribute deleted = entry.get( Constants.ENTRY_DELETED );
-        return ( deleted != null && "TRUE".equalsIgnoreCase( deleted.get().toString() ) );
+        return entry.contains( Constants.ENTRY_DELETED, "TRUE" );
     }
 
 

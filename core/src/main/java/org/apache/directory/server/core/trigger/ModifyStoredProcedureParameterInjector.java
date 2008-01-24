@@ -28,7 +28,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -112,10 +111,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
          * especially subentry related ones like "triggerExecutionSubentries".
          */
-        return ServerEntryUtils.toServerEntry( 
-            proxy.lookup( new LookupOperationContext( registries, modifiedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS ),
-            modifiedEntryName,
-            registries );
+        return proxy.lookup( new LookupOperationContext( registries, modifiedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
     }
 
 }

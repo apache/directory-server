@@ -21,8 +21,8 @@ package org.apache.directory.server.core.event;
 
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.filter.AndNode;
@@ -94,7 +94,7 @@ public class ExpressionEvaluator implements Evaluator
     /**
      * @see Evaluator#evaluate(ExprNode, String, Attributes)
      */
-    public boolean evaluate( ExprNode node, String dn, Attributes entry ) throws NamingException
+    public boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws NamingException
     {
         if ( node.isLeaf() )
         {

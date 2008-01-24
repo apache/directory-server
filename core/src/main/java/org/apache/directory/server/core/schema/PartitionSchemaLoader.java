@@ -783,10 +783,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     
     private ServerEntry lookupPartition( LdapDN dn ) throws NamingException
     {
-        return ServerEntryUtils.toServerEntry( 
-            partition.lookup( 
-                new LookupOperationContext( registries, dn ) ), 
-            dn, registries );
+        return partition.lookup( new LookupOperationContext( registries, dn ) );
     }
     
     private void loadComparators( Schema schema, Registries targetRegistries ) throws NamingException

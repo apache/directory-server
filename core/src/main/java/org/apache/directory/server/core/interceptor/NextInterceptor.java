@@ -24,7 +24,6 @@ import java.util.Iterator;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -136,7 +135,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#lookup( NextInterceptor, LookupOperationContext )}.
      */
-    Attributes lookup( LookupOperationContext opContext ) throws NamingException;
+    ServerEntry lookup( LookupOperationContext opContext ) throws NamingException;
 
 
     /**

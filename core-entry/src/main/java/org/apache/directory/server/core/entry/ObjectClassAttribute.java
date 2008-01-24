@@ -253,6 +253,49 @@ public class ObjectClassAttribute extends AbstractServerAttribute
 
     
     // -----------------------------------------------------------------------
+    /**
+     * Clone an ObjectClass attribute. All the element are duplicated, 
+     * so a modification on the original object won't affect the cloned 
+     * object, as a modification on the cloned object has no impact on 
+     * the original object
+     */
+    public ObjectClassAttribute clone()
+    {
+        // First, clone the structure
+        ObjectClassAttribute clone = (ObjectClassAttribute)super.clone();
+        
+        // A ObjectClassAttribute has many lists which need to be
+        // duplicated :
+        // - mayList
+        // - mustList
+        // - allObjectClasses
+        // - abstractObjectClasses
+        // - auxiliaryObjectClasses
+        // - structuralObjectClasses
+        // 
+        // There is no need to copy the elements, they can't be modified
+
+        // Clone the mayList. 
+        clone.mayList = (HashSet<AttributeType>)((HashSet<AttributeType>)mayList).clone();
+        
+        // Clone the mustList
+        clone.mustList = (HashSet<AttributeType>)((HashSet<AttributeType>)mustList).clone();
+        
+        // Clone the allObjectClasses
+        clone.allObjectClasses = (HashSet<ObjectClass>)((HashSet<ObjectClass>)allObjectClasses).clone();
+        
+        // Clone the abstractObjectClasses
+        clone.abstractObjectClasses = (HashSet<ObjectClass>)((HashSet<ObjectClass>)abstractObjectClasses).clone();
+        
+        // Clone the auxiliaryObjectClasses
+        clone.auxiliaryObjectClasses = (HashSet<ObjectClass>)((HashSet<ObjectClass>)auxiliaryObjectClasses).clone();
+        
+        // Clone the structuralObjectClasses
+        clone.structuralObjectClasses = (HashSet<ObjectClass>)((HashSet<ObjectClass>)structuralObjectClasses).clone();
+
+        // We are done !
+        return clone;
+    }
 
 
     private Set<ObjectClass> addAncestors( ObjectClass descendant, Set<ObjectClass> ancestors ) throws NamingException
@@ -287,7 +330,7 @@ public class ObjectClassAttribute extends AbstractServerAttribute
         }
 
         // add the value to the set of values
-        values.add( new ServerStringValue( attributeType, alias) );
+        //values.add( new ServerStringValue( attributeType, alias) );
 
         Set<ObjectClass> ancestors = addAncestors( objectClass, new HashSet<ObjectClass>() );
         ancestors.add( objectClass );
@@ -295,6 +338,7 @@ public class ObjectClassAttribute extends AbstractServerAttribute
         // now create sets of the different kinds of objectClasses
         for ( ObjectClass oc : ancestors )
         {
+            values.add( new ServerStringValue( attributeType, oc.getName() ) );
             switch ( oc.getType() )
             {
                 case STRUCTURAL :

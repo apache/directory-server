@@ -21,7 +21,8 @@ package org.apache.directory.server.core.exception;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -53,13 +54,11 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 
@@ -176,7 +175,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
         	// We don't know if the parent is an alias or not, so we will launch a 
         	// lookup, and update the cache if it's not an alias
-            Attributes attrs;
+            ServerEntry attrs;
             
             try
             {
@@ -190,9 +189,9 @@ public class ExceptionInterceptor extends BaseInterceptor
                 throw e2;
             }
             
-            Attribute objectClass = attrs.get( SchemaConstants.OBJECT_CLASS_AT );
+            ServerAttribute objectClass = attrs.get( SchemaConstants.OBJECT_CLASS_AT );
             
-            if ( AttributeUtils.containsValueCaseIgnore( objectClass, SchemaConstants.ALIAS_OC ) )
+            if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
                 String msg = "Attempt to add entry to alias '" + name.getUpName() + "' not allowed.";
                 ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
@@ -285,11 +284,11 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    public Attributes lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
     {
         if ( opContext.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
-            return ServerEntryUtils.toAttributesImpl( nexus.getRootDSE( null ) );
+            return nexus.getRootDSE( null );
         }
         
         // check if entry to lookup exists
@@ -319,7 +318,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         assertHasEntry( nextInterceptor, msg, opContext.getDn() );
 
-        Attributes entry = nexus.lookup( new LookupOperationContext( registries, opContext.getDn() ) );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, opContext.getDn() ) );
         List<ModificationItemImpl> items = opContext.getModItems();
 
         for ( ModificationItemImpl item : items )
@@ -327,7 +326,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             if ( item.getModificationOp() == DirContext.ADD_ATTRIBUTE )
             {
                 Attribute modAttr = item.getAttribute();
-                Attribute entryAttr = entry.get( modAttr.getID() );
+                ServerAttribute entryAttr = entry.get( modAttr.getID() );
 
                 if ( entryAttr != null )
                 {

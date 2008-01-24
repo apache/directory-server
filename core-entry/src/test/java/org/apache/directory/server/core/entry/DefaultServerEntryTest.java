@@ -53,6 +53,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
@@ -379,7 +380,7 @@ public class DefaultServerEntryTest
         oc.add( "top", "person", "inetOrgPerson" );
         
         entry.addObjectClass( oc );
-        //entry.put( "cn", registries.getAttributeTypeRegistry().lookup( "cn" ), "test" );
+        entry.put( "cn", registries.getAttributeTypeRegistry().lookup( "cn" ), "test" );
         
         Attributes attributes = ServerEntryUtils.toAttributesImpl( entry );
         
@@ -399,8 +400,8 @@ public class DefaultServerEntryTest
             
         }
 
-        // We should still have the ObjectClass Attribute
-        assertEquals( 1, expected.size() );
+        // It should be empty
+        assertEquals( 0, expected.size() );
     }
 
 
@@ -703,7 +704,7 @@ public class DefaultServerEntryTest
         
         assertNotNull( oldOc );
         assertEquals( 1, oldOc.size() );
-        assertEquals( "top", oldOc.get( 0 ).get().get() );
+        assertEquals( null, oldOc.get( 0 ).get() );
         
         assertNotNull( entry.get( "objectClass" ) );
 
@@ -2045,7 +2046,7 @@ public class DefaultServerEntryTest
         assertEquals( 1, entry.size() );
         assertNull( entry.get( atCN ) );
         assertNull( entry.get( atPassword ) );
-        assertTrue( entry.contains( OBJECT_CLASS_AT, "top" ) );
+        assertFalse( entry.contains( OBJECT_CLASS_AT, "top" ) );
         
         // test the removal of a bad Attribute
         entry.put( "CN", test1, test2 );

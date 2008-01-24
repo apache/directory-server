@@ -104,7 +104,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
                 }
             }
             
-            setObjectClassAttribute( new ObjectClassAttribute( registries, SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC ) );
+            setObjectClassAttribute( new ObjectClassAttribute( registries, SchemaConstants.OBJECT_CLASS_AT ) );
         }
         catch ( NamingException ne )
         {
@@ -442,6 +442,13 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
     public void addObjectClass( ObjectClassAttribute objectClassAttribute ) throws NamingException
     {
         this.objectClassAttribute = objectClassAttribute;
+        
+        ServerAttribute currentOc = serverAttributeMap.get( objectClassAttribute.getType() );
+        
+        for ( ServerValue<?> value:objectClassAttribute )
+        {
+            currentOc.add( value );
+        }
     }
 
 
@@ -1083,14 +1090,39 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
     }
     
     
+    /**
+     * Clone an entry. All the element are duplicated, so a modification on
+     * the original object won't affect the cloned object, as a modification
+     * on the cloned object has no impact on the original object
+     */
     public ServerEntry clone()
     {
         try
         {
+            // First, clone the structure
             DefaultServerEntry clone = (DefaultServerEntry)super.clone();
             
+            // A serverEntry has a DN, an ObjectClass attribute
+            // and many attributes
+            // Clone the DN
             clone.dn = (LdapDN)dn.clone();
-            //clone.objectClassAttribute = objectClassAttribute.clone();
+            
+            // Clone the ObjectClassAttribute
+            clone.objectClassAttribute = objectClassAttribute.clone();
+            
+            // clone the ServerAttribute Map
+            clone.serverAttributeMap = (Map<AttributeType, ServerAttribute>)(((HashMap<AttributeType, ServerAttribute>)serverAttributeMap).clone());
+            
+            // now clone all the servrAttributes
+            clone.serverAttributeMap.clear();
+            
+            for ( AttributeType key:serverAttributeMap.keySet() )
+            {
+                ServerAttribute value = (ServerAttribute)serverAttributeMap.get( key ).clone();
+                clone.serverAttributeMap.put( key, value );
+            }
+            
+            // We are done !
             return clone;
         }
         catch ( CloneNotSupportedException cnse )

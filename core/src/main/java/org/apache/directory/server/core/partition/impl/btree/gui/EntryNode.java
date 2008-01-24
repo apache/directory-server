@@ -198,7 +198,6 @@ public class EntryNode implements TreeNode
         }
         catch ( NamingException e )
         {
-            e.printStackTrace();
             buf.append( "ERROR: " + e.getMessage() );
         }
 

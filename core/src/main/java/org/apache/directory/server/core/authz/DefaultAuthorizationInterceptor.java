@@ -22,6 +22,9 @@ package org.apache.directory.server.core.authz;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -47,7 +50,6 @@ import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +57,6 @@ import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -149,18 +149,18 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
-        Attributes adminGroup = nexus.lookup( new LookupOperationContext( registries, ADMIN_GROUP_DN ) );
+        ServerEntry adminGroup = nexus.lookup( new LookupOperationContext( registries, ADMIN_GROUP_DN ) );
         
         if ( adminGroup == null )
         {
             return;
         }
         
-        Attribute uniqueMember = AttributeUtils.getAttribute( adminGroup, uniqueMemberAT );
+        ServerAttribute uniqueMember = adminGroup.get( uniqueMemberAT );
         
-        for ( int ii = 0; ii < uniqueMember.size(); ii++ )
+        for ( ServerValue<?> value:uniqueMember )
         {
-            LdapDN memberDn = new LdapDN( ( String ) uniqueMember.get( ii ) );
+            LdapDN memberDn = new LdapDN( ( String ) value.get() );
             memberDn.normalize( normalizerMapping );
             newAdministrators.add( memberDn.getNormName() );
         }
@@ -427,17 +427,17 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
     {
-        Attributes attributes = nextInterceptor.lookup( opContext );
+        ServerEntry serverEntry = nextInterceptor.lookup( opContext );
         
-        if ( !enabled || ( attributes == null ) )
+        if ( !enabled || ( serverEntry == null ) )
         {
-            return attributes;
+            return serverEntry;
         }
 
         protectLookUp( opContext.getDn() );
-        return attributes;
+        return serverEntry;
     }
 
 

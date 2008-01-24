@@ -30,6 +30,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -62,9 +63,19 @@ public class ServerEntryUtils
 
         for ( AttributeType attributeType:entry.getAttributeTypes() )
         {
-            Attribute attribute = new AttributeImpl( attributeType.getName() );
-            
             ServerAttribute attr = entry.get( attributeType );
+            
+            // Deal with a special case : an entry without any ObjectClass
+            if ( attributeType.getOid() == SchemaConstants.OBJECT_CLASS_AT_OID )
+            {
+                if ( attr.size() == 0 )
+                {
+                    // We don't have any objectClass, just dismiss this element
+                    continue;
+                }
+            }
+            
+            Attribute attribute = new AttributeImpl( attributeType.getName() );
             
             for ( Iterator<ServerValue<?>> iter = attr.iterator(); iter.hasNext();)
             {
@@ -309,5 +320,51 @@ public class ServerEntryUtils
         }
 
         return targetEntry;
+    }
+
+
+    /**
+     * Creates a new attribute which contains the values representing the union
+     * of two attributes. If one attribute is null then the resultant attribute
+     * returned is a copy of the non-null attribute. If both are null then we
+     * cannot determine the attribute ID and an {@link IllegalArgumentException}
+     * is raised.
+     * 
+     * @param attr0 the first attribute
+     * @param attr1 the second attribute
+     * @return a new attribute with the union of values from both attribute
+     *         arguments
+     * @throws NamingException if there are problems accessing attribute values
+     */
+    public static ServerAttribute getUnion( ServerAttribute attr0, ServerAttribute attr1 ) throws NamingException
+    {
+        if ( attr0 == null && attr1 == null )
+        {
+            throw new IllegalArgumentException( "Cannot figure out attribute ID if both args are null" );
+        }
+        else if ( attr0 == null )
+        {
+            return (ServerAttribute)attr1.clone();
+        }
+        else if ( attr1 == null )
+        {
+            return (ServerAttribute)attr0.clone();
+        }
+        else if ( !attr0.getType().equals( attr1.getType() ) )
+        {
+            throw new IllegalArgumentException( "Cannot take union of attributes with different IDs!" );
+        }
+
+        ServerAttribute attr = (ServerAttribute)attr0.clone();
+
+        if ( attr0 != null )
+        {
+            for ( ServerValue<?> value:attr1 )
+            {
+                attr.add( value );
+            }
+        }
+
+        return attr;
     }
 }

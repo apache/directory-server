@@ -54,18 +54,39 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
             {
                 throw new IllegalArgumentException( "Argument 'obj2' is null" );
             }
-            //NB qdox has a fit if you try to compare 2 longs with < or >, but accepts the following circuitous locution:
+
             long thisVal = ( Long ) o1;
             long anotherVal = ( Long ) o2;
+            
             if ( thisVal == anotherVal )
             {
                 return 0;
             }
-            if (  thisVal < anotherVal )
+            
+            if ( thisVal == anotherVal )
+            {
+                return 0;
+            }
+            
+            if ( thisVal >= 0 )
+            {
+                if ( anotherVal >= 0 )
+                {
+                    return ( thisVal > anotherVal ) ? 1 : -1;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else if ( anotherVal >= 0 )
             {
                 return 1;
             }
-            return -1;
+            else
+            {
+                return ( thisVal < anotherVal ) ? -1 : 1;
+            }
         }
     };
 

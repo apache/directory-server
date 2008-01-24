@@ -27,6 +27,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -87,7 +88,6 @@ import javax.naming.ConfigurationException;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -584,7 +584,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         AttributeType attrType = registry.lookup( compareContext.getOid() );
         
-        Attribute attr = partition.lookup( new LookupOperationContext( registries, compareContext.getDn() ) ).get( attrType.getName() );
+        ServerAttribute attr = partition.lookup( new LookupOperationContext( registries, compareContext.getDn() ) ).get( attrType.getName() );
 
         // complain if the attribute being compared does not exist in the entry
         if ( attr == null )
@@ -593,8 +593,14 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         // see first if simple match without normalization succeeds
-        // TODO Fix DIRSERVER-832
-        if ( attr.contains( compareContext.getValue() ) )
+        if ( compareContext.getValue() instanceof String )
+        {
+            if ( attr.contains( (String)compareContext.getValue()  ) )
+            {
+                return true;
+            }
+        }
+        else if ( attr.contains( (byte[])compareContext.getValue()  ) )
         {
             return true;
         }
@@ -609,9 +615,9 @@ public class DefaultPartitionNexus extends PartitionNexus
         Normalizer normalizer = attrType.getEquality().getNormalizer();
         Object reqVal = normalizer.normalize( compareContext.getValue() );
 
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        for ( ServerValue<?> value:attr )
         {
-            Object attrValObj = normalizer.normalize( attr.get( ii ) );
+            Object attrValObj = normalizer.normalize( value.get() );
             
             if ( attrValObj instanceof String )
             {
@@ -1014,7 +1020,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public Attributes lookup( LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
     {
         LdapDN dn = opContext.getDn();
         
@@ -1027,11 +1033,11 @@ public class DefaultPartitionNexus extends PartitionNexus
             {
                 for ( AttributeType attributeType:attributeTypes )
                 {
-                    String id = attributeType.getName();
+                    String oid = attributeType.getOid();
                     
-                    if ( opContext.getAttrsId().contains( id ) )
+                    if ( opContext.getAttrsId().contains( oid ) )
                     {
-                        ServerAttribute attr = rootDSE.get( id );
+                        ServerAttribute attr = rootDSE.get( oid );
                         retval.put( (ServerAttribute)attr.clone() );
                     }
                     
@@ -1048,7 +1054,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 }
             }
             
-            return ServerEntryUtils.toAttributesImpl( retval );
+            return retval;
         }
 
         Partition backend = getPartition( dn );
