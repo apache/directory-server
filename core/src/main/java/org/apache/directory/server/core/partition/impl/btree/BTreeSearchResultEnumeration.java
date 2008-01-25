@@ -145,10 +145,11 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             }
 
             // add all operational attributes
-            NamingEnumeration list = rec.getAttributes().getIDs();
+            NamingEnumeration<String> list = rec.getAttributes().getIDs();
+            
             while ( list.hasMore() )
             {
-                String attrId = ( String ) list.next();
+                String attrId = list.next();
                 AttributeType attrType = registry.lookup( attrId );
                 if ( attrType.getUsage() == UsageEnum.USER_APPLICATIONS )
                 {
@@ -182,11 +183,13 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             }
 
             // add all user attributes
-            NamingEnumeration list = rec.getAttributes().getIDs();
+            NamingEnumeration<String> list = rec.getAttributes().getIDs();
+            
             while ( list.hasMore() )
             {
-                String attrId = ( String ) list.next();
+                String attrId = list.next();
                 AttributeType attrType = registry.lookup( attrId );
+                
                 if ( attrType.getUsage() == UsageEnum.USER_APPLICATIONS )
                 {
                     Attribute attr = ( Attribute ) rec.getAttributes().get( attrId ).clone();
@@ -213,11 +216,11 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                 if ( null == attr )
                 {
                     // May be it's because the attributeType is a inherited one?
-                    Iterator descendants = registry.descendants( attrIds[ii] );
+                    Iterator<AttributeType> descendants = registry.descendants( attrIds[ii] );
                     
                     while ( descendants.hasNext() )
                     {
-                        AttributeType atype = (AttributeType)descendants.next();
+                        AttributeType atype = descendants.next();
                         
                         attr = AttributeUtils.getAttribute( attrs, atype );
                         

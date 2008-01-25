@@ -247,7 +247,6 @@ public class LeafEvaluator implements Evaluator
         Comparator comparator = getComparator( node.getAttribute() );
 
         // get the attribute associated with the node
-        AttributeType type = attributeTypeRegistry.lookup( node.getAttribute() );
         ServerAttribute attr = entry.get( node.getAttribute() );
 
         // If we do not have the attribute just return false

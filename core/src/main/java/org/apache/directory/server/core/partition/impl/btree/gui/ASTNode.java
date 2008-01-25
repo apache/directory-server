@@ -84,7 +84,7 @@ public class ASTNode implements TreeNode
     }
 
 
-    public Enumeration children()
+    public Enumeration<ASTNode> children()
     {
         return Collections.enumeration( children );
     }

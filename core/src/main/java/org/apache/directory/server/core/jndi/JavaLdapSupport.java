@@ -182,7 +182,7 @@ class JavaLdapSupport
         entry.put( JSERIALDATA_ATTR, serialize( obj ) );
 
         // Add all the class names this object can be cast to:
-        Class[] classes = obj.getClass().getClasses();
+        Class<?>[] classes = obj.getClass().getClasses();
         Attribute javaClassNames = new AttributeImpl( JCLASSNAMES_ATTR );
 
         for ( int ii = 0; ii < classes.length; ii++ )

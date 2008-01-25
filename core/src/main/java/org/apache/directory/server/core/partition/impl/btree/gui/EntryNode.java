@@ -80,11 +80,11 @@ public class EntryNode implements TreeNode
         try
         {
             List<IndexRecord> records = new ArrayList<IndexRecord>();
-            NamingEnumeration childList = db.list( id );
+            NamingEnumeration<IndexRecord> childList = db.list( id );
             
             while ( childList.hasMore() )
             {
-                IndexRecord old = ( IndexRecord ) childList.next();
+                IndexRecord old = childList.next();
                 IndexRecord newRec = new IndexRecord();
                 newRec.copy( old );
                 records.add( newRec );
@@ -138,7 +138,7 @@ public class EntryNode implements TreeNode
     }
 
 
-    public Enumeration children()
+    public Enumeration<TreeNode> children()
     {
         return Collections.enumeration( children );
     }

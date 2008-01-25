@@ -47,6 +47,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -382,13 +384,13 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final Iterator getUserIndices()
+    public final Iterator<String> getUserIndices()
     {
         return store.userIndices();
     }
 
 
-    public final Iterator getSystemIndices()
+    public final Iterator<String> getSystemIndices()
     {
         return store.systemIndices();
     }
@@ -555,12 +557,13 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+    public final void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException
     {
         if ( bindDn == null || credentials == null || mechanisms == null ||  saslAuthId == null )
         {
             // do nothing just using variables to prevent yellow lights : bad :)
         }
+        
         // does nothing
         throw new LdapAuthenticationNotSupportedException(
                 "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n"

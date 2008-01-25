@@ -40,7 +40,8 @@ import javax.naming.NamingException;
 public class DisjunctionEnumeration implements NamingEnumeration<IndexRecord>
 {
     /** The underlying child enumerations */
-    private final NamingEnumeration[] children;
+    private final NamingEnumeration<IndexRecord>[] children;
+    
     /** LUT used to avoid returning duplicates */
     private final Map<Object, Object> candidates = new HashMap<Object, Object>();
     /** Index of current cursor used */
@@ -65,7 +66,7 @@ public class DisjunctionEnumeration implements NamingEnumeration<IndexRecord>
      * @param children array of child NamingInstances
      * @throws NamingException if something goes wrong
      */
-    public DisjunctionEnumeration( NamingEnumeration[] children ) throws NamingException
+    public DisjunctionEnumeration( NamingEnumeration<IndexRecord>[] children ) throws NamingException
     {
         this.children = children;
 
@@ -91,7 +92,7 @@ public class DisjunctionEnumeration implements NamingEnumeration<IndexRecord>
         }
 
         // Grab the next candidate and add it's id to the LUT/hash of candidates
-        IndexRecord rec = ( IndexRecord ) children[index].next();
+        IndexRecord rec = children[index].next();
         prefetched.copy( rec );
         candidates.put( rec.getEntryId(), rec.getEntryId() );
     }
@@ -163,7 +164,7 @@ public class DisjunctionEnumeration implements NamingEnumeration<IndexRecord>
             }
 
             // Grab next candidate!
-            IndexRecord rec = ( IndexRecord ) children[index].next();
+            IndexRecord rec = children[index].next();
             prefetched.copy( rec );
 
             // Break through do/while if the candidate is seen for the first

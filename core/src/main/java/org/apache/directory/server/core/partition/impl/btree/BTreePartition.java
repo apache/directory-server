@@ -317,7 +317,7 @@ public abstract class BTreePartition implements Partition
     {
         SearchControls searchCtls = opContext.getSearchControls();
         String[] attrIds = searchCtls.getReturningAttributes();
-        NamingEnumeration underlying;
+        NamingEnumeration<IndexRecord> underlying;
 
         underlying = searchEngine.search( 
             opContext.getDn(),
@@ -591,10 +591,10 @@ public abstract class BTreePartition implements Partition
     public abstract String getProperty( String key ) throws NamingException;
 
 
-    public abstract Iterator getUserIndices();
+    public abstract Iterator<String> getUserIndices();
 
 
-    public abstract Iterator getSystemIndices();
+    public abstract Iterator<String> getSystemIndices();
 
 
     public abstract Attributes getIndices( Long id ) throws NamingException;

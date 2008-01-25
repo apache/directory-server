@@ -264,7 +264,6 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     String svItem = j.next();
                     if ( oid.equals( oidRegistry.getOid( svItem ) ) )
                     {
-                        AttributeType attrType = attrRegistry.lookup( oid );
                         ServerAttribute attr = entry.get( oid );
                         
                         if ( ( attr != null ) && 

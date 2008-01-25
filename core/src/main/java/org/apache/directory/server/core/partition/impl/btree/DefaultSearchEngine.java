@@ -85,7 +85,7 @@ public class DefaultSearchEngine implements SearchEngine
     }
 
 
-    public NamingEnumeration search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration<IndexRecord> search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
         throws NamingException
     {
         Name effectiveBase;

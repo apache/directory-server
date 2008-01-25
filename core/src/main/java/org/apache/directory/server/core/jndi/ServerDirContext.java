@@ -427,9 +427,9 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
         else
         {
-            for ( Iterator ii = rdn.iterator(); ii.hasNext(); /**/ )
+            for ( Iterator<AttributeTypeAndValue> ii = rdn.iterator(); ii.hasNext(); /**/ )
             {
-                AttributeTypeAndValue atav = ( AttributeTypeAndValue ) ii.next();
+                AttributeTypeAndValue atav = ii.next();
 
                 // Add the Rdn attribute
                 boolean doRdnPut = attributes.get( atav.getNormType() ) == null;

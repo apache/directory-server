@@ -70,7 +70,6 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.CascadeControl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -83,7 +82,6 @@ import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -93,7 +91,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
@@ -103,7 +100,6 @@ import javax.naming.directory.SearchResult;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1415,9 +1411,9 @@ public class SchemaInterceptor extends BaseInterceptor
                     
                         for ( ServerValue<?> value:alteredObjectClass ) 
                         {
-                            if ( !objectClass.contains( alteredObjectClass.get() ) )
+                            if ( !objectClass.contains( value ) )
                             {
-                                ocMods.add( alteredObjectClass.get() );
+                                ocMods.add( value );
                             }
                         }
                         
@@ -1426,9 +1422,9 @@ public class SchemaInterceptor extends BaseInterceptor
                     case ( DirContext.REMOVE_ATTRIBUTE  ):
                         for ( ServerValue<?> value:alteredObjectClass ) 
                         {
-                            if ( !objectClass.contains( alteredObjectClass.get() ) )
+                            if ( !objectClass.contains( value ) )
                             {
-                                ocMods.remove( alteredObjectClass.get() );
+                                ocMods.remove( value );
                             }
                         }
                     
@@ -1437,9 +1433,9 @@ public class SchemaInterceptor extends BaseInterceptor
                     case ( DirContext.REPLACE_ATTRIBUTE  ):
                         for ( ServerValue<?> value:alteredObjectClass ) 
                         {
-                            if ( !objectClass.contains( alteredObjectClass.get() ) )
+                            if ( !objectClass.contains( value ) )
                             {
-                                ocMods.add( alteredObjectClass.get() );
+                                ocMods.add( value );
                             }
                         }
                     

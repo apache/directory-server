@@ -30,7 +30,6 @@ import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 
 
 /**
