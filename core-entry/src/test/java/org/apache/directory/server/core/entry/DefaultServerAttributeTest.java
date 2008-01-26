@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.core.entry;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,14 +26,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.InvalidAttributeValueException;
 
-import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
-import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
-import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -50,309 +42,9 @@ import static org.junit.Assert.fail;
  */
 public class DefaultServerAttributeTest
 {
-    /**
-     * A local Syntax class for tests
-     */
-    static class AT extends AbstractAttributeType
-    {
-        public static final long serialVersionUID = 0L;
-        AttributeType superior;
-        Syntax syntax;
-        MatchingRule equality;
-        MatchingRule ordering;
-        MatchingRule substr;
-
-        protected AT( String oid )
-        {
-            super( oid );
-        }
-
-        public AttributeType getSuperior() throws NamingException
-        {
-            return superior;
-        }
-
-
-        public Syntax getSyntax() throws NamingException
-        {
-            return syntax;
-        }
-
-
-        public MatchingRule getEquality() throws NamingException
-        {
-            return equality;
-        }
-
-
-        public MatchingRule getOrdering() throws NamingException
-        {
-            return ordering;
-        }
-
-
-        public MatchingRule getSubstr() throws NamingException
-        {
-            return substr;
-        }
-
-
-        public void setSuperior( AttributeType superior )
-        {
-            this.superior = superior;
-        }
-
-
-        public void setSyntax( Syntax syntax )
-        {
-            this.syntax = syntax;
-        }
-
-
-        public void setEquality( MatchingRule equality )
-        {
-            this.equality = equality;
-        }
-
-
-        public void setOrdering( MatchingRule ordering )
-        {
-            this.ordering = ordering;
-        }
-
-
-        public void setSubstr( MatchingRule substr )
-        {
-            this.substr = substr;
-        }
-    }
-
-    /**
-     * A local MatchingRule class for tests
-     */
-    static class MR extends AbstractMatchingRule
-    {
-        public static final long serialVersionUID = 0L;
-        private Syntax syntax;
-        private Comparator comparator;
-        private Normalizer normalizer;
-
-        protected MR( String oid )
-        {
-            super( oid );
-        }
-
-        public Syntax getSyntax() throws NamingException
-        {
-            return syntax;
-        }
-
-        public Comparator getComparator() throws NamingException
-        {
-            return comparator;
-        }
-
-
-        public Normalizer getNormalizer() throws NamingException
-        {
-            return normalizer;
-        }
-
-
-        public void setSyntax( Syntax syntax )
-        {
-            this.syntax = syntax;
-        }
-
-
-        public void setComparator( Comparator<?> comparator )
-        {
-            this.comparator = comparator;
-        }
-
-
-        public void setNormalizer( Normalizer normalizer )
-        {
-            this.normalizer = normalizer;
-        }
-    }
-
-
-    /**
-     * A local Syntax class used for the tests
-     */
-    static class S extends AbstractSyntax
-    {
-        public static final long serialVersionUID = 0L;
-        SyntaxChecker checker;
-
-        public S( String oid, boolean humanReadible )
-        {
-            super( oid, humanReadible );
-        }
-
-        public void setSyntaxChecker( SyntaxChecker checker )
-        {
-            this.checker = checker;
-        }
-
-        public SyntaxChecker getSyntaxChecker() throws NamingException
-        {
-            return checker;
-        }
-    }
-
-    private AttributeType getCaseIgnoringAttributeNoNumbersType()
-    {
-        S s = new S( "1.1.1.1", true );
-
-        s.setSyntaxChecker( new SyntaxChecker()
-        {
-            public String getSyntaxOid()
-            {
-                return "1.1.1.1";
-            }
-            public boolean isValidSyntax( Object value )
-            {
-                if ( !( value instanceof String ) )
-                {
-                    return false;
-                }
-
-                String strval = ( String ) value;
-                
-                for ( char c:strval.toCharArray() )
-                {
-                    if ( Character.isDigit( c ) )
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            public void assertSyntax( Object value ) throws NamingException
-            {
-                if ( ! isValidSyntax( value ) )
-                {
-                    throw new InvalidAttributeValueException();
-                }
-            }
-        } );
-
-        final MR mr = new MR( "1.1.2.1" );
-        mr.syntax = s;
-        mr.comparator = new Comparator<String>()
-        {
-            public int compare( String o1, String o2 )
-            {
-                return ( o1 == null ? 
-                    ( o2 == null ? 0 : -1 ) :
-                    ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
-            }
-
-            int getValue( String val )
-            {
-                if ( val.equals( "LOW" ) ) 
-                {
-                    return 0;
-                }
-                else if ( val.equals( "MEDIUM" ) ) 
-                {
-                    return 1;
-                }
-                else if ( val.equals( "HIGH" ) ) 
-                {
-                    return 2;
-                }
-                
-                throw new IllegalArgumentException( "Not a valid value" );
-            }
-        };
-        
-        mr.normalizer = new Normalizer()
-        {
-            public static final long serialVersionUID = 1L;
-
-            public Object normalize( Object value ) throws NamingException
-            {
-                if ( value instanceof String )
-                {
-                    return ( ( String ) value ).toLowerCase();
-                }
-
-                throw new IllegalStateException( "expected string to normalize" );
-            }
-        };
-        
-        AT at = new AT( "1.1.3.1" );
-        at.setEquality( mr );
-        at.setSyntax( s );
-        return at;
-    }
-
-
-    private AttributeType getIA5StringAttributeType()
-    {
-        AT at = new AT( "1.1" );
-
-        S s = new S( "1.1.1", true );
-
-        s.setSyntaxChecker( new SyntaxChecker()
-        {
-            public String getSyntaxOid()
-            {
-                return "1.1.1";
-            }
-            public boolean isValidSyntax( Object value )
-            {
-                return ((String)value).length() < 5 ;
-            }
-
-            public void assertSyntax( Object value ) throws NamingException
-            {
-                if ( ! isValidSyntax( value ) )
-                {
-                    throw new InvalidAttributeValueException();
-                }
-            }
-        } );
-
-        final MR mr = new MR( "1.1.2" );
-        mr.syntax = s;
-        mr.comparator = new Comparator<String>()
-        {
-            public int compare( String o1, String o2 )
-            {
-                return ( ( o1 == null ) ? 
-                    ( o2 == null ? 0 : -1 ) :
-                    ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
-            }
-        };
-        
-        mr.normalizer = new Normalizer()
-        {
-            public static final long serialVersionUID = 1L;
-            
-            public Object normalize( Object value ) throws NamingException
-            {
-                if ( value instanceof String )
-                {
-                    return ( ( String ) value ).toLowerCase();
-                }
-
-                throw new IllegalStateException( "expected string to normalize" );
-            }
-        };
-        
-        at.setEquality( mr );
-        at.setSyntax( s );
-        return at;
-    }
-
     @Test public void testAddOneValue() throws NamingException
     {
-        AttributeType at = getIA5StringAttributeType();
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
         DefaultServerAttribute attr = new DefaultServerAttribute( at );
         
@@ -408,7 +100,7 @@ public class DefaultServerAttributeTest
 
     @Test public void testAddTwoValue() throws NamingException
     {
-        AttributeType at = getIA5StringAttributeType();
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
         DefaultServerAttribute attr = new DefaultServerAttribute( at );
         
@@ -442,7 +134,7 @@ public class DefaultServerAttributeTest
 
     @Test public void testAddNullValue() throws NamingException
     {
-        AttributeType at = getIA5StringAttributeType();
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
         DefaultServerAttribute attr = new DefaultServerAttribute( at );
         
@@ -461,7 +153,7 @@ public class DefaultServerAttributeTest
     
     @Test public void testGetAttribute() throws NamingException
     {
-        AttributeType at = getIA5StringAttributeType();
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
         DefaultServerAttribute attr = new DefaultServerAttribute( at );
         

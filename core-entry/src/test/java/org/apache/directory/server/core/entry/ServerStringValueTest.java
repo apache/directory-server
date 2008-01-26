@@ -70,324 +70,26 @@ import static org.junit.Assert.fail;
  */
 public class ServerStringValueTest
 {
-    static private S s;
-    static private AT at;
-    static private MR mr;
+    static private TestServerEntryUtils.S s;
+    static private TestServerEntryUtils.AT at;
+    static private TestServerEntryUtils.MR mr;
     
-    /**
-     * A local Syntax class for tests
-     */
-    static class AT extends AbstractAttributeType
-    {
-        public static final long serialVersionUID = 0L;
-        AttributeType superior;
-        Syntax syntax;
-        MatchingRule equality;
-        MatchingRule ordering;
-        MatchingRule substr;
-
-        protected AT( String oid )
-        {
-            super( oid );
-        }
-
-        public AttributeType getSuperior() throws NamingException
-        {
-            return superior;
-        }
 
 
-        public Syntax getSyntax() throws NamingException
-        {
-            return syntax;
-        }
 
-
-        public MatchingRule getEquality() throws NamingException
-        {
-            return equality;
-        }
-
-
-        public MatchingRule getOrdering() throws NamingException
-        {
-            return ordering;
-        }
-
-
-        public MatchingRule getSubstr() throws NamingException
-        {
-            return substr;
-        }
-
-
-        public void setSuperior( AttributeType superior )
-        {
-            this.superior = superior;
-        }
-
-
-        public void setSyntax( Syntax syntax )
-        {
-            this.syntax = syntax;
-        }
-
-
-        public void setEquality( MatchingRule equality )
-        {
-            this.equality = equality;
-        }
-
-
-        public void setOrdering( MatchingRule ordering )
-        {
-            this.ordering = ordering;
-        }
-
-
-        public void setSubstr( MatchingRule substr )
-        {
-            this.substr = substr;
-        }
-    }
-
-    /**
-     * A local MatchingRule class for tests
-     */
-    static class MR extends AbstractMatchingRule
-    {
-        public static final long serialVersionUID = 0L;
-        private Syntax syntax;
-        private Comparator comparator;
-        private Normalizer normalizer;
-
-        protected MR( String oid )
-        {
-            super( oid );
-        }
-
-        public Syntax getSyntax() throws NamingException
-        {
-            return syntax;
-        }
-
-        public Comparator getComparator() throws NamingException
-        {
-            return comparator;
-        }
-
-
-        public Normalizer getNormalizer() throws NamingException
-        {
-            return normalizer;
-        }
-
-
-        public void setSyntax( Syntax syntax )
-        {
-            this.syntax = syntax;
-        }
-
-
-        public void setComparator( Comparator<?> comparator )
-        {
-            this.comparator = comparator;
-        }
-
-
-        public void setNormalizer( Normalizer normalizer )
-        {
-            this.normalizer = normalizer;
-        }
-    }
-
-
-    /**
-     * A local Syntax class used for the tests
-     */
-    static class S extends AbstractSyntax
-    {
-        public static final long serialVersionUID = 0L;
-        SyntaxChecker checker;
-
-        public S( String oid, boolean humanReadible )
-        {
-            super( oid, humanReadible );
-        }
-
-        public void setSyntaxChecker( SyntaxChecker checker )
-        {
-            this.checker = checker;
-        }
-
-        public SyntaxChecker getSyntaxChecker() throws NamingException
-        {
-            return checker;
-        }
-    }
-
-    private AttributeType getCaseIgnoringAttributeNoNumbersType()
-    {
-        S s = new S( "1.1.1.1", true );
-
-        s.setSyntaxChecker( new SyntaxChecker()
-        {
-            public String getSyntaxOid()
-            {
-                return "1.1.1.1";
-            }
-            public boolean isValidSyntax( Object value )
-            {
-                if ( !( value instanceof String ) )
-                {
-                    return false;
-                }
-
-                String strval = ( String ) value;
-                
-                for ( char c:strval.toCharArray() )
-                {
-                    if ( Character.isDigit( c ) )
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            public void assertSyntax( Object value ) throws NamingException
-            {
-                if ( ! isValidSyntax( value ) )
-                {
-                    throw new InvalidAttributeValueException();
-                }
-            }
-        } );
-
-        final MR mr = new MR( "1.1.2.1" );
-        mr.syntax = s;
-        mr.comparator = new Comparator<String>()
-        {
-            public int compare( String o1, String o2 )
-            {
-                return ( o1 == null ? 
-                    ( o2 == null ? 0 : -1 ) :
-                    ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
-            }
-
-            int getValue( String val )
-            {
-                if ( val.equals( "LOW" ) ) 
-                {
-                    return 0;
-                }
-                else if ( val.equals( "MEDIUM" ) ) 
-                {
-                    return 1;
-                }
-                else if ( val.equals( "HIGH" ) ) 
-                {
-                    return 2;
-                }
-                
-                throw new IllegalArgumentException( "Not a valid value" );
-            }
-        };
-        
-        mr.normalizer = new Normalizer()
-        {
-            public static final long serialVersionUID = 1L;
-
-            public Object normalize( Object value ) throws NamingException
-            {
-                if ( value instanceof String )
-                {
-                    return ( ( String ) value ).toLowerCase();
-                }
-
-                throw new IllegalStateException( "expected string to normalize" );
-            }
-        };
-        
-        AT at = new AT( "1.1.3.1" );
-        at.setEquality( mr );
-        at.setSyntax( s );
-        return at;
-    }
-
-
-    private AttributeType getIA5StringAttributeType()
-    {
-        AT at = new AT( "1.1" );
-
-        S s = new S( "1.1.1", true );
-
-        s.setSyntaxChecker( new SyntaxChecker()
-        {
-            public String getSyntaxOid()
-            {
-                return "1.1.1";
-            }
-            public boolean isValidSyntax( Object value )
-            {
-                return ((String)value).length() < 5 ;
-            }
-
-            public void assertSyntax( Object value ) throws NamingException
-            {
-                if ( ! isValidSyntax( value ) )
-                {
-                    throw new InvalidAttributeValueException();
-                }
-            }
-        } );
-
-        final MR mr = new MR( "1.1.2" );
-        mr.syntax = s;
-        mr.comparator = new Comparator<String>()
-        {
-            public int compare( String o1, String o2 )
-            {
-                return ( ( o1 == null ) ? 
-                    ( o2 == null ? 0 : -1 ) :
-                    ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
-            }
-        };
-        
-        mr.normalizer = new Normalizer()
-        {
-            public static final long serialVersionUID = 1L;
-            
-            public Object normalize( Object value ) throws NamingException
-            {
-                if ( value instanceof String )
-                {
-                    return ( ( String ) value ).toLowerCase();
-                }
-
-                throw new IllegalStateException( "expected string to normalize" );
-            }
-        };
-        
-        at.setEquality( mr );
-        at.setSyntax( s );
-        return at;
-    }
-
-    
     /**
      * Initialize an AttributeType and the associated MatchingRule 
      * and Syntax
      */
     @Before public void initAT()
     {
-        s = new S( "1.1.1.1", false );
+        s = new TestServerEntryUtils.S( "1.1.1.1", false );
         s.setSyntaxChecker( new AcceptAllSyntaxChecker( "1.1.1.1" ) );
-        mr = new MR( "1.1.2.1" );
+        mr = new TestServerEntryUtils.MR( "1.1.2.1" );
         mr.syntax = s;
         mr.comparator = new ByteArrayComparator();
         mr.normalizer = new DeepTrimToLowerNormalizer();
-        at = new AT( "1.1.3.1" );
+        at = new TestServerEntryUtils.AT( "1.1.3.1" );
         at.setEquality( mr );
         at.setOrdering( mr );
         at.setSubstr( mr );
@@ -411,7 +113,7 @@ public class ServerStringValueTest
         }
         
         // create a AT without any syntax
-        AttributeType at = new AT( "1.1.3.1" );
+        AttributeType at = new TestServerEntryUtils.AT( "1.1.3.1" );
         
         try
         {
@@ -430,7 +132,7 @@ public class ServerStringValueTest
      */
     @Test public void testNullValue()
     {
-        AttributeType at = getIA5StringAttributeType();
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
         ServerStringValue value = new ServerStringValue( at, null );
         
@@ -444,7 +146,7 @@ public class ServerStringValueTest
      */
     @Test public void testEquals()
     {
-        AttributeType at = getIA5StringAttributeType();
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
         ServerStringValue value1 = new ServerStringValue( at, "test" );
         ServerStringValue value2 = new ServerStringValue( at, "test" );
@@ -469,7 +171,7 @@ public class ServerStringValueTest
      */
     @Test public void testGetNormalized() throws NamingException
     {
-        AttributeType at = getIA5StringAttributeType();
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
         ServerStringValue value = new ServerStringValue( at, "TEST" );
         
@@ -488,7 +190,7 @@ public class ServerStringValueTest
      */
     @Test public void testIsValid() throws NamingException
     {
-        AttributeType at = getIA5StringAttributeType();
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
         ServerStringValue value = new ServerStringValue( at, "test" );
         
@@ -506,7 +208,7 @@ public class ServerStringValueTest
      */
     @Test public void testHashCodeValidEquals() throws Exception
     {
-        AttributeType at = getCaseIgnoringAttributeNoNumbersType();
+        AttributeType at = TestServerEntryUtils.getCaseIgnoringAttributeNoNumbersType();
         ServerStringValue v0 = new ServerStringValue( at, "Alex" );
         ServerStringValue v1 = new ServerStringValue( at, "ALEX" );
         ServerStringValue v2 = new ServerStringValue( at, "alex" );
@@ -540,8 +242,6 @@ public class ServerStringValueTest
      */
     @Test public void testConstrainedString() throws Exception
     {
-        S s = new S( "1.1.1.1", true );
-            
         s.setSyntaxChecker( new SyntaxChecker() {
             public String getSyntaxOid() { return "1.1.1.1"; }
             public boolean isValidSyntax( Object value )
@@ -557,7 +257,6 @@ public class ServerStringValueTest
             { if ( ! isValidSyntax( value ) ) throw new InvalidAttributeValueException(); }
         });
 
-        final MR mr = new MR( "1.1.2.1" );
         mr.syntax = s;
         mr.comparator = new Comparator<String>()
         {
@@ -598,7 +297,6 @@ public class ServerStringValueTest
             }
         };
         mr.normalizer = new NoOpNormalizer();
-        AT at = new AT( "1.1.3.1" );
         at.setEquality( mr );
         at.setSyntax( s );
 

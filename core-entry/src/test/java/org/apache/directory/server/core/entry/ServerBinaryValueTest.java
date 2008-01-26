@@ -20,22 +20,15 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
-import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
-import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,7 +36,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
-import java.util.Comparator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -67,232 +59,9 @@ import static org.junit.Assert.fail;
  */
 public class ServerBinaryValueTest
 {
-    static private S s;
-    static private AT at;
-    static private MR mr;
-    
-    /**
-     * A local Syntax class for tests
-     */
-    static class AT extends AbstractAttributeType
-    {
-        public static final long serialVersionUID = 0L;
-        AttributeType superior;
-        Syntax syntax;
-        MatchingRule equality;
-        MatchingRule ordering;
-        MatchingRule substr;
-
-        protected AT( String oid )
-        {
-            super( oid );
-        }
-
-        public AttributeType getSuperior() throws NamingException
-        {
-            return superior;
-        }
-
-
-        public Syntax getSyntax() throws NamingException
-        {
-            return syntax;
-        }
-
-
-        public MatchingRule getEquality() throws NamingException
-        {
-            return equality;
-        }
-
-
-        public MatchingRule getOrdering() throws NamingException
-        {
-            return ordering;
-        }
-
-
-        public MatchingRule getSubstr() throws NamingException
-        {
-            return substr;
-        }
-
-
-        public void setSuperior( AttributeType superior )
-        {
-            this.superior = superior;
-        }
-
-
-        public void setSyntax( Syntax syntax )
-        {
-            this.syntax = syntax;
-        }
-
-
-        public void setEquality( MatchingRule equality )
-        {
-            this.equality = equality;
-        }
-
-
-        public void setOrdering( MatchingRule ordering )
-        {
-            this.ordering = ordering;
-        }
-
-
-        public void setSubstr( MatchingRule substr )
-        {
-            this.substr = substr;
-        }
-    }
-
-    /**
-     * A local MatchingRule class for tests
-     */
-    static class MR extends AbstractMatchingRule
-    {
-        public static final long serialVersionUID = 0L;
-        private Syntax syntax;
-        private Comparator comparator;
-        private Normalizer normalizer;
-
-        protected MR( String oid )
-        {
-            super( oid );
-        }
-
-        public Syntax getSyntax() throws NamingException
-        {
-            return syntax;
-        }
-
-        public Comparator getComparator() throws NamingException
-        {
-            return comparator;
-        }
-
-
-        public Normalizer getNormalizer() throws NamingException
-        {
-            return normalizer;
-        }
-
-
-        public void setSyntax( Syntax syntax )
-        {
-            this.syntax = syntax;
-        }
-
-
-        public void setComparator( Comparator<?> comparator )
-        {
-            this.comparator = comparator;
-        }
-
-
-        public void setNormalizer( Normalizer normalizer )
-        {
-            this.normalizer = normalizer;
-        }
-    }
-
-
-    /**
-     * A local Syntax class used for the tests
-     */
-    static class S extends AbstractSyntax
-    {
-        public static final long serialVersionUID = 0L;
-        SyntaxChecker checker;
-
-        public S( String oid, boolean humanReadible )
-        {
-            super( oid, humanReadible );
-        }
-
-        public void setSyntaxChecker( SyntaxChecker checker )
-        {
-            this.checker = checker;
-        }
-
-        public SyntaxChecker getSyntaxChecker() throws NamingException
-        {
-            return checker;
-        }
-    }
-
-
-
-    private AttributeType getBytesAttributeType()
-    {
-        AT at = new AT( "1.1" );
-
-        S s = new S( "1.1.1", true );
-
-        s.setSyntaxChecker( new SyntaxChecker()
-        {
-            public String getSyntaxOid()
-            {
-                return "1.1.1";
-            }
-            public boolean isValidSyntax( Object value )
-            {
-                return ((byte[])value).length < 5 ;
-            }
-
-            public void assertSyntax( Object value ) throws NamingException
-            {
-                if ( ! isValidSyntax( value ) )
-                {
-                    throw new InvalidAttributeValueException();
-                }
-            }
-        } );
-
-        final MR mr = new MR( "1.1.2" );
-        mr.syntax = s;
-        mr.comparator = new Comparator<byte[]>()
-        {
-            public int compare( byte[] o1, byte[] o2 )
-            {
-                return ( ( o1 == null ) ? 
-                    ( o2 == null ? 0 : -1 ) :
-                    ( o2 == null ? 1 : ByteArrayComparator.INSTANCE.compare( o1, o2 ) ) );
-            }
-        };
-        
-        mr.normalizer = new Normalizer()
-        {
-            public static final long serialVersionUID = 1L;
-            
-            public Object normalize( Object value ) throws NamingException
-            {
-                if ( value instanceof byte[] )
-                {
-                    byte[] val = (byte[])value;
-                    // each byte will be changed to be > 0, and spaces will be trimmed
-                    byte[] newVal = new byte[ val.length ];
-                    int i = 0;
-                    
-                    for ( byte b:val )
-                    {
-                        newVal[i++] = (byte)(b & 0x007F); 
-                    }
-                    
-                    return StringTools.trim( newVal );
-                }
-
-                throw new IllegalStateException( "expected byte[] to normalize" );
-            }
-        };
-        
-        at.setEquality( mr );
-        at.setSyntax( s );
-        return at;
-    }
-
+    static private TestServerEntryUtils.S s;
+    static private TestServerEntryUtils.AT at;
+    static private TestServerEntryUtils.MR mr;
     
     /**
      * Initialize an AttributeType and the associated MatchingRule 
@@ -300,9 +69,9 @@ public class ServerBinaryValueTest
      */
     @Before public void initAT()
     {
-        s = new S( "1.1.1.1", false );
+        s = new TestServerEntryUtils.S( "1.1.1.1", false );
         s.setSyntaxChecker( new AcceptAllSyntaxChecker( "1.1.1.1" ) );
-        mr = new MR( "1.1.2.1" );
+        mr = new TestServerEntryUtils.MR( "1.1.2.1" );
         mr.syntax = s;
         mr.comparator = new ByteArrayComparator();
         mr.normalizer = new Normalizer()
@@ -329,7 +98,7 @@ public class ServerBinaryValueTest
                 throw new IllegalStateException( "expected byte[] to normalize" );
             }
         };
-        at = new AT( "1.1.3.1" );
+        at = new TestServerEntryUtils.AT( "1.1.3.1" );
         at.setEquality( mr );
         at.setOrdering( mr );
         at.setSubstr( mr );
@@ -353,7 +122,7 @@ public class ServerBinaryValueTest
         }
         
         // create a AT without any syntax
-        AttributeType at = new AT( "1.1.3.1" );
+        AttributeType at = new TestServerEntryUtils.AT( "1.1.3.1" );
         
         try
         {
@@ -372,7 +141,7 @@ public class ServerBinaryValueTest
      */
     @Test public void testNullValue()
     {
-        AttributeType at = getBytesAttributeType();
+        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
         
         ServerBinaryValue value = new ServerBinaryValue( at, null );
         
@@ -386,7 +155,7 @@ public class ServerBinaryValueTest
      */
     @Test public void testEquals()
     {
-        AttributeType at = getBytesAttributeType();
+        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
         
         ServerBinaryValue value1 = new ServerBinaryValue( at, new byte[]{0x01, (byte)0x02} );
         ServerBinaryValue value2 = new ServerBinaryValue( at, new byte[]{0x01, (byte)0x02} );
@@ -411,7 +180,7 @@ public class ServerBinaryValueTest
      */
     @Test public void testGetNormalized() throws NamingException
     {
-        AttributeType at = getBytesAttributeType();
+        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
         
         ServerBinaryValue value = new ServerBinaryValue( at, new byte[]{0x01, (byte)0x82} );
         
@@ -431,7 +200,7 @@ public class ServerBinaryValueTest
      */
     @Test public void testIsValid() throws NamingException
     {
-        AttributeType at = getBytesAttributeType();
+        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
         
         ServerBinaryValue value = new ServerBinaryValue( at, new byte[]{0x01, 0x02} );
         
@@ -449,7 +218,7 @@ public class ServerBinaryValueTest
      */
     @Test public void testHashCodeValidEquals() throws Exception
     {
-        AttributeType at = getBytesAttributeType();
+        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
         ServerBinaryValue v0 = new ServerBinaryValue( at, new byte[]{0x01, 0x02} );
         ServerBinaryValue v1 = new ServerBinaryValue( at, new byte[]{(byte)0x81, (byte)0x82} );
         ServerBinaryValue v2 = new ServerBinaryValue( at, new byte[]{0x01, 0x02} );

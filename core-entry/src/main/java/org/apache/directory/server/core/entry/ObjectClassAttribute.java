@@ -298,7 +298,13 @@ public class ObjectClassAttribute extends AbstractServerAttribute
     }
 
 
-    private Set<ObjectClass> addAncestors( ObjectClass descendant, Set<ObjectClass> ancestors ) throws NamingException
+    /**
+     * Recursively find all the objectClass ancestors.
+     * 
+     * The resultant Set conatins only one single occurence of each 
+     * ancestor.
+     */
+    private Set<ObjectClass> findAncestors( ObjectClass descendant, Set<ObjectClass> ancestors ) throws NamingException
     {
         if ( descendant == null )
         {
@@ -312,10 +318,15 @@ public class ObjectClassAttribute extends AbstractServerAttribute
             return ancestors;
         }
 
-        for ( ObjectClass ancestor : superClasses )
+        for ( ObjectClass superClass : superClasses )
         {
-            ancestors.add( ancestor );
-            addAncestors( ancestor, ancestors );
+            if ( ancestors.contains( superClass ) )
+            {
+                continue;
+            }
+            
+            ancestors.add( superClass );
+            findAncestors( superClass, ancestors );
         }
 
         return ancestors;
@@ -332,38 +343,46 @@ public class ObjectClassAttribute extends AbstractServerAttribute
         // add the value to the set of values
         //values.add( new ServerStringValue( attributeType, alias) );
 
-        Set<ObjectClass> ancestors = addAncestors( objectClass, new HashSet<ObjectClass>() );
+        Set<ObjectClass> ancestors = findAncestors( objectClass, new HashSet<ObjectClass>() );
         ancestors.add( objectClass );
         
         // now create sets of the different kinds of objectClasses
-        for ( ObjectClass oc : ancestors )
+        for ( ObjectClass ancestor : ancestors )
         {
-            values.add( new ServerStringValue( attributeType, oc.getName() ) );
-            switch ( oc.getType() )
+            ServerStringValue oc = new ServerStringValue( attributeType, ancestor.getName() );
+            
+            if ( values.contains( oc ) )
+            {
+                continue;
+            }
+            
+            values.add( oc );
+            
+            switch ( ancestor.getType() )
             {
                 case STRUCTURAL :
-                    structuralObjectClasses.add( oc );
+                    structuralObjectClasses.add( ancestor );
                     break;
                     
                 case AUXILIARY :
-                    auxiliaryObjectClasses.add( oc );
+                    auxiliaryObjectClasses.add( ancestor );
                     break;
                     
                 case ABSTRACT :
-                    abstractObjectClasses.add( oc );
+                    abstractObjectClasses.add( ancestor );
                     break;
                     
                 default:
-                    String message = "Unrecognized objectClass type value: " + oc.getType();
+                    String message = "Unrecognized objectClass type value: " + ancestor.getType();
                     LOG.error( message );
                     throw new UnsupportedOperationException( message );
             }
 
-            allObjectClasses.add( oc );
+            allObjectClasses.add( ancestor );
             
             // now go through all objectClassses to collect the must an may list attributes
-            Collections.addAll( mayList, oc.getMayList() );
-            Collections.addAll( mustList, oc.getMustList() );
+            Collections.addAll( mayList, ancestor.getMayList() );
+            Collections.addAll( mustList, ancestor.getMustList() );
         }
 
         return true;
