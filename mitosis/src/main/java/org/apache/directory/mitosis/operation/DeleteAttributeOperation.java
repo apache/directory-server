@@ -21,16 +21,17 @@ package org.apache.directory.mitosis.operation;
 
 
 import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import java.util.List;
 
@@ -64,9 +65,10 @@ public class DeleteAttributeOperation extends AttributeOperation
 
     protected void execute1( PartitionNexus nexus, Registries registries ) throws NamingException
     {
-        Attributes attrs = new AttributesImpl( true );
-        attrs.put( getAttribute() );
-        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( attrs, DirContext.REMOVE_ATTRIBUTE );
+        ServerEntry serverEntry = new DefaultServerEntry( registries, LdapDN.EMPTY_LDAPDN );
+        Attribute attribute = getAttribute();
+        serverEntry.put( ServerEntryUtils.toServerAttribute( attribute, registries.getAttributeTypeRegistry().lookup( attribute.getID() ) ) );
+        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( serverEntry, DirContext.REMOVE_ATTRIBUTE );
 
         nexus.modify( new ModifyOperationContext( registries, getName(), items ) );
     }

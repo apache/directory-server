@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
@@ -51,7 +52,6 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -63,7 +63,6 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -219,21 +218,16 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         nextInterceptor.rename( opContext );
 
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
-        attribute.add( getPrincipal().getName() );
-        attributes.put( attribute );
-
-        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
-        attribute.add( DateUtils.getGeneralizedTime() );
-        attributes.put( attribute );
+        ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
+        serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
+        serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
         LdapDN newDn = ( LdapDN ) opContext.getDn().clone();
         newDn.remove( opContext.getDn().size() - 1 );
         newDn.add( opContext.getNewRdn() );
         newDn.normalize( atRegistry.getNormalizerMapping() );
         
-        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( serverEntry, DirContext.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = new ModifyOperationContext( registries, newDn, items );
         
@@ -246,16 +240,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         nextInterceptor.move( opContext );
 
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
-        attribute.add( getPrincipal().getName() );
-        attributes.put( attribute );
+        ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
+        serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
+        serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
-        attribute.add( DateUtils.getGeneralizedTime() );
-        attributes.put( attribute );
-
-        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( serverEntry, DirContext.REPLACE_ATTRIBUTE );
 
 
         ModifyOperationContext newModify = 
@@ -271,20 +260,15 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         nextInterceptor.moveAndRename( opContext );
 
         // add operational attributes after call in case the operation fails
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
-        attribute.add( getPrincipal().getName() );
-        attributes.put( attribute );
+        ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
+        serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
+        serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
-        attribute.add( DateUtils.getGeneralizedTime() );
-        attributes.put( attribute );
-
-        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( serverEntry, DirContext.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = 
             new ModifyOperationContext( registries, 
-        		opContext.getParent(), items );
+                opContext.getParent(), items );
         
         service.getPartitionNexus().modify( newModify );
     }
@@ -464,8 +448,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             }
             else if ( rdn.size() == 1 )
             {
-            	String name = atRegistry.lookup( rdn.getNormType() ).getName();
-            	String value = (String)rdn.getAtav().getValue(); 
+                String name = atRegistry.lookup( rdn.getNormType() ).getName();
+                String value = (String)rdn.getAtav().getValue(); 
                 newDn.add( new Rdn( name, name, value, value ) );
                 continue;
             }

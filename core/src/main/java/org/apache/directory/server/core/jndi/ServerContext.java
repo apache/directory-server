@@ -351,7 +351,8 @@ public abstract class ServerContext implements EventContext
         // Now remove the ObjectClass attribute if it has not been requested
         if ( ( opCtx.getAttrsId() != null ) && ( opCtx.getAttrsId().size() != 0 ) )
         {
-            if ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 )
+            if ( ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null ) && 
+                 (serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) )
             {
                 result.remove( SchemaConstants.OBJECT_CLASS_AT );
             }

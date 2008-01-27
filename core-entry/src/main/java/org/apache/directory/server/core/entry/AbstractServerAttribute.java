@@ -263,8 +263,11 @@ public abstract class AbstractServerAttribute implements ServerAttribute
                 }
             }
             
-            values.add( val );
-            nbAdded ++;
+            if ( !values.contains( val ) )
+            {
+                values.add( val );
+                nbAdded ++;
+            }
         }
         
         return nbAdded;
@@ -291,7 +294,13 @@ public abstract class AbstractServerAttribute implements ServerAttribute
         {
             if ( attributeType.getSyntax().isHumanReadable() )
             {
-                values.add( new ServerStringValue( attributeType, val ) );
+                ServerStringValue ssv = new ServerStringValue( attributeType, val );
+                
+                if ( !values.contains( ssv ) )
+                {
+                    values.add( ssv );
+                    nbAdded ++;
+                }
             }
             else
             {
@@ -299,8 +308,6 @@ public abstract class AbstractServerAttribute implements ServerAttribute
                 LOG.error( message );
                 throw new InvalidAttributeValueException( message );
             }
-
-            nbAdded ++;
         }
         
         return nbAdded;
@@ -357,10 +364,14 @@ public abstract class AbstractServerAttribute implements ServerAttribute
             }
             else
             {
-                values.add( new ServerBinaryValue( attributeType, val ) );
+                ServerBinaryValue sbv = new ServerBinaryValue( attributeType, val );
+                
+                if ( !values.contains( sbv ) )
+                {
+                    values.add( sbv );
+                    nbAdded ++;
+                }
             }
-            
-            nbAdded ++;
         }
         
         return nbAdded;
