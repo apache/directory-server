@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
@@ -282,7 +281,7 @@ public class TupleCache
     }
 
 
-    public void subentryRenamed( Name oldName, Name newName )
+    public void subentryRenamed( LdapDN oldName, LdapDN newName )
     {
         tuples.put( newName.toString(), tuples.remove( oldName.toString() ) );
     }

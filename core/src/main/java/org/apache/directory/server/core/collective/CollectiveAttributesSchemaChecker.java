@@ -20,14 +20,11 @@
 
 package org.apache.directory.server.core.collective;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
@@ -81,21 +78,6 @@ public class CollectiveAttributesSchemaChecker
                 ResultCodeEnum.OTHER);
         }
     }
-    
-    public void checkModify( Registries registries, LdapDN normName, int modOp, Attributes mods ) throws NamingException
-    {
-        ArrayList<ModificationItemImpl> modsAsArray = new ArrayList<ModificationItemImpl>( mods.size() );
-        NamingEnumeration<? extends Attribute> allAttrs = mods.getAll();
-        
-        while ( allAttrs.hasMoreElements() )
-        {
-            Attribute attr = allAttrs.nextElement();
-            modsAsArray.add( new ModificationItemImpl( modOp, attr ) );
-        }
-        
-        checkModify( registries, normName, modsAsArray );
-    }
-    
     
     public void checkModify( Registries registries, LdapDN normName, List<ModificationItemImpl> mods ) throws NamingException
     {

@@ -23,7 +23,6 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;

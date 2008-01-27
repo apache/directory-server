@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.naming.Context;
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ServiceUnavailableException;
@@ -885,7 +884,7 @@ public class PartitionNexusProxy extends PartitionNexus
      * interceptor.
      */
 
-    public void addNamingListener( EventContext ctx, Name name, ExprNode filter, SearchControls searchControls,
+    public void addNamingListener( EventContext ctx, LdapDN name, ExprNode filter, SearchControls searchControls,
             NamingListener namingListener ) throws NamingException
     {
         InterceptorChain chain = service.getInterceptorChain();

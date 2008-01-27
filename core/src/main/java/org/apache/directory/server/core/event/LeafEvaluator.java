@@ -23,7 +23,6 @@ package org.apache.directory.server.core.event;
 import java.util.Comparator;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;

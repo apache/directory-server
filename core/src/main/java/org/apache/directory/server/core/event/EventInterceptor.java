@@ -63,7 +63,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Binding;
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.event.EventContext;
@@ -116,7 +115,7 @@ public class EventInterceptor extends BaseInterceptor
      * @param namingListener the naming listener to register
      * @throws NamingException if there are failures adding the naming listener
      */
-    public void addNamingListener( EventContext ctx, Name name, ExprNode filter, SearchControls searchControls,
+    public void addNamingListener( EventContext ctx, LdapDN name, ExprNode filter, SearchControls searchControls,
         NamingListener namingListener ) throws NamingException
     {
         LdapDN normalizedBaseDn = new LdapDN( name );
@@ -460,14 +459,14 @@ public class EventInterceptor extends BaseInterceptor
 
     class EventSourceRecord
     {
-        private Name base;
+        private LdapDN base;
         private SearchControls controls;
         private ExprNode filter;
         private EventContext context;
         private NamingListener listener;
 
 
-        public EventSourceRecord(Name base, ExprNode filter, EventContext context, SearchControls controls,
+        public EventSourceRecord( LdapDN base, ExprNode filter, EventContext context, SearchControls controls,
             NamingListener listener)
         {
             this.filter = filter;
@@ -496,7 +495,7 @@ public class EventInterceptor extends BaseInterceptor
         }
 
 
-        public Name getBase()
+        public LdapDN getBase()
         {
             return base;
         }

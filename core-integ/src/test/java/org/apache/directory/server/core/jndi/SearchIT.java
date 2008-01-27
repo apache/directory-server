@@ -345,12 +345,20 @@ public class SearchIT
         }
 
         // 13 because it also matches organizationalPerson which the admin is
-        assertEquals( "Expected number of results returned was incorrect", 12, map.size() );
+        assertEquals( "Expected number of results returned was incorrect", 13, map.size() );
         assertTrue( map.containsKey( "ou=system" ) );
+        assertTrue( map.containsKey( "ou=configuration,ou=system" ) );
+        assertTrue( map.containsKey( "ou=interceptors,ou=configuration,ou=system" ) );
+        assertTrue( map.containsKey( "ou=partitions,ou=configuration,ou=system" ) );
+        assertTrue( map.containsKey( "ou=services,ou=configuration,ou=system" ) );
+        assertTrue( map.containsKey( "ou=groups,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
-        assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
         assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
+        assertTrue( map.containsKey( "ou=users,ou=system" ) );
+        assertTrue( map.containsKey( "prefNodeName=sysPrefRoot,ou=system" ) );
+        assertTrue( map.containsKey( "uid=admin,ou=system" ) );
     }
 
 
