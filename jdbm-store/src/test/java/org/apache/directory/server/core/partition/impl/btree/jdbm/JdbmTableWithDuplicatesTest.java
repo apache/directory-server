@@ -35,26 +35,24 @@ import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
 
 import jdbm.RecordManager;
-import jdbm.helper.StringComparator;
 import jdbm.recman.BaseRecordManager;
 
 import javax.naming.NamingException;
 
 
 /**
- * Document me!
+ * Tests JdbmTable operations with duplicates.  Does not test Cursor capabilities.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class JdbmTableWithDuplicatesTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( KeyCursorTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmTableWithDuplicatesTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
     private static final int SIZE = 15;
     
@@ -62,6 +60,7 @@ public class JdbmTableWithDuplicatesTest
     transient File dbFile;
     transient RecordManager recman;
 
+    
     @Before
     public void createTable() throws Exception
     {
@@ -71,7 +70,7 @@ public class JdbmTableWithDuplicatesTest
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
         }
 
-        dbFile = File.createTempFile( "JdbmTableWithDuplicatesTest", "db", tmpDir );
+        dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
         // gosh this is a terrible use of a global static variable
@@ -321,6 +320,7 @@ public class JdbmTableWithDuplicatesTest
     
     /**
      * Let's test keys with a null or lack of any values.
+     * @throws Exception on error
      */
     @Test
     public void testNullOrEmptyKeyValueAfterDuplicateLimit() throws Exception
@@ -369,6 +369,7 @@ public class JdbmTableWithDuplicatesTest
     
     /**
      * Let's test keys with a null or lack of any values.
+     * @throws Exception on error
      */
     @Test
     public void testNullOrEmptyKeyValue() throws Exception

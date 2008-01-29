@@ -73,7 +73,7 @@ public class DefaultOptimizer implements Optimizer
      *
      * @see Optimizer#annotate(ExprNode)
      */
-    public void annotate( ExprNode node ) throws NamingException
+    public void annotate( ExprNode node ) throws Exception
     {
         // Start off with the worst case unless scan count says otherwise.
         Long count = Long.MAX_VALUE;
@@ -187,14 +187,13 @@ public class DefaultOptimizer implements Optimizer
      * @return the calculated scan count
      * @throws NamingException if there is an error
      */
-    private long getConjunctionScan( BranchNode node ) throws NamingException
+    private long getConjunctionScan( BranchNode node ) throws Exception
     {
         long count = Long.MAX_VALUE;
         List<ExprNode> children = node.getChildren();
 
-        for ( int ii = 0; ii < children.size(); ii++ )
+        for ( ExprNode child : children )
         {
-            ExprNode child = children.get( ii );
             annotate( child );
             count = Math.min( ( ( Long ) child.get( "count" ) ), count );
         }
@@ -227,14 +226,13 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count on the OR node
      * @throws NamingException if there is an error
      */
-    private long getDisjunctionScan( BranchNode node ) throws NamingException
+    private long getDisjunctionScan( BranchNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
         long total = 0L;
 
-        for ( int ii = 0; ii < children.size(); ii++ )
+        for ( ExprNode child : children )
         {
-            ExprNode child = children.get( ii );
             annotate( child );
             total += ( Long ) child.get( "count" );
         }
@@ -251,19 +249,12 @@ public class DefaultOptimizer implements Optimizer
      * @return the worst case
      * @throws NamingException if there is an error accessing an index
      */
-    private long getEqualityScan( SimpleNode node ) throws NamingException
+    private long getEqualityScan( SimpleNode node ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getUserIndex( node.getAttribute() );
-            try
-            {
-                return Long.valueOf( idx.count( node.getValue() ) );
-            }
-            catch ( java.io.IOException e )
-            {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
+            return idx.count( node.getValue() );
         }
 
         // count for non-indexed attribute is unknown so we presume da worst
@@ -280,20 +271,19 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count of all nodes satisfying the AVA
      * @throws NamingException if there is an error accessing an index
      */
-    private long getGreaterLessScan( SimpleNode node, boolean isGreaterThan ) throws NamingException
+    private long getGreaterLessScan( SimpleNode node, boolean isGreaterThan ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getUserIndex( node.getAttribute() );
-            try
+            if ( isGreaterThan )
             {
-                int count = idx.count( node.getValue(), isGreaterThan );
+                return idx.greaterThanCount( node.getValue() );
             }
-            catch ( java.io.IOException e )
+            else
             {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                return idx.lessThanCount( node.getValue() );
             }
-            return Long.valueOf( count );
         }
 
         // count for non-indexed attribute is unknown so we presume da worst
@@ -310,20 +300,12 @@ public class DefaultOptimizer implements Optimizer
      * @return the worst case full scan count
      * @throws NamingException if there is an error access database indices
      */
-    private long getFullScan( LeafNode node ) throws NamingException
+    private long getFullScan( LeafNode node ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getUserIndex( node.getAttribute() );
-            try
-            {
-                int count = idx.count();
-            }
-            catch ( java.io.IOException e )
-            {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            return Long.valueOf( count );
+            return idx.count();
         }
 
         return Long.MAX_VALUE;
@@ -338,20 +320,12 @@ public class DefaultOptimizer implements Optimizer
      * @return the number of entries matched for the presence of an attribute
      * @throws NamingException if errors result
      */
-    private long getPresenceScan( PresenceNode node ) throws NamingException
+    private long getPresenceScan( PresenceNode node ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getExistanceIndex();
-            try
-            {
-                int count = idx.count( node.getAttribute() );
-            }
-            catch ( java.io.IOException e )
-            {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            return Long.valueOf( count );
+            return idx.count( node.getAttribute() );
         }
 
         return Long.MAX_VALUE;
@@ -365,7 +339,7 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count for scope
      * @throws NamingException if any errors result
      */
-    private long getScopeScan( ScopeNode node ) throws NamingException
+    private long getScopeScan( ScopeNode node ) throws Exception
     {
         switch ( node.getScope() )
         {
@@ -374,10 +348,10 @@ public class DefaultOptimizer implements Optimizer
             
             case ( SearchControls.ONELEVEL_SCOPE  ):
                 Long id = db.getEntryId( node.getBaseDn() );
-                return Long.valueOf( db.getChildCount( id ) );
+                return db.getChildCount( id );
                 
             case ( SearchControls.SUBTREE_SCOPE  ):
-                return Long.valueOf( db.count() );
+                return db.count();
             
             default:
                 throw new IllegalArgumentException( "Unrecognized search scope " + "value for filter scope node" );

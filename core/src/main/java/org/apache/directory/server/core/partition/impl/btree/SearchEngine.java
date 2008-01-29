@@ -82,10 +82,10 @@ public interface SearchEngine
      * @param filter the search filter AST root
      * @param searchCtls the JNDI search controls
      * @return enumeration over SearchResults
-     * @throws NamingException if the search fails
+     * @throws Exception if the search fails
      */
     NamingEnumeration search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter,
-                              SearchControls searchCtls ) throws NamingException;
+                              SearchControls searchCtls ) throws Exception;
 
 
     /**
@@ -94,7 +94,7 @@ public interface SearchEngine
      * @param filter the filter root AST node
      * @param id the id of the entry to test
      * @return true if the filter passes the entry, false otherwise
-     * @throws NamingException if something goes wrong while accessing the db
+     * @throws Exception if something goes wrong while accessing the db
      */
-    boolean evaluate( ExprNode filter, Long id ) throws NamingException;
+    boolean evaluate( ExprNode filter, Long id ) throws Exception;
 }

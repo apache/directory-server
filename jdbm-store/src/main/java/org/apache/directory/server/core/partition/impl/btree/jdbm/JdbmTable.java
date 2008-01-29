@@ -696,7 +696,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
 
-    public Cursor<Tuple<K,V>> cursor() throws IOException
+    public Cursor<Tuple<K,V>> cursor() throws Exception
     {
         if ( allowsDuplicates )
         {

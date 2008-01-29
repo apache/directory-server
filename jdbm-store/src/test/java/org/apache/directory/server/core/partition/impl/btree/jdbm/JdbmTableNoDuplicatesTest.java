@@ -37,7 +37,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 import jdbm.RecordManager;
-import jdbm.helper.StringComparator;
 import jdbm.recman.BaseRecordManager;
 
 import javax.naming.NamingException;
@@ -51,7 +50,7 @@ import javax.naming.NamingException;
  */
 public class JdbmTableNoDuplicatesTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( KeyCursorTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmTableNoDuplicatesTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
     transient Table<Integer,Integer> table;
@@ -68,7 +67,7 @@ public class JdbmTableNoDuplicatesTest
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
         }
 
-        dbFile = File.createTempFile( "test", "db", tmpDir );
+        dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
         // gosh this is a terrible use of a global static variable
@@ -179,6 +178,7 @@ public class JdbmTableNoDuplicatesTest
     
     /**
      * Let's test keys with a null or lack of any values.
+     * @throws Exception on error
      */
     @Test
     public void testNullOrEmptyKeyValue() throws Exception

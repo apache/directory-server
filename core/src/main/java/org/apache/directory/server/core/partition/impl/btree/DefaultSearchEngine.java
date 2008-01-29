@@ -86,18 +86,11 @@ public class DefaultSearchEngine implements SearchEngine
 
 
     public NamingEnumeration search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
-        throws NamingException
+        throws Exception
     {
         Name effectiveBase;
         Long baseId = db.getEntryId( base.toString() );
-        try
-        {
-            String aliasedBase = ( String ) db.getAliasIndex().reverseLookup( baseId );
-        }
-        catch ( java.io.IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        String aliasedBase = ( String ) db.getAliasIndex().reverseLookup( baseId );
 
         // --------------------------------------------------------------------
         // Determine the eective base with aliases
