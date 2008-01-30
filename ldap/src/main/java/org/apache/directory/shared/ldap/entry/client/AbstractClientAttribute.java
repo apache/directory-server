@@ -50,7 +50,6 @@ public abstract class AbstractClientAttribute implements ClientAttribute
     /** The User provided ID */
     protected String upId;
 
-    
     // -----------------------------------------------------------------------
     // utility methods
     // -----------------------------------------------------------------------

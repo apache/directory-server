@@ -26,6 +26,9 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Iterator;
 
 
@@ -162,6 +165,18 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     {
         add( vals );
         setUpId( upId );
+    }
+
+
+    /**
+     * Get's the attribute identifier. Its value is the same than the
+     * user provided ID.
+     *
+     * @return the attribute's identifier
+     */
+    public String getId()
+    {
+        return upId;
     }
 
 
@@ -594,6 +609,18 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     public Iterator<ClientValue<?>> iterator()
     {
         return values.iterator();
+    }
+    
+    
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        // Do nothing...
+    }
+    
+    
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        // Do nothing...
     }
     
     

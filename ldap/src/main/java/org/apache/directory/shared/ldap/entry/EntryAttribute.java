@@ -18,7 +18,7 @@
  */
 package org.apache.directory.shared.ldap.entry;
 
-import java.io.Serializable;
+import java.io.Externalizable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,7 +33,7 @@ import javax.naming.directory.InvalidAttributeValueException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface EntryAttribute<T extends Value<?>> extends Iterable<T>, Serializable, Cloneable
+public interface EntryAttribute<T extends Value<?>> extends Iterable<T>,  Externalizable, Cloneable
 {
     /**
      * Adds some values to this attribute. If the new values are already present in
@@ -130,7 +130,7 @@ public interface EntryAttribute<T extends Value<?>> extends Iterable<T>, Seriali
      * @param vals the values
      * @return true if this attribute contains all the values, otherwise false
      */
-    boolean contains( String... vals );
+    boolean contains( String... vals ) throws NamingException;
 
 
     /**
@@ -139,7 +139,7 @@ public interface EntryAttribute<T extends Value<?>> extends Iterable<T>, Seriali
      * @param vals the values
      * @return true if this attribute contains all the values, otherwise false
      */
-    boolean contains( byte[]... vals );
+    boolean contains( byte[]... vals ) throws NamingException;
 
 
     /**
@@ -148,7 +148,7 @@ public interface EntryAttribute<T extends Value<?>> extends Iterable<T>, Seriali
      * @param vals the values
      * @return true if this attribute contains all the values, otherwise false
      */
-    boolean contains( Object... vals );
+    boolean contains( Object... vals ) throws NamingException;
 
 
    /**
@@ -200,6 +200,16 @@ public interface EntryAttribute<T extends Value<?>> extends Iterable<T>, Seriali
 
 
     /**
+     * Get's the attribute identifier for this entry.  This is the value
+     * that will be used as the identifier for the attribute within the
+     * entry.  
+     *
+     * @return the identifier for this attribute
+     */
+    String getId();
+
+    
+    /**
      * Get's the user provided identifier for this entry.  This is the value
      * that will be used as the identifier for the attribute within the
      * entry.  If this is a commonName attribute for example and the user
@@ -247,7 +257,7 @@ public interface EntryAttribute<T extends Value<?>> extends Iterable<T>, Seriali
      * @param vals the values
      * @return true if this attribute contains all the values, otherwise false
      */
-    boolean contains( T... vals );
+    boolean contains( T... vals ) throws NamingException;
 
     
     /**

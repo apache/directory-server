@@ -45,6 +45,9 @@ public abstract class AbstractBinaryValue implements Value<byte[]>
     
     /** the wrapped binary value */
     private byte[] wrapped;
+    
+    /** A flag set when the value has been normalized */
+    private transient boolean normalized;
 
 
     // -----------------------------------------------------------------------
@@ -92,6 +95,7 @@ public abstract class AbstractBinaryValue implements Value<byte[]>
      */
     public AbstractBinaryValue()
     {
+        normalized = false;
     }
 
 
@@ -103,6 +107,8 @@ public abstract class AbstractBinaryValue implements Value<byte[]>
     public AbstractBinaryValue( byte[] wrapped )
     {
         set( wrapped );
+        
+        normalized = false;
     }
 
 
@@ -117,6 +123,8 @@ public abstract class AbstractBinaryValue implements Value<byte[]>
         {
             wrapped = value.getCopy();
         }
+        
+        normalized = false;
     }
 
 
@@ -283,6 +291,28 @@ public abstract class AbstractBinaryValue implements Value<byte[]>
         {
             return null;
         }
+    }
+    
+    
+    /**
+     * Tells if the value has already be normalized or not.
+     *
+     * @return <code>true</code> if the value has already been normalized.
+     */
+    public boolean isNormalized()
+    {
+        return normalized;
+    }
+
+    
+    /**
+     * Set the normalized flag.
+     * 
+     * @param the value : true or false
+     */
+    public void setNormalized( boolean normalized )
+    {
+        this.normalized = normalized;
     }
 
     

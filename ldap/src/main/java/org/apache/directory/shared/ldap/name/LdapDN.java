@@ -1726,6 +1726,8 @@ public class LdapDN implements Name, Externalizable
                 out.writeObject( rdn );
             }
         }
+        
+        out.flush();
     }
 
 

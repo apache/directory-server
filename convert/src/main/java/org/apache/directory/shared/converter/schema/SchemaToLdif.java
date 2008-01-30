@@ -100,7 +100,6 @@ public class SchemaToLdif
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
                 throw new ParserException( "Failed while generating sources for " + schema.getName() );
             }
         }

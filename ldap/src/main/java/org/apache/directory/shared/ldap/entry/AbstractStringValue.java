@@ -41,6 +41,10 @@ public abstract class AbstractStringValue implements Value<String>
     private String wrapped;
 
 
+    /** A flag set when the value has been normalized */
+    private transient boolean normalized;
+
+
     // -----------------------------------------------------------------------
     // utility methods
     // -----------------------------------------------------------------------
@@ -183,7 +187,29 @@ public abstract class AbstractStringValue implements Value<String>
     }
 
 
-//    public int compareTo( Value<String> value )
+    /**
+     * Tells if the value has already be normalized or not.
+     *
+     * @return <code>true</code> if the value has already been normalized.
+     */
+    public boolean isNormalized()
+    {
+        return normalized;
+    }
+
+    
+    /**
+     * Set the normalized flag.
+     * 
+     * @param the value : true or false
+     */
+    public void setNormalized( boolean normalized )
+    {
+        this.normalized = normalized;
+    }
+
+    
+    //    public int compareTo( Value<String> value )
 //    {
 //        if ( value == null && wrapped == null )
 //        {
