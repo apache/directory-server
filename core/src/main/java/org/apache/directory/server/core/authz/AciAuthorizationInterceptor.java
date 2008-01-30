@@ -60,9 +60,9 @@ import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -71,8 +71,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -576,7 +574,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        List<ModificationItemImpl> mods = opContext.getModItems();
+        List<Modification> mods = opContext.getModItems();
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
@@ -603,28 +601,28 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Collection<MicroOperation> perms = null;
         ServerEntry entryView = ( ServerEntry ) entry.clone();
         
-        for ( ModificationItemImpl mod : mods )
+        for ( Modification mod : mods )
         {
-            Attribute attr = mod.getAttribute();
+            ServerAttribute attr = (ServerAttribute)mod.getAttribute();
 
-            switch ( mod.getModificationOp() )
+            switch ( mod.getOperation() )
             {
-                case ( DirContext.ADD_ATTRIBUTE ):
+                case ADD_ATTRIBUTE :
                     perms = ADD_PERMS;
                 
                     // If the attribute is being created with an initial value ...
-                    if ( entry.get( attr.getID() ) == null )
+                    if ( entry.get( attr.getId() ) == null )
                     {
                         // ... we also need to check if adding the attribute is permitted
                         engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                                attr.getID(), null, perms, tuples, entry, null );
+                                attr.getId(), null, perms, tuples, entry, null );
                     }
                     
                     break;
 
-                case ( DirContext.REMOVE_ATTRIBUTE ):
+                case REMOVE_ATTRIBUTE :
                     perms = REMOVE_PERMS;
-                    ServerAttribute entryAttr = entry.get( attr.getID() );
+                    ServerAttribute entryAttr = entry.get( attr.getId() );
 
                     if ( entryAttr != null )
                     {
@@ -633,13 +631,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                         {
                             // ... we also need to check if removing the attribute at all is permitted
                             engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                                    attr.getID(), null, perms, tuples, entry, null );
+                                    attr.getId(), null, perms, tuples, entry, null );
                         }
                     }
                     
                     break;
 
-                case ( DirContext.REPLACE_ATTRIBUTE ):
+                case REPLACE_ATTRIBUTE :
                     perms = REPLACE_PERMS;
                     break;
             }
@@ -659,10 +657,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
              */
             entryView = ServerEntryUtils.getTargetEntry( mod, entryView, registries );
             
-            for ( int jj = 0; jj < attr.size(); jj++ )
+            for ( ServerValue<?> value:attr )
             {                
                 engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                        attr.getID(), attr.get( jj ), perms, tuples, entry, entryView );
+                        attr.getId(), value, perms, tuples, entry, entryView );
             }
         }
 

@@ -453,7 +453,6 @@ public class ReplicationInterceptor extends BaseInterceptor
             }
             catch ( NameNotFoundException e )
             {
-                System.out.println( e.toString( true ) );
                 hasEntry = false;
             }
         }

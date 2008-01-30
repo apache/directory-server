@@ -49,6 +49,7 @@ import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -56,7 +57,6 @@ import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.slf4j.Logger;
@@ -305,7 +305,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    private void notifyOnModify( Registries registries, LdapDN name, List<ModificationItemImpl> mods, ServerEntry oriEntry ) throws NamingException
+    private void notifyOnModify( Registries registries, LdapDN name, List<Modification> mods, ServerEntry oriEntry ) throws NamingException
     {
         ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         Set<EventSourceRecord> selecting = getSelectingSources( name, entry );

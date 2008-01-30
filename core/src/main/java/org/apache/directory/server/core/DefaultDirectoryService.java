@@ -695,11 +695,10 @@ public class DefaultDirectoryService implements DirectoryService
             {
                 ChangeLogEvent event = cursor.get();
                 Entry reverse = event.getReverseLdif();
-
+                
                 switch( reverse.getChangeType().getChangeType() )
                 {
                     case( ChangeType.ADD_ORDINAL ):
-                        //System.out.println( "Reverted attributes : --> " + reverse.getAttributes() );
                         ctx.createSubcontext( reverse.getDn(), reverse.getAttributes() );
                         break;
                     case( ChangeType.DELETE_ORDINAL ):

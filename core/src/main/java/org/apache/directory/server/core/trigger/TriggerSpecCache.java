@@ -32,10 +32,10 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -202,11 +202,11 @@ public class TriggerSpecCache
         }
 
         LdapDN normName = opContext.getDn();
-        List<ModificationItemImpl> mods = opContext.getModItems();
+        List<Modification> mods = opContext.getModItems();
 
         boolean isTriggerSpecModified = false;
 
-        for ( ModificationItemImpl mod : mods )
+        for ( Modification mod : mods )
         {
             isTriggerSpecModified |= mod.getAttribute().contains( PRESCRIPTIVE_TRIGGER_ATTR );
         }

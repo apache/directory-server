@@ -21,7 +21,8 @@ package org.apache.directory.server.core.schema;
 
 
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
@@ -44,10 +45,10 @@ public interface SchemaChangeHandler
     
     void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascaded ) throws NamingException;
     
-    void modify( LdapDN name, int modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded ) 
+    void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded ) 
         throws NamingException;
     
-    void modify( LdapDN name, List<ModificationItemImpl> mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded )
+    void modify( LdapDN name, List<Modification> mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded )
         throws NamingException;
     
     void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn, ServerEntry entry,

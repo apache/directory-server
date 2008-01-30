@@ -22,6 +22,7 @@ package org.apache.directory.server.core.entry;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.AbstractBinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -90,6 +91,7 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
         }
 
         this.attributeType = attributeType;
+        setNormalized( false );
     }
 
 
@@ -103,6 +105,7 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
     {
         this( attributeType );
         super.set( wrapped );
+        setNormalized( false );
     }
 
 
@@ -135,6 +138,7 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
 
         normalizedValue = null;
         valid = null;
+        setNormalized( false );
         super.set( wrapped );
     }
 
@@ -144,6 +148,12 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
     // -----------------------------------------------------------------------
     public void normalize() throws NamingException
     {
+        if ( isNormalized() )
+        {
+            // Bypass the normalization if it has already been done. 
+            return;
+        }
+        
         if ( getReference() != null )
         {
             Normalizer normalizer = getNormalizer();
@@ -151,10 +161,12 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
             if ( normalizer == null )
             {
                 normalizedValue = getCopy();
+                setNormalized( false );
             }
             else
             {
                 normalizedValue = ( byte[] ) normalizer.normalize( getCopy() );
+                setNormalized( true );
             }
             
             if ( Arrays.equals( super.getReference(), normalizedValue ) )
@@ -170,6 +182,7 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
         {
             normalizedValue = null;
             same = true;
+            setNormalized( false );
         }
     }
 
@@ -192,7 +205,7 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
             return null;
         }
 
-        if ( normalizedValue == null )
+        if ( !isNormalized() )
         {
             normalize();
         }
@@ -275,9 +288,37 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
         {
             ServerBinaryValue binaryValue = ( ServerBinaryValue ) value;
 
+            // Normalizes the compared value
             try
             {
-                return getComparator().compare( getNormalizedReference(), binaryValue.getNormalizedReference() );
+                binaryValue.normalize();
+            }
+            catch ( NamingException ne )
+            {
+                LOG.error( "Cannot nnormalize the wrapped value '" + binaryValue.get() + "'" );
+            }
+            
+            // Normalizes the value
+            try
+            {
+                normalize();
+            }
+            catch ( NamingException ne )
+            {
+                LOG.error( "Cannot normalize the wrapped value '" + get() + "'" );
+            }
+            try
+            {
+                Comparator comparator = getComparator();
+                
+                if ( comparator != null )
+                {
+                    return getComparator().compare( getNormalizedReference(), binaryValue.getNormalizedReference() );
+                }
+                else
+                {
+                    return ByteArrayComparator.INSTANCE.compare( getNormalizedReference(), binaryValue.getNormalizedReference() );
+                }
             }
             catch ( NamingException e )
             {
@@ -377,6 +418,9 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
             return false;
         }
 
+        return compareTo( (ServerValue<byte[]>)other ) == 0;
+        
+        /*
         // now unlike regular values we have to compare the normalized values
         try
         {
@@ -392,6 +436,7 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
             // recover by comparing non-normalized values
             return Arrays.equals( getReference(), other.getReference() );
         }
+        */
     }
 
 
@@ -543,12 +588,14 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
                 case -1 :
                     // No value, no normalized value
                     same = true;
+                    setNormalized( false );
                     break;
                     
                 case 0 :
                     // Empty value, so is the normalized value
                     wrapped = StringTools.EMPTY_BYTES;
                     normalizedValue = wrapped;
+                    setNormalized( true );
                     same = true;
                     break;
                     
@@ -570,12 +617,14 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
                         case 0 :
                             normalizedValue = StringTools.EMPTY_BYTES;
                             same = true;
+                            setNormalized( false );
                             break;
                             
                         default :
                             same = false;
                             normalizedValue = new byte[normalizedLength];
                             in.readFully( normalizedValue );
+                            setNormalized( true );
                             break;
                     }
                     

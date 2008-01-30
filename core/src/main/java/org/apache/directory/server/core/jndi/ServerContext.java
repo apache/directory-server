@@ -42,6 +42,7 @@ import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -411,7 +412,8 @@ public abstract class ServerContext implements EventContext
     protected void doModifyOperation( LdapDN dn, List<ModificationItemImpl> modItems ) throws NamingException
     {
         // setup the op context and populate with request controls
-        ModifyOperationContext opCtx = new ModifyOperationContext( registries, dn, modItems );
+        List<Modification> newMods = ServerEntryUtils.toServerModification( modItems, registries.getAttributeTypeRegistry() );
+        ModifyOperationContext opCtx = new ModifyOperationContext( registries, dn, newMods );
         opCtx.addRequestControls( requestControls );
         
         // execute modify operation

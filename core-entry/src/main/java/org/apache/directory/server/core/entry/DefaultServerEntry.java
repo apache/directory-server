@@ -115,16 +115,15 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
 
     
     /**
-     * Creates a new instance of DefaultServerEntry.
+     * Creates a new instance of DefaultServerEntry. This is a private constructor
+     * which will only be used by the desrialization method 
      * <p>
      * This entry <b>must</b> be initialized before being used !
      */
-    /*public DefaultServerEntry()
+    public DefaultServerEntry()
     {
         registries = null;
-        
-        initObjectClassAT( registries );
-    }*/
+    }
 
 
     /**
@@ -1695,19 +1694,62 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
+        // First, the DN
         if ( dn == null )
         {
-            // We don't have a DN, so write a -1 instead of a real length
+            // Write an empty DN
+            LdapDN.EMPTY_LDAPDN.writeExternal( out );
+        }
+        else
+        {
+            // Write the DN
+            out.writeObject( dn );
+        }
+        
+        // Then the attributes. 
+        if ( serverAttributeMap == null )
+        {
             out.writeInt( -1 );
         }
         else
         {
-            // Here, we should ask ourselves if it would not be better
-            // to serialize the current LdapDN instead of a String.
-            String dnString = dn.getUpName();
-            out.writeInt( dnString.length() );
-            out.writeUTF( dnString );
+            out.writeInt( serverAttributeMap.size() );
             
+            // Iterate through the keys. We store the Attribute
+            // here, to be able to restore it in the readExternal :
+            // we need access to the registries, which are not available
+            // in the ServerAttribute class.
+            for ( AttributeType attributeType:serverAttributeMap.keySet() )
+            {
+                // We store the OID, as the AttributeType might have no name
+                out.writeUTF( attributeType.getOid() );
+                
+                // And store the attribute.
+                ServerAttribute attribute = serverAttributeMap.get( attributeType );
+
+                // Store the UP id
+                out.writeUTF( attribute.getUpId() );
+                
+                // The number of values
+                int nbValues = attribute.size();
+                
+                if ( nbValues == 0 ) 
+                {
+                    out.writeInt( 0 );
+                }
+                else 
+                {
+                    out.writeInt( nbValues );
+
+                    for ( ServerValue<?> value:attribute )
+                    {
+                        out.writeObject( value );
+                    }
+                }
+            }
+
+            // Note : we don't store the ObjectClassAttribute. I has already
+            // been stored as an attribute.
         }
         
         out.flush();
@@ -1719,67 +1761,52 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        if ( in.available() == 0 )
+        /*if ( in.available() == 0 )
         {
             String message = "Cannot read an null Attribute";
             LOG.error( message );
             throw new IOException( message );
-        }
-        else
-        {
-            // Read the HR flag
-            boolean hr = in.readBoolean();
-        }
-        /*
-            // Read the UPid
-            upId = in.readUTF();
-
-            // Read the number of values
-            int nbValues = in.readInt();
-            
-            switch ( nbValues )
-            {
-                case -1 :
-                    values = null;
-                    break;
-                    
-                case 0 :
-                    values = new ArrayList<ServerValue<?>>();
-                    break;
-                    
-                default :
-                    values = new ArrayList<ServerValue<?>>();
-                
-                    for ( int i = 0; i < nbValues; i++ )
-                    {
-                        if ( hr )
-                        {
-                            ServerStringValue value = new ServerStringValue( attributeType ); 
-                    }
-                    
-                    break;
-            }
-            if ( nbValues != 0 )
-            {
-                
-            }
-            else
-            {
-                
-            }
-            //
-            String wrapped = in.readUTF();
-            
-            set( wrapped );
-            
-            normalizedValue = in.readUTF();
-            
-            if ( ( normalizedValue.length() == 0 ) &&  ( wrapped.length() != 0 ) )
-            {
-                // In this case, the normalized value is equal to the UP value
-                normalizedValue = wrapped;
-            }
         }*/
+
+        // Read the DN
+        LdapDN dn = (LdapDN)in.readObject();
+        
+        // Read the number of attributes
+        int nbAttributes = in.readInt();
+        
+        serverAttributeMap = new HashMap<AttributeType, ServerAttribute>();
+
+        // Read the attributes
+        for ( int i = 0; i < nbAttributes; i++ )
+        {
+            String oid = in.readUTF();
+            
+            try
+            {
+                AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( oid );
+                
+                ServerAttribute attribute = new DefaultServerAttribute( attributeType );
+                
+                // Read the attribute upID
+                String upId = in.readUTF();
+                attribute.setUpId( upId, attributeType );
+                
+                // Read the number of values
+                int nbValues = in.readInt();
+                
+                for ( int j = 0; j < nbValues; j++ )
+                {
+                    ServerValue<?> value = (ServerValue<?>)in.readObject();
+                    attribute.add( value );
+                }
+                
+                serverAttributeMap.put(  attributeType, attribute );
+            }
+            catch ( NamingException ne )
+            {
+                
+            }
+        }
     }
 
         

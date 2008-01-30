@@ -39,14 +39,13 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,7 +179,8 @@ public class ChangeLogInterceptor extends BaseInterceptor
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
         ServerEntry serverEntry = null;
-        boolean isDelete = AttributeUtils.getAttribute( opContext.getModItems(), entryDeleted ) != null;
+        Modification modification = ServerEntryUtils.getModificationItem( opContext.getModItems(), entryDeleted );
+        boolean isDelete = ( modification != null );
 
         if ( ! isDelete && ( changeLog.isEnabled() && ! opContext.isCollateralOperation() ) )
         {
@@ -204,12 +204,17 @@ public class ChangeLogInterceptor extends BaseInterceptor
         Entry forward = new Entry();
         forward.setChangeType( ChangeType.Modify );
         forward.setDn( opContext.getDn().getUpName() );
-        for ( ModificationItemImpl modItem : opContext.getModItems() )
+        
+        for ( Modification modItem : opContext.getModItems() )
         {
-            forward.addModificationItem( modItem );
+            forward.addModificationItem( ServerEntryUtils.toModificationItemImpl( modItem ) );
         }
 
-        Entry reverse = LdifUtils.reverseModify( opContext.getDn(), opContext.getModItems(), ServerEntryUtils.toAttributesImpl( serverEntry ) );
+        Entry reverse = LdifUtils.reverseModify( 
+            opContext.getDn(), 
+            ServerEntryUtils.toModificationItemImpl( opContext.getModItems() ), 
+            ServerEntryUtils.toAttributesImpl( serverEntry ) );
+        
         changeLog.log( getPrincipal(), forward, reverse );
     }
 
@@ -243,6 +248,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         Entry reverse = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), null, renameContext.getDn(),
                 new Rdn( renameContext.getNewRdn() ) );
+        
         changeLog.log( getPrincipal(), forward, reverse );
     }
 

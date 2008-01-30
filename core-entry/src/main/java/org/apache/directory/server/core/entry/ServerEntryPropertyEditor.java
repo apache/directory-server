@@ -167,7 +167,6 @@ public class ServerEntryPropertyEditor extends PropertyEditorSupport
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             return null;
         }
     }

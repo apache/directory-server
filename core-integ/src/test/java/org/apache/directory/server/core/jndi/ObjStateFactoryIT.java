@@ -186,7 +186,6 @@ public class ObjStateFactoryIT
             throws Exception
         {
             // Only interested in Attributes with "person" objectclass
-            // System.out.println("object factory: " + attrs);
             Attribute oc = ( attrs != null ? attrs.get( "objectclass" ) : null );
             if ( oc != null && oc.contains( "person" ) )
             {

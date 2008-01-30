@@ -43,6 +43,7 @@ import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -372,7 +373,7 @@ public class SchemaCheckerTest extends TestCase
 
         // this should pass
         LdapDN name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
-        int mod = DirContext.REPLACE_ATTRIBUTE;
+        ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, new DefaultServerAttribute( "cn", CN_AT ) );
 
         // this should succeed since person is still in replaced set and is structural
@@ -417,7 +418,7 @@ public class SchemaCheckerTest extends TestCase
     {
         AttributeTypeRegistry atReg = registries.getAttributeTypeRegistry();
         LdapDN name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
-        int mod = DirContext.REMOVE_ATTRIBUTE;
+        ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
         AttributeType ocAt = atReg.lookup( "objectClass" );
         
         ServerAttribute entryObjectClasses = new DefaultServerAttribute( "objectClass", ocAt );
@@ -479,7 +480,7 @@ public class SchemaCheckerTest extends TestCase
     public void testPreventRdnChangeOnModifyRemoveAttribute() throws Exception
     {
         OidRegistry registry = new MockOidRegistry();
-        int mod = DirContext.REMOVE_ATTRIBUTE;
+        ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
         LdapDN name = new LdapDN( "ou=user,dc=example,dc=com" );
         AttributeType cnAt = registries.getAttributeTypeRegistry().lookup( "cn" );
         AttributeType ouAt = registries.getAttributeTypeRegistry().lookup( "ou" );

@@ -30,11 +30,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 
@@ -44,7 +39,7 @@ import java.util.Iterator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class DefaultServerAttribute extends AbstractServerAttribute implements Externalizable
+public final class DefaultServerAttribute extends AbstractServerAttribute
 {
     /** Used for serialization */
     public static final long serialVersionUID = 2L;
@@ -770,119 +765,5 @@ public final class DefaultServerAttribute extends AbstractServerAttribute implem
         }
         
         return sb.toString();
-    }
-
-    
-    /**
-     * @see Externalizable#writeExternal(ObjectOutput)
-     * 
-     * We have to store the UPid, and all the values, if any.
-     */
-    public void writeExternal( ObjectOutput out ) throws IOException
-    {
-        // Store the attribute's HR : true means H/R, false is for binary
-        try
-        {
-            out.writeBoolean( attributeType.getSyntax().isHumanReadable() );
-        }
-        catch ( NamingException ne )
-        {
-            out.writeBoolean( false );
-        }
-        
-        // Store the UP id
-        out.writeUTF( upId );
-        
-        // The number of values
-        if ( values == null ) 
-        {
-            out.writeInt( -1 );
-        }
-        else if ( values.size() == 0 )
-        {
-            out.writeInt( 0 );
-        }
-        else
-        {
-            out.writeInt( values.size() );
-
-            for ( ServerValue<?> value:values )
-            {
-                out.writeObject( value );
-            }
-        }
-        
-        out.flush();
-    }
-
-    
-    /**
-     * @see Externalizable#readExternal(ObjectInput)
-     */
-    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
-    {
-        if ( in.available() == 0 )
-        {
-            String message = "Cannot read an null Attribute";
-            LOG.error( message );
-            throw new IOException( message );
-        }
-        else
-        {
-            // Read the HR flag
-            boolean hr = in.readBoolean();
-            
-            // Read the UPid
-            upId = in.readUTF();
-
-            // Read the number of values
-            int nbValues = in.readInt();
-            
-            switch ( nbValues )
-            {
-                case -1 :
-                    values = null;
-                    break;
-                    
-                case 0 :
-                    values = new ArrayList<ServerValue<?>>();
-                    break;
-                    
-                default :
-                    values = new ArrayList<ServerValue<?>>();
-                
-                    for ( int i = 0; i < nbValues; i++ )
-                    {
-                        if ( hr )
-                        {
-                            ServerStringValue value = new ServerStringValue( attributeType );
-                        }
-                    }
-                    
-                    break;
-            }
-                    
-            if ( nbValues != 0 )
-            {
-                
-            }
-            else
-            {
-                
-            }
-
-            String wrapped = in.readUTF();
-            /**
-            set( wrapped );
-            
-            normalizedValue = in.readUTF();
-            
-            if ( ( normalizedValue.length() == 0 ) &&  ( wrapped.length() != 0 ) )
-            {
-                // In this case, the normalized value is equal to the UP value
-                normalizedValue = wrapped;
-            }
-            */
-        }
     }
 }

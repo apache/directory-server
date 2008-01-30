@@ -23,8 +23,10 @@ package org.apache.directory.server.core.bootstrap.plugin;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -49,9 +51,9 @@ import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -67,7 +69,6 @@ import org.codehaus.plexus.util.FileUtils;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -838,10 +839,13 @@ public class BootstrapPlugin extends AbstractMojo
                 + "," + SchemaConstants.OU_AT + "=schema" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
-        ModificationItemImpl mod = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
-                new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT, "TRUE" ) );
+        Modification mod = new ServerModification( ModificationOperation.ADD_ATTRIBUTE,
+                new DefaultServerAttribute( 
+                    MetaSchemaConstants.M_DISABLED_AT, 
+                    registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DISABLED_AT ),
+                    "TRUE" ) );
         
-        List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>();
+        List<Modification> mods = new ArrayList<Modification>();
         mods.add( mod );
         store.modify( dn, mods );
     }

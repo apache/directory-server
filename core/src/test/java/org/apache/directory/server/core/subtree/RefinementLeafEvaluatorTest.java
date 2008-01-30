@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.subtree;
 
 
-import junit.framework.TestCase;
-
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.DefaultDirectoryService;

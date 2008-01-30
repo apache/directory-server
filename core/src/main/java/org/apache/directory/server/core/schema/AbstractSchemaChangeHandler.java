@@ -25,8 +25,9 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -100,14 +101,14 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
         throws NamingException;
     
     
-    public final void modify( LdapDN name, int modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, 
+    public final void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, 
         boolean cascade ) throws NamingException
     {
         modify( name, entry, targetEntry, cascade );
     }
 
 
-    public final void modify( LdapDN name, List<ModificationItemImpl> mods, ServerEntry entry,
+    public final void modify( LdapDN name, List<Modification> mods, ServerEntry entry,
         ServerEntry targetEntry, boolean cascade ) throws NamingException
     {
         modify( name, entry, targetEntry, cascade );

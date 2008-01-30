@@ -70,12 +70,12 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -86,9 +86,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -145,29 +142,6 @@ public class ReferralInterceptor extends BaseInterceptor
         c.add( EventInterceptor.class.getName() );
         c.add( TriggerInterceptor.class.getName() );
         SEARCH_BYPASS = Collections.unmodifiableCollection( c );
-    }
-
-
-    static boolean hasValue( Attribute attr, String value ) throws NamingException
-    {
-        if ( attr == null )
-        {
-            return false;
-        }
-        
-        for ( int ii = 0; ii < attr.size(); ii++ )
-        {
-            if ( !( attr.get( ii ) instanceof String ) )
-            {
-                continue;
-            }
-            
-            if ( value.equalsIgnoreCase( ( String ) attr.get( ii ) ) )
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
 
@@ -773,7 +747,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    private void checkModify( LdapDN name, List<ModificationItemImpl> mods ) throws NamingException
+    private void checkModify( LdapDN name, List<Modification> mods ) throws NamingException
     {
         boolean isTargetReferral = lut.isReferral( name );
 
@@ -781,19 +755,19 @@ public class ReferralInterceptor extends BaseInterceptor
         // Check and update lut if we change the objectClass 
         // -------------------------------------------------------------------
 
-        for ( ModificationItem mod : mods )
+        for ( Modification mod : mods )
         {
-            if ( mod.getAttribute().getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
+            if ( mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
             {
-                boolean modsOcHasReferral = hasValue( mod.getAttribute(), SchemaConstants.REFERRAL_OC );
+                boolean modsOcHasReferral = ((ServerAttribute)mod.getAttribute()).contains( SchemaConstants.REFERRAL_OC );
 
-                switch ( mod.getModificationOp() )
+                switch ( mod.getOperation() )
                 {
                     /* 
                      * if ADD op where refferal is added to objectClass of a
                      * non-referral entry then we add a new referral to lut
                      */
-                    case ( DirContext.ADD_ATTRIBUTE ):
+                    case ADD_ATTRIBUTE :
                         if ( modsOcHasReferral && !isTargetReferral )
                         {
                             lut.referralAdded( name );
@@ -805,7 +779,7 @@ public class ReferralInterceptor extends BaseInterceptor
                         * if REMOVE op where refferal is removed from objectClass of a
                         * referral entry then we remove the referral from lut
                         */
-                    case ( DirContext.REMOVE_ATTRIBUTE ):
+                    case REMOVE_ATTRIBUTE :
                         if ( modsOcHasReferral && isTargetReferral )
                         {
                             lut.referralDeleted( name );
@@ -821,7 +795,7 @@ public class ReferralInterceptor extends BaseInterceptor
                         * if REPLACE op on non-referral has new set of OC values with
                         * referral value then we add the new referral to the lut
                         */
-                    case ( DirContext.REPLACE_ATTRIBUTE ):
+                    case REPLACE_ATTRIBUTE :
                         if ( isTargetReferral && !modsOcHasReferral )
                         {
                             lut.referralDeleted( name );
@@ -849,7 +823,7 @@ public class ReferralInterceptor extends BaseInterceptor
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
         LdapDN name = opContext.getDn();
-        List<ModificationItemImpl> mods = opContext.getModItems();
+        List<Modification> mods = opContext.getModItems();
 
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )

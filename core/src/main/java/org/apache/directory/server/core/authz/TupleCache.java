@@ -34,11 +34,11 @@ import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
@@ -233,19 +233,16 @@ public class TupleCache
     }
 
 
-    public void subentryModified( LdapDN normName, List<ModificationItemImpl> mods, ServerEntry entry ) throws NamingException
+    public void subentryModified( LdapDN normName, List<Modification> mods, ServerEntry entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
             return;
         }
 
-        for ( ModificationItemImpl mod : mods )
+        for ( Modification mod : mods )
         {
-            String attrID = mod.getAttribute().getID();
-            
-            if ( attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT ) ||
-                    attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT_OID ) )
+            if ( ((ServerAttribute)mod.getAttribute()).isA( SchemaConstants.PRESCRIPTIVE_ACI_AT ) )
             {
                 subentryDeleted( normName, entry );
                 subentryAdded( normName, entry );

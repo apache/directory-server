@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 
 import java.io.File;
 import java.util.HashSet;

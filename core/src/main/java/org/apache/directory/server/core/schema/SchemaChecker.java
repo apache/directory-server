@@ -26,6 +26,7 @@ import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -75,10 +76,10 @@ public class SchemaChecker
      * @throws NamingException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
      */
-    public static void preventStructuralClassRemovalOnModifyReplace( ObjectClassRegistry registry, LdapDN name, int mod,
+    public static void preventStructuralClassRemovalOnModifyReplace( ObjectClassRegistry registry, LdapDN name, ModificationOperation mod,
         ServerAttribute attribute ) throws NamingException
     {
-        if ( mod != DirContext.REPLACE_ATTRIBUTE )
+        if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
             return;
         }
@@ -198,10 +199,10 @@ public class SchemaChecker
      * @throws NamingException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
      */
-    public static void preventStructuralClassRemovalOnModifyRemove( ObjectClassRegistry registry, LdapDN name, int mod,
+    public static void preventStructuralClassRemovalOnModifyRemove( ObjectClassRegistry registry, LdapDN name, ModificationOperation mod,
         ServerAttribute attribute, ServerAttribute entryObjectClasses ) throws NamingException
     {
-        if ( mod != DirContext.REMOVE_ATTRIBUTE )
+        if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
         {
             return;
         }
@@ -380,10 +381,10 @@ public class SchemaChecker
      * @param attribute the attribute being modified
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyReplace( LdapDN name, int mod, ServerAttribute attribute, OidRegistry oidRegistry )
+    public static void preventRdnChangeOnModifyReplace( LdapDN name, ModificationOperation mod, ServerAttribute attribute, OidRegistry oidRegistry )
         throws NamingException
     {
-        if ( mod != DirContext.REPLACE_ATTRIBUTE )
+        if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
             return;
         }
@@ -530,10 +531,10 @@ public class SchemaChecker
      * @param attribute the attribute being modified
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyRemove( LdapDN name, int mod, ServerAttribute attribute, 
+    public static void preventRdnChangeOnModifyRemove( LdapDN name, ModificationOperation mod, ServerAttribute attribute, 
         OidRegistry oidRegistry ) throws NamingException
     {
-        if ( mod != DirContext.REMOVE_ATTRIBUTE )
+        if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
         {
             return;
         }

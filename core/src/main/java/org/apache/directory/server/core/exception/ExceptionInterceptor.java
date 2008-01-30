@@ -44,13 +44,14 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -58,8 +59,6 @@ import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 
 import java.util.List;
@@ -319,24 +318,23 @@ public class ExceptionInterceptor extends BaseInterceptor
         assertHasEntry( nextInterceptor, msg, opContext.getDn() );
 
         ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, opContext.getDn() ) );
-        List<ModificationItemImpl> items = opContext.getModItems();
+        List<Modification> items = opContext.getModItems();
 
-        for ( ModificationItemImpl item : items )
+        for ( Modification item : items )
         {
-            if ( item.getModificationOp() == DirContext.ADD_ATTRIBUTE )
+            if ( item.getOperation() == ModificationOperation.ADD_ATTRIBUTE )
             {
-                Attribute modAttr = item.getAttribute();
-                ServerAttribute entryAttr = entry.get( modAttr.getID() );
+                ServerAttribute modAttr = (ServerAttribute)item.getAttribute();
+                ServerAttribute entryAttr = entry.get( modAttr.getId() );
 
                 if ( entryAttr != null )
                 {
-                    for ( int jj = 0; jj < modAttr.size(); jj++ )
+                    for ( ServerValue<?> value:modAttr )
                     {
-                        // TODO Fix DIRSERVER-832
-                        if ( entryAttr.contains( modAttr.get( jj ) ) )
+                        if ( entryAttr.contains( value ) )
                         {
-                            throw new LdapAttributeInUseException( "Trying to add existing value '" + modAttr.get( jj )
-                                    + "' to attribute " + modAttr.getID() );
+                            throw new LdapAttributeInUseException( "Trying to add existing value '" + value
+                                    + "' to attribute " + modAttr.getId() );
                         }
                     }
                 }

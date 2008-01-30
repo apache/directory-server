@@ -86,6 +86,7 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
         }
 
         this.attributeType = attributeType;
+        setNormalized( false );
     }
 
 
@@ -98,7 +99,9 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
     public ServerStringValue( AttributeType attributeType, String wrapped )
     {
         this( attributeType );
+        set( wrapped );
         super.set( wrapped );
+        setNormalized( false );
     }
 
 
@@ -124,9 +127,56 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
             return;
         }
 
-        normalizedValue = null;
+        setNormalized( false );
         valid = null;
         super.set( wrapped );
+
+        /*
+        try
+        {
+            Normalizer normalizer = getNormalizer();
+            
+            if ( normalizer != null )
+            {
+                normalizedValue = (String)getNormalizer().normalize( wrapped );
+            }
+            else
+            {
+                normalizedValue = wrapped;
+            }
+            
+            // This is a special case : null values are allowed in LDAP 
+            if ( normalizedValue == null )
+            {
+                valid = true;
+                return;
+            }
+
+            valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( normalizedValue );
+            
+            if ( !valid )
+            {
+                String message = "The wrapped value '" + wrapped + "'is not valid";
+                LOG.warn( message );
+            }
+        }
+        catch ( NamingException ne )
+        {
+            String message = "The wrapped value '" + wrapped + "'is not valid";
+            try
+            {
+                Normalizer normalizer = getNormalizer();
+                normalizedValue = (String)getNormalizer().normalize( wrapped );
+                valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( normalizedValue );
+            }
+            catch ( Exception e )
+            {
+                
+            }
+            LOG.error( message );
+            throw new IllegalArgumentException( message );
+        }
+        */
     }
 
 
@@ -141,15 +191,23 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
      */
     public void normalize() throws NamingException
     {
+        // If the value is already normalized, get out.
+        if ( isNormalized() )
+        {
+            return;
+        }
+        
         Normalizer normalizer = getNormalizer();
 
         if ( normalizer == null )
         {
             normalizedValue = get();
+            setNormalized( false );
         }
         else
         {
             normalizedValue = ( String ) normalizer.normalize( get() );
+            setNormalized( true );
         }
     }
 
@@ -171,7 +229,7 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
             return null;
         }
 
-        if ( normalizedValue == null )
+        if ( !isNormalized() )
         {
             normalize();
         }
@@ -227,6 +285,27 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
         if ( value instanceof ServerStringValue )
         {
             ServerStringValue stringValue = ( ServerStringValue ) value;
+            
+            // Normalizes the compared value
+            try
+            {
+                stringValue.normalize();
+            }
+            catch ( NamingException ne )
+            {
+                LOG.error( "Cannot nnormalize the wrapped value '" + stringValue.get() + "'" );
+            }
+            
+            // Normalizes the value
+            try
+            {
+                normalize();
+            }
+            catch ( NamingException ne )
+            {
+                LOG.error( "Cannot normalize the wrapped value '" + get() + "'" );
+            }
+
             try
             {
                 //noinspection unchecked
@@ -328,17 +407,32 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
             return false;
         }
 
-        // now unlike regular values we have to compare the normalized values
-        try
+        // Shortcut : compare the values without normalization
+        // If they are equal, we may avoid a normalization.
+        // Note : if two values are equals, then their normalized
+        // value is equal too.
+        if ( get().equals( other.get() ) )
         {
-            return getNormalized().equals( other.getNormalized() );
+            return true;
         }
-        catch ( NamingException e )
+        else 
         {
-            String msg = "Failed to normalize while testing for equality on String values: \"";
-            msg += get() + "\"" + " and \"" + other.get() + "\"" ;
-            LOG.error( msg, e );
-            throw new IllegalStateException( msg, e );
+            try
+            {
+                // Compare normalized values
+                if ( getComparator() == null )
+                {
+                    ServerStringValue stringValue = ( ServerStringValue )other;
+
+                    return getNormalized().equals( stringValue.getNormalized() );
+                }
+            }
+            catch ( NamingException ne )
+            {
+                return this.get().equals( other.get() );
+            }
+
+            return ( compareTo( other ) == 0 );
         }
     }
 
@@ -422,7 +516,9 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
     {
         try
         {
-            return (ServerStringValue)super.clone();
+            ServerStringValue clone = (ServerStringValue)super.clone();
+            
+            return clone;
         }
         catch ( CloneNotSupportedException cnse )
         {
@@ -448,7 +544,16 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
         {
             out.writeUTF( get() );
             
-            if ( normalizedValue.equals( get() ) )
+            try
+            {
+                normalize();
+            }
+            catch ( NamingException ne )
+            {
+                normalizedValue = null;
+            }
+            
+            if ( get().equals( normalizedValue ) )
             {
                 // If the normalized value is equal to the UP value,
                 // don't save it
@@ -486,6 +591,11 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
             {
                 // In this case, the normalized value is equal to the UP value
                 normalizedValue = wrapped;
+                setNormalized( true );
+            }
+            else
+            {
+                setNormalized( false );
             }
         }
     }

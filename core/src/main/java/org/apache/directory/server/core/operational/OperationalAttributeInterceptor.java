@@ -27,10 +27,12 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -51,8 +53,8 @@ import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -62,8 +64,6 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -189,18 +189,26 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // Add the operational attributes for the modifier first
         // -------------------------------------------------------------------
         
-        List<ModificationItemImpl> modItemList = new ArrayList<ModificationItemImpl>(2);
+        List<Modification> modItemList = new ArrayList<Modification>(2);
         
-        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
-        attribute.add( getPrincipal().getName() );
-        ModificationItemImpl modifiers = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attribute );
-        modifiers.setServerModified();
+        AttributeType modifiersNameAt = atRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
+        ServerAttribute attribute = new DefaultServerAttribute( 
+            SchemaConstants.MODIFIERS_NAME_AT,
+            modifiersNameAt, 
+            getPrincipal().getName());
+
+        Modification modifiers = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+        //modifiers.setServerModified();
         modItemList.add( modifiers );
         
-        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
-        attribute.add( DateUtils.getGeneralizedTime() );
-        ModificationItemImpl timestamp = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attribute );
-        timestamp.setServerModified();
+        AttributeType modifyTimeStampAt = atRegistry.lookup( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        attribute = new DefaultServerAttribute( 
+            SchemaConstants.MODIFY_TIMESTAMP_AT,
+            modifyTimeStampAt,
+            DateUtils.getGeneralizedTime() );
+        
+        Modification timestamp = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+        //timestamp.setServerModified();
         modItemList.add( timestamp );
 
         // -------------------------------------------------------------------
@@ -227,7 +235,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         newDn.add( opContext.getNewRdn() );
         newDn.normalize( atRegistry.getNormalizerMapping() );
         
-        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( serverEntry, DirContext.REPLACE_ATTRIBUTE );
+        List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = new ModifyOperationContext( registries, newDn, items );
         
@@ -244,7 +252,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( serverEntry, DirContext.REPLACE_ATTRIBUTE );
+        List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
 
 
         ModifyOperationContext newModify = 
@@ -264,7 +272,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( serverEntry, DirContext.REPLACE_ATTRIBUTE );
+        List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = 
             new ModifyOperationContext( registries, 

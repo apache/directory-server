@@ -29,6 +29,7 @@ import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
+import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.Syntax;
@@ -299,7 +300,7 @@ public class TestServerEntryUtils
             }
             public boolean isValidSyntax( Object value )
             {
-                return ((String)value).length() < 5 ;
+                return ((String)value == null) || (((String)value).length() < 7) ;
             }
 
             public void assertSyntax( Object value ) throws NamingException
@@ -323,12 +324,17 @@ public class TestServerEntryUtils
             }
         };
         
-        mr.normalizer = new Normalizer()
-        {
+        mr.normalizer = new DeepTrimToLowerNormalizer();
+        /*{
             public static final long serialVersionUID = 1L;
             
             public Object normalize( Object value ) throws NamingException
             {
+                if ( value == null )
+                {  
+                    return null;
+                }
+                
                 if ( value instanceof String )
                 {
                     return ( ( String ) value ).toLowerCase();
@@ -336,7 +342,7 @@ public class TestServerEntryUtils
 
                 throw new IllegalStateException( "expected string to normalize" );
             }
-        };
+        };*/
         
         at.setEquality( mr );
         at.setSyntax( s );

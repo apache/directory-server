@@ -103,10 +103,6 @@ public class JdbmTable implements Table
         Serializer valueSerializer )
         throws NamingException
     {
-        /*System.out.println( "Creating BTree for " + name + ", key serializer = " + 
-            (keySerializer == null ? "null" : keySerializer.getClass().getName()) +
-            ", valueSerializer = " + 
-            (valueSerializer == null ? "null" : valueSerializer.getClass().getName()) );*/
         this.numDupLimit = numDupLimit;
         this.name = name;
         this.recMan = manager;

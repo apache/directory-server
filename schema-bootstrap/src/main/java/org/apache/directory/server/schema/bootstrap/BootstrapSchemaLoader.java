@@ -323,7 +323,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
      */
     private BootstrapProducer getProducer( BootstrapSchema schema, String producerBase ) throws NamingException
     {
-        Class clazz = null;
+        Class<?> clazz = null;
         boolean failedTargetLoad = false;
         String defaultClassName;
         String targetClassName = schema.getBaseClassName() + producerBase;

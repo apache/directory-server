@@ -18,7 +18,9 @@
  */
 package org.apache.directory.server.core.entry;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -26,11 +28,13 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -260,21 +264,21 @@ public class ServerEntryUtils
      * @return the resultant entry after the modification has taken place
      * @throws NamingException if there are problems accessing attributes
      */
-    public static ServerEntry getTargetEntry( ModificationItemImpl mod, ServerEntry entry, Registries registries ) throws NamingException
+    public static ServerEntry getTargetEntry( Modification mod, ServerEntry entry, Registries registries ) throws NamingException
     {
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
-        int modOp = mod.getModificationOp();
-        String id = mod.getAttribute().getID();
+        ModificationOperation modOp = mod.getOperation();
+        String id = mod.getAttribute().getId();
         AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( id );
         
         switch ( modOp )
         {
-            case ( DirContext.REPLACE_ATTRIBUTE  ):
-                targetEntry.put( toServerAttribute( mod.getAttribute(), attributeType ) );
+            case REPLACE_ATTRIBUTE :
+                targetEntry.put( (ServerAttribute)mod.getAttribute() );
                 break;
                 
-            case ( DirContext.REMOVE_ATTRIBUTE  ):
-                ServerAttribute toBeRemoved = toServerAttribute( mod.getAttribute(), attributeType );
+            case REMOVE_ATTRIBUTE :
+                ServerAttribute toBeRemoved = (ServerAttribute)mod.getAttribute();
 
                 if ( toBeRemoved.size() == 0 )
                 {
@@ -294,9 +298,9 @@ public class ServerEntryUtils
                 }
                 break;
                 
-            case ( DirContext.ADD_ATTRIBUTE  ):
+            case ADD_ATTRIBUTE :
                 ServerAttribute combined = new DefaultServerAttribute( id, attributeType );
-                ServerAttribute toBeAdded = toServerAttribute( mod.getAttribute(), attributeType );
+                ServerAttribute toBeAdded = (ServerAttribute)mod.getAttribute();
                 ServerAttribute existing = entry.get( id );
 
                 if ( existing != null )
@@ -366,5 +370,112 @@ public class ServerEntryUtils
         }
 
         return attr;
+    }
+    
+    
+    public static ModificationItemImpl toModificationItemImpl( Modification modification )
+    {
+        ModificationItemImpl modificationItem = new ModificationItemImpl( 
+            modification.getOperation().getValue(),
+            toAttributeImpl( (ServerAttribute)modification.getAttribute() ) ); 
+        
+        return modificationItem;
+        
+    }
+
+
+    public static Modification toModification( ModificationItemImpl modificationImpl, AttributeType attributeType ) throws InvalidAttributeIdentifierException
+    {
+        Modification modification = new ServerModification( 
+            modificationImpl.getModificationOp(),
+            ServerEntryUtils.toServerAttribute( modificationImpl.getAttribute(), attributeType ) ); 
+        
+        return modification;
+        
+    }
+
+
+    public static List<ModificationItemImpl> toModificationItemImpl( List<Modification> modifications )
+    {
+        if ( modifications != null )
+        {
+            List<ModificationItemImpl> modificationItems = new ArrayList<ModificationItemImpl>();
+
+            for ( Modification modification: modifications )
+            {
+                modificationItems.add( toModificationItemImpl( modification ) );
+            }
+        
+            return modificationItems;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    
+    
+    public static List<Modification> toServerModification( List<ModificationItemImpl> modificationImpls, AttributeTypeRegistry atRegistry )
+        throws NamingException
+    {
+        if ( modificationImpls != null )
+        {
+            List<Modification> modifications = new ArrayList<Modification>();
+
+            for ( ModificationItemImpl modificationImpl: modificationImpls )
+            {
+                AttributeType attributeType = atRegistry.lookup( modificationImpl.getAttribute().getID() );
+                modifications.add( toModification( modificationImpl, attributeType ) );
+            }
+        
+            return modifications;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    
+    
+    /**
+     * Utility method to extract a modification item from an array of modifications.
+     * 
+     * @param mods the array of ModificationItems to extract the Attribute from.
+     * @param type the attributeType spec of the Attribute to extract
+     * @return the modification item on the attributeType specified
+     */
+    public static final Modification getModificationItem( List<Modification> mods, AttributeType type )
+    {
+        for ( Modification modification:mods )
+        {
+            ServerAttribute attribute = (ServerAttribute)modification.getAttribute();
+            
+            if ( attribute.getType() == type )
+            {
+                return modification;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    /**
+     * Utility method to extract an attribute from a list of modifications.
+     * 
+     * @param mods the list of ModificationItems to extract the Attribute from.
+     * @param type the attributeType spec of the Attribute to extract
+     * @return the extract Attribute or null if no such attribute exists
+     */
+    public static ServerAttribute getAttribute( List<Modification> mods, AttributeType type )
+    {
+        Modification mod = getModificationItem( mods, type );
+        
+        if ( mod != null )
+        {
+            return (ServerAttribute)mod.getAttribute();
+        }
+        
+        return null;
     }
 }

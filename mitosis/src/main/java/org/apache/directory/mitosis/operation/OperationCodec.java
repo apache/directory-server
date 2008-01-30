@@ -77,7 +77,6 @@ public class OperationCodec
         }
         catch ( IOException e )
         {
-            e.printStackTrace();
             throw ( InternalError ) new InternalError().initCause( e );
         }
         catch ( ClassNotFoundException e )

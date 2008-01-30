@@ -20,16 +20,9 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
-import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
-import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.junit.Before;
@@ -47,6 +40,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+
+import jdbm.helper.StringComparator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -87,7 +82,7 @@ public class ServerStringValueTest
         s.setSyntaxChecker( new AcceptAllSyntaxChecker( "1.1.1.1" ) );
         mr = new TestServerEntryUtils.MR( "1.1.2.1" );
         mr.syntax = s;
-        mr.comparator = new ByteArrayComparator();
+        mr.comparator = new StringComparator();
         mr.normalizer = new DeepTrimToLowerNormalizer();
         at = new TestServerEntryUtils.AT( "1.1.3.1" );
         at.setEquality( mr );
@@ -432,37 +427,31 @@ public class ServerStringValueTest
         {
             public int compare( ServerStringValue o1, ServerStringValue o2 )
             {
-                byte[] b1 = new byte[0];
-                byte[] b2 = new byte[0];
-
-                try
+                String n1 = null;
+                String n2 = null;
+                
+                if ( o1 != null )
                 {
-                    if ( o1 != null )
-                    {
-                        String n1 = o1.get();
-                        if ( n1 != null )
-                        {
-                            b1 = n1.getBytes( "UTF-8" );
-                        }
-                    }
-
-                    if ( o2 != null )
-                    {
-                        String n2 = o2.get();
-                        if ( n2 != null )
-                        {
-                            b2 = o2.get().getBytes( "UTF-8" );
-                        }
-                    }
+                    n1 = o1.get();
                 }
-                catch ( Exception e )
+
+                if ( o2 != null )
                 {
-                    e.printStackTrace();
+                    n2 = o2.get();
+                }
+
+                if ( n1 == null )
+                {
+                    return ( n2 == null ) ? 0 : -1;
+                }
+                else if ( n2 == null )
+                {
+                    return 1;
                 }
 
                 try
                 {
-                    return mr.getComparator().compare( b1, b2 );
+                    return mr.getComparator().compare( n1, n2 );
                 }
                 catch ( Exception e )
                 {

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -33,14 +32,14 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 public class ModifyStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private LdapDN modifiedEntryName;
-    private List<ModificationItemImpl> modifications;
+    private List<Modification> modifications;
     private ServerEntry oldEntry;
     
     
@@ -70,18 +69,11 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     {
         public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {
-            List<ModificationItem> newMods = new ArrayList<ModificationItem>();
+            List<Modification> newMods = new ArrayList<Modification>();
             
-            try
+            for ( Modification mod:modifications )
             {
-                for ( ModificationItem mod:modifications )
-                {
-                    newMods.add( (ModificationItemImpl)((ModificationItemImpl)mod).clone() );
-                }
-            }
-            catch ( CloneNotSupportedException cnse )
-            {
-                // do nothing ...
+                newMods.add( mod.clone() );
             }
             
             return newMods;

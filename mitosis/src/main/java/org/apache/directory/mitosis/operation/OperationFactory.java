@@ -26,6 +26,7 @@ import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
@@ -38,19 +39,16 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -147,14 +145,17 @@ public class OperationFactory
      * The created {@link Operation} doesn't actually delete the entry.
      * Instead, it sets {@link Constants#ENTRY_DELETED} to "TRUE". 
      */
-    public Operation newDelete( LdapDN normalizedName )
+    public Operation newDelete( LdapDN normalizedName ) throws NamingException
     {
         CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
 
         // Transform into replace operation.
-        result.add( new ReplaceAttributeOperation( csn, normalizedName, new AttributeImpl( Constants.ENTRY_DELETED,
-            "TRUE" ) ) );
+        result.add( new ReplaceAttributeOperation( csn, normalizedName, 
+            new DefaultServerAttribute( 
+                Constants.ENTRY_DELETED, 
+                attributeRegistry.lookup( Constants.ENTRY_DELETED ),
+                "TRUE" ) ) );
 
         return addDefaultOperations( result, csn, normalizedName );
     }
@@ -168,23 +169,34 @@ public class OperationFactory
      * sets {@link Constants#ENTRY_DELETED} to "FALSE" to resurrect the
      * entry the modified attributes belong to.
      */
-    public Operation newModify( ModifyOperationContext opContext )
+    public Operation newModify( ModifyOperationContext opContext ) throws NamingException
     {
-        List<ModificationItemImpl> items = opContext.getModItems();
+        List<Modification> items = opContext.getModItems();
         LdapDN normalizedName = opContext.getDn();
 
         CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
         
         // Transform into multiple {@link AttributeOperation}s.
-        for ( ModificationItem item:items )
+        for ( Modification item:items )
         {
-            result.add( newModify( csn, normalizedName, item.getModificationOp(), item.getAttribute() ) );
+            result.add( 
+                newModify( 
+                    csn, 
+                    normalizedName, 
+                    item.getOperation(), 
+                    (ServerAttribute)item.getAttribute() ) );
         }
 
         // Resurrect the entry in case it is deleted.
-        result.add( new ReplaceAttributeOperation( csn, normalizedName, new AttributeImpl( Constants.ENTRY_DELETED,
-            "FALSE" ) ) );
+        result.add( 
+            new ReplaceAttributeOperation( 
+                csn, 
+                normalizedName, 
+                new DefaultServerAttribute( 
+                    Constants.ENTRY_DELETED,
+                    attributeRegistry.lookup( Constants.ENTRY_DELETED ),
+                    "FALSE" ) ) );
 
         return addDefaultOperations( result, csn, normalizedName );
     }
@@ -196,16 +208,19 @@ public class OperationFactory
      * methods internally to create an appropriate {@link AttributeOperation}
      * instance from the specified <tt>modOp</tt> value.
      */
-    private Operation newModify( CSN csn, LdapDN normalizedName, int modOp, Attribute attribute )
+    private Operation newModify( CSN csn, LdapDN normalizedName, ModificationOperation modOp, ServerAttribute attribute )
     {
         switch ( modOp )
         {
-            case DirContext.ADD_ATTRIBUTE:
+            case ADD_ATTRIBUTE:
                 return new AddAttributeOperation( csn, normalizedName, attribute );
-            case DirContext.REPLACE_ATTRIBUTE:
+            
+            case REPLACE_ATTRIBUTE:
                 return new ReplaceAttributeOperation( csn, normalizedName, attribute );
-            case DirContext.REMOVE_ATTRIBUTE:
+            
+            case REMOVE_ATTRIBUTE:
                 return new DeleteAttributeOperation( csn, normalizedName, attribute );
+            
             default:
                 throw new IllegalArgumentException( "Unknown modOp: " + modOp );
         }
@@ -269,8 +284,14 @@ public class OperationFactory
             oldEntryName.normalize( attributeRegistry.getNormalizerMapping() );
 
             // Delete the old entry
-            result.add( new ReplaceAttributeOperation( csn, oldEntryName, new AttributeImpl( Constants.ENTRY_DELETED,
-                "TRUE" ) ) );
+            result.add( 
+                new ReplaceAttributeOperation( 
+                    csn, 
+                    oldEntryName, 
+                    new DefaultServerAttribute( 
+                        Constants.ENTRY_DELETED,
+                        attributeRegistry.lookup( Constants.ENTRY_DELETED ),
+                        "TRUE" ) ) );
 
             // Get the old entry attributes and replace RDN if required
             LdapDN entryName = new LdapDN( sr.getName() ); 
@@ -371,10 +392,17 @@ public class OperationFactory
      * currently adds only one attribute, {@link Constants#ENTRY_CSN}.
      * @return what you specified as a parameter to enable invocation chaining
      */
-    private CompositeOperation addDefaultOperations( CompositeOperation result, CSN csn, LdapDN normalizedName )
+    private CompositeOperation addDefaultOperations( CompositeOperation result, CSN csn, LdapDN normalizedName ) throws NamingException
     {
-        result.add( new ReplaceAttributeOperation( csn, normalizedName, new AttributeImpl( Constants.ENTRY_CSN, csn
-            .toOctetString() ) ) );
+        result.add( 
+            new ReplaceAttributeOperation( 
+                csn, 
+                normalizedName, 
+                new DefaultServerAttribute( 
+                    Constants.ENTRY_DELETED,
+                    attributeRegistry.lookup( Constants.ENTRY_CSN ),
+                    csn.toOctetString() ) ) );
+
         return result;
     }
 

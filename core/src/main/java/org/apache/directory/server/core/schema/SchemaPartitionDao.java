@@ -29,9 +29,11 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -41,6 +43,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -48,9 +51,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -578,7 +579,7 @@ public class SchemaPartitionDao
         dn.normalize( attrRegistry.getNormalizerMapping() );
         ServerEntry entry = partition.lookup( new LookupOperationContext( registries, dn ) );
         ServerAttribute disabledAttr = entry.get( disabledAttributeType );
-        List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>( 3 );
+        List<Modification> mods = new ArrayList<Modification>( 3 );
         
         if ( disabledAttr == null )
         {
@@ -593,14 +594,28 @@ public class SchemaPartitionDao
             return;
         }
         
-        mods.add( new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, 
-            new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT ) ) );
+        mods.add( 
+            new ServerModification( 
+                DirContext.REMOVE_ATTRIBUTE, 
+                new DefaultServerAttribute( 
+                    MetaSchemaConstants.M_DISABLED_AT ,
+                    attrRegistry.lookup(MetaSchemaConstants.M_DISABLED_AT) ) ) );
         
-        mods.add( new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
-            new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN ) ) );
+        mods.add( 
+            new ServerModification( 
+                DirContext.ADD_ATTRIBUTE,
+                new DefaultServerAttribute( 
+                    SchemaConstants.MODIFIERS_NAME_AT, 
+                    attrRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT ),
+                    ServerDNConstants.ADMIN_SYSTEM_DN ) ) );
         
-        mods.add( new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
-            new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) ) );
+        mods.add( 
+            new ServerModification( 
+                DirContext.ADD_ATTRIBUTE,
+                new DefaultServerAttribute( 
+                    SchemaConstants.MODIFY_TIMESTAMP_AT, 
+                    attrRegistry.lookup( SchemaConstants.MODIFY_TIMESTAMP_AT ),
+                    DateUtils.getGeneralizedTime() ) ) );
         
         partition.modify( new ModifyOperationContext( registries, dn, mods ) );
     }

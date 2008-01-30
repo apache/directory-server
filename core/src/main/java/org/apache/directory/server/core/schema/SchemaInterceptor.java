@@ -52,6 +52,8 @@ import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
@@ -71,7 +73,6 @@ import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.message.CascadeControl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -92,9 +93,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -883,7 +882,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @return
      * @throws NamingException
      */
-    private ServerAttribute getResultantObjectClasses( int modOp, ServerAttribute changes, ServerAttribute existing ) throws NamingException
+    private ServerAttribute getResultantObjectClasses( ModificationOperation modOp, ServerAttribute changes, ServerAttribute existing ) throws NamingException
     {
         if ( ( changes == null ) && ( existing == null ) )
         {
@@ -896,7 +895,7 @@ public class SchemaInterceptor extends BaseInterceptor
             return existing;
         }
 
-        if ( ( existing == null ) && ( modOp == DirContext.ADD_ATTRIBUTE ) )
+        if ( ( existing == null ) && ( modOp == ModificationOperation.ADD_ATTRIBUTE ) )
         {
             return changes;
         }
@@ -907,7 +906,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         switch ( modOp )
         {
-            case ( DirContext.ADD_ATTRIBUTE  ):
+            case ADD_ATTRIBUTE :
                 for ( ServerValue<?> value:changes )
                 {
                     existing.add( value );
@@ -915,10 +914,10 @@ public class SchemaInterceptor extends BaseInterceptor
             
                 return existing;
             
-            case ( DirContext.REPLACE_ATTRIBUTE  ):
+            case REPLACE_ATTRIBUTE :
                 return ( ServerAttribute ) changes.clone();
             
-            case ( DirContext.REMOVE_ATTRIBUTE  ):
+            case REMOVE_ATTRIBUTE :
                 for ( ServerValue<?> value:changes )
                 {
                     existing.remove( value );
@@ -1145,7 +1144,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         ServerEntry entry;
         LdapDN name = opContext.getDn();
-        List<ModificationItemImpl> mods = opContext.getModItems();
+        List<Modification> mods = opContext.getModItems();
 
         // handle operations against the schema subentry in the schema service
         // and never try to look it up in the nexus below
@@ -1159,7 +1158,10 @@ public class SchemaInterceptor extends BaseInterceptor
         }
         
         // First, we get the entry from the backend. If it does not exist, then we throw an exception
-        ServerEntry targetEntry = ServerEntryUtils.toServerEntry( SchemaUtils.getTargetEntry( mods, ServerEntryUtils.toAttributesImpl( entry ) ),
+        ServerEntry targetEntry = ServerEntryUtils.toServerEntry( 
+            SchemaUtils.getTargetEntry( 
+                ServerEntryUtils.toModificationItemImpl( mods ), 
+                ServerEntryUtils.toAttributesImpl( entry ) ),
             name,
             registries );
 
@@ -1174,16 +1176,16 @@ public class SchemaInterceptor extends BaseInterceptor
         ServerEntry tmpEntry = ( ServerEntry ) entry.clone();
         
         Set<String> modset = new HashSet<String>();
-        ModificationItem objectClassMod = null;
+        Modification objectClassMod = null;
         
         // Check that we don't have two times the same modification.
         // This is somehow useless, as modification operations are supposed to
         // be atomic, so we may have a sucession of Add, DEL, ADD operations
         // for the same attribute, and this will be legal.
         // @TODO : check if we can remove this test.
-        for ( ModificationItem mod:mods )
+        for ( Modification mod:mods )
         {
-            if ( mod.getAttribute().getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
+            if ( mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
             {
                 objectClassMod = mod;
             }
@@ -1192,7 +1194,7 @@ public class SchemaInterceptor extends BaseInterceptor
             if ( mod.getAttribute().size() == 0 )
             {
                 // not ok for add but ok for replace and delete
-                if ( mod.getModificationOp() == DirContext.ADD_ATTRIBUTE )
+                if ( mod.getOperation() == ModificationOperation.ADD_ATTRIBUTE )
                 {
                     throw new LdapInvalidAttributeValueException( "No value is not a valid value for an attribute.", 
                         ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
@@ -1200,15 +1202,15 @@ public class SchemaInterceptor extends BaseInterceptor
             }
 
             StringBuffer keybuf = new StringBuffer();
-            keybuf.append( mod.getModificationOp() );
-            keybuf.append( mod.getAttribute().getID() );
+            keybuf.append( mod.getOperation() );
+            keybuf.append( mod.getAttribute().getId() );
 
-            for ( int jj = 0; jj < mod.getAttribute().size(); jj++ )
+            for ( ServerValue<?> value:(ServerAttribute)mod.getAttribute() )
             {
-                keybuf.append( mod.getAttribute().get( jj ) );
+                keybuf.append( value.get() );
             }
             
-            if ( !modset.add( keybuf.toString() ) && ( mod.getModificationOp() == DirContext.ADD_ATTRIBUTE ) )
+            if ( !modset.add( keybuf.toString() ) && ( mod.getOperation() == ModificationOperation.ADD_ATTRIBUTE ) )
             {
                 throw new LdapAttributeInUseException( "found two copies of the following modification item: " +
                  mod );
@@ -1231,9 +1233,8 @@ public class SchemaInterceptor extends BaseInterceptor
         else
         {
             objectClass = getResultantObjectClasses( 
-                objectClassMod.getModificationOp(), 
-                ServerEntryUtils.toServerAttribute( objectClassMod.getAttribute(), 
-                    atRegistry.lookup( objectClassMod.getAttribute().getID() ) ),
+                objectClassMod.getOperation(), 
+                (ServerAttribute)objectClassMod.getAttribute(),
                 entry.get( SchemaConstants.OBJECT_CLASS_AT ) );
         }
 
@@ -1246,19 +1247,18 @@ public class SchemaInterceptor extends BaseInterceptor
         
         if ( ( mods.size() == 1 ) && 
              ( mods.get( 0 ).getAttribute().size() == 0 ) && 
-             ( mods.get( 0 ).getModificationOp() == DirContext.REPLACE_ATTRIBUTE ) &&
-             ! atRegistry.hasAttributeType( mods.get( 0 ).getAttribute().getID() ) )
+             ( mods.get( 0 ).getOperation() == ModificationOperation.REPLACE_ATTRIBUTE ) &&
+             ! atRegistry.hasAttributeType( mods.get( 0 ).getAttribute().getId() ) )
         {
             return;
         }
         
         // Now, apply the modifications on the cloned entry before applying it on the
         // real object.
-        for ( ModificationItem mod:mods )
+        for ( Modification mod:mods )
         {
-            int modOp = mod.getModificationOp();
-            ServerAttribute change = ServerEntryUtils.toServerAttribute( 
-                mod.getAttribute(), atRegistry.lookup( mod.getAttribute().getID() ) );
+            ModificationOperation modOp = mod.getOperation();
+            ServerAttribute change = (ServerAttribute)mod.getAttribute();
 
             if ( !atRegistry.hasAttributeType( change.getUpId() ) && 
                 !objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
@@ -1277,7 +1277,7 @@ public class SchemaInterceptor extends BaseInterceptor
             
             switch ( modOp )
             {
-                case DirContext.ADD_ATTRIBUTE :
+                case ADD_ATTRIBUTE :
                     ServerAttribute attr = tmpEntry.get( change.getUpId() );
                     
                     if ( attr != null ) 
@@ -1301,7 +1301,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     
                     break;
 
-                case DirContext.REMOVE_ATTRIBUTE :
+                case REMOVE_ATTRIBUTE :
                     if ( tmpEntry.get( change.getUpId() ) == null )
                     {
                         LOG.error( "Trying to remove an non-existant attribute: " + change.getUpId() );
@@ -1359,7 +1359,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         .preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change, objectClass );
                     break;
                         
-                case DirContext.REPLACE_ATTRIBUTE :
+                case REPLACE_ATTRIBUTE :
                     SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, change, 
                         registries.getOidRegistry() );
                     SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, change );
@@ -1398,12 +1398,11 @@ public class SchemaInterceptor extends BaseInterceptor
 
             if ( !alteredObjectClass.equals( objectClass ) )
             {
-                ServerAttribute ocMods = ServerEntryUtils.toServerAttribute( 
-                    objectClassMod.getAttribute(), OBJECT_CLASS );
+                ServerAttribute ocMods = (ServerAttribute)objectClassMod.getAttribute();
                 
-                switch ( objectClassMod.getModificationOp() )
+                switch ( objectClassMod.getOperation() )
                 {
-                    case ( DirContext.ADD_ATTRIBUTE  ):
+                    case ADD_ATTRIBUTE :
                         if ( ocMods.contains( SchemaConstants.TOP_OC ) )
                         {
                             ocMods.remove( SchemaConstants.TOP_OC );
@@ -1419,7 +1418,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         
                         break;
                         
-                    case ( DirContext.REMOVE_ATTRIBUTE  ):
+                    case REMOVE_ATTRIBUTE :
                         for ( ServerValue<?> value:alteredObjectClass ) 
                         {
                             if ( !objectClass.contains( value ) )
@@ -1430,7 +1429,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     
                         break;
                         
-                    case ( DirContext.REPLACE_ATTRIBUTE  ):
+                    case REPLACE_ATTRIBUTE :
                         for ( ServerValue<?> value:alteredObjectClass ) 
                         {
                             if ( !objectClass.contains( value ) )

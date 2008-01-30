@@ -169,4 +169,23 @@ public class DefaultServerAttributeTest
         assertTrue( attribute.contains( "Test2" ) );
         assertTrue( attribute.contains( "Test3" ) );
     }
+
+
+    /**
+     * Test the contains() method
+     */
+    @Test public void testContains() throws NamingException
+    {
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        
+        DefaultServerAttribute attr = new DefaultServerAttribute( at );
+        
+        attr.add( "Test  1" );
+        attr.add( "Test  2" );
+        attr.add( "Test  3" );
+        
+        assertTrue( attr.contains( "test 1" ) );
+        assertTrue( attr.contains( "Test 2" ) );
+        assertTrue( attr.contains( "TEST     3" ) );
+    }
 }

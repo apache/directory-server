@@ -29,6 +29,10 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -190,6 +194,17 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     public AttributeType getType()
     {
         return attributeType;
+    }
+
+
+    /**
+     * Get's the attribute's identifier. resolves to the AttributeType's name.
+     *
+     * @return the attribute's identifier.
+     */
+    public String getId()
+    {
+        return attributeType.getName();
     }
 
 
@@ -431,8 +446,10 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value)
      */
-    public boolean contains( ServerValue<?> val )
+    public boolean contains( ServerValue<?> val ) throws NamingException
     {
+        val.normalize();
+        
         return values.contains( val );
     }
 
@@ -440,7 +457,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public boolean contains( ServerValue<?>... vals )
+    public boolean contains( ServerValue<?>... vals ) throws NamingException
     {
         // Iterate through all the values, and quit if we 
         // don't find one in the values
@@ -459,7 +476,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#contains(String)
      */
-    public boolean contains( String val )
+    public boolean contains( String val ) throws NamingException
     {
         try
         {
@@ -475,6 +492,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
         }
         
         ServerStringValue value = new ServerStringValue( attributeType, val );
+        value.normalize();
         
         return values.contains( value );
     }
@@ -483,7 +501,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#contains(String...)
      */
-    public boolean contains( String... vals )
+    public boolean contains( String... vals ) throws NamingException
     {
         // Iterate through all the values, and quit if we 
         // don't find one in the values
@@ -502,7 +520,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#contains(byte[])
      */
-    public boolean contains( byte[] val )
+    public boolean contains( byte[] val ) throws NamingException
     {
         try
         {
@@ -518,6 +536,8 @@ public abstract class AbstractServerAttribute implements ServerAttribute
         }
         
         ServerBinaryValue sbv = new ServerBinaryValue( attributeType, val );
+        sbv.normalize();
+        
         return values.contains( sbv );
     }
 
@@ -525,7 +545,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#contains(byte[]...)
      */
-    public boolean contains( byte[]... vals )
+    public boolean contains( byte[]... vals ) throws NamingException
     {
         // Iterate through all the values, and quit if we 
         // don't find one in the values
@@ -544,7 +564,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#contains(Object...)
      */
-    public boolean contains( Object... vals )
+    public boolean contains( Object... vals ) throws NamingException
     {
         boolean isHR = false;
         
@@ -750,4 +770,84 @@ public abstract class AbstractServerAttribute implements ServerAttribute
         return attributeId.equalsIgnoreCase( attributeType.getOid() );
     }
     
+    /**
+     * @see Externalizable#writeExternal(ObjectOutput)
+     * 
+     * We have to store the UPid, and all the values, if any.
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        // Do nothing : we can't restore the AttributeType ...
+    }
+
+    
+    /**
+     * @see Externalizable#readExternal(ObjectInput)
+     */
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        if ( in.available() == 0 )
+        {
+            String message = "Cannot read an null Attribute";
+            LOG.error( message );
+            throw new IOException( message );
+        }
+        else
+        {
+            // Read the HR flag
+            boolean hr = in.readBoolean();
+            
+            // Read the UPid
+            upId = in.readUTF();
+
+            // Read the number of values
+            int nbValues = in.readInt();
+            
+            switch ( nbValues )
+            {
+                case -1 :
+                    values = null;
+                    break;
+                    
+                case 0 :
+                    values = new ArrayList<ServerValue<?>>();
+                    break;
+                    
+                default :
+                    values = new ArrayList<ServerValue<?>>();
+                
+                    for ( int i = 0; i < nbValues; i++ )
+                    {
+                        if ( hr )
+                        {
+                            ServerStringValue value = new ServerStringValue( attributeType );
+                        }
+                    }
+                    
+                    break;
+            }
+                    
+            if ( nbValues != 0 )
+            {
+                
+            }
+            else
+            {
+                
+            }
+
+            String wrapped = in.readUTF();
+            /**
+            set( wrapped );
+            
+            normalizedValue = in.readUTF();
+            
+            if ( ( normalizedValue.length() == 0 ) &&  ( wrapped.length() != 0 ) )
+            {
+                // In this case, the normalized value is equal to the UP value
+                normalizedValue = wrapped;
+            }
+            */
+        }
+    }
 }

@@ -19,9 +19,16 @@
  */
 package org.apache.directory.server.core.entry;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.InvalidNameException;
@@ -47,7 +54,10 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
@@ -1806,6 +1816,123 @@ public class DefaultServerEntryTest
     @Test public void testRemoveSaElipsis()
     {
         
+    }
+    
+    
+    private ByteArrayOutputStream serializeEntry( ServerEntry entry ) throws IOException
+    {
+        ObjectOutputStream oOut = null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try
+        {
+            oOut = new ObjectOutputStream( out );
+            oOut.writeObject( entry );
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oOut != null )
+                {
+                    oOut.flush();
+                    oOut.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+        
+        return out;
+    }
+    
+    
+    private ServerEntry deserializeEntry( ByteArrayOutputStream out ) throws IOException, ClassNotFoundException
+    {
+        ObjectInputStream oIn = null;
+        ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
+
+        try
+        {
+            oIn = new ObjectInputStream( in );
+
+            ServerEntry entry = ( ServerEntry ) oIn.readObject();
+            
+            return entry;
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oIn != null )
+                {
+                    oIn.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+    }
+
+    
+    private Map<String, OidNormalizer> oids;
+    private Map<String, OidNormalizer> oidOids;
+
+    /**
+     * Initialize OIDs maps for normalization
+     */
+    @Before public void initMapOids()
+    {
+        oids = new HashMap<String, OidNormalizer>();
+
+        oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "ou", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+    
+    
+        // Another map where we store OIDs instead of names.
+        oidOids = new HashMap<String, OidNormalizer>();
+
+        oidOids.put( "dc", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+        oidOids.put( "domaincomponent", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+        oidOids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+        oidOids.put( "ou", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
+        oidOids.put( "organizationalUnitName", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
+        oidOids.put( "2.5.4.11", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
+    }
+    
+    
+    /**
+     * Test the serialization
+     */
+    @Test public void testSerialize() throws Exception
+    {
+        LdapDN dn = new LdapDN( "ou=test, dc=com" );
+        dn.normalize( oids );
+        
+        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        
+        entry.put( "ObjectClass", "top", "person" );
+        entry.put( "cn", "A CN" );
+        entry.put( "ou", "test" );
+        entry.put( "l", (String)null );
+        
+        //assertEquals( entry, deserializeEntry( serializeEntry( entry ) ) );
     }
 
 }

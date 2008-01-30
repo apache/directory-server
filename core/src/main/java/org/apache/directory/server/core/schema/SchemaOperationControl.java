@@ -34,9 +34,10 @@ import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -51,11 +52,11 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -78,7 +79,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 
 /**
@@ -383,7 +383,7 @@ public class SchemaOperationControl
     }
     
 
-    public void modify( LdapDN name, int modOp, ServerEntry mods, ServerEntry entry, 
+    public void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, 
         ServerEntry targetEntry, boolean cascade ) throws NamingException
     {
         ServerAttribute oc = entry.get( objectClassAT );
@@ -412,7 +412,7 @@ public class SchemaOperationControl
     }
 
 
-    public void modify( LdapDN name, List<ModificationItemImpl> mods, ServerEntry entry, ServerEntry targetEntry,
+    public void modify( LdapDN name, List<Modification> mods, ServerEntry entry, ServerEntry targetEntry,
         boolean doCascadeModify ) throws NamingException
     {
         ServerAttribute oc = entry.get( objectClassAT );
@@ -543,31 +543,27 @@ public class SchemaOperationControl
      * to effect all dependents on the changed entity
      * @throws NamingException if the operation fails
      */
-    public void modifySchemaSubentry( LdapDN name, List<ModificationItemImpl> mods, ServerEntry subentry, 
+    public void modifySchemaSubentry( LdapDN name, List<Modification> mods, ServerEntry subentry, 
         ServerEntry targetSubentry, boolean doCascadeModify ) throws NamingException 
     {
-        for ( ModificationItem mod : mods )
+        for ( Modification mod : mods )
         {
-            String opAttrOid = registries.getOidRegistry().getOid( mod.getAttribute().getID() );
+            String opAttrOid = registries.getOidRegistry().getOid( mod.getAttribute().getId() );
             
-            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( 
-                mod.getAttribute().getID() );
-        
-            ServerAttribute serverAttribute = 
-                ServerEntryUtils.toServerAttribute( mod.getAttribute(), attributeType );
+            ServerAttribute serverAttribute = (ServerAttribute)mod.getAttribute();
 
-            switch ( mod.getModificationOp() )
+            switch ( mod.getOperation() )
             {
-                case( DirContext.ADD_ATTRIBUTE ):
+                case ADD_ATTRIBUTE :
 
                     modifyAddOperation( opAttrOid, serverAttribute, doCascadeModify );
                     break;
                     
-                case( DirContext.REMOVE_ATTRIBUTE ):
+                case REMOVE_ATTRIBUTE :
                     modifyRemoveOperation( opAttrOid, serverAttribute, doCascadeModify );
                     break; 
                     
-                case( DirContext.REPLACE_ATTRIBUTE ):
+                case REPLACE_ATTRIBUTE :
                     throw new LdapOperationNotSupportedException( 
                         "Modify REPLACE operations on schema subentries are not allowed: " +
                         "it's just silly to destroy and recreate so many \nschema entities " +
@@ -576,7 +572,7 @@ public class SchemaOperationControl
                         ResultCodeEnum.UNWILLING_TO_PERFORM );
                 
                 default:
-                    throw new IllegalStateException( "Undefined modify operation: " + mod.getModificationOp() );
+                    throw new IllegalStateException( "Undefined modify operation: " + mod.getOperation() );
             }
         }
         
@@ -942,13 +938,19 @@ public class SchemaOperationControl
         String modifiersName = ctx.getPrincipal().getJndiName().getNormName();
         String modifyTimestamp = DateUtils.getGeneralizedTime();
         
-        List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>( 2 );
+        List<Modification> mods = new ArrayList<Modification>( 2 );
         
-        mods.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, 
-            new AttributeImpl( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT, modifyTimestamp ) ) );
+        mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, 
+            new DefaultServerAttribute( 
+                ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT,
+                registries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT ),
+                modifyTimestamp ) ) );
         
-        mods.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE,
-            new AttributeImpl( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, modifiersName ) ) );
+        mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE,
+            new DefaultServerAttribute( 
+                ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, 
+                registries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ),
+                modifiersName ) ) );
         
         LdapDN name = new LdapDN( "cn=schemaModifications,ou=schema" );
         name.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );

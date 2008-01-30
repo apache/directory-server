@@ -22,17 +22,16 @@ package org.apache.directory.mitosis.operation;
 
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
 import java.util.List;
 
 
@@ -53,7 +52,7 @@ public class ReplaceAttributeOperation extends AttributeOperation
      * @param csn ??
      * @param name ??
      */
-    public ReplaceAttributeOperation( CSN csn, LdapDN name, Attribute attribute )
+    public ReplaceAttributeOperation( CSN csn, LdapDN name, ServerAttribute attribute )
     {
         super( csn, name, attribute );
     }
@@ -61,16 +60,16 @@ public class ReplaceAttributeOperation extends AttributeOperation
 
     public String toString()
     {
-        return super.toString() + ".replace( " + getAttribute() + " )";
+        return super.toString() + ".replace( " + getAttributeString() + " )";
     }
 
 
     protected void execute1( PartitionNexus nexus, Registries registries ) throws NamingException
     {
         ServerEntry serverEntry = new DefaultServerEntry( registries, LdapDN.EMPTY_LDAPDN );
-        Attribute attribute = getAttribute();
-        serverEntry.put( ServerEntryUtils.toServerAttribute( attribute, registries.getAttributeTypeRegistry().lookup( attribute.getID() ) ) );
-        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( serverEntry, DirContext.REPLACE_ATTRIBUTE );
+        ServerAttribute attribute = getAttribute( registries.getAttributeTypeRegistry() );
+        serverEntry.put( attribute );
+        List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
 
         nexus.modify( new ModifyOperationContext( registries, getName(), items ) );
     }
