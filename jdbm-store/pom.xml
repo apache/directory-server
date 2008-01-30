@@ -69,12 +69,6 @@
 
     <dependency>
       <groupId>${pom.groupId}</groupId>
-      <artifactId>apacheds-jdbm-cursor</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-schema-registries</artifactId>
       <version>${pom.version}</version>
     </dependency>
