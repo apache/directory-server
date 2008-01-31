@@ -31,7 +31,10 @@ import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 
-import static org.junit.Assert.assertNotNull;import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.Comparator;
@@ -97,10 +100,65 @@ public class JdbmNoDupsCursorTest
         Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
         assertNotNull( cursor );
         
+        assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
     }
 
 
+    @Test
+    public void testOnTableWithSingleEntry() throws Exception
+    {
+        table.put( 1, 1 );
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+        assertTrue( cursor.first() );
+    
+        Tuple<Integer,Integer> tuple = cursor.get();
+        assertTrue( tuple.getKey().equals( 1 ) );
+        assertTrue( tuple.getValue().equals( 1 ) );
+    
+        assertFalse( cursor.next() );
+    }
+
+    
+    @Test
+    public void testOnTableWithMultipleEntries() throws Exception
+    {
+        for( int i=0; i < 10; i++ )
+        {
+            table.put( i, i );
+        }
+    
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+        cursor.after( new Tuple<Integer,Integer>( 2,2 ) );
+        assertTrue( cursor.next() );
+    
+        Tuple<Integer,Integer> tuple = cursor.get();
+        assertTrue( tuple.getKey().equals( 3 ) );
+        assertTrue( tuple.getValue().equals( 3 ) );
+    
+        cursor.before( new Tuple<Integer,Integer>(7,7) );
+        cursor.next();
+        tuple = cursor.get();
+        assertTrue( tuple.getKey().equals( 7 ) );
+        assertTrue( tuple.getValue().equals( 7 ) );
+    
+        cursor.last();
+        cursor.next();
+        tuple = cursor.get();
+        assertTrue( tuple.getKey().equals( 9 ) );
+        assertTrue( tuple.getValue().equals( 9 ) );
+    
+        cursor.beforeFirst();
+        cursor.next();
+        tuple = cursor.get();
+        assertTrue( tuple.getKey().equals( 0 ) );
+        assertTrue( tuple.getValue().equals( 0 ) );
+    
+        cursor.afterLast();
+        assertFalse( cursor.next() );
+    }
+    
+    
     private class MockComparatorRegistry implements ComparatorRegistry
     {
         private Comparator<Integer> comparator = new Comparator<Integer>()
