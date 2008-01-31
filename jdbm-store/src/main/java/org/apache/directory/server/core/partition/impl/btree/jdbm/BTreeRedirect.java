@@ -50,4 +50,14 @@ public class BTreeRedirect implements Serializable
     {
         return recId;
     }
+    
+    
+    public String toString()
+    {
+        StringBuilder buf = new StringBuilder();
+        buf.append( "BTreeRedirect[" );
+        buf.append( recId );
+        buf.append( "]" );
+        return buf.toString();
+    }
 }

@@ -61,7 +61,7 @@ public class JdbmTableWithDuplicatesTest
     transient RecordManager recman;
 
     
-    @Before
+    @Before 
     public void createTable() throws Exception
     {
         File tmpDir = null;

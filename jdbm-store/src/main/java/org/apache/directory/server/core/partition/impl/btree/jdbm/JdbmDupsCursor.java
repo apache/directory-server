@@ -8,6 +8,8 @@ import org.apache.directory.server.core.cursor.ListCursor;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -17,6 +19,8 @@ import java.util.*;
  */
 public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 {
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmDupsCursor.class.getSimpleName() );
+    
     /**
      * The JDBM backed table this Cursor traverses over.
      */
@@ -28,7 +32,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
      * positions it may return different values for the same key if the table
      * supports duplicate keys.
      */
-    private final Tuple<K,V> tuple = new Tuple<K,V>();
+    private final Tuple<K,V> dupsTuple = new Tuple<K,V>();
 
     /**
      * The underlying Cursor which is simply returns Tuples with key value
@@ -80,13 +84,41 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     }
 
 
-    public void before( Tuple element ) throws Exception
+    /**
+     * Advances this Cursor just before the record with key and value equal to 
+     * those provided in the Tuple argument.  If the key is not present the 
+     * Cursor advances to just before the greatest value of the key less than 
+     * but not greater than the one provided by the Tuple argument.  If the 
+     * key is present but the value is not present the Cursor advances to the 
+     * element with the same key containing a value less than but not greater
+     * than the value in the Tuple.
+     */
+    public void before( Tuple<K,V> element ) throws Exception
     {
-        throw new NotImplementedException();
+        noDupsCursor.before( element );
+        
+        if ( noDupsCursor.next() )
+        {
+            noDupsTuple = noDupsCursor.get();
+            
+            if ( noDupsTuple.getValue() instanceof TreeSet )
+            {
+                LOG.debug( "Duplicates tuple {} stored in a TreeSet", noDupsTuple );
+                TreeSet<V> set = ( TreeSet<V> ) noDupsTuple.getValue();
+            }
+            else 
+            {
+                LOG.debug( "Duplicates tuple {} are stored in a BTree", noDupsTuple );
+                BTreeRedirect redirect = ( BTreeRedirect ) noDupsTuple.getValue();
+                
+                
+            }
+        }
+//        throw new NotImplementedException();
     }
 
 
-    public void after(Tuple element) throws Exception
+    public void after( Tuple<K,V> element ) throws Exception
     {
         throw new NotImplementedException();
     }
@@ -112,8 +144,8 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 
     private void clearValue()
     {
-        tuple.setKey( null );
-        tuple.setValue( null );
+        dupsTuple.setKey( null );
+        dupsTuple.setValue( null );
         valueAvailable = false;
     }
 
@@ -128,7 +160,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             if ( values instanceof TreeSet)
             {
                 //noinspection unchecked
-                TreeSet<V> set = ( TreeSet ) noDupsTuple.getValue();
+                TreeSet<V> set = ( TreeSet<V> ) noDupsTuple.getValue();
                 List<V> list = new ArrayList<V>( set.size() );
                 list.addAll( set );
                 dupCursor = new ListCursor<V>( list );
@@ -142,7 +174,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             {
                 BTree tree = table.getBTree( ( BTreeRedirect ) values );
                 //noinspection unchecked
-                dupCursor = new KeyCursor( tree, table.getComparator().getKeyComparator() );
+                dupCursor = new KeyCursor<V>( tree, ( Comparator<V> ) table.getComparator().getKeyComparator() );
                 if ( ! dupCursor.previous() )
                 {
                     clearValue();
@@ -157,8 +189,8 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
              * need to do is populate our tuple object with the key and the value
              * in the cursor.
              */
-            tuple.setKey( noDupsTuple.getKey() );
-            tuple.setValue( dupCursor.get() );
+            dupsTuple.setKey( noDupsTuple.getKey() );
+            dupsTuple.setValue( dupCursor.get() );
             return valueAvailable = true;
         }
 
@@ -198,7 +230,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 {
                     BTree tree = table.getBTree( ( BTreeRedirect ) values );
                     //noinspection unchecked
-                    dupCursor = new KeyCursor( tree, table.getComparator().getKeyComparator() );
+                    dupCursor = new KeyCursor<V>( tree, ( Comparator<V> ) table.getComparator().getKeyComparator() );
                     dupCursor.previous();
                 }
             }
@@ -215,8 +247,8 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
          * need to do is populate our tuple object with the key and the value
          * in the cursor.
          */
-        tuple.setKey( noDupsTuple.getKey() );
-        tuple.setValue( dupCursor.get() );
+        dupsTuple.setKey( noDupsTuple.getKey() );
+        dupsTuple.setValue( dupCursor.get() );
         return valueAvailable = true;
     }
 
@@ -241,7 +273,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 if ( values instanceof TreeSet)
                 {
                     //noinspection unchecked
-                    TreeSet<V> set = ( TreeSet ) noDupsTuple.getValue();
+                    TreeSet<V> set = ( TreeSet<V> ) noDupsTuple.getValue();
                     List<V> list = new ArrayList<V>( set.size() );
                     list.addAll( set );
                     dupCursor = new ListCursor<V>( list );
@@ -251,7 +283,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 {
                     BTree tree = table.getBTree( ( BTreeRedirect ) values );
                     //noinspection unchecked
-                    dupCursor = new KeyCursor( tree, table.getComparator().getKeyComparator() );
+                    dupCursor = new KeyCursor<V>( tree, ( Comparator<V> ) table.getComparator().getKeyComparator() );
                     dupCursor.next();
                 }
             }
@@ -268,8 +300,8 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
          * need to do is populate our tuple object with the key and the value
          * in the cursor.
          */
-        tuple.setKey( noDupsTuple.getKey() );
-        tuple.setValue( dupCursor.get() );
+        dupsTuple.setKey( noDupsTuple.getKey() );
+        dupsTuple.setValue( dupCursor.get() );
         return valueAvailable = true;
     }
 
@@ -283,7 +315,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             throw new InvalidCursorPositionException();
         }
 
-        return tuple;
+        return dupsTuple;
     }
 
 

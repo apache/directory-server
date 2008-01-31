@@ -119,4 +119,16 @@ public class Tuple<K, V>
         this.value = value;
         return this;
     }
+    
+    
+    public String toString()
+    {
+        StringBuilder buf = new StringBuilder();
+        buf.append( "Tuple( '" );
+        buf.append( key );
+        buf.append(  " )', '" );
+        buf.append( value );
+        buf.append( "' )" );
+        return buf.toString();
+    }
 }

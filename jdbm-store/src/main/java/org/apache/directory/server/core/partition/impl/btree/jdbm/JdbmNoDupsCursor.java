@@ -39,7 +39,7 @@ import jdbm.helper.TupleBrowser;
  */
 public class JdbmNoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 {
-    private final JdbmTable table;
+    private final JdbmTable<K,V> table;
 
     private jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
     private Tuple<K,V> returnedTuple = new Tuple<K,V>();
@@ -53,7 +53,7 @@ public class JdbmNoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
      * @param table the JDBM Table to build a Cursor over
      * @throws IOException of there are problems accessing the BTree
      */
-    public JdbmNoDupsCursor( JdbmTable table ) throws IOException
+    public JdbmNoDupsCursor( JdbmTable<K,V> table ) throws IOException
     {
         this.table = table;
     }
@@ -81,14 +81,14 @@ public class JdbmNoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
      * @param element the tuple who's key is used to position this Cursor
      * @throws IOException if there are failures to position the Cursor
      */
-    public void before( Tuple element ) throws IOException
+    public void before( Tuple<K,V> element ) throws IOException
     {
         browser = table.getBTree().browse( element.getKey() );
         clearValue();
     }
 
 
-    public void after( Tuple element ) throws IOException
+    public void after( Tuple<K,V> element ) throws IOException
     {
         browser = table.getBTree().browse( element.getKey() );
 
@@ -101,7 +101,7 @@ public class JdbmNoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
          */
         while ( browser.getNext( jdbmTuple ) )
         {
-            Object next = jdbmTuple.getKey();
+            K next = ( K ) jdbmTuple.getKey();
 
             //noinspection unchecked
             int nextCompared = table.getComparator().getKeyComparator().compare( next, element.getKey() );
