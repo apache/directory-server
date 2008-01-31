@@ -1694,10 +1694,10 @@ public class SchemaInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         
         if ( name.startsWith( schemaBaseDN ) )
         {
+            ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
             schemaManager.delete( name, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
         

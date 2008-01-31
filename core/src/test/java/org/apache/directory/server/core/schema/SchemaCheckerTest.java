@@ -159,7 +159,7 @@ public class SchemaCheckerTest extends TestCase
     /**
      * Test case to check the schema checker operates correctly when modify
      * operations remove objectClasses.
-     */
+     *
     public void testPreventStructuralClassRemovalOnModifyRemove() throws Exception
     {
         LdapDN name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );

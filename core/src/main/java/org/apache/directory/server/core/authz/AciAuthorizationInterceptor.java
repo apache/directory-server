@@ -516,7 +516,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, name ) , PartitionNexusProxy.LOOKUP_BYPASS );
 
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = principal.getJndiName();
@@ -527,6 +526,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             next.delete( deleteContext );
             return;
         }
+
+        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, name ) , PartitionNexusProxy.LOOKUP_BYPASS );
 
         protectCriticalEntries( name );
 

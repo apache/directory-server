@@ -293,7 +293,7 @@ public class SchemaChecker
      * @param entryObjectClasses the entry being modified
      * @throws NamingException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
-     */
+     *
     public static void preventStructuralClassRemovalOnModifyRemove( ObjectClassRegistry registry, Name name, int mod,
         Attributes attributes, Attribute entryObjectClasses ) throws NamingException
     {
