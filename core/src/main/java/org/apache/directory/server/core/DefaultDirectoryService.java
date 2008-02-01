@@ -84,7 +84,7 @@ import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -229,7 +229,7 @@ public class DefaultDirectoryService implements DirectoryService
     private List<Interceptor> interceptors;
     private Partition systemPartition;
     private Set<Partition> partitions = new HashSet<Partition>();
-    private List<? extends Entry> testEntries = new ArrayList<Entry>(); // List<Attributes>
+    private List<? extends LdifEntry> testEntries = new ArrayList<LdifEntry>(); // List<Attributes>
 
 
 
@@ -370,15 +370,15 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * Returns test directory entries({@link Entry}) to be loaded while
+     * Returns test directory entries({@link LdifEntry}) to be loaded while
      * bootstrapping.
      *
      * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
      * @return test entries to load during bootstrapping
      */
-    public List<Entry> getTestEntries()
+    public List<LdifEntry> getTestEntries()
     {
-        List<Entry> cloned = new ArrayList<Entry>();
+        List<LdifEntry> cloned = new ArrayList<LdifEntry>();
         cloned.addAll( testEntries );
         return cloned;
     }
@@ -391,10 +391,10 @@ public class DefaultDirectoryService implements DirectoryService
      * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
      * @param testEntries the test entries to load while bootstrapping
      */
-    public void setTestEntries( List<? extends Entry> testEntries )
+    public void setTestEntries( List<? extends LdifEntry> testEntries )
     {
         //noinspection MismatchedQueryAndUpdateOfCollection
-        List<Entry> cloned = new ArrayList<Entry>();
+        List<LdifEntry> cloned = new ArrayList<LdifEntry>();
         cloned.addAll( testEntries );
         this.testEntries = testEntries;
     }
@@ -694,7 +694,7 @@ public class DefaultDirectoryService implements DirectoryService
             while ( cursor.previous() ) // apply ldifs in reverse order
             {
                 ChangeLogEvent event = cursor.get();
-                Entry reverse = event.getReverseLdif();
+                LdifEntry reverse = event.getReverseLdif();
                 
                 switch( reverse.getChangeType().getChangeType() )
                 {
@@ -1248,11 +1248,11 @@ public class DefaultDirectoryService implements DirectoryService
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE );
         ServerLdapContext ctx = new ServerLdapContext( this, principal, new LdapDN() );
 
-        for ( Entry testEntry : testEntries )
+        for ( LdifEntry testEntry : testEntries )
         {
             try
             {
-                Entry entry = testEntry.clone();
+                LdifEntry entry = testEntry.clone();
                 Attributes attributes = entry.getAttributes();
                 String dn = entry.getDn();
 

@@ -30,7 +30,7 @@ import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
@@ -63,7 +63,7 @@ import java.util.List;
 public abstract class AbstractServerTest extends TestCase
 {
     private static final Logger LOG = LoggerFactory.getLogger( AbstractServerTest.class );
-    private static final List<Entry> EMPTY_LIST = Collections.unmodifiableList( new ArrayList<Entry>( 0 ) );
+    private static final List<LdifEntry> EMPTY_LIST = Collections.unmodifiableList( new ArrayList<LdifEntry>( 0 ) );
     private static final String CTX_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
 
     /** the context root for the system partition */
@@ -101,7 +101,7 @@ public abstract class AbstractServerTest extends TestCase
      * @return a list of entries added to the server in the order they were added
      * @throws NamingException of the load fails
      */
-    protected List<Entry> loadTestLdif( boolean verifyEntries ) throws NamingException
+    protected List<LdifEntry> loadTestLdif( boolean verifyEntries ) throws NamingException
     {
         InputStream in = getClass().getResourceAsStream( getClass().getSimpleName() + ".ldif" );
         if ( in == null )
@@ -110,10 +110,10 @@ public abstract class AbstractServerTest extends TestCase
         }
         
         LdifReader ldifReader = new LdifReader( in );
-        List<Entry> entries = new ArrayList<Entry>();
+        List<LdifEntry> entries = new ArrayList<LdifEntry>();
         while ( ldifReader.hasNext() )
         {
-            Entry entry = ldifReader.next();
+            LdifEntry entry = ldifReader.next();
             rootDSE.createSubcontext( entry.getDn(), entry.getAttributes() );
             
             if ( verifyEntries )
@@ -140,7 +140,7 @@ public abstract class AbstractServerTest extends TestCase
      * @param entry the entry to verify
      * @throws NamingException if there are problems accessing the entry
      */
-    protected void verify( Entry entry ) throws NamingException
+    protected void verify( LdifEntry entry ) throws NamingException
     {
         Attributes readAttributes = rootDSE.getAttributes( entry.getDn() );
         NamingEnumeration<String> readIds = entry.getAttributes().getIDs();
@@ -359,11 +359,11 @@ public abstract class AbstractServerTest extends TestCase
     {
         try
         {
-            Iterator<Entry> iterator = new LdifReader( in );
+            Iterator<LdifEntry> iterator = new LdifReader( in );
 
             while ( iterator.hasNext() )
             {
-                Entry entry = iterator.next();
+                LdifEntry entry = iterator.next();
                 LdapDN dn = new LdapDN( entry.getDn() );
                 rootDSE.createSubcontext( dn, entry.getAttributes() );
             }
@@ -386,9 +386,9 @@ public abstract class AbstractServerTest extends TestCase
     protected void injectEntries( String ldif ) throws NamingException
     {
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
-        for ( Entry entry : entries )
+        for ( LdifEntry entry : entries )
         {
             rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
         }

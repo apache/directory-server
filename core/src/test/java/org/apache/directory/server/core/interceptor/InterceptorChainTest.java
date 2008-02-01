@@ -35,7 +35,7 @@ import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
@@ -443,13 +443,13 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public List<Entry> getTestEntries()
+        public List<LdifEntry> getTestEntries()
         {
             return null;
         }
 
 
-        public void setTestEntries( List<? extends Entry> testEntries )
+        public void setTestEntries( List<? extends LdifEntry> testEntries )
         {
         }
 

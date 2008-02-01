@@ -26,7 +26,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getRootCon
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -155,8 +155,8 @@ public class SchemaServiceIT
 
         StringReader in = new StringReader( numberOfGunsAttrLdif + "\n\n" + shipOCLdif );
         LdifReader ldifReader = new LdifReader( in );
-        Entry numberOfGunsAttrEntry = ldifReader.next();
-        Entry shipOCEntry = ldifReader.next();
+        LdifEntry numberOfGunsAttrEntry = ldifReader.next();
+        LdifEntry shipOCEntry = ldifReader.next();
         assertFalse( ldifReader.hasNext() );
         
         // should be fine with unique OID

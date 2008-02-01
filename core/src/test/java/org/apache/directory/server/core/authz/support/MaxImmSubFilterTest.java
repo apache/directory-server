@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingEnumeration;
@@ -389,13 +389,13 @@ public class MaxImmSubFilterTest
         }
 
 
-        public List<Entry> getTestEntries()
+        public List<LdifEntry> getTestEntries()
         {
             return null;
         }
 
 
-        public void setTestEntries( List<? extends Entry> testEntries )
+        public void setTestEntries( List<? extends LdifEntry> testEntries )
         {
         }
 

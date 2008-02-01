@@ -1376,6 +1376,21 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      *  - if the attribute already exists, we add the value (no duplicate)
      *  - or we just add a new attribute to the Map
      *-----------------------------------------------------------------------*/
+
+    /**
+     * Add some Values to the current Entry.
+     *
+     * @param upId The user provided ID of the attribute we want to add 
+     * some values to
+     * @param values The list of Values to add
+     * @throws NamingException
+     */
+    public void add( String upId, Value<?>... values ) throws NamingException
+    {
+        
+    }
+    
+    
     /**
      * Add an attribute (represented by its ID and some String values) into an 
      * entry.

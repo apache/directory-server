@@ -35,7 +35,7 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -263,7 +263,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
         buf.append( "\n#! deleteTimestamp: " );
         buf.append( DateUtils.getGeneralizedTime() );
         
-        Entry entry = new Entry();
+        LdifEntry entry = new LdifEntry();
         entry.setDn( opContext.getDn().getUpName() );
         entry.setChangeType( ChangeType.Delete );
         buf.append( LdifUtils.convertToLdif( entry ) );
