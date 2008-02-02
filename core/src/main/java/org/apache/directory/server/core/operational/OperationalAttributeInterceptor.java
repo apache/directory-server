@@ -457,7 +457,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             else if ( rdn.size() == 1 )
             {
                 String name = atRegistry.lookup( rdn.getNormType() ).getName();
-                String value = (String)rdn.getAtav().getValue(); 
+                String value = (String)rdn.getAtav().getNormValue(); 
                 newDn.add( new Rdn( name, name, value, value ) );
                 continue;
             }
@@ -469,7 +469,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 AttributeTypeAndValue atav = atavs.next();
                 String type = atRegistry.lookup( rdn.getNormType() ).getName();
-                buf.append( type ).append( '=' ).append( atav.getValue() );
+                buf.append( type ).append( '=' ).append( atav.getNormValue() );
                 
                 if ( atavs.hasNext() )
                 {

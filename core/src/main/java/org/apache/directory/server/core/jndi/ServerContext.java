@@ -696,7 +696,7 @@ public abstract class ServerContext implements EventContext
             for ( Iterator<AttributeTypeAndValue> ii = rdn.iterator(); ii.hasNext(); /**/ )
             {
                 AttributeTypeAndValue atav = ( AttributeTypeAndValue ) ii.next();
-                attributes.put( atav.getUpType(), atav.getValue() );
+                attributes.put( atav.getUpType(), atav.getNormValue() );
             }
         }
     }

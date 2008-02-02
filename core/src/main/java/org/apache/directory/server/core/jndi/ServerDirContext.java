@@ -436,11 +436,11 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 doRdnPut = doRdnPut || attributes.get( atav.getNormType() ).size() == 0;
                 
                 // TODO Fix DIRSERVER-832
-                doRdnPut = doRdnPut || !attributes.get( atav.getNormType() ).contains( atav.getValue() );
+                doRdnPut = doRdnPut || !attributes.get( atav.getNormType() ).contains( atav.getNormValue() );
         
                 if ( doRdnPut )
                 {
-                    attributes.put( atav.getNormType(), atav.getValue() );
+                    attributes.put( atav.getNormType(), atav.getNormValue() );
                 }
             }
         }
