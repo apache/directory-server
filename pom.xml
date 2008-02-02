@@ -334,6 +334,7 @@
     <module>core-unit</module>
     <module>core-integ</module>
     <module>core-entry</module>
+    <module>core-splay</module>
     <module>protocol-shared</module>
     <module>protocol-ntp</module>
     <module>protocol-ldap</module>
@@ -563,6 +564,8 @@
         <module>core-shared</module>
         <module>core-plugin</module>
         <module>core-unit</module>
+        <module>core-entry</module>
+        <module>core-splay</module>
         <module>protocol-shared</module>
         <module>protocol-ntp</module>
         <module>protocol-ldap</module>
