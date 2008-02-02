@@ -19,19 +19,16 @@
  */
 package org.apache.directory.shared.ldap.name;
 
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-
-import javax.naming.InvalidNameException;
 
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A helper class which serialize and deserialize a AttributeTypeAndValue
+ * A helper class which serialize and deserialize an AttributeTypeAndValue
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -137,7 +134,7 @@ public class AtavSerializer
     
     
     /**
-     * @see Externalizable#readExternal(ObjectInput)
+     * Deserialize an AttributeTypeAndValue object
      * 
      * We read back the data to create a new ATAV. The structure 
      * read is exposed in the {@link AttributeTypeAndValue#writeExternal(ObjectOutput)} 

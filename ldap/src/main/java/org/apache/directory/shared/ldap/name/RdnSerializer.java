@@ -19,7 +19,6 @@
  */
 package org.apache.directory.shared.ldap.name;
 
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -40,7 +39,7 @@ public class RdnSerializer
     protected static final Logger LOG = LoggerFactory.getLogger( RdnSerializer.class );
 
     /**
-     * @see Externalizable#readExternal(ObjectInput)<p>
+     * Serialize a RDN instance
      * 
      * A RDN is composed of on to many ATAVs (AttributeType And Value).
      * We should write all those ATAVs sequencially, following the 
@@ -88,7 +87,7 @@ public class RdnSerializer
     }
     
     /**
-     * @see Externalizable#readExternal(ObjectInput)
+     * Deserialize a RDN instance
      * 
      * We read back the data to create a new RDB. The structure 
      * read is exposed in the {@link Rdn#writeExternal(ObjectOutput)} 
@@ -110,12 +109,14 @@ public class RdnSerializer
             normName = upName;
         }
         
+        // Read the RDN's position and length
         int start = in.readInt();
         int length = in.readInt();
         
+        // Now creates the RDN
         Rdn rdn = new Rdn( length, start, upName, normName );
 
-        
+        // Read through the Atavs
         switch ( nbAtavs )
         {
             case 0 :

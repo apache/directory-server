@@ -39,6 +39,8 @@ public class DnSerializer
     protected static final Logger LOG = LoggerFactory.getLogger( DnSerializer.class );
 
     /**
+     * Serialize a DN
+     * 
      * We have to store a DN data efficiently. Here is the structure :
      * 
      * <li>upName</li> The User provided DN<p>
@@ -82,24 +84,14 @@ public class DnSerializer
         
         // Should we store the byte[] ???
         
-        // Write the RDNs. Is it's null, the number will be -1. 
-        if ( dn.getRdns() == null )
+        // Write the RDNs.
+        // First the number of RDNs
+        out.writeInt( dn.size() );
+        
+        // Loop on the RDNs
+        for ( Rdn rdn:dn.getRdns() )
         {
-            out.writeInt( -1 );
-        }
-        else if ( dn.size() == 0 )
-        {
-            out.writeInt( 0 );
-        }
-        else
-        {
-            out.writeInt( dn.size() );
-            
-            // Loop on the RDNs
-            for ( Rdn rdn:dn.getRdns() )
-            {
-                RdnSerializer.serialize( rdn, out );
-            }
+            RdnSerializer.serialize( rdn, out );
         }
         
         out.flush();
@@ -107,6 +99,8 @@ public class DnSerializer
 
 
     /**
+     * Deserialize a DN
+     * 
      * We read back the data to create a new LdapDN. The structure 
      * read is exposed in the {@link DnSerializer#serialize(LdapDN, ObjectOutput)} 
      * method<p>
