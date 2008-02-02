@@ -23,9 +23,6 @@ package org.apache.directory.shared.ldap.name;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -2839,6 +2836,45 @@ public class LdapDNTest
     {
         LdapDN dn = LdapDN.EMPTY_LDAPDN;
         
+        assertEquals( dn, deserializeDN( serializeDN( dn ) ) );
+    }
+
+
+    /**
+     * Test the serialization of a DN
+     *
+     * @throws Exception
+     */
+    @Test public void testNameStaticSerialization() throws Exception
+    {
+        LdapDN dn = new LdapDN( "ou= Some   People   + dc=  And   Some anImAls,dc = eXample,dc= cOm" );
+        dn.normalize( oids );
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        DnSerializer.serialize( dn, out );
+        
+        byte[] data = baos.toByteArray();
+        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+        assertEquals( dn, DnSerializer.deserialize( in ) );
+    }
+
+
+    @Test public void testStaticSerializeEmptyDN() throws Exception
+    {
+        LdapDN dn = LdapDN.EMPTY_LDAPDN;
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        DnSerializer.serialize( dn, out );
+        
+        byte[] data = baos.toByteArray();
+        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+        assertEquals( dn, DnSerializer.deserialize( in ) );
         assertEquals( dn, deserializeDN( serializeDN( dn ) ) );
     }
 }

@@ -69,7 +69,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
     private String upType;
 
     /** The name value. It can be a String or a byte array */
-    private Object value;
+    private Object normValue;
 
     /** The name user provided value. It can be a String or a byte array */
     private Object upValue;
@@ -97,7 +97,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
     {
         normType = null;
         upType = null;
-        value = null;
+        normValue = null;
         upValue = null;
         upName = "";
         start = -1;
@@ -156,11 +156,11 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
         {
             if ( normValue instanceof String )
             {
-                this.value = StringTools.isEmpty( ( String ) normValue ) ? "" : normValue;
+                this.normValue = StringTools.isEmpty( ( String ) normValue ) ? "" : normValue;
             }
             else
             {
-                this.value = normValue;
+                this.normValue = normValue;
             }
 
             if ( upValue instanceof String )
@@ -179,11 +179,11 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
     
             if ( normValue instanceof String )
             {
-                this.value = StringTools.isEmpty( ( String ) normValue ) ? "" : normValue;
+                this.normValue = StringTools.isEmpty( ( String ) normValue ) ? "" : normValue;
             }
             else
             {
-                this.value = normValue;
+                this.normValue = normValue;
             }
         }
 
@@ -193,6 +193,38 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
     }
 
 
+    /**
+     * Construct an AttributeTypeAndValue. The type and value are normalized :
+     * <li> the type is trimmed and lowercased </li>
+     * <li> the value is trimmed </li>
+     * <p>
+     * Note that the upValue should <b>not</b> be null or empty, or resolved
+     * to an empty string after having trimmed it. 
+     *
+     * @param upType The Usrr Provided type
+     * @param normType The normalized type
+     * @param upValue The User Provided value
+     * @param normValue The normalized value
+     */
+    /**No protection*/ AttributeTypeAndValue( 
+                            String upType, 
+                            String normType, 
+                            Object upValue, 
+                            Object normValue,
+                            int start, 
+                            int length, 
+                            String upName )
+    {
+        this.upType = upType;
+        this.normType = normType;
+        this.upValue = upValue;
+        this.normValue = normValue;
+        this.start = start;
+        this.length = length;
+        this.upName = upName;
+    }
+
+    
     /**
      * Get the normalized type of a AttributeTypeAndValue
      *
@@ -283,9 +315,9 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
      *
      * @return The value
      */
-    public Object getValue()
+    public Object getNormValue()
     {
-        return value;
+        return normValue;
     }
 
     /**
@@ -315,15 +347,15 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
      * @param value
      *            The value of the AttributeTypeAndValue
      */
-    public void setValue( Object upValue, Object value )
+    public void setValue( Object upValue, Object normValue )
     {
-        if ( value instanceof String )
+        if ( normValue instanceof String )
         {
-            this.value = StringTools.isEmpty( ( String ) value ) ? "" : ( String ) value;
+            this.normValue = StringTools.isEmpty( ( String ) normValue ) ? "" : ( String ) normValue;
         }
         else
         {
-            this.value = value;
+            this.normValue = normValue;
         }
 
         this.upValue = upValue;
@@ -378,11 +410,11 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
 
         if ( StringTools.isEmpty( newValue ) )
         {
-            this.value = "";
+            this.normValue = "";
         }
         else
         {
-            this.value = newValue;
+            this.normValue = newValue;
         }
 
         upName = upName.substring( 0, upName.indexOf( '=' ) + 1 ) + value;
@@ -410,8 +442,9 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
 
 
     /**
-     * Compares two NameComponents. They are equals if : - types are equals,
-     * case insensitive, - values are equals, case sensitive
+     * Compares two NameComponents. They are equals if : 
+     * - types are equals, case insensitive, 
+     * - values are equals, case sensitive
      *
      * @param object
      * @return 0 if both NC are equals, otherwise a positive value if the
@@ -432,7 +465,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
             }
             else
             {
-                return compareValue( value, nc.value, CASE_SENSITIVE );
+                return compareValue( normValue, nc.normValue, CASE_SENSITIVE );
             }
         }
         else
@@ -443,8 +476,9 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
 
 
     /**
-     * Compares two NameComponents. They are equals if : - types are equals,
-     * case insensitive, - values are equals, case insensitive
+     * Compares two NameComponents. They are equals if : 
+     * - types are equals, case insensitive, 
+     * - values are equals, case insensitive
      *
      * @param object
      * @return 0 if both NC are equals, otherwise a positive value if the
@@ -465,7 +499,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
             }
             else
             {
-                return compareValue( value, nc.value, CASE_INSENSITIVE );
+                return compareValue( normValue, nc.normValue, CASE_INSENSITIVE );
             }
         }
         else
@@ -572,7 +606,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
      */
     public String normalize()
     {
-        if ( value instanceof String )
+        if ( normValue instanceof String )
         {
         	// The result will be gathered in a stringBuilder
             StringBuilder sb = new StringBuilder();
@@ -580,7 +614,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
             // First, store the type and the '=' char
             sb.append( normType ).append( '=' );
             
-            String normalizedValue =  ( String ) value;
+            String normalizedValue =  ( String ) normValue;
             int valueLength = normalizedValue.length();
             boolean escaped = false;
             
@@ -680,7 +714,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
         else
         {
             return normType + "=#"
-                + StringTools.dumpHexPairs( ( byte[] ) value );
+                + StringTools.dumpHexPairs( ( byte[] ) normValue );
         }
     }
 
@@ -695,7 +729,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
         int result = 37;
 
         result = result*17 + ( normType != null ? normType.hashCode() : 0 );
-        result = result*17 + ( value != null ? value.hashCode() : 0 );
+        result = result*17 + ( normValue != null ? normValue.hashCode() : 0 );
 
         return result;
     }
@@ -734,26 +768,26 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
         }
             
         // Compare the values
-        if ( value == null )
+        if ( normValue == null )
         {
-            return instance.value == null;
+            return instance.normValue == null;
         }
-        else if ( value instanceof String )
+        else if ( normValue instanceof String )
         {
-            if ( instance.value instanceof String )
+            if ( instance.normValue instanceof String )
             {
-                return value.equals( instance.value );
+                return normValue.equals( instance.normValue );
             }
             else
             {
                 return false;
             }
         }
-        else if ( value instanceof byte[] )
+        else if ( normValue instanceof byte[] )
         {
-            if ( instance.value instanceof byte[] )
+            if ( instance.normValue instanceof byte[] )
             {
-                return Arrays.equals( (byte[])value, (byte[])instance.value );
+                return Arrays.equals( (byte[])normValue, (byte[])instance.normValue );
             }
             else
             {
@@ -798,7 +832,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
              ( start < 0 ) ||
              ( length < 2 ) ||             // At least a type and '='
              ( upValue == null ) ||
-             ( value == null ) )
+             ( normValue == null ) )
         {
             String message = "Cannot serialize an wrong ATAV, ";
             
@@ -826,7 +860,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
             {
                 message += "the upValue should not be null";
             }
-            else if ( value == null )
+            else if ( normValue == null )
             {
                 message += "the value should not be null";
             }
@@ -841,21 +875,21 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
         out.writeUTF( upType );
         out.writeUTF( normType );
         
-        boolean isHR = ( value instanceof String );
+        boolean isHR = ( normValue instanceof String );
         
         out.writeBoolean( isHR );
         
         if ( isHR )
         {
             out.writeUTF( (String)upValue );
-            out.writeUTF( (String)value );
+            out.writeUTF( (String)normValue );
         }
         else
         {
             out.writeInt( ((byte[])upValue).length );
             out.write( (byte[])upValue );
-            out.writeInt( ((byte[])value).length );
-            out.write( (byte[])value );
+            out.writeInt( ((byte[])normValue).length );
+            out.write( (byte[])normValue );
         }
         
         out.flush();
@@ -882,7 +916,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
         if ( isHR )
         {
             upValue = in.readUTF();
-            value = in.readUTF();
+            normValue = in.readUTF();
         }
         else
         {
@@ -891,8 +925,8 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
             in.readFully( (byte[])upValue );
 
             int valueLength = in.readInt();
-            value = new byte[valueLength];
-            in.readFully( (byte[])value );
+            normValue = new byte[valueLength];
+            in.readFully( (byte[])normValue );
         }
     }
     
@@ -913,9 +947,9 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
 
         sb.append( normType ).append( "=" );
 
-        if ( value != null )
+        if ( normValue != null )
         {
-            sb.append( value );
+            sb.append( normValue );
         }
 
         return sb.toString();

@@ -74,6 +74,39 @@ public interface Entry<T extends EntryAttribute<?>> extends Cloneable, Iterable<
 
 
     /**
+     * Add some String values to the current Entry.
+     *
+     * @param upId The user provided ID of the attribute we want to add 
+     * some values to
+     * @param values The list of String values to add
+     * @throws NamingException
+     */
+    void add( String upId, String... values ) throws NamingException;
+
+    
+    /**
+     * Add some binary values to the current Entry.
+     *
+     * @param upId The user provided ID of the attribute we want to add 
+     * some values to
+     * @param values The list of binary values to add
+     * @throws NamingException
+     */
+    void add( String upId, byte[]... values ) throws NamingException;
+
+    
+    /**
+     * Add some Values to the current Entry.
+     *
+     * @param upId The user provided ID of the attribute we want to add 
+     * some values to
+     * @param values The list of Values to add
+     * @throws NamingException
+     */
+    void add( String upId, Value<?>... values ) throws NamingException;
+    
+    
+    /**
      * Places non-null attributes in the attribute collection. If there is
      * already an attribute with the same OID as any of the new attributes, 
      * the old ones are removed from the collection and are returned by this 
