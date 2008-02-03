@@ -69,18 +69,8 @@ public class ItemPermission extends Permission
 
     public String toString()
     {
-        return "itemPermission: precedence=" + getPrecedence() + ", " + "userClasses=" + userClasses + ", "
-            + "grantsAndDenials=" + getGrantsAndDenials();
-    }
-    
-    /**
-     * Converts this item into its string representation as stored
-     * in directory.
-     *
-     * @param buffer the string buffer
-     */
-    public void printToBuffer( StringBuilder buffer )
-    {
+        StringBuilder buffer = new StringBuilder();
+        
         buffer.append( "{ " );
 
         if ( getPrecedence() >= 0 && getPrecedence() <= 255 )
@@ -105,7 +95,7 @@ public class ItemPermission extends Permission
                 buffer.append( ", " );
             }
 
-            userClass.printToBuffer( buffer );
+            buffer.append( userClass.toString() );
         }
         
         buffer.append( " }, grantsAndDenials { " );
@@ -123,9 +113,11 @@ public class ItemPermission extends Permission
                 buffer.append( ", " );
             }
 
-            grantAndDenial.printToBuffer( buffer );
+            buffer.append( grantAndDenial.toString() );
         }
         
         buffer.append( " } }" );
+        
+        return buffer.toString();
     }
 }
