@@ -1087,4 +1087,16 @@ public class RdnTest
 
         assertEquals( rdn, rdn2 );
     }
+
+
+    /**
+     * test an RDN with empty value
+     */
+    @Test
+    public void testRdnWithEmptyValue() throws InvalidNameException
+    {
+        assertEquals( "a=", new Rdn( "a=\"\"" ).toString() );
+        assertEquals( "a=", new Rdn( "a=" ).toString() );
+    }
+
 }
