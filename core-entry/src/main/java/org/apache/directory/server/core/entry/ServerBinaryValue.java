@@ -109,6 +109,25 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
     }
 
 
+    /**
+     * Creates a ServerStringValue with an initial wrapped String value and
+     * a normalized value.
+     *
+     * @param attributeType the schema type associated with this ServerStringValue
+     * @param wrapped the value to wrap which can be null
+     * @param normalizedValue the normalized value
+     */
+    /** No protection */ ServerBinaryValue( AttributeType attributeType, byte[] wrapped, byte[] normalizedValue, boolean same, boolean valid )
+    {
+        setNormalized( true );
+        this.attributeType = attributeType;
+        super.set( wrapped );
+        setNormalizedValue( normalizedValue );
+        this.same = same;
+        this.valid = valid;
+    }
+
+
     // -----------------------------------------------------------------------
     // Value<String> Methods
     // -----------------------------------------------------------------------
@@ -215,6 +234,25 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
 
 
     /**
+     * Sets this value's wrapped value to a copy of the src array.
+     *
+     * @param wrapped the byte array to use as the wrapped value
+     */
+    private void setNormalizedValue( byte[] normalizedValue )
+    {
+        if ( normalizedValue != null )
+        {
+            this.normalizedValue = new byte[ normalizedValue.length ];
+            System.arraycopy( normalizedValue, 0, this.normalizedValue, 0, normalizedValue.length );
+        }
+        else
+        {
+            this.normalizedValue = null;
+        }
+    }
+
+
+    /**
      * Gets a direct reference to the normalized representation for the
      * wrapped value of this ServerValue wrapper. Implementations will most
      * likely leverage the attributeType this value is associated with to
@@ -256,6 +294,15 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
         return valid;
     }
 
+    
+    /**
+     * @return Tells if the wrapped value and the normalized value are the same 
+     */
+    public final boolean isSame()
+    {
+        return same;
+    }
+    
 
     /**
      *
@@ -419,24 +466,6 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
         }
 
         return compareTo( (ServerValue<byte[]>)other ) == 0;
-        
-        /*
-        // now unlike regular values we have to compare the normalized values
-        try
-        {
-            return Arrays.equals( getNormalizedReference(), other.getNormalizedReference() );
-        }
-        catch ( NamingException e )
-        {
-            // 1st this is a warning because we're recovering from it and secondly
-            // we build big string since waste is not an issue when exception handling
-            LOG.warn( "Failed to get normalized value while trying to compare StringValues: "
-                    + toString() + " and " + other.toString() , e );
-
-            // recover by comparing non-normalized values
-            return Arrays.equals( getReference(), other.getReference() );
-        }
-        */
     }
 
 

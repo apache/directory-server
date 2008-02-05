@@ -105,6 +105,24 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
     }
 
 
+    /**
+     * Creates a ServerStringValue with an initial wrapped String value and
+     * a normalized value.
+     *
+     * @param attributeType the schema type associated with this ServerStringValue
+     * @param wrapped the value to wrap which can be null
+     * @param normalizedValue the normalized value
+     */
+    /** No protection */ ServerStringValue( AttributeType attributeType, String wrapped, String normalizedValue, boolean valid )
+    {
+        setNormalized( true );
+        this.attributeType = attributeType;
+        super.set( wrapped );
+        this.normalizedValue = normalizedValue;
+        this.valid = valid;
+    }
+
+
     // -----------------------------------------------------------------------
     // Value<String> Methods
     // -----------------------------------------------------------------------

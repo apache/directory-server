@@ -29,10 +29,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -770,84 +766,69 @@ public abstract class AbstractServerAttribute implements ServerAttribute
         return attributeId.equalsIgnoreCase( attributeType.getOid() );
     }
     
+
     /**
-     * @see Externalizable#writeExternal(ObjectOutput)
-     * 
-     * We have to store the UPid, and all the values, if any.
-     */
-    public void writeExternal( ObjectOutput out ) throws IOException
-    {
-        // Do nothing : we can't restore the AttributeType ...
-    }
+     * Gets the hashcode of this ServerAttribute.
+     *
+     * @see java.lang.Object#hashCode()
+      */
+     public int hashCode()
+     {
+         int result = 37;
+         
+         result = result*17 + attributeType.hashCode();
+         
+         for ( ServerValue<?> value:values )
+         {
+             result = result*17 + value.hashCode();
+         }
 
-    
-    /**
-     * @see Externalizable#readExternal(ObjectInput)
-     */
-    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
-    {
-        if ( in.available() == 0 )
-        {
-            String message = "Cannot read an null Attribute";
-            LOG.error( message );
-            throw new IOException( message );
-        }
-        else
-        {
-            // Read the HR flag
-            boolean hr = in.readBoolean();
-            
-            // Read the UPid
-            upId = in.readUTF();
+         return result;
+     }
+     
+     
+     /**
+      * @see Object#equals(Object)
+      */
+     public boolean equals( Object o )
+     {
+         if ( this == o )
+         {
+             return true;
+         }
+         
+         if ( !(o instanceof ServerAttribute ) )
+         {
+             return false;
+         }
+         
+         ServerAttribute attribute = (ServerAttribute)o;
+         
+         if ( attributeType != attribute.getType() )
+         {
+             return false;
+         }
+         
+         if ( size() != attribute.size() )
+         {
+             return false;
+         }
+         
+         for ( ServerValue<?> value:this )
+         {
+             try
+             {
+                 if ( !attribute.contains( value ) )
+                 {
+                     return false;
+                 }
+             }
+             catch ( NamingException ne )
+             {
+                 return false;
+             }
+         }
 
-            // Read the number of values
-            int nbValues = in.readInt();
-            
-            switch ( nbValues )
-            {
-                case -1 :
-                    values = null;
-                    break;
-                    
-                case 0 :
-                    values = new ArrayList<ServerValue<?>>();
-                    break;
-                    
-                default :
-                    values = new ArrayList<ServerValue<?>>();
-                
-                    for ( int i = 0; i < nbValues; i++ )
-                    {
-                        if ( hr )
-                        {
-                            ServerStringValue value = new ServerStringValue( attributeType );
-                        }
-                    }
-                    
-                    break;
-            }
-                    
-            if ( nbValues != 0 )
-            {
-                
-            }
-            else
-            {
-                
-            }
-
-            String wrapped = in.readUTF();
-            /**
-            set( wrapped );
-            
-            normalizedValue = in.readUTF();
-            
-            if ( ( normalizedValue.length() == 0 ) &&  ( wrapped.length() != 0 ) )
-            {
-                // In this case, the normalized value is equal to the UP value
-                normalizedValue = wrapped;
-            }
-            */
-        }
-    }
+         return true;
+     }
 }

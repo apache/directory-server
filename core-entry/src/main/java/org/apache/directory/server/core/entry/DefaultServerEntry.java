@@ -1089,16 +1089,16 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      * @return <code>true</code> if the value is found within the attribute
      * @throws NamingException If there is a problem
      */
-    public boolean contains( ServerAttribute attribute, Value<?> value ) throws NamingException
+    public boolean contains( AttributeType attributeType, Value<?> value ) throws NamingException
     {
-        if ( attribute == null )
+        if ( attributeType == null )
         {
             return false;
         }
         
-        if ( serverAttributeMap.containsKey( attribute.getType() ) )
+        if ( serverAttributeMap.containsKey( attributeType ) )
         {
-            return serverAttributeMap.get( attribute.getType() ).contains( (ServerValue<?>)value );
+            return serverAttributeMap.get( attributeType ).contains( (ServerValue<?>)value );
         }
         else
         {
@@ -1282,7 +1282,15 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
         else
         {
             objectClassAttribute.add( values );
-            attribute.add( values );
+            
+            if ( attribute == null )
+            {
+                serverAttributeMap.put(  OBJECT_CLASS_AT, objectClassAttribute ); 
+            }
+            else
+            {
+                attribute.add( values );
+            }
         }
     }
     
@@ -1823,7 +1831,69 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
             }
         }
     }
+    
+    
+    /**
+    * Gets the hashcode of this ServerEntry.
+    *
+    * @see java.lang.Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int result = 37;
+        
+        result = result*17 + dn.hashCode();
+        
+        for ( ServerAttribute attribute:serverAttributeMap.values() )
+        {
+            result = result*17 + attribute.hashCode();
+        }
 
+        return result;
+    }
+
+    
+    public boolean equals( Object o )
+    {
+        if ( this == o )
+        {
+            return true;
+        }
+        
+        if ( ! ( o instanceof DefaultServerEntry ) )
+        {
+            return false;
+        }
+        
+        DefaultServerEntry other = (DefaultServerEntry)o;
+        
+        if ( !dn.equals( other.getDn() ) )
+        {
+            return false;
+        }
+        
+        if ( size() != other.size() )
+        {
+            return false;
+        }
+        
+        for ( ServerAttribute attribute:other )
+        {
+            ServerAttribute attr = this.get( attribute.getType() );
+            
+            if ( attr == null )
+            {
+                return false;
+            }
+            
+            if ( !attribute.equals( attr ) )
+            {
+                return false;
+            }
+        }
+        
+        return true;
+    }
         
     /**
      * @see Object#toString()
