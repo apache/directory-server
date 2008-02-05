@@ -2862,6 +2862,55 @@ public class LdapDNTest
     }
 
 
+    /*
+    @Test public void testSerializationPerfs() throws Exception
+    {
+        LdapDN dn = new LdapDN( "ou= Some   People   + dc=  And   Some anImAls,dc = eXample,dc= cOm" );
+        dn.normalize( oids );
+
+        long t0 = System.currentTimeMillis();
+        
+        for ( int i = 0; i < 1000; i++ )
+        {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream( baos );
+
+            DnSerializer.serialize( dn, out );
+            
+            byte[] data = baos.toByteArray();
+            ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+            
+            LdapDN dn1 = DnSerializer.deserialize( in );
+        }
+        
+        long t1 = System.currentTimeMillis();
+        
+        System.out.println( "delta :" + ( t1 - t0) );
+
+        long t2 = System.currentTimeMillis();
+        
+        for ( int i = 0; i < 1000000; i++ )
+        {
+            //ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            //ObjectOutputStream out = new ObjectOutputStream( baos );
+
+            //DnSerializer.serializeString( dn, out );
+            
+            //byte[] data = baos.toByteArray();
+            //ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+            
+            //LdapDN dn1 = DnSerializer.deserializeString( in, oids );
+            dn.normalize( oids );
+        }
+        
+        long t3 = System.currentTimeMillis();
+
+        System.out.println( "delta :" + ( t3 - t2) );
+
+        //assertEquals( dn, DnSerializer.deserialize( in ) );
+    }
+    */
+
     @Test public void testStaticSerializeEmptyDN() throws Exception
     {
         LdapDN dn = LdapDN.EMPTY_LDAPDN;

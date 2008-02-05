@@ -20,6 +20,7 @@ package org.apache.directory.shared.ldap.entry;
 
 
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import javax.naming.NamingException;
 
@@ -134,12 +135,12 @@ public interface Entry<T extends EntryAttribute<?>> extends Cloneable, Iterable<
     /**
      * Checks if an entry contains an attribute with a given value.
      *
-     * @param attribute The Attribute we are looking for
+     * @param attributeType The Attribute type we are looking for
      * @param value The searched value
      * @return <code>true</code> if the value is found within the attribute
      * @throws NamingException If the attribute does not exist
      */
-    boolean contains( T attribute, Value<?> value ) throws NamingException;
+    boolean contains( AttributeType attributeType, Value<?> value ) throws NamingException;
     
     
     /**
