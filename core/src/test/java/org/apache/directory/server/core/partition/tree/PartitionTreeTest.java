@@ -57,7 +57,14 @@ public class PartitionTreeTest
         
         assertNotNull( node );
         assertTrue( node instanceof BranchNode );
-        assertEquals( "{Branch: {Leaf: 'dc=example, dc=com'}}", node.toString() );
+        assertTrue( ((BranchNode)node).contains( "dc=com" ) );
+        
+        Node child = ((BranchNode)node).getChild( "dc=com" );
+        assertTrue( child instanceof BranchNode );
+        assertTrue( ((BranchNode)child).contains( "dc=example" ) );
+
+        child = ((BranchNode)child).getChild( "dc=example" );
+        assertEquals( "dc=example, dc=com", ((LeafNode)child).getPartition().getSuffix() );
     }
 
 
@@ -83,7 +90,20 @@ public class PartitionTreeTest
 
         assertNotNull( node );
         assertTrue( node instanceof BranchNode );
-        assertEquals( "{Leaf: 'ou=system', Branch: {Leaf: 'dc=example, dc=com'}}", node.toString() );
+        assertTrue( ((BranchNode)node).contains( "ou=system" ) );
+        assertTrue( ((BranchNode)node).contains( "dc=com" ) );
+        
+        Node child = ((BranchNode)node).getChild( "ou=system" );
+        assertTrue( child instanceof LeafNode );
+        assertEquals( "ou=system", ((LeafNode)child).getPartition().getSuffix() );
+
+        child = ((BranchNode)node).getChild( "dc=com" );
+        assertTrue( child instanceof BranchNode );
+        assertTrue( ((BranchNode)child).contains( "dc=example" ) );
+        
+        child = ((BranchNode)child).getChild( "dc=example" );
+        assertTrue( child instanceof LeafNode );
+        assertEquals( "dc=example, dc=com", ((LeafNode)child).getPartition().getSuffix() );
     }
 
 
@@ -138,7 +158,24 @@ public class PartitionTreeTest
         Node node = partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix2, 0, partition2 );
 
         assertNotNull( node );
+        
         assertTrue( node instanceof BranchNode );
-        assertEquals( "{Branch: {Leaf: 'dc=example2, dc=com', Leaf: 'dc=example1, dc=com'}}", node.toString() );
+        assertTrue( ((BranchNode)node).contains( "dc=com" ) );
+        
+        Node child = ((BranchNode)node).getChild( "dc=com" );
+        assertTrue( child instanceof BranchNode );
+
+        child = ((BranchNode)node).getChild( "dc=com" );
+        assertTrue( child instanceof BranchNode );
+        assertTrue( ((BranchNode)child).contains( "dc=example1" ) );
+        assertTrue( ((BranchNode)child).contains( "dc=example2" ) );
+        
+        Node child1 = ((BranchNode)child).getChild( "dc=example1" );
+        assertTrue( child1 instanceof LeafNode );
+        assertEquals( "dc=example1, dc=com", ((LeafNode)child1).getPartition().getSuffix() );
+
+        Node child2 = ((BranchNode)child).getChild( "dc=example1" );
+        assertTrue( child2 instanceof LeafNode );
+        assertEquals( "dc=example1, dc=com", ((LeafNode)child2).getPartition().getSuffix() );
     }
 }
