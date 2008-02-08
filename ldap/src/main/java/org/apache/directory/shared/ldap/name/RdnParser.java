@@ -374,6 +374,12 @@ public class RdnParser
      */
     private static Object parseAttributeValue( byte[] bytes, Position pos )
     {
+        if ( pos.start == bytes.length )
+        {
+            // This is an empty value
+            return "";
+        }
+
         //StringBuffer sb = new StringBuffer();
         byte c = bytes[pos.start];
         byte[] buffer = new byte[bytes.length];
