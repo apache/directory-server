@@ -123,7 +123,7 @@ public class GrantAndDenial
     private final boolean grant;
 
 
-    private GrantAndDenial(MicroOperation microOperation, int code, boolean grant)
+    private GrantAndDenial( MicroOperation microOperation, int code, boolean grant )
     {
         this.microOperation = microOperation;
         this.code = code;
@@ -170,18 +170,6 @@ public class GrantAndDenial
 
     public String toString()
     {
-        return "[" + code + "] " + name;
-    }
-    
-    
-    /**
-     * Converts this item into its string representation as stored
-     * in directory.
-     *
-     * @param buffer the string buffer
-     */
-    public void printToBuffer( StringBuilder buffer )
-    {
-        buffer.append( getName() );
+        return name;
     }
 }

@@ -58,16 +58,6 @@ public abstract class UserClass implements Serializable
     protected UserClass()
     {
     }
-    
-    
-    /**
-     * Converts this item into its string representation as stored
-     * in directory.
-     *
-     * @param buffer the string buffer
-     */
-    public abstract void printToBuffer( StringBuilder buffer );
-    
 
     /**
      * Every directory user (with possible requirements for
@@ -86,12 +76,6 @@ public abstract class UserClass implements Serializable
         public String toString()
         {
             return "allUsers";
-        }
-        
-        
-        public void printToBuffer( StringBuilder buffer )
-        {
-            buffer.append( "allUsers" );
         }
     }
 
@@ -113,12 +97,6 @@ public abstract class UserClass implements Serializable
         public String toString()
         {
             return "thisEntry";
-        }
-        
-        
-        public void printToBuffer( StringBuilder buffer )
-        {
-            buffer.append( "thisEntry" );
         }
     }
 
@@ -174,16 +152,12 @@ public abstract class UserClass implements Serializable
 
         public String toString()
         {
-            return names.toString();
-        }
-        
-        
-        public void printToBuffer( StringBuilder buffer )
-        {
+            StringBuilder buffer = new StringBuilder();
+
             boolean isFirst = true;
             buffer.append( "{ " );
-            
-            for ( javax.naming.Name name:names )
+
+            for ( javax.naming.Name name : names )
             {
                 if ( isFirst )
                 {
@@ -193,13 +167,15 @@ public abstract class UserClass implements Serializable
                 {
                     buffer.append( ", " );
                 }
-                
+
                 buffer.append( '"' );
                 buffer.append( name.toString() );
                 buffer.append( '"' );
             }
-            
+
             buffer.append( " }" );
+
+            return buffer.toString();
         }
     }
 
@@ -225,14 +201,7 @@ public abstract class UserClass implements Serializable
 
         public String toString()
         {
-            return "name: " + super.toString();
-        }
-        
-        
-        public void printToBuffer( StringBuilder buffer )
-        {
-            buffer.append( "name " );
-            super.printToBuffer( buffer );
+            return "name " + super.toString();
         }
     }
 
@@ -261,14 +230,7 @@ public abstract class UserClass implements Serializable
 
         public String toString()
         {
-            return "userGroup: " + super.toString();
-        }
-        
-        
-        public void printToBuffer( StringBuilder buffer )
-        {
-            buffer.append( "userGroup " );
-            super.printToBuffer( buffer );
+            return "userGroup " + super.toString();
         }
     }
 
@@ -291,7 +253,8 @@ public abstract class UserClass implements Serializable
          */
         public Subtree( Collection<SubtreeSpecification> subtreeSpecs )
         {
-            this.subtreeSpecifications = Collections.unmodifiableCollection( new ArrayList<SubtreeSpecification>( subtreeSpecs ) );
+            this.subtreeSpecifications = Collections.unmodifiableCollection( new ArrayList<SubtreeSpecification>(
+                subtreeSpecs ) );
         }
 
 
@@ -323,16 +286,12 @@ public abstract class UserClass implements Serializable
 
         public String toString()
         {
-            return "subtree: " + subtreeSpecifications;
-        }
-        
-        
-        public void printToBuffer( StringBuilder buffer )
-        {
+            StringBuilder buffer = new StringBuilder();
+
             boolean isFirst = true;
             buffer.append( "subtree { " );
-            
-            for ( SubtreeSpecification ss:subtreeSpecifications )
+
+            for ( SubtreeSpecification ss : subtreeSpecifications )
             {
                 if ( isFirst )
                 {
@@ -342,11 +301,13 @@ public abstract class UserClass implements Serializable
                 {
                     buffer.append( ", " );
                 }
-                
+
                 ss.printToBuffer( buffer );
             }
-            
+
             buffer.append( " }" );
+
+            return buffer.toString();
         }
     }
 }

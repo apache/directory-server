@@ -23,8 +23,6 @@ package org.apache.directory.shared.ldap.aci;
 
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.aci.ACIItemParser;
-
 import junit.framework.TestCase;
 
 
@@ -64,6 +62,13 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    private void checkItemToString( String spec, ACIItem item ) throws Exception
+    {
+        // try to parse the result of item.toString() again
+        parser.parse( item.toString() );
+    }
+
+
     /**
      * Tests the parser with a rangeOfValues with a nested filter.
      */
@@ -73,16 +78,16 @@ public class ACIItemParserTest extends TestCase
             + "itemOrUserFirst itemFirst  :{ protectedItems  "
             + "{ rangeOfValues (&(&(|(|(cn=ccc)(!(cn=ddd))(&(cn=aaa)(cn=bbb)))))) " + "}  , itemPermissions {  } } }";
 
-        parser.parse( spec );
-        
-        
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
+
         spec = " { identificationTag \"id8\", precedence 0, authenticationLevel simple "
             + ", itemOrUserFirst userFirst: { userClasses { allUsers }, userPermissions { "
             + " { protectedItems { rangeOfValues (&(cn=test)(sn=test)) }, grantsAndDenials { grantAdd } }, "
-            + "{ protectedItems { rangeOfValues (|(!(cn=aaa))(sn=bbb)) }, grantsAndDenials { grantAdd } } "
-            + " } } }";
-        
-        parser.parse( spec );
+            + "{ protectedItems { rangeOfValues (|(!(cn=aaa))(sn=bbb)) }, grantsAndDenials { grantAdd } } " + " } } }";
+
+        item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -100,7 +105,8 @@ public class ACIItemParserTest extends TestCase
             + "{ precedence 10, userClasses {allUsers  , userGroup { \"1.2=y,z=t\"  , \"a=b,c=d\" } "
             + " , subtree { { base \"ou=people\" } } }   , grantsAndDenials  {  denyCompare  , grantModify } } } }}";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -116,7 +122,8 @@ public class ACIItemParserTest extends TestCase
             + "userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue {x=y,m=n,k=l} , "
             + "rangeOfValues (cn=ErsinEr) }  , grantsAndDenials { grantBrowse } } } }  }   ";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -126,7 +133,8 @@ public class ACIItemParserTest extends TestCase
             + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
             + "userPermissions { { protectedItems {entry}, " + "grantsAndDenials { grantAdd } } } } }";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -136,7 +144,8 @@ public class ACIItemParserTest extends TestCase
             + "itemOrUserFirst userFirst: { " + "userClasses { allUsers, name { \"ou=blah\" } }, "
             + "userPermissions { { protectedItems {entry}, " + "grantsAndDenials { grantAdd } } } } }";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -151,7 +160,8 @@ public class ACIItemParserTest extends TestCase
             + "{ precedence 10, userClasses {allUsers  , userGroup { \"1.2=y,z=t\"  , \"a=b,c=d\" } "
             + " , subtree { { base \"ou=people\" } } }   , grantsAndDenials  {  denyCompare  , grantModify } } } }}";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -164,7 +174,8 @@ public class ACIItemParserTest extends TestCase
             + "userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue {x=y,m=n,k=l} , "
             + "rangeOfValues (cn=ErsinEr) }  , grantsAndDenials { grantBrowse } } } }  }   ";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -223,7 +234,8 @@ public class ACIItemParserTest extends TestCase
             + "{ precedence 10, userClasses {allUsers  , userGroup { \"1.2=y,z=t\"  , \"a=b,c=d\" } "
             + " , subtree { { base \"ou=people\" } } }   , grantsAndDenials  {  denyCompare  , grantModify } } } }}";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -260,7 +272,8 @@ public class ACIItemParserTest extends TestCase
             + "userPermissions { { grantsAndDenials { grantBrowse }, protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue {x=y,m=n,k=l} , "
             + "rangeOfValues (cn=ErsinEr) }  } } }  }   ";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -294,7 +307,8 @@ public class ACIItemParserTest extends TestCase
             + "rangeOfValues (cn=ErsinEr) }  , grantsAndDenials { grantBrowse } } } }, "
             + " identificationTag \"id2\"   , authenticationLevel none, precedence 14 }   ";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -348,7 +362,8 @@ public class ACIItemParserTest extends TestCase
             + "subtree {{ base \"ou=system\" }, { base \"ou=ORGANIZATIONUNIT\","
             + "minimum  1, maximum   2 } } } }  }   ";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -362,7 +377,8 @@ public class ACIItemParserTest extends TestCase
             + " attributeValue { ou=people  , cn=Ersin  }  , rangeOfValues (cn=ErsinEr) , "
             + "classes and : { item: xyz , or:{item:X,item:Y}   }}  " + " }}";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -393,7 +409,8 @@ public class ACIItemParserTest extends TestCase
             + "maxValueCount { { type 10.11.12, maxCount 10 }, { maxCount 20, type 11.12.13  } } "
             + " }  , grantsAndDenials { grantBrowse } } } }  }   ";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -406,7 +423,21 @@ public class ACIItemParserTest extends TestCase
             + "restrictedBy { { type 10.11.12, valuesIn ou }, { valuesIn cn, type 11.12.13  } } "
             + " }  , grantsAndDenials { grantBrowse } } } }  }   ";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
+    }
+
+
+    public void testMaxImmSubComponentsOrderDoesNotMatter() throws Exception
+    {
+        String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
+            + "itemOrUserFirst userFirst:  { userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
+            + "subtree {{ base \"ou=system\" }, { base \"ou=ORGANIZATIONUNIT\"," + "minimum  1, maximum   2 } } }  , "
+            + "userPermissions { { protectedItems{ entry  , maxImmSub 5 "
+            + " }  , grantsAndDenials { grantBrowse } } } }  }   ";
+
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
 
 
@@ -418,17 +449,18 @@ public class ACIItemParserTest extends TestCase
             + "subtree {{ minimum 7, maximum 9, base \"ou=system\" }, { base \"ou=ORGANIZATIONUNIT\","
             + " maximum   2, minimum  1 } } }  }  }   ";
 
-        parser.parse( spec );
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
     }
-    
-    
+
+
     /**
      * Test case for DIRSERVER-891
      */
     public void testInvalidAttributeValue()
     {
         String spec;
-        
+
         // no name-value-pair
         spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
             + "itemOrUserFirst userFirst:  { userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue { must_be_a_name_value_pair } , "
@@ -438,13 +470,13 @@ public class ACIItemParserTest extends TestCase
         try
         {
             parser.parse( spec );
-            fail("Expected ParseException, invalid protected item 'attributeValue { must_be_a_name_value_pair }'");
+            fail( "Expected ParseException, invalid protected item 'attributeValue { must_be_a_name_value_pair }'" );
         }
         catch ( ParseException e )
         {
             // Expected
         }
-        
+
         // no name-value-pair
         spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
             + "itemOrUserFirst userFirst:  { userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue { x=y,m=n,k=l,x } , "
@@ -454,60 +486,60 @@ public class ACIItemParserTest extends TestCase
         try
         {
             parser.parse( spec );
-            fail("Expected ParseException, invalid protected item 'attributeValue { must_be_a_name_value_pair }'");
+            fail( "Expected ParseException, invalid protected item 'attributeValue { x=y,m=n,k=l,x }'" );
         }
         catch ( ParseException e )
         {
             // Expected
         }
     }
-    
-    
+
+
     /**
      * Test case for DIRSERVER-891
      */
     public void testIncomplete()
     {
         String spec;
-        
+
         spec = "{ }";
         try
         {
             parser.parse( spec );
-            fail("Expected ParseException, ACIItem is incomplete'");
+            fail( "Expected ParseException, ACIItem is incomplete'" );
         }
         catch ( ParseException e )
         {
             // Expected
         }
-        
+
         spec = "{ identificationTag \"id2\" }";
         try
         {
             parser.parse( spec );
-            fail("Expected ParseException, ACIItem is incomplete'");
+            fail( "Expected ParseException, ACIItem is incomplete'" );
         }
         catch ( ParseException e )
         {
             // Expected
         }
-        
+
         spec = "{ identificationTag \"id2\", precedence 14 } ";
         try
         {
             parser.parse( spec );
-            fail("Expected ParseException, ACIItem is incomplete'");
+            fail( "Expected ParseException, ACIItem is incomplete'" );
         }
         catch ( ParseException e )
         {
             // Expected
         }
-        
+
         spec = "{ identificationTag \"id2\", precedence 14, authenticationLevel none } ";
         try
         {
             parser.parse( spec );
-            fail("Expected ParseException, ACIItem is incomplete'");
+            fail( "Expected ParseException, ACIItem is incomplete'" );
         }
         catch ( ParseException e )
         {
