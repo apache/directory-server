@@ -201,7 +201,7 @@
  
   <scm>
     <connection>
-      scm:svn:http://svn.apache.org/repos/asf/directory/shared/branches/bigbang
+      scm:svn:http://svn.apache.org/repos/asf/directory/shared/trunk
     </connection>
   </scm>
 
