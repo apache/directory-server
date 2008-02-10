@@ -1095,6 +1095,8 @@ public class RdnTest
     @Test
     public void testRdnWithEmptyValue() throws InvalidNameException
     {
+        assertTrue( RdnParser.isValid( "a=" ) );
+        assertTrue( RdnParser.isValid( "a=\"\"" ) );
         assertEquals( "a=", new Rdn( "a=\"\"" ).toString() );
         assertEquals( "a=", new Rdn( "a=" ).toString() );
     }
