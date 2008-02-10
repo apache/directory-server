@@ -2831,8 +2831,8 @@ public class LdapDNTest extends TestCase
         assertFalse( LdapDN.isValid( "a" ) );
         assertFalse( LdapDN.isValid( "a " ) );
 
-        assertFalse( LdapDN.isValid( "a=" ) );
-        assertFalse( LdapDN.isValid( "a= " ) );
+        assertTrue( LdapDN.isValid( "a=" ) );
+        assertTrue( LdapDN.isValid( "a= " ) );
 
         assertFalse( LdapDN.isValid( "=" ) );
         assertFalse( LdapDN.isValid( " = " ) );

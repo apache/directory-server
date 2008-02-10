@@ -595,7 +595,7 @@ public class RdnParser
         if( bytes.length <= pos.start )
         {
             // no attribute value
-            return false;
+            return true;
         }
 
         byte c = bytes[pos.start];

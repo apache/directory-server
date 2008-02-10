@@ -612,4 +612,17 @@ public class RdnTest extends TestCase
         assertEquals( "\\#a#b", Rdn.escapeValue( "#a#b" ) );
         assertEquals( "\\##a#b", Rdn.escapeValue( "##a#b" ) );
     }
+
+
+    /**
+     * test an RDN with empty value
+     */
+    public void testRdnWithEmptyValue() throws InvalidNameException
+    {
+        assertTrue( RdnParser.isValid( "a=" ) );
+        assertTrue( RdnParser.isValid( "a=\"\"" ) );
+        assertEquals( "a=", new Rdn( "a=\"\"" ).toString() );
+        assertEquals( "a=", new Rdn( "a=" ).toString() );
+    }
+
 }
