@@ -34,10 +34,53 @@ public class LinkedBinaryNode<T>
     LinkedBinaryNode<T> next;
     LinkedBinaryNode<T> previous;
     
+    transient int depth;
     
     LinkedBinaryNode( T theKey )
     {
         key = theKey;
         left = right = null;
     }
+
+
+	public LinkedBinaryNode<T> getLeft() {
+		return left;
+	}
+
+
+	public LinkedBinaryNode<T> getRight() {
+		return right;
+	}
+
+	public T getKey() {
+		return key;
+	}
+
+	public boolean isLeaf()
+	{
+		return ( right == null && left == null );
+	}
+	
+	/**
+	 * This method is used for internal purpose only while pretty printing the tree.<br>
+	 * @return the depth at the this node
+	 */
+	public int getDepth() {
+		return depth;
+	}
+
+    /**
+     * This method is used for internal purpose only while pretty printing the tree.<br>
+     * @param depth value representing the depth of the this node
+     */
+	public void setDepth( int depth ) {
+		this.depth = depth;
+	}
+
+	@Override
+	public String toString() {
+	    return "[" + key + "]";
+	}
+    
+    
 }
