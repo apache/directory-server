@@ -285,7 +285,62 @@ public class SplayTree<K>
     }
 
 
-    // test code stolen from Weiss
+    public LinkedBinaryNode<K> getRoot() {
+		return root;
+	}
+
+
+    /**
+     * Prints the contents of splay tree in pretty format
+     */
+    public void printTree() {
+    	
+    	if( isEmpty() )
+    	{
+    		System.out.println( "Tree is empty" );
+    		return;
+    	}
+    	
+		getRoot().setDepth( 0 );
+
+		System.out.println( getRoot() );
+		
+		visit( getRoot().getRight(), getRoot() );
+		
+		visit( getRoot().getLeft(), getRoot() );
+	}
+	
+	private void visit( LinkedBinaryNode<K> node, LinkedBinaryNode<K> parentNode ) 
+	{
+		if( node == null )
+		{
+			return;
+		}
+		
+		if( !node.isLeaf() )
+		{
+			node.setDepth( parentNode.getDepth() + 1 );
+		}
+		
+		for( int i=0; i < parentNode.getDepth(); i++ )
+		{
+			System.out.print( "|  " );
+		}
+
+		System.out.println( "|--" + node );
+		
+		if ( node.getRight() != null )
+		{
+			visit( node.getRight(), node );
+		}
+		
+		if( node.getLeft() != null )
+		{
+			visit( node.getLeft(), node );
+		}
+	}
+
+	// test code stolen from Weiss
     public static void main( String[] args )
     {
         SplayTree<Integer> t = new SplayTree<Integer>( new Comparator<Integer>() 
