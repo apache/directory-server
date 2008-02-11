@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.directory.server.core.partition.impl.btree.Table;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
@@ -94,7 +95,7 @@ public class JdbmNoDupsCursorTest
     }
 
 
-    @Test
+    @Test( expected=InvalidCursorPositionException.class )
     public void testOnEmptyTable() throws Exception
     {
         Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
@@ -102,6 +103,9 @@ public class JdbmNoDupsCursorTest
         
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
+        assertTrue( cursor.isElementReused() );
+        cursor.after( new Tuple<Integer,Integer>(7,7) );
+        cursor.get();
     }
 
 
@@ -116,19 +120,22 @@ public class JdbmNoDupsCursorTest
         assertTrue( tuple.getKey().equals( 1 ) );
         assertTrue( tuple.getValue().equals( 1 ) );
     
-        assertFalse( cursor.next() );
+        cursor.beforeFirst();
+        assertFalse( cursor.previous() );
+        assertTrue( cursor.next() );
     }
 
     
     @Test
     public void testOnTableWithMultipleEntries() throws Exception
     {
-        for( int i=0; i < 10; i++ )
+        for( int i=1; i < 10; i++ )
         {
             table.put( i, i );
         }
     
         Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+        
         cursor.after( new Tuple<Integer,Integer>( 2,2 ) );
         assertTrue( cursor.next() );
     
@@ -151,11 +158,24 @@ public class JdbmNoDupsCursorTest
         cursor.beforeFirst();
         cursor.next();
         tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 0 ) );
-        assertTrue( tuple.getValue().equals( 0 ) );
+        assertTrue( tuple.getKey().equals( 1 ) );
+        assertTrue( tuple.getValue().equals( 1 ) );
     
         cursor.afterLast();
         assertFalse( cursor.next() );
+
+        cursor.beforeFirst();
+        assertFalse( cursor.previous() );
+        
+        // just to clear the jdbmTuple value so that line 127 inside after(tuple) method
+        // can be executed as part of the below after(tuple) call
+        cursor.before(new Tuple<Integer,Integer>( 1,1 )); 
+        cursor.after( new Tuple<Integer,Integer>( 0,0 ) );
+        
+        cursor.next();
+        tuple = cursor.get();
+        assertTrue( tuple.getKey().equals( 1 ) );
+        assertTrue( tuple.getValue().equals( 1 ) );
     }
     
     
