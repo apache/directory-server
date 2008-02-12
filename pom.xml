@@ -27,7 +27,7 @@
   <artifactId>shared-parent</artifactId>
   <name>Apache Directory Shared</name>
   <packaging>pom</packaging>  
-  <version>0.9.8-SNAPSHOT</version>
+  <version>0.9.8</version>
   
   <modules>
     <module>asn1</module>
@@ -200,9 +200,9 @@
   </profiles>
  
   <scm>
-    <connection>
-      scm:svn:http://svn.apache.org/repos/asf/directory/shared/trunk
-    </connection>
+    <connection>scm:svn:https://svn.apache.org/repos/asf/directory/shared/releases/0.9.8</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/shared/releases/0.9.8</developerConnection>
+    <url>http://svn.apache.org/viewvc/directory/shared/releases/0.9.8</url>
   </scm>
 
 </project>
