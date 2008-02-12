@@ -201,8 +201,8 @@
  
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/directory/shared/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/project/releases/9/shared-parent</developerConnection>
-    <url>http://svn.apache.org/viewvc/directory/project/releases/9/shared-parent</url>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/shared/trunk</developerConnection>
+    <url>http://svn.apache.org/viewvc/directory/shared/trunk</url>
   </scm>
 
 </project>
