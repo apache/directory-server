@@ -39,7 +39,8 @@ public class SplayTree<K>
     private LinkedBinaryNode<K> root;
     private Comparator<K> keyComparator;
 
-
+    private LinkedBinaryNode<K> first, last;
+    
     public SplayTree( Comparator<K> keyComparator )
     {
         this.keyComparator = keyComparator;
@@ -59,6 +60,7 @@ public class SplayTree<K>
         if ( root == null )
         {
             root = new LinkedBinaryNode<K>( key );
+            first = root;
             return;
         }
         splay( key );
@@ -68,6 +70,20 @@ public class SplayTree<K>
             return;
         }
         n = new LinkedBinaryNode<K>( key );
+        
+        if( last == null )
+        {
+          first.next = n;
+	      n.previous = first;
+        }
+        else
+        {
+        	last.next = n;
+        	n.previous = last;
+        }
+        
+        last = n;
+        
         if ( c < 0 )
         {
             n.left = root.left;
@@ -91,8 +107,13 @@ public class SplayTree<K>
      */
     public void remove( K key )
     {
-        LinkedBinaryNode<K> x;
+        LinkedBinaryNode<K> temp = null;
+        LinkedBinaryNode<K> deleteNode;
+        
         splay( key );
+
+        deleteNode = root; // splay makes the node with key 'key' as root 
+
         if ( keyComparator.compare( key, root.key ) != 0 )
         {
             //            throw new ItemNotFoundException(x.toString());
@@ -105,10 +126,49 @@ public class SplayTree<K>
         }
         else
         {
-            x = root.right;
+            temp = root.right;
             root = root.left;
             splay( key );
-            root.right = x;
+            root.right = temp;
+        }
+        
+        if( deleteNode == first )
+        {
+        	temp = first.next;
+        	
+        	if( temp != null )
+        	{
+        		first = temp;
+        	}
+        	else
+        	{
+        		first = last = null;
+        	}
+        	
+        }
+        else if( deleteNode == last )
+        {
+        	temp = last.previous;
+       		temp.next = null;
+       		
+        	last = temp;
+        }
+        else
+        {
+            temp = first.next;
+            
+            while( temp != null )
+            {
+                if( temp == deleteNode )
+                {
+                  temp.previous.next = temp.next;
+                  temp.next.previous = temp.previous;
+                  temp = null;
+                  break;
+                }
+                
+                temp = temp.next;
+            }
         }
     }
 
@@ -171,6 +231,18 @@ public class SplayTree<K>
     public boolean isEmpty()
     {
         return root == null;
+    }
+
+
+    public LinkedBinaryNode<K> getFirst()
+    {
+        return first;
+    }
+
+
+    public LinkedBinaryNode<K> getLast()
+    {
+        return last;
     }
 
 
