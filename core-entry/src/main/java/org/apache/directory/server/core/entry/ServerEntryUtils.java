@@ -29,6 +29,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.InvalidAttributeIdentifierException;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -437,6 +438,28 @@ public class ServerEntryUtils
     }
     
     
+    public static List<Modification> toServerModification( ModificationItem[] modifications, AttributeTypeRegistry atRegistry )
+    throws NamingException
+    {
+	    if ( modifications != null )
+	    {
+	        List<Modification> modificationsList = new ArrayList<Modification>();
+	
+	        for ( ModificationItem modification: modifications )
+	        {
+	            AttributeType attributeType = atRegistry.lookup( modification.getAttribute().getID() );
+	            modificationsList.add( toModification( (ModificationItemImpl)modification, attributeType ) );
+	        }
+	    
+	        return modificationsList;
+	    }
+	    else
+	    {
+	        return null;
+	    }
+	}
+
+
     /**
      * Utility method to extract a modification item from an array of modifications.
      * 
