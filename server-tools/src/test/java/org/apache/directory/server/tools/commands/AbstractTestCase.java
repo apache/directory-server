@@ -38,7 +38,7 @@ import junit.framework.TestCase;
 /**
  * Abstract Class to extends to test the commands
  */
-public class AbstractTestCase extends TestCase
+public abstract class AbstractTestCase extends TestCase
 {
     /** Flag to check if the server has been launched */
     protected boolean bindSuccessful;
