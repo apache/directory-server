@@ -228,6 +228,26 @@ public class RdnTest
      * Test the clone method for a RDN.
      */
     @Test
+    public void testParseRDNNull() throws InvalidNameException
+    {
+        Rdn rdn = null;
+
+        try
+        {
+        	RdnParser.parse( "c=d", rdn );
+        	fail();
+        }
+        catch ( InvalidNameException ine )
+        {
+        	assertTrue( true );
+        }
+    }
+
+
+    /**
+     * Test the clone method for a RDN.
+     */
+    @Test
     public void testRDNCloningOneNameComponent() throws InvalidNameException
     {
         Rdn rdn = new Rdn( "a", "a", "b", "b" );
