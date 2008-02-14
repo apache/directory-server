@@ -678,7 +678,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.toNormName() );
 
-        // Deal with the normal case : searching for a normal value (not subSchemaSubEntry
+        // Deal with the normal case : searching for a normal value (not subSchemaSubEntry)
         if ( !subschemaSubentryDnNorm.equals( baseNormForm ) )
         {
             NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
