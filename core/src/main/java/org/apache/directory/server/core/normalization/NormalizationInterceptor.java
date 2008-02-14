@@ -175,6 +175,8 @@ public class NormalizationInterceptor extends BaseInterceptor
         else
         {
             opContext.setFilter( result );
+            
+            // TODO Normalize the returned Attributes, storing the UP attributes to format the returned values.
             return nextInterceptor.search( opContext );
         }
     }
