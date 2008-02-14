@@ -926,9 +926,10 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // If nothing is asked for then we just return the entry asis.
                 // We let other mechanisms filter out operational attributes.
                 // -----------------------------------------------------------
-                if ( ids == null || ids.length == 0 )
+                if ( ( ids == null ) || ( ids.length == 0 ) )
                 {
-                    SearchResult result = new ServerSearchResult( "", null, ( Attributes ) getRootDSE( null ).clone(), false );
+                	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
+                    SearchResult result = new ServerSearchResult( "", null, ServerEntryUtils.toAttributesImpl( rootDSE ), false );
                     return new SingletonEnumeration<SearchResult>( result );
                 }
                 
@@ -981,7 +982,8 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // return everything
                 if ( containsAsterisk && containsPlus )
                 {
-                    SearchResult result = new ServerSearchResult( "", null, ( Attributes ) getRootDSE( null ).clone(), false );
+                	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
+                    SearchResult result = new ServerSearchResult( "", null, ServerEntryUtils.toAttributesImpl( rootDSE ), false );
                     return new SingletonEnumeration<SearchResult>( result );
                 }
                 
