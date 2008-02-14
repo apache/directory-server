@@ -93,11 +93,11 @@ public class DefaultSearchEngine implements SearchEngine
         String aliasedBase = ( String ) db.getAliasIndex().reverseLookup( baseId );
 
         // --------------------------------------------------------------------
-        // Determine the eective base with aliases
+        // Determine the effective base with aliases
         // --------------------------------------------------------------------
 
         /*
-         * If the base is not an alias or if alias dereerencing does not
+         * If the base is not an alias or if alias dereferencing does not
          * occur on finding the base then we set the effective base to the
          * given base.
          */
@@ -107,16 +107,16 @@ public class DefaultSearchEngine implements SearchEngine
         }
 
         /*
-         * If the base is an alias and alias dereerencing does occur on
-         * inding the base then we set the eective base to the alias target
-         * gotten rom the alias index.
+         * If the base is an alias and alias dereferencing does occur on
+         * finding the base then we set the effective base to the alias target
+         * got from the alias index.
          */
         else
         {
             effectiveBase = new LdapDN( aliasedBase );
         }
         
-        // Add the scope node using the eective base to the ilter
+        // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
         ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase.toString(), searchCtls.getSearchScope() );
         root.getChildren().add( node );
