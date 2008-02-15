@@ -21,6 +21,7 @@ package org.apache.directory.server.core.jndi;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.integ.CiRunner;
@@ -424,7 +425,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchTimeLimit() throws NamingException
+    public void testSearchTimeLimit() throws NamingException, InterruptedException
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -438,36 +439,24 @@ public class SearchIT
 
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=*)", controls );
-        SearchResultFilteringEnumeration srfe = ( SearchResultFilteringEnumeration ) list;
-        srfe.addResultFilter( new SearchResultFilter()
-        {
-            public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
-                throws NamingException
-            {
-                try
-                {
-                    Thread.sleep( 201 );
-                }
-                catch ( InterruptedException e )
-                {
-                    e.printStackTrace();
-                }
-                return true;
-            }
-        } );
 
         try
         {
             while ( list.hasMore() )
             {
                 SearchResult result = ( SearchResult ) list.next();
+                
+                // leep 201 ms before fetching the next element ...
+            	Thread.sleep( 201 );
                 map.put( result.getName(), result.getAttributes() );
             }
+            
             fail( "Should not get here due to a TimeLimitExceededException" );
         }
         catch ( LdapTimeLimitExceededException e )
         {
         }
+        
         assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
     }
     

@@ -44,7 +44,7 @@ import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -60,7 +60,6 @@ import org.apache.mina.util.SessionLog;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
@@ -384,7 +383,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration<SearchResult> e = ctx.getDirectoryService().getPartitionNexus().search(
+        NamingEnumeration<ServerSearchResult> e = ctx.getDirectoryService().getPartitionNexus().search(
             new SearchOperationContext( ctx.getDirectoryService().getRegistries(), contextName, AliasDerefMode.DEREF_ALWAYS,
             new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
@@ -392,11 +391,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         {
             while ( e.hasMore() )
             {
-                SearchResult sr = e.next();
-                ServerEntry attrs = ServerEntryUtils.toServerEntry( 
-                    sr.getAttributes(), 
-                    new LdapDN( sr.getName() ), 
-                    ctx.getDirectoryService().getRegistries() ) ;
+            	ServerSearchResult sr = e.next();
+                ServerEntry attrs = sr.getServerEntry(); 
 
                 // Skip entries without entryCSN attribute.
                 ServerAttribute entryCSNAttr = attrs.get( org.apache.directory.mitosis.common.Constants.ENTRY_CSN );
@@ -424,12 +420,12 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 }
                 catch ( IllegalArgumentException ex )
                 {
-                    SessionLog.warn( ctx.getSession(), "An entry with improper entryCSN: " + sr.getName() );
+                    SessionLog.warn( ctx.getSession(), "An entry with improper entryCSN: " + sr.getDn() );
                     continue;
                 }
 
                 // Convert the entry into AddEntryOperation log.
-                LdapDN dn = new LdapDN( sr.getName() );
+                LdapDN dn = sr.getDn();
                 dn.normalize( ctx.getDirectoryService().getRegistries()
                         .getAttributeTypeRegistry().getNormalizerMapping() );
                 Operation op = new AddEntryOperation( csn, dn, attrs );

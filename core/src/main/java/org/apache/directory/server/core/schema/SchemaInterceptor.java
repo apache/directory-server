@@ -28,6 +28,7 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -45,7 +46,6 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
@@ -74,7 +74,6 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.message.CascadeControl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -92,10 +91,8 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -386,9 +383,9 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      *
      */
-    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> result = nextInterceptor.list( opContext );
+        NamingEnumeration<ServerSearchResult> result = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, binaryAttributeFilter, "List Schema Filter" );
     }
@@ -662,7 +659,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      *
      */
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         LdapDN base = opContext.getDn();
         SearchControls searchCtls = opContext.getSearchControls();
@@ -681,7 +678,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Deal with the normal case : searching for a normal value (not subSchemaSubEntry)
         if ( !subschemaSubentryDnNorm.equals( baseNormForm ) )
         {
-            NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
+            NamingEnumeration<ServerSearchResult> result = nextInterceptor.search( opContext );
 
             Invocation invocation = InvocationStack.getInstance().peek();
 
@@ -723,7 +720,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 else
                 {
-                    return new EmptyEnumeration<SearchResult>();
+                    return new EmptyEnumeration<ServerSearchResult>();
                 }
 
                 String nodeOid = registries.getOidRegistry().getOid( node.getAttribute() );
@@ -735,13 +732,13 @@ public class SchemaInterceptor extends BaseInterceptor
                     && ( node instanceof EqualityNode ) )
                 {
                     // call.setBypass( true );
-                    Attributes attrs = ServerEntryUtils.toAttributesImpl( schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() ) );
-                    SearchResult result = new ServerSearchResult( base.toString(), null, attrs );
-                    return new SingletonEnumeration<SearchResult>( result );
+                    ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
+                    ServerSearchResult result = new ServerSearchResult( base.toString(), null, serverEntry );
+                    return new SingletonEnumeration<ServerSearchResult>( result );
                 }
                 else
                 {
-                    return new EmptyEnumeration<SearchResult>();
+                    return new EmptyEnumeration<ServerSearchResult>();
                 }
             }
             else if ( filter instanceof PresenceNode )
@@ -752,15 +749,15 @@ public class SchemaInterceptor extends BaseInterceptor
                 if ( node.getAttribute().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
                 {
                     // call.setBypass( true );
-                    Attributes attrs = ServerEntryUtils.toAttributesImpl( schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() ) );
-                    SearchResult result = new ServerSearchResult( base.toString(), null, attrs, false );
-                    return new SingletonEnumeration<SearchResult>( result );
+                    ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
+                    ServerSearchResult result = new ServerSearchResult( base.toString(), null, serverEntry, false );
+                    return new SingletonEnumeration<ServerSearchResult>( result );
                 }
             }
         }
 
         // In any case not handled previously, just return an empty result
-        return new EmptyEnumeration<SearchResult>();
+        return new EmptyEnumeration<ServerSearchResult>();
     }
 
 
@@ -1540,13 +1537,10 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private class BinaryAttributeFilter implements SearchResultFilter
     {
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
             throws NamingException
         {
-            filterBinaryAttributes( ServerEntryUtils.toServerEntry( 
-                result.getAttributes(),
-                new LdapDN( result.getName() ),
-                ((ServerLdapContext)invocation.getCaller()).getService().getRegistries() ) );
+            filterBinaryAttributes( result.getServerEntry() );
             return true;
         }
     }
@@ -1557,13 +1551,10 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private class TopFilter implements SearchResultFilter
     {
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
             throws NamingException
         {
-            filterObjectClass( ServerEntryUtils.toServerEntry( 
-                result.getAttributes(),
-                new LdapDN( result.getName() ),
-                ((ServerLdapContext)invocation.getCaller()).getService().getRegistries() ) );
+            filterObjectClass( result.getServerEntry() );
             
             return true;
         }

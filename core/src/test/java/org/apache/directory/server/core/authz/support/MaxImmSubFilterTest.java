@@ -26,6 +26,7 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -46,7 +47,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.util.ArrayList;
@@ -177,7 +177,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+        public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
             throws NamingException
         {
             //noinspection unchecked
@@ -185,7 +185,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public NamingEnumeration<SearchResult> search( SearchOperationContext opContext, Collection bypass ) throws NamingException
+        public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext, Collection bypass ) throws NamingException
         {
             //noinspection unchecked
             return new BogusEnumeration( count );

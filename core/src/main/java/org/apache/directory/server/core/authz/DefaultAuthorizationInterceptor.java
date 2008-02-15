@@ -24,6 +24,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -46,7 +47,6 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -57,7 +57,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.HashSet;
 import java.util.Map;
@@ -498,9 +497,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> e = nextInterceptor.search( opContext );
+        NamingEnumeration<ServerSearchResult> e = nextInterceptor.search( opContext );
 
         if ( !enabled )
         {
@@ -512,7 +511,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         return new SearchResultFilteringEnumeration( e, opContext.getSearchControls(), invocation, 
             new SearchResultFilter()
         {
-            public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+            public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
                 throws NamingException
             {
                 return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
@@ -521,9 +520,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> result = nextInterceptor.list( opContext );
+        NamingEnumeration<ServerSearchResult> result = nextInterceptor.list( opContext );
         
         if ( !enabled )
         {
@@ -534,7 +533,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         
         return new SearchResultFilteringEnumeration( result, null, invocation, new SearchResultFilter()
         {
-            public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+            public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
                 throws NamingException
             {
                 return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
@@ -543,10 +542,10 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean isSearchable( Invocation invocation, SearchResult result ) throws NamingException
+    private boolean isSearchable( Invocation invocation, ServerSearchResult result ) throws NamingException
     {
         LdapDN principalDn = ( ( ServerContext ) invocation.getCaller() ).getPrincipal().getJndiName();
-        LdapDN dn = ((ServerSearchResult)result).getDn();
+        LdapDN dn = result.getDn();
         
         if ( !dn.isNormalized() )
         {

@@ -31,10 +31,11 @@ import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.spi.DirectoryManager;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.message.AbandonListener;
@@ -53,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchResultFilteringEnumeration implements NamingEnumeration<SearchResult>, AbandonListener
+public class SearchResultFilteringEnumeration implements NamingEnumeration<ServerSearchResult>, AbandonListener
 {
     /** the logger used by this class */
     private static final Logger log = LoggerFactory.getLogger( SearchResultFilteringEnumeration.class );
@@ -62,10 +63,10 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Searc
     private final List<SearchResultFilter> filters;
     
     /** the underlying decorated enumeration */
-    private final NamingEnumeration<SearchResult> decorated;
+    private final NamingEnumeration<ServerSearchResult> decorated;
 
     /** the first accepted search result that is prefetched */
-    private SearchResult prefetched;
+    private ServerSearchResult prefetched;
     
     /** flag storing closed state of this naming enumeration */
     private boolean isClosed = false;
@@ -98,7 +99,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Searc
      * creating this enumeration
      * @param invocation the invocation representing the seach that created this enumeration
      */
-    public SearchResultFilteringEnumeration( NamingEnumeration<SearchResult> decorated, SearchControls searchControls,
+    public SearchResultFilteringEnumeration( NamingEnumeration<ServerSearchResult> decorated, SearchControls searchControls,
         Invocation invocation, SearchResultFilter filter, String name ) throws NamingException
     {
         this.searchControls = searchControls;
@@ -128,7 +129,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Searc
      * creating this enumeration
      * @param invocation the invocation representing the seach that created this enumeration
      */
-    public SearchResultFilteringEnumeration( NamingEnumeration<SearchResult> decorated, SearchControls searchControls,
+    public SearchResultFilteringEnumeration( NamingEnumeration<ServerSearchResult> decorated, SearchControls searchControls,
         Invocation invocation, List<SearchResultFilter> filters, String name ) throws NamingException
     {
         this.searchControls = searchControls;
@@ -209,9 +210,9 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Searc
     }
 
 
-    public SearchResult next() throws NamingException
+    public ServerSearchResult next() throws NamingException
     {
-        SearchResult retVal = this.prefetched;
+    	ServerSearchResult retVal = this.prefetched;
         prefetch();
         return retVal;
     }
@@ -227,9 +228,9 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Searc
     }
 
 
-    public SearchResult nextElement()
+    public ServerSearchResult nextElement()
     {
-        SearchResult retVal = this.prefetched;
+    	ServerSearchResult retVal = this.prefetched;
 
         try
         {
@@ -249,29 +250,29 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Searc
     // ------------------------------------------------------------------------
 
     
-    private void applyObjectFactories( SearchResult result ) throws NamingException
+    private void applyObjectFactories( ServerSearchResult result ) throws NamingException
     {
         // if already populated or no factories are available just return
-        if ( result.getObject() != null || !applyObjectFactories )
+        if ( ( result.getObject() != null ) || !applyObjectFactories )
         {
             return;
         }
 
         DirContext ctx = ( DirContext ) invocation.getCaller();
         Hashtable<?,?> env = ctx.getEnvironment();
-        Attributes attrs = result.getAttributes();
-        Name name = new LdapDN( result.getName() );
+        ServerEntry serverEntry = result.getServerEntry();
+        Name name = new LdapDN( result.getDn() );
         
         try
         {
-            Object obj = DirectoryManager.getObjectInstance( null, name, ctx, env, attrs );
+            Object obj = DirectoryManager.getObjectInstance( null, name, ctx, env, ServerEntryUtils.toAttributesImpl( serverEntry ) );
             result.setObject( obj );
         }
         catch ( Exception e )
         {
             StringBuffer buf = new StringBuffer();
             buf.append( "ObjectFactories threw exception while attempting to generate an object for " );
-            buf.append( result.getName() );
+            buf.append( result.getDn() );
             buf.append( ". Call on SearchResult.getObject() will return null." );
             log.warn( buf.toString(), e );
         }
@@ -290,7 +291,8 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Searc
      */
     private void prefetch() throws NamingException
     {
-        SearchResult tmp;
+    	ServerSearchResult tmp;
+    	
         if ( abandoned )
         {
             this.close();

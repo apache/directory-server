@@ -21,6 +21,7 @@ package org.apache.directory.server.core.entry;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -30,6 +31,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -41,6 +43,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
 /**
  * A helper class used to manipulate Entries, Attributes and Values.
@@ -500,5 +503,89 @@ public class ServerEntryUtils
         }
         
         return null;
+    }
+    
+    
+    /**
+     * Encapsulate a ServerSearchResult enumeration into a SearchResult enumeration
+     * @param result The ServerSearchResult enumeration
+     * @return A SearchResultEnumeration
+     */
+    public static NamingEnumeration<SearchResult> toSearchResultEnum( final NamingEnumeration<ServerSearchResult> result )
+    {
+    	if ( result instanceof EmptyEnumeration<?> )
+    	{
+    		return new EmptyEnumeration<SearchResult>();
+    	}
+    	
+    	return new NamingEnumeration<SearchResult> ()
+    	{
+    	    public void close() throws NamingException
+    	    {
+    	        result.close();
+    	    }
+
+
+    	    /**
+    	     * @see javax.naming.NamingEnumeration#hasMore()
+    	     */
+    	    public boolean hasMore() throws NamingException
+    	    {
+    	        return result.hasMore();
+    	    }
+
+
+    	    /**
+    	     * @see javax.naming.NamingEnumeration#next()
+    	     */
+    	    public SearchResult next() throws NamingException
+    	    {
+    	        ServerSearchResult rec = result.next();
+    	        
+    	        SearchResult searchResult = new SearchResult( 
+    	        		rec.getDn().getUpName(), 
+    	        		rec.getObject(), 
+    	        		toAttributesImpl( rec.getServerEntry() ), 
+    	        		rec.isRelative() );
+    	        
+    	        return searchResult;
+    	    }
+    	    
+    	    
+    	    /**
+    	     * @see java.util.Enumeration#hasMoreElements()
+    	     */
+    	    public boolean hasMoreElements()
+    	    {
+    	        return result.hasMoreElements();
+    	    }
+
+
+    	    /**
+    	     * @see java.util.Enumeration#nextElement()
+    	     */
+    	    public SearchResult nextElement()
+    	    {
+    	    	try
+    	    	{
+	    	    	ServerSearchResult rec = result.next();
+	
+	    	        SearchResult searchResult = new SearchResult( 
+	    	        		rec.getDn().getUpName(), 
+	    	        		rec.getObject(), 
+	    	        		toAttributesImpl( rec.getServerEntry() ), 
+	    	        		rec.isRelative() );
+	    	        
+	    	        return searchResult;
+    	    	}
+    	    	catch ( NamingException ne )
+    	    	{
+    	            NoSuchElementException nsee = 
+    	                new NoSuchElementException( "Encountered NamingException on underlying enumeration." );
+    	            nsee.initCause( ne );
+    	            throw nsee;
+    	    	}
+    	    }
+    	};
     }
 }

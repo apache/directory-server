@@ -23,10 +23,10 @@ package org.apache.directory.server.core.schema;
 import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -109,7 +109,8 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     {
         String schemaName = getSchemaName( name );
         AttributeType at = factory.getAttributeType( entry, targetRegistries, schemaName );
-        Set<SearchResult> dependees = dao.listAttributeTypeDependents( at );
+        Set<ServerSearchResult> dependees = dao.listAttributeTypeDependents( at );
+        
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The attributeType with OID " + at.getOid() 
@@ -138,7 +139,8 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     {
         Schema schema = getSchema( name );
         AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, schema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listAttributeTypeDependents( oldAt );
+        Set<ServerSearchResult> dependees = dao.listAttributeTypeDependents( oldAt );
+        
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The attributeType with OID " + oldAt.getOid()
@@ -174,7 +176,8 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listAttributeTypeDependents( oldAt );
+        Set<ServerSearchResult> dependees = dao.listAttributeTypeDependents( oldAt );
+        
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The attributeType with OID " + oldAt.getOid()
@@ -214,7 +217,8 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listAttributeTypeDependents( oldAt );
+        Set<ServerSearchResult> dependees = dao.listAttributeTypeDependents( oldAt );
+        
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The attributeType with OID " + oldAt.getOid() 

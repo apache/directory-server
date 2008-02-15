@@ -33,7 +33,6 @@ import javax.naming.NamingException;
 import javax.naming.ServiceUnavailableException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamingListener;
 import javax.naming.ldap.LdapContext;
@@ -43,6 +42,7 @@ import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.event.EventInterceptor;
@@ -477,13 +477,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException
     {
         return list( opContext, null );
     }
 
 
-    public NamingEnumeration<SearchResult> list( ListOperationContext opContext, Collection<String> bypass )
+    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext, Collection<String> bypass )
             throws NamingException
     {
         ensureStarted();
@@ -501,10 +501,10 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
             throws NamingException
     {
-        NamingEnumeration<SearchResult> ne = search( opContext, null );
+        NamingEnumeration<ServerSearchResult> ne = search( opContext, null );
 
         if ( ne instanceof SearchResultFilteringEnumeration )
         {
@@ -522,7 +522,7 @@ public class PartitionNexusProxy extends PartitionNexus
                     int count = 1; // with prefetch we've missed one which is ok since 1 is the minimum
 
 
-                    public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+                    public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
                             throws NamingException
                     {
                         if ( controls.getTimeLimit() > 0 )
@@ -553,7 +553,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext, Collection<String> bypass )
+    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext, Collection<String> bypass )
             throws NamingException
     {
         ensureStarted();

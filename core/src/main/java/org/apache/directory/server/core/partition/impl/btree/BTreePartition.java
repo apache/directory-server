@@ -24,6 +24,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -38,8 +39,6 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
@@ -50,7 +49,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -85,8 +83,7 @@ public abstract class BTreePartition implements Partition
     protected SearchEngine searchEngine;
     protected Optimizer optimizer;
 
-    protected AttributeTypeRegistry attributeTypeRegistry;
-    protected OidRegistry oidRegistry;
+    protected Registries registries;
 
     protected String id;
     protected int cacheSize = -1;
@@ -303,16 +300,16 @@ public abstract class BTreePartition implements Partition
     private static final String[] ENTRY_DELETED_ATTRS = new String[] { "entrydeleted" };
 
 
-    public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException
     {
         SearchResultEnumeration list;
         list = new BTreeSearchResultEnumeration( ENTRY_DELETED_ATTRS, list( getEntryId( opContext.getDn().getNormName() ) ),
-            this, attributeTypeRegistry );
+            this, registries );
         return list;
     }
 
 
-    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
         throws NamingException
     {
         SearchControls searchCtls = opContext.getSearchControls();
@@ -325,7 +322,7 @@ public abstract class BTreePartition implements Partition
             opContext.getFilter(), 
             searchCtls );
 
-        return new BTreeSearchResultEnumeration( attrIds, underlying, this, attributeTypeRegistry );
+        return new BTreeSearchResultEnumeration( attrIds, underlying, this, registries );
     }
 
 

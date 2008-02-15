@@ -27,6 +27,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -69,7 +70,6 @@ import javax.naming.Referenceable;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamingListener;
 import javax.naming.ldap.Control;
@@ -256,7 +256,7 @@ public abstract class ServerContext implements EventContext
      * @param searchControls
      * @return
      */
-    protected NamingEnumeration<SearchResult> doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
+    protected NamingEnumeration<ServerSearchResult> doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
                                                                  ExprNode filter, SearchControls searchControls )
         throws NamingException
     {
@@ -265,7 +265,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
         
         // execute search operation
-        NamingEnumeration<SearchResult> results = nexusProxy.search( opCtx );
+        NamingEnumeration<ServerSearchResult> results = nexusProxy.search( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -278,14 +278,14 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
      */
-    protected NamingEnumeration<SearchResult> doListOperation( LdapDN target ) throws NamingException
+    protected NamingEnumeration<ServerSearchResult> doListOperation( LdapDN target ) throws NamingException
     {
         // setup the op context and populate with request controls
         ListOperationContext opCtx = new ListOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
         
         // execute list operation
-        NamingEnumeration<SearchResult> results = nexusProxy.list( opCtx );
+        NamingEnumeration<ServerSearchResult> results = nexusProxy.list( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -1029,7 +1029,7 @@ public abstract class ServerContext implements EventContext
     @SuppressWarnings(value={"unchecked"})
     public NamingEnumeration list( Name name ) throws NamingException
     {
-        return doListOperation( buildTarget( name ) );
+        return ServerEntryUtils.toSearchResultEnum( doListOperation( buildTarget( name ) ) );
     }
 
 

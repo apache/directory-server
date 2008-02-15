@@ -27,6 +27,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -65,12 +66,10 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.CascadeControl;
 import org.apache.directory.shared.ldap.message.EntryChangeControl;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
-import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -90,7 +89,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -893,14 +891,14 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#list(ListOperationContext)
      */
-    public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException
     {
         Partition backend = getPartition( opContext.getDn() );
         return backend.list( opContext );
     }
 
 
-    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
         throws NamingException
     {
         LdapDN base = opContext.getDn();
@@ -929,8 +927,8 @@ public class DefaultPartitionNexus extends PartitionNexus
                 if ( ( ids == null ) || ( ids.length == 0 ) )
                 {
                 	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-                    SearchResult result = new ServerSearchResult( "", null, ServerEntryUtils.toAttributesImpl( rootDSE ), false );
-                    return new SingletonEnumeration<SearchResult>( result );
+                    ServerSearchResult result = new ServerSearchResult( "", null, rootDSE, false );
+                    return new SingletonEnumeration<ServerSearchResult>( result );
                 }
                 
                 // -----------------------------------------------------------
@@ -975,16 +973,17 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // return nothing
                 if ( containsOneDotOne )
                 {
-                    SearchResult result = new ServerSearchResult( "", null, new AttributesImpl(), false );
-                    return new SingletonEnumeration<SearchResult>( result );
+                	ServerEntry serverEntry = new DefaultServerEntry( registries, base );
+                    ServerSearchResult result = new ServerSearchResult( "", null, serverEntry, false );
+                    return new SingletonEnumeration<ServerSearchResult>( result );
                 }
                 
                 // return everything
                 if ( containsAsterisk && containsPlus )
                 {
                 	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-                    SearchResult result = new ServerSearchResult( "", null, ServerEntryUtils.toAttributesImpl( rootDSE ), false );
-                    return new SingletonEnumeration<SearchResult>( result );
+                    ServerSearchResult result = new ServerSearchResult( "", null, rootDSE, false );
+                    return new SingletonEnumeration<ServerSearchResult>( result );
                 }
                 
                 ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
@@ -1009,9 +1008,8 @@ public class DefaultPartitionNexus extends PartitionNexus
                     }
                 }
 
-                Attributes attrs = ServerEntryUtils.toAttributesImpl( serverEntry );
-                SearchResult result = new ServerSearchResult( "", null, attrs, false );
-                return new SingletonEnumeration<SearchResult>( result );
+                ServerSearchResult result = new ServerSearchResult( "", null, serverEntry, false );
+                return new SingletonEnumeration<ServerSearchResult>( result );
             }
 
             throw new LdapNameNotFoundException();

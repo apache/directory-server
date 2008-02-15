@@ -29,7 +29,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -50,7 +50,6 @@ import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 import java.util.List;
 
@@ -271,16 +270,16 @@ public class OperationFactory
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         
-        NamingEnumeration<SearchResult> e = nexus.search( 
+        NamingEnumeration<ServerSearchResult> e = nexus.search( 
             new SearchOperationContext( registries, oldName, AliasDerefMode.DEREF_ALWAYS,
                     new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         while ( e.hasMore() )
         {
-            SearchResult sr = e.next();
+        	ServerSearchResult sr = e.next();
 
             // Get the name of the old entry
-            LdapDN oldEntryName = new LdapDN( sr.getName() );
+            LdapDN oldEntryName = sr.getDn();
             oldEntryName.normalize( attributeRegistry.getNormalizerMapping() );
 
             // Delete the old entry
@@ -294,8 +293,7 @@ public class OperationFactory
                         "TRUE" ) ) );
 
             // Get the old entry attributes and replace RDN if required
-            LdapDN entryName = new LdapDN( sr.getName() ); 
-            ServerEntry entry = ServerEntryUtils.toServerEntry( sr.getAttributes(), entryName, registries );
+            ServerEntry entry = sr.getServerEntry();
             
             if ( oldEntryName.size() == oldName.size() )
             {

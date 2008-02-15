@@ -31,8 +31,8 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -49,7 +49,6 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -65,7 +64,6 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 
 /**
@@ -83,13 +81,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 {
     private final SearchResultFilter DENORMALIZING_SEARCH_FILTER = new SearchResultFilter()
     {
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) 
+        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls ) 
             throws NamingException
         {
-            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( 
-                result.getAttributes(), 
-                new LdapDN( result.getName() ), 
-                ((ServerLdapContext)invocation.getCaller()).getService().getRegistries() );
+            ServerEntry serverEntry = result.getServerEntry(); 
             
             if ( controls.getReturningAttributes() == null )
             {
@@ -98,7 +93,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             
             boolean denormalized = filterDenormalized( serverEntry );
             
-            result.setAttributes( ServerEntryUtils.toAttributesImpl( serverEntry ) );
+            result.setServerEntry( serverEntry );
             
             return denormalized;
         }
@@ -109,13 +104,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      */
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
             throws NamingException
         {
-            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( 
-                result.getAttributes(), 
-                new LdapDN( result.getName() ), 
-                ((ServerLdapContext)invocation.getCaller()).getService().getRegistries() );
+            ServerEntry serverEntry = result.getServerEntry(); 
             
             return controls.getReturningAttributes() != null || filterOperationalAttributes( serverEntry );
         }
@@ -304,19 +296,19 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> result = nextInterceptor.list( opContext );
+        NamingEnumeration<ServerSearchResult> result = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         
         return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, SEARCH_FILTER, "List Operational Filter" );
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
+        NamingEnumeration<ServerSearchResult> result = nextInterceptor.search( opContext );
         SearchControls searchCtls = opContext.getSearchControls();
         
         if ( searchCtls.getReturningAttributes() != null )

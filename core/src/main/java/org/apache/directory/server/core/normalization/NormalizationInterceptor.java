@@ -22,6 +22,7 @@ package org.apache.directory.server.core.normalization;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
@@ -54,7 +55,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.SearchResult;
 import java.util.Map;
 
 
@@ -161,7 +161,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         ExprNode filter = opContext.getFilter();
         opContext.getDn().normalize( attrNormalizers );
@@ -170,7 +170,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( result == null )
         {
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new EmptyEnumeration<SearchResult>();
+            return new EmptyEnumeration<ServerSearchResult>();
         }
         else
         {
@@ -189,7 +189,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
         opContext.getDn().normalize( attrNormalizers );
         return nextInterceptor.list( opContext );

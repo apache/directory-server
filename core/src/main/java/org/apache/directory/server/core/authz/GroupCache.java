@@ -30,7 +30,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 
 /**
@@ -138,15 +137,14 @@ public class GroupCache
             LdapDN baseDn = new LdapDN( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration<SearchResult> results = nexus.search(
+            NamingEnumeration<ServerSearchResult> results = nexus.search(
                     new SearchOperationContext( registries, baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
 
             while ( results.hasMore() )
             {
-                SearchResult result = results.next();
-                LdapDN groupDn = parseNormalized( result.getName() );
-                ServerAttribute members = getMemberAttribute( 
-                    ServerEntryUtils.toServerEntry( result.getAttributes(), groupDn, registries ) );
+            	ServerSearchResult result = results.next();
+                LdapDN groupDn = result.getDn().normalize( normalizerMap );
+                ServerAttribute members = getMemberAttribute( result.getServerEntry() );
 
                 if ( members != null )
                 {

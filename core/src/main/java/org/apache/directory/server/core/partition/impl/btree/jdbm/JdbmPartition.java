@@ -151,10 +151,9 @@ public class JdbmPartition extends BTreePartition
 
     protected void initRegistries( Registries registries )
     {
-        attributeTypeRegistry = registries.getAttributeTypeRegistry();
-        oidRegistry = registries.getOidRegistry();
-        ExpressionEvaluator evaluator = new ExpressionEvaluator( this, oidRegistry, attributeTypeRegistry );
-        ExpressionEnumerator enumerator = new ExpressionEnumerator( this, attributeTypeRegistry, evaluator );
+        this.registries = registries;
+        ExpressionEvaluator evaluator = new ExpressionEvaluator( this, registries );
+        ExpressionEnumerator enumerator = new ExpressionEnumerator( this, registries.getAttributeTypeRegistry(), evaluator );
         this.searchEngine = new DefaultSearchEngine( this, evaluator, enumerator, optimizer );
         store.initRegistries( registries );
     }
@@ -198,8 +197,8 @@ public class JdbmPartition extends BTreePartition
                 index.setWkDirPath( obj.getWkDirPath() );
             }
 
-            String oid = oidRegistry.getOid( index.getAttributeId() );
-            if ( SYS_INDEX_OIDS.contains( oidRegistry.getOid( index.getAttributeId() ) ) )
+            String oid = registries.getOidRegistry().getOid( index.getAttributeId() );
+            if ( SYS_INDEX_OIDS.contains( registries.getOidRegistry().getOid( index.getAttributeId() ) ) )
             {
                 if ( oid.equals( Oid.ALIAS ) )
                 {
@@ -242,7 +241,7 @@ public class JdbmPartition extends BTreePartition
             store.setEnableOptimizer( isOptimizerEnabled() );
         }
 
-        store.init( oidRegistry, attributeTypeRegistry );
+        store.init( registries.getOidRegistry(), registries.getAttributeTypeRegistry() );
     }
 
 

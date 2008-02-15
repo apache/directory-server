@@ -24,7 +24,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -41,14 +41,12 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -83,7 +81,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      */
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
             throws NamingException
         {
             LdapDN name = ((ServerSearchResult)result).getDn();
@@ -93,13 +91,10 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             	name = LdapDN.normalize( name, atRegistry.getNormalizerMapping() );
             }
             
-            ServerEntry entry = ServerEntryUtils.toServerEntry( 
-                result.getAttributes(), 
-                name,
-                registries );
+            ServerEntry entry = result.getServerEntry();
             String[] retAttrs = controls.getReturningAttributes();
             addCollectiveAttributes( name, entry, retAttrs );
-            result.setAttributes( ServerEntryUtils.toAttributesImpl( entry ) );
+            result.setServerEntry( entry );
             return true;
         }
     };
@@ -334,18 +329,18 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> result = nextInterceptor.list( opContext );
+        NamingEnumeration<ServerSearchResult> result = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         
         return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, SEARCH_FILTER, "List collective Filter" );
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
+        NamingEnumeration<ServerSearchResult> result = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         
         return new SearchResultFilteringEnumeration( 

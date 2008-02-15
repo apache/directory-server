@@ -43,6 +43,7 @@ import netscape.ldap.LDAPException;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -358,21 +359,28 @@ public class MiscTest extends AbstractServerTest
     public void testBogusAttributeInSearchFilter() throws Exception
     {
         SearchControls cons = new SearchControls();
-        NamingEnumeration e = sysRoot.search( "", "(bogusAttribute=abc123)", cons );
+        NamingEnumeration<SearchResult> e = sysRoot.search( "", "(bogusAttribute=abc123)", cons );
         assertNotNull( e );
         assertEquals( e.getClass(), EmptyEnumeration.class );
+        
         e = sysRoot.search( "", "(!(bogusAttribute=abc123))", cons );
         assertNotNull( e );
+        assertFalse( e.hasMore() );
         assertEquals( e.getClass(), EmptyEnumeration.class );
+        
         e = sysRoot.search( "", "(|(bogusAttribute=abc123)(bogusAttribute=abc123))", cons );
         assertNotNull( e );
+        assertFalse( e.hasMore() );
         assertEquals( e.getClass(), EmptyEnumeration.class );
+        
         e = sysRoot.search( "", "(|(bogusAttribute=abc123)(ou=abc123))", cons );
         assertNotNull( e );
+        assertFalse( e.hasMore() );
         assertFalse( e.getClass().equals( EmptyEnumeration.class ) );
 
         e = sysRoot.search( "", "(OBJECTclass=*)", cons );
         assertNotNull( e );
+        assertTrue( e.hasMore() );
         assertFalse( e.getClass().equals( EmptyEnumeration.class ) );
 
         e = sysRoot.search( "", "(objectclass=*)", cons );

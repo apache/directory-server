@@ -23,6 +23,7 @@ import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -59,7 +60,6 @@ import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.SearchResult;
 
 import java.util.List;
 import java.util.Map;
@@ -233,7 +233,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         // check if entry to delete has children (only leaves can be deleted)
         boolean hasChildren = false;
-        NamingEnumeration<SearchResult> list = nextInterceptor.list( new ListOperationContext( registries, name ) );
+        NamingEnumeration<ServerSearchResult> list = nextInterceptor.list( new ListOperationContext( registries, name ) );
         
         if ( list.hasMore() )
         {
@@ -264,12 +264,12 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
         if ( opContext.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
             // there is nothing under the schema subentry
-            return new EmptyEnumeration<SearchResult>();
+            return new EmptyEnumeration<ServerSearchResult>();
         }
         
         // check if entry to search exists
@@ -517,13 +517,13 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the entry being searched exists, otherwise throws the appropriate LdapException.
      */
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         LdapDN base = opContext.getDn();
 
         try
         {
-	        NamingEnumeration<SearchResult> result =  nextInterceptor.search( opContext );
+	        NamingEnumeration<ServerSearchResult> result =  nextInterceptor.search( opContext );
 	        
 	        if ( ! result.hasMoreElements() )
 	        {

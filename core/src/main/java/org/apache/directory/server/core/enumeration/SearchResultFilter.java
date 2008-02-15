@@ -20,11 +20,11 @@
 package org.apache.directory.server.core.enumeration;
 
 
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.invocation.Invocation;
 
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 
 /**
@@ -48,5 +48,5 @@ public interface SearchResultFilter
      * @return true if the result is to be returned, false if it is to be
      * discarded from the result set
      */
-    boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) throws NamingException;
+    boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls ) throws NamingException;
 }

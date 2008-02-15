@@ -23,10 +23,10 @@ package org.apache.directory.server.core.schema;
 import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
@@ -94,7 +94,8 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     {
         String oid = getOid( entry );
         
-        Set<SearchResult> dependees = dao.listSyntaxDependents( oid );
+        Set<ServerSearchResult> dependees = dao.listSyntaxDependents( oid );
+        
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The syntax with OID " + oid 
@@ -128,7 +129,8 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     {
         String oldOid = getOid( entry );
 
-        Set<SearchResult> dependees = dao.listSyntaxDependents( oldOid );
+        Set<ServerSearchResult> dependees = dao.listSyntaxDependents( oldOid );
+        
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The syntax with OID " + oldOid
@@ -168,7 +170,8 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
 
-        Set<SearchResult> dependees = dao.listSyntaxDependents( oldOid );
+        Set<ServerSearchResult> dependees = dao.listSyntaxDependents( oldOid );
+        
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The syntax with OID " + oldOid 
@@ -212,7 +215,8 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         String oid = getOid( entry );
         
-        Set<SearchResult> dependees = dao.listSyntaxDependents( oid );
+        Set<ServerSearchResult> dependees = dao.listSyntaxDependents( oid );
+        
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The syntax with OID " + oid 

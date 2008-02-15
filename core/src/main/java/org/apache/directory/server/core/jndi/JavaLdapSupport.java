@@ -34,7 +34,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
 
 /**

@@ -27,6 +27,7 @@ import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -72,7 +73,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -252,14 +252,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
-    }
-
-
-    private LdapDN parseNormalized( String name ) throws NamingException
-    {
-        LdapDN dn = new LdapDN( name );
-        dn.normalize( atRegistry.getNormalizerMapping() );
-        return dn;
     }
 
 
@@ -1003,12 +995,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
     
-    public NamingEnumeration<SearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
-        NamingEnumeration<SearchResult> e = next.list( opContext );
+        NamingEnumeration<ServerSearchResult> e = next.list( opContext );
         
         if ( isPrincipalAnAdministrator( user.getJndiName() ) || !enabled )
         {
@@ -1020,13 +1012,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
         LdapDN principalDn = user.getJndiName();
-        NamingEnumeration<SearchResult> e = next.search( opContext );
+        NamingEnumeration<ServerSearchResult> e = next.search( opContext );
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( opContext.getDn().getNormName() );
         SearchControls searchCtls = opContext.getSearchControls();
@@ -1133,9 +1125,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean filter( Invocation invocation, LdapDN normName, SearchResult result ) throws NamingException
+    private boolean filter( Invocation invocation, LdapDN normName, ServerSearchResult result ) throws NamingException
     {
-        ServerEntry resultEntry = ServerEntryUtils.toServerEntry( result.getAttributes(), new LdapDN( result.getName() ) , registries );
+        ServerEntry resultEntry = result.getServerEntry();
 
         /*
          * First call hasPermission() for entry level "Browse" and "ReturnDN" perm
@@ -1177,7 +1169,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          * not allowed are removed from the attribute.  If the attribute has no more
          * values remaining then the entire attribute is removed.
          */
-        //NamingEnumeration<String> idList = result.getAttributes().getIDs();
         List<AttributeType> attributeToRemove = new ArrayList<AttributeType>();
         
         for ( AttributeType attributeType:resultEntry.getAttributeTypes() )
@@ -1244,7 +1235,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             resultEntry.remove( attributeType );
         }
 
-        result.setAttributes( ServerEntryUtils.toAttributesImpl( resultEntry ) );
+        result.setServerEntry( resultEntry );
         return true;
     }
 
@@ -1254,10 +1245,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      */
     class AuthorizationFilter implements SearchResultFilter
     {
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
             throws NamingException
         {
-            LdapDN normName = parseNormalized( result.getName() );
+            LdapDN normName = result.getDn().normalize( atRegistry.getNormalizerMapping() );
             return filter( invocation, normName, result );
         }
     }

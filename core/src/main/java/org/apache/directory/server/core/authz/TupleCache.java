@@ -22,7 +22,7 @@ package org.apache.directory.server.core.authz;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -132,15 +131,15 @@ public class TupleCache
                     SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration<SearchResult> results = nexus.search( 
+            NamingEnumeration<ServerSearchResult> results = nexus.search( 
                 new SearchOperationContext( registries, baseDn,
                     AliasDerefMode.NEVER_DEREF_ALIASES, filter, ctls ) );
             
             while ( results.hasMore() )
             {
-                SearchResult result = results.next();
-                LdapDN subentryDn = new LdapDN( result.getName() ).normalize( normalizerMap );
-                ServerEntry serverEntry = ServerEntryUtils.toServerEntry( result.getAttributes(), subentryDn, registries );
+            	ServerSearchResult result = results.next();
+                LdapDN subentryDn = result.getDn().normalize( normalizerMap );
+                ServerEntry serverEntry = result.getServerEntry();
                 ServerAttribute aci = serverEntry.get( prescriptiveAciAT );
                 
                 if ( aci == null )

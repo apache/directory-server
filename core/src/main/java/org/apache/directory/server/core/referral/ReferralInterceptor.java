@@ -33,6 +33,7 @@ import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.ReferralHandlingEnumeration;
@@ -87,7 +88,6 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 
 /**
@@ -886,7 +886,7 @@ public class ReferralInterceptor extends BaseInterceptor
         Partition partition = opContext.getPartition();
         LdapDN suffix = partition.getSuffixDn();
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration<SearchResult> list = invocation.getProxy().search( new SearchOperationContext( registries, suffix,
+        NamingEnumeration<ServerSearchResult> list = invocation.getProxy().search( new SearchOperationContext( registries, suffix,
                 AliasDerefMode.DEREF_ALWAYS, getReferralFilter(), getControls() ), SEARCH_BYPASS );
         addReferrals( list, suffix );
     }
@@ -896,7 +896,7 @@ public class ReferralInterceptor extends BaseInterceptor
     {
         // remove referrals immediately before removing the partition
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration<SearchResult> list = invocation.getProxy().search( 
+        NamingEnumeration<ServerSearchResult> list = invocation.getProxy().search( 
             new SearchOperationContext( registries, opContext.getDn(), AliasDerefMode.DEREF_ALWAYS,
                     getReferralFilter(), getControls() ), SEARCH_BYPASS );
         
@@ -905,13 +905,13 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    private void addReferrals( NamingEnumeration<SearchResult> referrals, LdapDN base ) throws NamingException
+    private void addReferrals( NamingEnumeration<ServerSearchResult> referrals, LdapDN base ) throws NamingException
     {
         while ( referrals.hasMore() )
         {   
-            SearchResult r = referrals.next();
+        	ServerSearchResult r = referrals.next();
             LdapDN referral;
-            LdapDN result = new LdapDN( r.getName() );
+            LdapDN result = new LdapDN( r.getDn() );
             result.normalize( atRegistry.getNormalizerMapping() );
             
             if ( r.isRelative() )
@@ -926,13 +926,13 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    private void deleteReferrals( NamingEnumeration<SearchResult> referrals, LdapDN base ) throws NamingException
+    private void deleteReferrals( NamingEnumeration<ServerSearchResult> referrals, LdapDN base ) throws NamingException
     {
         while ( referrals.hasMore() )
         {
-            SearchResult r = referrals.next();
+        	ServerSearchResult r = referrals.next();
             LdapDN referral;
-            LdapDN result = new LdapDN( r.getName() );
+            LdapDN result = new LdapDN( r.getDn() );
             result.normalize( atRegistry.getNormalizerMapping() );
 
             if ( r.isRelative() )
@@ -947,7 +947,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext )
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext )
         throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -1027,7 +1027,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
     class ReferralFilter implements SearchResultFilter//, SearchResultEnumerationAppender 
     {
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
             throws NamingException
         {
             return false;

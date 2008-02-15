@@ -543,7 +543,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         {
             PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
             AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
-            return doSearchOperation( target, aliasDerefMode, filter, ctls );
+            return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, filter, ctls ) );
         }
 
         // Handle simple filter expressions without multiple terms
@@ -568,7 +568,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 }
 
                 AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
-                return doSearchOperation( target, aliasDerefMode, node, ctls );
+                return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, node, ctls ) );
             }
         }
         
@@ -615,7 +615,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
 
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
-        return doSearchOperation( target, aliasDerefMode, filter, ctls );
+        return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, filter, ctls ) );
     }
 
 
@@ -644,7 +644,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     {
         LdapDN target = buildTarget( name );
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
-        return doSearchOperation( target, aliasDerefMode, filter, cons );
+        return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, filter, cons ) );
     }
 
 
@@ -670,7 +670,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
 
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
-        return doSearchOperation( target, aliasDerefMode, filterNode, cons );
+        return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, filterNode, cons ) );
     }
 
 

@@ -23,6 +23,7 @@ package org.apache.directory.server.core.interceptor;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -49,7 +50,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.Iterator;
 
@@ -161,7 +161,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public NamingEnumeration<SearchResult> list( NextInterceptor next, ListOperationContext opContext ) 
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor next, ListOperationContext opContext ) 
         throws NamingException
     {
         return next.list( opContext );
@@ -206,7 +206,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
     {
         return next.search( opContext );
     }
