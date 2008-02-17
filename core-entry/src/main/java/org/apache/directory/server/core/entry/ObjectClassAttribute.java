@@ -146,7 +146,7 @@ public class ObjectClassAttribute extends AbstractServerAttribute
                     
                         try
                         {
-                            // Fond the objectClass and update the internal structures
+                            // Found the objectClass and update the internal structures
                             ObjectClass objectClass =  registries.getObjectClassRegistry().lookup( objectClassName );
 
                             addObjectClass( objectClass );
