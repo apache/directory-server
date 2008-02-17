@@ -249,7 +249,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             }
         }
 
-        BTreeSearchResult result = new BTreeSearchResult( (Long)rec.getEntryId(), name, null, entry );
+        BTreeSearchResult result = new BTreeSearchResult( (Long)rec.getEntryId(), dn, null, entry );
         result.setRelative( false );
         return result;
     }

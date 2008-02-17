@@ -48,12 +48,13 @@ public class ServerSearchResult // extends SearchResult
     /** The bound object */
     private Object object;
     
+
     /**
      * @see javax.naming.directory.SearchResult#SearchResult(String, Object, ServerEntry)
      */
-    public ServerSearchResult( String name, Object obj, ServerEntry serverEntry ) throws InvalidNameException
+    public ServerSearchResult( LdapDN dn, Object obj, ServerEntry serverEntry ) throws InvalidNameException
     {
-        dn = new LdapDN( name );
+        this.dn = dn;
         this.serverEntry = serverEntry;
         this.serverEntry.setDn( dn );
     }
@@ -62,9 +63,9 @@ public class ServerSearchResult // extends SearchResult
     /**
      * @see javax.naming.directory.SearchResult#SearchResult(String, Object, ServerEntry)
      */
-    public ServerSearchResult( String name, Object obj, ServerEntry serverEntry, boolean isRelative ) throws InvalidNameException
+    public ServerSearchResult( LdapDN dn, Object obj, ServerEntry serverEntry, boolean isRelative ) throws InvalidNameException
     {
-        dn = new LdapDN( name );
+        this.dn = dn;
         this.serverEntry = serverEntry;
         this.serverEntry.setDn( dn );
         this.isRelative = isRelative;
@@ -74,9 +75,9 @@ public class ServerSearchResult // extends SearchResult
     /**
      * @see javax.naming.directory.SearchResult#SearchResult(String, Object, ServerEntry)
      */
-    public ServerSearchResult( String name, String className, Object obj, ServerEntry serverEntry ) throws InvalidNameException
+    public ServerSearchResult( LdapDN dn, String className, Object obj, ServerEntry serverEntry ) throws InvalidNameException
     {
-        dn = new LdapDN( name );
+        this.dn = dn;
         this.serverEntry = serverEntry;
         this.serverEntry.setDn( dn );
     }
@@ -85,9 +86,9 @@ public class ServerSearchResult // extends SearchResult
     /**
      * @see javax.naming.directory.SearchResult#SearchResult(String, String, Object, ServerEntry, boolean)
      */
-    public ServerSearchResult( String name, String className, Object obj, ServerEntry serverEntry, boolean isRelative ) throws InvalidNameException
+    public ServerSearchResult( LdapDN dn, String className, Object obj, ServerEntry serverEntry, boolean isRelative ) throws InvalidNameException
     {
-        dn = new LdapDN( name );
+        this.dn = dn;
         this.serverEntry = serverEntry;
         this.serverEntry.setDn( dn );
     }

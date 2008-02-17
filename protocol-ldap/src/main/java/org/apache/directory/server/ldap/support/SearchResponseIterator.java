@@ -112,13 +112,15 @@ class SearchResponseIterator implements Iterator<Response>
                  */
                 Attribute ref = result.getAttributes().get( SchemaConstants.REF_AT );
                 
-                if ( !ctx.isReferral( result.getName() )
+                LdapDN dn = new LdapDN( result.getName() );
+                
+                if ( !ctx.isReferral( dn )
                     || req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
                 {
                     SearchResponseEntry respEntry;
                     respEntry = new SearchResponseEntryImpl( req.getMessageId() );
                     respEntry.setAttributes( result.getAttributes() );
-                    respEntry.setObjectName( new LdapDN( result.getName() ) );
+                    respEntry.setObjectName( dn );
                     prefetched = respEntry;
                 }
                 else

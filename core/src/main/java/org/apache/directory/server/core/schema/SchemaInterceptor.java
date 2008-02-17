@@ -733,7 +733,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
-                    ServerSearchResult result = new ServerSearchResult( base.toString(), null, serverEntry );
+                    ServerSearchResult result = new ServerSearchResult( base, null, serverEntry );
                     return new SingletonEnumeration<ServerSearchResult>( result );
                 }
                 else
@@ -750,7 +750,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
-                    ServerSearchResult result = new ServerSearchResult( base.toString(), null, serverEntry, false );
+                    ServerSearchResult result = new ServerSearchResult( base, null, serverEntry, false );
                     return new SingletonEnumeration<ServerSearchResult>( result );
                 }
             }

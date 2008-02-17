@@ -927,7 +927,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 if ( ( ids == null ) || ( ids.length == 0 ) )
                 {
                 	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-                    ServerSearchResult result = new ServerSearchResult( "", null, rootDSE, false );
+                    ServerSearchResult result = new ServerSearchResult( LdapDN.EMPTY_LDAPDN, null, rootDSE, false );
                     return new SingletonEnumeration<ServerSearchResult>( result );
                 }
                 
@@ -974,7 +974,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 if ( containsOneDotOne )
                 {
                 	ServerEntry serverEntry = new DefaultServerEntry( registries, base );
-                    ServerSearchResult result = new ServerSearchResult( "", null, serverEntry, false );
+                    ServerSearchResult result = new ServerSearchResult( LdapDN.EMPTY_LDAPDN, null, serverEntry, false );
                     return new SingletonEnumeration<ServerSearchResult>( result );
                 }
                 
@@ -982,7 +982,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 if ( containsAsterisk && containsPlus )
                 {
                 	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-                    ServerSearchResult result = new ServerSearchResult( "", null, rootDSE, false );
+                    ServerSearchResult result = new ServerSearchResult( LdapDN.EMPTY_LDAPDN, null, rootDSE, false );
                     return new SingletonEnumeration<ServerSearchResult>( result );
                 }
                 
@@ -1008,7 +1008,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     }
                 }
 
-                ServerSearchResult result = new ServerSearchResult( "", null, serverEntry, false );
+                ServerSearchResult result = new ServerSearchResult( LdapDN.EMPTY_LDAPDN, null, serverEntry, false );
                 return new SingletonEnumeration<ServerSearchResult>( result );
             }
 
