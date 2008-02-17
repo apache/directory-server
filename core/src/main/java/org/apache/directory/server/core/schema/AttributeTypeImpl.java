@@ -45,10 +45,30 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
 
     private final Registries registries;
     
+    /** The syntax OID associated with this AttributeType */
     private String syntaxOid;
+    
+    /** The syntax associated with the syntaxID */
+    private Syntax syntax;
+    
+    /** The equality OID associated with this AttributeType */
     private String equalityOid;
+
+    /** The equality MatchingRule associated with the equalityID */
+    private MatchingRule equalityMR;
+    
+    /** The substring OID associated with this AttributeType */
     private String substrOid;
+
+    /** The substring MatchingRule associated with the substringID */
+    private MatchingRule substringMR;
+    
+    /** The ordering OID associated with this AttributeType */
     private String orderingOid;
+    
+    /** The ordering MatchingRule associated with the orderingID */
+    private MatchingRule orderingMR;
+    
     private String superiorOid;
     
     
@@ -64,12 +84,19 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
      */
     public MatchingRule getEquality() throws NamingException
     {
-        if ( equalityOid == null )
+        if ( equalityMR == null )
         {
-            return findEquality( getSuperior() );
+            if ( equalityOid == null )
+            {
+                equalityMR = findEquality( getSuperior() );
+            }
+            else
+            {
+                equalityMR = registries.getMatchingRuleRegistry().lookup( equalityOid );
+            }
         }
         
-        return registries.getMatchingRuleRegistry().lookup( equalityOid );
+        return equalityMR;
     }
 
 
@@ -88,6 +115,7 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
         }
         
         MatchingRule mr = at.getEquality();
+        
         if ( mr == null )
         {
             return findEquality( at.getSuperior() );
@@ -104,12 +132,19 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
      */
     public MatchingRule getOrdering() throws NamingException
     {
-        if ( orderingOid == null )
+        if ( orderingMR == null )
         {
-            return findOrdering( getSuperior() );
+            if ( orderingOid == null )
+            {
+                orderingMR = findOrdering( getSuperior() );
+            }
+            else
+            {
+                orderingMR = registries.getMatchingRuleRegistry().lookup( orderingOid );
+            }
         }
         
-        return registries.getMatchingRuleRegistry().lookup( orderingOid );
+        return orderingMR;
     }
 
 
@@ -144,12 +179,19 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
      */
     public MatchingRule getSubstr() throws NamingException
     {
-        if ( substrOid == null )
+        if ( substringMR == null )
         {
-            return findSubstr( getSuperior() );
+            if ( substrOid == null )
+            {
+                substringMR = findSubstr( getSuperior() );
+            }
+            else
+            {
+                substringMR = registries.getMatchingRuleRegistry().lookup( substrOid );
+            }
         }
         
-        return registries.getMatchingRuleRegistry().lookup( substrOid );
+        return substringMR;
     }
 
 
@@ -198,12 +240,19 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
      */
     public Syntax getSyntax() throws NamingException
     {
-        if ( syntaxOid == null )
+        if ( syntax == null )
         {
-            return findSyntax( getSuperior() );
+            if ( syntaxOid == null )
+            {
+                syntax = findSyntax( getSuperior() );
+            }
+            else
+            {
+                syntax = registries.getSyntaxRegistry().lookup( syntaxOid );
+            }
         }
         
-        return registries.getSyntaxRegistry().lookup( syntaxOid );
+        return syntax;
     }
     
     
