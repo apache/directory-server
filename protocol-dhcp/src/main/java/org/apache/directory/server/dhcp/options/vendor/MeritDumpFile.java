@@ -18,6 +18,12 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.vendor;
+
+
+import org.apache.directory.server.dhcp.options.StringOption;
+
+
 /**
  * This option specifies the path-name of a file to which the client's
  * core image should be dumped in the event the client crashes.  The
@@ -25,38 +31,17 @@
  * the NVT ASCII character set.
  * 
  * The code for this option is 14.  Its minimum length is 1.
- */
-package org.apache.directory.server.dhcp.options.vendor;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MeritDumpFile extends DhcpOption
+public class MeritDumpFile extends StringOption
 {
-    private byte[] meritDumpFile;
-
-
-    /**
-     * Creates a new instance of MeritDumpFile.
-     *
-     * @param meritDumpFile
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public MeritDumpFile( byte[] meritDumpFile )
+    public byte getTag()
     {
-        super( 14, 1 );
-        this.meritDumpFile = meritDumpFile;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( meritDumpFile );
+        return 14;
     }
 }

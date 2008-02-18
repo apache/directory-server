@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.tcp;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.ByteOption;
 
 
 /**
@@ -38,25 +36,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class TcpKeepaliveInterval extends DhcpOption
+public class TcpKeepaliveInterval extends ByteOption
 {
-    private byte[] tcpKeepaliveInterval;
-
-
-    /**
-     * Creates a new instance of TcpKeepaliveInterval.
-     *
-     * @param tcpKeepaliveInterval
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public TcpKeepaliveInterval( byte[] tcpKeepaliveInterval )
+    public byte getTag()
     {
-        super( 39, 1 );
-        this.tcpKeepaliveInterval = tcpKeepaliveInterval;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( tcpKeepaliveInterval );
+        return 39;
     }
 }

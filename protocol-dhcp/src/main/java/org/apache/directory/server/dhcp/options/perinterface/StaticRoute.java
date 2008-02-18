@@ -21,8 +21,6 @@
 package org.apache.directory.server.dhcp.options.perinterface;
 
 
-import java.nio.ByteBuffer;
-
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
 
@@ -47,23 +45,11 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class StaticRoute extends DhcpOption
 {
-    private byte[] staticRoute;
-
-
-    /**
-     * Creates a new instance of StaticRoute.
-     *
-     * @param staticRoute
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public StaticRoute( byte[] staticRoute )
+    public byte getTag()
     {
-        super( 33, 8 );
-        this.staticRoute = staticRoute;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( staticRoute );
+        return 33;
     }
 }

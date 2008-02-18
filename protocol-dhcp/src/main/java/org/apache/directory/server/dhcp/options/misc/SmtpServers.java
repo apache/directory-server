@@ -37,13 +37,11 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class SmtpServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of SmtpServers.
-     *
-     * @param smtpServer
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public SmtpServers( byte[] smtpServer )
+    public byte getTag()
     {
-        super( 69, smtpServer );
+        return 69;
     }
 }

@@ -21,8 +21,6 @@
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
-import java.nio.ByteBuffer;
-
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
 
@@ -55,23 +53,11 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class ClientIdentifier extends DhcpOption
 {
-    private byte[] clientIdentifier;
-
-
-    /**
-     * Creates a new instance of ClientIdentifier.
-     *
-     * @param clientIdentifier
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public ClientIdentifier( byte[] clientIdentifier )
+    public byte getTag()
     {
-        super( 61, 2 );
-        this.clientIdentifier = clientIdentifier;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( clientIdentifier );
+        return 61;
     }
 }

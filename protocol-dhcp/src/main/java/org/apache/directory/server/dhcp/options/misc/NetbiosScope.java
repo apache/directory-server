@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.misc;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.StringOption;
 
 
 /**
@@ -36,25 +34,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NetbiosScope extends DhcpOption
+public class NetbiosScope extends StringOption
 {
-    private byte[] netbiosScope;
-
-
-    /**
-     * Creates a new instance of NetbiosScope.
-     *
-     * @param netbiosScope
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public NetbiosScope( byte[] netbiosScope )
+    public byte getTag()
     {
-        super( 47, 1 );
-        this.netbiosScope = netbiosScope;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( netbiosScope );
+        return 47;
     }
 }

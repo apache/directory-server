@@ -18,44 +18,29 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.perhost;
+
+
+import org.apache.directory.server.dhcp.options.ByteOption;
+
+
 /**
  * This option specifies the default time-to-live that the client should
  * use on outgoing datagrams.  The TTL is specified as an octet with a
  * value between 1 and 255.
  * 
  * The code for this option is 23, and its length is 1.
- */
-package org.apache.directory.server.dhcp.options.perhost;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultIpTimeToLive extends DhcpOption
+public class DefaultIpTimeToLive extends ByteOption
 {
-    private byte[] defaultIpTimeToLive;
-
-
-    /**
-     * Creates a new instance of DefaultIpTimeToLive.
-     *
-     * @param defaultIpTimeToLive
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public DefaultIpTimeToLive( byte[] defaultIpTimeToLive )
+    public byte getTag()
     {
-        super( 23, 1 );
-        this.defaultIpTimeToLive = defaultIpTimeToLive;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( defaultIpTimeToLive );
+        return 23;
     }
 }

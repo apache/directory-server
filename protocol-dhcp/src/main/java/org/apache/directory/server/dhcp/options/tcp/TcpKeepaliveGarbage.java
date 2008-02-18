@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.tcp;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.IntOption;
 
 
 /**
@@ -38,25 +36,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class TcpKeepaliveGarbage extends DhcpOption
+public class TcpKeepaliveGarbage extends IntOption
 {
-    private byte[] tcpKeepaliveGarbage;
-
-
-    /**
-     * Creates a new instance of TcpKeepaliveGarbage.
-     *
-     * @param tcpKeepaliveGarbage
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public TcpKeepaliveGarbage( byte[] tcpKeepaliveGarbage )
+    public byte getTag()
     {
-        super( 38, 4 );
-        this.tcpKeepaliveGarbage = tcpKeepaliveGarbage;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( tcpKeepaliveGarbage );
+        return 38;
     }
 }

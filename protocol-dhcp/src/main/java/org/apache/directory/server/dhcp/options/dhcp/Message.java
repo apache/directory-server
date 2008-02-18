@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.StringOption;
 
 
 /**
@@ -39,25 +37,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Message extends DhcpOption
+public class Message extends StringOption
 {
-    private byte[] message;
-
-
-    /**
-     * Creates a new instance of Message.
-     *
-     * @param message
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public Message( byte[] message )
+    public byte getTag()
     {
-        super( 56, 1 );
-        this.message = message;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( message );
+        return 56;
     }
 }

@@ -37,13 +37,11 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class XWindowFontServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of XWindowFontServers.
-     *
-     * @param xWindowFontServer
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public XWindowFontServers( byte[] xWindowFontServer )
+    public byte getTag()
     {
-        super( 48, xWindowFontServer );
+        return 48;
     }
 }

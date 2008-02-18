@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.linklayer;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.ByteOption;
 
 
 /**
@@ -37,25 +35,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class TrailerEncapsulation extends DhcpOption
+public class TrailerEncapsulation extends ByteOption
 {
-    private byte[] trailerEncapsulation;
-
-
-    /**
-     * Creates a new instance of TrailerEncapsulation.
-     *
-     * @param trailerEncapsulation
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public TrailerEncapsulation( byte[] trailerEncapsulation )
+    public byte getTag()
     {
-        super( 34, 1 );
-        this.trailerEncapsulation = trailerEncapsulation;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( trailerEncapsulation );
+        return 34;
     }
 }

@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.linklayer;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.ByteOption;
 
 
 /**
@@ -38,25 +36,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class EthernetEncapsulation extends DhcpOption
+public class EthernetEncapsulation extends ByteOption
 {
-    private byte[] ethernetEncapsulation;
-
-
-    /**
-     * Creates a new instance of EthernetEncapsulation.
-     *
-     * @param ethernetEncapsulation
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public EthernetEncapsulation( byte[] ethernetEncapsulation )
+    public byte getTag()
     {
-        super( 36, 1 );
-        this.ethernetEncapsulation = ethernetEncapsulation;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( ethernetEncapsulation );
+        return 36;
     }
 }
