@@ -29,6 +29,11 @@
   <packaging>pom</packaging>  
   <version>0.9.9-SNAPSHOT</version>
   
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://issues.apache.org/jira/browse/DIRSHARED</url>
+  </issueManagement>
+
   <modules>
     <module>asn1</module>
     <module>ldap</module>
