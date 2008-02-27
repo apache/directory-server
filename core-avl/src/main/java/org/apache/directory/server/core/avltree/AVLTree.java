@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-
 /**
  * An AVL tree implementation
  *
@@ -40,6 +39,12 @@ public class AVLTree<K>
 	/** The Comparator used for comparing the keys */
 	private Comparator<K> comparator;
 
+	/** node representing the start of the doubly linked list formed with the tree nodes */
+	private LinkedAvlNode<K> first;
+	
+	/** node representing the end of the doubly linked list formed with the tree nodes */
+    private LinkedAvlNode<K> last;
+    
 	/**
 	 * Creates a new instance of AVLTree.
 	 *
@@ -65,10 +70,12 @@ public class AVLTree<K>
 	    if( root == null )
 	    {
 	      root = new LinkedAvlNode<K>( key );
+	      first = root;
 	      return;
 	    }
 	    
 	    node = new LinkedAvlNode<K>( key );
+	    
 	    temp = root;
 	    
 	    List<LinkedAvlNode<K>> treePath = new ArrayList<LinkedAvlNode<K>>();
@@ -103,11 +110,78 @@ public class AVLTree<K>
 	    {
 	        parent.setRight( node );
 	    }
-	 
-	    treePath.add( 0, node );
+	    
+        insertInList( node, parent, c );
+        
+        treePath.add( 0, node );
 	    balance(treePath);
 	}
 	
+	private void removeFromList(LinkedAvlNode<K> node)
+	{
+        if( node.next == null && node.previous == null ) // should happen in case of tree having single node
+        {
+            first = last = null;
+        }
+        else if( node.next == null ) // last node
+        {
+            node.previous.next = null;
+            last = node.previous;
+        }
+        else if( node.previous == null ) // first node
+        {
+            node.next.previous = null;
+            first = node.next;
+        }
+        else // somewhere in middle
+        {
+            node.previous.next = node.next;
+            node.next.previous = node.previous;
+        }
+        
+	}
+	
+	private void insertInList(LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode, int pos)
+	{
+	 // add to the linked list
+
+        if( pos < 0 )
+        {
+            if( last == null )
+            {
+              last = parentNode;  
+            }
+            
+            if( parentNode.previous == null )
+            {
+                first = node;
+            }
+            else
+            {
+                parentNode.previous.next = node ;
+                node.previous = parentNode.previous;
+            }
+            
+            node.next = parentNode;
+            parentNode.previous = node;
+        }
+        else if( pos > 0 )
+        {
+            if( parentNode.next == null )
+            {
+                last = node;
+            }
+            else
+            {
+                parentNode.next.previous = node;
+                node.next = parentNode.next;
+            }
+            node.previous = parentNode;
+            parentNode.next = node;
+         }
+        
+        // end of adding to the linked list  
+	}
 	
 	/**
      * Removes the LinkedAvlNode present in the tree with the given key value
@@ -130,6 +204,9 @@ public class AVLTree<K>
         }
         
         temp = treePath.remove( 0 );
+
+        // remove from the doubly linked
+        removeFromList(temp);        
         
         if( temp.isLeaf() )
         {
@@ -205,7 +282,8 @@ public class AVLTree<K>
                 }
             }
         }
-        
+       
+       treePath.add( 0, y ); // y can be null but getBalance returns 0 so np
        balance( treePath );
     }
     
@@ -238,7 +316,9 @@ public class AVLTree<K>
             if( node != root )
             {
                 if( treePath.indexOf( node ) < ( size - 1 ) )
+                {
                     parentNode = treePath.get( treePath.indexOf( node ) + 1 );
+                }
             }
 
 	        if( balFactor > 1 )
@@ -271,6 +351,20 @@ public class AVLTree<K>
 	}
 	
 
+	
+	/**
+     * 
+     * Find a LinkedAvlNode with the given key value in the tree.
+     *
+     * @param key the key to find
+     * @return the list of traversed LinkedAvlNode.
+     */
+    public LinkedAvlNode<K> find( K key )
+    {
+        return find( key, root);
+    }
+    
+    
 	/**
      * Tests if the tree is logically empty.
      * 
@@ -281,7 +375,35 @@ public class AVLTree<K>
       return root == null;   
     }
 
+    public int getSize()
+    {
+      if( root.isLeaf() )
+      {
+          return 1;
+      }
+      
+      return last.getIndex() + 1;
+    }
     
+    
+    public void setRoot( LinkedAvlNode<K> root )
+    {
+        this.root = root;
+    }
+
+    
+    
+    public void setFirst( LinkedAvlNode<K> first )
+    {
+        this.first = first;
+    }
+
+    public void setLast( LinkedAvlNode<K> last )
+    {
+        this.last = last;
+    }
+
+
     public LinkedAvlNode<K> getRoot()
     {
         return root;
@@ -311,7 +433,17 @@ public class AVLTree<K>
 
     //-------------- private methods ----------
     
-	/**
+	public LinkedAvlNode<K> getFirst()
+    {
+        return first;
+    }
+
+    public LinkedAvlNode<K> getLast()
+    {
+        return last;
+    }
+
+    /**
 	 * Rotate the node left side once.
 	 *
 	 * @param node the LinkedAvlNode to be rotated
@@ -332,11 +464,11 @@ public class AVLTree<K>
         }
         else if( parentNode != null )
         {
-            if( parentNode.left != null )
+            if( parentNode.left == node )
             {
                 parentNode.left = temp;
             }
-            else
+            else if( parentNode.right == node )
             {
                 parentNode.right = temp;
             }
@@ -365,11 +497,11 @@ public class AVLTree<K>
         }
         else if( parentNode != null )
         {
-            if( parentNode.left != null )
+            if( parentNode.left == node )
             {
                 parentNode.left = temp;
             }
-            else
+            else if( parentNode.right == node )
             {
                 parentNode.right = temp;
             }
@@ -422,6 +554,28 @@ public class AVLTree<K>
         }
     }
     
+    private LinkedAvlNode<K> find( K key, LinkedAvlNode<K> startNode)
+    {
+        int c;
+        
+        if( startNode == null )
+        {
+            return null;
+        }
+        
+        c = comparator.compare( key, startNode.key );
+        
+        if( c > 0 )
+        {
+            return find( key, startNode.right );
+        }
+        else if( c < 0 )
+        {
+            return find( key, startNode.left );
+        }
+        
+        return startNode;
+    }
     
     /**
      * 
@@ -539,6 +693,11 @@ public class AVLTree<K>
      */
 	private int getBalance( LinkedAvlNode<K> node )
 	{
+	    if( node == null)
+	    {
+	        return 0;
+	    }
+	    
 	    int rh = ( node.right == null ? 0 : node.right.getHeight() );
 	    int lh = ( node.left == null ? 0 : node.left.getHeight() );
 	    

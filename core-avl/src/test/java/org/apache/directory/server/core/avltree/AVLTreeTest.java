@@ -19,9 +19,13 @@
  */
 package org.apache.directory.server.core.avltree;
 
+import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -62,6 +66,8 @@ public class AVLTreeTest
       
       tree.remove( 97 ); // remove a non-existing key
       assertTrue( tree.isEmpty() );
+      
+      tree.printTree();
     }
     
     
@@ -70,9 +76,36 @@ public class AVLTreeTest
     {
         tree.insert( 3 );
         assertFalse( tree.isEmpty() );
+        assertTrue( 1 == tree.getSize() );
         
         tree.insert( 3 );// should be ignored
-        assertEquals( 1, tree.getRoot().getHeight() );
+        assertTrue( 1 == tree.getRoot().getHeight() );
+
+        assertNotNull( tree.getFirst() );
+        assertNull( tree.getLast() );
+        assertNotSame( tree.getFirst(), tree.getLast() );
+        
+        tree.remove( 3 );
+        
+        tree.insert( 37 );
+        tree.insert( 70 );
+        tree.insert( 12 );
+        
+        assertTrue( 3 == tree.getSize() );
+        
+        tree.insert( 90 );
+        tree.insert( 25 );
+        tree.insert( 99 );
+        tree.insert( 91 );
+        tree.insert( 24 );
+        tree.insert( 28 );
+        tree.insert( 26 );
+        
+        tree.printTree();
+        
+        tree.remove( 24 ); // this causes a single left rotation on node with key 12
+        tree.printTree();
+        assertTrue( tree.getRoot().getLeft().key == 26 );
     }
     
     
@@ -120,6 +153,20 @@ public class AVLTreeTest
       assertEquals("1,2,3", getInorderForm());
     }
     
+    @Test
+    public void testLinks()
+    {
+        tree.insert( 37 );
+        tree.insert( 1 );
+        tree.insert( 2 );
+        tree.insert( 10 );
+        tree.insert( 11 );
+        tree.insert( 25 );
+        tree.insert( 5 );
+        
+        assertTrue( 1 == tree.getFirst().key );
+        assertTrue( 37 == tree.getLast().key );
+    }
     
     @Test
     public void testRemove()
@@ -128,12 +175,14 @@ public class AVLTreeTest
         tree.insert( 2 );
         tree.insert( 1 );
         
+        System.out.println(getLinkedText());
         tree.remove( 2 );
+        System.out.println(getLinkedText());
         assertEquals("1,3", getInorderForm());
         
         tree.remove( 1 );
         assertEquals("3", getInorderForm());
-        assertEquals( 3, tree.getRoot().key );
+        assertTrue( 3 == tree.getRoot().key );
         
         tree.remove( 3 );
         assertTrue(tree.isEmpty());
@@ -155,16 +204,89 @@ public class AVLTreeTest
         
         tree.remove( 39 );
         assertEquals( "21,27,37,38", getInorderForm() );
-        assertEquals( 37, tree.getRoot().key ); // check the root value
+        assertTrue( 37 == tree.getRoot().key ); // check the root value
         
         tree.remove( 38 ); // a double right rotation has to happen after this
-        assertEquals( 27, tree.getRoot().key ); // check the root value after double right rotation
+        assertTrue( 27 == tree.getRoot().key ); // check the root value after double right rotation
         assertEquals( "21,27,37", getInorderForm() );
         
         tree.printTree();
     }
 
-
+    @Test
+    public void testLinkedNodes()
+    {
+        for( int i=0; i< 3; i++)
+        {
+           tree.insert( i ); 
+        }
+        
+        assertEquals( "[0]-->[1]-->[2]-->NULL", getLinkedText());
+        
+        tree.remove( 1 );
+        assertEquals( "[0]-->[2]-->NULL", getLinkedText());
+        
+        tree.insert( 4 );
+        tree.insert( 3 );
+        
+        assertEquals( "[0]-->[2]-->[3]-->[4]-->NULL", getLinkedText());
+        
+        tree.remove( 0 );
+        assertEquals( "[2]-->[3]-->[4]-->NULL", getLinkedText());
+        
+        tree.remove( 3 );
+        assertEquals( "[2]-->[4]-->NULL", getLinkedText());
+    }
+    
+    
+    @Test
+    public void testFind()
+    {
+        tree.insert( 1 );
+        tree.insert( 70 );
+        tree.insert( 21 );
+        tree.insert( 12 );
+        tree.insert( 27 );
+        tree.insert( 11 );
+        
+        assertNotNull( tree.find( 11 ) );
+        assertNull( tree.find( 0 ));
+        
+        tree.setRoot( null );
+        assertNull( tree.find( 3 ));
+    }
+    
+    
+    @Test
+    public void testFindMaxMin()
+    {
+        tree.insert( 72 );
+        tree.insert( 79 );
+        
+        tree.remove( 72 );// should call findMax internally
+        assertTrue( 79 == tree.getRoot().key );
+        
+        tree.insert( 11 );
+        tree.remove( 79 ); // should call findMin internally
+        assertTrue( 11 == tree.getRoot().key );
+    }
+    
+    private String getLinkedText() 
+    {
+        LinkedAvlNode<Integer> first = tree.getFirst();
+        StringBuilder sb = new StringBuilder();
+        
+        while( first != null )
+        {
+            sb.append( first )
+              .append( "-->" );
+            
+            first = first.next;
+        }
+        sb.append( "NULL" );
+        return sb.toString();
+    }
+    
     private String getInorderForm()
     {
       StringBuilder sb = new StringBuilder();
@@ -198,7 +320,6 @@ public class AVLTreeTest
       {
          traverse( startNode.right, path ); 
       }
-
       //3. post-order
     }
 }

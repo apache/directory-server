@@ -64,6 +64,7 @@ public class LinkedAvlNode<T>
 		return right;
 	}
 
+	
 	public T getKey() {
 		return key;
 	}
@@ -73,16 +74,30 @@ public class LinkedAvlNode<T>
 		return ( right == null && left == null );
 	}
 	
+	
 	public int getDepth() {
 		return depth;
 	}
 
+	
 	public void setDepth( int depth ) {
 		this.depth = depth;
 	}
 
 	
-	public int getHeight()
+	public void setNext( LinkedAvlNode<T> next )
+    {
+        this.next = next;
+    }
+
+
+    public void setPrevious( LinkedAvlNode<T> previous )
+    {
+        this.previous = previous;
+    }
+
+
+    public int getHeight()
     {
 	    if(right == null && left == null)
 	    {
@@ -95,6 +110,15 @@ public class LinkedAvlNode<T>
         return 1 + Math.max( lh, rh );
     }
 
+	public int getIndex()
+	{
+	    if( previous == null )
+	    {
+	        return 0;
+	    }
+	    
+	  return previous.getIndex() + 1;
+	}
 
     @Override
 	public String toString() {
