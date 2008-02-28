@@ -599,9 +599,6 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         Hashtable<String, Object> environment = new Hashtable<String, Object>();
-        environment.remove( Context.SECURITY_PRINCIPAL );
-        environment.remove( Context.SECURITY_CREDENTIALS );
-        environment.remove( Context.SECURITY_AUTHENTICATION );
 
         if ( principal != null )
         {
