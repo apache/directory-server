@@ -2853,12 +2853,12 @@ public class LdapDNTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        DnSerializer.serialize( dn, out );
+        LdapDNSerializer.serialize( dn, out );
         
         byte[] data = baos.toByteArray();
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        assertEquals( dn, DnSerializer.deserialize( in ) );
+        assertEquals( dn, LdapDNSerializer.deserialize( in ) );
     }
 
 
@@ -2918,12 +2918,12 @@ public class LdapDNTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        DnSerializer.serialize( dn, out );
+        LdapDNSerializer.serialize( dn, out );
         
         byte[] data = baos.toByteArray();
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        assertEquals( dn, DnSerializer.deserialize( in ) );
+        assertEquals( dn, LdapDNSerializer.deserialize( in ) );
         assertEquals( dn, deserializeDN( serializeDN( dn ) ) );
     }
 }
