@@ -71,6 +71,8 @@ public class ModifyAddTest extends AbstractServerTest
         Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
+        attribute.add( "organizationalperson" );
+        attribute.add( "inetorgperson" );
         attributes.put( attribute );
         attributes.put( "cn", cn );
         attributes.put( "sn", sn );
@@ -331,7 +333,7 @@ public class ModifyAddTest extends AbstractServerTest
         // Check, whether attribute objectClass is unchanged
         Attributes attrs = ctx.getAttributes( RDN_TORI_AMOS );
         ocls = attrs.get( "objectClass" );
-        assertEquals( ocls.size(), 2 );
+        assertEquals( ocls.size(), 4 );
         assertTrue( ocls.contains( "top" ) );
         assertTrue( ocls.contains( "person" ) );
     }
@@ -582,5 +584,26 @@ public class ModifyAddTest extends AbstractServerTest
         {
             
         }
+    }
+
+
+    /**
+     * Add a new attribute to a person entry.
+     * 
+     * @throws NamingException
+     */
+    public void testAddNewBinaryAttributeValue() throws NamingException
+    {
+        // Add a binary attribute
+        byte[] newValue = new byte[]{0x00, 0x01, 0x02, 0x03};
+        Attributes attrs = new AttributesImpl( "userCertificate;binary", newValue );
+        ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
+
+        // Verify, that attribute value is added
+        attrs = ctx.getAttributes( RDN_TORI_AMOS );
+        Attribute attr = attrs.get( "userCertificate" );
+        assertNotNull( attr );
+        assertTrue( attr.contains( newValue ) );
+        assertEquals( 1, attr.size() );
     }
 }

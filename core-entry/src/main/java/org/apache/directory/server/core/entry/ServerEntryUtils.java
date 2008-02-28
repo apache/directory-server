@@ -19,9 +19,12 @@
 package org.apache.directory.server.core.entry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -44,6 +47,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
  * A helper class used to manipulate Entries, Attributes and Values.
@@ -170,7 +174,11 @@ public class ServerEntryUtils
                 {
                     Attribute attr = attrs.nextElement();
 
-                    AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attr.getID() );
+                    String attributeId = attr.getID();
+                    String id = stripOptions( attributeId );
+                    Set<String> options = getOptions( attributeId );
+                    // TODO : handle options.
+                    AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( id );
                     ServerAttribute serverAttribute = ServerEntryUtils.toServerAttribute( attr, attributeType );
                     
                     if ( serverAttribute != null )
@@ -450,7 +458,11 @@ public class ServerEntryUtils
 	
 	        for ( ModificationItem modification: modifications )
 	        {
-	            AttributeType attributeType = atRegistry.lookup( modification.getAttribute().getID() );
+	            String attributeId = modification.getAttribute().getID();
+                String id = stripOptions( attributeId );
+	            Set<String> options = getOptions( attributeId );
+	            // TODO : handle options
+	            AttributeType attributeType = atRegistry.lookup( id );
 	            modificationsList.add( toModification( (ModificationItemImpl)modification, attributeType ) );
 	        }
 	    
@@ -587,5 +599,63 @@ public class ServerEntryUtils
     	    	}
     	    }
     	};
+    }
+    
+    
+    /**
+     * Remove the options from the attributeType, and returns the ID.
+     * 
+     * RFC 4512 :
+     * attributedescription = attributetype options
+     * attributetype = oid
+     * options = *( SEMI option )
+     * option = 1*keychar
+     */
+    private static String stripOptions( String attributeId )
+    {
+        int optionsPos = attributeId.indexOf( ";" ); 
+        
+        if ( optionsPos != -1 )
+        {
+            return attributeId.substring( 0, optionsPos );
+        }
+        else
+        {
+            return attributeId;
+        }
+    }
+    
+    /**
+     * Get the options from the attributeType.
+     * 
+     * For instance, given :
+     * jpegphoto;binary;lang=jp
+     * 
+     * your get back a set containing { "binary", "lang=jp" }
+     */
+    private static Set<String> getOptions( String attributeId )
+    {
+        int optionsPos = attributeId.indexOf( ";" ); 
+
+        if ( optionsPos != -1 )
+        {
+            Set<String> options = new HashSet<String>();
+            
+            String[] res = attributeId.substring( optionsPos + 1 ).split( ";" );
+            
+            for ( String option:res )
+            {
+                if ( !StringTools.isEmpty( option ) )
+                {
+                    options.add( option );
+                }
+            }
+            
+            return options;
+        }
+        else
+        {
+            return null;
+        }
     }
 }
