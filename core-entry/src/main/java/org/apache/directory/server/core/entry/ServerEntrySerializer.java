@@ -26,7 +26,7 @@ import java.io.ObjectOutput;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.name.DnSerializer;
+import org.apache.directory.shared.ldap.name.LdapDNSerializer;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -82,12 +82,12 @@ public class ServerEntrySerializer
         if ( entry.getDn() == null )
         {
             // Write an empty DN
-            DnSerializer.serialize( LdapDN.EMPTY_LDAPDN, out );
+            LdapDNSerializer.serialize( LdapDN.EMPTY_LDAPDN, out );
         }
         else
         {
             // Write the DN
-            DnSerializer.serialize( entry.getDn(), out );
+            LdapDNSerializer.serialize( entry.getDn(), out );
         }
         
         // Then the attributes.
@@ -288,7 +288,7 @@ public class ServerEntrySerializer
     public ServerEntry deserialize( ObjectInput in  ) throws IOException, NamingException, ClassNotFoundException
     {
         // First, read the DN
-        LdapDN dn = DnSerializer.deserialize( in );
+        LdapDN dn = LdapDNSerializer.deserialize( in );
         
         // Read the number of attributes
         int nbAttrs = in.readInt();
