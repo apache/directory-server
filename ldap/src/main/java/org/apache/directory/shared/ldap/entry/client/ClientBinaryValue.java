@@ -20,7 +20,11 @@ package org.apache.directory.shared.ldap.entry.client;
 
 
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.entry.AbstractBinaryValue;
+import org.apache.directory.shared.ldap.entry.AbstractValue;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
+import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,19 +41,13 @@ import java.util.Arrays;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ClientBinaryValue extends AbstractBinaryValue implements ClientValue<byte[]>
+public class ClientBinaryValue extends AbstractValue<byte[]>
 {
     /** Used for serialization */
     public static final long serialVersionUID = 2L;
     
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ClientBinaryValue.class );
-
-    /** the canonical representation of the wrapped binary value */
-    private transient byte[] normalizedValue;
-
-    /** cached results of the isValid() method call */
-    private transient Boolean valid;
 
 
     /**
@@ -59,6 +57,10 @@ public class ClientBinaryValue extends AbstractBinaryValue implements ClientValu
      */
     public ClientBinaryValue()
     {
+        wrapped = null;
+        normalized = false;
+        valid = null;
+        normalizedValue = null;
     }
 
 
@@ -70,16 +72,40 @@ public class ClientBinaryValue extends AbstractBinaryValue implements ClientValu
      */
     public ClientBinaryValue( byte[] wrapped )
     {
-        super.set( wrapped );
+        if ( wrapped != null )
+        {
+            this.wrapped = new byte[ wrapped.length ];
+            System.arraycopy( wrapped, 0, this.wrapped, 0, wrapped.length );
+        }
+        else
+        {
+            wrapped = null;
+        }
+        
+        normalized = false;
+        valid = null;
+        normalizedValue = null;
     }
 
 
     // -----------------------------------------------------------------------
     // Value<String> Methods
     // -----------------------------------------------------------------------
-
-
     /**
+     * Reset the value
+     */
+    public void clear()
+    {
+        wrapped = null;
+        normalized = false;
+        normalizedValue = null;
+        valid = null;
+    }
+
+
+
+
+    /*
      * Sets the wrapped binary value.  Has the side effect of setting the
      * normalizedValue and the valid flags to null if the wrapped value is
      * different than what is already set.  These cached values must be
@@ -102,42 +128,24 @@ public class ClientBinaryValue extends AbstractBinaryValue implements ClientValu
         }
 
         normalizedValue = null;
+        normalized = false;
         valid = null;
-        super.set( wrapped );
+        
+        if ( wrapped == null )
+        {
+            this.wrapped = wrapped;
+        }
+        else
+        {
+            this.wrapped = new byte[ wrapped.length ];
+            System.arraycopy( wrapped, 0, this.wrapped, 0, wrapped.length );
+        }
     }
 
 
     // -----------------------------------------------------------------------
     // ServerValue<String> Methods
     // -----------------------------------------------------------------------
-
-
-    /**
-     * Gets the normalized (cannonical) representation for the wrapped string.
-     * If the wrapped String is null, null is returned, otherwise the normalized
-     * form is returned.  If no the normalizedValue is null, then this method
-     * will attempt to generate it from the wrapped value: repeated calls to
-     * this method do not unnecessarily normalize the wrapped value.  Only changes
-     * to the wrapped value result in attempts to normalize the wrapped value.
-     *
-     * @return a reference to the normalized version of the wrapped value
-     * @throws NamingException with failures to normalize
-     */
-    public byte[] getNormalizedReference() throws NamingException
-    {
-        if ( isNull() )
-        {
-            return null;
-        }
-
-        if ( normalizedValue == null )
-        {
-        }
-
-        return normalizedValue;
-    }
-
-
     /**
      * Gets a direct reference to the normalized representation for the
      * wrapped value of this ServerValue wrapper. Implementations will most
@@ -147,11 +155,11 @@ public class ClientBinaryValue extends AbstractBinaryValue implements ClientValu
      * @return the normalized version of the wrapped value
      * @throws NamingException if schema entity resolution fails or normalization fails
      */
-    public byte[] getNormalizedCopy() throws NamingException
+    public byte[] getNormalizedValueCopy()
     {
         if ( normalizedValue == null )
         {
-            getNormalizedReference();
+            return null;
         }
 
         byte[] copy = new byte[ normalizedValue.length ];
@@ -161,32 +169,38 @@ public class ClientBinaryValue extends AbstractBinaryValue implements ClientValu
 
 
     /**
-     * Uses the syntaxChecker associated with the attributeType to check if the
-     * value is valid.  Repeated calls to this method do not attempt to re-check
-     * the syntax of the wrapped value every time if the wrapped value does not
-     * change. Syntax checks only result on the first check, and when the wrapped
-     * value changes.
-     *
-     * @see ServerValue#isValid()
+     * Normalize the value. For a client String value, applies the given normalizer.
+     * 
+     * It supposes that the client has access to the schema in order to select the
+     * appropriate normalizer.
+     * 
+     * @param Normalizer The normalizer to apply to the value
+     * @exception NamingException If the value cannot be normalized
      */
-    public final boolean isValid() throws NamingException
+    public final void normalize( Normalizer normalizer ) throws NamingException
     {
-        if ( valid != null )
+        if ( normalizer != null )
         {
-            return valid;
+            if ( wrapped == null )
+            {
+                normalized = true;
+            }
+            else
+            {
+                normalizedValue = (byte[])normalizer.normalize( wrapped );
+                normalized = true;
+            }
         }
-
-        return valid;
     }
 
-
+    
     /**
      *
      * @see ServerValue#compareTo(ServerValue)
      * @throws IllegalStateException on failures to extract the comparator, or the
      * normalizers needed to perform the required comparisons based on the schema
      */
-    public int compareTo( ClientValue<byte[]> value )
+    public int compareTo( Value<byte[]> value )
     {
         if ( isNull() )
         {
@@ -210,8 +224,10 @@ public class ClientBinaryValue extends AbstractBinaryValue implements ClientValu
         if ( value instanceof ClientBinaryValue )
         {
             ClientBinaryValue binaryValue = ( ClientBinaryValue ) value;
-        }
 
+            return ByteArrayComparator.INSTANCE.compare( getNormalizedValue(), binaryValue.getNormalizedValue() );
+        }
+        
         throw new NotImplementedException( "I don't really know how to compare anything other " +
                 "than ServerBinaryValues at this point in time." );
     }
@@ -236,16 +252,7 @@ public class ClientBinaryValue extends AbstractBinaryValue implements ClientValu
             return 0;
         }
 
-        try
-        {
-            return Arrays.hashCode( getNormalizedReference() );
-        }
-        catch ( NamingException e )
-        {
-            String msg = "Failed to normalize \"" + toString() + "\" while trying to get hashCode()";
-            LOG.error( msg, e );
-            throw new IllegalStateException( msg, e );
-        }
+        return Arrays.hashCode( getNormalizedValueReference() );
     }
 
 
@@ -263,7 +270,7 @@ public class ClientBinaryValue extends AbstractBinaryValue implements ClientValu
         {
             return true;
         }
-
+        
         if ( ! ( obj instanceof ClientBinaryValue ) )
         {
             return false;
@@ -271,31 +278,13 @@ public class ClientBinaryValue extends AbstractBinaryValue implements ClientValu
 
         ClientBinaryValue other = ( ClientBinaryValue ) obj;
         
-        if ( isNull() && other.isNull() )
+        if ( isNull() )
         {
-            return true;
-        }
-
-        if ( isNull() != other.isNull() )
-        {
-            return false;
+            return other.isNull();
         }
 
         // now unlike regular values we have to compare the normalized values
-        try
-        {
-            return Arrays.equals( getNormalizedReference(), other.getNormalizedReference() );
-        }
-        catch ( NamingException e )
-        {
-            // 1st this is a warning because we're recovering from it and secondly
-            // we build big string since waste is not an issue when exception handling
-            LOG.warn( "Failed to get normalized value while trying to compare StringValues: "
-                    + toString() + " and " + other.toString() , e );
-
-            // recover by comparing non-normalized values
-            return Arrays.equals( getReference(), other.getReference() );
-        }
+        return Arrays.equals( getNormalizedValueReference(), other.getNormalizedValueReference() );
     }
 
 
@@ -315,6 +304,58 @@ public class ClientBinaryValue extends AbstractBinaryValue implements ClientValu
             System.arraycopy( normalizedValue, 0, clone.normalizedValue, 0, normalizedValue.length );
         }
         
+        if ( wrapped != null )
+        {
+            clone.wrapped = new byte[ wrapped.length ];
+            System.arraycopy( wrapped, 0, clone.wrapped, 0, wrapped.length );
+        }
+        
         return clone;
+    }
+
+
+    /**
+     * Gets a copy of the binary value.
+     *
+     * @return a copy of the binary value
+     */
+    public byte[] getCopy()
+    {
+        if ( wrapped == null )
+        {
+            return null;
+        }
+
+        
+        final byte[] copy = new byte[ wrapped.length ];
+        System.arraycopy( wrapped, 0, copy, 0, wrapped.length );
+        return copy;
+    }
+
+
+    /**
+     * Dumps binary in hex with label.
+     *
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        if ( wrapped == null )
+        {
+            return "null";
+        }
+        else if ( wrapped.length > 16 )
+        {
+            // Just dump the first 16 bytes...
+            byte[] copy = new byte[16];
+            
+            System.arraycopy( wrapped, 0, copy, 0, 16 );
+            
+            return "'" + StringTools.dumpBytes( copy ) + "...'";
+        }
+        else
+        {
+            return "'" + StringTools.dumpBytes( wrapped ) + "'";
+        }
     }
 }

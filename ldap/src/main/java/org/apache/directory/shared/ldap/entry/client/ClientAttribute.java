@@ -20,6 +20,7 @@ package org.apache.directory.shared.ldap.entry.client;
 
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 
 import javax.naming.NamingException;
 
@@ -31,7 +32,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ClientAttribute extends EntryAttribute<ClientValue<?>>
+public interface ClientAttribute extends EntryAttribute<Value<?>>
 {
     /**
      * Get's the user provided identifier for this entry.  This is the value

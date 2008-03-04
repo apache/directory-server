@@ -20,7 +20,9 @@ package org.apache.directory.shared.ldap.entry.client;
 
 
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.entry.AbstractStringValue;
+import org.apache.directory.shared.ldap.entry.AbstractValue;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,26 +38,26 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ClientStringValue extends AbstractStringValue implements ClientValue<String>
+public class ClientStringValue extends AbstractValue<String>
 {
     /** Used for serialization */
     public static final long serialVersionUID = 2L;
     
+    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ClientStringValue.class );
 
-    /** the canonical representation of the wrapped String value */
-    private transient String normalizedValue;
-
-    /** cached results of the isValid() method call */
-    private transient Boolean valid;
-
-
+    
+    // -----------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------
     /**
      * Creates a ServerStringValue without an initial wrapped value.
      */
     public ClientStringValue()
     {
+        normalized = false;
+        valid = null;
     }
 
 
@@ -66,15 +68,39 @@ public class ClientStringValue extends AbstractStringValue implements ClientValu
      */
     public ClientStringValue( String wrapped )
     {
-        super.set( wrapped );
+        this.wrapped = wrapped;
+        normalized = false;
+        valid = null;
     }
 
 
     // -----------------------------------------------------------------------
     // Value<String> Methods
     // -----------------------------------------------------------------------
+    /**
+     * Get the stored value.
+     *
+     * @return The stored value
+     */
+    public String get()
+    {
+        return wrapped;
+    }
 
 
+    /**
+     * Get a copy of the stored value.
+     *
+     * @return A copy of the stored value.
+     */
+    public String getCopy()
+    {
+        // The String is immutable, we can safely return the internal
+        // object without copying it.
+        return wrapped;
+    }
+    
+    
     /**
      * Sets the wrapped String value.  Has the side effect of setting the
      * normalizedValue and the valid flags to null if the wrapped value is
@@ -87,34 +113,29 @@ public class ClientStringValue extends AbstractStringValue implements ClientValu
     {
         // Why should we invalidate the normalized value if it's we're setting the
         // wrapper to it's current value?
-        if ( wrapped.equals( get() ) )
+        if ( ( wrapped != null ) && wrapped.equals( get() ) )
         {
             return;
         }
 
         normalizedValue = null;
+        normalized = false;
         valid = null;
-        super.set( wrapped );
+        this.wrapped = wrapped;
     }
 
 
-    // -----------------------------------------------------------------------
-    // ServerValue<String> Methods
-    // -----------------------------------------------------------------------
-
-
     /**
-     * Gets the normalized (cannonical) representation for the wrapped string.
+     * Gets the normalized (canonical) representation for the wrapped string.
      * If the wrapped String is null, null is returned, otherwise the normalized
-     * form is returned.  If no the normalizedValue is null, then this method
+     * form is returned.  If the normalizedValue is null, then this method
      * will attempt to generate it from the wrapped value: repeated calls to
      * this method do not unnecessarily normalize the wrapped value.  Only changes
      * to the wrapped value result in attempts to normalize the wrapped value.
      *
      * @return gets the normalized value
-     * @throws NamingException if the value cannot be properly normalized
      */
-    public String getNormalized() throws NamingException
+    public String getNormalizedValue()
     {
         if ( isNull() )
         {
@@ -123,6 +144,7 @@ public class ClientStringValue extends AbstractStringValue implements ClientValu
 
         if ( normalizedValue == null )
         {
+            return wrapped;
         }
 
         return normalizedValue;
@@ -130,31 +152,45 @@ public class ClientStringValue extends AbstractStringValue implements ClientValu
 
 
     /**
-     * Uses the syntaxChecker associated with the attributeType to check if the
-     * value is valid.  Repeated calls to this method do not attempt to re-check
-     * the syntax of the wrapped value every time if the wrapped value does not
-     * change. Syntax checks only result on the first check, and when the wrapped
-     * value changes.
+     * Gets a copy of the the normalized (canonical) representation 
+     * for the wrapped value.
      *
-     * @see ServerValue#isValid()
+     * @return gets a copy of the normalized value
      */
-    public final boolean isValid() throws NamingException
+    public String getNormalizedValueCopy()
     {
-        if ( valid != null )
-        {
-            return valid;
-        }
-
-        return valid;
+        return getNormalizedValue();
     }
 
 
+    /**
+     * Normalize the value. For a client String value, applies the given normalizer.
+     * 
+     * It supposes that the client has access to the schema in order to select the
+     * appropriate normalizer.
+     * 
+     * @param Normalizer The normalizer to apply to the value
+     * @exception NamingException If the value cannot be normalized
+     */
+    public final void normalize( Normalizer normalizer ) throws NamingException
+    {
+        if ( normalizer != null )
+        {
+            normalizedValue = (String)normalizer.normalize( wrapped );
+            normalized = true;
+        }
+    }
+
+    
+    // -----------------------------------------------------------------------
+    // Comparable<String> Methods
+    // -----------------------------------------------------------------------
     /**
      * @see ServerValue#compareTo(ServerValue)
      * @throws IllegalStateException on failures to extract the comparator, or the
      * normalizers needed to perform the required comparisons based on the schema
      */
-    public int compareTo( ClientValue<String> value )
+    public int compareTo( Value<String> value )
     {
         if ( isNull() )
         {
@@ -175,17 +211,35 @@ public class ClientStringValue extends AbstractStringValue implements ClientValu
         if ( value instanceof ClientStringValue )
         {
             ClientStringValue stringValue = ( ClientStringValue ) value;
+            
+            return getNormalizedValue().compareTo( stringValue.getNormalizedValue() );
         }
+        else 
+        {
+            String message = "Cannot compare " + toString() + " with the unknown value " + value.getClass();
+            LOG.error( message );
+            throw new NotImplementedException( message );
+        }
+    }
 
-        throw new NotImplementedException( "I don't know what to do if value is not a ServerStringValue" );
+
+    // -----------------------------------------------------------------------
+    // Cloneable methods
+    // -----------------------------------------------------------------------
+    /**
+     * Get a clone of the Client Value
+     * 
+     * @return a copy of the current value
+     */
+    public ClientStringValue clone()
+    {
+        return (ClientStringValue)super.clone();
     }
 
 
     // -----------------------------------------------------------------------
     // Object Methods
     // -----------------------------------------------------------------------
-
-
     /**
      * @see Object#hashCode()
      * @throws IllegalStateException on failures to extract the comparator, or the
@@ -200,26 +254,16 @@ public class ClientStringValue extends AbstractStringValue implements ClientValu
             return 0;
         }
 
-        try
-        {
-            return getNormalized().hashCode();
-        }
-        catch ( NamingException e )
-        {
-            String msg = "Failed to normalize \"" + get() + "\" while trying to get hashCode()";
-            LOG.error( msg, e );
-            throw new IllegalStateException( msg, e );
-        }
+        // If the normalized value is null, will default to wrapped
+        // which cannot be null at this pont.
+        return getNormalizedValue().hashCode();
     }
 
 
     /**
-     * Checks to see if this ServerStringValue equals the supplied object.
-     *
-     * This equals implementation overrides the StringValue implementation which
-     * is not schema aware.
-     * @throws IllegalStateException on failures to extract the comparator, or the
-     * normalizers needed to perform the required comparisons based on the schema
+     * @see Object#equals(Object)
+     * 
+     * Two ClientStringValue are equals if their normalized values are equal
      */
     public boolean equals( Object obj )
     {
@@ -235,46 +279,21 @@ public class ClientStringValue extends AbstractStringValue implements ClientValu
 
         ClientStringValue other = ( ClientStringValue ) obj;
         
-        if ( isNull() && other.isNull() )
+        if ( this.isNull() )
         {
-            return true;
+            return other.isNull();
         }
-
-        if ( isNull() != other.isNull() )
-        {
-            return false;
-        }
-
-        // now unlike regular values we have to compare the normalized values
-        try
-        {
-            return getNormalized().equals( other.getNormalized() );
-        }
-        catch ( NamingException e )
-        {
-            String msg = "Failed to normalize while testing for equality on String values: \"";
-            msg += get() + "\"" + " and \"" + other.get() + "\"" ;
-            LOG.error( msg, e );
-            throw new IllegalStateException( msg, e );
-        }
+        
+        // Test the normalized values
+        return this.getNormalizedValue().equals( other.getNormalizedValue() );
     }
-
-
-    // -----------------------------------------------------------------------
-    // Private Helper Methods (might be put into abstract base class)
-    // -----------------------------------------------------------------------
+    
+    
     /**
-     * @return a copy of the current value
+     * @see Object#toString()
      */
-    public ClientStringValue clone()
+    public String toString()
     {
-        try
-        {
-            return (ClientStringValue)super.clone();
-        }
-        catch ( CloneNotSupportedException cnse )
-        {
-            return null;
-        }
+        return "'" + wrapped + "'";
     }
 }

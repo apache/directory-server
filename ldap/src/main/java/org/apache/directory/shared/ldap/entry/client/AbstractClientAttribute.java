@@ -20,6 +20,7 @@ package org.apache.directory.shared.ldap.entry.client;
 
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public abstract class AbstractClientAttribute implements ClientAttribute
     private static final Logger LOG = LoggerFactory.getLogger( AbstractClientAttribute.class );
 
     /** The set of contained values */
-    protected List<ClientValue<?>> values = new ArrayList<ClientValue<?>>();
+    protected List<Value<?>> values = new ArrayList<Value<?>>();
     
     /** The User provided ID */
     protected String upId;
@@ -143,7 +144,7 @@ public abstract class AbstractClientAttribute implements ClientAttribute
      */
     public boolean isValid() throws NamingException
     {
-        for ( ClientValue<?> value : values )
+        for ( Value<?> value : values )
         {
             if ( ! value.isValid() )
             {
@@ -158,11 +159,11 @@ public abstract class AbstractClientAttribute implements ClientAttribute
     /**
      * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public int add( ClientValue<?>... vals ) throws InvalidAttributeValueException, NamingException
+    public int add( Value<?>... vals ) throws InvalidAttributeValueException, NamingException
     {
         int nbAdded = 0;
         
-        for ( ClientValue<?> val:vals )
+        for ( Value<?> val:vals )
         {
             values.add( val );
             nbAdded ++;
@@ -175,7 +176,7 @@ public abstract class AbstractClientAttribute implements ClientAttribute
     /**
      * @see EntryAttribute#put(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public int put( ClientValue<?>... vals ) throws InvalidAttributeValueException, NamingException
+    public int put( Value<?>... vals ) throws InvalidAttributeValueException, NamingException
     {
         values.clear();
         return add( vals );
@@ -282,9 +283,9 @@ public abstract class AbstractClientAttribute implements ClientAttribute
             // Copy the values. The attributeType is immutable.
             if ( ( values != null ) && ( values.size() != 0 ) )
             {
-                clone.values = new ArrayList<ClientValue<?>>( values.size() );
+                clone.values = new ArrayList<Value<?>>( values.size() );
                 
-                for ( ClientValue<?> value:values )
+                for ( Value<?> value:values )
                 {
                     clone.values.add( value.clone() );
                 }
@@ -303,7 +304,7 @@ public abstract class AbstractClientAttribute implements ClientAttribute
     /**
      * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value)
      */
-    public boolean contains( ClientValue<?> val )
+    public boolean contains( Value<?> val )
     {
         return values.contains( val );
     }
@@ -312,11 +313,11 @@ public abstract class AbstractClientAttribute implements ClientAttribute
     /**
      * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public boolean contains( ClientValue<?>... vals )
+    public boolean contains( Value<?>... vals )
     {
         // Iterate through all the values, and quit if we 
         // don't find one in the values
-        for ( ClientValue<?> val:vals )
+        for ( Value<?> val:vals )
         {
             if ( !values.contains( val ) )
             {
@@ -397,7 +398,7 @@ public abstract class AbstractClientAttribute implements ClientAttribute
      * 
      *  @return The first value for this attribute.
      */
-    public ClientValue<?> get()
+    public Value<?> get()
     {
         if ( values.isEmpty() )
         {
@@ -413,7 +414,7 @@ public abstract class AbstractClientAttribute implements ClientAttribute
      * 
      * @return An iterator over the values stored into the attribute
      */
-    public Iterator<ClientValue<?>> getAll()
+    public Iterator<Value<?>> getAll()
     {
         return iterator();
     }
@@ -434,7 +435,7 @@ public abstract class AbstractClientAttribute implements ClientAttribute
     /**
      * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value)
      */
-    public boolean remove( ClientValue<?> val )
+    public boolean remove( Value<?> val )
     {
         return values.remove( val );
     }
@@ -443,13 +444,13 @@ public abstract class AbstractClientAttribute implements ClientAttribute
     /**
      * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public boolean remove( ClientValue<?>... vals )
+    public boolean remove( Value<?>... vals )
     {
         boolean removed = false;
         
         // Loop through all the values to remove. If one of
         // them is not present, the method will return false.
-        for ( ClientValue<?> val:vals )
+        for ( Value<?> val:vals )
         {
             removed &= values.remove( val );
         }
@@ -517,7 +518,7 @@ public abstract class AbstractClientAttribute implements ClientAttribute
      * 
      * @return an iterator over the stored values.
      */
-    public Iterator<ClientValue<?>> iterator()
+    public Iterator<Value<?>> iterator()
     {
         return values.iterator();
     }

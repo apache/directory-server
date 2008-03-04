@@ -20,6 +20,7 @@ package org.apache.directory.shared.ldap.entry.client;
 
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +77,7 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
      * @param vals an initial set of values for this attribute
      * @throws NamingException if there are problems creating the new attribute
      */
-    public DefaultClientAttribute( ClientValue<?>... vals ) throws NamingException
+    public DefaultClientAttribute( Value<?>... vals ) throws NamingException
     {
         this( null, vals );
     }
@@ -96,7 +97,7 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
      * @param vals an initial set of values for this attribute
      * @throws NamingException if there are problems creating the new attribute
      */
-    public DefaultClientAttribute( String upId, ClientValue<?>... vals ) throws NamingException
+    public DefaultClientAttribute( String upId, Value<?>... vals ) throws NamingException
     {
         // The value can be null, this is a valid value.
         if ( vals[0] == null )
@@ -105,7 +106,7 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
         }
         else
         {
-            for ( ClientValue<?> val:vals )
+            for ( Value<?> val:vals )
             {
                 if ( val instanceof ClientStringValue )
                 {
@@ -205,7 +206,7 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
      */
     public boolean isValid() throws NamingException
     {
-        for ( ClientValue<?> value : values )
+        for ( Value<?> value : values )
         {
             if ( ! value.isValid() )
             {
@@ -220,11 +221,11 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     /**
      * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value)
      */
-    public boolean add( ClientValue<?> val ) throws InvalidAttributeValueException, NamingException
+    public boolean add( Value<?> val ) throws InvalidAttributeValueException, NamingException
     {
         if ( val == null )
         {
-            ClientValue<String> nullSV = new ClientStringValue( (String)null );
+            Value<String> nullSV = new ClientStringValue( (String)null );
             
             if ( values.contains( nullSV ) )
             {
@@ -249,11 +250,11 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     /**
      * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public int add( ClientValue<?>... vals ) throws InvalidAttributeValueException, NamingException
+    public int add( Value<?>... vals ) throws InvalidAttributeValueException, NamingException
     {
         int nbAdded = 0;
         
-        for ( ClientValue<?> val:vals )
+        for ( Value<?> val:vals )
         {
             if ( add( val ) )
             {
@@ -334,7 +335,7 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     /**
      * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value)
      */
-    public boolean contains( ClientValue<?> val )
+    public boolean contains( Value<?> val )
     {
         return values.contains( val );
     }
@@ -343,11 +344,11 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     /**
      * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public boolean contains( ClientValue<?>... vals )
+    public boolean contains( Value<?>... vals )
     {
         // Iterate through all the values, and quit if we 
         // don't find one in the values
-        for ( ClientValue<?> val:vals )
+        for ( Value<?> val:vals )
         {
             if ( !values.contains( val ) )
             {
@@ -486,7 +487,7 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
      * 
      *  @return The first value for this attribute.
      */
-    public ClientValue<?> get()
+    public Value<?> get()
     {
         if ( values.isEmpty() )
         {
@@ -502,7 +503,7 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
      * 
      * @return An iterator over the values stored into the attribute
      */
-    public Iterator<ClientValue<?>> getAll()
+    public Iterator<Value<?>> getAll()
     {
         return iterator();
     }
@@ -523,7 +524,7 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     /**
      * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value)
      */
-    public boolean remove( ClientValue<?> val )
+    public boolean remove( Value<?> val )
     {
         return values.remove( val );
     }
@@ -532,13 +533,13 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     /**
      * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public boolean remove( ClientValue<?>... vals )
+    public boolean remove( Value<?>... vals )
     {
         boolean removed = false;
         
         // Loop through all the values to remove. If one of
         // them is not present, the method will return false.
-        for ( ClientValue<?> val:vals )
+        for ( Value<?> val:vals )
         {
             removed &= values.remove( val );
         }
@@ -606,7 +607,7 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
      * 
      * @return an iterator over the stored values.
      */
-    public Iterator<ClientValue<?>> iterator()
+    public Iterator<Value<?>> iterator()
     {
         return values.iterator();
     }
@@ -633,7 +634,7 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
         
         if ( ( values != null ) && ( values.size() != 0 ) )
         {
-            for ( ClientValue<?> value:values )
+            for ( Value<?> value:values )
             {
                 sb.append( "    " ).append( upId ).append( ": " ).append( value ).append( '\n' );
             }
