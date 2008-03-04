@@ -63,6 +63,7 @@ public class AVLTreePerfTest
     };
     
     AvlTreeMarshaller<Integer> treeMarshaller = new AvlTreeMarshaller<Integer>( comparator, new IntegerKeyMarshaller() );
+
     
     @Before
     public void createTree()
@@ -82,6 +83,7 @@ public class AVLTreePerfTest
       start = end = 0;
     }
     
+    
     @Test
     public void testRBTreeInsertPerf()
     {
@@ -98,6 +100,7 @@ public class AVLTreePerfTest
         
     }
 
+    
     @Test
     public void testRBTreeLookupPerf()
     {
@@ -118,6 +121,7 @@ public class AVLTreePerfTest
        
        System.out.println( "total time took to read an item from set " + getTime( start, end ) ) ;
     }
+    
     
     @Test
     public void testRemoveFromRBTree()
@@ -157,6 +161,7 @@ public class AVLTreePerfTest
         System.out.println("total time for inserting " + numKeys + " items into the AVLTree-->" + getTime(start, end));
     }
     
+    
     @Test
     public void testAVLTreeLookupPerf()
     {
@@ -178,6 +183,7 @@ public class AVLTreePerfTest
         
         System.out.println("total time took to read an item from tree " + getTime( start, end ) ) ;
     }
+    
     
     @Test
     public void testAVLTreeRemovePerf()
@@ -225,7 +231,9 @@ public class AVLTreePerfTest
         System.out.println( "total time taken for serializing HashSet ->" + getTime( start, end ) );
     }
     
-    @Test
+    
+    @SuppressWarnings("unchecked")
+	@Test
     public void testRBTreeDeserializationPerf() throws Exception
     {
      // read test
@@ -234,12 +242,13 @@ public class AVLTreePerfTest
         
         start = System.nanoTime();
         
-        set = (HashSet) objIn.readObject();
+        set = ( HashSet ) objIn.readObject();
         
         end = System.nanoTime();
         
         System.out.println("total time taken for reconstructing a serialized HashSet ->" + getTime( start, end ) );
     }
+    
     
     @Test
     public void testAVLTreeSerializationPerf() throws Exception

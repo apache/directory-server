@@ -33,7 +33,6 @@ import java.util.List;
  */
 public class AVLTree<K>
 {
-
     /** the root of the tree */
 	private LinkedAvlNode<K> root;
 
@@ -45,6 +44,7 @@ public class AVLTree<K>
 	
 	/** node representing the end of the doubly linked list formed with the tree nodes */
     private LinkedAvlNode<K> last;
+
     
 	/**
 	 * Creates a new instance of AVLTree.
@@ -55,6 +55,7 @@ public class AVLTree<K>
 	{
 	    this.comparator = comparator;
 	}
+	
 	
 	/**
 	 * Inserts a LinkedAvlNode with the given key
@@ -120,6 +121,7 @@ public class AVLTree<K>
 	    balance(treePath);
 	}
 	
+	
 	private void removeFromList(LinkedAvlNode<K> node)
 	{
         if( node.next == null && node.previous == null ) // should happen in case of tree having single node
@@ -143,6 +145,7 @@ public class AVLTree<K>
         }
         
 	}
+	
 	
 	private void insertInList(LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode, int pos)
 	{
@@ -184,6 +187,7 @@ public class AVLTree<K>
         
 	}
 	
+	
 	/**
      * Removes the LinkedAvlNode present in the tree with the given key value
      *
@@ -193,7 +197,6 @@ public class AVLTree<K>
     {
         LinkedAvlNode<K> temp = null;
         LinkedAvlNode<K> y = null;
-        LinkedAvlNode<K> x = null;
         
         List<LinkedAvlNode<K>> treePath = new ArrayList<LinkedAvlNode<K>>();
         
@@ -293,9 +296,10 @@ public class AVLTree<K>
 	 * Balances the tree by visiting the nodes present in the List of nodes present in the
 	 * treePath parameter.<br><br>
 	 *
-	 * This really does the balancing if the hight of the tree is greater than 2 and the<br> 
+	 * This really does the balancing if the height of the tree is greater than 2 and the<br> 
 	 * balance factor is greater than +1 or less than -1.<br><br>
-	 * For an excellent info please read the <a href="http://en.wikipedia.org/wiki/Avl_tree">Wikipedia article on AVL tree</a>.
+	 * For an excellent info please read the 
+	 * <a href="http://en.wikipedia.org/wiki/Avl_tree">Wikipedia article on AVL tree</a>.
 	 * 
 	 * @param treePath the traversed list of LinkedAvlNodes after performing an insert/delete operation.
 	 */
@@ -357,6 +361,7 @@ public class AVLTree<K>
       return root == null;   
     }
 
+    
     /**
      * returns the number of nodes present in this tree.
      * 
@@ -409,8 +414,8 @@ public class AVLTree<K>
     /**
      * Prints the contents of AVL tree in pretty format
      */
-    public void printTree() {
-        
+    public void printTree() 
+    {
         if( isEmpty() )
         {
             System.out.println( "Tree is empty" );
@@ -429,16 +434,19 @@ public class AVLTree<K>
 
     //-------------- private methods ----------
     
+    
 	public LinkedAvlNode<K> getFirst()
     {
         return first;
     }
 
+	
     public LinkedAvlNode<K> getLast()
     {
         return last;
     }
 
+    
     /**
 	 * Rotate the node left side once.
 	 *
@@ -601,6 +609,7 @@ public class AVLTree<K>
         return find( key, root);
     }
     
+
     private LinkedAvlNode<K> find( K key, LinkedAvlNode<K> startNode)
     {
         int c;
@@ -625,6 +634,7 @@ public class AVLTree<K>
         
         return startNode;
     }
+    
     
     /**
      * Find the LinkedAvlNode having the max key value in the tree starting from the startNode.
