@@ -598,18 +598,80 @@ public class AvlTree<K>
         return null;
     }
     
-    
+    /**
+     * finds a LinkedAvlNode<K> whose key is higher than the given key.
+     *
+     * @param key the key
+     * @return the LinkedAvlNode<K> whose key is greater than the given key ,<br>
+     *         null if there is no node with a higher key than the given key.
+     */
     public LinkedAvlNode<K> findGreater( K key )
     {
-        throw new NotImplementedException();
+        LinkedAvlNode<K> result = fetchNonNullNode( key, root, root);
+
+        if( result == null )
+        {
+            return null;
+        }
+        else if( comparator.compare( key, result.key ) < 0 )
+        {
+            return result;
+        }
+        
+        return result.next;
     }
     
-    
+    /**
+     * finds a LinkedAvlNode<K> whose key is lower than the given key.
+     *
+     * @param key the key
+     * @return the LinkedAvlNode<K> whose key is lower than the given key ,<br>
+     *         null if there is no node with a lower key than the given key.
+     */
     public LinkedAvlNode<K> findLess( K key )
     {
-        throw new NotImplementedException();
+        LinkedAvlNode<K> result = fetchNonNullNode( key, root, root);
+
+        if( result == null )
+        {
+            return null;
+        }
+        else if( comparator.compare( key, result.key ) > 0 )
+        {
+            return result;
+        }
+        
+        return result.previous;
     }
     
+    /*
+     * This method returns the last visited non-null node in case if the node with the given key
+     * is not present. This method should not be used as general purpose lookup method.
+     * This is written to assist the findGreater, findLess methods. 
+     */
+    private LinkedAvlNode<K> fetchNonNullNode( K key, LinkedAvlNode<K> startNode, LinkedAvlNode<K> parent )
+    {
+        
+        if( startNode == null )
+        {
+            return parent;
+        }
+        
+        int c = comparator.compare( key, startNode.key );
+        
+        parent = startNode;
+
+        if( c > 0 )
+        {
+            return fetchNonNullNode( key, startNode.right, parent );
+        }
+        else if( c < 0 )
+        {
+            return fetchNonNullNode( key, startNode.left, parent );
+        }
+        
+        return startNode;
+    }
     
     /**
      * 

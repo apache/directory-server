@@ -255,6 +255,48 @@ public class AvlTreeTest
     }
     
     @Test
+    public void testFindGreater()
+    {
+        assertNull( tree.findGreater( 1 ) );
+        
+        tree.insert( 1 );
+        assertNull( tree.findGreater( 1 ) );
+        
+        tree.insert( 0 );
+        tree.insert( 3 );
+        tree.insert( 7 );
+        tree.insert( 6 );
+        tree.insert( 2 );
+        tree.insert( 8 );
+        
+        assertFalse( 1 == tree.findGreater( 1 ).key );
+        assertTrue( 2 == tree.findGreater( 1 ).key );
+        assertTrue( 6 == tree.findGreater( 4 ).key );
+        assertNull( tree.findGreater( 8 ) );
+    }
+    
+    @Test
+    public void testFindLess()
+    {
+        assertNull( tree.findLess( 1 ) );
+        
+        tree.insert( 1 );
+        assertNull( tree.findLess( 1 ) );
+
+        tree.insert( 2 );
+        tree.insert( 7 );
+        tree.insert( 3 );
+        tree.insert( 6 );
+        tree.insert( 0 );
+        tree.insert( 37 );
+        
+        assertFalse( 0 == tree.findLess( 5 ).key );
+        assertTrue( 3 == tree.findLess( 5 ).key );
+        assertTrue( 7 == tree.findLess( 8 ).key );
+        assertNull( tree.findLess( 0 ) );
+    }
+    
+    @Test
     public void testFindMaxMin()
     {
         tree.insert( 72 );
