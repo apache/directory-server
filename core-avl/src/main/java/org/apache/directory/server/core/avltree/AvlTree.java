@@ -599,13 +599,13 @@ public class AvlTree<K>
     }
     
     
-    public LinkedAvlNode<K> findGreaterOrEqual( K key )
+    public LinkedAvlNode<K> findGreater( K key )
     {
         throw new NotImplementedException();
     }
     
     
-    public LinkedAvlNode<K> findLessOrEqual( K key )
+    public LinkedAvlNode<K> findLess( K key )
     {
         throw new NotImplementedException();
     }
