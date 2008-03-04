@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang.NotImplementedException;
+
 
 /**
  * An AVL tree implementation
@@ -595,7 +597,19 @@ public class AvlTree<K>
         
         return null;
     }
-	
+    
+    
+    public LinkedAvlNode<K> findGreaterOrEqual( K key )
+    {
+        throw new NotImplementedException();
+    }
+    
+    
+    public LinkedAvlNode<K> findLessOrEqual( K key )
+    {
+        throw new NotImplementedException();
+    }
+    
     
     /**
      * 
