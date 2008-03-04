@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+
 /**
  * An AVL tree implementation
  *
@@ -94,10 +95,12 @@ public class AVLTree<K>
 	        
 	        if( c < 0 )
 	        {
+	          temp.isLeft = true;
 	          temp = temp.getLeft();  
 	        }
 	        else
 	        {
+	          temp.isLeft = false;
 	          temp = temp.getRight();
 	        }
 	    }
@@ -143,7 +146,6 @@ public class AVLTree<K>
 	
 	private void insertInList(LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode, int pos)
 	{
-	 // add to the linked list
 
         if( pos < 0 )
         {
@@ -180,7 +182,6 @@ public class AVLTree<K>
             parentNode.next = node;
          }
         
-        // end of adding to the linked list  
 	}
 	
 	/**
@@ -302,11 +303,6 @@ public class AVLTree<K>
 	{
 	    LinkedAvlNode<K> parentNode = null;
 	    
-	    if(root.getHeight() <= 2)
-	    {
-	        return;
-	    }
-	    
 	    int size = treePath.size();
 	    
 	    for( LinkedAvlNode<K> node: treePath )
@@ -351,20 +347,6 @@ public class AVLTree<K>
 	}
 	
 
-	
-	/**
-     * 
-     * Find a LinkedAvlNode with the given key value in the tree.
-     *
-     * @param key the key to find
-     * @return the list of traversed LinkedAvlNode.
-     */
-    public LinkedAvlNode<K> find( K key )
-    {
-        return find( key, root);
-    }
-    
-    
 	/**
      * Tests if the tree is logically empty.
      * 
@@ -375,11 +357,25 @@ public class AVLTree<K>
       return root == null;   
     }
 
+    /**
+     * returns the number of nodes present in this tree.
+     * 
+     * @return the number of nodes present in this tree
+     */
+    //NOTE: This method is internally used by AVLTreeMarshaller
     public int getSize()
     {
       if( root.isLeaf() )
       {
           return 1;
+      }
+      
+      LinkedAvlNode<K> x = first.next;
+      
+      while( x != null )
+      {
+        x.setIndex( x.previous.getIndex() + 1 );  
+        x = x.next;
       }
       
       return last.getIndex() + 1;
@@ -554,28 +550,6 @@ public class AVLTree<K>
         }
     }
     
-    private LinkedAvlNode<K> find( K key, LinkedAvlNode<K> startNode)
-    {
-        int c;
-        
-        if( startNode == null )
-        {
-            return null;
-        }
-        
-        c = comparator.compare( key, startNode.key );
-        
-        if( c > 0 )
-        {
-            return find( key, startNode.right );
-        }
-        else if( c < 0 )
-        {
-            return find( key, startNode.left );
-        }
-        
-        return startNode;
-    }
     
     /**
      * 
@@ -616,6 +590,43 @@ public class AVLTree<K>
 	
     
     /**
+     * 
+     * Find a LinkedAvlNode with the given key value in the tree.
+     *
+     * @param key the key to find
+     * @return the list of traversed LinkedAvlNode.
+     */
+    public LinkedAvlNode<K> find( K key )
+    {
+        return find( key, root);
+    }
+    
+    private LinkedAvlNode<K> find( K key, LinkedAvlNode<K> startNode)
+    {
+        int c;
+        
+        if( startNode == null )
+        {
+            return null;
+        }
+        
+        c = comparator.compare( key, startNode.key );
+        
+        if( c > 0 )
+        {
+            startNode.isLeft = false;
+            return find( key, startNode.right );
+        }
+        else if( c < 0 )
+        {
+            startNode.isLeft = true;
+            return find( key, startNode.left );
+        }
+        
+        return startNode;
+    }
+    
+    /**
      * Find the LinkedAvlNode having the max key value in the tree starting from the startNode.
      *
      * @param startNode starting node of a subtree/tree
@@ -634,6 +645,7 @@ public class AVLTree<K>
 	    
 	    while( x.right != null )
 	    {
+	        x.isLeft = false;
 	        y = x;
 	        x = x.right;
 	    }
@@ -669,6 +681,7 @@ public class AVLTree<K>
        
         while( x.left != null )
         {
+            x.isLeft = true;
             y = x;
             x = x.left;
         }
@@ -698,10 +711,7 @@ public class AVLTree<K>
 	        return 0;
 	    }
 	    
-	    int rh = ( node.right == null ? 0 : node.right.getHeight() );
-	    int lh = ( node.left == null ? 0 : node.left.getHeight() );
-	    
-	    return ( rh - lh );
+	    return node.getBalance();
 	}
 	
     

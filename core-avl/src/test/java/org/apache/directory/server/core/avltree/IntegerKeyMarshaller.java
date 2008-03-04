@@ -1,5 +1,5 @@
 
-package org.apache.directory.server.core.avltree.marshaller;
+package org.apache.directory.server.core.avltree;
 
 public class IntegerKeyMarshaller implements Marshaller<Integer>
 {

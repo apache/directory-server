@@ -34,7 +34,9 @@ public class LinkedAvlNode<T>
     LinkedAvlNode<T> next;
     LinkedAvlNode<T> previous;
     
-    transient int depth;
+    transient int depth, index;
+    boolean isLeft;
+    transient int height = 1;
     
     public LinkedAvlNode( T theKey )
     {
@@ -64,7 +66,6 @@ public class LinkedAvlNode<T>
 		return right;
 	}
 
-	
 	public T getKey() {
 		return key;
 	}
@@ -74,56 +75,81 @@ public class LinkedAvlNode<T>
 		return ( right == null && left == null );
 	}
 	
-	
 	public int getDepth() {
 		return depth;
 	}
 
-	
 	public void setDepth( int depth ) {
 		this.depth = depth;
 	}
 
+	public int getHeight()
+    {
+	    return height;
+    }
 	
-	public void setNext( LinkedAvlNode<T> next )
+	
+   public void setNext( LinkedAvlNode<T> next )
+   {
+      this.next = next;
+   }
+
+   
+   public void setPrevious( LinkedAvlNode<T> previous )
+   {
+	  this.previous = previous;
+   }	
+   
+   
+	public int computeHeight()
     {
-        this.next = next;
+
+        if(right == null && left == null)
+        {
+            height = 1;
+            return height;
+        }
+        
+        int lh,rh;
+        
+        if( isLeft )
+        {
+            lh = ( left == null ? -1 : left.computeHeight() );
+            rh = ( right == null ? -1 : right.getHeight() );
+        }
+        else 
+        {
+            rh = ( right == null ? -1 : right.computeHeight() );
+            lh = ( left == null ? -1 : left.getHeight() );
+        }
+        
+        height = 1 + Math.max( lh, rh );
+        
+        return height;
+    }
+	
+	public int getBalance()
+    {
+	    int lh = ( left == null ? 0 : left.computeHeight() );
+        int rh = ( right == null ? 0 : right.computeHeight() );
+        
+        return ( rh - lh );
     }
 
-
-    public void setPrevious( LinkedAvlNode<T> previous )
+    public int getIndex()
     {
-        this.previous = previous;
+      return index;
     }
 
-
-    public int getHeight()
+    public void setIndex(int index)
     {
-	    if(right == null && left == null)
-	    {
-	        return 1;
-	    }
-	    
-	    int lh = ( left == null ? -1 : left.getHeight() );
-	    int rh = ( right == null ? -1 : right.getHeight() );
-	    
-        return 1 + Math.max( lh, rh );
+        this.index = index;
     }
 
-	public int getIndex()
-	{
-	    if( previous == null )
-	    {
-	        return 0;
-	    }
-	    
-	  return previous.getIndex() + 1;
-	}
 
     @Override
 	public String toString() {
 	    return "[" + key + "]";
 	}
-    
     
 }

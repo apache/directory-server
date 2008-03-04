@@ -17,7 +17,7 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.core.avltree.marshaller;
+package org.apache.directory.server.core.avltree;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

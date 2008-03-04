@@ -76,10 +76,9 @@ public class AVLTreeTest
     {
         tree.insert( 3 );
         assertFalse( tree.isEmpty() );
-        assertTrue( 1 == tree.getSize() );
         
         tree.insert( 3 );// should be ignored
-        assertTrue( 1 == tree.getRoot().getHeight() );
+        assertTrue( 1 == tree.getSize() );
 
         assertNotNull( tree.getFirst() );
         assertNull( tree.getLast() );
@@ -90,7 +89,6 @@ public class AVLTreeTest
         tree.insert( 37 );
         tree.insert( 70 );
         tree.insert( 12 );
-        
         assertTrue( 3 == tree.getSize() );
         
         tree.insert( 90 );
@@ -198,12 +196,13 @@ public class AVLTreeTest
 
         tree.remove( 26 ); // remove a non-root non-leaf node in the left sub tree of root
         assertEquals( "21,27,37,38,39,43", getInorderForm() );
-        
+
         tree.remove( 43 );
         assertEquals( "21,27,37,38,39", getInorderForm() );
-        
+
         tree.remove( 39 );
         assertEquals( "21,27,37,38", getInorderForm() );
+        
         assertTrue( 37 == tree.getRoot().key ); // check the root value
         
         tree.remove( 38 ); // a double right rotation has to happen after this
@@ -238,7 +237,6 @@ public class AVLTreeTest
         assertEquals( "[2]-->[4]-->NULL", getLinkedText());
     }
     
-    
     @Test
     public void testFind()
     {
@@ -255,7 +253,6 @@ public class AVLTreeTest
         tree.setRoot( null );
         assertNull( tree.find( 3 ));
     }
-    
     
     @Test
     public void testFindMaxMin()

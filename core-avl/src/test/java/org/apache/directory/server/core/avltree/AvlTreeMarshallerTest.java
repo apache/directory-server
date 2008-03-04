@@ -17,7 +17,7 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.core.avltree.marshaller;
+package org.apache.directory.server.core.avltree;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
