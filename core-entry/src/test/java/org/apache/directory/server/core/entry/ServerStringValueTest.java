@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.entry;
 
 
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 
 import jdbm.helper.StringComparator;
 
@@ -68,10 +70,8 @@ public class ServerStringValueTest
     static private TestServerEntryUtils.S s;
     static private TestServerEntryUtils.AT at;
     static private TestServerEntryUtils.MR mr;
+
     
-
-
-
     /**
      * Initialize an AttributeType and the associated MatchingRule 
      * and Syntax
@@ -170,11 +170,11 @@ public class ServerStringValueTest
         
         ServerStringValue value = new ServerStringValue( at, "TEST" );
         
-        assertEquals( "test", value.getNormalized() );
+        assertEquals( "test", value.getNormalizedValue() );
 
         value = new ServerStringValue( at, null );
         
-        assertNull( value.getNormalized() );
+        assertNull( value.getNormalizedValue() );
     }
     
     
@@ -230,7 +230,7 @@ public class ServerStringValueTest
 
     /**
      * Presumes an attribute which constrains it's values to some constant
-     * strings: LOW, MEDUIM, HIGH.  Normalization does nothing. MatchingRules
+     * strings: LOW, MEDIUM, HIGH.  Normalization does nothing. MatchingRules
      * are exact case matching.
      *
      * @throws Exception on errors
@@ -342,7 +342,7 @@ public class ServerStringValueTest
         assertTrue( "since v4.equals( v5 ) and v4 was added then this should be true", set.contains( v5 ) );
 
         // check ordering based on the comparator
-        ArrayList<ServerValue<String>> list = new ArrayList<ServerValue<String>>();
+        List<Value<String>> list = new ArrayList<Value<String>>();
         list.add( v1 );
         list.add( v3 );
         list.add( v5 );
@@ -488,7 +488,7 @@ public class ServerStringValueTest
         ServerStringValue sv = new ServerStringValue( at, "  Test   Test  " );
         
         sv.normalize();
-        String normalized = sv.getNormalized();
+        String normalized = sv.getNormalizedValue();
         
         assertEquals( "test test", normalized );
         assertEquals( "  Test   Test  ", sv.get() );
@@ -519,7 +519,7 @@ public class ServerStringValueTest
         ServerStringValue sv = new ServerStringValue( at, "test" );
         
         sv.normalize();
-        String normalized = sv.getNormalized();
+        String normalized = sv.getNormalizedValue();
         
         assertEquals( "test", normalized );
         assertEquals( "test", sv.get() );
@@ -551,7 +551,7 @@ public class ServerStringValueTest
         ServerStringValue sv = new ServerStringValue( at );
         
         sv.normalize();
-        String normalized = sv.getNormalized();
+        String normalized = sv.getNormalizedValue();
         
         assertEquals( null, normalized );
         assertEquals( null, sv.get() );
@@ -583,7 +583,7 @@ public class ServerStringValueTest
         ServerStringValue sv = new ServerStringValue( at, "" );
         
         sv.normalize();
-        String normalized = sv.getNormalized();
+        String normalized = sv.getNormalizedValue();
         
         assertEquals( "", normalized );
         assertEquals( "", sv.get() );

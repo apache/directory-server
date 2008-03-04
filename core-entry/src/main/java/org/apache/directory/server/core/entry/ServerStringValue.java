@@ -20,7 +20,8 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.entry.AbstractStringValue;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -45,7 +46,7 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerStringValue extends AbstractStringValue implements ServerValue<String>, Externalizable
+public class ServerStringValue extends ClientStringValue
 {
     /** Used for serialization */
     public static final long serialVersionUID = 2L;
@@ -56,13 +57,50 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
     /** reference to the attributeType which is not serialized */
     private transient AttributeType attributeType;
 
-    /** the canonical representation of the wrapped String value */
-    private String normalizedValue;
 
-    /** cached results of the isValid() method call */
-    private transient Boolean valid;
+    // -----------------------------------------------------------------------
+    // utility methods
+    // -----------------------------------------------------------------------
+    /**
+     * Utility method to get some logs if an assert fails
+     */
+    protected String logAssert( String message )
+    {
+        LOG.error(  message );
+        return message;
+    }
 
+    
+    /**
+     *  Check the attributeType member. It should not be null, 
+     *  and it should contains a syntax.
+     */
+    protected String checkAttributeType( AttributeType attributeType )
+    {
+        try
+        {
+            if ( attributeType == null )
+            {
+                return "The AttributeType parameter should not be null";
+            }
+            
+            if ( attributeType.getSyntax() == null )
+            {
+                return "There is no Syntax associated with this attributeType";
+            }
 
+            return null;
+        }
+        catch ( NamingException ne )
+        {
+            return "This AttributeType is incorrect";
+        }
+    }
+
+    
+    // -----------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------
     /**
      * Creates a ServerStringValue without an initial wrapped value.
      *
@@ -70,7 +108,8 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
      */
     public ServerStringValue( AttributeType attributeType )
     {
-        assert checkAttributeType( attributeType) == null : logAssert( checkAttributeType( attributeType ) );
+        super();
+        assert checkAttributeType( attributeType ) == null : logAssert( checkAttributeType( attributeType ) );
 
         try
         {
@@ -86,7 +125,6 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
         }
 
         this.attributeType = attributeType;
-        setNormalized( false );
     }
 
 
@@ -99,9 +137,7 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
     public ServerStringValue( AttributeType attributeType, String wrapped )
     {
         this( attributeType );
-        set( wrapped );
-        super.set( wrapped );
-        setNormalized( false );
+        this.wrapped = wrapped;
     }
 
 
@@ -115,87 +151,28 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
      */
     /** No protection */ ServerStringValue( AttributeType attributeType, String wrapped, String normalizedValue, boolean valid )
     {
-        setNormalized( true );
+        super( wrapped );
+        this.normalized = true;
         this.attributeType = attributeType;
-        super.set( wrapped );
         this.normalizedValue = normalizedValue;
         this.valid = valid;
     }
 
 
     // -----------------------------------------------------------------------
-    // Value<String> Methods
+    // Value<String> Methods, overloaded
     // -----------------------------------------------------------------------
-
-
     /**
-     * Sets the wrapped String value.  Has the side effect of setting the
-     * normalizedValue and the valid flags to null if the wrapped value is
-     * different than what is already set.  These cached values must be
-     * recomputed to be correct with different values.
-     *
-     * @see ServerValue#set(Object)
+     * @return a copy of the current value
      */
-    public final void set( String wrapped )
+    public ServerStringValue clone()
     {
-        // Why should we invalidate the normalized value if it's we're setting the
-        // wrapper to it's current value?
-        if ( ( wrapped != null ) && wrapped.equals( get() ) )
-        {
-            return;
-        }
-
-        setNormalized( false );
-        valid = null;
-        super.set( wrapped );
-
-        /*
-        try
-        {
-            Normalizer normalizer = getNormalizer();
-            
-            if ( normalizer != null )
-            {
-                normalizedValue = (String)getNormalizer().normalize( wrapped );
-            }
-            else
-            {
-                normalizedValue = wrapped;
-            }
-            
-            // This is a special case : null values are allowed in LDAP 
-            if ( normalizedValue == null )
-            {
-                valid = true;
-                return;
-            }
-
-            valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( normalizedValue );
-            
-            if ( !valid )
-            {
-                String message = "The wrapped value '" + wrapped + "'is not valid";
-                LOG.warn( message );
-            }
-        }
-        catch ( NamingException ne )
-        {
-            String message = "The wrapped value '" + wrapped + "'is not valid";
-            try
-            {
-                Normalizer normalizer = getNormalizer();
-                normalizedValue = (String)getNormalizer().normalize( wrapped );
-                valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( normalizedValue );
-            }
-            catch ( Exception e )
-            {
-                
-            }
-            LOG.error( message );
-            throw new IllegalArgumentException( message );
-        }
-        */
+        ServerStringValue clone = (ServerStringValue)super.clone();
+        
+        return clone;
     }
+    
+    
 
 
     // -----------------------------------------------------------------------
@@ -210,7 +187,7 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
     public void normalize() throws NamingException
     {
         // If the value is already normalized, get out.
-        if ( isNormalized() )
+        if ( normalized )
         {
             return;
         }
@@ -219,15 +196,16 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
 
         if ( normalizer == null )
         {
-            normalizedValue = get();
-            setNormalized( false );
+            normalizedValue = wrapped;
         }
         else
         {
-            normalizedValue = ( String ) normalizer.normalize( get() );
-            setNormalized( true );
+            normalizedValue = ( String ) normalizer.normalize( wrapped );
         }
+
+        normalized = true;
     }
+    
 
     /**
      * Gets the normalized (canonical) representation for the wrapped string.
@@ -240,16 +218,25 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
      * @return gets the normalized value
      * @throws NamingException if the value cannot be properly normalized
      */
-    public String getNormalized() throws NamingException
+    public String getNormalizedValue() 
     {
         if ( isNull() )
         {
             return null;
         }
 
-        if ( !isNormalized() )
+        if ( !normalized )
         {
-            normalize();
+            try
+            {
+                normalize();
+            }
+            catch ( NamingException ne )
+            {
+                String message = "Cannot normalize the value :" + ne.getMessage();
+                LOG.warn( message );
+                normalized = false;
+            }
         }
 
         return normalizedValue;
@@ -265,14 +252,24 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
      *
      * @see ServerValue#isValid()
      */
-    public final boolean isValid() throws NamingException
+    public final boolean isValid()
     {
         if ( valid != null )
         {
             return valid;
         }
 
-        valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( get() );
+        try
+        {
+            valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( get() );
+        }
+        catch ( NamingException ne )
+        {
+            String message = "Cannot check the syntax : " + ne.getMessage();
+            LOG.error( message );
+            valid = false;
+        }
+        
         return valid;
     }
 
@@ -282,7 +279,7 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
      * @throws IllegalStateException on failures to extract the comparator, or the
      * normalizers needed to perform the required comparisons based on the schema
      */
-    public int compareTo( ServerValue<String> value )
+    public int compareTo( Value<String> value )
     {
         if ( isNull() )
         {
@@ -311,7 +308,8 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
             }
             catch ( NamingException ne )
             {
-                LOG.error( "Cannot nnormalize the wrapped value '" + stringValue.get() + "'" );
+                String message = "Cannot normalize the wrapped value " + stringValue; 
+                LOG.error( message );
             }
             
             // Normalizes the value
@@ -321,26 +319,33 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
             }
             catch ( NamingException ne )
             {
-                LOG.error( "Cannot normalize the wrapped value '" + get() + "'" );
+                String message = "Cannot normalize the wrapped value " + this;
+                LOG.error( message );
             }
 
             try
             {
                 //noinspection unchecked
-                return getComparator().compare( getNormalized(), stringValue.getNormalized() );
+                return getComparator().compare( getNormalizedValue(), stringValue.getNormalizedValue() );
             }
             catch ( NamingException e )
             {
-                String msg = "Failed to compare normalized values for " + get() + " and " + value;
+                String msg = "Failed to compare normalized values for " + this + " and " + value;
                 LOG.error( msg, e );
                 throw new IllegalStateException( msg, e );
             }
         }
 
-        throw new NotImplementedException( "I don't know what to do if value is not a ServerStringValue" );
+        String message = "I don't know what to do if value is not a ServerStringValue";
+        LOG.error( message );
+        throw new NotImplementedException( message );
     }
 
 
+    /**
+     * Get the associated AttributeType
+     * @return The AttributeType
+     */
     public AttributeType getAttributeType()
     {
         return attributeType;
@@ -348,7 +353,15 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
 
 
     /**
-     * @see ServerValue#instanceOf(AttributeType)
+     * Check if the value is stored into an instance of the given 
+     * AttributeType, or one of its ascendant.
+     * 
+     * For instance, if the Value is associated with a CommonName,
+     * checking for Name will match.
+     * 
+     * @param attributeType The AttributeType we are looking at
+     * @return <code>true</code> if the value is associated with the given
+     * attributeType or one of its ascendant
      */
     public boolean instanceOf( AttributeType attributeType ) throws NamingException
     {
@@ -364,35 +377,6 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
     // -----------------------------------------------------------------------
     // Object Methods
     // -----------------------------------------------------------------------
-
-
-    /**
-     * @see Object#hashCode()
-     * @throws IllegalStateException on failures to extract the comparator, or the
-     * normalizers needed to perform the required comparisons based on the schema
-     */
-    public int hashCode()
-    {
-        // return zero if the value is null so only one null value can be
-        // stored in an attribute - the binary version does the same 
-        if ( isNull() )
-        {
-            return 0;
-        }
-
-        try
-        {
-            return getNormalized().hashCode();
-        }
-        catch ( NamingException e )
-        {
-            String msg = "Failed to normalize \"" + get() + "\" while trying to get hashCode()";
-            LOG.error( msg, e );
-            throw new IllegalStateException( msg, e );
-        }
-    }
-
-
     /**
      * Checks to see if this ServerStringValue equals the supplied object.
      *
@@ -407,7 +391,7 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
         {
             return true;
         }
-
+        
         if ( ! ( obj instanceof ServerStringValue ) )
         {
             return false;
@@ -415,14 +399,9 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
 
         ServerStringValue other = ( ServerStringValue ) obj;
         
-        if ( isNull() && other.isNull() )
+        if ( isNull() )
         {
-            return true;
-        }
-
-        if ( isNull() != other.isNull() )
-        {
-            return false;
+            return other.isNull();
         }
 
         // Shortcut : compare the values without normalization
@@ -437,20 +416,22 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
         {
             try
             {
-                // Compare normalized values
-                if ( getComparator() == null )
-                {
-                    ServerStringValue stringValue = ( ServerStringValue )other;
+                Comparator<String> comparator = getComparator();
 
-                    return getNormalized().equals( stringValue.getNormalized() );
+                // Compare normalized values
+                if ( comparator == null )
+                {
+                    return getNormalizedValue().equals( other.getNormalizedValue() );
+                }
+                else
+                {
+                    return comparator.compare( getNormalizedValue(), other.getNormalizedValue() ) == 0;
                 }
             }
             catch ( NamingException ne )
             {
-                return this.get().equals( other.get() );
+                return false;
             }
-
-            return ( compareTo( other ) == 0 );
         }
     }
 
@@ -524,24 +505,6 @@ public class ServerStringValue extends AbstractStringValue implements ServerValu
         }
 
         return mr.getComparator();
-    }
-    
-    
-    /**
-     * @return a copy of the current value
-     */
-    public ServerStringValue clone()
-    {
-        try
-        {
-            ServerStringValue clone = (ServerStringValue)super.clone();
-            
-            return clone;
-        }
-        catch ( CloneNotSupportedException cnse )
-        {
-            return null;
-        }
     }
     
     

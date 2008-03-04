@@ -31,7 +31,6 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.referral.ReferralLut;
@@ -39,6 +38,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -200,7 +200,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<ServerSear
 
         List<String> list = new ArrayList<String>( refs.size() );
         
-        for ( ServerValue<?> value:refs )
+        for ( Value<?> value:refs )
         {
             String val = (String)value.get();
 

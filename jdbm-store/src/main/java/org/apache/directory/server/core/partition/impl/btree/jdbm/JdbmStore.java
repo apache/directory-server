@@ -28,7 +28,6 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
@@ -41,6 +40,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -1338,7 +1338,7 @@ public class JdbmStore
             entry.put( entryAttrToAddTo );
         }
 
-        for ( ServerValue<?> value:mods )
+        for ( Value<?> value:mods )
         {
             entryAttrToAddTo.add( value.get() );
         }
@@ -1399,7 +1399,7 @@ public class JdbmStore
         {
             Attribute entryAttr = AttributeUtils.getAttribute( entry, attrType );
             
-            for ( ServerValue<?> value:mods )
+            for ( Value<?> value:mods )
             {
                 entryAttr.remove( value.get() );
             }

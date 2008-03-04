@@ -26,6 +26,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.InvalidAttributeValueException;
 
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.junit.Test;
 
@@ -55,7 +56,7 @@ public class DefaultServerAttributeTest
         
         assertTrue( attr.getType().getSyntax().isHumanReadable() );
         
-        ServerValue<?> value = attr.get();
+        Value<?> value = attr.get();
         
         assertTrue( value instanceof ServerStringValue );
         assertEquals( "test", ((ServerStringValue)value).get() );
@@ -71,8 +72,8 @@ public class DefaultServerAttributeTest
             assertTrue( true );
         }
         
-        // Add a ServerValue
-        ServerValue<?> ssv = new ServerStringValue( at, "test2" );
+        // Add a Value
+        Value<?> ssv = new ServerStringValue( at, "test2" );
         
         attr.add( ssv );
         
@@ -82,7 +83,7 @@ public class DefaultServerAttributeTest
         expected.add( "test" );
         expected.add( "test2" );
         
-        for ( ServerValue<?> val:attr )
+        for ( Value<?> val:attr )
         {
             if ( expected.contains( val.get() ) )
             {
@@ -116,7 +117,7 @@ public class DefaultServerAttributeTest
         expected.add( "test" );
         expected.add( "test2" );
         
-        for ( ServerValue<?> val:attr )
+        for ( Value<?> val:attr )
         {
             if ( expected.contains( val.get() ) )
             {
@@ -145,7 +146,7 @@ public class DefaultServerAttributeTest
         
         assertTrue( attr.getType().getSyntax().isHumanReadable() );
         
-        ServerValue<?> value = attr.get();
+        Value<?> value = attr.get();
         
         assertTrue( value instanceof ServerStringValue );
         assertNull( ((ServerStringValue)value).get() );

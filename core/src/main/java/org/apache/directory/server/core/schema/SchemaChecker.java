@@ -22,11 +22,11 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -104,7 +104,7 @@ public class SchemaChecker
         }
 
         // check that there is at least one structural objectClass in the replacement set
-        for ( ServerValue<?> value:attribute )
+        for ( Value<?> value:attribute )
         {
             ObjectClass ocType = registry.lookup( ( String ) value.get() );
 
@@ -214,10 +214,10 @@ public class SchemaChecker
         
         // check if there is any attribute value as "".
         // if there is remove it so that it will be considered as not even provided.
-        List<ServerValue<?>> removed = new ArrayList<ServerValue<?>>();
+        List<Value<?>> removed = new ArrayList<Value<?>>();
         
         // Fist gather the value to remove
-        for ( ServerValue<?> value:attribute )
+        for ( Value<?> value:attribute )
         {
             if ( ((String)value.get()).length() == 0 )
             {
@@ -226,7 +226,7 @@ public class SchemaChecker
         }
         
         // Now remove the values from the attribute
-        for ( ServerValue<?> value:removed )
+        for ( Value<?> value:removed )
         {
             attribute.remove( value );
         }
@@ -251,13 +251,13 @@ public class SchemaChecker
 
         ServerAttribute cloned = ( ServerAttribute ) entryObjectClasses.clone();
         
-        for ( ServerValue<?> value:attribute )
+        for ( Value<?> value:attribute )
         {
             cloned.remove( value );
         }
 
         // check resultant set of objectClass values for a structural objectClass
-        for ( ServerValue<?> objectClass:cloned )
+        for ( Value<?> objectClass:cloned )
         {
             ObjectClass oc = registry.lookup( (String)objectClass.get() );
             
@@ -568,7 +568,7 @@ public class SchemaChecker
         // are used by the Rdn attribute value pair for the name of the entry
         String rdnValue = getRdnValue( id, name, oidRegistry );
         
-        for ( ServerValue<?> value:attribute )
+        for ( Value<?> value:attribute )
         {
             if ( rdnValue.equals( (String)value.get() ) )
             {
@@ -642,7 +642,7 @@ public class SchemaChecker
                 String rdnValue = getRdnValue( id, name, oidRegistry );
                 ServerAttribute rdnAttr = entry.get( id );
                 
-                for ( ServerValue<?> value:rdnAttr )
+                for ( Value<?> value:rdnAttr )
                 {
                     if ( rdnValue.equals( (String)value.get() ) )
                     {

@@ -20,6 +20,7 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 
@@ -254,7 +255,7 @@ public interface ServerEntry extends Entry<ServerAttribute>, Cloneable
      *         <code>null</code>
      * @throws NamingException if there are resolution issues
      */
-    ServerAttribute put( AttributeType attributeType, ServerValue<?>... values ) throws NamingException;
+    ServerAttribute put( AttributeType attributeType, Value<?>... values ) throws NamingException;
 
     /**
      * Places a new attribute with the supplied attributeType and value into this
@@ -272,7 +273,7 @@ public interface ServerEntry extends Entry<ServerAttribute>, Cloneable
      *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute put( String upId, ServerValue<?>... values ) throws NamingException;
+    ServerAttribute put( String upId, Value<?>... values ) throws NamingException;
 
 
     /**

@@ -44,6 +44,7 @@ import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -567,7 +568,7 @@ public class DefaultServerEntryTest
     
 
     /**
-     * Test the put( AT, ServerValue... ) method
+     * Test the put( AT, Value... ) method
      */
     @Test public void tesPutAtSVs() throws NamingException
     {
@@ -576,7 +577,7 @@ public class DefaultServerEntryTest
         
         // Adding a null value to an attribute
         AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-        entry.put( atCN, (ServerValue<?>)null );
+        entry.put( atCN, (Value<?>)null );
         
         assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
@@ -584,7 +585,7 @@ public class DefaultServerEntryTest
         // Check that we can't use invalid arguments
         try
         {
-            entry.put( (AttributeType)null, (ServerValue<?>)null );
+            entry.put( (AttributeType)null, (Value<?>)null );
             fail();
         }
         catch( IllegalArgumentException iae )
@@ -594,7 +595,7 @@ public class DefaultServerEntryTest
         
         // Add a single value
         atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-        ServerValue<?> ssv = new ServerStringValue( atCN, "test" );
+        Value<?> ssv = new ServerStringValue( atCN, "test" );
         entry.put( atCN, ssv );
         
         assertEquals( 1, entry.size() );
@@ -917,7 +918,7 @@ public class DefaultServerEntryTest
         // Test that we get an error when the ID or AT are null
         try
         {
-            entry.put( null, (AttributeType)null, (ServerValue<?>)null );
+            entry.put( null, (AttributeType)null, (Value<?>)null );
             fail();
         }
         catch( IllegalArgumentException iae )
@@ -926,21 +927,21 @@ public class DefaultServerEntryTest
         }
         
         // Test an empty AT
-        entry.put( "commonName", atCN, (ServerValue<?>)null );
+        entry.put( "commonName", atCN, (Value<?>)null );
         assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
         assertEquals( "cn", entry.get( atCN ).getType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
         // Check that we can use a null AttributeType
-        entry.put( "commonName", (AttributeType)null, (ServerValue<?>)null );
+        entry.put( "commonName", (AttributeType)null, (Value<?>)null );
         assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
         assertEquals( "cn", entry.get( atCN ).getType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
         // Test that we can use a null upId
-        entry.put( null, atCN, (ServerValue<?>)null );
+        entry.put( null, atCN, (Value<?>)null );
         assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( "cn", entry.get( atCN ).getType().getName() );
@@ -950,7 +951,7 @@ public class DefaultServerEntryTest
         // with the AT
         try
         {
-            entry.put( "sn", atCN, (ServerValue<?>)null );
+            entry.put( "sn", atCN, (Value<?>)null );
             fail();
         }
         catch( IllegalArgumentException iae )
@@ -959,9 +960,9 @@ public class DefaultServerEntryTest
         }
         
         // Test that we can add some new attributes with values
-        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
-        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
-        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ServerStringValue( atCN, "test1" );
+        Value<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test3 = new ServerStringValue( atCN, "test3" );
 
         ServerAttribute result = entry.put( "CN", atCN, test1, test2, test3 );
         assertNotNull( result );
@@ -988,7 +989,7 @@ public class DefaultServerEntryTest
         // Test that we get an error when the ID or AT are null
         try
         {
-            entry.put( (String)null, (ServerValue<?>)null );
+            entry.put( (String)null, (Value<?>)null );
             fail();
         }
         catch( IllegalArgumentException iae )
@@ -997,16 +998,16 @@ public class DefaultServerEntryTest
         }
         
         // Test an null valued AT
-        entry.put( "commonName", (ServerValue<?>)null );
+        entry.put( "commonName", (Value<?>)null );
         assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
         assertEquals( "cn", entry.get( atCN ).getType().getName() );
         assertNull( entry.get( atCN ).get().get() );
 
         // Test that we can add some new attributes with values
-        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
-        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
-        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ServerStringValue( atCN, "test1" );
+        Value<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test3 = new ServerStringValue( atCN, "test3" );
 
         ServerAttribute result = entry.put( "CN", test1, test2, test3 );
         assertNotNull( result );
@@ -1154,13 +1155,13 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
-        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
-        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ServerStringValue( atCN, "test1" );
+        Value<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test3 = new ServerStringValue( atCN, "test3" );
         
-        ServerValue<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
-        ServerValue<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
-        ServerValue<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
+        Value<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
+        Value<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        Value<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
         
         // Test a simple addition in atCN
         entry.add( atCN, test1 );
@@ -1385,13 +1386,13 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
-        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
-        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ServerStringValue( atCN, "test1" );
+        Value<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test3 = new ServerStringValue( atCN, "test3" );
         
-        ServerValue<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
-        ServerValue<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
-        ServerValue<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
+        Value<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
+        Value<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        Value<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
         
         // Test a simple addition in atCN
         entry.add( "cN", test1 );
@@ -1619,13 +1620,13 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
-        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
-        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ServerStringValue( atCN, "test1" );
+        Value<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test3 = new ServerStringValue( atCN, "test3" );
         
-        ServerValue<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
-        ServerValue<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
-        ServerValue<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
+        Value<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
+        Value<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        Value<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
         
         // Test a simple addition in atCN
         entry.add( "cN", atCN, test1 );
@@ -1749,11 +1750,11 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
-        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test1 = new ServerStringValue( atCN, "test1" );
+        Value<String> test2 = new ServerStringValue( atCN, "test2" );
         
-        ServerValue<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
-        ServerValue<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        Value<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
+        Value<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
         
         // test a removal of an non existing attribute
         List<ServerAttribute> removed = entry.remove( atCN );

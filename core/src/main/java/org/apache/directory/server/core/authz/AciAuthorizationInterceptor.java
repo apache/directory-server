@@ -28,7 +28,6 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -62,6 +61,7 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -223,7 +223,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         enabled = directoryService.isAccessControlEnabled();
 
         // stuff for dealing with subentries (garbage for now)
-        ServerValue<?> subschemaSubentry = 
+        Value<?> subschemaSubentry = 
         	directoryService.getPartitionNexus().getRootDSE( null ).
         		get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         LdapDN subschemaSubentryDnName = new LdapDN( (String)(subschemaSubentry.get()) );
@@ -297,7 +297,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
         
-        for ( ServerValue<?> value:subentries )
+        for ( Value<?> value:subentries )
         {
             String subentryDn = ( String ) value.get();
             tuples.addAll( tupleCache.getACITuples( subentryDn ) );
@@ -322,7 +322,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        for ( ServerValue<?> value:entryAci )
+        for ( Value<?> value:entryAci )
         {
             String aciString = ( String ) value.get();
             ACIItem item;
@@ -382,7 +382,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        for ( ServerValue<?> value:subentryAci )
+        for ( Value<?> value:subentryAci )
         {
             String aciString = ( String ) value.get();
             ACIItem item;
@@ -478,7 +478,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // now we must check if attribute type and value scope permission is granted
         for ( ServerAttribute attribute:serverEntry )
         {
-            for ( ServerValue<?> value:attribute )
+            for ( Value<?> value:attribute )
             {
                 engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attribute
                     .getUpId(), value.get(), ADD_PERMS, tuples, serverEntry, null );
@@ -650,7 +650,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
              */
             entryView = ServerEntryUtils.getTargetEntry( mod, entryView, registries );
             
-            for ( ServerValue<?> value:attr )
+            for ( Value<?> value:attr )
             {                
                 engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
                         attr.getId(), value, perms, tuples, entry, entryView );
@@ -739,7 +739,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         for ( ServerAttribute attribute:entry )
         {
             
-            for ( ServerValue<?> value:attribute )
+            for ( Value<?> value:attribute )
             {
                 engine.checkPermission( 
                     registries, 
@@ -1196,10 +1196,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                 continue;
             }
 
-            List<ServerValue<?>> valueToRemove = new ArrayList<ServerValue<?>>();
+            List<Value<?>> valueToRemove = new ArrayList<Value<?>>();
             
             // attribute type scope is ok now let's determine value level scope
-            for ( ServerValue<?> value:attr )
+            for ( Value<?> value:attr )
             {
                 if ( !engine.hasPermission( 
                         registries, 
@@ -1219,7 +1219,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                 }
             }
             
-            for ( ServerValue<?> value:valueToRemove )
+            for ( Value<?> value:valueToRemove )
             {
                 attr.remove( value );
             }

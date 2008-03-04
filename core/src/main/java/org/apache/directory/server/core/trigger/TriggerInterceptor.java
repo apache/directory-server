@@ -24,7 +24,6 @@ package org.apache.directory.server.core.trigger;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -47,6 +46,7 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -147,7 +147,7 @@ public class TriggerInterceptor extends BaseInterceptor
             return;
         }
         
-        for ( ServerValue<?> value:subentries )
+        for ( Value<?> value:subentries )
         {
             String subentryDn = ( String ) value.get();
             triggerSpecs.addAll( triggerSpecCache.getSubentryTriggerSpecs( subentryDn ) );
@@ -172,7 +172,7 @@ public class TriggerInterceptor extends BaseInterceptor
             return;
         }
 
-        for ( ServerValue<?> value:entryTrigger )
+        for ( Value<?> value:entryTrigger )
         {
             String triggerString = ( String ) value.get();
             TriggerSpecification item;

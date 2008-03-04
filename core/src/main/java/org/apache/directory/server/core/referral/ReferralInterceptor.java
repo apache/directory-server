@@ -35,7 +35,6 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerStringValue;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.ReferralHandlingEnumeration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -72,6 +71,7 @@ import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -171,7 +171,7 @@ public class ReferralInterceptor extends BaseInterceptor
                 throw new NamingException( message );
             }
             
-            for ( ServerValue<?> value:refAttr )
+            for ( Value<?> value:refAttr )
             {
                 ServerStringValue ref = (ServerStringValue)value; 
                 
@@ -272,7 +272,7 @@ public class ReferralInterceptor extends BaseInterceptor
         // handle referral here
         List<String> list = new ArrayList<String>( refs.size() );
         
-        for ( ServerValue<?> value:refs )
+        for ( Value<?> value:refs )
         {
             String val = (String)value.get();
 
@@ -1040,7 +1040,7 @@ public class ReferralInterceptor extends BaseInterceptor
         // handle referral here
         List<String> list = new ArrayList<String>( refs.size() );
         
-        for ( ServerValue<?> value:refs )
+        for ( Value<?> value:refs )
         {
             String val = ( String ) value.get();
 
@@ -1107,7 +1107,7 @@ public class ReferralInterceptor extends BaseInterceptor
         // handle referral here
         List<String> list = new ArrayList<String>( refs.size() );
         
-        for ( ServerValue<?> value:refs )
+        for ( Value<?> value:refs )
         {
             String val = ( String ) value.get();
 

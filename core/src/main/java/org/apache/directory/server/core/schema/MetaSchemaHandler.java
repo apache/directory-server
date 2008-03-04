@@ -24,13 +24,13 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SchemaObjectRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -499,7 +499,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
             // check to make sure all the dependencies are also enabled
             Map<String,Schema> loaded = globalRegistries.getLoadedSchemas();
             
-            for ( ServerValue<?> value:dependencies )
+            for ( Value<?> value:dependencies )
             {
                 String dependency = ( String ) value.get();
                 
@@ -515,7 +515,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         {
             Set<String> allSchemas = loader.getSchemaNames();
             
-            for ( ServerValue<?> value:dependencies )
+            for ( Value<?> value:dependencies )
             {
                 String dependency = ( String ) value.get();
                 

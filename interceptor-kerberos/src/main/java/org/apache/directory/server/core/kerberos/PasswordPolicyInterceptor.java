@@ -24,7 +24,6 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -32,6 +31,7 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -142,7 +142,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
 
             if ( attr.isA( SchemaConstants.USER_PASSWORD_AT ) )
             {
-                ServerValue<?> userPassword = attr.get();
+                Value<?> userPassword = attr.get();
                 String pwd = "";
 
                 if ( userPassword != null )

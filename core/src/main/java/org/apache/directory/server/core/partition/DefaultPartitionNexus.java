@@ -28,7 +28,6 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -61,6 +60,7 @@ import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -613,7 +613,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         Normalizer normalizer = attrType.getEquality().getNormalizer();
         Object reqVal = normalizer.normalize( compareContext.getValue() );
 
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             Object attrValObj = normalizer.normalize( value.get() );
             

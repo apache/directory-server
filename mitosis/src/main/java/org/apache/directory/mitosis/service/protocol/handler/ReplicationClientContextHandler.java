@@ -45,9 +45,9 @@ import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -360,7 +360,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         }
 
         // Iterate all context partitions to send all entries of them.
-        for ( ServerValue<?> namingContext:namingContextsAttr )
+        for ( Value<?> namingContext:namingContextsAttr )
         {
             // Convert attribute value to JNDI name.
             LdapDN contextName;

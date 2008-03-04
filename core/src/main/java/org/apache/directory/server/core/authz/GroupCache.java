@@ -31,7 +31,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -39,6 +38,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
@@ -223,7 +223,7 @@ public class GroupCache
      */
     private void addMembers( Set<String> memberSet, ServerAttribute members ) throws NamingException
     {
-        for ( ServerValue<?> value:members )
+        for ( Value<?> value:members )
         {
 
             // get and normalize the DN of the member
@@ -252,7 +252,7 @@ public class GroupCache
      */
     private void removeMembers( Set<String> memberSet, ServerAttribute members ) throws NamingException
     {
-        for ( ServerValue<?> value:members )
+        for ( Value<?> value:members )
         {
             // get and normalize the DN of the member
             String memberDn = (String)value.get();

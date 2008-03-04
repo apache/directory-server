@@ -21,6 +21,7 @@ package org.apache.directory.server.core.entry;
 
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
@@ -33,7 +34,7 @@ import javax.naming.directory.InvalidAttributeValueException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerAttribute extends EntryAttribute<ServerValue<?>>
+public interface ServerAttribute extends EntryAttribute<Value<?>>
 {
     /**
      * Gets the attribute type associated with this ServerAttribute.

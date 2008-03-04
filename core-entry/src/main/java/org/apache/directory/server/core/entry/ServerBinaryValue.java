@@ -20,7 +20,8 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.entry.AbstractBinaryValue;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -48,7 +49,7 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerBinaryValue extends AbstractBinaryValue implements ServerValue<byte[]>, Externalizable
+public class ServerBinaryValue extends ClientBinaryValue
 {
     /** Used for serialization */
     public static final long serialVersionUID = 2L;
@@ -59,16 +60,53 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
     /** reference to the attributeType which is not serialized */
     private transient AttributeType attributeType;
 
-    /** the canonical representation of the wrapped binary value */
-    private transient byte[] normalizedValue;
-    
     /** A flag set if the normalized data is different from the wrapped data */
     private transient boolean same;
 
-    /** cached results of the isValid() method call */
-    private transient Boolean valid;
 
+    // -----------------------------------------------------------------------
+    // utility methods
+    // -----------------------------------------------------------------------
+    /**
+     * Utility method to get some logs if an assert fails
+     */
+    protected String logAssert( String message )
+    {
+        LOG.error(  message );
+        return message;
+    }
 
+    
+    /**
+     *  Check the attributeType member. It should not be null, 
+     *  and it should contains a syntax.
+     */
+    protected String checkAttributeType( AttributeType attributeType )
+    {
+        try
+        {
+            if ( attributeType == null )
+            {
+                return "The AttributeType parameter should not be null";
+            }
+            
+            if ( attributeType.getSyntax() == null )
+            {
+                return "There is no Syntax associated with this attributeType";
+            }
+
+            return null;
+        }
+        catch ( NamingException ne )
+        {
+            return "This AttributeType is incorrect";
+        }
+    }
+
+    
+    // -----------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------
     /**
      * Creates a ServerBinaryValue without an initial wrapped value.
      *
@@ -76,6 +114,7 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
      */
     public ServerBinaryValue( AttributeType attributeType )
     {
+        super();
         assert checkAttributeType( attributeType) == null : logAssert( checkAttributeType( attributeType ) );
 
         try
@@ -91,7 +130,6 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
         }
 
         this.attributeType = attributeType;
-        setNormalized( false );
     }
 
 
@@ -104,8 +142,7 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
     public ServerBinaryValue( AttributeType attributeType, byte[] wrapped )
     {
         this( attributeType );
-        super.set( wrapped );
-        setNormalized( false );
+        this.wrapped = wrapped;
     }
 
 
@@ -119,46 +156,12 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
      */
     /** No protection */ ServerBinaryValue( AttributeType attributeType, byte[] wrapped, byte[] normalizedValue, boolean same, boolean valid )
     {
-        setNormalized( true );
+        super( wrapped );
+        this.normalized = true;
         this.attributeType = attributeType;
-        super.set( wrapped );
-        setNormalizedValue( normalizedValue );
-        this.same = same;
+        this.normalizedValue = normalizedValue;
         this.valid = valid;
-    }
-
-
-    // -----------------------------------------------------------------------
-    // Value<String> Methods
-    // -----------------------------------------------------------------------
-
-
-    /**
-     * Sets the wrapped binary value.  Has the side effect of setting the
-     * normalizedValue and the valid flags to null if the wrapped value is
-     * different than what is already set.  These cached values must be
-     * recomputed to be correct with different values.
-     *
-     * @see ServerValue#set(Object)
-     */
-    public final void set( byte[] wrapped )
-    {
-        // Why should we invalidate the normalized value if it's we're setting the
-        // wrapper to it's current value?
-        byte[] value = getReference();
-        
-        if ( value != null )
-        {
-            if ( Arrays.equals( wrapped, value ) )
-            {
-                return;
-            }
-        }
-
-        normalizedValue = null;
-        valid = null;
-        setNormalized( false );
-        super.set( wrapped );
+        this.same = same;
     }
 
 
@@ -217,7 +220,7 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
      * @return a reference to the normalized version of the wrapped value
      * @throws NamingException with failures to normalize
      */
-    public byte[] getNormalizedReference() throws NamingException
+    public byte[] getNormalizedValueReference()
     {
         if ( isNull() )
         {
@@ -226,7 +229,16 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
 
         if ( !isNormalized() )
         {
-            normalize();
+            try
+            {
+                normalize();
+            }
+            catch ( NamingException ne )
+            {
+                String message = "Cannot normalize the value :" + ne.getMessage();
+                LOG.warn( message );
+                normalized = false;
+            }
         }
 
         return normalizedValue;
@@ -234,21 +246,38 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
 
 
     /**
-     * Sets this value's wrapped value to a copy of the src array.
+     * Gets the normalized (canonical) representation for the wrapped byte[].
+     * If the wrapped byte[] is null, null is returned, otherwise the normalized
+     * form is returned.  If no the normalizedValue is null, then this method
+     * will attempt to generate it from the wrapped value: repeated calls to
+     * this method do not unnecessarily normalize the wrapped value.  Only changes
+     * to the wrapped value result in attempts to normalize the wrapped value.
      *
-     * @param wrapped the byte array to use as the wrapped value
+     * @return gets the normalized value
+     * @throws NamingException if the value cannot be properly normalized
      */
-    private void setNormalizedValue( byte[] normalizedValue )
+    public byte[] getNormalizedValue() 
     {
-        if ( normalizedValue != null )
+        if ( isNull() )
         {
-            this.normalizedValue = new byte[ normalizedValue.length ];
-            System.arraycopy( normalizedValue, 0, this.normalizedValue, 0, normalizedValue.length );
+            return null;
         }
-        else
+
+        if ( !normalized )
         {
-            this.normalizedValue = null;
+            try
+            {
+                normalize();
+            }
+            catch ( NamingException ne )
+            {
+                String message = "Cannot normalize the value :" + ne.getMessage();
+                LOG.warn( message );
+                normalized = false;
+            }
         }
+
+        return normalizedValue;
     }
 
 
@@ -261,16 +290,37 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
      * @return the normalized version of the wrapped value
      * @throws NamingException if schema entity resolution fails or normalization fails
      */
-    public byte[] getNormalizedCopy() throws NamingException
+    public byte[] getNormalizedValueCopy()
     {
-        if ( normalizedValue == null )
+        if ( isNull() )
         {
-            getNormalizedReference();
+            return null;
         }
 
-        byte[] copy = new byte[ normalizedValue.length ];
-        System.arraycopy( normalizedValue, 0, copy, 0, normalizedValue.length );
-        return copy;
+        if ( normalizedValue == null )
+        {
+            try
+            {
+                normalize();
+            }
+            catch ( NamingException ne )
+            {
+                String message = "Cannot normalize the value :" + ne.getMessage();
+                LOG.warn( message );
+                normalized = false;
+            }
+        }
+
+        if ( normalizedValue != null )
+        {
+            byte[] copy = new byte[ normalizedValue.length ];
+            System.arraycopy( normalizedValue, 0, copy, 0, normalizedValue.length );
+            return copy;
+        }
+        else
+        {
+            return null;
+        }
     }
 
 
@@ -283,14 +333,24 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
      *
      * @see ServerValue#isValid()
      */
-    public final boolean isValid() throws NamingException
+    public final boolean isValid()
     {
         if ( valid != null )
         {
             return valid;
         }
 
-        valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( getReference() );
+        try
+        {
+            valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( getReference() );
+        }
+        catch ( NamingException ne )
+        {
+            String message = "Cannot check the syntax : " + ne.getMessage();
+            LOG.error( message );
+            valid = false;
+        }
+        
         return valid;
     }
 
@@ -335,36 +395,17 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
         {
             ServerBinaryValue binaryValue = ( ServerBinaryValue ) value;
 
-            // Normalizes the compared value
             try
             {
-                binaryValue.normalize();
-            }
-            catch ( NamingException ne )
-            {
-                LOG.error( "Cannot nnormalize the wrapped value '" + binaryValue.get() + "'" );
-            }
-            
-            // Normalizes the value
-            try
-            {
-                normalize();
-            }
-            catch ( NamingException ne )
-            {
-                LOG.error( "Cannot normalize the wrapped value '" + get() + "'" );
-            }
-            try
-            {
-                Comparator comparator = getComparator();
+                Comparator<? super Value<byte[]>> comparator = getComparator();
                 
                 if ( comparator != null )
                 {
-                    return getComparator().compare( getNormalizedReference(), binaryValue.getNormalizedReference() );
+                    return getComparator().compare( getNormalizedValueReference(), binaryValue.getNormalizedValueReference() );
                 }
                 else
                 {
-                    return ByteArrayComparator.INSTANCE.compare( getNormalizedReference(), binaryValue.getNormalizedReference() );
+                    return ByteArrayComparator.INSTANCE.compare( getNormalizedValueReference(), binaryValue.getNormalizedValueReference() );
                 }
             }
             catch ( NamingException e )
@@ -376,11 +417,17 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
             }
         }
 
-        throw new NotImplementedException( "I don't really know how to compare anything other " +
-                "than ServerBinaryValues at this point in time." );
+        String message = "I don't really know how to compare anything other " +
+        "than ServerBinaryValues at this point in time.";
+        LOG.error( message );
+        throw new NotImplementedException( message );
     }
 
 
+    /**
+     * Get the associated AttributeType
+     * @return The AttributeType
+     */
     public AttributeType getAttributeType()
     {
         return attributeType;
@@ -388,7 +435,15 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
 
 
     /**
-     * @see ServerValue#instanceOf(AttributeType)
+     * Check if the value is stored into an instance of the given 
+     * AttributeType, or one of its ascendant.
+     * 
+     * For instance, if the Value is associated with a CommonName,
+     * checking for Name will match.
+     * 
+     * @param attributeType The AttributeType we are looking at
+     * @return <code>true</code> if the value is associated with the given
+     * attributeType or one of its ascendant
      */
     public boolean instanceOf( AttributeType attributeType ) throws NamingException
     {
@@ -404,8 +459,6 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
     // -----------------------------------------------------------------------
     // Object Methods
     // -----------------------------------------------------------------------
-
-
     /**
      * @see Object#hashCode()
      * @throws IllegalStateException on failures to extract the comparator, or the
@@ -420,16 +473,7 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
             return 0;
         }
 
-        try
-        {
-            return Arrays.hashCode( getNormalizedReference() );
-        }
-        catch ( NamingException e )
-        {
-            String msg = "Failed to normalize \"" + toString() + "\" while trying to get hashCode()";
-            LOG.error( msg, e );
-            throw new IllegalStateException( msg, e );
-        }
+        return Arrays.hashCode( getNormalizedValueReference() );
     }
 
 
@@ -455,25 +499,44 @@ public class ServerBinaryValue extends AbstractBinaryValue implements ServerValu
 
         ServerBinaryValue other = ( ServerBinaryValue ) obj;
         
-        if ( isNull() && other.isNull() )
+        if ( isNull() )
+        {
+            return other.isNull();
+        }
+
+        // Shortcut : if the values are equals, no need to compare
+        // the normalized values
+        if ( Arrays.equals( wrapped, other.get() ) )
         {
             return true;
         }
-
-        if ( isNull() != other.isNull() )
+        else
         {
-            return false;
-        }
+            try
+            {
+                Comparator<byte[]> comparator = getComparator();
 
-        return compareTo( (ServerValue<byte[]>)other ) == 0;
+                // Compare normalized values
+                if ( comparator == null )
+                {
+                    return Arrays.equals( getNormalizedValueReference(), other.getNormalizedValueReference() );
+                }
+                else
+                {
+                    return comparator.compare( getNormalizedValueReference(), other.getNormalizedValueReference() ) == 0;
+                }
+            }
+            catch ( NamingException ne )
+            {
+                return false;
+            }
+        }
     }
 
 
     // -----------------------------------------------------------------------
     // Private Helper Methods (might be put into abstract base class)
     // -----------------------------------------------------------------------
-
-
     /**
      * Find a matchingRule to use for normalization and comparison.  If an equality
      * matchingRule cannot be found it checks to see if other matchingRules are

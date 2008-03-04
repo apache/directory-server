@@ -19,7 +19,6 @@
 package org.apache.directory.server.core.entry;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +40,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -89,9 +89,9 @@ public class ServerEntryUtils
             
             Attribute attribute = new AttributeImpl( attributeType.getName() );
             
-            for ( Iterator<ServerValue<?>> iter = attr.iterator(); iter.hasNext();)
+            for ( Iterator<Value<?>> iter = attr.iterator(); iter.hasNext();)
             {
-                ServerValue<?> value = iter.next();
+                Value<?> value = iter.next();
                 attribute.add( value.get() );
             }
             
@@ -218,9 +218,9 @@ public class ServerEntryUtils
             
             ServerAttribute attr = entry.get( attributeType );
             
-            for ( Iterator<ServerValue<?>> iter = attr.iterator(); iter.hasNext();)
+            for ( Iterator<Value<?>> iter = attr.iterator(); iter.hasNext();)
             {
-                ServerValue<?> value = iter.next();
+                Value<?> value = iter.next();
                 attribute.add( value );
             }
             
@@ -240,7 +240,7 @@ public class ServerEntryUtils
     {
         Attribute attribute = new BasicAttribute( attr.getUpId(), false );
 
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             attribute.add( value.get() );
         }
@@ -258,7 +258,7 @@ public class ServerEntryUtils
     {
         Attribute attribute = new AttributeImpl( attr.getUpId() );
 
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             attribute.add( value.get() );
         }
@@ -302,7 +302,7 @@ public class ServerEntryUtils
 
                     if ( existing != null )
                     {
-                        for ( ServerValue<?> value:toBeRemoved )
+                        for ( Value<?> value:toBeRemoved )
                         {
                             existing.remove( value );
                         }
@@ -317,13 +317,13 @@ public class ServerEntryUtils
 
                 if ( existing != null )
                 {
-                    for ( ServerValue<?> value:existing )
+                    for ( Value<?> value:existing )
                     {
                         combined.add( value );
                     }
                 }
 
-                for ( ServerValue<?> value:toBeAdded )
+                for ( Value<?> value:toBeAdded )
                 {
                     combined.add( value );
                 }
@@ -375,7 +375,7 @@ public class ServerEntryUtils
 
         if ( attr0 != null )
         {
-            for ( ServerValue<?> value:attr1 )
+            for ( Value<?> value:attr1 )
             {
                 attr.add( value );
             }

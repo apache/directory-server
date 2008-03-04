@@ -30,7 +30,6 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -52,6 +51,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -986,7 +986,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 switch ( mod.getOperation() )
                 {
                     case ADD_ATTRIBUTE :
-                        for ( ServerValue<?> value:(ServerAttribute)mod.getAttribute() )
+                        for ( Value<?> value:(ServerAttribute)mod.getAttribute() )
                         {
                             ocFinalState.add( (String)value.get() );
                         }
@@ -994,7 +994,7 @@ public class SubentryInterceptor extends BaseInterceptor
                         break;
                         
                     case REMOVE_ATTRIBUTE :
-                        for ( ServerValue<?> value:(ServerAttribute)mod.getAttribute() )
+                        for ( Value<?> value:(ServerAttribute)mod.getAttribute() )
                         {
                             ocFinalState.remove( (String)value.get() );
                         }
@@ -1335,14 +1335,14 @@ public class SubentryInterceptor extends BaseInterceptor
             ServerAttribute opAttrAdditions = operational.get( attributeType );
             ServerAttribute opAttrInEntry = entry.get( attributeType );
 
-            for ( ServerValue<?> value:opAttrAdditions )
+            for ( Value<?> value:opAttrAdditions )
             {
                 result.add( value );
             }
 
             if ( opAttrInEntry != null && opAttrInEntry.size() > 0 )
             {
-                for ( ServerValue<?> value:opAttrInEntry )
+                for ( Value<?> value:opAttrInEntry )
                 {
                     result.add( value );
                 }

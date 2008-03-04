@@ -30,7 +30,6 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerStringValue;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -54,6 +53,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
@@ -209,7 +209,7 @@ public class SchemaInterceptor extends BaseInterceptor
         schemaManager = directoryService.getSchemaService().getSchemaControl();
 
         // stuff for dealing with subentries (garbage for now)
-        ServerValue<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         LdapDN subschemaSubentryDn = new LdapDN( (String)(subschemaSubentry.get()) );
         subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
@@ -822,7 +822,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         String attrOid = oidRegistry.getOid( attrId );
         
-        for ( ServerValue<?> objectClass:objectClasses )
+        for ( Value<?> objectClass:objectClasses )
         {
             ObjectClass ocSpec = registry.lookup( ( String ) objectClass.get() );
             
@@ -862,7 +862,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // if nothing is left.
         ServerAttribute changedEntryAttr = ( ServerAttribute ) entry.get( change.getUpId() ).clone();
         
-        for ( ServerValue<?> value:change )
+        for ( Value<?> value:change )
         {
             changedEntryAttr.remove( value );
         }
@@ -904,7 +904,7 @@ public class SchemaInterceptor extends BaseInterceptor
         switch ( modOp )
         {
             case ADD_ATTRIBUTE :
-                for ( ServerValue<?> value:changes )
+                for ( Value<?> value:changes )
                 {
                     existing.add( value );
                 }
@@ -915,7 +915,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 return ( ServerAttribute ) changes.clone();
             
             case REMOVE_ATTRIBUTE :
-                for ( ServerValue<?> value:changes )
+                for ( Value<?> value:changes )
                 {
                     existing.remove( value );
                 }
@@ -937,7 +937,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // but including all the inherited ObjectClasses
         boolean hasExtensibleObject = false;
 
-        for ( ServerValue<?> objectClass:objectClasses )
+        for ( Value<?> objectClass:objectClasses )
         {
             String objectClassName = (String)objectClass.get();
 
@@ -973,7 +973,7 @@ public class SchemaInterceptor extends BaseInterceptor
         Set<String> must = new HashSet<String>();
 
         // Loop on all objectclasses
-        for ( ServerValue<?> value:objectClasses )
+        for ( Value<?> value:objectClasses )
         {
             String ocName = (String)value.get();
             ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
@@ -1001,7 +1001,7 @@ public class SchemaInterceptor extends BaseInterceptor
         allowed.add( registries.getOidRegistry().getOid( SchemaConstants.OBJECT_CLASS_AT ) );
 
         // Loop on all objectclasses
-        for ( ServerValue<?> objectClass:objectClasses )
+        for ( Value<?> objectClass:objectClasses )
         {
             String ocName = (String)objectClass.get();
             ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
@@ -1042,7 +1042,7 @@ public class SchemaInterceptor extends BaseInterceptor
         objectClassesUP.add( SchemaConstants.TOP_OC );
         
         // Construct the new list of ObjectClasses
-        for ( ServerValue<?> ocValue:objectClassAttr )
+        for ( Value<?> ocValue:objectClassAttr )
         {
             String ocName = (String)ocValue.get();
 
@@ -1202,7 +1202,7 @@ public class SchemaInterceptor extends BaseInterceptor
             keybuf.append( mod.getOperation() );
             keybuf.append( mod.getAttribute().getId() );
 
-            for ( ServerValue<?> value:(ServerAttribute)mod.getAttribute() )
+            for ( Value<?> value:(ServerAttribute)mod.getAttribute() )
             {
                 keybuf.append( value.get() );
             }
@@ -1279,7 +1279,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     
                     if ( attr != null ) 
                     {
-                        for ( ServerValue<?> value:change )
+                        for ( Value<?> value:change )
                         {
                             attr.add( value );
                         }
@@ -1288,7 +1288,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     {
                         attr = new DefaultServerAttribute( change.getUpId(), attributeType );
                         
-                        for ( ServerValue<?> value:change )
+                        for ( Value<?> value:change )
                         {
                             attr.add( value );
                         }
@@ -1330,7 +1330,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         ServerAttribute modified = tmpEntry.remove( change.getUpId() ).get(0);
                         
                         // And inject back the values except the ones to remove
-                        for ( ServerValue<?> value:change )
+                        for ( Value<?> value:change )
                         {
                             modified.remove( value );
                         }
@@ -1372,7 +1372,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     
                     if ( change.size() != 0 ) 
                     {
-                        for ( ServerValue<?> value:change )
+                        for ( Value<?> value:change )
                         {
                             attr.add( value );
                         }
@@ -1405,7 +1405,7 @@ public class SchemaInterceptor extends BaseInterceptor
                             ocMods.remove( SchemaConstants.TOP_OC );
                         }
                     
-                        for ( ServerValue<?> value:alteredObjectClass ) 
+                        for ( Value<?> value:alteredObjectClass ) 
                         {
                             if ( !objectClass.contains( value ) )
                             {
@@ -1416,7 +1416,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         break;
                         
                     case REMOVE_ATTRIBUTE :
-                        for ( ServerValue<?> value:alteredObjectClass ) 
+                        for ( Value<?> value:alteredObjectClass ) 
                         {
                             if ( !objectClass.contains( value ) )
                             {
@@ -1427,7 +1427,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         break;
                         
                     case REPLACE_ATTRIBUTE :
-                        for ( ServerValue<?> value:alteredObjectClass ) 
+                        for ( Value<?> value:alteredObjectClass ) 
                         {
                             if ( !objectClass.contains( value ) )
                             {
@@ -1506,7 +1506,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 List<byte[]> binaries = new ArrayList<byte[]>();
                 
-                for ( ServerValue<?> value:attribute )
+                for ( Value<?> value:attribute )
                 {
                     Object attrValue = value.get();
                 
@@ -1830,7 +1830,7 @@ public class SchemaInterceptor extends BaseInterceptor
             }
             
             // Then loop on all values
-            for ( ServerValue<?> value:attribute )
+            for ( Value<?> value:attribute )
             {
                 try
                 {
@@ -1859,7 +1859,7 @@ public class SchemaInterceptor extends BaseInterceptor
         boolean isModified = false;
 
         // Loop on each values
-        for ( ServerValue<?> value:attribute )
+        for ( Value<?> value:attribute )
         {
             if ( value instanceof ServerStringValue )
             {
@@ -1900,7 +1900,7 @@ public class SchemaInterceptor extends BaseInterceptor
         boolean isModified = false;
 
         // Loop on each values
-        for ( ServerValue<?> value:attribute )
+        for ( Value<?> value:attribute )
         {
             if ( value instanceof ServerBinaryValue )
             {

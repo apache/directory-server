@@ -19,9 +19,9 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.shared.ldap.entry.AbstractBinaryValue;
+import org.apache.directory.shared.ldap.entry.AbstractValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.AbstractStringValue;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -86,14 +86,14 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      * Doc me more!
      *
      * If the value does not correspond to the same attributeType, then it's
-     * wrapped value is copied into a new ServerValue which uses the specified
+     * wrapped value is copied into a new Value which uses the specified
      * attributeType.
      *
      * @param attributeType the attribute type according to the schema
      * @param vals an initial set of values for this attribute
      * @throws NamingException if there are problems creating the new attribute
      */
-    public DefaultServerAttribute( AttributeType attributeType, ServerValue<?>... vals ) throws NamingException
+    public DefaultServerAttribute( AttributeType attributeType, Value<?>... vals ) throws NamingException
     {
         this( null, attributeType, vals );
     }
@@ -103,7 +103,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      * Doc me more!
      *
      * If the value does not correspond to the same attributeType, then it's
-     * wrapped value is copied into a new ServerValue which uses the specified
+     * wrapped value is copied into a new Value which uses the specified
      * attributeType.
      * 
      * Otherwise, the value is stored, but as a reference. It's not a copy.
@@ -113,7 +113,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      * @param vals an initial set of values for this attribute
      * @throws NamingException if there are problems creating the new attribute
      */
-    public DefaultServerAttribute( String upId, AttributeType attributeType, ServerValue<?>... vals ) throws NamingException
+    public DefaultServerAttribute( String upId, AttributeType attributeType, Value<?>... vals ) throws NamingException
     {
         if ( attributeType == null )
         {
@@ -136,21 +136,33 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
         }
         else
         {
-            for ( ServerValue<?> val:vals )
+            for ( Value<?> val:vals )
             {
-                if ( attributeType.equals( val.getAttributeType() ) )
-                {
-                    add( val );
-                }
-                else if ( val instanceof ServerStringValue )
+                if ( val instanceof ServerStringValue )
                 {
                     ServerStringValue serverString = ( ServerStringValue ) val;
-                    add( new ServerStringValue( attributeType, serverString.get() ) );
+
+                    if ( attributeType.equals( serverString.getAttributeType() ) )
+                    {
+                        add( val );
+                    }
+                    else
+                    {
+                        add( new ServerStringValue( attributeType, serverString.get() ) );
+                    }
                 }
                 else if ( val instanceof ServerBinaryValue )
                 {
                     ServerBinaryValue serverBinary = ( ServerBinaryValue ) val;
-                    add( new ServerBinaryValue( attributeType, serverBinary.getCopy() ) );
+
+                    if ( attributeType.equals( serverBinary.getAttributeType() ) )
+                    {
+                        add( val );
+                    }
+                    else
+                    {
+                        add( new ServerBinaryValue( attributeType, serverBinary.getCopy() ) );
+                    }
                 }
                 else
                 {
@@ -271,7 +283,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
             return false;
         }
 
-        for ( ServerValue<?> value : values )
+        for ( Value<?> value : values )
         {
             if ( ! value.isValid() )
             {
@@ -286,13 +298,13 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     /**
      * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value)
      */
-    public boolean add( ServerValue<?> val ) throws InvalidAttributeValueException, NamingException
+    public boolean add( Value<?> val ) throws InvalidAttributeValueException, NamingException
     {
         if ( attributeType.getSyntax().isHumanReadable() )
         {
             if ( val == null )
             {
-                ServerValue<String> nullSV = new ServerStringValue( attributeType, (String)null );
+                Value<String> nullSV = new ServerStringValue( attributeType, (String)null );
                 
                 if ( values.contains( nullSV ) )
                 {
@@ -305,7 +317,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
                 }
             }
             
-            if ( !( val instanceof AbstractStringValue ) )
+            if ( !( val instanceof ServerStringValue ) )
             {
                 String message = "The value must be a String, as its AttributeType is H/R";
                 LOG.error( message );
@@ -316,7 +328,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
         {
             if ( val == null )
             {
-                ServerValue<byte[]> nullSV = new ServerBinaryValue( attributeType, (byte[])null );
+                Value<byte[]> nullSV = new ServerBinaryValue( attributeType, (byte[])null );
                 
                 if ( values.contains( nullSV ) )
                 {
@@ -329,7 +341,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
                 }
             }
             
-            if ( !( val instanceof AbstractBinaryValue ) )
+            if ( !( val instanceof AbstractValue ) )
             {
                 String message = "The value must be a byte[], as its AttributeType is not H/R";
                 LOG.error( message );
@@ -349,11 +361,11 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     /**
      * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public int add( ServerValue<?>... vals ) throws InvalidAttributeValueException, NamingException
+    public int add( Value<?>... vals ) throws InvalidAttributeValueException, NamingException
     {
         int nbAdded = 0;
         
-        for ( ServerValue<?> val:vals )
+        for ( Value<?> val:vals )
         {
             if ( add( val ) )
             {
@@ -452,7 +464,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     /**
      * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value)
      */
-    public boolean contains( ServerValue<?> val )
+    public boolean contains( Value<?> val )
     {
         return values.contains( val );
     }
@@ -461,11 +473,11 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     /**
      * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public boolean contains( ServerValue<?>... vals )
+    public boolean contains( Value<?>... vals )
     {
         // Iterate through all the values, and quit if we 
         // don't find one in the values
-        for ( ServerValue<?> val:vals )
+        for ( Value<?> val:vals )
         {
             if ( !values.contains( val ) )
             {
@@ -572,7 +584,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      * 
      *  @return The first value for this attribute.
      */
-    public ServerValue<?> get()
+    public Value<?> get()
     {
         if ( values.isEmpty() )
         {
@@ -592,7 +604,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      */
     public String getString() throws InvalidAttributeValueException
     {
-        ServerValue<?> value = get();
+        Value<?> value = get();
         
         if ( value instanceof ServerStringValue )
         {
@@ -616,7 +628,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      */
     public byte[] getBytes() throws InvalidAttributeValueException
     {
-        ServerValue<?> value = get();
+        Value<?> value = get();
         
         if ( value instanceof ServerBinaryValue )
         {
@@ -636,7 +648,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      * 
      * @return An iterator over the values stored into the attribute
      */
-    public Iterator<ServerValue<?>> getAll()
+    public Iterator<Value<?>> getAll()
     {
         return iterator();
     }
@@ -657,7 +669,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     /**
      * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value)
      */
-    public boolean remove( ServerValue<?> val )
+    public boolean remove( Value<?> val )
     {
         return values.remove( val );
     }
@@ -666,13 +678,13 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     /**
      * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public boolean remove( ServerValue<?>... vals )
+    public boolean remove( Value<?>... vals )
     {
         boolean removed = false;
         
         // Loop through all the values to remove. If one of
         // them is not present, the method will return false.
-        for ( ServerValue<?> val:vals )
+        for ( Value<?> val:vals )
         {
             removed &= values.remove( val );
         }
@@ -740,7 +752,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      * 
      * @return an iterator over the stored values.
      */
-    public Iterator<ServerValue<?>> iterator()
+    public Iterator<Value<?>> iterator()
     {
         return values.iterator();
     }
@@ -755,7 +767,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
         
         if ( ( values != null ) && ( values.size() != 0 ) )
         {
-            for ( ServerValue<?> value:values )
+            for ( Value<?> value:values )
             {
                 sb.append( "    " ).append( upId ).append( ": " ).append( value ).append( '\n' );
             }

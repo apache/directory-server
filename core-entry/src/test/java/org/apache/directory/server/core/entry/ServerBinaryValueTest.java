@@ -184,12 +184,12 @@ public class ServerBinaryValueTest
         
         ServerBinaryValue value = new ServerBinaryValue( at, new byte[]{0x01, (byte)0x82} );
         
-        assertTrue( Arrays.equals( new byte[]{0x01, (byte)0x02}, value.getNormalizedReference() ) );
-        assertTrue( Arrays.equals( new byte[]{0x01, (byte)0x02}, value.getNormalizedCopy() ) );
+        assertTrue( Arrays.equals( new byte[]{0x01, (byte)0x02}, value.getNormalizedValueReference() ) );
+        assertTrue( Arrays.equals( new byte[]{0x01, (byte)0x02}, value.getNormalizedValueCopy() ) );
 
         value = new ServerBinaryValue( at, null );
         
-        assertNull( value.getNormalizedReference() );
+        assertNull( value.getNormalizedValueReference() );
     }
     
     
@@ -253,7 +253,7 @@ public class ServerBinaryValueTest
         ServerBinaryValue sv = new ServerBinaryValue( at, v1 );
         
         sv.normalize();
-        byte[] normalized = sv.getNormalizedReference();
+        byte[] normalized = sv.getNormalizedValueReference();
         
         assertTrue( Arrays.equals( v1Norm, normalized ) );
         assertTrue( Arrays.equals( v1, sv.getReference() ) );
@@ -287,7 +287,7 @@ public class ServerBinaryValueTest
         ServerBinaryValue sv = new ServerBinaryValue( at, v1 );
         
         sv.normalize();
-        byte[] normalized = sv.getNormalizedReference();
+        byte[] normalized = sv.getNormalizedValueReference();
         
         assertTrue( Arrays.equals( v1Norm, normalized ) );
         assertTrue( Arrays.equals( v1, sv.get() ) );
@@ -319,7 +319,7 @@ public class ServerBinaryValueTest
         ServerBinaryValue sv = new ServerBinaryValue( at );
         
         sv.normalize();
-        byte[] normalized = sv.getNormalizedReference();
+        byte[] normalized = sv.getNormalizedValueReference();
         
         assertEquals( null, normalized );
         assertEquals( null, sv.get() );
@@ -351,7 +351,7 @@ public class ServerBinaryValueTest
         ServerBinaryValue sv = new ServerBinaryValue( at, StringTools.EMPTY_BYTES );
         
         sv.normalize();
-        byte[] normalized = sv.getNormalizedReference();
+        byte[] normalized = sv.getNormalizedValueReference();
         
         assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, normalized ) );
         assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, sv.get() ) );

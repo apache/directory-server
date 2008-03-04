@@ -26,10 +26,10 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -182,7 +182,7 @@ public class LeafEvaluator implements Evaluator
          */
         if ( isGreaterOrLesser == COMPARE_GREATER )
         {
-            for ( ServerValue<?> value:attr )
+            for ( Value<?> value:attr )
             {
                 Object normValue = normalizer.normalize( value );
 
@@ -195,7 +195,7 @@ public class LeafEvaluator implements Evaluator
         }
         else
         {
-            for ( ServerValue<?> value:attr )
+            for ( Value<?> value:attr )
             {
                 Object normValue = normalizer.normalize( value );
 
@@ -290,7 +290,7 @@ public class LeafEvaluator implements Evaluator
          * a lookup to work.  For each value we normalize and use the comparator
          * to determine if a match exists.
          */
-        for( ServerValue<?> value:attr )
+        for( Value<?> value:attr )
         {
             Object normValue = normalizer.normalize( value.get() );
 

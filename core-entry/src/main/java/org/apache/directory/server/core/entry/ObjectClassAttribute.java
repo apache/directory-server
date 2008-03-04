@@ -20,6 +20,7 @@ package org.apache.directory.server.core.entry;
 
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.slf4j.Logger;
@@ -137,7 +138,7 @@ public class ObjectClassAttribute extends AbstractServerAttribute
             {
                 // Iterate through the attribute values and store them in the ObjectClass,
                 // if they are valid.
-                for ( ServerValue<?> value:serverAttribute )
+                for ( Value<?> value:serverAttribute )
                 {
                     if ( value instanceof ServerStringValue )
                     {
@@ -185,10 +186,10 @@ public class ObjectClassAttribute extends AbstractServerAttribute
      * Doc me more!
      *
      * If the values does not correspond to the same attributeType, then it's
-     * wrapped value is copied into a new ServerValue which uses the specified
+     * wrapped value is copied into a new Value which uses the specified
      * attributeType.
      */
-    public ObjectClassAttribute( Registries registries, ServerValue<?>... values ) throws NamingException
+    public ObjectClassAttribute( Registries registries, Value<?>... values ) throws NamingException
     {
         this( registries, null, values );
     }
@@ -198,10 +199,10 @@ public class ObjectClassAttribute extends AbstractServerAttribute
      * Doc me more!
      *
      * If the value does not correspond to the same attributeType, then it's
-     * wrapped value is copied into a new ServerValue which uses the specified
+     * wrapped value is copied into a new Value which uses the specified
      * attributeType.
      */
-    public ObjectClassAttribute( Registries registries, String upId, ServerValue<?>... vals ) throws NamingException
+    public ObjectClassAttribute( Registries registries, String upId, Value<?>... vals ) throws NamingException
     {
         this.registries = registries;
         attributeType = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT_OID );
@@ -212,7 +213,7 @@ public class ObjectClassAttribute extends AbstractServerAttribute
         }
         else
         {
-            for ( ServerValue<?> val:vals )
+            for ( Value<?> val:vals )
             {
                 if ( ! ( val instanceof ServerStringValue ) )
                 {
@@ -469,7 +470,7 @@ public class ObjectClassAttribute extends AbstractServerAttribute
      */
     public String getString() throws InvalidAttributeValueException
     {
-        ServerValue<?> value = get();
+        Value<?> value = get();
         
         if ( value instanceof ServerStringValue )
         {
@@ -563,7 +564,7 @@ public class ObjectClassAttribute extends AbstractServerAttribute
         {
             boolean isFirst = true;
             
-            for ( ServerValue<?> objectClass:values )
+            for ( Value<?> objectClass:values )
             {
                 if ( isFirst )
                 {

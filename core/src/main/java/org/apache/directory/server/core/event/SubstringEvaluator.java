@@ -27,9 +27,9 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -111,7 +111,7 @@ public class SubstringEvaluator implements Evaluator
          * substring matching rule.
          */
 
-        for ( ServerValue<?> value: attr )
+        for ( Value<?> value: attr )
         {
             String normValue = ( String ) normalizer.normalize( value );
 

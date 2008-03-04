@@ -40,7 +40,6 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -51,6 +50,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -206,7 +206,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             ServerAttribute names = entry.get( mNameAT );
             targetRegistries.getOidRegistry().register( oid, oid );
             
-            for ( ServerValue<?> value:names )
+            for ( Value<?> value:names )
             {
                 targetRegistries.getOidRegistry().register( ( String ) value.get(), oid );
             }

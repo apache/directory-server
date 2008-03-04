@@ -51,13 +51,13 @@ import org.apache.directory.server.core.collective.CollectiveAttributeIntercepto
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
@@ -603,7 +603,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             throw e;
         }
 
-        ServerValue<?> userPassword;
+        Value<?> userPassword;
 
         ServerAttribute userPasswordAttr = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
 

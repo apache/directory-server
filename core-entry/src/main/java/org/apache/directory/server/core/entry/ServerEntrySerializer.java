@@ -26,6 +26,7 @@ import java.io.ObjectOutput;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDNSerializer;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -109,7 +110,7 @@ public class ServerEntrySerializer
             // The number of values
             out.writeInt( attribute.size() );
 
-            for ( ServerValue<?> value:attribute )
+            for ( Value<?> value:attribute )
             {
                 serializeValue( value, out );
             }
@@ -134,7 +135,7 @@ public class ServerEntrySerializer
      *  [UP value]
      *  [Norm value] (will be null if normValue == upValue)
      */
-    private void serializeValue( ServerValue<?> value, ObjectOutput out ) throws IOException, NamingException
+    private void serializeValue( Value<?> value, ObjectOutput out ) throws IOException, NamingException
     {
         out.writeBoolean( value.isValid() );
         
@@ -155,7 +156,7 @@ public class ServerEntrySerializer
                 // Save the UP value and the normalized value
                 out.writeUTF( ssv.get() );
                 ssv.normalize();
-                out.writeUTF( ssv.getNormalized() );
+                out.writeUTF( ssv.getNormalizedValue() );
             }
         }
         else if ( value instanceof ServerBinaryValue )
@@ -181,8 +182,8 @@ public class ServerEntrySerializer
                 {
                     sbv.normalize();
                     
-                    out.writeInt( sbv.getNormalizedReference().length );
-                    out.write( sbv.getNormalizedReference() );
+                    out.writeInt( sbv.getNormalizedValueReference().length );
+                    out.write( sbv.getNormalizedValueReference() );
                 }
             }
         }
@@ -203,7 +204,7 @@ public class ServerEntrySerializer
      *  [UP value]
      *  [Norm value] (will be null if normValue == upValue)
      */
-    private ServerValue<?> deserializeValue( ObjectInput in, AttributeType attributeType ) throws IOException, NamingException
+    private Value<?> deserializeValue( ObjectInput in, AttributeType attributeType ) throws IOException, NamingException
     {
         boolean isValid = in.readBoolean();
         boolean isHR = in.readBoolean();
@@ -228,7 +229,7 @@ public class ServerEntrySerializer
                 }
                 
                 
-                ServerValue<?> ssv = new ServerStringValue( attributeType, value, normalized, isValid );
+                Value<?> ssv = new ServerStringValue( attributeType, value, normalized, isValid );
                 
                 return ssv;
             }
@@ -270,7 +271,7 @@ public class ServerEntrySerializer
                     normalized = value;
                 }
                 
-                ServerValue<?> sbv = new ServerBinaryValue( attributeType, value, normalized, same, isValid );
+                Value<?> sbv = new ServerBinaryValue( attributeType, value, normalized, same, isValid );
                 
                 return sbv;
             }
@@ -313,7 +314,7 @@ public class ServerEntrySerializer
             
             for ( int j = 0; j < nbValues; j++ )
             {
-                ServerValue<?> value = deserializeValue( in, attributeType );
+                Value<?> value = deserializeValue( in, attributeType );
                 serverAttribute.add( value );
             }
             

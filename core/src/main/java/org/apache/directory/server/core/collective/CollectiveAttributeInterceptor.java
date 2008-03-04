@@ -25,7 +25,6 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -41,6 +40,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -168,7 +168,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
             exclusions = new HashSet<String>();
             
-            for ( ServerValue<?> value:collectiveExclusions )
+            for ( Value<?> value:collectiveExclusions )
             {
                 AttributeType attrType = atRegistry.lookup( ( String ) value.get() );
                 exclusions.add( attrType.getOid() );
@@ -208,7 +208,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          * attributes of the subentry and copy collective attributes from the
          * subentry into the entry.
          */
-        for ( ServerValue<?> value:caSubentries )
+        for ( Value<?> value:caSubentries )
         {
             String subentryDnStr = ( String ) value.get();
             LdapDN subentryDn = new LdapDN( subentryDnStr );
@@ -276,7 +276,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  *  Add all the collective attribute values in the subentry
                  *  to the currently processed collective attribute in the entry.
                  */
-                for ( ServerValue<?> subentryColVal:subentryColAttr )
+                for ( Value<?> subentryColVal:subentryColAttr )
                 {
                     entryColAttr.add( (String)subentryColVal.get() );
                 }

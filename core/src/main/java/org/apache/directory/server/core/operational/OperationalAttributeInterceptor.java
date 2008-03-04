@@ -33,7 +33,6 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -54,6 +53,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -138,7 +138,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         atRegistry = registries.getAttributeTypeRegistry();
 
         // stuff for dealing with subentries (garbage for now)
-        ServerValue<?> subschemaSubentry = service.getPartitionNexus()
+        Value<?> subschemaSubentry = service.getPartitionNexus()
                 .getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = new LdapDN( (String)subschemaSubentry.get() );
         subschemaSubentryDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );

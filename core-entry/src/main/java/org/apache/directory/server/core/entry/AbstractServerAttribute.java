@@ -21,6 +21,7 @@ package org.apache.directory.server.core.entry;
 
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     private static final Logger LOG = LoggerFactory.getLogger( AbstractServerAttribute.class );
 
     /** The set of contained values */
-    protected List<ServerValue<?>> values = new ArrayList<ServerValue<?>>();
+    protected List<Value<?>> values = new ArrayList<Value<?>>();
     
     /** The associated AttributeType */
     protected transient AttributeType attributeType;
@@ -234,7 +235,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
             return false;
         }
 
-        for ( ServerValue<?> value : values )
+        for ( Value<?> value : values )
         {
             if ( ! value.isValid() )
             {
@@ -249,11 +250,11 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public int add( ServerValue<?>... vals ) throws InvalidAttributeValueException, NamingException
+    public int add( Value<?>... vals ) throws InvalidAttributeValueException, NamingException
     {
         int nbAdded = 0;
         
-        for ( ServerValue<?> val:vals )
+        for ( Value<?> val:vals )
         {
             if ( attributeType.getSyntax().isHumanReadable() )
             {
@@ -288,7 +289,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#put(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public int put( ServerValue<?>... vals ) throws InvalidAttributeValueException, NamingException
+    public int put( Value<?>... vals ) throws InvalidAttributeValueException, NamingException
     {
         values.clear();
         return add( vals );
@@ -421,9 +422,9 @@ public abstract class AbstractServerAttribute implements ServerAttribute
             // Copy the values. The attributeType is immutable.
             if ( ( values != null ) && ( values.size() != 0 ) )
             {
-                clone.values = new ArrayList<ServerValue<?>>( values.size() );
+                clone.values = new ArrayList<Value<?>>( values.size() );
                 
-                for ( ServerValue<?> value:values )
+                for ( Value<?> value:values )
                 {
                     clone.values.add( value.clone() );
                 }
@@ -442,7 +443,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value)
      */
-    public boolean contains( ServerValue<?> val ) throws NamingException
+    public boolean contains( Value<?> val ) throws NamingException
     {
         val.normalize();
         
@@ -453,11 +454,11 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public boolean contains( ServerValue<?>... vals ) throws NamingException
+    public boolean contains( Value<?>... vals ) throws NamingException
     {
         // Iterate through all the values, and quit if we 
         // don't find one in the values
-        for ( ServerValue<?> val:vals )
+        for ( Value<?> val:vals )
         {
             if ( !values.contains( val ) )
             {
@@ -615,7 +616,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
      * 
      *  @return The first value for this attribute.
      */
-    public ServerValue<?> get()
+    public Value<?> get()
     {
         if ( values.isEmpty() )
         {
@@ -631,7 +632,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
      * 
      * @return An iterator over the values stored into the attribute
      */
-    public Iterator<ServerValue<?>> getAll()
+    public Iterator<Value<?>> getAll()
     {
         return iterator();
     }
@@ -652,7 +653,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value)
      */
-    public boolean remove( ServerValue<?> val )
+    public boolean remove( Value<?> val )
     {
         return values.remove( val );
     }
@@ -661,13 +662,13 @@ public abstract class AbstractServerAttribute implements ServerAttribute
     /**
      * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public boolean remove( ServerValue<?>... vals )
+    public boolean remove( Value<?>... vals )
     {
         boolean removed = false;
         
         // Loop through all the values to remove. If one of
         // them is not present, the method will return false.
-        for ( ServerValue<?> val:vals )
+        for ( Value<?> val:vals )
         {
             removed &= values.remove( val );
         }
@@ -735,7 +736,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
      * 
      * @return an iterator over the stored values.
      */
-    public Iterator<ServerValue<?>> iterator()
+    public Iterator<Value<?>> iterator()
     {
         return values.iterator();
     }
@@ -778,7 +779,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
          
          result = result*17 + attributeType.hashCode();
          
-         for ( ServerValue<?> value:values )
+         for ( Value<?> value:values )
          {
              result = result*17 + value.hashCode();
          }
@@ -814,7 +815,7 @@ public abstract class AbstractServerAttribute implements ServerAttribute
              return false;
          }
          
-         for ( ServerValue<?> value:this )
+         for ( Value<?> value:this )
          {
              try
              {

@@ -52,40 +52,14 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerValue<T> extends Value<T>, Comparable<ServerValue<T>>
+public interface ServerValue<T> extends Value<T>
 {
-    /**
-     * Checks to see if this ServerValue is valid according to the syntax
-     * of the ServerAttribute which contains it.
-     *
-     * @return true if valid according to syntax, false otherwise
-     * @throws NamingException if schema entity resolution fails or the syntaxChecker fails
-     */
-    boolean isValid() throws NamingException;
-
-
-    /**
-     * Compares two ServerValue objects for ordering based on the matchingRules
-     * associated with the ServerAttribute containing this ServerValue.
-     * Implementations should be using the normalized versions of the wrapped
-     * value when conducting comparisons.
-     *
-     * @param value the ServerValue object to compare this ServerValue to
-     * @return 0 if the objects are equivalent according to equals(), 1 or greater
-     * if this ServerValue is greater than the supplied ServerValue, -1 or lesser
-     * if this ServerValue is less than the supplied ServerValue.
-     */
-    int compareTo( ServerValue<T> value );
-
-
     AttributeType getAttributeType();
 
     
     boolean instanceOf( AttributeType attributeType ) throws NamingException;
-    
-    ServerValue<T> clone();
-    
-    
+
+
     /**
      * Compute the normalized value
      *

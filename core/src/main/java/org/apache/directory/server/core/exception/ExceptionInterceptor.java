@@ -24,7 +24,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -47,6 +46,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
@@ -125,7 +125,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         nexus = directoryService.getPartitionNexus();
         normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
-        ServerValue<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemSubentryDn = new LdapDN( ( String ) attr.get() );
         subschemSubentryDn.normalize( normalizerMap );
         registries = directoryService.getRegistries();
@@ -329,7 +329,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
                 if ( entryAttr != null )
                 {
-                    for ( ServerValue<?> value:modAttr )
+                    for ( Value<?> value:modAttr )
                     {
                         if ( entryAttr.contains( value ) )
                         {

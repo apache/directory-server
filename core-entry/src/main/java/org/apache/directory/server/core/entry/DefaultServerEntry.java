@@ -455,7 +455,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
         
         if ( currentOc != null )
         {
-            for ( ServerValue<?> value:objectClassAttribute )
+            for ( Value<?> value:objectClassAttribute )
             {
                 currentOc.add( value );
             }
@@ -803,7 +803,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      * @throws NamingException If some values conflict with the attributeType
      * 
      */
-    public ServerAttribute put( AttributeType attributeType, ServerValue<?>... values ) throws NamingException
+    public ServerAttribute put( AttributeType attributeType, Value<?>... values ) throws NamingException
     {
         return put( null, attributeType, values );
     }
@@ -819,7 +819,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      * @return The existing attribute if any
      * @throws NamingException 
      */
-    public ServerAttribute put( String upId, AttributeType attributeType, ServerValue<?>... values ) throws NamingException
+    public ServerAttribute put( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException
     {
         upId = getUpId( upId, attributeType );
         attributeType = getAttributeType( upId, attributeType );
@@ -847,14 +847,14 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      * If the attribute already exists, the previous attribute will be 
      * replaced and returned.
      * <p>
-     * The values are stored as ServerValue<?> objects.
+     * The values are stored as Value<?> objects.
      *
      * @param upId The attribute ID
-     * @param values The list of ServerValue<?> objects to inject. It can be empty.
+     * @param values The list of Value<?> objects to inject. It can be empty.
      * @return The replaced attribute
      * @throws NamingException If the attribute does not exist
      */
-    public ServerAttribute put( String upId, ServerValue<?>... values ) throws NamingException
+    public ServerAttribute put( String upId, Value<?>... values ) throws NamingException
     {
         return put( upId, getAttributeType( upId ), values );
     }
@@ -1098,7 +1098,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
         
         if ( serverAttributeMap.containsKey( attributeType ) )
         {
-            return serverAttributeMap.get( attributeType ).contains( (ServerValue<?>)value );
+            return serverAttributeMap.get( attributeType ).contains( (Value<?>)value );
         }
         else
         {
@@ -1130,7 +1130,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
         }
         else if ( serverAttributeMap.containsKey( attributeType ) )
         {
-            return serverAttributeMap.get( attributeType ).contains( (ServerValue<?>)value );
+            return serverAttributeMap.get( attributeType ).contains( (Value<?>)value );
         }
         else
         {
@@ -1301,7 +1301,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      * 
      * Updates the objectClassAttribute and the serverAttributeMap.
      */
-    private void addObjectClass( String upId, ServerValue<?>... values ) throws NamingException, InvalidAttributeValueException
+    private void addObjectClass( String upId, Value<?>... values ) throws NamingException, InvalidAttributeValueException
     {
         ServerAttribute attribute = serverAttributeMap.get( OBJECT_CLASS_AT );
         
@@ -1324,7 +1324,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      * 
      * Updates the serverAttributeMap.
      */
-    private void createAttribute( String upId, AttributeType attributeType, ServerValue<?>... values ) throws NamingException, InvalidAttributeValueException
+    private void createAttribute( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException, InvalidAttributeValueException
     {
         ServerAttribute attribute = new DefaultServerAttribute( attributeType, values );
         attribute.setUpId( upId, attributeType );
@@ -1392,7 +1392,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      * some values to
      * @param values The list of Values to add
      * @throws NamingException
-     */
+     *
     public void add( String upId, Value<?>... values ) throws NamingException
     {
         
@@ -1488,15 +1488,15 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
 
 
     /**
-     * Add a new attribute with some ServerValue values into the entry.
+     * Add a new attribute with some Value values into the entry.
      * <p>
      * 
      * @param attributeType The attributeType to add
-     * @param values The associated ServerValue values
+     * @param values The associated Value values
      * @throws NamingException If some values conflict with the attributeType
      * 
      */
-    public void add( AttributeType attributeType, ServerValue<?>... values ) throws NamingException
+    public void add( AttributeType attributeType, Value<?>... values ) throws NamingException
     {
         if ( attributeType == null )
         {
@@ -1555,13 +1555,13 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
 
 
     /**
-     * Add an attribute (represented by its ID and ServerValue values) into an entry. 
+     * Add an attribute (represented by its ID and Value values) into an entry. 
      *
      * @param upId The attribute ID
-     * @param values The list of ServerValue values to inject. It can be empty
+     * @param values The list of Value values to inject. It can be empty
      * @throws NamingException If the attribute does not exist
      */
-    public void add( String upId, ServerValue<?>... values ) throws NamingException
+    public void add( String upId, Value<?>... values ) throws NamingException
     {
         add( upId, getAttributeType( upId ), values );
     }
@@ -1653,15 +1653,15 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
 
 
     /**
-     * Adds a new attribute with some ServerValue values into an entry, setting
+     * Adds a new attribute with some Value values into an entry, setting
      * the User Provided ID in the same time.
      *
      * @param upId The User provided ID
      * @param attributeType The associated AttributeType
-     * @param values The ServerValue values to store into the new Attribute
+     * @param values The Value values to store into the new Attribute
      * @throws NamingException 
      */
-    public void add( String upId, AttributeType attributeType, ServerValue<?>... values ) throws NamingException
+    public void add( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException
     {
         if ( attributeType == null )
         {
@@ -1764,7 +1764,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
                 {
                     out.writeInt( nbValues );
 
-                    for ( ServerValue<?> value:attribute )
+                    for ( Value<?> value:attribute )
                     {
                         out.writeObject( value );
                     }
@@ -1819,7 +1819,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
                 
                 for ( int j = 0; j < nbValues; j++ )
                 {
-                    ServerValue<?> value = (ServerValue<?>)in.readObject();
+                    Value<?> value = (Value<?>)in.readObject();
                     attribute.add( value );
                 }
                 

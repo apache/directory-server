@@ -27,7 +27,7 @@ import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
-import org.apache.directory.server.core.entry.ServerValue;
+import org.apache.directory.shared.ldap.entry.Value;
 
 
 /**
@@ -62,7 +62,7 @@ public class AttributeClassLoader extends ClassLoader
     {
         byte[] classBytes = null;
         
-        ServerValue<?> value = attribute.get();
+        Value<?> value = attribute.get();
         
         if ( value instanceof ServerBinaryValue )
         {

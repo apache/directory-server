@@ -27,9 +27,9 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -144,7 +144,7 @@ public class DescriptionParsers
         
         int pos = 0;
         
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             try
             {
@@ -176,7 +176,7 @@ public class DescriptionParsers
         
         int pos = 0;
         
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             try
             {
@@ -207,7 +207,7 @@ public class DescriptionParsers
         
         int pos = 0;
         
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             try
             {
@@ -246,7 +246,7 @@ public class DescriptionParsers
         
         int pos = 0;
         
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             AttributeTypeDescription desc = null;
             
@@ -381,7 +381,7 @@ public class DescriptionParsers
         
         int pos = 0;
         
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             ObjectClassDescription desc = null;
             
@@ -482,7 +482,7 @@ public class DescriptionParsers
         
         int pos = 0;
         
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             MatchingRuleUseDescription desc = null;
             
@@ -529,7 +529,7 @@ public class DescriptionParsers
 
         int pos = 0;
         
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             LdapSyntaxDescription desc = null;
             
@@ -583,7 +583,7 @@ public class DescriptionParsers
 
         int pos = 0;
         
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             MatchingRuleDescription desc = null;
 
@@ -636,7 +636,7 @@ public class DescriptionParsers
         
         int pos = 0;
         
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             DITStructureRuleDescription desc = null;
      
@@ -685,7 +685,7 @@ public class DescriptionParsers
 
         int pos = 0;
         
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             DITContentRuleDescription desc = null;
      
@@ -736,7 +736,7 @@ public class DescriptionParsers
 
         int pos = 0;
         
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             NameFormDescription desc = null;
             

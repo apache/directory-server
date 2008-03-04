@@ -57,7 +57,6 @@ import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.ServerStringValue;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
@@ -72,6 +71,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -150,7 +150,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 log.debug( "Adding Attribute id : 'userPassword',  Values : [ {} ]", sb.toString() );
             }
 
-            ServerValue<?> principalNameValue = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get();
+            Value<?> principalNameValue = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get();
             
             String principalName = (String)principalNameValue.get();
 
