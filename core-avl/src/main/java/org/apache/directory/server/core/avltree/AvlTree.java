@@ -31,7 +31,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AVLTree<K>
+public class AvlTree<K>
 {
     /** the root of the tree */
 	private LinkedAvlNode<K> root;
@@ -51,7 +51,7 @@ public class AVLTree<K>
 	 *
 	 * @param comparator the comparator to be used for comparing keys
 	 */
-	public AVLTree( Comparator<K> comparator)
+	public AvlTree( Comparator<K> comparator)
 	{
 	    this.comparator = comparator;
 	}

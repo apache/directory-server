@@ -30,7 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Comparator;
 
-import org.apache.directory.server.core.avltree.AVLTree;
+import org.apache.directory.server.core.avltree.AvlTree;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,11 +43,11 @@ import org.junit.Test;
 public class AvlTreeMarshallerTest
 {
 
-    AVLTree<Integer> tree;
+    AvlTree<Integer> tree;
     Comparator<Integer> comparator;
     AvlTreeMarshaller<Integer> treeMarshaller;
     
-    static AVLTree<Integer> savedTree;
+    static AvlTree<Integer> savedTree;
     
     File treeFile = new File( System.getProperty( "java.io.tmpdir" ) + File.separator + "avl.tree");
     
@@ -65,7 +65,7 @@ public class AvlTreeMarshallerTest
         };
         
       
-      tree = new AVLTree<Integer>( comparator );  
+      tree = new AvlTree<Integer>( comparator );  
       treeMarshaller = new AvlTreeMarshaller<Integer>( comparator, new IntegerKeyMarshaller() );
     }
     
@@ -100,7 +100,7 @@ public class AvlTreeMarshallerTest
         byte[] data = new byte[ ( int )treeFile.length() ];
         fin.read( data );
         
-        AVLTree<Integer> unmarshalledTree = treeMarshaller.unMarshal( data );
+        AvlTree<Integer> unmarshalledTree = treeMarshaller.unMarshal( data );
         
         System.out.println("\nunmarshalled tree\n---------------");
         unmarshalledTree.printTree();

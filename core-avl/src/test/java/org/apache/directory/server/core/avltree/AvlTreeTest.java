@@ -40,15 +40,15 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AVLTreeTest
+public class AvlTreeTest
 {
 
-    AVLTree<Integer> tree;
+    AvlTree<Integer> tree;
     
     @Before
     public void createTree()
     {
-      tree = new AVLTree<Integer>( new Comparator<Integer>() 
+      tree = new AvlTree<Integer>( new Comparator<Integer>() 
           {
 
             public int compare( Integer i1, Integer i2 )

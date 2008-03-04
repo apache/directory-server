@@ -38,9 +38,9 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AVLTreePerfTest
+public class AvlTreePerfTest
 {
-    AVLTree<Integer> tree;
+    AvlTree<Integer> tree;
     
     String tempDir = System.getProperty( "java.io.tmpdir" );
    
@@ -68,7 +68,7 @@ public class AVLTreePerfTest
     @Before
     public void createTree()
     {
-      tree = new AVLTree<Integer>( new Comparator<Integer>() 
+      tree = new AvlTree<Integer>( new Comparator<Integer>() 
           {
 
             public int compare( Integer i1, Integer i2 )
@@ -283,7 +283,7 @@ public class AVLTreePerfTest
         start = System.nanoTime();
         
         fin.read(data);
-        tree = (AVLTree<Integer>) treeMarshaller.unMarshal( data );
+        tree = (AvlTree<Integer>) treeMarshaller.unMarshal( data );
         
         end = System.nanoTime();
         System.out.println("total time taken for reconstructing a serialized AVLTree ->" + getTime( start, end ) );

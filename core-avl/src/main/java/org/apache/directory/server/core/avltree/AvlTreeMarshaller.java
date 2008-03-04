@@ -26,7 +26,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Comparator;
 
-import org.apache.directory.server.core.avltree.AVLTree;
+import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.LinkedAvlNode;
 
 /**
@@ -37,7 +37,7 @@ import org.apache.directory.server.core.avltree.LinkedAvlNode;
  * @version $Rev$, $Date$
  */
 @SuppressWarnings("unchecked")
-public class AvlTreeMarshaller<E> implements Marshaller<AVLTree<E>>
+public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
 {
 
     /** marshaller to be used for marshalling the keys */
@@ -66,7 +66,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AVLTree<E>>
      * Marshals the given tree to bytes
      * @param tree the tree to be marshalled
      */
-    public byte[] marshal( AVLTree<E> tree )
+    public byte[] marshal( AvlTree<E> tree )
     {
         if( tree.isEmpty() )
         {
@@ -139,7 +139,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AVLTree<E>>
      * 
      * @param data byte array to be converted into AVLTree  
      */
-    public AVLTree<E> unMarshal( byte[] data )
+    public AvlTree<E> unMarshal( byte[] data )
     {
         ByteArrayInputStream bin = new ByteArrayInputStream( data );
         DataInputStream din = new DataInputStream( bin );
@@ -151,7 +151,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AVLTree<E>>
             nodes = new LinkedAvlNode[ size ];
             LinkedAvlNode<E> root = readTree( din, null );
             
-            AVLTree<E> tree = new AVLTree<E>( comparator );
+            AvlTree<E> tree = new AvlTree<E>( comparator );
             
             tree.setRoot( root );
             
