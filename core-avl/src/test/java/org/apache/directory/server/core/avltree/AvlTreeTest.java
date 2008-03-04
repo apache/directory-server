@@ -59,15 +59,44 @@ public class AvlTreeTest
           });  
     }
     
+    
     @Test
     public void testEmpty()
     {
       assertTrue( tree.isEmpty() );
+      assertNull( tree.getFirst() );
+      assertNull( tree.getLast() );
       
       tree.remove( 97 ); // remove a non-existing key
       assertTrue( tree.isEmpty() );
       
       tree.printTree();
+    }
+    
+    
+    @Test 
+    public void testFirstAndLast()
+    {
+        tree.insert( 7 );
+        assertFalse( tree.isEmpty() );
+        assertNotNull( tree.getFirst() );
+        assertNotNull( tree.getLast() );
+        
+        tree.insert( 10 );
+        assertEquals( 2, tree.getSize() );
+        assertNotNull( tree.getFirst() );
+        assertNotNull( tree.getLast() );
+        assertFalse( tree.getFirst().equals( tree.getLast() ) );
+        assertTrue( tree.getFirst().getKey().equals( 7 ) );
+        assertTrue( tree.getLast().getKey().equals( 10 ) );
+        
+        tree.insert( 3 );
+        assertTrue( tree.getFirst().getKey().equals( 3 ) );
+        assertTrue( tree.getLast().getKey().equals( 10 ) );
+        
+        tree.insert( 11 );
+        assertTrue( tree.getFirst().getKey().equals( 3 ) );
+        assertTrue( tree.getLast().getKey().equals( 11 ) );
     }
     
     
@@ -81,8 +110,8 @@ public class AvlTreeTest
         assertTrue( 1 == tree.getSize() );
 
         assertNotNull( tree.getFirst() );
-        assertNull( tree.getLast() );
-        assertNotSame( tree.getFirst(), tree.getLast() );
+        assertNotNull( tree.getLast() );
+        assertTrue( tree.getFirst() == tree.getLast() );
         
         tree.remove( 3 );
         

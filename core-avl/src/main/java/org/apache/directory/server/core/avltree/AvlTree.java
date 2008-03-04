@@ -75,6 +75,7 @@ public class AvlTree<K>
 	    {
 	      root = new LinkedAvlNode<K>( key );
 	      first = root;
+	      last = root;
 	      return;
 	    }
 	    
