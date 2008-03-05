@@ -49,14 +49,15 @@ public interface Cursor<E>
 
     /**
      * Prepares this Cursor, so a subsequent call to Cursor#next() with a
-     * true return value, will have positioned the Cursor on a dataset element
-     * equal to or greater than the element argument but not less.  A call to
-     * Cursor#previous() with a true return value will position the Cursor on
-     * a dataset element less than the argument.  If Cursor#next() returns
-     * false then the Cursor is past the last element and so all values in the
-     * dataset are less than the argument.  If Cursor#previous() returns false
-     * then the Cursor is positioned before the first element and all elements
-     * in the dataset are greater than the argument.
+     * true return value, will have positioned the Cursor on a dataset 
+     * element equal to or less than the element argument but not greater.  
+     * A call to Cursor#previous() with a true return value will position 
+     * the Cursor on a dataset element less than the argument.  If 
+     * Cursor#next() returns false then the Cursor is past the last element 
+     * and so all values in the dataset are less than the argument.  If 
+     * Cursor#previous() returns false then the Cursor is positioned before 
+     * the first element and all elements in the dataset are greater than 
+     * the argument.
      *
      * @param element the element to be positioned before
      * @throws Exception with problems accessing the underlying btree

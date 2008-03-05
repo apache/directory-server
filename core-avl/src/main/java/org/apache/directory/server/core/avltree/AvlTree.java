@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.lang.NotImplementedException;
-
 
 /**
  * An AVL tree implementation
@@ -56,6 +54,12 @@ public class AvlTree<K>
 	public AvlTree( Comparator<K> comparator)
 	{
 	    this.comparator = comparator;
+	}
+	
+	
+	public Comparator<K> getComparator()
+	{
+	    return comparator;
 	}
 	
 	
@@ -373,20 +377,25 @@ public class AvlTree<K>
     //NOTE: This method is internally used by AVLTreeMarshaller
     public int getSize()
     {
-      if( root.isLeaf() )
-      {
-          return 1;
-      }
+        if ( root == null )
+        {
+            return 0;
+        }
+        
+        if( root.isLeaf() )
+        {
+            return 1;
+        }
       
-      LinkedAvlNode<K> x = first.next;
+        LinkedAvlNode<K> x = first.next;
       
-      while( x != null )
-      {
-        x.setIndex( x.previous.getIndex() + 1 );  
-        x = x.next;
-      }
+        while( x != null )
+        {
+            x.setIndex( x.previous.getIndex() + 1 );  
+            x = x.next;
+        }
       
-      return last.getIndex() + 1;
+        return last.getIndex() + 1;
     }
     
     
