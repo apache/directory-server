@@ -352,15 +352,15 @@ public class TestServerEntryUtils
 
     /* No protection */ static AttributeType getBytesAttributeType()
     {
-        AT at = new AT( "1.1" );
+        AT at = new AT( "1.2" );
 
-        S s = new S( "1.1.1", true );
+        S s = new S( "1.2.1", true );
 
         s.setSyntaxChecker( new SyntaxChecker()
         {
             public String getSyntaxOid()
             {
-                return "1.1.1";
+                return "1.2.1";
             }
             public boolean isValidSyntax( Object value )
             {
@@ -376,7 +376,7 @@ public class TestServerEntryUtils
             }
         } );
 
-        final MR mr = new MR( "1.1.2" );
+        final MR mr = new MR( "1.2.2" );
         mr.syntax = s;
         mr.comparator = new Comparator<byte[]>()
         {

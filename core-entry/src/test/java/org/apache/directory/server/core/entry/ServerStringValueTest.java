@@ -21,6 +21,7 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
@@ -46,6 +47,7 @@ import java.util.List;
 import jdbm.helper.StringComparator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
@@ -91,7 +93,158 @@ public class ServerStringValueTest
         at.setSyntax( s );
     }
     
+    /**
+     * Test the constructor with a null value
+     */
+    @Test 
+    public void testServerStringValueNullValue()
+    {
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        
+        ServerStringValue value = new ServerStringValue( at, null );
+        
+        assertNull( value.get() );
+        assertTrue( value.isNull() );
+    }
+    
+    
+    /**
+     * Test the getNormalizedValue method
+     */
+    @Test public void testGetNormalizedValue() throws NamingException
+    {
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        
+        ServerStringValue value = new ServerStringValue( at, null );
+        
+        assertFalse( value.isNormalized() );
+        assertNull( value.getNormalizedValue() );
+        assertTrue( value.isNormalized() );
 
+        value.set( "" );
+        assertFalse( value.isNormalized() );
+        assertEquals( "", value.getNormalizedValue() );
+        assertTrue( value.isNormalized() );
+
+        value.set( "TEST" );
+        assertFalse( value.isNormalized() );
+        assertEquals( "test", value.getNormalizedValue() );
+        assertTrue( value.isNormalized() );
+    }
+    
+
+    /**
+     * Test the isValid method
+     * 
+     * The SyntaxChecker does not accept values longer than 5 chars.
+     */
+    @Test public void testIsValid() throws NamingException
+    {
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        
+        ServerStringValue value = new ServerStringValue( at, null );
+        assertTrue( value.isValid() );
+
+        value.set( "" );
+        assertTrue( value.isValid() );
+
+        value.set( "TEST" );
+        assertTrue( value.isValid() );
+
+        value.set( "testlong" );
+        assertFalse( value.isValid() );
+    }
+    
+    
+    /**
+     * Test the normalize method
+     */
+    @Test
+    public void testNormalize() throws NamingException
+    {
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        ServerStringValue ssv = new ServerStringValue( at );
+
+        ssv.normalize();
+        assertEquals( null, ssv.getNormalizedValue() );
+        
+        ssv.set( "" );
+        ssv.normalize();
+        assertEquals( "", ssv.getNormalizedValue() );
+
+        ssv.set(  "  This is    a   TEST  " );
+        ssv.normalize();
+        assertEquals( "this is a test", ssv.getNormalizedValue() );
+    }
+    
+
+    /**
+     * Test the instanceOf method
+     */
+    @Test
+    public void testInstanceOf() throws NamingException
+    {
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        ServerStringValue ssv = new ServerStringValue( at );
+        
+        assertTrue( ssv.instanceOf( at ) );
+        
+        at = TestServerEntryUtils.getBytesAttributeType();
+        
+        assertFalse( ssv.instanceOf( at ) );
+    }    
+    
+
+    /**
+     * Test the getAttributeType method
+     */
+    @Test
+    public void testgetAttributeType() throws NamingException
+    {
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        ServerStringValue ssv = new ServerStringValue( at );
+        
+        assertEquals( at, ssv.getAttributeType() );
+    }    
+
+    
+    /**
+     * Test the equals method
+     */
+    @Test public void testEquals()
+    {
+        AttributeType at1 = TestServerEntryUtils.getIA5StringAttributeType();
+        AttributeType at2 = TestServerEntryUtils.getBytesAttributeType();
+        
+        ServerStringValue value1 = new ServerStringValue( at1, "test" );
+        ServerStringValue value2 = new ServerStringValue( at1, "test" );
+        ServerStringValue value3 = new ServerStringValue( at1, "TEST" );
+        ServerStringValue value4 = new ServerStringValue( at1, "tes" );
+        ServerStringValue value5 = new ServerStringValue( at1, null );
+        ServerBinaryValue valueBytes = new ServerBinaryValue( at2, new byte[]{0x01} );
+        ServerStringValue valueString = new ServerStringValue( at, "test" );
+        
+        assertTrue( value1.equals( value1 ) );
+        assertTrue( value1.equals( value2 ) );
+        assertTrue( value1.equals( value3 ) );
+        assertFalse( value1.equals( value4 ) );
+        assertFalse( value1.equals( value5 ) );
+        assertFalse( value1.equals( "test" ) );
+        assertFalse( value1.equals( null ) );
+        
+        assertFalse( value1.equals( valueString ) );
+        assertFalse( value1.equals( valueBytes ) );
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
     /**
      * Test the constructor with bad AttributeType
      */
@@ -123,109 +276,88 @@ public class ServerStringValueTest
 
 
     /**
-     * Test the constructor with a null value
-     */
-    @Test public void testNullValue()
-    {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
-        
-        ServerStringValue value = new ServerStringValue( at, null );
-        
-        assertNull( value.get() );
-        assertTrue( value.isNull() );
-    }
-    
-    
-    /**
-     * Test the equals method
-     */
-    @Test public void testEquals()
-    {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
-        
-        ServerStringValue value1 = new ServerStringValue( at, "test" );
-        ServerStringValue value2 = new ServerStringValue( at, "test" );
-        ServerStringValue value3 = new ServerStringValue( at, "TEST" );
-        ServerStringValue value4 = new ServerStringValue( at, "tes" );
-        ServerStringValue value5 = new ServerStringValue( at, null );
-        
-        assertTrue( value1.equals( value1 ) );
-        assertTrue( value1.equals( value2 ) );
-        assertTrue( value1.equals( value3 ) );
-        assertFalse( value1.equals( value4 ) );
-        assertFalse( value1.equals( value5 ) );
-        assertFalse( value1.equals( "test" ) );
-        assertFalse( value1.equals( null ) );
-    }
-
-    
-    /**
-     * Test the getNormalized method
-     * TODO testNormalized.
-     *
-     */
-    @Test public void testGetNormalized() throws NamingException
-    {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
-        
-        ServerStringValue value = new ServerStringValue( at, "TEST" );
-        
-        assertEquals( "test", value.getNormalizedValue() );
-
-        value = new ServerStringValue( at, null );
-        
-        assertNull( value.getNormalizedValue() );
-    }
-    
-    
-    /**
-     * Test the isValid method
-     * 
-     * The SyntaxChecker does not accept values longer than 5 chars.
-     */
-    @Test public void testIsValid() throws NamingException
-    {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
-        
-        ServerStringValue value = new ServerStringValue( at, "test" );
-        
-        assertTrue( value.isValid() );
-
-        value = new ServerStringValue( at, "testlong" );
-        
-        assertFalse( value.isValid() );
-    }
-    
-    
-    /**
      * Tests to make sure the hashCode method is working properly.
      * @throws Exception on errors
      */
-    @Test public void testHashCodeValidEquals() throws Exception
+    @Test public void testHashCode() throws Exception
     {
-        AttributeType at = TestServerEntryUtils.getCaseIgnoringAttributeNoNumbersType();
-        ServerStringValue v0 = new ServerStringValue( at, "Alex" );
-        ServerStringValue v1 = new ServerStringValue( at, "ALEX" );
-        ServerStringValue v2 = new ServerStringValue( at, "alex" );
-        assertEquals( v0.hashCode(), "alex".hashCode() );
-        assertEquals( v1.hashCode(), "alex".hashCode() );
-        assertEquals( v2.hashCode(), "alex".hashCode() );
+        AttributeType at1 = TestServerEntryUtils.getCaseIgnoringAttributeNoNumbersType();
+        ServerStringValue v0 = new ServerStringValue( at1, "Alex" );
+        ServerStringValue v1 = new ServerStringValue( at1, "ALEX" );
+        ServerStringValue v2 = new ServerStringValue( at1, "alex" );
+        
+        assertEquals( v0.hashCode(), v1.hashCode() );
+        assertEquals( v0.hashCode(), v2.hashCode() );
+        assertEquals( v1.hashCode(), v2.hashCode() );
+        
         assertEquals( v0, v1 );
         assertEquals( v0, v2 );
         assertEquals( v1, v2 );
+        
         assertTrue( v0.isValid() );
         assertTrue( v1.isValid() );
         assertTrue( v2.isValid() );
 
-        ServerStringValue v3 = new ServerStringValue( at, "Timber" );
-        assertFalse( v3.equals( v0 ) );
-        assertFalse( v3.equals( v1 ) );
-        assertFalse( v3.equals( v2 ) );
+        ServerStringValue v3 = new ServerStringValue( at1, "Timber" );
+        
         assertTrue( v3.isValid() );
+        assertNotSame( v0.hashCode(), v3.hashCode() );
 
-        ServerStringValue v4 = new ServerStringValue( at, "Timber123" );
-        assertFalse( v4.isValid() );
+        ServerStringValue v4 = new ServerStringValue( at, "Alex" );
+        
+        assertNotSame( v0.hashCode(), v4.hashCode() );
+        
     }
+    
+    
+    /**
+     * Test the compareTo method
+     */
+    @Test
+    public void testCompareTo()
+    {
+        AttributeType at1 = TestServerEntryUtils.getCaseIgnoringAttributeNoNumbersType();
+        ServerStringValue v0 = new ServerStringValue( at1, "Alex" );
+        ServerStringValue v1 = new ServerStringValue( at1, "ALEX" );
+        
+        assertEquals( 0, v0.compareTo( v1 ) );
+        assertEquals( 0, v1.compareTo( v0 ) );
+
+        ServerStringValue v2 = new ServerStringValue( at1, null );
+        
+        assertEquals( 1, v0.compareTo( v2 ) );
+        assertEquals( -1, v2.compareTo( v0 ) );
+    }
+
+
+    /**
+     * Test the clone method
+     */
+    @Test
+    public void testClone() throws NamingException
+    {
+        AttributeType at1 = TestServerEntryUtils.getCaseIgnoringAttributeNoNumbersType();
+        ServerStringValue ssv = new ServerStringValue( at1, "Test" );
+        
+        ServerStringValue ssv1 = (ServerStringValue)ssv.clone();
+        
+        assertEquals( ssv, ssv1 );
+        
+        ssv.set( "" );
+        
+        assertNotSame( ssv, ssv1 );
+        assertEquals( "", ssv.get() );
+        
+        ssv.set(  "  This is    a   TEST  " );
+        ssv1 = (ServerStringValue)ssv.clone();
+        
+        assertEquals( ssv, ssv1 );
+        
+        ssv.normalize();
+        
+        assertNotSame( ssv, ssv1 );
+    }
+    
 
 
     /**

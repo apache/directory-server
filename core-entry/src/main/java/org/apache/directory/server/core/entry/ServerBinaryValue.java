@@ -331,7 +331,7 @@ public class ServerBinaryValue extends ClientBinaryValue
      * change. Syntax checks only result on the first check, and when the wrapped
      * value changes.
      *
-     * @see ServerValue#isValid()
+     * @see Value<T>#isValid()
      */
     public final boolean isValid()
     {
@@ -366,11 +366,11 @@ public class ServerBinaryValue extends ClientBinaryValue
 
     /**
      *
-     * @see ServerValue#compareTo(ServerValue)
+     * @see Value<T>#compareTo(ServerValue)
      * @throws IllegalStateException on failures to extract the comparator, or the
      * normalizers needed to perform the required comparisons based on the schema
      */
-    public int compareTo( ServerValue<byte[]> value )
+    public int compareTo( Value<byte[]> value )
     {
         if ( isNull() )
         {

@@ -222,6 +222,7 @@ public class ServerStringValue extends ClientStringValue
     {
         if ( isNull() )
         {
+            normalized = true;
             return null;
         }
 
@@ -250,7 +251,7 @@ public class ServerStringValue extends ClientStringValue
      * change. Syntax checks only result on the first check, and when the wrapped
      * value changes.
      *
-     * @see ServerValue#isValid()
+     * @see Value<T>#isValid()
      */
     public final boolean isValid()
     {
@@ -275,7 +276,7 @@ public class ServerStringValue extends ClientStringValue
 
 
     /**
-     * @see ServerValue#compareTo(ServerValue)
+     * @see Value<T>#compareTo(ServerValue)
      * @throws IllegalStateException on failures to extract the comparator, or the
      * normalizers needed to perform the required comparisons based on the schema
      */
@@ -382,6 +383,11 @@ public class ServerStringValue extends ClientStringValue
      *
      * This equals implementation overrides the StringValue implementation which
      * is not schema aware.
+     * 
+     * Two ServerStringValues are equal if they have the same AttributeType,
+     * they are both null, their value are equal or their normalized value 
+     * are equal. If the AttributeType has a comparator, we use it to
+     * compare both values.
      * @throws IllegalStateException on failures to extract the comparator, or the
      * normalizers needed to perform the required comparisons based on the schema
      */
@@ -399,6 +405,11 @@ public class ServerStringValue extends ClientStringValue
 
         ServerStringValue other = ( ServerStringValue ) obj;
         
+        if ( !attributeType.equals( other.attributeType ) )
+        {
+            return false;
+        }
+        
         if ( isNull() )
         {
             return other.isNull();
@@ -406,8 +417,8 @@ public class ServerStringValue extends ClientStringValue
 
         // Shortcut : compare the values without normalization
         // If they are equal, we may avoid a normalization.
-        // Note : if two values are equals, then their normalized
-        // value is equal too.
+        // Note : if two values are equal, then their normalized
+        // value are equal too if their attributeType are equal. 
         if ( get().equals( other.get() ) )
         {
             return true;
@@ -488,6 +499,33 @@ public class ServerStringValue extends ClientStringValue
     }
 
 
+    /**
+     * Implement the hashCode method.
+     * 
+     * @see Object#hashCode()
+     * @throws IllegalStateException on failures to extract the comparator, or the
+     * normalizers needed to perform the required comparisons based on the schema
+     */
+    public int hashCode()
+    {
+        // return the OID hashcode if the value is null. 
+        if ( isNull() )
+        {
+            return attributeType.getOid().hashCode();
+        }
+
+        // If the normalized value is null, will default to wrapped
+        // which cannot be null at this point.
+        int h = 17;
+        h = h*37 + getNormalizedValue().hashCode();
+        
+        // Add the OID hashcode
+        h = h*37 + attributeType.getOid().hashCode();
+        
+        return h;
+    }
+
+    
     /**
      * Gets a comparator using getMatchingRule() to resolve the matching
      * that the comparator is extracted from.
