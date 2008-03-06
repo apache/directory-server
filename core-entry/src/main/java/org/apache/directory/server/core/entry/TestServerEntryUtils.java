@@ -364,7 +364,7 @@ public class TestServerEntryUtils
             }
             public boolean isValidSyntax( Object value )
             {
-                return ((byte[])value).length < 5 ;
+                return ( value == null ) || ( ((byte[])value).length < 5 );
             }
 
             public void assertSyntax( Object value ) throws NamingException

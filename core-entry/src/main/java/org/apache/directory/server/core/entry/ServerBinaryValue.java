@@ -499,6 +499,11 @@ public class ServerBinaryValue extends ClientBinaryValue
 
         ServerBinaryValue other = ( ServerBinaryValue ) obj;
         
+        if ( !attributeType.equals( other.attributeType ) )
+        {
+            return false;
+        }
+        
         if ( isNull() )
         {
             return other.isNull();

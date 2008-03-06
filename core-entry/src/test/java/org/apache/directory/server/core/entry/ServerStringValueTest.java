@@ -21,7 +21,6 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
@@ -306,7 +305,6 @@ public class ServerStringValueTest
         ServerStringValue v4 = new ServerStringValue( at, "Alex" );
         
         assertNotSame( v0.hashCode(), v4.hashCode() );
-        
     }
     
     
@@ -355,10 +353,9 @@ public class ServerStringValueTest
         
         ssv.normalize();
         
-        assertNotSame( ssv, ssv1 );
+        assertEquals( ssv, ssv1 );
     }
     
-
 
     /**
      * Presumes an attribute which constrains it's values to some constant
