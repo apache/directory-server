@@ -255,7 +255,7 @@ public class ClientStringValue extends AbstractValue<String>
         }
 
         // If the normalized value is null, will default to wrapped
-        // which cannot be null at this pont.
+        // which cannot be null at this point.
         return getNormalizedValue().hashCode();
     }
 
