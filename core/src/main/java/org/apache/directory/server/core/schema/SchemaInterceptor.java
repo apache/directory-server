@@ -1481,7 +1481,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             entry.remove( SchemaConstants.OBJECT_CLASS_AT );
 
-            ServerAttribute newOc = new ObjectClassAttribute( registries );
+            ServerAttribute newOc = new DefaultServerAttribute( oc.getType() );
 
             for ( ObjectClass currentOC:objectClasses )
             {

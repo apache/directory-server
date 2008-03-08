@@ -66,9 +66,6 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
     /** A map containing all the attributes for this entry */
     private Map<AttributeType, ServerAttribute> serverAttributeMap = new HashMap<AttributeType, ServerAttribute>();
     
-    /** The objectClass container */
-    private ObjectClassAttribute objectClassAttribute;
-    
     /** The global registries */
     private final transient Registries registries;
     
@@ -104,8 +101,6 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
                     OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
                 }
             }
-            
-            setObjectClassAttribute( new ObjectClassAttribute( registries, SchemaConstants.OBJECT_CLASS_AT ) );
         }
         catch ( NamingException ne )
         {
@@ -167,12 +162,6 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
 
         for ( AttributeType attributeType:attributeTypes )
         {
-            if ( attributeType.equals(  OBJECT_CLASS_AT ) )
-            {
-                // The ObjectClass AttributeType has already been added
-                continue;
-            }
-            
             // Add a new AttributeType without value
             set( attributeType );
         }
@@ -202,24 +191,14 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
 
         initObjectClassAT( registries );
 
-        if ( attributeType.equals(  OBJECT_CLASS_AT ) )
+        try
         {
-            // If the AttributeType is the ObjectClass AttributeType, then
-            // we don't add it to the entry, as it has already been added
-            // before. But we have to store the upId.
-            objectClassAttribute.setUpId( upId, OBJECT_CLASS_AT );
+            put( upId, attributeType, (String)null );
         }
-        else
+        catch ( NamingException ne )
         {
-            try
-            {
-                put( upId, attributeType, (String)null );
-            }
-            catch ( NamingException ne )
-            {
-                // What do we do ???
-                LOG.error( "We have had an error while adding the '{}' AttributeType : {}", upId, ne.getMessage() );
-            }
+            // What do we do ???
+            LOG.error( "We have had an error while adding the '{}' AttributeType : {}", upId, ne.getMessage() );
         }
     }
 
@@ -290,13 +269,6 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
 
         for ( ServerAttribute attribute:attributes )
         {
-            if ( attribute.getType().equals(  OBJECT_CLASS_AT ) )
-            {
-                // Treat the ObjectClass in a specific way
-                setObjectClassAttribute( attribute );
-                continue;
-            }
-            
             // Store a new ServerAttribute
             try
             {
@@ -385,149 +357,19 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
     }
 
     
-    /**
-     * Stores the ObjectClassAttribute into its container.
-     *
-     * @param objectClassAttribute The instance of ObjectClassAttribute
-     * @return The previously stored ObjectClassAttribute, if any
-     */
-    private void setObjectClassAttribute( ObjectClassAttribute objectClassAttribute )
-    {
-        assert objectClassAttribute != null : "The ObjectClass Attribute should not be null";
-        
-        this.objectClassAttribute = objectClassAttribute;
-    }
-
-
-    /**
-     * Stores the ObjectClassAttribute into its container.
-     *
-     * @param objectClassAttribute The instance of ObjectClassAttribute
-     * @return The previously stored ObjectClassAttribute, if any
-     */
-    private ServerAttribute setObjectClassAttribute( ServerAttribute serverAttribute )
-    {
-        assert serverAttribute != null : "The ObjectClass Attribute should not be null";
-        
-        this.objectClassAttribute = new ObjectClassAttribute( registries );
-        ServerAttribute previous = serverAttributeMap.put( OBJECT_CLASS_AT, objectClassAttribute );
-        
-        return previous;
-    }
-
-
-    private ServerAttribute removeObjectClassAttribute( ServerAttribute objectClassAttribute ) throws NamingException
-    {
-        this.objectClassAttribute = (ObjectClassAttribute)objectClassAttribute;
-
-        return serverAttributeMap.remove( OBJECT_CLASS_AT );
-    }
-
-
-    public boolean addObjectClass( ObjectClass objectClass, String alias ) throws NamingException
-    {
-        boolean exists = objectClassAttribute.addObjectClass( objectClass, alias );
-        
-        if ( !exists )
-        {
-            // The ObjectClass is a new one : update the vaules
-        }
-
-        ServerAttribute existing = serverAttributeMap.get( OBJECT_CLASS_AT );
-        
-        existing.add( alias );
-        
-        return exists;
-    }
-
-
-    public boolean addObjectClass( ObjectClass objectClass ) throws NamingException
-    {
-        return addObjectClass( objectClass, objectClass.getName() );
-    }
-
-
-    public void addObjectClass( ObjectClassAttribute objectClassAttribute ) throws NamingException
-    {
-        this.objectClassAttribute = objectClassAttribute;
-        
-        ServerAttribute currentOc = serverAttributeMap.get( objectClassAttribute.getType() );
-        
-        if ( currentOc != null )
-        {
-            for ( Value<?> value:objectClassAttribute )
-            {
-                currentOc.add( value );
-            }
-        }
-        else
-        {
-            serverAttributeMap.put( OBJECT_CLASS_AT, objectClassAttribute );
-        }
-    }
-
-
-    public boolean hasObjectClass( ObjectClass objectClass )
-    {
-        return objectClassAttribute.hasObjectClass( objectClass );
-    }
-
-
     public boolean hasObjectClass( String objectClass )
     {
         try
         {
-            ObjectClass oc = registries.getObjectClassRegistry().lookup( objectClass );
-            return objectClassAttribute.hasObjectClass( oc );
+            ServerAttribute oc = serverAttributeMap.get( OBJECT_CLASS_AT );
+            
+            return oc.contains( objectClass );
         }
         catch ( NamingException ne )
         {
             return false;
         }
     }
-
-
-    public Set<ObjectClass> getAbstractObjectClasses()
-    {
-        return objectClassAttribute.getAbstractObjectClasses();
-    }
-
-
-    public ObjectClass getStructuralObjectClass()
-    {
-        return objectClassAttribute.getStructuralObjectClass();
-    }
-
-
-    public Set<ObjectClass> getStructuralObjectClasses()
-    {
-        return objectClassAttribute.getStructuralObjectClasses();
-    }
-
-
-    public Set<ObjectClass> getAuxiliaryObjectClasses()
-    {
-        return objectClassAttribute.getAuxiliaryObjectClasses();
-    }
-
-
-    public Set<ObjectClass> getAllObjectClasses()
-    {
-        return objectClassAttribute.getAllObjectClasses();
-    }
-
-
-    public Set<AttributeType> getMustList()
-    {
-        return objectClassAttribute.getMustList();
-    }
-
-
-    public Set<AttributeType> getMayList()
-    {
-        return objectClassAttribute.getMayList();
-    }
-
 
     public boolean isValid()
     {
@@ -627,30 +469,19 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
                 throw new IllegalArgumentException( message );
             }
             
-            // The ObjectClass AT is special
-            if ( attributeType.equals( OBJECT_CLASS_AT ) )
+            if ( returnedServerAttributes == null )
             {
-                // Just do nothing but clear the ObjectClass values
-                objectClassAttribute.clear();
-                ServerAttribute newAttribute = new ObjectClassAttribute( registries );
-                serverAttributeMap.put( attributeType, newAttribute );
+                returnedServerAttributes = new ArrayList<ServerAttribute>();
             }
-            else
+
+            if ( serverAttributeMap.containsKey( attributeType ) )
             {
-                if ( returnedServerAttributes == null )
-                {
-                    returnedServerAttributes = new ArrayList<ServerAttribute>();
-                }
-
-                if ( serverAttributeMap.containsKey( attributeType ) )
-                {
-                    // Add the removed serverAttribute to the list
-                    returnedServerAttributes.add( serverAttributeMap.remove( attributeType ) );
-                }
-
-                ServerAttribute newAttribute = new DefaultServerAttribute( attributeType );
-                serverAttributeMap.put( attributeType, newAttribute );
+                // Add the removed serverAttribute to the list
+                returnedServerAttributes.add( serverAttributeMap.remove( attributeType ) );
             }
+
+            ServerAttribute newAttribute = new DefaultServerAttribute( attributeType );
+            serverAttributeMap.put( attributeType, newAttribute );
         }
         
         return returnedServerAttributes;
@@ -682,49 +513,11 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
                 throw new IllegalArgumentException( message );
             }
             
-            if ( serverAttribute.getType().equals( OBJECT_CLASS_AT ) )
+            ServerAttribute removed = serverAttributeMap.put( serverAttribute.getType(), serverAttribute );
+            
+            if ( removed != null )
             {
-                ServerAttribute removed = null;
-                
-                // The objectClass attributeType is special 
-                if ( serverAttribute instanceof ObjectClassAttribute )
-                {
-                    removed = this.objectClassAttribute;
-
-                    this.objectClassAttribute = (ObjectClassAttribute)serverAttribute;
-                    serverAttributeMap.put( OBJECT_CLASS_AT, serverAttribute );
-                    previous.add( removed );
-                }
-                else
-                {
-                    // Here, the attributeType is ObjectClass, but the Attribute itself is 
-                    // not a instance of the ObjectClassAttribute. We will store all of
-                    // its values into a new instance of ObjectClassAttribute. 
-                    if ( serverAttribute.getType().getSyntax().isHumanReadable() )
-                    {
-                        ObjectClassAttribute objectClassAttribute = new ObjectClassAttribute( registries, serverAttribute );
-                        this.objectClassAttribute = objectClassAttribute;
-                        removed = serverAttributeMap.put( OBJECT_CLASS_AT, objectClassAttribute );
-                    }
-                    else
-                    {
-                        // The attribute must be a String
-                        String message = "Only String values supported for objectClass attribute";
-                        LOG.error(  message  );
-                        throw new UnsupportedOperationException( message );
-                    }
-
-                    previous.add( removed );
-                }
-            }
-            else
-            {
-                ServerAttribute removed = serverAttributeMap.put( serverAttribute.getType(), serverAttribute );
-                
-                if ( removed != null )
-                {
-                    previous.add( removed );
-                }
+                previous.add( removed );
             }
         }
         
@@ -776,11 +569,6 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
         
         for ( ServerAttribute serverAttribute:serverAttributes )
         {
-            if ( serverAttribute.getType().equals( OBJECT_CLASS_AT ) )
-            {
-                removeObjectClassAttribute( new ObjectClassAttribute( registries ) );
-            }
-
             if ( serverAttributeMap.containsKey( serverAttribute.getType() ) )
             {
                 serverAttributeMap.remove( serverAttribute.getType() );
@@ -824,21 +612,9 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
         upId = getUpId( upId, attributeType );
         attributeType = getAttributeType( upId, attributeType );
 
-        if ( attributeType.equals( OBJECT_CLASS_AT ) )
-        {
-            // Create a new ObjectclassAttribute and return the previous one
-            ServerAttribute previous = this.objectClassAttribute;
-            
-            objectClassAttribute = new ObjectClassAttribute( registries, upId, values );
-            serverAttributeMap.put( OBJECT_CLASS_AT, objectClassAttribute );
-            return previous;
-        }
-        else
-        {
-            // We simply have to set the current attribute values
-            ServerAttribute serverAttribute = new DefaultServerAttribute( upId, attributeType, values );
-            return serverAttributeMap.put( attributeType, serverAttribute );
-        }
+        // We simply have to set the current attribute values
+        ServerAttribute serverAttribute = new DefaultServerAttribute( upId, attributeType, values );
+        return serverAttributeMap.put( attributeType, serverAttribute );
     }
 
 
@@ -894,22 +670,9 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
 
         ServerAttribute serverAttribute = new DefaultServerAttribute( upId, attributeType );
 
-        if ( attributeType.equals( OBJECT_CLASS_AT ) )
-        {
-            // If the AttributeType is the ObjectClass AttributeType, then
-            // we don't add it to the entry, as it has already been added
-            // before. But we have to store the upId.
-            ServerAttribute previous = objectClassAttribute;
-            objectClassAttribute = new ObjectClassAttribute( registries, upId, values );
-            serverAttributeMap.put( OBJECT_CLASS_AT, objectClassAttribute );
-            return previous;
-        }
-        else
-        {
-            // We simply have to set the current attribute values
-            serverAttribute.put( values );
-            return serverAttributeMap.put( attributeType, serverAttribute );
-        }
+        // We simply have to set the current attribute values
+        serverAttribute.put( values );
+        return serverAttributeMap.put( attributeType, serverAttribute );
     }
 
 
@@ -1011,7 +774,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
     {
         serverAttributeMap.clear();
 
-        setObjectClassAttribute( new ObjectClassAttribute( registries ) );
+        //setObjectClassAttribute( new ObjectClassAttribute( registries ) );
     }
 
 
@@ -1055,9 +818,6 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
             // and many attributes
             // Clone the DN
             clone.dn = (LdapDN)dn.clone();
-            
-            // Clone the ObjectClassAttribute
-            clone.objectClassAttribute = objectClassAttribute.clone();
             
             // clone the ServerAttribute Map
             clone.serverAttributeMap = (Map<AttributeType, ServerAttribute>)(((HashMap<AttributeType, ServerAttribute>)serverAttributeMap).clone());
@@ -1265,60 +1025,6 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
     
     
     /**
-     * Add a new ObjectClass, with its upId. If the upId is null,
-     * default to "objectClass".
-     * 
-     * Updates the objectClassAttribute and the serverAttributeMap.
-     */
-    private void addObjectClass( String upId, String... values ) throws NamingException, InvalidAttributeValueException
-    {
-        ServerAttribute attribute = serverAttributeMap.get( OBJECT_CLASS_AT );
-        
-        if ( objectClassAttribute == null )
-        {
-            objectClassAttribute = new ObjectClassAttribute( registries, upId, values );
-            serverAttributeMap.put(  OBJECT_CLASS_AT, objectClassAttribute );
-        }
-        else
-        {
-            objectClassAttribute.add( values );
-            
-            if ( attribute == null )
-            {
-                serverAttributeMap.put(  OBJECT_CLASS_AT, objectClassAttribute ); 
-            }
-            else
-            {
-                attribute.add( values );
-            }
-        }
-    }
-    
-    
-    /**
-     * Add a new ObjectClass, with its upId. If the upId is null,
-     * default to "objectClass".
-     * 
-     * Updates the objectClassAttribute and the serverAttributeMap.
-     */
-    private void addObjectClass( String upId, Value<?>... values ) throws NamingException, InvalidAttributeValueException
-    {
-        ServerAttribute attribute = serverAttributeMap.get( OBJECT_CLASS_AT );
-        
-        if ( objectClassAttribute == null )
-        {
-            objectClassAttribute = new ObjectClassAttribute( registries, upId, values );
-            serverAttributeMap.put( OBJECT_CLASS_AT, attribute );
-        }
-        else
-        {
-            objectClassAttribute.add( values );
-            attribute.add( values );
-        }
-    }
-    
-    
-    /**
      * Add a new ServerAttribute, with its upId. If the upId is null,
      * default to the AttributeType name.
      * 
@@ -1384,21 +1090,6 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      *  - if the attribute already exists, we add the value (no duplicate)
      *  - or we just add a new attribute to the Map
      *-----------------------------------------------------------------------*/
-
-    /**
-     * Add some Values to the current Entry.
-     *
-     * @param upId The user provided ID of the attribute we want to add 
-     * some values to
-     * @param values The list of Values to add
-     * @throws NamingException
-     *
-    public void add( String upId, Value<?>... values ) throws NamingException
-    {
-        
-    }
-    
-    
     /**
      * Add an attribute (represented by its ID and some String values) into an 
      * entry.
@@ -1418,27 +1109,19 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
             throw new IllegalArgumentException( message );
         }
         
-        if ( attributeType.equals( OBJECT_CLASS_AT ) )
+        ServerAttribute attribute = serverAttributeMap.get( attributeType );
+        
+        if ( attribute != null )
         {
-            // This is an objectClass, call the appropriate method
-            addObjectClass( null, values );
+            // This Attribute already exist, we add the values 
+            // into it
+            attribute.add( values );
         }
         else
         {
-            ServerAttribute attribute = serverAttributeMap.get( attributeType );
-            
-            if ( attribute != null )
-            {
-                // This Attribute already exist, we add the values 
-                // into it
-                attribute.add( values );
-            }
-            else
-            {
-                // We have to create a new Attribute and set the values
-                // and the upId
-                createAttribute( null, attributeType, values );
-            }
+            // We have to create a new Attribute and set the values
+            // and the upId
+            createAttribute( null, attributeType, values );
         }
     }
 
@@ -1505,25 +1188,17 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
             throw new IllegalArgumentException( message );
         }
         
-        if ( attributeType.equals( OBJECT_CLASS_AT ) )
+        ServerAttribute attribute = serverAttributeMap.get( attributeType );
+    
+        if ( attribute != null )
         {
-            // This is an objectClass, call the appropriate method
-            addObjectClass( null, values );
+            // This Attribute already exist, we add the values 
+            // into it
+            attribute.add( values );
         }
         else
         {
-            ServerAttribute attribute = serverAttributeMap.get( attributeType );
-        
-            if ( attribute != null )
-            {
-                // This Attribute already exist, we add the values 
-                // into it
-                attribute.add( values );
-            }
-            else
-            {
-                createAttribute( null, attributeType, values );
-            }
+            createAttribute( null, attributeType, values );
         }
     }
 
@@ -1587,28 +1262,20 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
         
         upId = getUpId( upId, attributeType );
 
-        if ( attributeType.equals( OBJECT_CLASS_AT ) )
+        ServerAttribute attribute = serverAttributeMap.get( attributeType );
+        
+        if ( attribute != null )
         {
-            // This is an objectClass, call the appropriate method
-            addObjectClass( upId, values );
+            // This Attribute already exist, we add the values 
+            // into it
+            attribute.add( values );
+            attribute.setUpId( upId, attributeType );
         }
         else
         {
-            ServerAttribute attribute = serverAttributeMap.get( attributeType );
-            
-            if ( attribute != null )
-            {
-                // This Attribute already exist, we add the values 
-                // into it
-                attribute.add( values );
-                attribute.setUpId( upId, attributeType );
-            }
-            else
-            {
-                // We have to create a new Attribute and set the values
-                // and the upId
-                createAttribute( upId, attributeType, values );
-            }
+            // We have to create a new Attribute and set the values
+            // and the upId
+            createAttribute( upId, attributeType, values );
         }
     }
 
@@ -1672,26 +1339,18 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
         
         upId = getUpId( upId, attributeType );
         
-        if ( attributeType.equals( OBJECT_CLASS_AT ) )
+        ServerAttribute attribute = serverAttributeMap.get( attributeType );
+    
+        if ( attribute != null )
         {
-            // This is an objectClass, call the appropriate method
-            addObjectClass( upId, values );
+            // This Attribute already exist, we add the values 
+            // into it
+            attribute.add( values );
+            attribute.setUpId( upId, attributeType );
         }
         else
         {
-            ServerAttribute attribute = serverAttributeMap.get( attributeType );
-        
-            if ( attribute != null )
-            {
-                // This Attribute already exist, we add the values 
-                // into it
-                attribute.add( values );
-                attribute.setUpId( upId, attributeType );
-            }
-            else
-            {
-                createAttribute( upId, attributeType, values );
-            }
+            createAttribute( upId, attributeType, values );
         }
     }
 
@@ -1784,13 +1443,6 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        /*if ( in.available() == 0 )
-        {
-            String message = "Cannot read an null Attribute";
-            LOG.error( message );
-            throw new IOException( message );
-        }*/
-
         // Read the DN
         LdapDN dn = (LdapDN)in.readObject();
         
@@ -1905,11 +1557,6 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
         sb.append( "DefaultEntryServer\n" );
         sb.append( "    dn: " ).append( dn ).append( '\n' );
         
-        if ( objectClassAttribute != null )
-        {
-            sb.append( objectClassAttribute );
-        }
-
         if ( serverAttributeMap.size() != 0 )
         {
             for ( ServerAttribute attribute:serverAttributeMap.values() )

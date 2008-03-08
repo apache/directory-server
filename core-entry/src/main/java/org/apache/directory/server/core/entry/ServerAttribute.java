@@ -20,8 +20,7 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
 
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
@@ -34,7 +33,7 @@ import javax.naming.directory.InvalidAttributeValueException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerAttribute extends EntryAttribute<Value<?>>
+public interface ServerAttribute extends ClientAttribute
 {
     /**
      * Gets the attribute type associated with this ServerAttribute.
@@ -43,19 +42,6 @@ public interface ServerAttribute extends EntryAttribute<Value<?>>
      */
     AttributeType getType();
 
-    /**
-     * Get's the user provided identifier for this entry.  This is the value
-     * that will be used as the identifier for the attribute within the
-     * entry.  If this is a commonName attribute for example and the user
-     * provides "COMMONname" instead when adding the entry then this is
-     * the format the user will have that entry returned by the directory
-     * server.  To do so we store this value as it was given and track it
-     * in the attribute using this property.
-     *
-     * @return the user provided identifier for this attribute
-     */
-    String getUpId();
-    
     
     /**
      * Set the user provided ID. If we have none, the upId is assigned
@@ -72,35 +58,6 @@ public interface ServerAttribute extends EntryAttribute<Value<?>>
      */
     public void setUpId( String upId, AttributeType attributeType );
 
-    
-    /**
-     * Checks to see if this attribute is valid along with the values it contains.
-     *
-     * @return true if the attribute and it's values are valid, false otherwise
-     * @throws NamingException if there is a failure to check syntaxes of values
-     */
-    boolean isValid() throws NamingException;
-    
-    
-    /**
-     * Get the String value, if and only if the value is known to be a String,
-     * otherwise a InvalidAttributeValueException will be thrown
-     *
-     * @return The value as a String
-     * @throws InvalidAttributeValueException If the value is a byte[]
-     */
-    String getString() throws InvalidAttributeValueException;
-
-
-    /**
-     * Get the byte[] value, if and only if the value is known to be Binary,
-     * otherwise a InvalidAttributeValueException will be thrown
-     *
-     * @return The value as a String
-     * @throws InvalidAttributeValueException If the value is a String
-     */
-    byte[] getBytes() throws InvalidAttributeValueException;
-    
     
     /**
      * Check if the current attribute type is of the expected attributeType 

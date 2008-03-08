@@ -102,10 +102,9 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         
-        ObjectClassAttribute oc = new ObjectClassAttribute( registries );
-        oc.add( "top", "person", "inetOrgPerson", "organizationalPerson" );
+        AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
         
-        entry.addObjectClass( oc );
+        entry.put( "objectClass", OBJECT_CLASS_AT, "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.put( "cn", registries.getAttributeTypeRegistry().lookup( "cn" ), "test" );
         
         Attributes attributes = ServerEntryUtils.toAttributesImpl( entry );
@@ -139,11 +138,9 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries,dn );
         
-        ObjectClassAttribute oc = new ObjectClassAttribute( registries );
-        oc.add( "top", "person", "inetOrgPerson", "organizationalPerson" );
+        AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
         
-        entry.addObjectClass( oc );
-        //entry.put( "cn", registries.getAttributeTypeRegistry().lookup( "cn" ), "test" );
+        entry.put( "objectClass", OBJECT_CLASS_AT, "top", "person", "inetOrgPerson", "organizationalPerson" );
         
         Attributes attributes = ServerEntryUtils.toBasicAttributes( entry );
         
@@ -425,12 +422,11 @@ public class DefaultServerEntryTest
         
         // test an ObjectClass replacement
         AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
-        ServerAttribute oc = new ObjectClassAttribute( registries, "OBJECTCLASS", "person", "inetorgperson" );
+        ServerAttribute oc = new DefaultServerAttribute( "OBJECTCLASS", OBJECT_CLASS_AT, "person", "inetorgperson" );
         List<ServerAttribute> oldOc = entry.put( oc );
         
         assertNotNull( oldOc );
-        assertEquals( 1, oldOc.size() );
-        assertEquals( null, oldOc.get( 0 ).get() );
+        assertEquals( 0, oldOc.size() );
         
         assertNotNull( entry.get( "objectClass" ) );
 
@@ -1748,7 +1744,6 @@ public class DefaultServerEntryTest
         
         byte[] b1 = StringTools.getBytesUtf8( "test1" );
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
-        byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
         Value<String> test1 = new ServerStringValue( atCN, "test1" );
         Value<String> test2 = new ServerStringValue( atCN, "test2" );

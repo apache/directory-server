@@ -22,6 +22,7 @@ package org.apache.directory.server.core.entry;
 import org.apache.directory.shared.ldap.entry.AbstractValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -630,7 +631,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     {
         Value<?> value = get();
         
-        if ( value instanceof ServerBinaryValue )
+        if ( value instanceof ClientBinaryValue )
         {
             return (byte[])value.get();
         }
