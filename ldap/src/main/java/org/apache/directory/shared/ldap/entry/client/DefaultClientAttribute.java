@@ -170,6 +170,54 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
+     * Get the byte[] value, if and only if the value is known to be Binary,
+     * otherwise a InvalidAttributeValueException will be thrown
+     *
+     * @return The value as a String
+     * @throws InvalidAttributeValueException If the value is a String
+     */
+    public byte[] getBytes() throws InvalidAttributeValueException
+    {
+        Value<?> value = get();
+        
+        if ( value instanceof ClientBinaryValue )
+        {
+            return (byte[])value.get();
+        }
+        else
+        {
+            String message = "The value is expected to be a byte[]";
+            LOG.error( message );
+            throw new InvalidAttributeValueException( message );
+        }
+    }
+
+
+    /**
+     * Get the String value, if and only if the value is known to be a String,
+     * otherwise a InvalidAttributeValueException will be thrown
+     *
+     * @return The value as a String
+     * @throws InvalidAttributeValueException If the value is a byte[]
+     */
+    public String getString() throws InvalidAttributeValueException
+    {
+        Value<?> value = get();
+        
+        if ( value instanceof ClientStringValue )
+        {
+            return (String)value.get();
+        }
+        else
+        {
+            String message = "The value is expected to be a String";
+            LOG.error( message );
+            throw new InvalidAttributeValueException( message );
+        }
+    }
+
+
+    /**
      * Get's the attribute identifier. Its value is the same than the
      * user provided ID.
      *
