@@ -24,18 +24,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
-import javax.print.DocFlavor.BYTE_ARRAY;
 
-import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.syntax.Ia5StringSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
