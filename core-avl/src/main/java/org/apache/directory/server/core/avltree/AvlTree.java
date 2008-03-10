@@ -69,7 +69,7 @@ public class AvlTree<K>
 	 * @param key the item to be inserted.<br> 
 	 * Note: Ignores if a node with the given key already exists.
 	 */
-	public void insert( K key )
+	public K insert( K key )
 	{
 	    LinkedAvlNode<K> node, temp;
 	    LinkedAvlNode<K> parent = null;
@@ -80,7 +80,7 @@ public class AvlTree<K>
 	      root = new LinkedAvlNode<K>( key );
 	      first = root;
 	      last = root;
-	      return;
+	      return null;
 	    }
 	    
 	    node = new LinkedAvlNode<K>( key );
@@ -98,7 +98,7 @@ public class AvlTree<K>
 	        
 	        if( c == 0 )
 	        {
-	            return; // key already exists
+	            return key; // key already exists
 	        }
 	        
 	        if( c < 0 )
@@ -126,6 +126,8 @@ public class AvlTree<K>
         
         treePath.add( 0, node );
 	    balance(treePath);
+	    
+	    return null;
 	}
 	
 	
@@ -200,7 +202,7 @@ public class AvlTree<K>
      *
      * @param key the value of the node to be removed
      */
-    public void remove( K key )
+    public K remove( K key )
     {
         LinkedAvlNode<K> temp = null;
         LinkedAvlNode<K> y = null;
@@ -211,7 +213,7 @@ public class AvlTree<K>
         
         if( treePath == null )
         {
-            return;
+            return null;
         }
         
         temp = treePath.remove( 0 );
@@ -224,7 +226,7 @@ public class AvlTree<K>
             if( temp == root )
             {
               root = null;
-              return;
+              return key;
             }
             
             if( !treePath.isEmpty() )
@@ -296,6 +298,8 @@ public class AvlTree<K>
        
        treePath.add( 0, y ); // y can be null but getBalance returns 0 so np
        balance( treePath );
+       
+       return key;
     }
     
     
@@ -422,6 +426,20 @@ public class AvlTree<K>
         return root;
     }
     
+    
+    public List<K> getKeys()
+    {
+        List<K> keys = new ArrayList<K>();
+        LinkedAvlNode<K> node = first;
+        
+        while( node != null )
+        {
+            keys.add( node.key );
+            node = node.next;
+        }
+        
+        return keys;
+    }
 
     /**
      * Prints the contents of AVL tree in pretty format

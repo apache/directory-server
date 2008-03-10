@@ -24,6 +24,11 @@ import jdbm.RecordManager;
 import jdbm.btree.BTree;
 import jdbm.helper.Serializer;
 import jdbm.helper.TupleBrowser;
+
+import org.apache.directory.server.core.avltree.AvlTree;
+import org.apache.directory.server.core.avltree.AvlTreeMarshaller;
+import org.apache.directory.server.core.avltree.IntegerKeyMarshaller;
+import org.apache.directory.server.core.avltree.Marshaller;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -67,7 +72,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     /** @TODO should really be a cache of duplicate BTrees */
     private Map<Long, BTree> duplicateBtrees = new HashMap<Long, BTree>();
     
-    
+    AvlTreeMarshaller<V> marshaller;
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R
     // ------------------------------------------------------------------------
@@ -80,7 +85,7 @@ public class JdbmTable<K,V> implements Table<K,V>
      * @param name the name of the table
      * @param allowsDuplicates whether or not duplicates are enabled 
      * @param numDupLimit the size limit of duplicates before switching to
-     * BTrees for values instead of TreeSets
+     * BTrees for values instead of AvlTrees
      * @param manager the record manager to be used for this table
      * @param comparator a tuple comparator
      * @param keySerializer a serializer to use for the keys instead of using
@@ -98,6 +103,20 @@ public class JdbmTable<K,V> implements Table<K,V>
             (keySerializer == null ? "null" : keySerializer.getClass().getName()) +
             ", valueSerializer = " + 
             (valueSerializer == null ? "null" : valueSerializer.getClass().getName()) );*/
+        
+        if( allowsDuplicates && valueSerializer == null )
+        {
+          throw new IllegalArgumentException("Value serializer cannot be null when duplicates are allowed in JdbmTable");  
+        }
+
+        if( allowsDuplicates )
+        {
+            //TODO the IntegerKeyMarshaller should be replaced with the appropriate marshaller for type V
+            marshaller = new AvlTreeMarshaller<V>( comparator.getValueComparator(), valueSerializer );
+            // the value serializer causes problems between BTree and AvlTree cause each use it in a different way
+            valueSerializer = null; // set this to null
+        }
+        
         this.numDupLimit = numDupLimit;
         this.name = name;
         this.recMan = manager;
@@ -124,6 +143,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             recId = recMan.insert( 0 );
             recMan.setNamedObject( name + SZSUFFIX, recId );
         }
+        
     }
 
 
@@ -255,12 +275,12 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         
         // -------------------------------------------------------------------
-        // Handle the use of a TreeSet for storing duplicates
+        // Handle the use of a AvlTree for storing duplicates
         // -------------------------------------------------------------------
 
-        if ( values instanceof TreeSet )
+        if ( values instanceof AvlTree )
         {
-            return ( ( TreeSet ) values ).size();
+            return ( ( AvlTree ) values ).getSize();
         }
 
         // -------------------------------------------------------------------
@@ -299,11 +319,11 @@ public class JdbmTable<K,V> implements Table<K,V>
             return null;
         }
         
-        if ( values instanceof TreeSet )
+        if ( values instanceof AvlTree )
         {
             //noinspection unchecked
-            TreeSet<V> set = ( TreeSet<V> ) values;
-            return set.first();
+            AvlTree<V> set = ( AvlTree<V> ) values;
+            return set.getFirst().getKey();
         }
 
         // Handle values if they are stored in another BTree
@@ -378,21 +398,21 @@ public class JdbmTable<K,V> implements Table<K,V>
             return false;
         }
         
-        if ( values instanceof TreeSet )
+        if ( values instanceof AvlTree )
         {
-            TreeSet set = ( TreeSet ) values;
-            SortedSet subset;
+            AvlTree set = ( AvlTree ) values;
+            Object result;
     
             if ( isGreaterThan )
             {
-                subset = set.tailSet( val );
+                result = set.findGreater( val );
             }
             else
             {
-                subset = set.headSet( val );
+                result = set.findLess( val );
             }
 
-            return subset.size() > 0 || set.contains( val );
+            return ( result != null );
         }
         
         // last option is to try a btree with BTreeRedirects
@@ -505,9 +525,9 @@ public class JdbmTable<K,V> implements Table<K,V>
             return false;
         }
         
-        if ( values instanceof TreeSet )
+        if ( values instanceof AvlTree )
         {
-            return ( ( TreeSet ) values ).contains( value );
+            return ( ( AvlTree ) values ).find( value ) != null;
         }
         
         return btreeHas( getBTree( ( BTreeRedirect ) values ), value );
@@ -553,21 +573,23 @@ public class JdbmTable<K,V> implements Table<K,V>
         
         if ( values == null )
         {
-            values = new TreeSet<V>( comparator.getValueComparator() );
+            values = new AvlTree<V>( comparator.getValueComparator() );
         }
         
-        if ( values instanceof TreeSet )
+        if ( values instanceof AvlTree )
         {
-            TreeSet<V> set = ( TreeSet ) values;
+            AvlTree<V> set = ( AvlTree ) values;
             
-            if ( set.contains( value ) )
+            V result = set.insert( value );
+            
+            if ( result != null )// if the value already present returns the same value
             {
                 return value;
             }
             
-            boolean addSuccessful = set.add( value );
+            boolean addSuccessful = true;
             
-            if ( set.size() > numDupLimit )
+            if ( set.getSize() > numDupLimit )
             {
                 BTree tree = convertToBTree( set );
                 BTreeRedirect redirect = new BTreeRedirect( tree.getRecid() );
@@ -575,7 +597,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             }
             else
             {
-                replaced = ( V ) bt.insert( key, set, true );
+                replaced = ( V ) bt.insert( key, marshaller.serialize( set ), true );
             }
             
             if ( addSuccessful )
@@ -624,12 +646,12 @@ public class JdbmTable<K,V> implements Table<K,V>
             return null;
         }
         
-        if ( values instanceof TreeSet )
+        if ( values instanceof AvlTree )
         {
-            TreeSet set = ( TreeSet ) values;
+            AvlTree set = ( AvlTree ) values;
 
             // If removal succeeds then remove if set is empty else replace it
-            if ( set.remove( value ) )
+            if ( set.remove( value ) != null )
             {
                 if ( set.isEmpty() )
                 {
@@ -637,7 +659,7 @@ public class JdbmTable<K,V> implements Table<K,V>
                 }
                 else
                 {
-                    bt.insert( key, set, true );
+                    bt.insert( key, marshaller.serialize( set ), true );
                 }
                 count--;
                 return value;
@@ -646,7 +668,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             return null;
         }
 
-        // TODO might be nice to add code here that reverts to a TreeSet
+        // TODO might be nice to add code here that reverts to a AvlTree
         // if the number of duplicates falls below the numDupLimit value
         BTree tree = getBTree( ( BTreeRedirect ) values );
         if ( removeDupFromBTree( tree, value ) )
@@ -682,12 +704,12 @@ public class JdbmTable<K,V> implements Table<K,V>
             return returned;
         }
 
-        if ( returned instanceof TreeSet )
+        if ( returned instanceof byte[] )
         {
             //noinspection unchecked
-            TreeSet<V> set = ( TreeSet<V> ) returned;
-            this.count -= set.size();
-            return set.first();
+            AvlTree<V> set = ( AvlTree<V> ) marshaller.deserialize( ( byte[] ) returned );
+            this.count -= set.getSize();
+            return set.getFirst().getKey();
         }
         
         BTree tree = getBTree( ( BTreeRedirect ) returned );
@@ -741,6 +763,11 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
     }
 
+    
+    public Marshaller getMarshaller()
+    {
+        return marshaller;
+    }
 
     // ------------------------------------------------------------------------
     // Private Utility Methods 
@@ -772,6 +799,12 @@ public class JdbmTable<K,V> implements Table<K,V>
         {
             //noinspection unchecked
             val = ( V ) bt.find( key );
+
+            if( val != null && val instanceof byte[])
+            {
+                val = (V) marshaller.deserialize( ( byte[] ) val );
+            }
+            
         }
 
         return val;
@@ -907,10 +940,11 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
     
 
-    private BTree convertToBTree( TreeSet set ) throws IOException
+    private BTree convertToBTree( AvlTree set ) throws IOException
     {
         BTree tree = BTree.createInstance( recMan, comparator.getValueComparator() );
-        for ( Object element : set )
+        List<V> keys = set.getKeys();
+        for ( V element : keys )
         {
             tree.insert( element, EMPTY_BYTES, true );
         }

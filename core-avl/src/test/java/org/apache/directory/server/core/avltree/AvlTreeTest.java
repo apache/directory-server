@@ -102,10 +102,10 @@ public class AvlTreeTest
     @Test
     public void testInsert()
     {
-        tree.insert( 3 );
+        assertNull( tree.insert( 3 ) );
         assertFalse( tree.isEmpty() );
         
-        tree.insert( 3 );// should be ignored
+        assertTrue( 3 == tree.insert( 3 ) );// should be ignored
         assertTrue( 1 == tree.getSize() );
 
         assertNotNull( tree.getFirst() );
@@ -210,7 +210,8 @@ public class AvlTreeTest
         assertEquals("3", getInorderForm());
         assertTrue( 3 == tree.getRoot().key );
         
-        tree.remove( 3 );
+        assertNull( tree.remove( 777 ) );// key not present
+        assertTrue( 3 == tree.remove( 3 ) );
         assertTrue(tree.isEmpty());
         
         tree.insert( 37 );
@@ -337,6 +338,21 @@ public class AvlTreeTest
         tree.remove( 79 ); // should call findMin internally
         assertTrue( 11 == tree.getRoot().key );
     }
+    
+    @Test
+    public void testGetKeys()
+    {
+        tree.insert( 72 );
+        tree.insert( 79 );
+        tree.insert( 1 );
+        tree.insert( 2 );
+        tree.insert( 3 );
+        tree.insert( 7 );
+        tree.insert( 34 );
+        
+        assertTrue( 7 == tree.getKeys().size() );
+    }
+    
     
     private String getLinkedText() 
     {

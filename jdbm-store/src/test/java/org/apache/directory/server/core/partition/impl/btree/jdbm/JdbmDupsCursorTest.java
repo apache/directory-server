@@ -25,6 +25,7 @@ import org.apache.directory.server.core.partition.impl.btree.DefaultTupleCompara
 import org.apache.directory.server.core.partition.impl.btree.Table;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.TupleComparator;
+import org.apache.directory.server.core.avltree.IntegerKeyMarshaller;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
@@ -82,7 +83,7 @@ public class JdbmDupsCursorTest
                 new DefaultTupleComparator<Integer,Integer>(
                         new SerializableComparator<Integer>( "" ),
                         new SerializableComparator<Integer>( "" ) );
-        table = new JdbmTable<Integer,Integer>( "test", true, SIZE, recman, comparator, null, null );
+        table = new JdbmTable<Integer,Integer>( "test", true, SIZE, recman, comparator, null, new IntegerKeyMarshaller() );
         LOG.debug( "Created new table and populated it with data" );
     }
 

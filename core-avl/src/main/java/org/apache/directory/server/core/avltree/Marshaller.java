@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.avltree;
 
+import jdbm.helper.Serializer;
+
 /**
  * 
  * An interface to marshall/unmarshal the AVLTree keys.
@@ -26,8 +28,6 @@ package org.apache.directory.server.core.avltree;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Marshaller<E>
+public interface Marshaller<E> extends Serializer
 {
-    byte[] marshal(E e);
-    E unMarshal(byte[] data);
 }

@@ -4,8 +4,9 @@ package org.apache.directory.server.core.avltree;
 public class IntegerKeyMarshaller implements Marshaller<Integer>
 {
 
-    public byte[] marshal( Integer i )
+    public byte[] serialize( Object integerObj )
     {
+        Integer i = ( Integer ) integerObj;
         int y = i.intValue();
         byte[] data = new byte[4];
         data[0] = (byte)((y & 0xFF) >>> 24);
@@ -17,7 +18,7 @@ public class IntegerKeyMarshaller implements Marshaller<Integer>
     }
 
 
-    public Integer unMarshal( byte[] data )
+    public Integer deserialize( byte[] data )
     {
         if( data == null || data.length == 0)
         {

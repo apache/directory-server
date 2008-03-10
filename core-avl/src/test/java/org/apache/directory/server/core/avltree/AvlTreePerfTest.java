@@ -263,7 +263,7 @@ public class AvlTreePerfTest
     
       start = System.nanoTime();
       
-      fout.write( treeMarshaller.marshal( tree ) );
+      fout.write( treeMarshaller.serialize( tree ) );
       fout.flush();
       fout.close();
       
@@ -283,7 +283,7 @@ public class AvlTreePerfTest
         start = System.nanoTime();
         
         fin.read(data);
-        tree = (AvlTree<Integer>) treeMarshaller.unMarshal( data );
+        tree = (AvlTree<Integer>) treeMarshaller.deserialize( data );
         
         end = System.nanoTime();
         System.out.println("total time taken for reconstructing a serialized AVLTree ->" + getTime( start, end ) );

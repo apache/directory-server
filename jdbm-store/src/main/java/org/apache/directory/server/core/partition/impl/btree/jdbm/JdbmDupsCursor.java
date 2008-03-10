@@ -1,17 +1,19 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import java.util.Comparator;
+
 import jdbm.btree.BTree;
-import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.cursor.ListCursor;
+
+import org.apache.directory.server.core.avltree.AvlTree;
+import org.apache.directory.server.core.avltree.AvlTreeCursor;
 import org.apache.directory.server.core.cursor.AbstractCursor;
+import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 
 /**
@@ -39,11 +41,11 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
      * pairs in the btree of the JDBM Table.  It does not return different
      * values for the same key: hence it is not duplicate key aware.  So for
      * tables supporting duplicate keys, it's Tuple vlaues may contain
-     * TreeSet or BTreeRedirect objects.  These objects are processed by
+     * AvlTree or BTreeRedirect objects.  These objects are processed by
      * this outer Cursor to mimic traversal over the Table as if duplicate
      * keys are natively allowed by JDBM.
      *
-     * In essence the TreeSet and the BTreeRedirect are used to store multiple
+     * In essence the AvlTree and the BTreeRedirect are used to store multiple
      * values for the same key.
      */
     private final JdbmNoDupsCursor<K,V> noDupsCursor;
@@ -51,7 +53,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     /**
      * A Cursor over a set of value objects for the current key.  A new Cursor
      * will be created for each new key as we traverse table's that allow for
-     * duplicate keys.  The Cursor traverses over either a TreeSet object full
+     * duplicate keys.  The Cursor traverses over either a AvlTree object full
      * of values in a multi-valued key or it traverses over a BTree which
      * contains the values in it's keys.
      */
@@ -59,8 +61,8 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 
     /**
      * The current Tuple returned from the underlying JdbmNoDupsCursor which
-     * may contain a TreeSet or BTreeRedirect for Tuple values.  A
-     * JdbmNoDupsCursor on a Table that allows duplicates returns TreeSets or
+     * may contain a AvlTree or BTreeRedirect for Tuple values.  A
+     * JdbmNoDupsCursor on a Table that allows duplicates returns AvlTrees or
      * BTreeRedirect objects for Tuple values.
      */
     private Tuple<K,V> noDupsTuple;
@@ -101,10 +103,10 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         {
             noDupsTuple = noDupsCursor.get();
             
-            if ( noDupsTuple.getValue() instanceof TreeSet )
+            if ( noDupsTuple.getValue() instanceof byte[] )
             {
-                LOG.debug( "Duplicates tuple {} stored in a TreeSet", noDupsTuple );
-                TreeSet<V> set = ( TreeSet<V> ) noDupsTuple.getValue();
+                LOG.debug( "Duplicates tuple {} stored in a AvlTree", noDupsTuple );
+                AvlTree<V> set = ( AvlTree<V> ) table.getMarshaller().deserialize( ( byte[] ) noDupsTuple.getValue() );
             }
             else 
             {
@@ -157,13 +159,11 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             noDupsTuple = noDupsCursor.get();
             Object values = noDupsTuple.getValue();
 
-            if ( values instanceof TreeSet)
+            if ( values instanceof AvlTree)
             {
                 //noinspection unchecked
-                TreeSet<V> set = ( TreeSet<V> ) noDupsTuple.getValue();
-                List<V> list = new ArrayList<V>( set.size() );
-                list.addAll( set );
-                dupCursor = new ListCursor<V>( list );
+                AvlTree<V> set = ( AvlTree<V> ) noDupsTuple.getValue();
+                dupCursor = new AvlTreeCursor<V>( set );
                 if ( ! dupCursor.previous() )
                 {
                     clearValue();
@@ -185,7 +185,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             /*
              * If we get to this point then cursor has more elements and
              * noDupsTuple holds the Tuple containing the key and the btree or
-             * TreeSet of values for that key which the Cursor traverses.  All we
+             * AvlTree of values for that key which the Cursor traverses.  All we
              * need to do is populate our tuple object with the key and the value
              * in the cursor.
              */
@@ -209,7 +209,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         {
             /*
              * If the underlying cursor has more elements we get the previous
-             * key/TreeSet Tuple to work with and get a cursor over it's
+             * key/AvlTree Tuple to work with and get a cursor over it's
              * values.
              */
             if ( noDupsCursor.previous() )
@@ -217,13 +217,11 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 noDupsTuple = noDupsCursor.get();
                 Object values = noDupsTuple.getValue();
 
-                if ( values instanceof TreeSet )
+                if ( values instanceof AvlTree )
                 {
                     //noinspection unchecked
-                    TreeSet<V> set = ( TreeSet ) noDupsTuple.getValue();
-                    List<V> list = new ArrayList<V>( set.size() );
-                    list.addAll( set );
-                    dupCursor = new ListCursor<V>( list );
+                    AvlTree<V> set = ( AvlTree ) noDupsTuple.getValue();
+                    dupCursor = new AvlTreeCursor<V>( set );
                     dupCursor.previous();
                 }
                 else if ( values instanceof BTreeRedirect )
@@ -243,7 +241,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         /*
          * If we get to this point then cursor has more elements and
          * noDupsTuple holds the Tuple containing the key and the btree or
-         * TreeSet of values for that key which the Cursor traverses.  All we
+         * AvlTree of values for that key which the Cursor traverses.  All we
          * need to do is populate our tuple object with the key and the value
          * in the cursor.
          */
@@ -263,20 +261,18 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         {
             /*
              * If the underlying cursor has more elements we get the next
-             * key/TreeSet Tuple to work with and get a cursor over it.
+             * key/AvlTree Tuple to work with and get a cursor over it.
              */
             if ( noDupsCursor.next() )
             {
                 noDupsTuple = noDupsCursor.get();
                 Object values = noDupsTuple.getValue();
 
-                if ( values instanceof TreeSet)
+                if ( values instanceof AvlTree)
                 {
                     //noinspection unchecked
-                    TreeSet<V> set = ( TreeSet<V> ) noDupsTuple.getValue();
-                    List<V> list = new ArrayList<V>( set.size() );
-                    list.addAll( set );
-                    dupCursor = new ListCursor<V>( list );
+                    AvlTree<V> set = ( AvlTree<V> ) noDupsTuple.getValue();
+                    dupCursor = new AvlTreeCursor<V>( set );
                     dupCursor.next();
                 }
                 else if ( values instanceof BTreeRedirect )
@@ -296,7 +292,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         /*
          * If we get to this point then cursor has more elements and
          * noDupsTuple holds the Tuple containing the key and the btree or
-         * TreeSet of values for that key which the Cursor traverses.  All we
+         * AvlTree of values for that key which the Cursor traverses.  All we
          * need to do is populate our tuple object with the key and the value
          * in the cursor.
          */

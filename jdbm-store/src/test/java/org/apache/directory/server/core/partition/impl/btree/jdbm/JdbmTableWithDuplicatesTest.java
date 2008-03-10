@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import org.apache.directory.server.core.avltree.IntegerKeyMarshaller;
 import org.apache.directory.server.core.partition.impl.btree.Table;
 import org.apache.directory.server.core.partition.impl.btree.TupleComparator;
 import org.apache.directory.server.core.partition.impl.btree.DefaultTupleComparator;
@@ -80,7 +81,7 @@ public class JdbmTableWithDuplicatesTest
                 new DefaultTupleComparator<Integer,Integer>(
                         new SerializableComparator<Integer>( "" ),
                         new SerializableComparator<Integer>( "" ) );
-        table = new JdbmTable<Integer,Integer>( "test", true, SIZE, recman, comparator, null, null );
+        table = new JdbmTable<Integer,Integer>( "test", true, SIZE, recman, comparator, null, new IntegerKeyMarshaller() );
         LOG.debug( "Created new table and populated it with data" );
     }
 
@@ -106,7 +107,7 @@ public class JdbmTableWithDuplicatesTest
             new DefaultTupleComparator<Integer,Integer>(
                     new SerializableComparator<Integer>( "" ),
                     new SerializableComparator<Integer>( "" ) );
-        table = new JdbmTable<Integer,Integer>( "test", true, SIZE, recman, comparator, null, null );
+        table = new JdbmTable<Integer,Integer>( "test", true, SIZE, recman, comparator, null, new IntegerKeyMarshaller() );
         assertTrue( 2 == table.get( 1 ) );
     }
 

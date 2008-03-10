@@ -80,7 +80,7 @@ public class AvlTreeMarshallerTest
         tree.insert( 9 );
 
         FileOutputStream fout = new FileOutputStream( treeFile );
-        fout.write( treeMarshaller.marshal( tree ) );
+        fout.write( treeMarshaller.serialize( tree ) );
         fout.close();
         
         savedTree = tree; // to reference in other tests
@@ -100,7 +100,7 @@ public class AvlTreeMarshallerTest
         byte[] data = new byte[ ( int )treeFile.length() ];
         fin.read( data );
         
-        AvlTree<Integer> unmarshalledTree = treeMarshaller.unMarshal( data );
+        AvlTree<Integer> unmarshalledTree = treeMarshaller.deserialize( data );
         
         System.out.println("\nunmarshalled tree\n---------------");
         unmarshalledTree.printTree();
@@ -109,7 +109,7 @@ public class AvlTreeMarshallerTest
 
         unmarshalledTree.insert( 6 ); // will change the root as part of balancing
         
-        assertFalse( savedTree.getRoot().getKey() == unmarshalledTree.getRoot().getKey() );
+        assertTrue( savedTree.getRoot().getKey() == unmarshalledTree.getRoot().getKey() );
         assertTrue( 8 == unmarshalledTree.getRoot().getKey() ); // new root
         
         assertTrue( 37 == unmarshalledTree.getLast().getKey() );
