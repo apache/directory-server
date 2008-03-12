@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.core.avltree;
 
-import static org.junit.Assert.assertFalse;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -30,9 +30,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Comparator;
 
-import org.apache.directory.server.core.avltree.AvlTree;
 import org.junit.Before;
 import org.junit.Test;
+
 
 /**
  * TestCase for AvlTreeMarshaller.

@@ -19,7 +19,9 @@
  */
 package org.apache.directory.server.core.avltree;
 
-import jdbm.helper.Serializer;
+
+import java.io.IOException;
+
 
 /**
  * 
@@ -28,6 +30,9 @@ import jdbm.helper.Serializer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Marshaller<E> extends Serializer
+public interface Marshaller<E>
 {
+    byte[] serialize( E object ) throws IOException;
+
+    E deserialize( byte[] bytes ) throws IOException;
 }

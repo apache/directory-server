@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.avltree;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -26,13 +27,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Comparator;
 
-import jdbm.helper.Serializer;
-
-import org.apache.directory.server.core.avltree.AvlTree;
-import org.apache.directory.server.core.avltree.LinkedAvlNode;
 
 /**
- * 
  * Class to serialize the AvlTree node data.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -41,9 +37,8 @@ import org.apache.directory.server.core.avltree.LinkedAvlNode;
 @SuppressWarnings("unchecked")
 public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
 {
-
     /** marshaller to be used for marshalling the keys */
-    private Serializer keyMarshaller;
+    private Marshaller<E> keyMarshaller;
     
     /** key Comparator for the AvlTree */
     private Comparator<E> comparator;
@@ -58,32 +53,18 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
      * @param comparator Comparator to be used for key comparision
      * @param keyMarshaller marshaller for keys
      */
-    public AvlTreeMarshaller(Comparator<E> comparator, Marshaller keyMarshaller)
-    {
-        this( comparator, ( Serializer )keyMarshaller );
-    }
-
-    /**
-     * 
-     * Creates a new instance of AvlTreeMarshaller.
-     *
-     * @param comparator Comparator to be used for key comparision
-     * @param keySerializer marshaller for keys
-     */
-    public AvlTreeMarshaller(Comparator<E> comparator, Serializer keySerializer)
+    public AvlTreeMarshaller(Comparator<E> comparator, Marshaller<E> keyMarshaller)
     {
         this.comparator = comparator;
-        this.keyMarshaller = keySerializer;
+        this.keyMarshaller = keyMarshaller;
     }
     
     /**
      * Marshals the given tree to bytes
      * @param tree the tree to be marshalled
      */
-    public byte[] serialize( Object avlTreeObj )
+    public byte[] serialize( AvlTree<E> tree )
     {
-        AvlTree<E> tree = ( AvlTree<E> ) avlTreeObj;
-        
         if( tree.isEmpty() )
         {
             return null;
@@ -117,7 +98,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
      *
      * @param node the node to be marshalled to bytes
      * @param out OutputStream
-     * @throws IOException
+     * @throws IOException on write failures of serialized tree to stream
      */
     private void writeTree( LinkedAvlNode<E> node, DataOutputStream out ) throws IOException
     {
@@ -198,16 +179,21 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
     /**
      * Reads the data from given InputStream and creates the LinkedAvlNodes to form the tree
      * node = [size] [data-length] [data] [index] [child-marker] [node] [child-marker] [node]
-     * 
+     *
+     * @param in the input stream to deserialize from
+     * @param node the node to deserialize
+     * @return the deserialized AvlTree node
+     * @throws IOException on failures to deserialize or read from the stream
      */
     public LinkedAvlNode<E> readTree( DataInputStream in, LinkedAvlNode<E> node ) throws IOException
     {
       int dLen = in.readInt();
       
       byte[] data = new byte[ dLen ];
-      in.read( data );
+        //noinspection ResultOfMethodCallIgnored
+        in.read( data );
 
-      E key = ( E ) keyMarshaller.deserialize( data );
+      E key = keyMarshaller.deserialize( data );
       node = new LinkedAvlNode( key );
       
       int index = in.readInt();
