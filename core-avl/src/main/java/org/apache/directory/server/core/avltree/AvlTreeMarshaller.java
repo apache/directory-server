@@ -70,12 +70,21 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
             return null;
         }
 
+        LinkedAvlNode<E> x = tree.getFirst().next;
+        
+        while( x != null )
+        {
+            x.setIndex( x.previous.getIndex() + 1 );  
+            x = x.next;
+        }
+        
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream( byteStream );
         byte[] data = null;
         
         try
         {
+            out.writeByte( 0 ); // represents the start of AvlTree byte stream
             out.writeInt( tree.getSize() );
             writeTree( tree.getRoot(), out );
             out.flush();
@@ -94,6 +103,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
      * writes the content of the AVLTree to an output stream.
      * The current format is 
      *  
+     *  AvlTree = [0(zero-byte-value)][node] // the '0' (zero) is to distinguish AvlTree from BTreeRedirect which starts with 1 (one)
      *   node = [size] [data-length] [data] [index] [child-marker] [node] [child-marker] [node]
      *
      * @param node the node to be marshalled to bytes
@@ -143,6 +153,13 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         
         try
         {
+            byte startByte = din.readByte();
+            
+            if( startByte != 0 )
+            {
+                throw new IOException("wrong AvlTree serialized data format");
+            }
+            
             int size = din.readInt();
             
             nodes = new LinkedAvlNode[ size ];
