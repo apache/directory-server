@@ -31,6 +31,7 @@ import org.apache.directory.server.core.avltree.Marshaller;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 
 import java.io.IOException;
 import java.util.*;
@@ -68,8 +69,8 @@ public class JdbmTable<K,V> implements Table<K,V>
     private TupleRenderer renderer;
     /** the limit at which we start using btree redirection for duplicates */
     private int numDupLimit = JdbmIndex.DEFAULT_DUPLICATE_LIMIT;
-    /** @TODO should really be a cache of duplicate BTrees */
-    private Map<Long, BTree> duplicateBtrees = new HashMap<Long, BTree>();
+    /** a cache of duplicate BTrees */
+    private final Map<Long, BTree> duplicateBtrees;
     
     AvlTreeMarshaller<V> marshaller;
 
@@ -112,11 +113,18 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if( allowsDuplicates )
         {
+            // TODO make the size of the duplicate btree cache configurable via constructor
+            //noinspection unchecked
+            duplicateBtrees = new SynchronizedLRUMap( 100 );
             //TODO the IntegerKeyMarshaller should be replaced with the appropriate marshaller for type V
             marshaller = new AvlTreeMarshaller<V>( comparator.getValueComparator(),
                     new MarshallerSerializerBridge<V>( valueSerializer ) );
             // the value serializer causes problems between BTree and AvlTree cause each use it in a different way
             valueSerializer = null; // set this to null
+        }
+        else
+        {
+            duplicateBtrees = null;
         }
         
         this.numDupLimit = numDupLimit;
