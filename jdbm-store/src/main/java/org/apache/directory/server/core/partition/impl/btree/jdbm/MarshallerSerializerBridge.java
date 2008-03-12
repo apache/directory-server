@@ -6,53 +6,64 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
-import java.io.Serializable;
+
+import org.apache.directory.server.core.avltree.Marshaller;
+
+import java.io.IOException;
+
+import jdbm.helper.Serializer;
 
 
 /**
- * A redirection pointer to another BTree.
- * 
+ * A Marshaller which adapts a JDBM Serializer.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BTreeRedirect implements Serializable
+public class MarshallerSerializerBridge<E> implements Marshaller<E>
 {
-    private static final long serialVersionUID = -4289810071005184834L;
+    /** the wrapped serializer */
+    private final Serializer serializer;
 
-    final long recId;
 
-    
-    public BTreeRedirect( long recId )
+    /**
+     *
+     * @param serializer the JDBM Serializer to wrap
+     */
+    public MarshallerSerializerBridge( Serializer serializer )
     {
-        this.recId = recId;
+        this.serializer = serializer;
     }
-    
-    
-    public long getRecId()
+
+
+    /**
+     * @see Marshaller#serialize(Object)
+     */
+    public byte[] serialize( E object ) throws IOException
     {
-        return recId;
+        return serializer.serialize( object );
     }
-    
-    
-    public String toString()
+
+
+    /**
+     * @see Marshaller#deserialize(byte[])
+     */
+    @SuppressWarnings({"unchecked"})
+    public E deserialize( byte[] bytes ) throws IOException
     {
-        StringBuilder buf = new StringBuilder();
-        buf.append( "BTreeRedirect[" );
-        buf.append( recId );
-        buf.append( "]" );
-        return buf.toString();
+        return ( E ) serializer.deserialize( bytes );
     }
 }

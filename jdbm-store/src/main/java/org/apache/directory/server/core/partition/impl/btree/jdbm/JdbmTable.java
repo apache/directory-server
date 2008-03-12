@@ -27,7 +27,6 @@ import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeMarshaller;
-import org.apache.directory.server.core.avltree.IntegerKeyMarshaller;
 import org.apache.directory.server.core.avltree.Marshaller;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.partition.impl.btree.*;
@@ -73,6 +72,8 @@ public class JdbmTable<K,V> implements Table<K,V>
     private Map<Long, BTree> duplicateBtrees = new HashMap<Long, BTree>();
     
     AvlTreeMarshaller<V> marshaller;
+
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R
     // ------------------------------------------------------------------------
@@ -112,7 +113,8 @@ public class JdbmTable<K,V> implements Table<K,V>
         if( allowsDuplicates )
         {
             //TODO the IntegerKeyMarshaller should be replaced with the appropriate marshaller for type V
-            marshaller = new AvlTreeMarshaller<V>( comparator.getValueComparator(), valueSerializer );
+            marshaller = new AvlTreeMarshaller<V>( comparator.getValueComparator(),
+                    new MarshallerSerializerBridge<V>( valueSerializer ) );
             // the value serializer causes problems between BTree and AvlTree cause each use it in a different way
             valueSerializer = null; // set this to null
         }
@@ -257,7 +259,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     {
         if ( !allowsDuplicates )
         {
-            if ( null == getRaw( key ) )
+            if ( null == getNoDups( key ) )
             {
                 return 0;
             }
@@ -267,7 +269,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             }
         }
 
-        Object values = getRaw( key );
+        DupsContainer values = getDups( key );
         
         if ( values == null )
         {
@@ -278,16 +280,16 @@ public class JdbmTable<K,V> implements Table<K,V>
         // Handle the use of a AvlTree for storing duplicates
         // -------------------------------------------------------------------
 
-        if ( values instanceof AvlTree )
+        if ( values.isAvlTree() )
         {
-            return ( ( AvlTree ) values ).getSize();
+            return values.getAvlTree().getSize();
         }
 
         // -------------------------------------------------------------------
         // Handle the use of a BTree for storing duplicates
         // -------------------------------------------------------------------
 
-        return getBTree( ( BTreeRedirect ) values ).size();
+        return getBTree( values.getBTreeRedirect() ).size();
     }
 
 
@@ -309,25 +311,25 @@ public class JdbmTable<K,V> implements Table<K,V>
     {
         if ( ! allowsDuplicates )
         {
-            return getRaw( key );
-        }
+            return getNoDups( key );
+        }                         
 
-        Object values = getRaw( key );
+        DupsContainer values = getDups( key );
         
         if ( values == null )
         {
             return null;
         }
         
-        if ( values instanceof AvlTree )
+        if ( values.isAvlTree() )
         {
             //noinspection unchecked
-            AvlTree<V> set = ( AvlTree<V> ) values;
+            AvlTree<V> set = values.getAvlTree();
             return set.getFirst().getKey();
         }
 
         // Handle values if they are stored in another BTree
-        BTree tree = getBTree( ( BTreeRedirect ) values );
+        BTree tree = getBTree( values.getBTreeRedirect() );
         
         if ( tree.size() == 0 )
         {
@@ -349,7 +351,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     {
         if ( !allowsDuplicates )
         {
-            Object rval = getRaw( key );
+            Object rval = getNoDups( key );
 
             // key does not exist so return nothing
             if ( null == rval )
@@ -391,16 +393,16 @@ public class JdbmTable<K,V> implements Table<K,V>
             
         }
 
-        Object values = getRaw( key );
+        DupsContainer values = getDups( key );
         
         if ( values == null )
         {
             return false;
         }
         
-        if ( values instanceof AvlTree )
+        if ( values.isAvlTree() )
         {
-            AvlTree set = ( AvlTree ) values;
+            AvlTree set = values.getAvlTree();
             Object result;
     
             if ( isGreaterThan )
@@ -416,7 +418,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         
         // last option is to try a btree with BTreeRedirects
-        BTree tree = getBTree( ( BTreeRedirect ) values );
+        BTree tree = getBTree( values.getBTreeRedirect() );
         return tree.size() != 0 && btreeHas( tree, val, isGreaterThan );
     }
     
@@ -514,23 +516,24 @@ public class JdbmTable<K,V> implements Table<K,V>
     {
         if ( ! allowsDuplicates )
         {
-            Object obj = getRaw( key );
-            return null != obj && obj.equals( value );
+            V stored = getNoDups( key );
+            return null != stored && stored.equals( value );
         }
         
-        Object values = getRaw( key );
+        DupsContainer values = getDups( key );
         
         if ( values == null )
         {
             return false;
         }
         
-        if ( values instanceof AvlTree )
+        if ( values.isAvlTree() )
         {
-            return ( ( AvlTree ) values ).find( value ) != null;
+            //noinspection unchecked
+            return values.getAvlTree().find( value ) != null;
         }
         
-        return btreeHas( getBTree( ( BTreeRedirect ) values ), value );
+        return btreeHas( getBTree( values.getBTreeRedirect() ), value );
     }
     
 
@@ -539,7 +542,7 @@ public class JdbmTable<K,V> implements Table<K,V>
      */
     public boolean has( K key ) throws IOException
     {
-        return getRaw( key ) != null;
+        return key != null && bt.find(key) != null;
     }
 
 
@@ -569,16 +572,16 @@ public class JdbmTable<K,V> implements Table<K,V>
             return replaced;
         }
         
-        Object values = getRaw( key );
+        DupsContainer values = getDups( key );
         
         if ( values == null )
         {
-            values = new AvlTree<V>( comparator.getValueComparator() );
+            values = new DupsContainer( new AvlTree<V>( comparator.getValueComparator() ) );
         }
         
-        if ( values instanceof AvlTree )
+        if ( values.isAvlTree() )
         {
-            AvlTree<V> set = ( AvlTree ) values;
+            AvlTree<V> set = values.getAvlTree();
             
             V result = set.insert( value );
             
@@ -599,7 +602,8 @@ public class JdbmTable<K,V> implements Table<K,V>
             {
                 replaced = ( V ) bt.insert( key, marshaller.serialize( set ), true );
             }
-            
+
+            // TODO this is a problem here since addSuccessful is not being set
             if ( addSuccessful )
             {
                 count++;
@@ -608,7 +612,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             return null;
         }
         
-        BTree tree = getBTree( ( BTreeRedirect ) values );
+        BTree tree = getBTree( values.getBTreeRedirect() );
         
         if ( insertDupIntoBTree( tree, value ) )
         {
@@ -626,7 +630,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     {
         if ( ! allowsDuplicates )
         {
-            V oldValue = getRaw( key );
+            V oldValue = getNoDups( key );
         
             // Remove the value only if it is the same as value.
             if ( oldValue != null && oldValue.equals( value ) )
@@ -639,16 +643,17 @@ public class JdbmTable<K,V> implements Table<K,V>
             return null;
         }
 
-        Object values = getRaw( key );
+        DupsContainer values = getDups( key );
         
         if ( values == null )
         {
             return null;
         }
         
-        if ( values instanceof AvlTree )
+        if ( values.isAvlTree() )
         {
-            AvlTree set = ( AvlTree ) values;
+            //noinspection unchecked
+            AvlTree<V> set = values.getAvlTree();
 
             // If removal succeeds then remove if set is empty else replace it
             if ( set.remove( value ) != null )
@@ -670,7 +675,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         // TODO might be nice to add code here that reverts to a AvlTree
         // if the number of duplicates falls below the numDupLimit value
-        BTree tree = getBTree( ( BTreeRedirect ) values );
+        BTree tree = getBTree( values.getBTreeRedirect() );
         if ( removeDupFromBTree( tree, value ) )
         {
             if ( tree.size() == 0 )
@@ -707,7 +712,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         if ( returned instanceof byte[] )
         {
             //noinspection unchecked
-            AvlTree<V> set = ( AvlTree<V> ) marshaller.deserialize( ( byte[] ) returned );
+            AvlTree<V> set = marshaller.deserialize( ( byte[] ) returned );
             this.count -= set.getSize();
             return set.getFirst().getKey();
         }
@@ -774,17 +779,8 @@ public class JdbmTable<K,V> implements Table<K,V>
     // ------------------------------------------------------------------------
 
 
-    /**
-     * Gets a Tuple value from the btree.
-     *
-     * @param key the key of the Tuple to get the value of 
-     * @return the raw value object from the btree
-     * @throws IOException if there are any problems accessing the btree.
-     */
-    private V getRaw( K key ) throws IOException
+    private V getNoDups( K key ) throws IOException
     {
-        V val;
-
         if ( null == key )
         {
             return null;
@@ -793,21 +789,37 @@ public class JdbmTable<K,V> implements Table<K,V>
         if ( ! allowsDuplicates )
         {
             //noinspection unchecked
-            val = ( V ) bt.find( key );
+            return ( V ) bt.find( key );
         }
-        else
+
+        throw new IllegalStateException(
+                "This method should not be called when duplicates are enabled" );
+    }
+
+
+    private DupsContainer getDups( K key ) throws IOException
+    {
+        if ( null == key )
         {
-            //noinspection unchecked
-            val = ( V ) bt.find( key );
-
-            if( val != null && val instanceof byte[])
-            {
-                val = (V) marshaller.deserialize( ( byte[] ) val );
-            }
-            
+            return null;
         }
 
-        return val;
+        if ( allowsDuplicates )
+        {
+            byte[] serialized = ( byte[] ) bt.find( key );
+
+            if ( BTreeRedirectMarshaller.isNotRedirect( serialized ) )
+            {
+                return new DupsContainer<V>( marshaller.deserialize( serialized ) );
+            }
+            else
+            {
+                return new DupsContainer<V>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+            }
+        }
+
+        throw new IllegalStateException(
+                "This method should not be called when duplicates are enabled" );
     }
 
 
@@ -940,7 +952,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
     
 
-    private BTree convertToBTree( AvlTree set ) throws IOException
+    private BTree convertToBTree( AvlTree<V> set ) throws IOException
     {
         BTree tree = BTree.createInstance( recMan, comparator.getValueComparator() );
         List<V> keys = set.getKeys();

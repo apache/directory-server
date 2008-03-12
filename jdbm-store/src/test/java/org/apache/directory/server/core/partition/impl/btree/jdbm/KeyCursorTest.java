@@ -62,6 +62,7 @@ public class KeyCursorTest
     KeyCursor<String> cursor;
 
 
+    @SuppressWarnings({"unchecked"})
     @Before
     public void createCursor() throws Exception
     {

@@ -6,53 +6,69 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
-import java.io.Serializable;
+
+import org.apache.directory.server.core.avltree.AvlTree;
 
 
 /**
- * A redirection pointer to another BTree.
- * 
+ * A wrapper around duplicate key values.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BTreeRedirect implements Serializable
+public class DupsContainer<V>
 {
-    private static final long serialVersionUID = -4289810071005184834L;
+    private final AvlTree<V> avlTree;
+    private final BTreeRedirect btreeRedirect;
 
-    final long recId;
 
-    
-    public BTreeRedirect( long recId )
+    DupsContainer( AvlTree<V> avlTree )
     {
-        this.recId = recId;
+        this.avlTree = avlTree;
+        btreeRedirect = null;
     }
-    
-    
-    public long getRecId()
+
+
+    DupsContainer( BTreeRedirect btreeRedirect )
     {
-        return recId;
+        avlTree = null;
+        this.btreeRedirect = btreeRedirect;
     }
-    
-    
-    public String toString()
+
+
+    final boolean isBTreeRedirect()
     {
-        StringBuilder buf = new StringBuilder();
-        buf.append( "BTreeRedirect[" );
-        buf.append( recId );
-        buf.append( "]" );
-        return buf.toString();
+        return btreeRedirect != null;
+    }
+
+
+    final boolean isAvlTree()
+    {
+        return avlTree != null;
+    }
+
+
+    final AvlTree<V> getAvlTree()
+    {
+        return avlTree;
+    }
+
+
+    final BTreeRedirect getBTreeRedirect()
+    {
+        return btreeRedirect;
     }
 }

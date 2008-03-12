@@ -63,6 +63,12 @@
 
     <dependency>
       <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-core-avl</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-btree-base</artifactId>
       <version>${pom.version}</version>
     </dependency>
