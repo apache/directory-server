@@ -28,6 +28,7 @@ import jdbm.helper.TupleBrowser;
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeMarshaller;
 import org.apache.directory.server.core.avltree.Marshaller;
+import org.apache.directory.server.core.avltree.LinkedAvlNode;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -471,19 +472,19 @@ public class JdbmTable<K,V> implements Table<K,V>
         
         if ( values.isAvlTree() )
         {
-            AvlTree set = values.getAvlTree();
-            Object result;
+            AvlTree<V> set = values.getAvlTree();
+            LinkedAvlNode<V> result;
     
             if ( isGreaterThan )
             {
-                result = set.findGreater( val );
+                result = set.findGreaterOrEqual( val );
             }
             else
             {
-                result = set.findLess( val );
+                result = set.findLessOrEqual( val );
             }
 
-            return ( result != null );
+            return result != null;
         }
         
         // last option is to try a btree with BTreeRedirects
@@ -660,7 +661,8 @@ public class JdbmTable<K,V> implements Table<K,V>
             {
                 BTree tree = convertToBTree( set );
                 BTreeRedirect redirect = new BTreeRedirect( tree.getRecid() );
-                replaced = ( V ) bt.insert( key, redirect, true );
+                replaced = ( V ) bt.insert( key,
+                        BTreeRedirectMarshaller.INSTANCE.serialize( redirect ), true );
             }
             else
             {
@@ -760,7 +762,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     public V remove( K key ) throws IOException
     {
         //noinspection unchecked
-        V returned = ( V ) bt.remove( key );
+        Object returned = bt.remove( key );
 
         if ( null == returned )
         {
@@ -770,18 +772,27 @@ public class JdbmTable<K,V> implements Table<K,V>
         if ( ! allowsDuplicates )
         {
             this.count--;
-            return returned;
+            //noinspection unchecked
+            return ( V ) returned;
         }
 
-        if ( returned instanceof byte[] )
+        if ( ! ( returned instanceof byte[] ) )
+        {
+            throw new IllegalStateException( "Expecting byte[] from returned element." );
+        }
+
+        byte[] serialized = ( byte[] ) returned;
+
+        if ( BTreeRedirectMarshaller.isNotRedirect( serialized ) )
         {
             //noinspection unchecked
-            AvlTree<V> set = marshaller.deserialize( ( byte[] ) returned );
+            AvlTree<V> set = marshaller.deserialize( serialized );
             this.count -= set.getSize();
             return set.getFirst().getKey();
         }
-        
-        BTree tree = getBTree( ( BTreeRedirect ) returned );
+
+        //noinspection ConstantConditions
+        BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
         this.count -= tree.size();
         return removeAll( tree );
     }
@@ -1026,7 +1037,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( valueSerializer != null )
         {
-            tree = BTree.createInstance( recMan, valueComparator, valueSerializer, valueSerializer );
+            tree = BTree.createInstance( recMan, valueComparator, valueSerializer, null );
         }
         else
         {
