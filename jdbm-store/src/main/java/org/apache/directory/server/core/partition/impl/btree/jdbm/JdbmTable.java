@@ -56,8 +56,10 @@ public class JdbmTable<K,V> implements Table<K,V>
     private final RecordManager recMan;
     /** whether or not this table allows for duplicates */
     private final boolean allowsDuplicates;
-    /** a pair of comparators for the keys and values in this Table */
-    private final TupleComparator<K,V> comparator;
+    /** a key comparator for the keys in this Table */
+    private final Comparator<K> keyComparator;
+    /** a value comparator for the values in this Table */
+    private final Comparator<V> valueComparator;
 
     /** the current count of entries in this Table */
     private int count;
@@ -71,7 +73,11 @@ public class JdbmTable<K,V> implements Table<K,V>
     private int numDupLimit = JdbmIndex.DEFAULT_DUPLICATE_LIMIT;
     /** a cache of duplicate BTrees */
     private final Map<Long, BTree> duplicateBtrees;
-    
+
+    private final Serializer keySerializer;
+
+    private final Serializer valueSerializer;
+
     AvlTreeMarshaller<V> marshaller;
 
 
@@ -85,53 +91,44 @@ public class JdbmTable<K,V> implements Table<K,V>
      * duplicates.
      *
      * @param name the name of the table
-     * @param allowsDuplicates whether or not duplicates are enabled 
      * @param numDupLimit the size limit of duplicates before switching to
      * BTrees for values instead of AvlTrees
      * @param manager the record manager to be used for this table
-     * @param comparator a tuple comparator
+     * @param keyComparator a key comparator
+     * @param valueComparator a value comparator
      * @param keySerializer a serializer to use for the keys instead of using
      * default Java serialization which could be very expensive
      * @param valueSerializer a serializer to use for the values instead of
      * using default Java serialization which could be very expensive
      * @throws IOException if the table's file cannot be created
      */
-    public JdbmTable( String name, boolean allowsDuplicates, int numDupLimit,
-        RecordManager manager, TupleComparator<K,V> comparator, Serializer keySerializer, 
-        Serializer valueSerializer )
+    public JdbmTable( String name, int numDupLimit, RecordManager manager,
+        Comparator<K> keyComparator, Comparator<V> valueComparator,
+        Serializer keySerializer, Serializer valueSerializer )
         throws IOException
     {
-        /*System.out.println( "Creating BTree for " + name + ", key serializer = " + 
-            (keySerializer == null ? "null" : keySerializer.getClass().getName()) +
-            ", valueSerializer = " + 
-            (valueSerializer == null ? "null" : valueSerializer.getClass().getName()) );*/
-        
-        if( allowsDuplicates && valueSerializer == null )
+        if( valueSerializer == null )
         {
           throw new IllegalArgumentException("Value serializer cannot be null when duplicates are allowed in JdbmTable");  
         }
 
-        if( allowsDuplicates )
-        {
-            // TODO make the size of the duplicate btree cache configurable via constructor
-            //noinspection unchecked
-            duplicateBtrees = new SynchronizedLRUMap( 100 );
-            //TODO the IntegerKeyMarshaller should be replaced with the appropriate marshaller for type V
-            marshaller = new AvlTreeMarshaller<V>( comparator.getValueComparator(),
-                    new MarshallerSerializerBridge<V>( valueSerializer ) );
-            // the value serializer causes problems between BTree and AvlTree cause each use it in a different way
-            valueSerializer = null; // set this to null
-        }
-        else
-        {
-            duplicateBtrees = null;
-        }
-        
+        // TODO make the size of the duplicate btree cache configurable via constructor
+        //noinspection unchecked
+        duplicateBtrees = new SynchronizedLRUMap( 100 );
+        marshaller = new AvlTreeMarshaller<V>( valueComparator,
+                new MarshallerSerializerBridge<V>( valueSerializer ) );
+
         this.numDupLimit = numDupLimit;
         this.name = name;
         this.recMan = manager;
-        this.comparator = comparator;
-        this.allowsDuplicates = allowsDuplicates;
+
+        this.keyComparator = keyComparator;
+        this.valueComparator = valueComparator;
+
+        this.keySerializer = keySerializer;
+        this.valueSerializer = valueSerializer;
+
+        this.allowsDuplicates = true;
 
         long recId = recMan.getNamedObject( name );
 
@@ -147,7 +144,12 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         else
         {
-            bt = BTree.createInstance( recMan, comparator.getKeyComparator(), keySerializer, valueSerializer );
+            // we do not use the value serializer in the btree since duplicates will use
+            // either BTreeRedirect objects or AvlTree objects whose marshalling is
+            // explicitly managed by this code.  Value serialization is delegated to these
+            // marshallers.
+            
+            bt = BTree.createInstance( recMan, keyComparator, keySerializer, null );
             recId = bt.getRecid();
             recMan.setNamedObject( name, recId );
             recId = recMan.insert( 0 );
@@ -174,8 +176,35 @@ public class JdbmTable<K,V> implements Table<K,V>
                       Serializer keySerializer, Serializer valueSerializer )
         throws IOException
     {
-        this( name, false, Integer.MAX_VALUE, manager, new KeyOnlyComparator<K,V>( keyComparator ),
-                keySerializer, valueSerializer );
+        this.duplicateBtrees = null;
+        this.numDupLimit = Integer.MAX_VALUE;
+        this.name = name;
+        this.recMan = manager;
+
+        this.keyComparator = keyComparator;
+        this.valueComparator = null;
+
+        this.keySerializer = keySerializer;
+        this.valueSerializer = valueSerializer;
+
+        this.allowsDuplicates = false;
+
+        long recId = recMan.getNamedObject( name );
+
+        if ( recId != 0 )
+        {
+            bt = BTree.load( recMan, recId );
+            recId = recMan.getNamedObject( name + SZSUFFIX );
+            count = ( Integer ) recMan.fetch( recId );
+        }
+        else
+        {
+            bt = BTree.createInstance( recMan, keyComparator, keySerializer, valueSerializer );
+            recId = bt.getRecid();
+            recMan.setNamedObject( name, recId );
+            recId = recMan.insert( 0 );
+            recMan.setNamedObject( name + SZSUFFIX, recId );
+        }
     }
 
 
@@ -185,11 +214,32 @@ public class JdbmTable<K,V> implements Table<K,V>
 
     
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#getComparator()
+     * @see Table#getKeyComparator()
      */
-    public TupleComparator<K,V> getComparator()
+    public Comparator<K> getKeyComparator()
     {
-        return comparator;
+        return keyComparator;
+    }
+
+
+    /**
+     * @see Table#getValueComparator()
+     */
+    public Comparator<V> getValueComparator()
+    {
+        return valueComparator;
+    }
+
+
+    public Serializer getKeySerializer()
+    {
+        return keySerializer;
+    }
+
+
+    public Serializer getValueSerializer()
+    {
+        return valueSerializer;
     }
 
 
@@ -333,6 +383,17 @@ public class JdbmTable<K,V> implements Table<K,V>
         {
             //noinspection unchecked
             AvlTree<V> set = values.getAvlTree();
+
+            if ( set == null )
+            {
+                return null;
+            }
+            
+            if ( set.getFirst() == null )
+            {
+                return null;
+            }
+            
             return set.getFirst().getKey();
         }
 
@@ -442,7 +503,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         // Test for equality first since it satisfies both greater/less than
         //noinspection unchecked
-        if ( null != tuple && comparator.compareKey( ( K ) tuple.getKey(), key ) == 0 )
+        if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
         {
             return true;
         }
@@ -478,7 +539,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             if ( browser.getNext( tuple ) )
             {
                 //noinspection unchecked
-                return comparator.compareKey( ( K ) tuple.getKey(), key ) <= 0;
+                return keyComparator.compare( ( K ) tuple.getKey(), key ) <= 0;
             }
         }
         else
@@ -492,7 +553,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             // key so we need to step forward once then back.  Remember this
             // key represents a key greater than or equal to key.
             //noinspection unchecked
-            if ( comparator.compareKey( ( K ) tuple.getKey(), key ) <= 0 )
+            if ( keyComparator.compare( ( K ) tuple.getKey(), key ) <= 0 )
             {
                 return true;
             }
@@ -505,7 +566,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             while ( browser.getPrevious( tuple ) )
             {
                 //noinspection unchecked
-                if ( comparator.compareKey( ( K ) tuple.getKey(), key ) <= 0 )
+                if ( keyComparator.compare( ( K ) tuple.getKey(), key ) <= 0 )
                 {
                     return true;
                 }
@@ -581,11 +642,6 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         
         DupsContainer values = getDups( key );
-        
-        if ( values == null )
-        {
-            values = new DupsContainer( new AvlTree<V>( comparator.getValueComparator() ) );
-        }
         
         if ( values.isAvlTree() )
         {
@@ -777,10 +833,11 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
     
-    public Marshaller getMarshaller()
+    public Marshaller<AvlTree<V>> getMarshaller()
     {
         return marshaller;
     }
+    
 
     // ------------------------------------------------------------------------
     // Private Utility Methods 
@@ -816,14 +873,17 @@ public class JdbmTable<K,V> implements Table<K,V>
         {
             byte[] serialized = ( byte[] ) bt.find( key );
 
+            if ( serialized == null )
+            {
+                return new DupsContainer<V>( new AvlTree<V>( valueComparator ) );
+            }
+
             if ( BTreeRedirectMarshaller.isNotRedirect( serialized ) )
             {
                 return new DupsContainer<V>( marshaller.deserialize( serialized ) );
             }
-            else
-            {
-                return new DupsContainer<V>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
-            }
+
+            return new DupsContainer<V>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
         }
 
         throw new IllegalStateException(
@@ -907,7 +967,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
                     //noinspection unchecked
                     V biggerKey = ( V ) tuple.getKey();
-                    if ( comparator.compareValue( key, biggerKey ) == 0 )
+                    if ( valueComparator.compare( key, biggerKey ) == 0 )
                     {
                         return true;
                     }
@@ -932,7 +992,7 @@ public class JdbmTable<K,V> implements Table<K,V>
              */
 
             //noinspection unchecked
-            if ( comparator.compareValue( key, ( V ) tuple.getKey() ) == 0 )
+            if ( valueComparator.compare( key, ( V ) tuple.getKey() ) == 0 )
             {
                 return true;
             }
@@ -962,7 +1022,17 @@ public class JdbmTable<K,V> implements Table<K,V>
 
     private BTree convertToBTree( AvlTree<V> set ) throws IOException
     {
-        BTree tree = BTree.createInstance( recMan, comparator.getValueComparator() );
+        BTree tree;
+
+        if ( valueSerializer != null )
+        {
+            tree = BTree.createInstance( recMan, valueComparator, valueSerializer, valueSerializer );
+        }
+        else
+        {
+            tree = BTree.createInstance( recMan, valueComparator );
+        }
+
         List<V> keys = set.getKeys();
         for ( V element : keys )
         {

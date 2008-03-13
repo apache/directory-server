@@ -181,12 +181,10 @@ public class JdbmIndex<K> implements Index<K>
          */
         forward = new JdbmTable<K, Long>(
             attribute.getName() + FORWARD_BTREE, 
-            true,
             numDupLimit,
             recMan, 
-            new ForwardIndexComparator<K>( comp ),
-            null, null );
-            //LongSerializer.INSTANCE );
+            comp, null,
+            null, LongSerializer.INSTANCE );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -194,14 +192,25 @@ public class JdbmIndex<K> implements Index<K>
          * is single valued according to its specification based on a schema 
          * then duplicate keys should not be allowed within the reverse table.
          */
-        reverse = new JdbmTable<Long,K>(
-            attribute.getName() + REVERSE_BTREE, 
-            !attribute.isSingleValue(),
-            numDupLimit,
-            recMan,
-            new ReverseIndexComparator<K>( comp ),
-            null, //LongSerializer.INSTANCE,
-            null);
+        if ( attribute.isSingleValue() )
+        {
+            reverse = new JdbmTable<Long,K>(
+                attribute.getName() + REVERSE_BTREE,
+                recMan,
+                null,
+                LongSerializer.INSTANCE,
+                null);
+        }
+        else
+        {
+            reverse = new JdbmTable<Long,K>(
+                attribute.getName() + REVERSE_BTREE,
+                numDupLimit,
+                recMan,
+                null, comp,
+                LongSerializer.INSTANCE,
+                null);
+        }
     }
 
 

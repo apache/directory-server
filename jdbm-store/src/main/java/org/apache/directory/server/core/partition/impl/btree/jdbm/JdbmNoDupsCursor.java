@@ -101,10 +101,11 @@ public class JdbmNoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
          */
         while ( browser.getNext( jdbmTuple ) )
         {
+            //noinspection unchecked
             K next = ( K ) jdbmTuple.getKey();
 
             //noinspection unchecked
-            int nextCompared = table.getComparator().getKeyComparator().compare( next, element.getKey() );
+            int nextCompared = table.getKeyComparator().compare( next, element.getKey() );
 
             if ( nextCompared <= 0 )
             {

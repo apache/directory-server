@@ -106,14 +106,12 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             if ( noDupsTuple.getValue() instanceof byte[] )
             {
                 LOG.debug( "Duplicates tuple {} stored in a AvlTree", noDupsTuple );
-                AvlTree<V> set = ( AvlTree<V> ) table.getMarshaller().deserialize( ( byte[] ) noDupsTuple.getValue() );
+                AvlTree<V> set = table.getMarshaller().deserialize( ( byte[] ) noDupsTuple.getValue() );
             }
             else 
             {
                 LOG.debug( "Duplicates tuple {} are stored in a BTree", noDupsTuple );
                 BTreeRedirect redirect = ( BTreeRedirect ) noDupsTuple.getValue();
-                
-                
             }
         }
 //        throw new NotImplementedException();
@@ -174,7 +172,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             {
                 BTree tree = table.getBTree( ( BTreeRedirect ) values );
                 //noinspection unchecked
-                dupCursor = new KeyCursor<V>( tree, ( Comparator<V> ) table.getComparator().getKeyComparator() );
+                dupCursor = new KeyCursor<V>( tree, ( Comparator<V> ) table.getKeyComparator() );
                 if ( ! dupCursor.previous() )
                 {
                     clearValue();
@@ -228,7 +226,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 {
                     BTree tree = table.getBTree( ( BTreeRedirect ) values );
                     //noinspection unchecked
-                    dupCursor = new KeyCursor<V>( tree, ( Comparator<V> ) table.getComparator().getKeyComparator() );
+                    dupCursor = new KeyCursor<V>( tree, ( Comparator<V> ) table.getKeyComparator() );
                     dupCursor.previous();
                 }
             }
@@ -279,7 +277,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 {
                     BTree tree = table.getBTree( ( BTreeRedirect ) values );
                     //noinspection unchecked
-                    dupCursor = new KeyCursor<V>( tree, ( Comparator<V> ) table.getComparator().getKeyComparator() );
+                    dupCursor = new KeyCursor<V>( tree, ( Comparator<V> ) table.getKeyComparator() );
                     dupCursor.next();
                 }
             }

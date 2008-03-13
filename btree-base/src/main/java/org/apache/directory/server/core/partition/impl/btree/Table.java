@@ -22,6 +22,8 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import org.apache.directory.server.core.cursor.Cursor;
 
+import java.util.Comparator;
+
 
 /**
  * A wrapper interface around BTree implementations used to abstract away
@@ -33,13 +35,23 @@ import org.apache.directory.server.core.cursor.Cursor;
 public interface Table<K, V>
 {
     /**
-     * Gets the comparator pair used by this Table: may be null if this Table
+     * Gets the key comparator used by this Table: may be null if this Table
      * was not initialized with one.
      *
-     * @return the comparator pair or null if this Table was not created with
+     * @return the key comparator or null if this Table was not created with
      * one.
      */
-    TupleComparator<K,V> getComparator();
+    Comparator<K> getKeyComparator();
+
+
+    /**
+     * Gets the value comparator used by this Table: may be null if this Table
+     * was not initialized with one.
+     *
+     * @return the value comparator or null if this Table was not created with
+     * one.
+     */
+    Comparator<V> getValueComparator();
 
 
     /**

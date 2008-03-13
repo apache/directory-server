@@ -27,8 +27,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.apache.directory.server.core.partition.impl.btree.Table;
-import org.apache.directory.server.core.partition.impl.btree.TupleComparator;
-import org.apache.directory.server.core.partition.impl.btree.DefaultTupleComparator;
 import org.apache.directory.server.core.partition.impl.btree.TupleRenderer;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
@@ -77,11 +75,10 @@ public class JdbmTableWithDuplicatesTest
         // gosh this is a terrible use of a global static variable
         SerializableComparator.setRegistry( new MockComparatorRegistry() );
 
-        TupleComparator<Integer,Integer> comparator = 
-                new DefaultTupleComparator<Integer,Integer>(
-                        new SerializableComparator<Integer>( "" ),
-                        new SerializableComparator<Integer>( "" ) );
-        table = new JdbmTable<Integer,Integer>( "test", true, SIZE, recman, comparator, null, new IntegerSerializer() );
+        table = new JdbmTable<Integer,Integer>( "test", SIZE, recman,
+                new SerializableComparator<Integer>( "" ),
+                new SerializableComparator<Integer>( "" ),
+                null, new IntegerSerializer() );
         LOG.debug( "Created new table and populated it with data" );
     }
 
@@ -103,11 +100,10 @@ public class JdbmTableWithDuplicatesTest
     {
         table.put( 1, 2 );
         table.close();
-        TupleComparator<Integer,Integer> comparator = 
-            new DefaultTupleComparator<Integer,Integer>(
-                    new SerializableComparator<Integer>( "" ),
-                    new SerializableComparator<Integer>( "" ) );
-        table = new JdbmTable<Integer,Integer>( "test", true, SIZE, recman, comparator, null, new IntegerSerializer() );
+        table = new JdbmTable<Integer,Integer>( "test", SIZE, recman,
+                new SerializableComparator<Integer>( "" ),
+                new SerializableComparator<Integer>( "" ),
+                null, new IntegerSerializer() );
         assertTrue( 2 == table.get( 1 ) );
     }
 
@@ -131,7 +127,7 @@ public class JdbmTableWithDuplicatesTest
         table.setRenderer( null );
         assertNull( table.getRenderer() );
         assertEquals( "test", table.getName() );
-        assertNotNull( table.getComparator() );
+        assertNotNull( table.getKeyComparator() );
     }
 
     

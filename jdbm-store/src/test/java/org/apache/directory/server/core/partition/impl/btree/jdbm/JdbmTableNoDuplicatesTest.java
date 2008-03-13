@@ -118,7 +118,7 @@ public class JdbmTableNoDuplicatesTest
         table.setRenderer( null );
         assertNull( table.getRenderer() );
         assertEquals( "test", table.getName() );
-        assertNotNull( table.getComparator() );
+        assertNotNull( table.getKeyComparator() );
     }
 
     

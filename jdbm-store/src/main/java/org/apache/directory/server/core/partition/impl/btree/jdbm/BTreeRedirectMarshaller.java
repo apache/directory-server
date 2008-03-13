@@ -120,6 +120,11 @@ import org.apache.directory.shared.asn1.codec.binary.Hex;
      */
     public static boolean isNotRedirect( byte[] bites )
     {
+        if ( bites == null )
+        {
+            return true;
+        }
+
         // faster to check if invalid than valid
         return bites.length != SIZE ||
                 bites[0] != 'r' ||
