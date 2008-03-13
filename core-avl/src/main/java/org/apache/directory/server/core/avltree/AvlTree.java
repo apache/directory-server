@@ -45,8 +45,6 @@ public class AvlTree<K>
 	/** node representing the end of the doubly linked list formed with the tree nodes */
     private LinkedAvlNode<K> last;
 
-    /** holds the number of nodes present in the tree */
-    private int size;
 
 
     /**
@@ -80,11 +78,10 @@ public class AvlTree<K>
 	    
 	    if( root == null )
 	    {
-	        root = new LinkedAvlNode<K>( key );
-	        first = root;
-	        last = root;
-	        size = 1;
-	        return null;
+	      root = new LinkedAvlNode<K>( key );
+	      first = root;
+	      last = root;
+	      return null;
 	    }
 	    
 	    node = new LinkedAvlNode<K>( key );
@@ -130,8 +127,6 @@ public class AvlTree<K>
         
         treePath.add( 0, node );
 	    balance(treePath);
-	    
-	    size++;
 	    
 	    return null;
 	}
@@ -232,7 +227,6 @@ public class AvlTree<K>
             if( temp == root )
             {
               root = null;
-              size = 0;
               return key;
             }
             
@@ -305,8 +299,6 @@ public class AvlTree<K>
        
        treePath.add( 0, y ); // y can be null but getBalance returns 0 so np
        balance( treePath );
-       
-       size--;
        
        return key;
     }
@@ -390,7 +382,25 @@ public class AvlTree<K>
     //NOTE: This method is internally used by AVLTreeMarshaller
     public int getSize()
     {
-        return size;
+        if ( root == null )
+        {
+            return 0;
+        }
+        
+        if( root.isLeaf() )
+        {
+            return 1;
+        }
+      
+        LinkedAvlNode<K> x = first.next;
+      
+        while( x != null )
+        {
+            x.setIndex( x.previous.getIndex() + 1 );  
+            x = x.next;
+        }
+      
+        return last.getIndex() + 1;
     }
     
     

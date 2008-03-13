@@ -388,32 +388,6 @@ public class AvlTreeTest
       return sb.toString();
     }
     
-    @Test
-    public void testSize()
-    {
-        assertTrue( 0 == tree.getSize() );
-        
-        tree.insert( 3 );
-        assertTrue( 1 == tree.getSize() );
-        
-        tree.remove( 3 );
-        assertTrue( 0 == tree.getSize() );
-        
-        tree.insert( 0 );
-        tree.insert( 7 );
-        tree.insert( 3 );
-        assertTrue( 3 == tree.getSize() );
-        
-        tree.remove( 0 );
-        assertTrue( 2 == tree.getSize() );
-        
-        tree.remove( 7 );
-        tree.remove( 3 );
-        
-        assertTrue( 0 == tree.getSize() );
-    }
-    
-    
     private void traverse( LinkedAvlNode<Integer> startNode, List<LinkedAvlNode<Integer>> path )
     {
       //1. pre-order
