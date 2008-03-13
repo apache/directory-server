@@ -47,8 +47,9 @@ public class AvlTree<K>
 
     /** holds the number of nodes present in the tree */
     private int size;
-    
-	/**
+
+
+    /**
 	 * Creates a new instance of AVLTree.
 	 *
 	 * @param comparator the comparator to be used for comparing keys
@@ -79,11 +80,11 @@ public class AvlTree<K>
 	    
 	    if( root == null )
 	    {
-	      root = new LinkedAvlNode<K>( key );
-	      first = root;
-	      last = root;
-	      size = 1;
-	      return null;
+	        root = new LinkedAvlNode<K>( key );
+	        first = root;
+	        last = root;
+	        size = 1;
+	        return null;
 	    }
 	    
 	    node = new LinkedAvlNode<K>( key );
@@ -106,13 +107,13 @@ public class AvlTree<K>
 	        
 	        if( c < 0 )
 	        {
-	          temp.isLeft = true;
-	          temp = temp.getLeft();  
+	            temp.isLeft = true;
+	            temp = temp.getLeft();
 	        }
 	        else
 	        {
-	          temp.isLeft = false;
-	          temp = temp.getRight();
+	            temp.isLeft = false;
+	            temp = temp.getRight();
 	        }
 	    }
 	    

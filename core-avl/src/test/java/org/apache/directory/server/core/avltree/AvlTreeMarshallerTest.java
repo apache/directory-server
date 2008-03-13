@@ -22,6 +22,8 @@ package org.apache.directory.server.core.avltree;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +44,6 @@ import org.junit.Test;
  */
 public class AvlTreeMarshallerTest
 {
-
     AvlTree<Integer> tree;
     Comparator<Integer> comparator;
     AvlTreeMarshaller<Integer> treeMarshaller;
@@ -56,23 +57,91 @@ public class AvlTreeMarshallerTest
     {
         comparator = new Comparator<Integer>() 
         {
-
-          public int compare( Integer i1, Integer i2 )
-          {
-              return i1.compareTo( i2 );
-          }
-        
+            public int compare( Integer i1, Integer i2 )
+            {
+                return i1.compareTo( i2 );
+            }
         };
         
       
-      tree = new AvlTree<Integer>( comparator );  
-      treeMarshaller = new AvlTreeMarshaller<Integer>( comparator, new IntegerKeyMarshaller() );
+        tree = new AvlTree<Integer>( comparator );
+        treeMarshaller = new AvlTreeMarshaller<Integer>( comparator, new IntegerKeyMarshaller() );
     }
-    
+
+
     @Test
-    public void testMarshal() throws FileNotFoundException, IOException
+    public void testMarshalEmptyTree() throws IOException
     {
-        
+        byte[] bites = treeMarshaller.serialize( new AvlTree<Integer>( comparator ) );
+        AvlTree<Integer> tree = treeMarshaller.deserialize( bites );
+        assertNotNull( tree );
+    }
+
+
+    @Test
+    public void testRoundTripEmpty() throws IOException
+    {
+        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        byte[] bites = treeMarshaller.serialize( original );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
+        assertTrue( deserialized.isEmpty() );
+    }
+
+
+    @Test
+    public void testRoundTripOneEntry() throws IOException
+    {
+        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        original.insert( 0 );
+        byte[] bites = treeMarshaller.serialize( original );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
+        assertFalse( deserialized.isEmpty() );
+        assertEquals( 1, deserialized.getSize() );
+        assertEquals( 0, ( int ) deserialized.getFirst().getKey() );
+    }
+
+
+    @Test
+    public void testRoundTripTwoEntries() throws IOException
+    {
+        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        original.insert( 0 );
+        original.insert( 1 );
+        byte[] bites = treeMarshaller.serialize( original );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
+        assertFalse( deserialized.isEmpty() );
+        assertEquals( 2, deserialized.getSize() );
+        assertEquals( 0, ( int ) deserialized.getFirst().getKey() );
+        assertEquals( 1, ( int ) deserialized.getFirst().next.getKey() );
+    }
+
+
+    @Test
+    public void testRoundTripManyEntries() throws Exception
+    {
+        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        for ( int ii = 0; ii < 100; ii++ )
+        {
+            original.insert( ii );
+        }
+        byte[] bites = treeMarshaller.serialize( original );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
+        assertFalse( deserialized.isEmpty() );
+        assertEquals( 100, deserialized.getSize() );
+
+        AvlTreeCursor<Integer> cursor = new AvlTreeCursor<Integer>( deserialized );
+        cursor.first();
+        for ( int ii = 0; ii < 100; ii++ )
+        {
+            assertEquals( ii, ( int ) cursor.get() );
+            cursor.next();
+        }
+    }
+
+
+    @Test
+    public void testMarshal() throws IOException
+    {
         tree.insert( 37 );
         tree.insert( 7 );
         tree.insert( 25 );
@@ -127,5 +196,4 @@ public class AvlTreeMarshallerTest
         assertNotNull(unmarshalledTree.getFirst());
         assertNotNull(unmarshalledTree.getLast());
     }
-
 }
