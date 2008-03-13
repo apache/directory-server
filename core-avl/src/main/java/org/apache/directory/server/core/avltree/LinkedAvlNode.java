@@ -57,6 +57,18 @@ public class LinkedAvlNode<T>
     }
 
 
+    public LinkedAvlNode<T> getNext()
+    {
+        return next;
+    }
+
+
+    public LinkedAvlNode<T> getPrevious()
+    {
+        return previous;
+    }
+
+
     public LinkedAvlNode<T> getLeft() {
 		return left;
 	}
