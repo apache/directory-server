@@ -210,7 +210,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             initializePartition( schemaDirectory );
         }
-        catch ( NamingException ne )
+        catch ( Exception ne )
         {
             throw new MojoFailureException( "Failed to initialize the root partition :" + 
                 ne.getMessage() );
@@ -259,7 +259,7 @@ public class BootstrapPlugin extends AbstractMojo
             
             createSchemaModificationAttributesEntry();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             e.printStackTrace();
             throw new MojoFailureException( "Failed to add syntaxCheckers to partition: " + e.getMessage() );
@@ -269,7 +269,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             store.sync();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             e.printStackTrace();
         }
@@ -308,7 +308,7 @@ public class BootstrapPlugin extends AbstractMojo
 
     private static final String[] OTHER_SCHEMA_DEPENDENCIES = new String[] { "system", "core", "apache", "apachemeta" };
     
-    private void createSchemasAndContainers() throws NamingException
+    private void createSchemasAndContainers() throws Exception
     {
         Map<String, Schema> schemaMap = this.registries.getLoadedSchemas();
         
@@ -344,7 +344,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void createSchemaAndContainers( Schema schema ) throws NamingException
+    private void createSchemaAndContainers( Schema schema ) throws Exception
     {
         LdapDN dn = new LdapDN( SchemaConstants.CN_AT + "=" 
             + schema.getSchemaName() + "," + SchemaConstants.OU_AT + "=schema" );
@@ -414,7 +414,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
     
-    private void addAttributeTypes() throws NamingException
+    private void addAttributeTypes() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding attributeTypes:" );
@@ -445,7 +445,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addObjectClasses() throws NamingException
+    private void addObjectClasses() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding objectClasses:" );
@@ -475,7 +475,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addMatchingRules() throws NamingException
+    private void addMatchingRules() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding matchingRules:" );
@@ -505,7 +505,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addComparators() throws NamingException
+    private void addComparators() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding comparators:" );
@@ -534,7 +534,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addNormalizers() throws NamingException
+    private void addNormalizers() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding normalizers:" );
@@ -564,7 +564,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addSyntaxes() throws NamingException
+    private void addSyntaxes() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding syntaxes:" );
@@ -592,7 +592,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addSyntaxCheckers() throws NamingException
+    private void addSyntaxCheckers() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding syntaxCheckers:" );
@@ -628,7 +628,7 @@ public class BootstrapPlugin extends AbstractMojo
      *
      * @throws MojoFailureException
      */
-    private void initializePartition( File workingDirectory ) throws MojoFailureException, NamingException
+    private void initializePartition( File workingDirectory ) throws MojoFailureException, Exception
     {
         store.setCacheSize( 1000 );
         store.setEnableOptimizer( false );
@@ -658,7 +658,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             store.init( this.registries.getOidRegistry(), this.registries.getAttributeTypeRegistry() );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             e.printStackTrace();
             throw new MojoFailureException( "Failed to initialize parition: " + e.getMessage() );
@@ -674,7 +674,7 @@ public class BootstrapPlugin extends AbstractMojo
      * 
      * @throws NamingException if there is a failure to add the entry 
      */
-    private void createSchemaModificationAttributesEntry() throws NamingException
+    private void createSchemaModificationAttributesEntry() throws Exception
     {
         Attributes entry = new AttributesImpl( 
             SchemaConstants.OBJECT_CLASS_AT, 
@@ -799,7 +799,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void checkCreateContainer( LdapDN dn ) throws NamingException
+    private void checkCreateContainer( LdapDN dn ) throws Exception
     {
         if ( hasEntry( dn ) )
         {
@@ -814,7 +814,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private LdapDN checkCreateSchema( String schemaName ) throws NamingException
+    private LdapDN checkCreateSchema( String schemaName ) throws Exception
     {
         Schema schema = schemas.get( schemaName );
         LdapDN dn = new LdapDN( SchemaConstants.CN_AT + "="
@@ -832,7 +832,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void disableSchema( String schemaName ) throws NamingException
+    private void disableSchema( String schemaName ) throws Exception
     {
         LdapDN dn = new LdapDN( SchemaConstants.CN_AT + "=" + schemaName
                 + "," + SchemaConstants.OU_AT + "=schema" );
@@ -859,7 +859,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private final boolean hasEntry( LdapDN dn ) throws NamingException
+    private final boolean hasEntry( LdapDN dn ) throws Exception
     {
         Long id = store.getEntryId( dn.toNormName() );
         
