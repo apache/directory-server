@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import javax.naming.NamingException;
 import java.io.File;
 import java.io.IOException;
+import java.util.Comparator;
 
 
 /** 
@@ -55,7 +56,6 @@ public class JdbmIndex<K> implements Index<K>
     public static final String FORWARD_BTREE = "_forward";
     /**  the key used for the reverse btree name */
     public static final String REVERSE_BTREE = "_reverse";
-
 
     /** the attribute type resolved for this JdbmIndex */
     private AttributeType attribute;
@@ -139,6 +139,12 @@ public class JdbmIndex<K> implements Index<K>
     {
         this.keyCache = new SynchronizedLRUMap( cacheSize );
         this.attribute = attributeType;
+
+        if ( attributeId == null )
+        {
+            setAttributeId( attribute.getName() );
+        }
+
         if ( this.wkDirPath ==  null )
         {
             this.wkDirPath = wkDirPath;
@@ -183,7 +189,7 @@ public class JdbmIndex<K> implements Index<K>
             attribute.getName() + FORWARD_BTREE, 
             numDupLimit,
             recMan, 
-            comp, null,
+            comp, LongComparator.INSTANCE,
             null, LongSerializer.INSTANCE );
 
         /*
@@ -197,9 +203,9 @@ public class JdbmIndex<K> implements Index<K>
             reverse = new JdbmTable<Long,K>(
                 attribute.getName() + REVERSE_BTREE,
                 recMan,
-                null,
+                LongComparator.INSTANCE,
                 LongSerializer.INSTANCE,
-                null);
+                null );
         }
         else
         {
@@ -207,9 +213,8 @@ public class JdbmIndex<K> implements Index<K>
                 attribute.getName() + REVERSE_BTREE,
                 numDupLimit,
                 recMan,
-                null, comp,
-                LongSerializer.INSTANCE,
-                null);
+                LongComparator.INSTANCE, comp,
+                LongSerializer.INSTANCE, null );
         }
     }
 
@@ -242,6 +247,12 @@ public class JdbmIndex<K> implements Index<K>
         }
     }
 
+
+    public boolean isCountExact()
+    {
+        return false;
+    }
+    
 
     /**
      * Gets the attribute identifier set at configuration time for this index which may not

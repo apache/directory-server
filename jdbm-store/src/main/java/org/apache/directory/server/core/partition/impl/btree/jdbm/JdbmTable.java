@@ -33,6 +33,7 @@ import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
+import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 
 import java.io.IOException;
 import java.util.*;
@@ -108,23 +109,41 @@ public class JdbmTable<K,V> implements Table<K,V>
         Serializer keySerializer, Serializer valueSerializer )
         throws IOException
     {
-        if( valueSerializer == null )
-        {
-          throw new IllegalArgumentException("Value serializer cannot be null when duplicates are allowed in JdbmTable");  
-        }
-
         // TODO make the size of the duplicate btree cache configurable via constructor
         //noinspection unchecked
         duplicateBtrees = new SynchronizedLRUMap( 100 );
-        marshaller = new AvlTreeMarshaller<V>( valueComparator,
-                new MarshallerSerializerBridge<V>( valueSerializer ) );
+
+        if ( valueSerializer != null )
+        {
+            marshaller = new AvlTreeMarshaller<V>( valueComparator,
+                    new MarshallerSerializerBridge<V>( valueSerializer ) );
+        }
+        else
+        {
+            marshaller = new AvlTreeMarshaller<V>( valueComparator );
+        }
+
+        if ( keyComparator == null )
+        {
+            throw new NullPointerException( "Key comparator cannot be null." );
+        }
+        else
+        {
+            this.keyComparator = keyComparator;
+        }
+
+        if ( valueComparator == null )
+        {
+            throw new NullPointerException( "Value comparator must not be null for tables with duplicate keys." );
+        }
+        else
+        {
+            this.valueComparator = valueComparator;
+        }
 
         this.numDupLimit = numDupLimit;
         this.name = name;
         this.recMan = manager;
-
-        this.keyComparator = keyComparator;
-        this.valueComparator = valueComparator;
 
         this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;

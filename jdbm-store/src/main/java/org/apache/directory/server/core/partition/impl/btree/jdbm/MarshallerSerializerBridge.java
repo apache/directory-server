@@ -45,6 +45,10 @@ public class MarshallerSerializerBridge<E> implements Marshaller<E>
      */
     public MarshallerSerializerBridge( Serializer serializer )
     {
+        if ( serializer == null )
+        {
+            throw new NullPointerException( "serializer" );
+        }
         this.serializer = serializer;
     }
 
