@@ -24,7 +24,15 @@ import org.apache.directory.server.core.avltree.AvlTree;
 
 
 /**
- * A wrapper around duplicate key values.
+ * A wrapper around duplicate key values.  This class wraps either a single
+ * value, an AvlTree or a BTreeRedirect.  Only the AvlTree and BTreeRedirect
+ * forms are used for the two value persistence mechanisms used to implement
+ * duplicate keys over JDBM btrees.  The value form is almost a hack so we can
+ * pass a value to the DupsContainerCursor to position it without breaking
+ * with the API.  The positioning methods expect a Tuple with a K key object
+ * and a value of DupsContainer<V> for the Tuple value so we have this form
+ * to facilitate that.  For most practical purposes the value form can be
+ * ignored
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -32,13 +40,23 @@ import org.apache.directory.server.core.avltree.AvlTree;
 public class DupsContainer<V>
 {
     private final AvlTree<V> avlTree;
+    private final V value;
     private final BTreeRedirect btreeRedirect;
+
+
+    DupsContainer( V value )
+    {
+        this.value = value;
+        avlTree = null;
+        btreeRedirect = null;
+    }
 
 
     DupsContainer( AvlTree<V> avlTree )
     {
         this.avlTree = avlTree;
         btreeRedirect = null;
+        value = null;
     }
 
 
@@ -46,6 +64,7 @@ public class DupsContainer<V>
     {
         avlTree = null;
         this.btreeRedirect = btreeRedirect;
+        value = null;
     }
 
 
@@ -61,14 +80,41 @@ public class DupsContainer<V>
     }
 
 
+    final boolean isValue()
+    {
+        return value != null;
+    }
+
+
+    final V getValue()
+    {
+        if ( value == null )
+        {
+            throw new IllegalStateException( "this is not a value container" );
+        }
+
+        return value;
+    }
+
+
     final AvlTree<V> getAvlTree()
     {
+        if ( avlTree == null )
+        {
+            throw new IllegalStateException( "this is not a avlTree container" );
+        }
+
         return avlTree;
     }
 
 
     final BTreeRedirect getBTreeRedirect()
     {
+        if ( btreeRedirect == null )
+        {
+            throw new IllegalStateException( "this is not a btreeRedirect container" );
+        }
+
         return btreeRedirect;
     }
 }

@@ -147,6 +147,7 @@ public class JdbmNoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     public void afterLast() throws IOException
     {
         browser = table.getBTree().browse( null );
+        clearValue();
     }
 
 
@@ -166,6 +167,11 @@ public class JdbmNoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 
     public boolean previous() throws IOException
     {
+        if ( browser == null )
+        {
+            afterLast();
+        }
+
         if ( browser.getPrevious( jdbmTuple ) )
         {
             //noinspection unchecked
@@ -184,6 +190,11 @@ public class JdbmNoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 
     public boolean next() throws IOException
     {
+        if ( browser == null )
+        {
+            beforeFirst();
+        }
+
         if ( browser.getNext( jdbmTuple ) )
         {
             //noinspection unchecked

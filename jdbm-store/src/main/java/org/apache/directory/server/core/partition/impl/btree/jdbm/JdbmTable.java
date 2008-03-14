@@ -892,7 +892,23 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
 
-    private DupsContainer getDups( K key ) throws IOException
+    DupsContainer<V> getDupsContainer( byte[] serialized ) throws IOException
+    {
+        if ( serialized == null )
+        {
+            return new DupsContainer<V>( new AvlTree<V>( valueComparator ) );
+        }
+
+        if ( BTreeRedirectMarshaller.isNotRedirect( serialized ) )
+        {
+            return new DupsContainer<V>( marshaller.deserialize( serialized ) );
+        }
+
+        return new DupsContainer<V>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+    }
+
+
+    private DupsContainer<V> getDups( K key ) throws IOException
     {
         if ( null == key )
         {
@@ -901,19 +917,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( allowsDuplicates )
         {
-            byte[] serialized = ( byte[] ) bt.find( key );
-
-            if ( serialized == null )
-            {
-                return new DupsContainer<V>( new AvlTree<V>( valueComparator ) );
-            }
-
-            if ( BTreeRedirectMarshaller.isNotRedirect( serialized ) )
-            {
-                return new DupsContainer<V>( marshaller.deserialize( serialized ) );
-            }
-
-            return new DupsContainer<V>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+            return getDupsContainer( ( byte[] ) bt.find( key ) );
         }
 
         throw new IllegalStateException(

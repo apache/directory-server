@@ -25,23 +25,17 @@ import org.apache.directory.server.core.partition.impl.btree.Table;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.registries.ComparatorRegistry;
-import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 
-import static org.junit.Assert.assertNotNull;import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 import java.io.File;
-import java.util.Comparator;
-import java.util.Iterator;
 
 import jdbm.RecordManager;
 import jdbm.helper.IntegerSerializer;
 import jdbm.recman.BaseRecordManager;
-
-import javax.naming.NamingException;
 
 
 /**
@@ -98,6 +92,27 @@ public class JdbmDupsCursorTest
 
 
     @Test
+    public void testNextUnderDupLimit() throws Exception
+    {
+        // first try without duplicates at all
+        for ( int ii = 0; ii < SIZE-2; ii++ )
+        {
+            table.put( ii, ii );
+        }
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+
+        int ii = 0;
+        while ( cursor.next() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            assertEquals( ii, ( int ) tuple.getKey() );
+            assertEquals( ii, ( int ) tuple.getValue() );
+            ii++;
+        }
+    }
+
+
+    @Test
     public void testOnEmptyTable() throws Exception
     {
         Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
@@ -148,66 +163,5 @@ public class JdbmDupsCursorTest
         
         cursor.before( new Tuple<Integer, Integer>( 7, 2 ) );
         assertFalse( cursor.available() );
-    }
-
-    
-    private class MockComparatorRegistry implements ComparatorRegistry
-    {
-        private Comparator<Integer> comparator = new Comparator<Integer>()
-        {
-            public int compare( Integer i1, Integer i2 )
-            {
-                return i1.compareTo( i2 );
-            }
-        };
-
-        public String getSchemaName( String oid ) throws NamingException
-        {
-            return null;
-        }
-
-
-        public void register( ComparatorDescription description, Comparator comparator ) throws NamingException
-        {
-        }
-
-
-        public Comparator lookup( String oid ) throws NamingException
-        {
-            return comparator;
-        }
-
-
-        public boolean hasComparator( String oid )
-        {
-            return true;
-        }
-
-
-        public Iterator<String> oidIterator()
-        {
-            return null;
-        }
-
-
-        public Iterator<ComparatorDescription> comparatorDescriptionIterator()
-        {
-            return null;
-        }
-
-
-        public void unregister( String oid ) throws NamingException
-        {
-        }
-
-
-        public void unregisterSchemaElements( String schemaName )
-        {
-        }
-
-
-        public void renameSchema( String originalSchemaName, String newSchemaName )
-        {
-        }
     }
 }
