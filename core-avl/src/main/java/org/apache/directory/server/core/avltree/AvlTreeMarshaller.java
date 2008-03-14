@@ -50,18 +50,32 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
     
 
     /**
-     * 
-     * Creates a new instance of AvlTreeMarshaller.
+     * Creates a new instance of AvlTreeMarshaller with a custom key
+     * Marshaller.
      *
      * @param comparator Comparator to be used for key comparision
      * @param keyMarshaller marshaller for keys
      */
-    public AvlTreeMarshaller(Comparator<E> comparator, Marshaller<E> keyMarshaller)
+    public AvlTreeMarshaller( Comparator<E> comparator, Marshaller<E> keyMarshaller )
     {
         this.comparator = comparator;
         this.keyMarshaller = keyMarshaller;
     }
-    
+
+
+    /**
+     * Creates a new instance of AvlTreeMarshaller with the default key
+     * Marshaller which uses Java Serialization.
+     *
+     * @param comparator Comparator to be used for key comparision
+     */
+    public AvlTreeMarshaller( Comparator<E> comparator )
+    {
+        this.comparator = comparator;
+        this.keyMarshaller = ( Marshaller<E> ) DefaultMarshaller.INSTANCE;
+    }
+
+
     /**
      * Marshals the given tree to bytes
      * @param tree the tree to be marshalled

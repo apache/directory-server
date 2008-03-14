@@ -25,11 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Comparator;
 
 import org.junit.Before;
@@ -136,6 +132,64 @@ public class AvlTreeMarshallerTest
             assertEquals( ii, ( int ) cursor.get() );
             cursor.next();
         }
+    }
+
+
+    @Test
+    public void testRoundTripManyEntriesDefaultSerialization() throws Exception
+    {
+        Comparator<Bar> barComparator = new Comparator<Bar>() {
+            public int compare( Bar o1, Bar o2 )
+            {
+                return o1.intValue.compareTo( o2.intValue );
+            }
+        };
+
+        AvlTree<Bar> original = new AvlTree<Bar>( barComparator );
+
+        for ( int ii = 0; ii < 100; ii++ )
+        {
+            original.insert( new Bar( ii ) );
+        }
+
+        AvlTreeMarshaller<Bar> marshaller = new AvlTreeMarshaller<Bar>( barComparator );
+        byte[] bites = marshaller.serialize( original );
+        AvlTree<Bar> deserialized = marshaller.deserialize( bites );
+        assertFalse( deserialized.isEmpty() );
+        assertEquals( 100, deserialized.getSize() );
+
+        AvlTreeCursor<Bar> cursor = new AvlTreeCursor<Bar>( deserialized );
+        cursor.first();
+        for ( int ii = 0; ii < 100; ii++ )
+        {
+            assertEquals( ii, ( int ) cursor.get().intValue );
+            cursor.next();
+        }
+    }
+
+
+    static class Bar implements Serializable
+    {
+        Integer intValue = 37;
+        String stringValue = "bar";
+        long longValue = 32L;
+        Foo fooValue = new Foo();
+
+
+        public Bar( int ii )
+        {
+            intValue = ii;
+        }
+    }
+
+
+    static class Foo implements Serializable
+    {
+        float floatValue = 3;
+        String stringValue = "foo";
+        double doubleValue = 1.2;
+        byte byteValue = 3;
+        char charValue = 'a';
     }
 
 
