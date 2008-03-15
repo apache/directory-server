@@ -68,9 +68,9 @@ import static org.junit.Assert.fail;
  */
 public class ServerStringValueTest
 {
-    static private TestServerEntryUtils.S s;
-    static private TestServerEntryUtils.AT at;
-    static private TestServerEntryUtils.MR mr;
+    private TestServerEntryUtils.S s;
+    private TestServerEntryUtils.AT at;
+    private TestServerEntryUtils.MR mr;
 
     
     /**

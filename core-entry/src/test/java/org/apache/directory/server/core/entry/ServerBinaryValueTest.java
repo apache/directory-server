@@ -60,9 +60,9 @@ import static org.junit.Assert.fail;
  */
 public class ServerBinaryValueTest
 {
-    static private TestServerEntryUtils.S s;
-    static private TestServerEntryUtils.AT at;
-    static private TestServerEntryUtils.MR mr;
+    private TestServerEntryUtils.S s;
+    private TestServerEntryUtils.AT at;
+    private TestServerEntryUtils.MR mr;
     
     private static final byte[] BYTES1 = new byte[]{0x01, 0x02, 0x03, 0x04};
     private static final byte[] BYTES2 = new byte[]{(byte)0x81, (byte)0x82, (byte)0x83, (byte)0x84};

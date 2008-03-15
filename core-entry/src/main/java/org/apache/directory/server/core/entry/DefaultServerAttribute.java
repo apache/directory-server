@@ -367,7 +367,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( getErrorMessage( attributeType ) );
+            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
         }
 
         this.attributeType = attributeType;
@@ -413,7 +413,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( getErrorMessage( attributeType ) );
+            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
         }
         
         setAttributeType( attributeType );
@@ -427,7 +427,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null ) 
         {
-            String message = getErrorMessage( attributeType );
+            String message = "The AttributeType parameter should not be null";
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
@@ -472,7 +472,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( getErrorMessage( attributeType ) );
+            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
         }
         
         setAttributeType( attributeType );
@@ -497,7 +497,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( getErrorMessage( attributeType ) );
+            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
         }
 
         setAttributeType( attributeType );
@@ -522,7 +522,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         if ( attributeType == null )
         {
-            throw new IllegalArgumentException( getErrorMessage( attributeType ) );
+            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
         }
 
         setAttributeType( attributeType );
