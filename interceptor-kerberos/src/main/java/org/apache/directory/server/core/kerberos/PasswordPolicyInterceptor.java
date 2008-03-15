@@ -140,7 +140,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
 
             ServerAttribute attr = (ServerAttribute)mod.getAttribute();
 
-            if ( attr.isA( SchemaConstants.USER_PASSWORD_AT ) )
+            if ( attr.instanceOf( SchemaConstants.USER_PASSWORD_AT ) )
             {
                 Value<?> userPassword = attr.get();
                 String pwd = "";
