@@ -19,10 +19,12 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.shared.ldap.entry.AbstractValue;
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -31,8 +33,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
-import java.util.Iterator;
-
 
 /**
  * A server side entry attribute aware of schema.
@@ -40,13 +40,368 @@ import java.util.Iterator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class DefaultServerAttribute extends AbstractServerAttribute
+public final class DefaultServerAttribute extends DefaultClientAttribute implements ServerAttribute
 {
     /** Used for serialization */
     public static final long serialVersionUID = 2L;
     
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultServerAttribute.class );
+    
+    /** The associated AttributeType */
+    protected transient AttributeType attributeType;
+    
+    
+    // -----------------------------------------------------------------------
+    // utility methods
+    // -----------------------------------------------------------------------
+    /**
+     *  Check the attributeType member. It should not be null, 
+     *  and it should contains a syntax.
+     */
+    protected String getErrorMessage( AttributeType attributeType )
+    {
+        try
+        {
+            if ( attributeType == null )
+            {
+                return "The AttributeType parameter should not be null";
+            }
+            
+            if ( attributeType.getSyntax() == null )
+            {
+                return "There is no Syntax associated with this attributeType";
+            }
+
+            return null;
+        }
+        catch ( NamingException ne )
+        {
+            return "This AttributeType is incorrect";
+        }
+    }
+    
+    
+    /**
+     * Private helper method used to set an UpId from an attributeType
+     */
+    private String getUpId( AttributeType attributeType )
+    {
+        String upId = attributeType.getName();
+        
+        if ( upId == null )
+        {
+            upId = attributeType.getOid();
+        }
+        
+        return upId;
+    }
+    
+    
+    /**
+     * <p>
+     * Check if the current attribute type is of the expected attributeType
+     * </p>
+     * <p>
+     * This method won't tell if the current attribute is a descendant of 
+     * the attributeType. For instance, the "CN" serverAttribute will return
+     * false if we ask if it's an instance of "Name". 
+     * </p> 
+     *
+     * @param attributeId The AttributeType ID to check
+     * @return True if the current attribute is of the expected attributeType
+     * @throws InvalidAttributeValueException If there is no AttributeType
+     */
+    public boolean instanceOf( String attributeId ) throws InvalidAttributeValueException
+    {
+        String trimmedId = StringTools.trim( attributeId );
+        
+        if ( StringTools.isEmpty( trimmedId ) )
+        {
+            return false;
+        }
+        
+        String normId = StringTools.lowerCaseAscii( trimmedId );
+        
+        for ( String name:attributeType.getNames() )
+        {
+            if ( normId.equalsIgnoreCase( name ) )
+            {
+                return true;
+            }
+        }
+        
+        return normId.equalsIgnoreCase( attributeType.getOid() );
+    }
+    
+
+    /**
+     * <p>
+     * Overload the {@link DefaultClientAttribute#setId(String)} method.
+     * </p>
+     * <p>
+     * As the attributeType has already been set, we have to be sure that the 
+     * argument is compatible with the attributeType's name. 
+     * </p>
+     * <p>
+     * If the given ID is not compatible with the attributeType's possible
+     * names, the previously loaded ID will be kept.
+     * </p>
+     *
+     * @param upId The attribute ID
+     * @param attributeType The associated attributeType
+     */
+    public void setId( String id )
+    {
+        if ( !StringTools.isEmpty( StringTools.trim( id  ) ) )
+        {
+            if ( attributeType.getName() == null )
+            {
+                // If the name is null, then we may have to store an OID
+                if ( OID.isOID( id )  && attributeType.getOid().equals( id ) )
+                {
+                    // Everything is fine, store the upId.
+                    // This should not happen...
+                    super.setId( id );
+                }
+            }
+            else
+            {
+                // We have at least one name. Check that the normalized upId
+                // is one of those names. Otherwise, the upId may be an OID too.
+                // In this case, it must be equals to the attributeType OID.
+                String normId = StringTools.lowerCaseAscii( StringTools.trim( id ) );
+                
+                for ( String atName:attributeType.getNames() )
+                {
+                    if ( atName.equalsIgnoreCase( normId ) )
+                    {
+                        // Found ! We can store the upId and get out
+                        super.setId( normId );
+                        return;
+                    }
+                }
+                
+                // Last case, the UpId is an OID
+                if ( OID.isOID( normId ) && attributeType.getOid().equals( normId ) )
+                {
+                    // We have an OID : stores it
+                    super.setUpId( normId );
+                }
+                else
+                {
+                    // The id is incorrect : this is not allowed 
+                    throw new IllegalArgumentException( "The ID '" + id + "'is incompatible with the AttributeType's id '" + attributeType.getName() + "'" );
+                }
+            }
+        }
+        else
+        {
+            throw new IllegalArgumentException( "An ID cannnot be null, empty, or resolved to an emtpy" +
+            " value when trimmed" );
+        }
+    }
+    
+    
+    /**
+     * <p>
+     * Overload the {@link DefaultClientAttribute#setUpId(String)} method.
+     * </p>
+     * <p>
+     * As the attributeType has already been set, we have to be sure that the 
+     * argument is compatible with the attributeType's name. 
+     * </p>
+     * <p>
+     * If the given ID is not compatible with the attributeType's possible
+     * names, the previously loaded ID will be kept.
+     * </p>
+     *
+     * @param upId The attribute ID
+     * @param attributeType The associated attributeType
+     */
+    public void setUpId( String upId )
+    {
+        if ( !StringTools.isEmpty( StringTools.trim( upId  ) ) )
+        {
+            if ( attributeType.getName() == null )
+            {
+                // If the name is null, then we may have to store an OID
+                if ( OID.isOID( upId )  && attributeType.getOid().equals( upId ) )
+                {
+                    // Everything is fine, store the upId.
+                    // This should not happen...
+                    super.setUpId( upId );
+                    
+                }
+            }
+            else
+            {
+                // We have at least one name. Check that the normalized upId
+                // is one of those names. Otherwise, the upId may be an OID too.
+                // In this case, it must be equals to the attributeType OID.
+                String normUpId = StringTools.lowerCaseAscii( StringTools.trim( upId ) );
+                
+                for ( String id:attributeType.getNames() )
+                {
+                    if ( id.equalsIgnoreCase( normUpId ) )
+                    {
+                        // Found ! We can store the upId and get out
+                        super.setUpId( upId );
+                        return;
+                    }
+                }
+                
+                // Last case, the UpId is an OID
+                if ( OID.isOID( normUpId ) && attributeType.getOid().equals( normUpId ) )
+                {
+                    // We have an OID : stores it
+                    super.setUpId( upId );
+                }
+            }
+        }
+    }
+    
+    
+    /**
+     * <p>
+     * Set the user provided ID. If we have none, the upId is assigned
+     * the attributetype's name. If it does not have any name, we will
+     * use the OID.
+     * </p>
+     * <p>
+     * If we have an upId and an AttributeType, they must be compatible. :
+     *  - if the upId is an OID, it must be the AttributeType's OID
+     *  - otherwise, its normalized form must be equals to ones of
+     *  the attributeType's names.
+     * </p>
+     * <p>
+     * In any case, the ATtributeType will be changed. The caller is responsible for
+     * the present values to be compatoble with the new AttributeType.
+     * </p>
+     *
+     * @param upId The attribute ID
+     * @param attributeType The associated attributeType
+     */
+    public void setUpId( String upId, AttributeType attributeType )
+    {
+        if ( StringTools.isEmpty( StringTools.trim( upId  ) ) )
+        {
+            super.setUpId( getUpId( attributeType ) );
+            this.attributeType = attributeType;
+        }
+        else
+        {
+            String name = attributeType.getName();
+            
+            if ( name == null )
+            {
+                // If the name is null, then we may have to store an OID
+                if ( OID.isOID( upId )  && attributeType.getOid().equals( upId ) )
+                {
+                    //  Everything is fine, store the upId. 
+                    super.setUpId( upId );
+                    this.attributeType = attributeType;
+                }
+                else
+                {
+                    // We have a difference or the upId is not a valid OID :
+                    // we will use the attributeTypeOID in this case.
+                    LOG.warn( "The upID ({}) is not an OID or is different from the AttributeType OID({})",
+                        upId, attributeType.getOid() );
+                    super.setUpId( attributeType.getOid() );
+                    this.attributeType = attributeType;
+                }
+            }
+            else
+            {
+                // We have at least one name. Check that the normalized upId
+                // is one of those names. Otherwise, the upId may be an OID too.
+                // In this case, it must be equals to the attributeType OID.
+                String normUpId = StringTools.lowerCaseAscii( StringTools.trim( upId ) );
+                
+                for ( String id:attributeType.getNames() )
+                {
+                    if ( id.equalsIgnoreCase( normUpId ) )
+                    {
+                        // Found ! We can store the upId and get out
+                        super.setUpId( upId );
+                        this.attributeType = attributeType;
+                        return;
+                    }
+                }
+    
+                // UpId was not found in names. It should be an OID, or if not, we 
+                // will use the AttributeType name.
+                if ( OID.isOID( normUpId ) && attributeType.getOid().equals( normUpId ) )
+                {
+                    // We have an OID : stores it
+                    super.setUpId( upId );
+                    this.attributeType = attributeType;
+                }
+                else
+                {
+                    String message = "The upID (" + upId + ") is not an OID or is different from the AttributeType OID (" + 
+                                        attributeType.getOid() + ")";
+                    // Not a valid OID : use the AttributeTypes OID name instead
+                    LOG.error( message );
+                    throw new IllegalArgumentException( message );
+                }
+            }
+        }
+    }
+    
+    
+    /**
+     * <p>
+     * Set the attribute type associated with this ServerAttribute.
+     * </p>
+     * <p>
+     * The current attributeType will be replaced. It is the responsibility of
+     * the caller to insure that the existing values are compatible with the new
+     * AttributeType
+     * </p>
+     *
+     * @param the attributeType associated with this entry attribute
+     */
+    public void setAttributeType( AttributeType attributeType )
+    {
+        if ( attributeType == null )
+        {
+            throw new IllegalArgumentException( getErrorMessage( attributeType ) );
+        }
+
+        this.attributeType = attributeType;
+        setUpId( null, attributeType );
+        
+        try
+        {
+            if ( attributeType.getSyntax().isHumanReadable() )
+            {
+                isHR = true;
+            }
+            else
+            {
+                isHR = false;
+            }
+        }
+        catch ( NamingException ne )
+        {
+            // If we have an exception while trying to get the Syntax for this attribute
+            // just set it as Binary
+            isHR = false;
+        }
+    }
+    
+    
+    /**
+     * Get the attribute type associated with this ServerAttribute.
+     *
+     * @return the attributeType associated with this entry attribute
+     */
+    public AttributeType getAttributeType()
+    {
+        return attributeType;
+    }
     
     
     // maybe have some additional convenience constructors which take
@@ -61,8 +416,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
             throw new IllegalArgumentException( getErrorMessage( attributeType ) );
         }
         
-        this.attributeType = attributeType;
-        setUpId( null, attributeType );
+        setAttributeType( attributeType );
     }
 
 
@@ -78,8 +432,8 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
             throw new IllegalArgumentException( message );
         }
 
-        this.attributeType = attributeType;
-        setUpId( upId, attributeType );
+        setAttributeType( attributeType );
+        setUpId( upId );
     }
 
 
@@ -94,7 +448,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      * @param vals an initial set of values for this attribute
      * @throws NamingException if there are problems creating the new attribute
      */
-    public DefaultServerAttribute( AttributeType attributeType, Value<?>... vals ) throws NamingException
+    public DefaultServerAttribute( AttributeType attributeType, Value<?>... vals )
     {
         this( null, attributeType, vals );
     }
@@ -114,74 +468,23 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      * @param vals an initial set of values for this attribute
      * @throws NamingException if there are problems creating the new attribute
      */
-    public DefaultServerAttribute( String upId, AttributeType attributeType, Value<?>... vals ) throws NamingException
+    public DefaultServerAttribute( String upId, AttributeType attributeType, Value<?>... vals )
     {
         if ( attributeType == null )
         {
             throw new IllegalArgumentException( getErrorMessage( attributeType ) );
         }
         
-        this.attributeType = attributeType;
-        
-        // The value can be null, this is a valid value.
-        if ( vals[0] == null )
-        {
-            if ( attributeType.getSyntax().isHumanReadable() )
-            {
-                add( new ServerStringValue( attributeType ) );
-            }
-            else
-            {
-                add( new ServerBinaryValue( attributeType ) );
-            }
-        }
-        else
-        {
-            for ( Value<?> val:vals )
-            {
-                if ( val instanceof ServerStringValue )
-                {
-                    ServerStringValue serverString = ( ServerStringValue ) val;
-
-                    if ( attributeType.equals( serverString.getAttributeType() ) )
-                    {
-                        add( val );
-                    }
-                    else
-                    {
-                        add( new ServerStringValue( attributeType, serverString.get() ) );
-                    }
-                }
-                else if ( val instanceof ServerBinaryValue )
-                {
-                    ServerBinaryValue serverBinary = ( ServerBinaryValue ) val;
-
-                    if ( attributeType.equals( serverBinary.getAttributeType() ) )
-                    {
-                        add( val );
-                    }
-                    else
-                    {
-                        add( new ServerBinaryValue( attributeType, serverBinary.getCopy() ) );
-                    }
-                }
-                else
-                {
-                    String message = "Unknown value type: " + val.getClass().getName();
-                    LOG.error( message );
-                    throw new IllegalStateException( message );
-                }
-            }
-        }
-        
+        setAttributeType( attributeType );
         setUpId( upId, attributeType );
+        add( vals );
     }
 
 
     /**
      * Create a new instance of a EntryAttribute, without ID but with some values.
      */
-    public DefaultServerAttribute( AttributeType attributeType, String... vals ) throws NamingException
+    public DefaultServerAttribute( AttributeType attributeType, String... vals )
     {
         this( null, attributeType, vals );
     }
@@ -190,14 +493,14 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     /**
      * Create a new instance of a EntryAttribute.
      */
-    public DefaultServerAttribute( String upId, AttributeType attributeType, String... vals ) throws NamingException
+    public DefaultServerAttribute( String upId, AttributeType attributeType, String... vals )
     {
         if ( attributeType == null )
         {
             throw new IllegalArgumentException( getErrorMessage( attributeType ) );
         }
 
-        this.attributeType = attributeType;
+        setAttributeType( attributeType );
         add( vals );
         setUpId( upId, attributeType );
     }
@@ -206,7 +509,7 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     /**
      * Create a new instance of a EntryAttribute, with some byte[] values.
      */
-    public DefaultServerAttribute( AttributeType attributeType, byte[]... vals ) throws NamingException
+    public DefaultServerAttribute( AttributeType attributeType, byte[]... vals )
     {
         this( null, attributeType, vals );
     }
@@ -215,14 +518,14 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     /**
      * Create a new instance of a EntryAttribute, with some byte[] values.
      */
-    public DefaultServerAttribute( String upId, AttributeType attributeType, byte[]... vals ) throws NamingException
+    public DefaultServerAttribute( String upId, AttributeType attributeType, byte[]... vals )
     {
         if ( attributeType == null )
         {
             throw new IllegalArgumentException( getErrorMessage( attributeType ) );
         }
 
-        this.attributeType = attributeType;
+        setAttributeType( attributeType );
         add( vals );
         setUpId( upId, attributeType );
     }
@@ -244,42 +547,38 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
 
 
     /**
-     * Gets the attribute type associated with this ServerAttribute.
-     *
-     * @return the attributeType associated with this entry attribute
+     * <p>
+     * Overload the ClientAttribte isHR method : we can't change this flag
+     * for a ServerAttribute, as the HR is already set using the AttributeType.
+     * Set the attribute to Human Readable or to Binary. 
+     * </p>
+     * 
+     * @param isHR <code>true</code> for a Human Readable attribute, 
+     * <code>false</code> for a Binary attribute.
      */
-    public AttributeType getType()
+    public void setHR( boolean isHR )
     {
-        return attributeType;
+        // Do nothing...
     }
 
-
+    
     /**
-     * Get's the user provided identifier for this entry.  This is the value
-     * that will be used as the identifier for the attribute within the
-     * entry.  If this is a commonName attribute for example and the user
-     * provides "COMMONname" instead when adding the entry then this is
-     * the format the user will have that entry returned by the directory
-     * server.  To do so we store this value as it was given and track it
-     * in the attribute using this property.
-     *
-     * @return the user provided identifier for this attribute
-     */
-    public String getUpId()
-    {
-        return upId;
-    }
-
-
-    /**
+     * <p>
      * Checks to see if this attribute is valid along with the values it contains.
-     *
+     * </p>
+     * <p>
+     * An attribute is valid if :
+     * <li>All of its values are valid with respect to the attributeType's syntax checker</li>
+     * <li>If the attributeType is SINGLE-VALUE, then no more than a value should be present</li>
+     *</p>
      * @return true if the attribute and it's values are valid, false otherwise
      * @throws NamingException if there is a failure to check syntaxes of values
      */
     public boolean isValid() throws NamingException
     {
-        if ( attributeType.isSingleValue() && values.size() > 1 )
+        // First check if the attribute has more than one value
+        // if the attribute is supposed to be SINGLE_VALUE
+        if ( attributeType.isSingleValue() && ( values.size() > 1 ) )
         {
             return false;
         }
@@ -297,80 +596,102 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
 
 
     /**
-     * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value)
-     */
-    public boolean add( Value<?> val ) throws InvalidAttributeValueException, NamingException
-    {
-        if ( attributeType.getSyntax().isHumanReadable() )
-        {
-            if ( val == null )
-            {
-                Value<String> nullSV = new ServerStringValue( attributeType, (String)null );
-                
-                if ( values.contains( nullSV ) )
-                {
-                    return false;
-                }
-                else
-                {
-                    values.add( nullSV );
-                    return true;
-                }
-            }
-            
-            if ( !( val instanceof ServerStringValue ) )
-            {
-                String message = "The value must be a String, as its AttributeType is H/R";
-                LOG.error( message );
-                throw new InvalidAttributeValueException( message );
-            }
-        }
-        else
-        {
-            if ( val == null )
-            {
-                Value<byte[]> nullSV = new ServerBinaryValue( attributeType, (byte[])null );
-                
-                if ( values.contains( nullSV ) )
-                {
-                    return false;
-                }
-                else
-                {
-                    values.add( nullSV );
-                    return true;
-                }
-            }
-            
-            if ( !( val instanceof AbstractValue ) )
-            {
-                String message = "The value must be a byte[], as its AttributeType is not H/R";
-                LOG.error( message );
-                throw new InvalidAttributeValueException( message );
-            }
-        }
-        
-        if ( values.contains( val ) )
-        {
-            return false;
-        }
-        
-        return values.add( val );
-    }
-
-
-    /**
      * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value...)
      */
-    public int add( Value<?>... vals ) throws InvalidAttributeValueException, NamingException
+    public int add( Value<?>... vals )
     {
         int nbAdded = 0;
         
         for ( Value<?> val:vals )
         {
-            if ( add( val ) )
+            try
             {
-                nbAdded ++;
+                if ( attributeType.getSyntax().isHumanReadable() )
+                {
+                    if ( val == null )
+                    {
+                        Value<String> nullSV = new ServerStringValue( attributeType, (String)null );
+                        
+                        if ( !values.contains( nullSV ) )
+                        {
+                            values.add( nullSV );
+                            nbAdded++;
+                        }
+                    }
+                    else if ( val instanceof ServerStringValue )
+                    {
+                        if ( !values.contains( val ) )
+                        {
+                            if ( values.add( val ) )
+                            {
+                                nbAdded++;
+                            }
+                        }
+                    }
+                    else if ( val instanceof ClientStringValue )
+                    {
+                        // If we get a Client value, convert it to a Server value first 
+                        Value<String> serverStringValue = new ServerStringValue( attributeType, (String)val.get() ); 
+                        
+                        if ( !values.contains( serverStringValue ) )
+                        {
+                            if ( values.add( serverStringValue ) )
+                            {
+                                nbAdded++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        String message = "The value must be a String, as its AttributeType is H/R";
+                        LOG.error( message );
+                    }
+                }
+                else
+                {
+                    if ( val == null )
+                    {
+                        Value<byte[]> nullSV = new ServerBinaryValue( attributeType, (byte[])null );
+                        
+                        if ( !values.contains( nullSV ) )
+                        {
+                            values.add( nullSV );
+                            nbAdded++;
+                        }
+                    }
+                    else if ( ( val instanceof ClientBinaryValue ) )
+                    {
+                        Value<byte[]> serverBinaryValue = new ServerBinaryValue( attributeType, (byte[])val.get() ); 
+                        
+                        if ( !values.contains( serverBinaryValue ) )
+                        {
+                            if ( values.add( serverBinaryValue ) )
+                            {
+                                nbAdded++;
+                            }
+                        }
+                    }
+                    else if ( val instanceof ServerBinaryValue )
+                    {
+                        if ( !values.contains( val ) )
+                        {
+                            if ( values.add( val ) )
+                            {
+                                nbAdded++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        String message = "The value must be a byte[], as its AttributeType is not H/R";
+                        LOG.error( message );
+                    }
+                }
+            }
+            catch ( NamingException ne )
+            {
+                String message = "Error while adding value '" + val.toString() +"' : " + ne.getMessage();
+                LOG.error( message );
             }
         }
         
@@ -379,76 +700,97 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
 
 
     /**
-     * @see EntryAttribute#add(String)
+     * <p>
+     * Adds some values to this attribute. If the new values are already present in
+     * the attribute values, the method has no effect.
+     * </p>
+     * <p>
+     * The new values are added at the end of list of values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were added.
+     * </p>
+     * If the value's type is different from the attribute's type,
+     * the value is not added.
+     *
+     * @param val some new values to be added which may be null
+     * @return the number of added values, or 0 if none has been added
      */
-    public boolean add( String val ) throws InvalidAttributeValueException, NamingException
+    public int add( String... vals )
     {
-        if ( attributeType.getSyntax().isHumanReadable() )
+        if ( isHR )
         {
-            return add( new ServerStringValue( attributeType, val ) );
+            int nbAdded = 0;
+            
+            for ( String val:vals )
+            {
+                if ( add( new ServerStringValue( attributeType, val ) ) != 0 )
+                {
+                    nbAdded++;
+                }
+                else
+                {
+                    LOG.error( "The value '" + val + "' is incorrect, it hasn't been added" );
+                }
+            }
+            
+            return nbAdded;
         }
         else
         {
-            String message = "The value must be a String, as its AttributeType is H/R";
-            LOG.warn( message );
-            return add( new ServerBinaryValue( attributeType, StringTools.getBytesUtf8( val ) ) );
+            // We can't add String values into a Binary serverAttribute
+            return 0;
         }
-    }
-
-
-    /**
-     * @see EntryAttribute#add(String...)
-     */
-    public int add( String... vals ) throws NamingException
-    {
-        int nbAdded = 0;
-        
-        for ( String val:vals )
-        {
-            if ( add( val ) )
-            {
-                nbAdded ++;
-            }
-        }
-        
-        return nbAdded;
     }    
     
     
     /**
-     * @see EntryAttribute#add(byte[])
+     * <p>
+     * Adds some values to this attribute. If the new values are already present in
+     * the attribute values, the method has no effect.
+     * </p>
+     * <p>
+     * The new values are added at the end of list of values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were added.
+     * </p>
+     * <p>
+     * If the value's type is different from the attribute's type,
+     * the value is not added.
+     * </p>
+     * It's the responsibility of the caller to check if the stored
+     * values are consistent with the attribute's type.
+     * <p>
+     *
+     * @param val some new values to be added which may be null
+     * @return the number of added values, or 0 if none has been added
      */
-    public boolean add( byte[] val ) throws InvalidAttributeValueException, NamingException
+    public int add( byte[]... vals )
     {
-        if ( ! attributeType.getSyntax().isHumanReadable() )
+        if ( !isHR )
         {
-            return add( new ServerBinaryValue( attributeType, val ) );
+            int nbAdded = 0;
+            
+            for ( byte[] val:vals )
+            {
+                if ( add( new ServerBinaryValue( attributeType, val ) ) != 0 )
+                {
+                    nbAdded++;
+                }
+                else
+                {
+                    LOG.error( "The value '" + val + "' is incorrect, it hasn't been added" );
+                }
+            }
+            
+            return nbAdded;
         }
         else
         {
-            String message = "The value must be a String, as its AttributeType is H/R";
-            LOG.error( message );
-            throw new InvalidAttributeValueException( message );
+            // We can't add Binary values into a String serverAttribute
+            return 0;
         }
-    }
-
-    
-    /**
-     * @see EntryAttribute#add(byte[]...)
-     */
-    public int add( byte[]... vals ) throws InvalidAttributeValueException, NamingException
-    {
-        int nbAdded = 0;
-        
-        for ( byte[] val:vals )
-        {
-            if ( add( val ) )
-            {
-                nbAdded ++;
-            }
-        }
-        
-        return nbAdded;
     }    
     
     
@@ -463,26 +805,65 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
 
 
     /**
-     * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value)
-     */
-    public boolean contains( Value<?> val )
-    {
-        return values.contains( val );
-    }
-
-
-    /**
-     * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value...)
+     * <p>
+     * Indicates whether the specified values are some of the attribute's values.
+     * </p>
+     * <p>
+     * If the Attribute is HR, te metho will only accept String Values. Otherwise, 
+     * it will only accept Binary values.
+     * </p>
+     *
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
      */
     public boolean contains( Value<?>... vals )
     {
         // Iterate through all the values, and quit if we 
-        // don't find one in the values
-        for ( Value<?> val:vals )
+        // don't find one in the values. We have to separate the check
+        // depending on the isHR flag value.
+        if ( isHR )
         {
-            if ( !values.contains( val ) )
+            for ( Value<?> val:vals )
             {
-                return false;
+                if ( val instanceof ServerStringValue )
+                {
+                    if ( !values.contains( val ) )
+                    {
+                        return false;
+                    }
+                }
+                else if ( val instanceof ClientStringValue )
+                {
+                    ServerStringValue serverValue = new ServerStringValue( attributeType, (String)val.get() );
+                    
+                    if ( !values.contains( serverValue ) )
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    // Not a String value
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            for ( Value<?> val:vals )
+            {
+                if ( val instanceof ClientBinaryValue )
+                {
+                    if ( !values.contains( val ) )
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    // Not a Binary value
+                    return false;
+                }
             }
         }
         
@@ -491,216 +872,131 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
 
 
     /**
-     * @see EntryAttribute#contains(String)
-     */
-    public boolean contains( String val )
-    {
-        try
-        {
-            if ( !attributeType.getSyntax().isHumanReadable() )
-            {
-                return false;
-            }
-        }
-        catch ( NamingException ne )
-        {
-            // We have had a pb while getting the syntax...
-            return false;
-        }
-        
-        ServerStringValue value = new ServerStringValue( attributeType, val );
-        
-        return values.contains( value );
-    }
-
-
-    /**
-     * @see EntryAttribute#contains(String...)
+     * <p>
+     * Indicates whether all the specified values are attribute's values. If
+     * at least one value is not an attribute's value, this method will return 
+     * <code>false</code>
+     * </p>
+     * <p>
+     * If the Attribute is not HR, this method will returns <code>false</code>
+     * </p>
+     *
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
      */
     public boolean contains( String... vals )
     {
-        // Iterate through all the values, and quit if we 
-        // don't find one in the values
-        for ( String val:vals )
+        if ( isHR )
         {
-            if ( !contains( val ) )
+            // Iterate through all the values, and quit if we 
+            // don't find one in the values
+            for ( String val:vals )
             {
-                return false;
+                ServerStringValue value = new ServerStringValue( attributeType, val );
+                
+                if ( !values.contains( value ) )
+                {
+                    return false;
+                }
             }
+            
+            return true;
         }
-        
-        return true;
-    }
-    
-    
-    /**
-     * @see EntryAttribute#contains(byte[])
-     */
-    public boolean contains( byte[] val )
-    {
-        try
+        else
         {
-            if ( attributeType.getSyntax().isHumanReadable() )
-            {
-                return false;
-            }
-        }
-        catch ( NamingException ne )
-        {
-            // We have had a pb while getting the syntax...
             return false;
         }
-        
-        ServerBinaryValue sbv = new ServerBinaryValue( attributeType, val );
-        return values.contains( sbv );
     }
-
-
+    
+    
     /**
-     * @see EntryAttribute#contains(byte[]...)
+     * <p>
+     * Indicates whether all the specified values are attribute's values. If
+     * at least one value is not an attribute's value, this method will return 
+     * <code>false</code>
+     * </p>
+     * <p>
+     * If the Attribute is HR, this method will returns <code>false</code>
+     * </p>
+     *
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
      */
     public boolean contains( byte[]... vals )
     {
-        // Iterate through all the values, and quit if we 
-        // don't find one in the values
-        for ( byte[] val:vals )
+        if ( !isHR )
         {
-            if ( !contains( val ) )
+            // Iterate through all the values, and quit if we 
+            // don't find one in the values
+            for ( byte[] val:vals )
             {
-                return false;
+                ServerBinaryValue value = new ServerBinaryValue( attributeType, val );
+                
+                if ( !values.contains( value ) )
+                {
+                    return false;
+                }
             }
-        }
-        
-        return true;
-    }
-    
-    
-    /**
-     * Get the first value of this attribute. If there is none, 
-     * null is returned.
-     * 
-     * Note : as we are storing values into a Set, one can't assume
-     * the values to be ordered in any way. This method is meant to
-     * be used if the attribute hold only one value.
-     * 
-     *  @return The first value for this attribute.
-     */
-    public Value<?> get()
-    {
-        if ( values.isEmpty() )
-        {
-            return null;
-        }
-        
-        return values.iterator().next();
-    }
-
-    
-    /**
-     * Get the String value, if and only if the value is known to be a String,
-     * otherwise a InvalidAttributeValueException will be thrown
-     *
-     * @return The value as a String
-     * @throws InvalidAttributeValueException If the value is a byte[]
-     */
-    public String getString() throws InvalidAttributeValueException
-    {
-        Value<?> value = get();
-        
-        if ( value instanceof ServerStringValue )
-        {
-            return (String)value.get();
+            
+            return true;
         }
         else
         {
-            String message = "The value is expected to be a String";
-            LOG.error( message );
-            throw new InvalidAttributeValueException( message );
+            return false;
         }
     }
-
-
-    /**
-     * Get the byte[] value, if and only if the value is known to be Binary,
-     * otherwise a InvalidAttributeValueException will be thrown
-     *
-     * @return The value as a String
-     * @throws InvalidAttributeValueException If the value is a String
-     */
-    public byte[] getBytes() throws InvalidAttributeValueException
-    {
-        Value<?> value = get();
-        
-        if ( value instanceof ClientBinaryValue )
-        {
-            return (byte[])value.get();
-        }
-        else
-        {
-            String message = "The value is expected to be a byte[]";
-            LOG.error( message );
-            throw new InvalidAttributeValueException( message );
-        }
-    }
-
-
-    /**
-     * Get all the stored values.
-     * 
-     * @return An iterator over the values stored into the attribute
-     */
-    public Iterator<Value<?>> getAll()
-    {
-        return iterator();
-    }
-
-
-    /**
-     * Get the number or values stored in the attribute
-     * 
-     * @return the number of stored values. As 'null' can be a valid
-     * value, it is counted as one result, not 0.
-     */
-    public int size()
-    {
-        return values.size();
-    }
-
-
-    /**
-     * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value)
-     */
-    public boolean remove( Value<?> val )
-    {
-        return values.remove( val );
-    }
-
-
+    
+    
     /**
      * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value...)
      */
     public boolean remove( Value<?>... vals )
     {
-        boolean removed = false;
+        boolean removed = true;
         
         // Loop through all the values to remove. If one of
         // them is not present, the method will return false.
-        for ( Value<?> val:vals )
+        // As the attribute may be HR or not, we have two separated treatments
+        if ( isHR )
         {
-            removed &= values.remove( val );
+            for ( Value<?> val:vals )
+            {
+                if ( val instanceof ClientStringValue )
+                {
+                    ServerStringValue ssv = new ServerStringValue( attributeType, (String)val.get() );
+                    removed &= values.remove( ssv );
+                }
+                else if ( val instanceof ServerStringValue )
+                {
+                    removed &= values.remove( val );
+                }
+                else
+                {
+                    removed = false;
+                }
+            }
+        }
+        else
+        {
+            for ( Value<?> val:vals )
+            {
+                if ( val instanceof ClientBinaryValue )
+                {
+                    ServerBinaryValue sbv = new ServerBinaryValue( attributeType, (byte[])val.get() );
+                    removed &= values.remove( sbv );
+                }
+                else if ( val instanceof ServerBinaryValue )
+                {
+                    removed &= values.remove( val );
+                }
+                else
+                {
+                    removed = false;
+                }
+            }
         }
         
         return removed;
-    }
-
-
-    /**
-     * @see EntryAttribute#remove(byte[])
-     */
-    public boolean remove( byte[] val )
-    {
-        ServerBinaryValue sbv = new ServerBinaryValue( attributeType, val );
-        return values.remove( sbv );
     }
 
 
@@ -709,6 +1005,11 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
      */
     public boolean remove( byte[]... vals )
     {
+        if ( isHR ) 
+        {
+            return false;
+        }
+        
         boolean removed = true;
         
         for ( byte[] val:vals )
@@ -722,20 +1023,15 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
 
 
     /**
-     * @see EntryAttribute#remove(String)
-     */
-    public boolean remove( String val )
-    {
-        ServerStringValue ssv = new ServerStringValue( attributeType, val );
-        return values.remove( ssv );
-    }
-
-
-    /**
      * @see EntryAttribute#remove(String...)
      */
     public boolean remove( String... vals )
     {
+        if ( !isHR )
+        {
+            return false;
+        }
+        
         boolean removed = true;
         
         for ( String val:vals )
@@ -748,14 +1044,64 @@ public final class DefaultServerAttribute extends AbstractServerAttribute
     }
 
 
+    //-------------------------------------------------------------------------
+    // Overloaded Object classes
+    //-------------------------------------------------------------------------
     /**
-     * An iterator on top of the stored values.
-     * 
-     * @return an iterator over the stored values.
+     * The hashCode is based on the id, the isHR flag and 
+     * on the internal values.
+     *  
+     * @see Object#hashCode()
      */
-    public Iterator<Value<?>> iterator()
+    public int hashCode()
     {
-        return values.iterator();
+        int h = super.hashCode();
+        
+        if ( attributeType != null )
+        {
+            h = h*17 + attributeType.hashCode();
+        }
+        
+        return h;
+    }
+
+
+    /**
+     * @see Object#equals(Object)
+     */
+    public boolean equals( Object obj )
+    {
+        if ( obj == this )
+        {
+            return true;
+        }
+        
+        if ( ! (obj instanceof ServerAttribute ) )
+        {
+            return false;
+        }
+        
+        ServerAttribute other = (ServerAttribute)obj;
+        
+        if ( !attributeType.equals( other.getAttributeType() ) )
+        {
+            return false;
+        }
+        
+        if ( values.size() != other.size() )
+        {
+            return false;
+        }
+        
+        for ( Value<?> val:values )
+        {
+            if ( ! other.contains( val ) )
+            {
+                return false;
+            }
+        }
+        
+        return true;
     }
     
     

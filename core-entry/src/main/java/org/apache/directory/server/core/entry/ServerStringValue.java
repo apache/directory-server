@@ -517,7 +517,13 @@ public class ServerStringValue extends ClientStringValue
         // If the normalized value is null, will default to wrapped
         // which cannot be null at this point.
         int h = 17;
-        h = h*37 + getNormalizedValue().hashCode();
+        
+        String normalized = getNormalizedValue();
+        
+        if ( normalized != null )
+        {
+            h = h*37 + normalized.hashCode();
+        }
         
         // Add the OID hashcode
         h = h*37 + attributeType.getOid().hashCode();

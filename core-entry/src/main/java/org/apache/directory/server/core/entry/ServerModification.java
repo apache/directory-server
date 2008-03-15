@@ -104,7 +104,7 @@ public class ServerModification implements Modification
     /**
      * @return the attribute containing the modifications
      */
-    public EntryAttribute<?> getAttribute()
+    public EntryAttribute getAttribute()
     {
         return attribute;
     }
@@ -115,7 +115,7 @@ public class ServerModification implements Modification
      *
      * @param attribute The modified attribute 
      */
-    public void setAttribute( EntryAttribute<?> attribute )
+    public void setAttribute( EntryAttribute attribute )
     {
         this.attribute = (ServerAttribute)attribute;
     }

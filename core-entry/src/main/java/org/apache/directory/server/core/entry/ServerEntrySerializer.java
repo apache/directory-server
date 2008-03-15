@@ -101,7 +101,7 @@ public class ServerEntrySerializer
         for ( ServerAttribute attribute:entry )
         {
             // We store the OID, as the AttributeType might have no name
-            out.writeUTF( attribute.getType().getOid() );
+            out.writeUTF( attribute.getAttributeType().getOid() );
             
             // And store the attribute.
             // Store the UP id

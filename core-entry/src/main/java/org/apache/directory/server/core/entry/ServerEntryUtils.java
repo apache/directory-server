@@ -128,17 +128,35 @@ public class ServerEntryUtils
             {
                 Object value = values.nextElement();
                 
-                if ( value instanceof String )
+                if ( serverAttribute.isHR() )
                 {
-                    serverAttribute.add( (String)value );
-                }
-                else if ( value instanceof byte[] )
-                {
-                    serverAttribute.add( (byte[])value );
+                    if ( value instanceof String )
+                    {
+                        serverAttribute.add( (String)value );
+                    }
+                    else if ( value instanceof byte[] )
+                    {
+                        serverAttribute.add( StringTools.utf8ToString( (byte[])value ) );
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
                 else
                 {
-                    return null;
+                    if ( value instanceof String )
+                    {
+                        serverAttribute.add( StringTools.getBytesUtf8( (String)value ) );
+                    }
+                    else if ( value instanceof byte[] )
+                    {
+                        serverAttribute.add( (byte[])value );
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
             }
             
@@ -366,7 +384,7 @@ public class ServerEntryUtils
         {
             return (ServerAttribute)attr0.clone();
         }
-        else if ( !attr0.getType().equals( attr1.getType() ) )
+        else if ( !attr0.getAttributeType().equals( attr1.getAttributeType() ) )
         {
             throw new IllegalArgumentException( "Cannot take union of attributes with different IDs!" );
         }
@@ -488,7 +506,7 @@ public class ServerEntryUtils
         {
             ServerAttribute attribute = (ServerAttribute)modification.getAttribute();
             
-            if ( attribute.getType() == type )
+            if ( attribute.getAttributeType() == type )
             {
                 return modification;
             }

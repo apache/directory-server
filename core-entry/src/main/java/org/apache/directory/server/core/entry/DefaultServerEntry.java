@@ -359,16 +359,9 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
     
     public boolean hasObjectClass( String objectClass )
     {
-        try
-        {
-            ServerAttribute oc = serverAttributeMap.get( OBJECT_CLASS_AT );
-            
-            return oc.contains( objectClass );
-        }
-        catch ( NamingException ne )
-        {
-            return false;
-        }
+        ServerAttribute oc = serverAttributeMap.get( OBJECT_CLASS_AT );
+        
+        return oc.contains( objectClass );
     }
 
     public boolean isValid()
@@ -513,7 +506,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
                 throw new IllegalArgumentException( message );
             }
             
-            ServerAttribute removed = serverAttributeMap.put( serverAttribute.getType(), serverAttribute );
+            ServerAttribute removed = serverAttributeMap.put( serverAttribute.getAttributeType(), serverAttribute );
             
             if ( removed != null )
             {
@@ -569,9 +562,9 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
         
         for ( ServerAttribute serverAttribute:serverAttributes )
         {
-            if ( serverAttributeMap.containsKey( serverAttribute.getType() ) )
+            if ( serverAttributeMap.containsKey( serverAttribute.getAttributeType() ) )
             {
-                serverAttributeMap.remove( serverAttribute.getType() );
+                serverAttributeMap.remove( serverAttribute.getAttributeType() );
                 removedAttributes.add( serverAttribute );
             }
         }
@@ -1531,7 +1524,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
         
         for ( ServerAttribute attribute:other )
         {
-            ServerAttribute attr = this.get( attribute.getType() );
+            ServerAttribute attr = this.get( attribute.getAttributeType() );
             
             if ( attr == null )
             {
@@ -1561,7 +1554,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
         {
             for ( ServerAttribute attribute:serverAttributeMap.values() )
             {
-                if ( !attribute.getType().equals( OBJECT_CLASS_AT ) )
+                if ( !attribute.getAttributeType().equals( OBJECT_CLASS_AT ) )
                 {
                     sb.append( attribute );
                 }

@@ -29,7 +29,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
@@ -90,7 +89,6 @@ public class DefaultServerEntryTest
         bootstrapSchemas.add( new InetorgpersonSchema() );
         bootstrapSchemas.add( new CosineSchema() );
         loader.loadWithDependencies( bootstrapSchemas, registries );
-        
     }
 
 
@@ -196,8 +194,8 @@ public class DefaultServerEntryTest
         assertEquals( 0, result.size() );
         ServerAttribute sa = entry.get( "sn" );
         assertNotNull( sa );
-        assertEquals( atSN, sa.getType() );
-        assertEquals( "sn", sa.getType().getName() );
+        assertEquals( atSN, sa.getAttributeType() );
+        assertEquals( "sn", sa.getAttributeType().getName() );
         
         // Add two AT now
         AttributeType atL = registries.getAttributeTypeRegistry().lookup( "localityName" );
@@ -211,23 +209,23 @@ public class DefaultServerEntryTest
         assertEquals( 0, result.size() );
         sa = entry.get( "l" );
         assertNotNull( sa );
-        assertEquals( atL, sa.getType() );
-        assertEquals( "l", sa.getType().getName() );
+        assertEquals( atL, sa.getAttributeType() );
+        assertEquals( "l", sa.getAttributeType().getName() );
 
         sa = entry.get( "c" );
         assertNotNull( sa );
-        assertEquals( atC, sa.getType() );
-        assertEquals( "c", sa.getType().getName() );
+        assertEquals( atC, sa.getAttributeType() );
+        assertEquals( "c", sa.getAttributeType().getName() );
 
         sa = entry.get( "2.5.4.9" );
         assertNotNull( sa );
-        assertEquals( atStreet, sa.getType() );
-        assertEquals( "street", sa.getType().getName() );
+        assertEquals( atStreet, sa.getAttributeType() );
+        assertEquals( "street", sa.getAttributeType().getName() );
 
         sa = entry.get( "givenName" );
         assertNotNull( sa );
-        assertEquals( atGN, sa.getType() );
-        assertEquals( "givenName", sa.getType().getName() );
+        assertEquals( atGN, sa.getAttributeType() );
+        assertEquals( "givenName", sa.getAttributeType().getName() );
         
         // Now try to add existing ATs
         // First, set some value to the modified AT
@@ -253,7 +251,7 @@ public class DefaultServerEntryTest
 
         ServerAttribute oc = entry.get( "objectClass" );
         
-        assertEquals( OBJECT_CLASS_AT, oc.getType() );
+        assertEquals( OBJECT_CLASS_AT, oc.getAttributeType() );
         assertNull( oc.get() );
     }
 
@@ -304,7 +302,7 @@ public class DefaultServerEntryTest
 
         ServerAttribute sa = entry.get( "sn" );
         assertNotNull( sa );
-        assertEquals( "sn", sa.getType().getName() );
+        assertEquals( "sn", sa.getAttributeType().getName() );
         
         // Add different upIds now
         AttributeType atL = registries.getAttributeTypeRegistry().lookup( "localityName" );
@@ -320,26 +318,26 @@ public class DefaultServerEntryTest
 
         sa = entry.get( "l" );
         assertNotNull( sa );
-        assertEquals( atL, sa.getType() );
-        assertEquals( "l", sa.getType().getName() );
+        assertEquals( atL, sa.getAttributeType() );
+        assertEquals( "l", sa.getAttributeType().getName() );
         assertEquals( "L", sa.getUpId() );
 
         sa = entry.get( "c" );
         assertNotNull( sa );
-        assertEquals( atC, sa.getType() );
-        assertEquals( "c", sa.getType().getName() );
+        assertEquals( atC, sa.getAttributeType() );
+        assertEquals( "c", sa.getAttributeType().getName() );
         assertEquals( "CountryName", sa.getUpId() );
 
         sa = entry.get( "2.5.4.9" );
         assertNotNull( sa );
-        assertEquals( atStreet, sa.getType() );
-        assertEquals( "street", sa.getType().getName() );
+        assertEquals( atStreet, sa.getAttributeType() );
+        assertEquals( "street", sa.getAttributeType().getName() );
         assertEquals( "2.5.4.9", sa.getUpId() );
 
         sa = entry.get( "givenName" );
         assertNotNull( sa );
-        assertEquals( atGN, sa.getType() );
-        assertEquals( "givenName", sa.getType().getName() );
+        assertEquals( atGN, sa.getAttributeType() );
+        assertEquals( "givenName", sa.getAttributeType().getName() );
         assertEquals( "gn", sa.getUpId() );
         
         // Now try to add existing ATs
@@ -433,7 +431,7 @@ public class DefaultServerEntryTest
         ServerAttribute newOc = entry.get( "objectClass" );
         
         assertNotNull( newOc );
-        assertEquals( OBJECT_CLASS_AT, newOc.getType() );
+        assertEquals( OBJECT_CLASS_AT, newOc.getAttributeType() );
         assertEquals( 2, newOc.size() );
         assertEquals( "OBJECTCLASS", newOc.getUpId() );
         assertTrue( newOc.contains( "person", "inetOrgPerson" ) );
@@ -778,34 +776,27 @@ public class DefaultServerEntryTest
         entry.put( "commonName", atCN, (String)null );
         assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
         // Check that we can use a null AttributeType
         entry.put( "commonName", (AttributeType)null, (String)null );
         assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
         // Test that we can use a null upId
         entry.put( null, atCN, (String)null );
         assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
-        // Test that we can't use an upId which is not compatible
-        // with the AT
-        try
-        {
-            entry.put( "sn", atCN, (String)null );
-            fail();
-        }
-        catch( IllegalArgumentException iae )
-        {
-            assertTrue( true );
-        }
+        // Test that if we use an upId which is not compatible
+        // with the AT, it is changed to the AT default name
+        entry.put( "sn", atCN, (String)null );
+        assertEquals( "cn", entry.get( atCN ).getId() );
         
         // Test that we can add some new attributes with values
         ServerAttribute result = entry.put( "CN", atCN, "test1", "test2", "test3" );
@@ -845,7 +836,7 @@ public class DefaultServerEntryTest
         entry.put( "userPassword", atPassword, (byte[])null );
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
-        assertEquals( "userPassword", entry.get( atPassword ).getType().getName() );
+        assertEquals( "userPassword", entry.get( atPassword ).getAttributeType().getName() );
         assertNull( entry.get( atPassword ).get().get() );
         
         // Check that we can use a null AttributeType
@@ -861,27 +852,20 @@ public class DefaultServerEntryTest
         
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
-        assertEquals( "userPassword", entry.get( atPassword ).getType().getName() );
+        assertEquals( "userPassword", entry.get( atPassword ).getAttributeType().getName() );
         assertNull( entry.get( atPassword ).get().get() );
         
         // Test that we can use a null upId
         entry.put( null, atPassword, (byte[])null );
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
-        assertEquals( "userPassword", entry.get( atPassword ).getType().getName() );
+        assertEquals( "userPassword", entry.get( atPassword ).getAttributeType().getName() );
         assertNull( entry.get( atPassword ).get().get() );
         
-        // Test that we can't use an upId which is not compatible
-        // with the AT
-        try
-        {
-            entry.put( "sn", atPassword, (byte[])null );
-            fail();
-        }
-        catch( IllegalArgumentException iae )
-        {
-            assertTrue( true );
-        }
+        // Test that if we use an upId which is not compatible
+        // with the AT, it is changed to the AT default name
+        entry.put( "sn", atPassword, (byte[])null );
+        assertEquals( "userpassword", entry.get( atPassword ).getId() );
         
         // Test that we can add some new attributes with values
         byte[] test1 = StringTools.getBytesUtf8( "test1" );
@@ -926,21 +910,21 @@ public class DefaultServerEntryTest
         entry.put( "commonName", atCN, (Value<?>)null );
         assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
         // Check that we can use a null AttributeType
         entry.put( "commonName", (AttributeType)null, (Value<?>)null );
         assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
         // Test that we can use a null upId
         entry.put( null, atCN, (Value<?>)null );
         assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
         // Test that we can't use an upId which is not compatible
@@ -997,7 +981,7 @@ public class DefaultServerEntryTest
         entry.put( "commonName", (Value<?>)null );
         assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
 
         // Test that we can add some new attributes with values
@@ -1067,15 +1051,8 @@ public class DefaultServerEntryTest
         // Test the addition of a binary value
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
         
-        try
-        {
-            entry.add( atCN, test4 );
-            fail();
-        }
-        catch ( InvalidAttributeValueException iave )
-        {
-            assertTrue( true );
-        }
+        entry.add( atCN, test4 );
+        assertFalse( entry.get( atCN ).contains( test4 ) );
     }
 
 
@@ -1131,8 +1108,8 @@ public class DefaultServerEntryTest
 
         entry.add( atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( entry.contains( atPassword, test4 ) );
+        assertEquals( 0, entry.get( atPassword ).size() );
+        assertFalse( entry.contains( atPassword, test4 ) );
     }
 
 
@@ -1195,15 +1172,8 @@ public class DefaultServerEntryTest
         // Test the addition of a String value. It should be converted to a byte array
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
 
-        try
-        {
-            entry.add( atCN, test4 );
-            fail();
-        }
-        catch ( InvalidAttributeValueException iave )
-        {
-            assertTrue( true );
-        }
+        entry.add( atCN, test4 );
+        assertFalse( entry.contains( atCN, test4 ) );
 
         // Now, work with a binary attribute
         // Test a simple addition
@@ -1244,8 +1214,8 @@ public class DefaultServerEntryTest
 
         entry.add( atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( entry.contains( atPassword, b4 ) );
+        assertEquals( 0, entry.get( atPassword ).size() );
+        assertFalse( entry.contains( atPassword, b4 ) );
     }
 
 
@@ -1262,8 +1232,8 @@ public class DefaultServerEntryTest
         // Test a simple addition
         entry.add( "CN", "test1" );
         assertNotNull( entry.get( atCN ) );
-        assertEquals( atCN, entry.get( atCN ).getType() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( atCN, entry.get( atCN ).getAttributeType() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertEquals( "CN", entry.get( atCN ).getUpId() );
         assertEquals( 1, entry.get( atCN ).size() );
         assertEquals( "test1", entry.get( atCN ).get().get() );
@@ -1298,15 +1268,8 @@ public class DefaultServerEntryTest
         // Test the addition of a binary value
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
         
-        try
-        {
-            entry.add( "CN", test4 );
-            fail();
-        }
-        catch ( InvalidAttributeValueException iave )
-        {
-            assertTrue( true );
-        }
+        entry.add( "CN", test4 );
+        assertFalse( entry.contains(  "CN", test4 ) );
     }
 
 
@@ -1362,8 +1325,8 @@ public class DefaultServerEntryTest
 
         entry.add( "userPassword", "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( entry.contains( atPassword, test4 ) );
+        assertEquals( 0, entry.get( atPassword ).size() );
+        assertFalse( entry.contains( atPassword, test4 ) );
     }
 
 
@@ -1395,7 +1358,7 @@ public class DefaultServerEntryTest
         assertNotNull( entry.get( atCN ) );
         assertEquals( 1, entry.get( atCN ).size() );
         assertEquals( "test1", entry.get( atCN ).get().get() );
-        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( atCN, entry.get( atCN ).getAttributeType() );
         assertEquals( "cN", entry.get( atCN ).getUpId() );
         
         // Test some more addition
@@ -1405,7 +1368,7 @@ public class DefaultServerEntryTest
         assertTrue( entry.contains( atCN, "test1" ) );
         assertTrue( entry.contains( atCN, "test2" ) );
         assertTrue( entry.contains( atCN, "test3" ) );
-        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( atCN, entry.get( atCN ).getAttributeType() );
         assertEquals( "cN", entry.get( atCN ).getUpId() );
         
         // Test some addition of existing values
@@ -1430,15 +1393,8 @@ public class DefaultServerEntryTest
         // Test the addition of a String value. It should be converted to a byte array
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
 
-        try
-        {
-            entry.add( "cN", test4 );
-            fail();
-        }
-        catch ( InvalidAttributeValueException iave )
-        {
-            assertTrue( true );
-        }
+        entry.add( "cN", test4 );
+        assertFalse( entry.contains( "cN", test4 ) );
 
         // Now, work with a binary attribute
         // Test a simple addition
@@ -1446,7 +1402,7 @@ public class DefaultServerEntryTest
         assertNotNull( entry.get( atPassword ) );
         assertEquals( 1, entry.get( atPassword ).size() );
         assertTrue( Arrays.equals( b1, (byte[])entry.get( atPassword ).get().get() ) );
-        assertEquals( atPassword, entry.get( atPassword ).getType() );
+        assertEquals( atPassword, entry.get( atPassword ).getAttributeType() );
         assertEquals( "userPASSWORD", entry.get( atPassword ).getUpId() );
         
         // Test some more addition
@@ -1481,8 +1437,8 @@ public class DefaultServerEntryTest
 
         entry.add( "userPASSWORD", "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( entry.contains( atPassword, b4 ) );
+        assertEquals( 0, entry.get( atPassword ).size() );
+        assertFalse( entry.contains( atPassword, b4 ) );
     }
 
 
@@ -1532,15 +1488,8 @@ public class DefaultServerEntryTest
         // Test the addition of a binary value
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
         
-        try
-        {
-            entry.add( "cn", atCN, test4 );
-            fail();
-        }
-        catch ( InvalidAttributeValueException iave )
-        {
-            assertTrue( true );
-        }
+        entry.add( "cn", atCN, test4 );
+        assertFalse( entry.contains( "cn", test4 ) );
     }
 
 
@@ -1596,8 +1545,8 @@ public class DefaultServerEntryTest
 
         entry.add( "userPassword", atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( entry.contains( atPassword, test4 ) );
+        assertEquals( 0, entry.get( atPassword ).size() );
+        assertFalse( entry.contains( atPassword, test4 ) );
     }
 
 
@@ -1629,7 +1578,7 @@ public class DefaultServerEntryTest
         assertNotNull( entry.get( atCN ) );
         assertEquals( 1, entry.get( atCN ).size() );
         assertEquals( "test1", entry.get( atCN ).get().get() );
-        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( atCN, entry.get( atCN ).getAttributeType() );
         assertEquals( "cN", entry.get( atCN ).getUpId() );
         
         // Test some more addition
@@ -1639,7 +1588,7 @@ public class DefaultServerEntryTest
         assertTrue( entry.contains( atCN, "test1" ) );
         assertTrue( entry.contains( atCN, "test2" ) );
         assertTrue( entry.contains( atCN, "test3" ) );
-        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( atCN, entry.get( atCN ).getAttributeType() );
         assertEquals( "cN", entry.get( atCN ).getUpId() );
         
         // Test some addition of existing values
@@ -1664,15 +1613,8 @@ public class DefaultServerEntryTest
         // Test the addition of a String value. It should be converted to a byte array
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
 
-        try
-        {
-            entry.add( "cN", atCN, test4 );
-            fail();
-        }
-        catch ( InvalidAttributeValueException iave )
-        {
-            assertTrue( true );
-        }
+        entry.add( "cN", atCN, test4 );
+        assertFalse( entry.contains( "cN", test4 ) );
 
         // Now, work with a binary attribute
         // Test a simple addition
@@ -1680,7 +1622,7 @@ public class DefaultServerEntryTest
         assertNotNull( entry.get( atPassword ) );
         assertEquals( 1, entry.get( atPassword ).size() );
         assertTrue( Arrays.equals( b1, (byte[])entry.get( atPassword ).get().get() ) );
-        assertEquals( atPassword, entry.get( atPassword ).getType() );
+        assertEquals( atPassword, entry.get( atPassword ).getAttributeType() );
         assertEquals( "userPASSWORD", entry.get( atPassword ).getUpId() );
         
         // Test some more addition
@@ -1715,8 +1657,8 @@ public class DefaultServerEntryTest
 
         entry.add( "userPASSWORD", atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( entry.contains( atPassword, b4 ) );
+        assertEquals( 0, entry.get( atPassword ).size() );
+        assertFalse( entry.contains( atPassword, b4 ) );
     }
 
     //-------------------------------------------------------------------------
