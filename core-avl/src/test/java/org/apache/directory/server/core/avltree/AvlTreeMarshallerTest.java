@@ -30,6 +30,7 @@ import java.util.Comparator;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 
 /**
@@ -94,6 +95,33 @@ public class AvlTreeMarshallerTest
         assertFalse( deserialized.isEmpty() );
         assertEquals( 1, deserialized.getSize() );
         assertEquals( 0, ( int ) deserialized.getFirst().getKey() );
+    }
+
+
+    @Test
+    @Ignore( "marshaller fails to preserve last node reference" )
+    public void testFirstLast() throws IOException
+    {
+        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        original.insert( 0 );
+        byte[] bites = treeMarshaller.serialize( original );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
+        assertFalse( deserialized.isEmpty() );
+        assertEquals( 1, deserialized.getSize() );
+        assertEquals( 0, ( int ) deserialized.getFirst().getKey() );
+
+        assertNotNull( original.getFirst() );
+        assertEquals( 0, ( int ) original.getFirst().getKey() );
+
+        assertNotNull( deserialized.getFirst() );
+        assertEquals( 0, ( int ) deserialized.getFirst().getKey() );
+
+        assertNotNull( original.getLast() );
+        assertEquals( 0, ( int ) original.getLast().getKey() );
+
+        // this marshaller fails to preserve last node reference
+        assertNotNull( deserialized.getLast() );
+        assertEquals( 0, ( int ) deserialized.getLast().getKey() );
     }
 
 

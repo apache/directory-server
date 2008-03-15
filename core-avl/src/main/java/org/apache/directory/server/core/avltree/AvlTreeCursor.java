@@ -156,10 +156,10 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
         
         if ( isBeforeFirst )
         {
-            onNode = true;
+            node = tree.getFirst();
             isBeforeFirst = false;
             isAfterLast = false;
-            return true;
+            return onNode = node != null;
         }
 
         if ( isAfterLast )
@@ -168,6 +168,12 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
         }
         else if ( onNode )
         {
+            if ( node == null )
+            {
+                node = tree.getFirst();
+                return true;
+            }
+            
             if ( node.next == null )
             {
                 onNode = false;
@@ -180,32 +186,34 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
             return true;
         }
 
-        if ( node != null )
-        {
-            return onNode = true;
-        }
-        
-        return false;
+        return node != null && ( onNode = true );
     }
 
 
     public boolean previous() throws Exception
     {
         checkClosed( "previous" );
-        if ( isAfterLast )
-        {
-            onNode = true;
-            isBeforeFirst = false;
-            isAfterLast = false;
-            return true;
-        }
-        
+
         if ( isBeforeFirst )
         {
             return false;
         }
-        else if ( onNode )
+
+        if ( isAfterLast )
         {
+            node = tree.getLast();
+            isBeforeFirst = false;
+            isAfterLast = false;
+            return onNode = node != null;
+        }
+
+        if ( onNode )
+        {
+            if ( node == null )
+            {
+                node = tree.getLast();
+                return true;
+            }
             if ( node.previous == null )
             {
                 onNode = false;
