@@ -79,7 +79,7 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
         }
         else
         {
-            wrapped = null;
+            this.wrapped = null;
         }
         
         normalized = false;
@@ -228,8 +228,10 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
             return ByteArrayComparator.INSTANCE.compare( getNormalizedValue(), binaryValue.getNormalizedValue() );
         }
         
-        throw new NotImplementedException( "I don't really know how to compare anything other " +
-                "than ServerBinaryValues at this point in time." );
+        String message = "I don't really know how to compare anything other " +
+            "than ServerBinaryValues at this point in time."; 
+        LOG.error( message );
+        throw new NotImplementedException( message );
     }
 
 

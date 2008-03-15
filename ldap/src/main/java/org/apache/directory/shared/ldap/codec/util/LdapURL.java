@@ -1410,11 +1410,28 @@ public class LdapURL
     }
     
     /**
-     * @return the bytes representing this LdapURL
+     * @return a reference on the interned bytes representing this LdapURL
      */
-    public byte[] getBytes()
+    public byte[] getBytesReference()
     {
         return bytes;
+    }
+    
+    /**
+     * @return a copy of the bytes representing this LdapURL
+     */
+    public byte[] getBytesCopy()
+    {
+        if ( bytes != null )
+        {
+            byte[] copy = new byte[bytes.length];
+            System.arraycopy( bytes, 0, copy, 0, bytes.length );
+            return copy;
+        }
+        else
+        {
+            return null;
+        }
     }
     
     /**

@@ -187,7 +187,7 @@ public class GracefulDisconnect extends GracefulAction
             while ( replicatedContextIterator.hasNext() )
             {
                 LdapURL url = replicatedContextIterator.next();
-                Value.encode( bb, url.getBytes() );
+                Value.encode( bb, url.getBytesReference() );
             }
         }
 

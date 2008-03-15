@@ -47,20 +47,24 @@ public class RegexNormalizer implements Normalizer
      * @param regexes
      *            the set of regular expressions used to transform values
      */
-    public RegexNormalizer(Pattern[] regexes)
+    public RegexNormalizer( Pattern[] regexes )
     {
         if ( regexes != null )
         {
             this.regexes = new Pattern[ regexes.length ];
             System.arraycopy( regexes, 0, this.regexes, 0, regexes.length );
-        } else {
-            this.regexes = null;
-        }
-        matchers = new Matcher[regexes.length];
 
-        for ( int i = 0; i < regexes.length; i++ )
+            matchers = new Matcher[regexes.length];
+
+            for ( int i = 0; i < regexes.length; i++ )
+            {
+                matchers[i] = regexes[i].matcher( "" );
+            }
+        } 
+        else 
         {
-            matchers[i] = regexes[i].matcher( "" );
+            this.regexes = null;
+            matchers = new Matcher[0];
         }
     }
 

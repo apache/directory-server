@@ -19,8 +19,6 @@
  */
 package org.apache.directory.shared.ldap.entry;
 
-import java.io.Serializable;
-
 
 /**
  * An internal interface for a ModificationItem. The name has been
@@ -29,7 +27,7 @@ import java.io.Serializable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Modification extends Cloneable, Serializable
+public interface Modification extends Cloneable
 {
     /**
      *  @return the operation
