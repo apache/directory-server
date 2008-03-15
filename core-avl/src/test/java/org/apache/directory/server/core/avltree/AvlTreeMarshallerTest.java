@@ -99,8 +99,7 @@ public class AvlTreeMarshallerTest
 
 
     @Test
-    @Ignore( "marshaller fails to preserve last node reference" )
-    public void testFirstLast() throws IOException
+    public void testRoundTripOneEntryFirstLast() throws IOException
     {
         AvlTree<Integer> original = new AvlTree<Integer>( comparator );
         original.insert( 0 );
@@ -141,6 +140,34 @@ public class AvlTreeMarshallerTest
 
 
     @Test
+    public void testRoundTripTwoEntriesFirstLast() throws IOException
+    {
+        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        original.insert( 0 );
+        original.insert( 1 );
+        byte[] bites = treeMarshaller.serialize( original );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
+        assertFalse( deserialized.isEmpty() );
+        assertEquals( 2, deserialized.getSize() );
+        assertEquals( 0, ( int ) deserialized.getFirst().getKey() );
+        assertEquals( 1, ( int ) deserialized.getFirst().next.getKey() );
+
+        assertNotNull( original.getFirst() );
+        assertEquals( 0, ( int ) original.getFirst().getKey() );
+
+        assertNotNull( deserialized.getFirst() );
+        assertEquals( 0, ( int ) deserialized.getFirst().getKey() );
+
+        assertNotNull( original.getLast() );
+        assertEquals( 1, ( int ) original.getLast().getKey() );
+
+        // this marshaller fails to preserve last node reference
+        assertNotNull( deserialized.getLast() );
+        assertEquals( 1, ( int ) deserialized.getLast().getKey() );
+    }
+
+
+    @Test
     public void testRoundTripManyEntries() throws Exception
     {
         AvlTree<Integer> original = new AvlTree<Integer>( comparator );
@@ -160,6 +187,42 @@ public class AvlTreeMarshallerTest
             assertEquals( ii, ( int ) cursor.get() );
             cursor.next();
         }
+    }
+
+
+    @Test
+    public void testRoundTripManyEntriesFirstLast() throws Exception
+    {
+        AvlTree<Integer> original = new AvlTree<Integer>( comparator );
+        for ( int ii = 0; ii < 100; ii++ )
+        {
+            original.insert( ii );
+        }
+        byte[] bites = treeMarshaller.serialize( original );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
+        assertFalse( deserialized.isEmpty() );
+        assertEquals( 100, deserialized.getSize() );
+
+        AvlTreeCursor<Integer> cursor = new AvlTreeCursor<Integer>( deserialized );
+        cursor.first();
+        for ( int ii = 0; ii < 100; ii++ )
+        {
+            assertEquals( ii, ( int ) cursor.get() );
+            cursor.next();
+        }
+
+        assertNotNull( original.getFirst() );
+        assertEquals( 0, ( int ) original.getFirst().getKey() );
+
+        assertNotNull( deserialized.getFirst() );
+        assertEquals( 0, ( int ) deserialized.getFirst().getKey() );
+
+        assertNotNull( original.getLast() );
+        assertEquals( 99, ( int ) original.getLast().getKey() );
+
+        // this marshaller fails to preserve last node reference
+        assertNotNull( deserialized.getLast() );
+        assertEquals( 99, ( int ) deserialized.getLast().getKey() );
     }
 
 

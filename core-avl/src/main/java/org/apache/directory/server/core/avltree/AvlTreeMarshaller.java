@@ -116,6 +116,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         return data;
     }
 
+    
     /**
      * writes the content of the AVLTree to an output stream.
      * The current format is 
@@ -198,7 +199,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
             
             tree.setFirst( nodes[0] );
             
-            if( nodes.length > 1 )
+            if( nodes.length >= 1 )
             {
                 tree.setLast( nodes[ nodes.length - 1 ] );
             }
