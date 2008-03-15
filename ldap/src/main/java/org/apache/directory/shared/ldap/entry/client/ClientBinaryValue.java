@@ -133,7 +133,7 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
         
         if ( wrapped == null )
         {
-            this.wrapped = wrapped;
+            this.wrapped = null;
         }
         else
         {
