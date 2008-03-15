@@ -27,6 +27,8 @@ import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -110,7 +112,7 @@ public class AuthorizationServiceAsAdminIT
         attributes.put( "userPassword", "replaced" );
         sysRoot.modifyAttributes( "uid=admin", DirContext.REPLACE_ATTRIBUTE, attributes );
         Attributes newAttrs = sysRoot.getAttributes( "uid=admin" );
-        assertTrue( ArrayUtils.isEquals( "replaced".getBytes(), newAttrs.get( "userPassword" ).get() ) );
+        assertTrue( ArrayUtils.isEquals( StringTools.getBytesUtf8( "replaced" ), newAttrs.get( "userPassword" ).get() ) );
     }
 
 

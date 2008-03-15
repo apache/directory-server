@@ -28,6 +28,8 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -136,7 +138,7 @@ public class SimpleAuthenticationIT
                 "secret".getBytes(), "simple", "ou=system" );
         Attributes attrs = ctx.getAttributes( "uid=admin" );
         performAdminAccountChecks( attrs );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ) );
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), StringTools.getBytesUtf8( "secret" ) ) );
         ctx.close();
 
         service.shutdown();
@@ -146,7 +148,7 @@ public class SimpleAuthenticationIT
                 "secret".getBytes(), "simple", "ou=system" );
         attrs = ctx.getAttributes( "uid=admin" );
         performAdminAccountChecks( attrs );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ) );
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), StringTools.getBytesUtf8( "secret" ) ) );
         ctx.close();
     }
 

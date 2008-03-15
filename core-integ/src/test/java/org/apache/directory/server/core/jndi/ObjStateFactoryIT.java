@@ -28,6 +28,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getRootCon
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -73,7 +74,7 @@ public class ObjStateFactoryIT
         Person me = ( Person ) obj;
         assertEquals( attrs.get( "sn" ).get(), me.getLastname() );
         assertEquals( attrs.get( "cn" ).get(), me.getCn() );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "test".getBytes() ) );
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), StringTools.getBytesUtf8( "test" ) ) );
         assertEquals( attrs.get( "telephonenumber" ).get(), me.getTelephoneNumber() );
         assertNull( me.getSeealso() );
         assertNull( me.getDescription() );
@@ -91,7 +92,7 @@ public class ObjStateFactoryIT
         Attributes attrs = sysRoot.getAttributes( "uid=erodriguez, ou=users" );
         assertEquals( "Rodriguez", attrs.get( "sn" ).get() );
         assertEquals( "Mr. Kerberos", attrs.get( "cn" ).get() );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "noices".getBytes() ) );
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), StringTools.getBytesUtf8( "noices" ) ) );
         assertEquals( "555-1212", attrs.get( "telephonenumber" ).get() );
         assertEquals( "sn=erodriguez", attrs.get( "seealso" ).get() );
         assertEquals( "committer", attrs.get( "description" ).get() );

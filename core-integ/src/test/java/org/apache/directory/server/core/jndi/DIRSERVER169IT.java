@@ -25,6 +25,8 @@ import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.util.StringTools;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -152,8 +154,8 @@ public class DIRSERVER169IT
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         String filter = "(userPassword={0})";
-        NamingEnumeration<SearchResult> results = ctx.search( "uid=bob,ou=people", filter, new Object[]
-                                                                                            { "bobspassword" }, ctls );
+        NamingEnumeration<SearchResult> results = 
+            ctx.search( "uid=bob,ou=people", filter, new Object[] { "bobspassword" }, ctls );
 
         // We should have a match
         assertTrue( results.hasMore() );
