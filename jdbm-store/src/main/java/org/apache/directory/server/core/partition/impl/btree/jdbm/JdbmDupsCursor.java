@@ -142,29 +142,35 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         if ( containerCursor.first() )
         {
             containerTuple.setBoth( containerCursor.get() );
+            DupsContainer<V> values = containerTuple.getValue();
 
             if ( containerTuple.getValue().isAvlTree() )
             {
-                dupsCursor = new AvlTreeCursor<V>( containerTuple.getValue().getAvlTree() );
+                dupsCursor = new AvlTreeCursor<V>( values.getAvlTree() );
             }
             else
             {
-                BTree bt = table.getBTree( containerTuple.getValue().getBTreeRedirect() );
+                BTree bt = table.getBTree( values.getBTreeRedirect() );
                 dupsCursor = new KeyCursor<V>( bt, table.getValueComparator() );
             }
 
-            if ( ! dupsCursor.next() )
+            // *** meant to be an assignment = instead of == ***
+            if ( valueAvailable = dupsCursor.first() )
+            {
+                returnedTuple.setKey( containerTuple.getKey() );
+                returnedTuple.setValue( dupsCursor.get() );
+            }
+            else
             {
                 clearValue();
-                return false;
+                dupsCursor = null;
             }
 
-            returnedTuple.setKey( containerTuple.getKey() );
-            returnedTuple.setValue( dupsCursor.get() );
-            return valueAvailable = true;
+            return valueAvailable;
         }
 
         clearValue();
+        dupsCursor = null;
         return false;
     }
 
@@ -172,9 +178,41 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     public boolean last() throws Exception
     {
         clearValue();
+        if ( containerCursor.last() )
+        {
+            containerTuple.setBoth( containerCursor.get() );
+            DupsContainer<V> values = containerTuple.getValue();
+
+            if ( values.isAvlTree() )
+            {
+                AvlTree<V> set = values.getAvlTree();
+                dupsCursor = new AvlTreeCursor<V>( set );
+            }
+            else if ( values.isBTreeRedirect() )
+            {
+                BTree tree = table.getBTree( values.getBTreeRedirect() );
+                dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
+            }
+
+            // *** meant to be an assignment = instead of == ***
+            if ( valueAvailable = dupsCursor.last() )
+            {
+                returnedTuple.setKey( containerTuple.getKey() );
+                returnedTuple.setValue( dupsCursor.get() );
+            }
+            else
+            {
+                clearValue();
+                dupsCursor = null;
+            }
+            return valueAvailable;
+        }
+
+        clearValue();
         dupsCursor = null;
-        return valueAvailable = containerCursor.last();
+        return false;
     }
+
 
 
     private void clearValue()

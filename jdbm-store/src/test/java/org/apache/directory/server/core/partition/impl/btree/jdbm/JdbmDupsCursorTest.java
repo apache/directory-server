@@ -236,9 +236,9 @@ public class JdbmDupsCursorTest
             ii++;
         }
 
-        cursor.beforeFirst();
+        cursor.first();
         ii = 0;
-        while ( cursor.next() )
+        do
         {
             Tuple<Integer,Integer> tuple = cursor.get();
             if ( ii > 12 && ii < 17 )
@@ -253,6 +253,7 @@ public class JdbmDupsCursorTest
             }
             ii++;
         }
+        while ( cursor.next() );
 
         // now go backwards
         ii = SIZE*2-2;
@@ -273,9 +274,9 @@ public class JdbmDupsCursorTest
         }
 
         // now advance to last and go backwards again
-        cursor.afterLast();
+        cursor.last();
         ii = SIZE*2-2;
-        while ( cursor.previous() )
+        do
         {
             Tuple<Integer,Integer> tuple = cursor.get();
             if ( ii > 12 && ii < 17 )
@@ -290,6 +291,7 @@ public class JdbmDupsCursorTest
             }
             ii--;
         }
+        while ( cursor.previous() );
 
         // advance to first then last and go backwards again
         cursor.beforeFirst();
@@ -354,15 +356,16 @@ public class JdbmDupsCursorTest
         }
 
         // now advance to last and go backwards again
-        cursor.afterLast();
+        cursor.last();
         ii = SIZE*3-2;
-        while ( cursor.previous() )
+        do
         {
             Tuple<Integer,Integer> tuple = cursor.get();
             assertEquals( ii, ( int ) tuple.getKey() );
             assertEquals( ii, ( int ) tuple.getValue() );
             ii--;
         }
+        while ( cursor.previous() );
 
         // advance to first then last and go backwards again
         cursor.beforeFirst();
