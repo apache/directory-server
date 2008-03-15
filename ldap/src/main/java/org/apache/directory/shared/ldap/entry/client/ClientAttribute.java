@@ -20,10 +20,9 @@ package org.apache.directory.shared.ldap.entry.client;
 
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 
 import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
 
 
 /**
@@ -33,33 +32,14 @@ import javax.naming.directory.InvalidAttributeValueException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ClientAttribute extends EntryAttribute<Value<?>>
+public interface ClientAttribute extends EntryAttribute
 {
     /**
      * Checks to see if this attribute is valid along with the values it contains.
      *
+     * @param checker The syntax checker
      * @return true if the attribute and it's values are valid, false otherwise
      * @throws NamingException if there is a failure to check syntaxes of values
      */
-    boolean isValid() throws NamingException;
-
-
-    /**
-     * Get the byte[] value, if and only if the value is known to be Binary,
-     * otherwise a InvalidAttributeValueException will be thrown
-     *
-     * @return The value as a String
-     * @throws InvalidAttributeValueException If the value is a String
-     */
-    byte[] getBytes() throws InvalidAttributeValueException;
-    
-    
-    /**
-     * Get the String value, if and only if the value is known to be a String,
-     * otherwise a InvalidAttributeValueException will be thrown
-     *
-     * @return The value as a String
-     * @throws InvalidAttributeValueException If the value is a byte[]
-     */
-    String getString() throws InvalidAttributeValueException;
+    boolean isValid( SyntaxChecker checker) throws NamingException;
 }

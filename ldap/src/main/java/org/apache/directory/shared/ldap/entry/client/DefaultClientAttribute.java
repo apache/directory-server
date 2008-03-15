@@ -21,25 +21,30 @@ package org.apache.directory.shared.ldap.entry.client;
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
- * A server side entry attribute aware of schema.
+ * A client side entry attribute. The client is not aware of the schema,
+ * so we can't tell if the stored value will be String or Binary. We will
+ * default to Binary.<p>
+ * To define the kind of data stored, the client must set the isHR flag.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class DefaultClientAttribute extends AbstractClientAttribute
+public class DefaultClientAttribute implements ClientAttribute
 {
     /** Used for serialization */
     public static final long serialVersionUID = 2L;
@@ -48,6 +53,20 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     private static final Logger LOG = LoggerFactory.getLogger( DefaultClientAttribute.class );
     
     
+    /** The set of contained values */
+    protected Set<Value<?>> values = new LinkedHashSet<Value<?>>();
+    
+    /** The User provided ID */
+    protected String upId;
+
+    /** The normalized ID */
+    protected String id;
+
+    /** Tells if the attribute is Human Readable or not. When not set, 
+     * this flag is null. */
+    protected Boolean isHR;
+
+
     // maybe have some additional convenience constructors which take
     // an initial value as a string or a byte[]
     /**
@@ -68,24 +87,6 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
-     * Doc me more!
-     *
-     * If the value does not correspond to the same attributeType, then it's
-     * wrapped value is copied into a new ClientValue which uses the specified
-     * attributeType.
-     *
-     * @param vals an initial set of values for this attribute
-     * @throws NamingException if there are problems creating the new attribute
-     */
-    public DefaultClientAttribute( Value<?>... vals ) throws NamingException
-    {
-        this( null, vals );
-    }
-
-
-    /**
-     * Doc me more!
-     *
      * If the value does not correspond to the same attributeType, then it's
      * wrapped value is copied into a new ClientValue which uses the specified
      * attributeType.
@@ -95,9 +96,8 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
      * @param upId
      * @param attributeType the attribute type according to the schema
      * @param vals an initial set of values for this attribute
-     * @throws NamingException if there are problems creating the new attribute
      */
-    public DefaultClientAttribute( String upId, Value<?>... vals ) throws NamingException
+    public DefaultClientAttribute( String upId, Value<?>... vals )
     {
         // The value can be null, this is a valid value.
         if ( vals[0] == null )
@@ -132,18 +132,9 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
-     * Create a new instance of a EntryAttribute, without ID but with some values.
-     */
-    public DefaultClientAttribute( String... vals ) throws NamingException
-    {
-        this( null, vals );
-    }
-
-
-    /**
      * Create a new instance of a EntryAttribute.
      */
-    public DefaultClientAttribute( String upId, String... vals ) throws NamingException
+    public DefaultClientAttribute( String upId, String... vals )
     {
         add( vals );
         setUpId( upId );
@@ -153,16 +144,7 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     /**
      * Create a new instance of a EntryAttribute, with some byte[] values.
      */
-    public DefaultClientAttribute( byte[]... vals ) throws NamingException
-    {
-        this( null, vals );
-    }
-
-
-    /**
-     * Create a new instance of a EntryAttribute, with some byte[] values.
-     */
-    public DefaultClientAttribute( String upId, byte[]... vals ) throws NamingException
+    public DefaultClientAttribute( String upId, byte[]... vals )
     {
         add( vals );
         setUpId( upId );
@@ -170,10 +152,15 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
+     * <p>
      * Get the byte[] value, if and only if the value is known to be Binary,
      * otherwise a InvalidAttributeValueException will be thrown
+     * </p>
+     * <p>
+     * Note that this method returns the first value only.
+     * </p>
      *
-     * @return The value as a String
+     * @return The value as a byte[]
      * @throws InvalidAttributeValueException If the value is a String
      */
     public byte[] getBytes() throws InvalidAttributeValueException
@@ -194,8 +181,13 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
+     * <p>
      * Get the String value, if and only if the value is known to be a String,
      * otherwise a InvalidAttributeValueException will be thrown
+     * </p>
+     * <p>
+     * Note that this method returns the first value only.
+     * </p>
      *
      * @return The value as a String
      * @throws InvalidAttributeValueException If the value is a byte[]
@@ -225,10 +217,45 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
      */
     public String getId()
     {
-        return upId;
+        return id;
     }
 
 
+    /**
+     * <p>
+     * Set the attribute to Human Readable or to Binary. 
+     * </p>
+     * @param isHR <code>true</code> for a Human Readable attribute, 
+     * <code>false</code> for a Binary attribute.
+     */
+    public void setHR( boolean isHR )
+    {
+        this.isHR = isHR;
+        //TODO : deal with the values, we may have to convert them.
+    }
+
+    
+    /**
+     * Set the normalized ID. The ID will be lowercased, and spaces
+     * will be trimmed. 
+     *
+     * @param id The attribute ID
+     * @throws IllegalArgumentException If the ID is empty or null or
+     * resolve to an empty value after being trimmed
+     */
+    public void setId( String id )
+    {
+        this.id = StringTools.trim( StringTools.lowerCaseAscii( id ) );
+
+        if ( this.id.length() == 0 )
+        {
+            this.id = null;
+            throw new IllegalArgumentException( "An ID cannnot be null, empty, or resolved to an emtpy" +
+                " value when trimmed" );
+        }
+    }
+
+    
     /**
      * Get's the user provided identifier for this entry.  This is the value
      * that will be used as the identifier for the attribute within the
@@ -247,6 +274,44 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
+     * Set the user provided ID. It will also set the ID, normalizing
+     * the upId (removing spaces before and after, and lowercasing it)
+     *
+     * @param upId The attribute ID
+     * @throws IllegalArgumentException If the ID is empty or null or
+     * resolve to an empty value after being trimmed
+     */
+    public void setUpId( String upId )
+    {
+        this.upId = StringTools.trim( upId );
+        
+        if ( this.upId.length() == 0 )
+        {
+            this.upId = null;
+            throw new IllegalArgumentException( "An ID cannnot be null, empty, or resolved to an emtpy" +
+                " value when trimmed" );
+        }
+
+        this.id = StringTools.lowerCaseAscii( this.upId );
+    }
+
+
+    /**
+     * <p>
+     * Tells if the attribute is Human Readable. 
+     * </p>
+     * <p>This flag is set by the caller, or implicitly when adding String 
+     * values into an attribute which is not yet declared as Binary.
+     * </p> 
+     * @return
+     */
+    public boolean isHR()
+    {
+        return isHR != null ? isHR : false; 
+    }
+
+    
+    /**
      * Checks to see if this attribute is valid along with the values it contains.
      *
      * @return true if the attribute and it's values are valid, false otherwise
@@ -254,9 +319,9 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
      */
     public boolean isValid() throws NamingException
     {
-        for ( Value<?> value : values )
+        for ( Value<?> value:values )
         {
-            if ( ! value.isValid() )
+            if ( !value.isValid() )
             {
                 return false;
             }
@@ -267,102 +332,233 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
-     * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value)
+     * Checks to see if this attribute is valid along with the values it contains.
+     *
+     * @return true if the attribute and it's values are valid, false otherwise
+     * @throws NamingException if there is a failure to check syntaxes of values
      */
-    public boolean add( Value<?> val ) throws InvalidAttributeValueException, NamingException
+    public boolean isValid( SyntaxChecker checker ) throws NamingException
     {
-        if ( val == null )
+        for ( Value<?> value : values )
         {
-            Value<String> nullSV = new ClientStringValue( (String)null );
-            
-            if ( values.contains( nullSV ) )
+            if ( !value.isValid( checker ) )
             {
                 return false;
             }
-            else
-            {
-                values.add( nullSV );
-                return true;
-            }
         }
 
-        if ( values.contains( val ) )
-        {
-            return false;
-        }
-        
-        return values.add( val );
+        return true;
     }
 
 
     /**
-     * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value...)
+     * Adds some values to this attribute. If the new values are already present in
+     * the attribute values, the method has no effect.
+     * <p>
+     * The new values are added at the end of list of values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were added.
+     * </p>
+     * <p>
+     * If the value's type is different from the attribute's type,
+     * a conversion is done. For instance, if we try to set some 
+     * StringValue into a Binary attribute, we just store the UTF-8 
+     * byte array encoding for this StringValue.
+     * </p>
+     * <p>
+     * If we try to store some BinaryValue in a HR attribute, we try to 
+     * convert those BinaryValue assuming they represent an UTF-8 encoded
+     * String. Of course, if it's not the case, the stored value will
+     * be incorrect.
+     * </p>
+     * <p>
+     * It's the responsibility of the caller to check if the stored
+     * values are consistent with the attribute's type.
+     * </p>
+     * <p>
+     * The caller can set the HR flag in order to enforce a type for 
+     * the current attribute, otherwise this type will be set while
+     * adding the first value, using the value's type to set the flag.
+     * </p>
+     * <p>
+     * <b>Note : </b>If the entry contains no value, and the unique added value
+     * is a null length value, then this value will be considered as
+     * a binary value.
+     * </p>
+     * @param val some new values to be added which may be null
+     * @return the number of added values, or 0 if none has been added
      */
-    public int add( Value<?>... vals ) throws InvalidAttributeValueException, NamingException
+    public int add( Value<?>... vals )
     {
         int nbAdded = 0;
+        ClientBinaryValue nullBinaryValue = null;
+        ClientStringValue nullStringValue = null;
+        boolean nullValueAdded = false;
         
         for ( Value<?> val:vals )
         {
-            if ( add( val ) )
+            if ( val == null )
             {
-                nbAdded ++;
+                // We have a null value. If the HR flag is not set, we will consider 
+                // that the attribute is not HR. We may change this later
+                if ( isHR == null )
+                {
+                    // This is the first value. Add both types, as we 
+                    // don't know yet the attribute type's, but we may
+                    // know later if we add some new value.
+                    // We have to do that because we are using a Set,
+                    // and we can't remove the first element of the Set.
+                    nullBinaryValue = new ClientBinaryValue( null );
+                    nullStringValue = new ClientStringValue( null );
+                    
+                    values.add( nullBinaryValue );
+                    values.add( nullStringValue );
+                    nullValueAdded = true;
+                }
+                else if ( !isHR )
+                {
+                    // The attribute type is binary.
+                    nullBinaryValue = new ClientBinaryValue( null );
+                    
+                    // Don't add a value if it already exists. 
+                    if ( !values.contains( nullBinaryValue ) )
+                    {
+                        values.add( nullBinaryValue );
+                    }
+                    
+                }
+                else
+                {
+                    // The attribute is HR
+                    nullStringValue = new ClientStringValue( null );
+                    
+                    // Don't add a value if it already exists. 
+                    if ( !values.contains( nullStringValue ) )
+                    {
+                        values.add( nullStringValue );
+                    }
+                }
+            }
+            else
+            {
+                // Let's check the value type. 
+                if ( val instanceof ClientStringValue )
+                {
+                    // We have a String value
+                    if ( isHR == null )
+                    {
+                        // The attribute type will be set to HR
+                        isHR = true;
+                        values.add( val );
+                    }
+                    else if ( !isHR )
+                    {
+                        // The attributeType is binary, convert the
+                        // value to a BinaryValue
+                        ClientBinaryValue cbv = new ClientBinaryValue();
+                        cbv.set( StringTools.getBytesUtf8( (String)val.get() ) );
+                        
+                        values.add( cbv );
+                    }
+                    else
+                    {
+                        // The attributeType is HR, simply add the value
+                        values.add( val );
+                    }
+                }
+                else
+                {
+                    // We have a Binary value
+                    if ( isHR == null )
+                    {
+                        // The attribute type will be set to binary
+                        isHR = false;
+                        values.add( val );
+                    }
+                    else if ( !isHR )
+                    {
+                        // The attributeType is not HR, simply add the value
+                        values.add( val );
+                    }
+                    else
+                    {
+                        // The attribute Type is HR, convert the
+                        // value to a StringValue
+                        ClientStringValue csv = new ClientStringValue();
+                        csv.set( StringTools.utf8ToString( (byte[])val.get() ) );
+                        
+                        values.add( csv );
+                    }
+                }
+            }
+
+            nbAdded++;
+        }
+
+        // Last, not least, if a nullValue has been added, and if other 
+        // values are all String, we have to keep the correct nullValue,
+        // and to remove the other
+        if ( nullValueAdded )
+        {
+            if ( isHR ) 
+            {
+                // Remove the Binary value
+                values.remove( nullBinaryValue );
+            }
+            else
+            {
+                // Remove the String value
+                values.remove( nullStringValue );
             }
         }
-        
+
         return nbAdded;
-    }
-
-
-    /**
-     * @see EntryAttribute#add(String)
-     */
-    public boolean add( String val ) throws InvalidAttributeValueException, NamingException
-    {
-        return add( new ClientStringValue( val ) );
     }
 
 
     /**
      * @see EntryAttribute#add(String...)
      */
-    public int add( String... vals ) throws NamingException
+    public int add( String... vals )
     {
         int nbAdded = 0;
         
-        for ( String val:vals )
+        // First, if the isHR flag is not set, we assume that the
+        // attribute is HR, because we are asked to add some strings.
+        if ( isHR == null )
         {
-            if ( add( val ) )
-            {
-                nbAdded ++;
-            }
+            isHR = true;
         }
-        
-        return nbAdded;
-    }    
-    
-    
-    /**
-     * @see EntryAttribute#add(byte[])
-     */
-    public boolean add( byte[] val ) throws InvalidAttributeValueException, NamingException
-    {
-        return add( new ClientBinaryValue( val ) );
-    }
 
-    
-    /**
-     * @see EntryAttribute#add(byte[]...)
-     */
-    public int add( byte[]... vals ) throws InvalidAttributeValueException, NamingException
-    {
-        int nbAdded = 0;
-        
-        for ( byte[] val:vals )
+        // Check the attribute type.
+        if ( isHR )
         {
-            if ( add( val ) )
+            for ( String val:vals )
             {
-                nbAdded ++;
+                if ( add( new ClientStringValue( val ) ) == 1 )
+                {
+                    nbAdded++;
+                }
+            }
+        }
+        else
+        {
+            // The attribute is binary. Transform the String to byte[]
+            for ( String val:vals )
+            {
+                byte[] valBytes = null;
+                
+                if ( val != null )
+                {
+                    valBytes = StringTools.getBytesUtf8( val );
+                }
+                
+                // Now call the add(Value) method
+                if ( add( new ClientBinaryValue( valBytes ) ) == 1 )
+                {
+                    nbAdded++;
+                }
             }
         }
         
@@ -371,8 +567,81 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     
     
     /**
-     * Remove all the values from this attribute type, including a 
-     * null value. 
+     * Adds some values to this attribute. If the new values are already present in
+     * the attribute values, the method has no effect.
+     * <p>
+     * The new values are added at the end of list of values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were added.
+     * </p>
+     * If the value's type is different from the attribute's type,
+     * a conversion is done. For instance, if we try to set some String
+     * into a Binary attribute, we just store the UTF-8 byte array 
+     * encoding for this String.
+     * If we try to store some byte[] in a HR attribute, we try to 
+     * convert those byte[] assuming they represent an UTF-8 encoded
+     * String. Of course, if it's not the case, the stored value will
+     * be incorrect.
+     * <br>
+     * It's the responsibility of the caller to check if the stored
+     * values are consistent with the attribute's type.
+     * <br>
+     * The caller can set the HR flag in order to enforce a type for 
+     * the current attribute, otherwise this type will be set while
+     * adding the first value, using the value's type to set the flag.
+     *
+     * @param val some new values to be added which may be null
+     * @return the number of added values, or 0 if none has been added
+     */
+    public int add( byte[]... vals )
+    {
+        int nbAdded = 0;
+        
+        // First, if the isHR flag is not set, we assume that the
+        // attribute is not HR, because we are asked to add some byte[].
+        if ( isHR == null )
+        {
+            isHR = false;
+        }
+
+        // Check the attribute type.
+        if ( isHR )
+        {
+            // The attribute is HR. Transform the byte[] to String
+            for ( byte[] val:vals )
+            {
+                String valString = null;
+                
+                if ( val != null )
+                {
+                    valString = StringTools.utf8ToString( val );
+                }
+                
+                // Now call the add(Value) method
+                if ( add( new ClientStringValue( valString ) ) == 1 )
+                {
+                    nbAdded++;
+                }
+            }
+        }
+        else
+        {
+            for ( byte[] val:vals )
+            {
+                if ( add( new ClientBinaryValue( val ) ) == 1 )
+                {
+                    nbAdded++;
+                }
+            }
+        }
+        
+        return nbAdded;
+    }    
+    
+    
+    /**
+     * Remove all the values from this attribute.
      */
     public void clear()
     {
@@ -381,26 +650,75 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
-     * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value)
-     */
-    public boolean contains( Value<?> val )
-    {
-        return values.contains( val );
-    }
-
-
-    /**
-     * @see EntryAttribute#contains(org.apache.directory.shared.ldap.entry.Value...)
+     * <p>
+     * Indicates whether the specified values are some of the attribute's values.
+     * </p>
+     * <p>
+     * If the Attribute is HR, the binary values will be converted to String before
+     * being checked.
+     * </p>
+     *
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
      */
     public boolean contains( Value<?>... vals )
     {
-        // Iterate through all the values, and quit if we 
-        // don't find one in the values
-        for ( Value<?> val:vals )
+        if ( isHR == null )
         {
-            if ( !values.contains( val ) )
+            // If this flag is null, then there is no values.
+            return false;
+        }
+
+        if ( isHR )
+        {
+            // Iterate through all the values, convert the Binary values
+            // to String values, and quit id any of the values is not
+            // contained in the object
+            for ( Value<?> val:vals )
             {
-                return false;
+                if ( val instanceof ClientStringValue )
+                {
+                    if ( !values.contains( val ) )
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    byte[] binaryVal = (byte[])val.get();
+                    
+                    // We have to convert the binary value to a String
+                    if ( ! values.contains( new ClientStringValue( StringTools.utf8ToString( binaryVal ) ) ) )
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Iterate through all the values, convert the String values
+            // to binary values, and quit id any of the values is not
+            // contained in the object
+            for ( Value<?> val:vals )
+            {
+                if ( val instanceof ClientBinaryValue )
+                {
+                    if ( !values.contains( val ) )
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    String stringVal = (String)val.get();
+                    
+                    // We have to convert the binary value to a String
+                    if ( ! values.contains( new ClientBinaryValue( StringTools.getBytesUtf8( stringVal ) ) ) )
+                    {
+                        return false;
+                    }
+                }
             }
         }
         
@@ -409,28 +727,50 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
-     * @see EntryAttribute#contains(String)
-     */
-    public boolean contains( String val )
-    {
-        ClientStringValue value = new ClientStringValue( val );
-        
-        return values.contains( value );
-    }
-
-
-    /**
-     * @see EntryAttribute#contains(String...)
+     * <p>
+     * Indicates whether the specified values are some of the attribute's values.
+     * </p>
+     * <p>
+     * If the Attribute is not HR, the values will be converted to byte[]
+     * </p>
+     *
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
      */
     public boolean contains( String... vals )
     {
-        // Iterate through all the values, and quit if we 
-        // don't find one in the values
-        for ( String val:vals )
+        if ( isHR == null )
         {
-            if ( !contains( val ) )
+            // If this flag is null, then there is no values.
+            return false;
+        }
+
+        if ( isHR )
+        {
+            // Iterate through all the values, and quit if we 
+            // don't find one in the values
+            for ( String val:vals )
             {
-                return false;
+                if ( !contains( new ClientStringValue( val ) ) )
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            // As the attribute type is binary, we have to convert 
+            // the values before checking for them in the values
+            // Iterate through all the values, and quit if we 
+            // don't find one in the values
+            for ( String val:vals )
+            {
+                byte[] binaryVal = StringTools.getBytesUtf8( val );
+
+                if ( !contains( new ClientBinaryValue( binaryVal ) ) )
+                {
+                    return false;
+                }
             }
         }
         
@@ -439,27 +779,50 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     
     
     /**
-     * @see EntryAttribute#contains(byte[])
-     */
-    public boolean contains( byte[] val )
-    {
-        ClientBinaryValue sbv = new ClientBinaryValue( val );
-        return values.contains( sbv );
-    }
-
-
-    /**
-     * @see EntryAttribute#contains(byte[]...)
+     * <p>
+     * Indicates whether the specified values are some of the attribute's values.
+     * </p>
+     * <p>
+     * If the Attribute is HR, the values will be converted to String
+     * </p>
+     *
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
      */
     public boolean contains( byte[]... vals )
     {
-        // Iterate through all the values, and quit if we 
-        // don't find one in the values
-        for ( byte[] val:vals )
+        if ( isHR == null )
         {
-            if ( !contains( val ) )
+            // If this flag is null, then there is no values.
+            return false;
+        }
+
+        if ( !isHR )
+        {
+            // Iterate through all the values, and quit if we 
+            // don't find one in the values
+            for ( byte[] val:vals )
             {
-                return false;
+                if ( !contains( new ClientBinaryValue( val ) ) )
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            // As the attribute type is String, we have to convert 
+            // the values before checking for them in the values
+            // Iterate through all the values, and quit if we 
+            // don't find one in the values
+            for ( byte[] val:vals )
+            {
+                String stringVal = StringTools.utf8ToString( val );
+
+                if ( !contains( new ClientStringValue( stringVal ) ) )
+                {
+                    return false;
+                }
             }
         }
         
@@ -526,12 +889,17 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
     
     /**
+     * <p>
      * Get the first value of this attribute. If there is none, 
      * null is returned.
-     * 
-     * Note : as we are storing values into a Set, one can't assume
-     * the values to be ordered in any way. This method is meant to
-     * be used if the attribute hold only one value.
+     * </p>
+     * <p>
+     * Note : even if we are storing values into a Set, one can assume
+     * the values are ordered following the insertion order.
+     * </p>
+     * <p> 
+     * This method is meant to be used if the attribute hold only one value.
+     * </p>
      * 
      *  @return The first value for this attribute.
      */
@@ -547,9 +915,16 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
-     * Get all the stored values.
-     * 
-     * @return An iterator over the values stored into the attribute
+     * Returns an iterator over all the attribute's values.
+     * <p>
+     * The effect on the returned enumeration of adding or removing values of
+     * the attribute is not specified.
+     * </p>
+     * <p>
+     * This method will throw any <code>NamingException</code> that occurs.
+     * </p>
+     *
+     * @return an enumeration of all values of the attribute
      */
     public Iterator<Value<?>> getAll()
     {
@@ -558,10 +933,10 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
-     * Get the number or values stored in the attribute
-     * 
-     * @return the number of stored values. As 'null' can be a valid
-     * value, it is counted as one result, not 0.
+     * Retrieves the number of values in this attribute.
+     *
+     * @return the number of values in this attribute, including any values
+     * wrapping a null value if there is one
      */
     public int size()
     {
@@ -570,26 +945,60 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
-     * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value)
-     */
-    public boolean remove( Value<?> val )
-    {
-        return values.remove( val );
-    }
-
-
-    /**
-     * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value...)
+     * <p>
+     * Removes all the  values that are equal to the given values.
+     * </p>
+     * <p>
+     * Returns true if all the values are removed.
+     * </p>
+     * <p>
+     * If the attribute type is HR and some value which are not String, we
+     * will convert the values first (same thing for a non-HR attribute).
+     * </p>
+     *
+     * @param vals the values to be removed
+     * @return true if all the values are removed, otherwise false
      */
     public boolean remove( Value<?>... vals )
     {
-        boolean removed = false;
-        
-        // Loop through all the values to remove. If one of
-        // them is not present, the method will return false.
-        for ( Value<?> val:vals )
+        if ( ( isHR == null ) || ( values.size() == 0 ) ) 
         {
-            removed &= values.remove( val );
+            // Trying to remove a value from an empty list will fail
+            return false;
+        }
+        
+        boolean removed = true;
+        
+        if ( isHR )
+        {
+            for ( Value<?> val:vals )
+            {
+                if ( val instanceof ClientStringValue )
+                {
+                    removed &= values.remove( val );
+                }
+                else
+                {
+                    // Convert the binary value to a string value
+                    byte[] binaryVal = (byte[])val.get();
+                    removed &= values.remove( new ClientStringValue( StringTools.utf8ToString( binaryVal ) ) );
+                }
+            }
+        }
+        else
+        {
+            for ( Value<?> val:vals )
+            {
+                if ( val instanceof ClientBinaryValue )
+                {
+                    removed &= values.remove( val );
+                }
+                else
+                {
+                    String stringVal = (String)val.get();
+                    removed &= values.remove( new ClientBinaryValue( StringTools.getBytesUtf8( stringVal ) ) );
+                }
+            }
         }
         
         return removed;
@@ -597,26 +1006,48 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
-     * @see EntryAttribute#remove(byte[])
-     */
-    public boolean remove( byte[] val )
-    {
-        ClientBinaryValue sbv = new ClientBinaryValue( val );
-        return values.remove( sbv );
-    }
-
-
-    /**
-     * @see EntryAttribute#remove(byte[]...)
+     * <p>
+     * Removes all the  values that are equal to the given values.
+     * </p>
+     * <p>
+     * Returns true if all the values are removed.
+     * </p>
+     * <p>
+     * If the attribute type is HR, then the values will be first converted
+     * to String
+     * </p>
+     *
+     * @param vals the values to be removed
+     * @return true if all the values are removed, otherwise false
      */
     public boolean remove( byte[]... vals )
     {
+        if ( ( isHR == null ) || ( values.size() == 0 ) ) 
+        {
+            // Trying to remove a value from an empty list will fail
+            return false;
+        }
+        
         boolean removed = true;
         
-        for ( byte[] val:vals )
+        if ( !isHR )
         {
-            ClientBinaryValue value = new ClientBinaryValue( val );
-            removed &= values.remove( value );
+            // The attribute type is not HR, we can directly process the values
+            for ( byte[] val:vals )
+            {
+                ClientBinaryValue value = new ClientBinaryValue( val );
+                removed &= values.remove( value );
+            }
+        }
+        else
+        {
+            // The attribute type is String, we have to convert the values
+            // to String before removing them
+            for ( byte[] val:vals )
+            {
+                ClientStringValue value = new ClientStringValue( StringTools.utf8ToString( val ) );
+                removed &= values.remove( value );
+            }
         }
         
         return removed;
@@ -624,26 +1055,46 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
 
 
     /**
-     * @see EntryAttribute#remove(String)
-     */
-    public boolean remove( String val )
-    {
-        ClientStringValue ssv = new ClientStringValue( val );
-        return values.remove( ssv );
-    }
-
-
-    /**
-     * @see EntryAttribute#remove(String...)
+     * Removes all the  values that are equal to the given values.
+     * <p>
+     * Returns true if all the values are removed.
+     * </p>
+     * <p>
+     * If the attribute type is not HR, then the values will be first converted
+     * to byte[]
+     * </p>
+     *
+     * @param vals the values to be removed
+     * @return true if all the values are removed, otherwise false
      */
     public boolean remove( String... vals )
     {
+        if ( ( isHR == null ) || ( values.size() == 0 ) ) 
+        {
+            // Trying to remove a value from an empty list will fail
+            return false;
+        }
+        
         boolean removed = true;
         
-        for ( String val:vals )
+        if ( isHR )
         {
-            ClientStringValue value = new ClientStringValue( val );
-            removed &= values.remove( value );
+            // The attribute type is HR, we can directly process the values
+            for ( String val:vals )
+            {
+                ClientStringValue value = new ClientStringValue( val );
+                removed &= values.remove( value );
+            }
+        }
+        else
+        {
+            // The attribute type is binary, we have to convert the values
+            // to byte[] before removing them
+            for ( String val:vals )
+            {
+                ClientBinaryValue value = new ClientBinaryValue( StringTools.getBytesUtf8( val ) );
+                removed &= values.remove( value );
+            }
         }
         
         return removed;
@@ -661,15 +1112,201 @@ public final class DefaultClientAttribute extends AbstractClientAttribute
     }
     
     
-    public void writeExternal( ObjectOutput out ) throws IOException
+    /**
+     * Puts some values to this attribute.
+     * <p>
+     * The new values will replace the previous values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were put.
+     * </p>
+     *
+     * @param val some values to be put which may be null
+     * @return the number of added values, or 0 if none has been added
+     */
+    public int put( String... vals )
     {
-        // Do nothing...
+        values.clear();
+        return add( vals );
     }
     
     
-    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    /**
+     * Puts some values to this attribute.
+     * <p>
+     * The new values will replace the previous values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were put.
+     * </p>
+     *
+     * @param val some values to be put which may be null
+     * @return the number of added values, or 0 if none has been added
+     */
+    public int put( byte[]... vals )
     {
-        // Do nothing...
+        values.clear();
+        return add( vals );
+    }
+
+    
+    /**
+     * Puts some values to this attribute.
+     * <p>
+     * The new values are replace the previous values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were put.
+     * </p>
+     *
+     * @param val some values to be put which may be null
+     * @return the number of added values, or 0 if none has been added
+     */
+    public int put( Value<?>... vals )
+    {
+        values.clear();
+        return add( vals );
+    }
+    
+    
+    /**
+     * <p>
+     * Puts a list of values into this attribute.
+     * </p>
+     * <p>
+     * The new values will replace the previous values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were put.
+     * </p>
+     *
+     * @param vals the values to be put
+     * @return the number of added values, or 0 if none has been added
+     */
+    public int put( List<Value<?>> vals )
+    {
+        values.clear();
+        
+        // Transform the List to an array
+        Value<?>[] valArray = new Value<?>[vals.size()];
+        return add( vals.toArray( valArray ) );
+    }
+    
+    //-------------------------------------------------------------------------
+    // Overloaded Object classes
+    //-------------------------------------------------------------------------
+    /**
+     * The hashCode is based on the id, the isHR flag and 
+     * on the internal values.
+     *  
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int h = 37;
+        
+        if ( isHR != null )
+        {
+            h = h*17 + isHR.hashCode();
+        }
+        
+        if ( id != null )
+        {
+            h = h*17 + id.hashCode();
+        }
+        
+        for ( Value<?> value:values )
+        {
+            h = h*17 + value.hashCode();
+        }
+        
+        return h;
+    }
+    
+    
+    /**
+     * @see Object#equals(Object)
+     */
+    public boolean equals( Object obj )
+    {
+        if ( obj == this )
+        {
+            return true;
+        }
+        
+        if ( ! (obj instanceof EntryAttribute ) )
+        {
+            return false;
+        }
+        
+        EntryAttribute other = (EntryAttribute)obj;
+        
+        if ( id == null )
+        {
+            if ( other.getId() != null )
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if ( other.getId() == null )
+            {
+                return false;
+            }
+            else
+            {
+                if ( !id.equals( other.getId() ) )
+                {
+                    return false;
+                }
+            }
+        }
+        
+        if ( isHR() !=  other.isHR() )
+        {
+            return false;
+        }
+        
+        if ( values.size() != other.size() )
+        {
+            return false;
+        }
+        
+        for ( Value<?> val:values )
+        {
+            if ( ! other.contains( val ) )
+            {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    
+    /**
+     * @see Cloneable#clone()
+     */
+    public EntryAttribute clone()
+    {
+        try
+        {
+            DefaultClientAttribute attribute = (DefaultClientAttribute)super.clone();
+            
+            attribute.values = new LinkedHashSet<Value<?>>( values.size() );
+            
+            for ( Value<?> value:values )
+            {
+                attribute.values.add( value.clone() );
+            }
+            
+            return attribute;
+        }
+        catch ( CloneNotSupportedException cnse )
+        {
+            return null;
+        }
     }
     
     

@@ -40,7 +40,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Entry<T extends EntryAttribute<?>> extends Cloneable, Iterable<T>
+public interface Entry<T extends EntryAttribute> extends Cloneable, Iterable<T>
 {
     /**
      * Removes all the attributes.

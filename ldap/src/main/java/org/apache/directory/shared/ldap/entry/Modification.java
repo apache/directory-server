@@ -56,7 +56,7 @@ public interface Modification extends Cloneable, Serializable
     /**
      * @return the attribute containing the modifications
      */
-    EntryAttribute<?> getAttribute();
+    EntryAttribute getAttribute();
     
     
     /**
@@ -64,7 +64,7 @@ public interface Modification extends Cloneable, Serializable
      *
      * @param attribute The modified attribute 
      */
-    void setAttribute( EntryAttribute<?> attribute );
+    void setAttribute( EntryAttribute attribute );
     
     
     /**
