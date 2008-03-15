@@ -38,6 +38,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -84,7 +85,7 @@ public class MaxImmSubFilter implements ACITupleFilter
             AuthenticationLevel authenticationLevel,
             LdapDN entryName, 
             String attrId, 
-            Object attrValue, 
+            Value<?> attrValue, 
             ServerEntry entry, 
             Collection<MicroOperation> microOperations,
             ServerEntry entryView )

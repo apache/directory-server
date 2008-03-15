@@ -591,14 +591,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         // see first if simple match without normalization succeeds
-        if ( compareContext.getValue() instanceof String )
-        {
-            if ( attr.contains( (String)compareContext.getValue()  ) )
-            {
-                return true;
-            }
-        }
-        else if ( attr.contains( (byte[])compareContext.getValue()  ) )
+        if ( attr.contains( (Value<?>)compareContext.getValue()  ) )
         {
             return true;
         }
@@ -611,7 +604,7 @@ public class DefaultPartitionNexus extends PartitionNexus
          * through all values looking for a match.
          */
         Normalizer normalizer = attrType.getEquality().getNormalizer();
-        Object reqVal = normalizer.normalize( compareContext.getValue() );
+        Object reqVal = normalizer.normalize( ((Value<?>)compareContext.getValue()).get() );
 
         for ( Value<?> value:attr )
         {
@@ -1002,7 +995,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     {
                         serverEntry.put( attribute );
                     }
-                    else if ( containsPlus && ( type.getUsage() == UsageEnum.USER_APPLICATIONS ) )
+                    else if ( containsPlus && ( type.getUsage() != UsageEnum.USER_APPLICATIONS ) )
                     {
                         serverEntry.put( attribute );
                     }

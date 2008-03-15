@@ -49,7 +49,7 @@ public class AttributeClassLoader extends ClassLoader
     
     public void setAttribute( ServerAttribute attribute ) throws NamingException
     {
-        if ( attribute.getType().getSyntax().isHumanReadable() )
+        if ( attribute.getAttributeType().getSyntax().isHumanReadable() )
         {
             throw new InvalidAttributeValueException( "The attribute must be binary" );
         }

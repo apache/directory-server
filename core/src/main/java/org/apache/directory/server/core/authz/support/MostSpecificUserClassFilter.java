@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -61,7 +62,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             AuthenticationLevel authenticationLevel,
             LdapDN entryName, 
             String attrId, 
-            Object attrValue, 
+            Value<?> attrValue, 
             ServerEntry entry, 
             Collection<MicroOperation> microOperations,
             ServerEntry entryView )

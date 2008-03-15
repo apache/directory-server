@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -57,7 +58,7 @@ public class MaxValueCountFilter implements ACITupleFilter
             AuthenticationLevel authenticationLevel,
             LdapDN entryName, 
             String attrId, 
-            Object attrValue, 
+            Value<?> attrValue, 
             ServerEntry entry, 
             Collection<MicroOperation> microOperations,
             ServerEntry entryView )

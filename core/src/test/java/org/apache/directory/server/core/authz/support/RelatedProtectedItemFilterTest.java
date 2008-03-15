@@ -51,6 +51,7 @@ import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -229,15 +230,15 @@ public class RelatedProtectedItemFilterTest
         tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes )  ) );
 
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "cn", "valueA", null, null, null ).size() );
+            null, null, null, "cn", new ClientStringValue( "valueA" ), null, null, null ).size() );
 
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "cn", "valueB", null, null, null ).size() );
+            null, null, null, "cn", new ClientStringValue( "valueB" ), null, null, null ).size() );
 
         tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes )  ) );
 
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "sn", "valueA", null, null, null ).size() );
+            null, null, null, "sn", new ClientStringValue( "valueA" ), null, null, null ).size() );
     }
 
 

@@ -88,7 +88,7 @@ public class RefinementLeafEvaluator
             throw new IllegalArgumentException( "objectClasses argument cannot be null" );
         }
         
-        if ( !objectClasses.isA( SchemaConstants.OBJECT_CLASS_AT ) )
+        if ( !objectClasses.instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             throw new IllegalArgumentException( "objectClasses attribute must be for ID 'objectClass'" );
         }

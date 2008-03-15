@@ -66,7 +66,7 @@ public class RefinementEvaluator
             throw new IllegalArgumentException( "objectClasses cannot be null" );
         }
         
-        if ( !objectClasses.isA( SchemaConstants.OBJECT_CLASS_AT ) )
+        if ( !objectClasses.instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             throw new IllegalArgumentException( "Attribute objectClasses should be of id 'objectClass'" );
         }

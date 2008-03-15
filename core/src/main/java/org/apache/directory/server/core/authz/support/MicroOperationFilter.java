@@ -31,6 +31,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -55,7 +56,7 @@ public class MicroOperationFilter implements ACITupleFilter
             AuthenticationLevel authenticationLevel,
             LdapDN entryName, 
             String attrId, 
-            Object attrValue, 
+            Value<?> attrValue, 
             ServerEntry entry, 
             Collection<MicroOperation> microOperations,
             ServerEntry entryView )

@@ -1480,7 +1480,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             entry.remove( SchemaConstants.OBJECT_CLASS_AT );
 
-            ServerAttribute newOc = new DefaultServerAttribute( oc.getType() );
+            ServerAttribute newOc = new DefaultServerAttribute( oc.getAttributeType() );
 
             for ( ObjectClass currentOC:objectClasses )
             {
@@ -1501,9 +1501,9 @@ public class SchemaInterceptor extends BaseInterceptor
          */
         for ( ServerAttribute attribute:entry )
         {
-            if ( !attribute.getType().getSyntax().isHumanReadable() )
+            if ( !attribute.getAttributeType().getSyntax().isHumanReadable() )
             {
-                List<byte[]> binaries = new ArrayList<byte[]>();
+                List<Value<?>> binaries = new ArrayList<Value<?>>();
                 
                 for ( Value<?> value:attribute )
                 {
@@ -1511,11 +1511,13 @@ public class SchemaInterceptor extends BaseInterceptor
                 
                     if ( attrValue instanceof String )
                     {
-                        binaries.add( StringTools.getBytesUtf8( ( String ) attrValue ) );
+                        binaries.add( new ServerBinaryValue( attribute.getAttributeType(), 
+                            StringTools.getBytesUtf8( ( String ) attrValue ) ) );
                     }
                     else
                     {
-                        binaries.add( (byte[])attrValue );
+                        binaries.add( new ServerBinaryValue( attribute.getAttributeType(),
+                            (byte[])attrValue ) );
                     }
                 }
                 
@@ -1664,9 +1666,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( ServerAttribute attribute:entry )
         {
-            String attrOid = attribute.getType().getOid();
+            String attrOid = attribute.getAttributeType().getOid();
 
-            AttributeType attributeType = attribute.getType();
+            AttributeType attributeType = attribute.getAttributeType();
 
             if ( !attributeType.isCollective() && ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) )
             {
@@ -1711,7 +1713,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private void assertNumberOfAttributeValuesValid( ServerAttribute attribute ) throws InvalidAttributeValueException, NamingException
     {
-        if ( attribute.size() > 1 && attribute.getType().isSingleValue() )
+        if ( attribute.size() > 1 && attribute.getAttributeType().isSingleValue() )
         {                
             throw new LdapInvalidAttributeValueException( "More than one value has been provided " +
                 "for the single-valued attribute: " + attribute.getUpId(), ResultCodeEnum.CONSTRAINT_VIOLATION );
@@ -1726,7 +1728,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         for ( ServerAttribute attribute:entry )
         {
-            must.remove( attribute.getType().getOid() );
+            must.remove( attribute.getAttributeType().getOid() );
         }
 
         if ( must.size() != 0 )
@@ -1818,7 +1820,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // First, loop on all attributes
         for ( ServerAttribute attribute:entry )
         {
-            AttributeType attributeType = attribute.getType();
+            AttributeType attributeType = attribute.getAttributeType();
             SyntaxChecker syntaxChecker =  attributeType.getSyntax().getSyntaxChecker();
             
             if ( syntaxChecker instanceof AcceptAllSyntaxChecker )
@@ -1950,7 +1952,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loops on all attributes
         for ( ServerAttribute attribute:entry )
         {
-            AttributeType attributeType = attribute.getType();
+            AttributeType attributeType = attribute.getAttributeType();
 
             // If the attributeType is H-R, check all of its values
             if ( attributeType.getSyntax().isHumanReadable() )

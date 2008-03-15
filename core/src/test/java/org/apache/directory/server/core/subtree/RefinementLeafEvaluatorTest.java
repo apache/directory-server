@@ -141,11 +141,12 @@ public class RefinementLeafEvaluatorTest
         try
         {
             objectClasses = new DefaultServerAttribute( "cn", OBJECT_CLASS );
-            assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", "" ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( "cn", "" ), objectClasses ) );
             fail( "should never get here due to an IAE" );
         }
-        catch ( IllegalArgumentException iae )
+        catch ( NamingException ne )
         {
+            assertTrue( true );
         }
     }
 

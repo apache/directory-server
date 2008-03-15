@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import org.junit.BeforeClass;
@@ -133,12 +134,12 @@ public class RestrictedByFilterTest
         tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, MO_EMPTY_SET, true, 0 ) );
 
         assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "sn", "1", ENTRY, null, null ).size() );
+            null, null, "sn", new ClientStringValue( "1" ), ENTRY, null, null ).size() );
 
         assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "sn", "2", ENTRY, null, null ).size() );
+            null, null, "sn", new ClientStringValue( "2" ), ENTRY, null, null ).size() );
 
         assertEquals( 0, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "sn", "3", ENTRY, null, null ).size() );
+            null, null, "sn", new ClientStringValue( "3" ), ENTRY, null, null ).size() );
     }
 }

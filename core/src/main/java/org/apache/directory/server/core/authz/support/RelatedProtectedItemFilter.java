@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -82,7 +83,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             AuthenticationLevel authenticationLevel, 
             LdapDN entryName, 
             String attrId,
-            Object attrValue, 
+            Value<?> attrValue, 
             ServerEntry entry, 
             Collection<MicroOperation> microOperations,
             ServerEntry entryView )
@@ -108,7 +109,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
 
     private boolean isRelated( ACITuple tuple, OperationScope scope, LdapDN userName, LdapDN entryName, String attrId,
-                               Object attrValue, ServerEntry entry ) throws NamingException, InternalError
+                               Value<?> attrValue, ServerEntry entry ) throws NamingException, InternalError
     {
         String oid = null;
         
@@ -190,7 +191,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     String attrOid = oidRegistry.getOid( attr.getID() );
                     AttributeType attrType = attrRegistry.lookup( attrOid );
                     
-                    if ( oid.equals( attrOid ) && AttributeUtils.containsValue( attr, attrValue, attrType ) )
+                    if ( oid.equals( attrOid ) && AttributeUtils.containsValue( attr, attrValue.get(), attrType ) )
                     {
                         return true;
                     }

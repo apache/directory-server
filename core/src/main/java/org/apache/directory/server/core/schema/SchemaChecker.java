@@ -207,7 +207,7 @@ public class SchemaChecker
             return;
         }
 
-        if ( !attribute.isA( SchemaConstants.OBJECT_CLASS_AT ) )
+        if ( !attribute.instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             return;
         }

@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -57,7 +58,7 @@ public class RestrictedByFilter implements ACITupleFilter
             AuthenticationLevel authenticationLevel,
             LdapDN entryName, 
             String attrId, 
-            Object attrValue, 
+            Value<?> attrValue, 
             ServerEntry entry, 
             Collection<MicroOperation> microOperations,
             ServerEntry entryView )
@@ -92,7 +93,7 @@ public class RestrictedByFilter implements ACITupleFilter
     }
 
 
-    public boolean isRemovable( ACITuple tuple, String attrId, Object attrValue, ServerEntry entry ) throws NamingException
+    public boolean isRemovable( ACITuple tuple, String attrId, Value<?> attrValue, ServerEntry entry ) throws NamingException
     {
         for ( ProtectedItem item : tuple.getProtectedItems() )
         {

@@ -50,6 +50,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -135,7 +136,7 @@ public class ACDFEngine
         AuthenticationLevel authenticationLevel, 
         LdapDN entryName, 
         String attrId, 
-        Object attrValue, 
+        Value<?> attrValue, 
         Collection<MicroOperation> microOperations, 
         Collection<ACITuple> aciTuples, 
         ServerEntry entry, 
@@ -193,7 +194,7 @@ public class ACDFEngine
         AuthenticationLevel authenticationLevel, 
         LdapDN entryName, 
         String attrId, 
-        Object attrValue, 
+        Value<?> attrValue, 
         Collection<MicroOperation> microOperations, 
         Collection<ACITuple> aciTuples, 
         ServerEntry entry, 

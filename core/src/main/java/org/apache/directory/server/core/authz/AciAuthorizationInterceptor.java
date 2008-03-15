@@ -481,7 +481,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             for ( Value<?> value:attribute )
             {
                 engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attribute
-                    .getUpId(), value.get(), ADD_PERMS, tuples, serverEntry, null );
+                    .getUpId(), value, ADD_PERMS, tuples, serverEntry, null );
             }
         }
 
@@ -749,7 +749,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                     principal.getAuthenticationLevel(), 
                     dn, 
                     attribute.getUpId(), 
-                    value.get(), 
+                    value, 
                     READ_PERMS, 
                     tuples, 
                     entry, 
@@ -1044,7 +1044,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
     	LdapDN name = opContext.getDn();
     	String oid = opContext.getOid();
-    	Object value = opContext.getValue();
+    	Value<?> value = (Value<?>)opContext.getValue();
     	
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -1209,7 +1209,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                         ctx.getPrincipal().getAuthenticationLevel(), 
                         normName, 
                         attr.getUpId(), 
-                        value.get(), 
+                        value, 
                         SEARCH_ATTRVAL_PERMS, 
                         tuples,
                         entry, 

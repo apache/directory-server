@@ -107,6 +107,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -983,7 +984,7 @@ public class DefaultDirectoryService implements DirectoryService
                                 SchemaConstants.INET_ORG_PERSON_OC );
 
             serverEntry.put( SchemaConstants.UID_AT, PartitionNexus.ADMIN_UID );
-            serverEntry.put( SchemaConstants.USER_PASSWORD_AT, PartitionNexus.ADMIN_PASSWORD );
+            serverEntry.put( SchemaConstants.USER_PASSWORD_AT, PartitionNexus.ADMIN_PASSWORD_BYTES );
             serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
             serverEntry.put( SchemaConstants.CN_AT, "system administrator" );
             serverEntry.put( SchemaConstants.SN_AT, "administrator" );
@@ -1217,12 +1218,11 @@ public class DefaultDirectoryService implements DirectoryService
         
         if ( userPassword instanceof byte[] )
         {
-            needToChangeAdminPassword = PartitionNexus.ADMIN_PASSWORD.equals( new String(
-                ( byte[] ) userPassword ) );
+            needToChangeAdminPassword = Arrays.equals( PartitionNexus.ADMIN_PASSWORD_BYTES, ( byte[] ) userPassword );
         }
-        else if ( userPassword.toString().equals( PartitionNexus.ADMIN_PASSWORD ) )
+        else if ( userPassword.toString().equals( PartitionNexus.ADMIN_PASSWORD_STRING ) )
         {
-            needToChangeAdminPassword = PartitionNexus.ADMIN_PASSWORD.equals( userPassword.toString() );
+            needToChangeAdminPassword = PartitionNexus.ADMIN_PASSWORD_STRING.equals( userPassword.toString() );
         }
 
         if ( needToChangeAdminPassword )
