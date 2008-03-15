@@ -1,8 +1,6 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import java.util.Comparator;
-
 import jdbm.btree.BTree;
 
 import org.apache.directory.server.core.avltree.AvlTree;
@@ -29,43 +27,33 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     private final JdbmTable<K,V> table;
 
     /**
-     * The Tuple that is used to return values via the get() method. This
-     * same Tuple instance will be returned every time.  At different
-     * positions it may return different values for the same key if the table
-     * supports duplicate keys.
-     */
-    private final Tuple<K,V> returnedTuple = new Tuple<K,V>();
-
-    /**
-     * The underlying Cursor which is simply returns Tuples with key value
-     * pairs in the btree of the JDBM Table.  It does not return different
-     * values for the same key: hence it is not duplicate key aware.  So for
-     * tables supporting duplicate keys, it's Tuple vlaues may contain
-     * AvlTree or BTreeRedirect objects.  These objects are processed by
-     * this outer Cursor to mimic traversal over the Table as if duplicate
-     * keys are natively allowed by JDBM.
-     *
-     * In essence the AvlTree and the BTreeRedirect are used to store multiple
-     * values for the same key.
+     * An underlying Cursor which returns Tuples whose values are
+     * DupsContainer objects representing either AvlTrees or BTreeRedirect
+     * objects used to store the values of duplicate keys.  It does not return
+     * different values for the same key.
      */
     private final DupsContainerCursor<K,V> containerCursor;
 
     /**
-     * A Cursor over a set of value objects for the current key.  A new Cursor
-     * will be created for each new key as we traverse table's that allow for
-     * duplicate keys.  The Cursor traverses over either a AvlTree object full
+     * The current Tuple returned from the underlying DupsContainerCursor.
+     */
+    private final Tuple<K,DupsContainer<V>> containerTuple = new Tuple<K, DupsContainer<V>>();
+
+    /**
+     * A Cursor over a set of value objects for the current key held in the
+     * containerTuple.  A new Cursor will be set for each new key as we
+     * traverse.  The Cursor traverses over either a AvlTree object full
      * of values in a multi-valued key or it traverses over a BTree which
-     * contains the values in it's keys.
+     * contains the values in the key field of it's Tuples.
      */
     private Cursor<V> dupsCursor;
 
     /**
-     * The current Tuple returned from the underlying JdbmNoDupsCursor which
-     * may contain a AvlTree or BTreeRedirect for Tuple values.  A
-     * JdbmNoDupsCursor on a Table that allows duplicates returns AvlTrees or
-     * BTreeRedirect objects for Tuple values.
+     * The Tuple that is used to return values via the get() method. This
+     * same Tuple instance will be returned every time.  At different
+     * positions it may return different values for the same key.
      */
-    private Tuple<K,DupsContainer<V>> containerTuple;
+    private final Tuple<K,V> returnedTuple = new Tuple<K,V>();
 
     /**
      * Whether or not a value is available when get() is called.
@@ -102,7 +90,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         
         if ( containerCursor.next() )
         {
-            containerTuple = containerCursor.get();
+            containerTuple.setBoth( containerCursor.get() );
             
             if ( containerTuple.getValue().isAvlTree() )
             {
@@ -128,19 +116,64 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 
     public void beforeFirst() throws Exception
     {
-        throw new NotImplementedException();
+        clearValue();
+        containerCursor.beforeFirst();
+        containerTuple.setKey( null );
+        containerTuple.setValue( null );
+        dupsCursor = null;
     }
 
 
     public void afterLast() throws Exception
     {
-        throw new NotImplementedException();
+        clearValue();
+        containerCursor.afterLast();
+        containerTuple.setKey( null );
+        containerTuple.setValue( null );
+        dupsCursor = null;
     }
 
 
     public boolean first() throws Exception
     {
-        throw new NotImplementedException();
+        clearValue();
+        dupsCursor = null;
+
+        if ( containerCursor.first() )
+        {
+            containerTuple.setBoth( containerCursor.get() );
+
+            if ( containerTuple.getValue().isAvlTree() )
+            {
+                dupsCursor = new AvlTreeCursor<V>( containerTuple.getValue().getAvlTree() );
+            }
+            else
+            {
+                BTree bt = table.getBTree( containerTuple.getValue().getBTreeRedirect() );
+                dupsCursor = new KeyCursor<V>( bt, table.getValueComparator() );
+            }
+
+            if ( ! dupsCursor.next() )
+            {
+                clearValue();
+                return false;
+            }
+
+            returnedTuple.setKey( containerTuple.getKey() );
+            returnedTuple.setValue( dupsCursor.get() );
+            return valueAvailable = true;
+        }
+
+        clearValue();
+        return false;
+    }
+
+
+    public boolean last() throws Exception
+    {
+        clearValue();
+        dupsCursor = null;
+        return valueAvailable = containerCursor.last();
     }
 
 
@@ -149,52 +182,6 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         returnedTuple.setKey( null );
         returnedTuple.setValue( null );
         valueAvailable = false;
-    }
-
-
-    public boolean last() throws Exception
-    {
-        if ( containerCursor.last() )
-        {
-            containerTuple = containerCursor.get();
-            DupsContainer values = containerTuple.getValue();
-
-            if ( values.isAvlTree() )
-            {
-                //noinspection unchecked
-                AvlTree<V> set = values.getAvlTree();
-                dupsCursor = new AvlTreeCursor<V>( set );
-                if ( ! dupsCursor.previous() )
-                {
-                    clearValue();
-                    return false;
-                }
-            }
-            else if ( values.isBTreeRedirect() )
-            {
-                BTree tree = table.getBTree( values.getBTreeRedirect() );
-                dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
-                if ( ! dupsCursor.previous() )
-                {
-                    clearValue();
-                    return false;
-                }
-            }
-
-            /*
-             * If we get to this point then cursor has more elements and
-             * containerTuple holds the Tuple containing the key and the btree or
-             * AvlTree of values for that key which the Cursor traverses.  All we
-             * need to do is populate our tuple object with the key and the value
-             * in the cursor.
-             */
-            returnedTuple.setKey( containerTuple.getKey() );
-            returnedTuple.setValue( dupsCursor.get() );
-            return valueAvailable = true;
-        }
-
-        clearValue();
-        return false;
     }
 
 
@@ -213,37 +200,33 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
              */
             if ( containerCursor.previous() )
             {
-                containerTuple = containerCursor.get();
+                containerTuple.setBoth( containerCursor.get() );
                 DupsContainer<V> values = containerTuple.getValue();
 
                 if ( values.isAvlTree() )
                 {
-                    //noinspection unchecked
                     AvlTree<V> set = values.getAvlTree();
                     dupsCursor = new AvlTreeCursor<V>( set );
-                    dupsCursor.previous();
                 }
                 else if ( values.isBTreeRedirect() )
                 {
                     BTree tree = table.getBTree( values.getBTreeRedirect() );
-                    //noinspection unchecked
-                    dupsCursor = new KeyCursor<V>( tree, ( Comparator<V> ) table.getKeyComparator() );
-                    dupsCursor.previous();
+                    dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
+                }
+
+                dupsCursor.afterLast();
+                if ( dupsCursor.previous() )
+                {
+                    break;
                 }
             }
             else
             {
+                dupsCursor = null;
                 return false;
             }
         }
 
-        /*
-         * If we get to this point then cursor has more elements and
-         * containerTuple holds the Tuple containing the key and the btree or
-         * AvlTree of values for that key which the Cursor traverses.  All we
-         * need to do is populate our tuple object with the key and the value
-         * in the cursor.
-         */
         returnedTuple.setKey( containerTuple.getKey() );
         returnedTuple.setValue( dupsCursor.get() );
         return valueAvailable = true;
@@ -264,26 +247,29 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
              */
             if ( containerCursor.next() )
             {
-                containerTuple = containerCursor.get();
+                containerTuple.setBoth( containerCursor.get() );
                 DupsContainer<V> values = containerTuple.getValue();
 
                 if ( values.isAvlTree() )
                 {
-                    //noinspection unchecked
                     AvlTree<V> set = values.getAvlTree();
                     dupsCursor = new AvlTreeCursor<V>( set );
-                    dupsCursor.next();
                 }
                 else if ( values.isBTreeRedirect() )
                 {
                     BTree tree = table.getBTree( values.getBTreeRedirect() );
-                    //noinspection unchecked
-                    dupsCursor = new KeyCursor<V>( tree, ( Comparator<V> ) table.getKeyComparator() );
-                    dupsCursor.next();
+                    dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
+                }
+
+                dupsCursor.beforeFirst();
+                if ( dupsCursor.next() )
+                {
+                    break;
                 }
             }
             else
             {
+                dupsCursor = null;
                 return false;
             }
         }

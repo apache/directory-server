@@ -92,10 +92,10 @@ public class JdbmDupsCursorTest
 
 
     @Test
-    public void testNextUnderDupLimit() throws Exception
+    public void testNextNoDups() throws Exception
     {
         // first try without duplicates at all
-        for ( int ii = 0; ii < SIZE-2; ii++ )
+        for ( int ii = 0; ii < SIZE-1; ii++ )
         {
             table.put( ii, ii );
         }
@@ -108,6 +108,182 @@ public class JdbmDupsCursorTest
             assertEquals( ii, ( int ) tuple.getKey() );
             assertEquals( ii, ( int ) tuple.getValue() );
             ii++;
+        }
+    }
+
+
+    @Test
+    public void testPreviousNoDups() throws Exception
+    {
+        for ( int ii = 0; ii < SIZE-1; ii++ )
+        {
+            table.put( ii, ii );
+        }
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+
+        int ii = SIZE-2;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            assertEquals( ii, ( int ) tuple.getKey() );
+            assertEquals( ii, ( int ) tuple.getValue() );
+            ii--;
+        }
+    }
+
+
+    @Test
+    public void testNextDups() throws Exception
+    {
+        for ( int ii = 0; ii < SIZE*3; ii++ )
+        {
+            if ( ii > 12 && ii < 17 + SIZE )
+            {
+                table.put( 13, ii );
+            }
+            else
+            {
+                table.put( ii, ii );
+            }
+        }
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+
+        int ii = 0;
+        while ( cursor.next() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 12 && ii < 17 + SIZE )
+            {
+                assertEquals( 13, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii++;
+        }
+    }
+
+
+    @Test
+    public void testPreviousDups() throws Exception
+    {
+        for ( int ii = 0; ii < SIZE*3; ii++ )
+        {
+            if ( ii > 12 && ii < 17 + SIZE )
+            {
+                table.put( 13, ii );
+            }
+            else
+            {
+                table.put( ii, ii );
+            }
+        }
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+        cursor.afterLast();
+
+        int ii = SIZE*3 - 1;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 12 && ii < 17 + SIZE )
+            {
+                assertEquals( 13, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii--;
+        }
+    }
+
+
+    @Test
+    public void testFirstLastUnderDupLimit() throws Exception
+    {
+        for ( int ii = 0; ii < SIZE-1; ii++ )
+        {
+            table.put( ii, ii );
+        }
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+
+        int ii = 0;
+        while ( cursor.next() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            assertEquals( ii, ( int ) tuple.getKey() );
+            assertEquals( ii, ( int ) tuple.getValue() );
+            ii++;
+        }
+
+        // now go back to first and traverse all over again
+        cursor.first();
+        ii = 0;
+        do
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            assertEquals( ii, ( int ) tuple.getKey() );
+            assertEquals( ii, ( int ) tuple.getValue() );
+            ii++;
+        }
+        while ( cursor.next() );
+
+        // now go backwards
+        ii = SIZE-2;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            assertEquals( ii, ( int ) tuple.getKey() );
+            assertEquals( ii, ( int ) tuple.getValue() );
+            ii--;
+        }
+
+        // now advance to last and go backwards again
+        cursor.afterLast();
+        ii = SIZE-2;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            assertEquals( ii, ( int ) tuple.getKey() );
+            assertEquals( ii, ( int ) tuple.getValue() );
+            ii--;
+        }
+
+        // advance to first then last and go backwards again
+        cursor.beforeFirst();
+        cursor.afterLast();
+        ii = SIZE-2;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            assertEquals( ii, ( int ) tuple.getKey() );
+            assertEquals( ii, ( int ) tuple.getValue() );
+            ii--;
+        }
+    }
+
+
+    @Test
+    public void testLastUnderDupLimit() throws Exception
+    {
+        for ( int ii = 0; ii < SIZE-1; ii++ )
+        {
+            table.put( ii, ii );
+        }
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+
+        int ii = SIZE-2;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            assertEquals( ii, ( int ) tuple.getKey() );
+            assertEquals( ii, ( int ) tuple.getValue() );
+            ii--;
         }
     }
 

@@ -119,14 +119,32 @@ public class Tuple<K, V>
         this.value = value;
         return this;
     }
-    
-    
+
+
+
+
+    /**
+     * Sets both the key and the value for this Tuple in one call and returns
+     * this Tuple object.  This is useful for setting the tuples key and value
+     * then returning it.
+     *
+     * @param tupleToCopy the tuple to copy
+     * @return this Tuple itself to set and return
+     */
+    public Tuple<K,V> setBoth( Tuple<K,V> tupleToCopy )
+    {
+        this.key = tupleToCopy.key;
+        this.value = tupleToCopy.value;
+        return this;
+    }
+
+
     public String toString()
     {
         StringBuilder buf = new StringBuilder();
         buf.append( "Tuple( '" );
         buf.append( key );
-        buf.append(  " )', '" );
+        buf.append(  "', '" );
         buf.append( value );
         buf.append( "' )" );
         return buf.toString();
