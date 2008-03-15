@@ -206,7 +206,117 @@ public class JdbmDupsCursorTest
     @Test
     public void testFirstLastUnderDupLimit() throws Exception
     {
-        for ( int ii = 0; ii < SIZE-1; ii++ )
+        for ( int ii = 0; ii < SIZE*2 - 1; ii++ )
+        {
+            if ( ii > 12 && ii < 17 )
+            {
+                table.put( 13, ii );
+            }
+            else
+            {
+                table.put( ii, ii );
+            }
+        }
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+
+        int ii = 0;
+        while ( cursor.next() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 12 && ii < 17 )
+            {
+                assertEquals( 13, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii++;
+        }
+
+        cursor.beforeFirst();
+        ii = 0;
+        while ( cursor.next() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 12 && ii < 17 )
+            {
+                assertEquals( 13, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii++;
+        }
+
+        // now go backwards
+        ii = SIZE*2-2;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 12 && ii < 17 )
+            {
+                assertEquals( 13, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii--;
+        }
+
+        // now advance to last and go backwards again
+        cursor.afterLast();
+        ii = SIZE*2-2;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 12 && ii < 17 )
+            {
+                assertEquals( 13, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii--;
+        }
+
+        // advance to first then last and go backwards again
+        cursor.beforeFirst();
+        cursor.afterLast();
+        ii = SIZE*2-2;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 12 && ii < 17 )
+            {
+                assertEquals( 13, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii--;
+        }
+    }
+
+
+    @Test
+    public void testFirstLastOverDupLimit() throws Exception
+    {
+        for ( int ii = 0; ii < SIZE*3-1; ii++ )
         {
             table.put( ii, ii );
         }
@@ -234,7 +344,7 @@ public class JdbmDupsCursorTest
         while ( cursor.next() );
 
         // now go backwards
-        ii = SIZE-2;
+        ii = SIZE*3-2;
         while ( cursor.previous() )
         {
             Tuple<Integer,Integer> tuple = cursor.get();
@@ -245,7 +355,7 @@ public class JdbmDupsCursorTest
 
         // now advance to last and go backwards again
         cursor.afterLast();
-        ii = SIZE-2;
+        ii = SIZE*3-2;
         while ( cursor.previous() )
         {
             Tuple<Integer,Integer> tuple = cursor.get();
@@ -257,27 +367,7 @@ public class JdbmDupsCursorTest
         // advance to first then last and go backwards again
         cursor.beforeFirst();
         cursor.afterLast();
-        ii = SIZE-2;
-        while ( cursor.previous() )
-        {
-            Tuple<Integer,Integer> tuple = cursor.get();
-            assertEquals( ii, ( int ) tuple.getKey() );
-            assertEquals( ii, ( int ) tuple.getValue() );
-            ii--;
-        }
-    }
-
-
-    @Test
-    public void testLastUnderDupLimit() throws Exception
-    {
-        for ( int ii = 0; ii < SIZE-1; ii++ )
-        {
-            table.put( ii, ii );
-        }
-        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
-
-        int ii = SIZE-2;
+        ii = SIZE*3-2;
         while ( cursor.previous() )
         {
             Tuple<Integer,Integer> tuple = cursor.get();
