@@ -33,7 +33,6 @@ import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
-import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 
 import java.io.IOException;
 import java.util.*;
@@ -821,10 +820,10 @@ public class JdbmTable<K,V> implements Table<K,V>
     {
         if ( allowsDuplicates )
         {
-            return new JdbmDupsCursor<K,V>( this );
+            return new DupsCursor<K,V>( this );
         }
 
-        return new JdbmNoDupsCursor<K,V>( this );
+        return new NoDupsCursor<K,V>( this );
     }
 
 

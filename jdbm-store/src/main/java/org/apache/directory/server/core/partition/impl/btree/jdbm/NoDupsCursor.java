@@ -37,7 +37,7 @@ import jdbm.helper.TupleBrowser;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class JdbmNoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
+class NoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 {
     private final JdbmTable<K,V> table;
 
@@ -53,7 +53,7 @@ public class JdbmNoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
      * @param table the JDBM Table to build a Cursor over
      * @throws IOException of there are problems accessing the BTree
      */
-    public JdbmNoDupsCursor( JdbmTable<K,V> table ) throws IOException
+    public NoDupsCursor( JdbmTable<K,V> table ) throws IOException
     {
         this.table = table;
     }

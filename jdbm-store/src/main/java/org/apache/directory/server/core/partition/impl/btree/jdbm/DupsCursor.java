@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 /**
  * A Cursor over a BTree which manages duplicate keys.
  */
-public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
+class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmDupsCursor.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( DupsCursor.class.getSimpleName() );
     
     /**
      * The JDBM backed table this Cursor traverses over.
@@ -61,7 +61,7 @@ public class JdbmDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     private boolean valueAvailable;
 
 
-    public JdbmDupsCursor( JdbmTable<K,V> table ) throws Exception
+    public DupsCursor( JdbmTable<K,V> table ) throws Exception
     {
         this.table = table;
         this.containerCursor = new DupsContainerCursor<K,V>( table );

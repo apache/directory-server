@@ -54,9 +54,9 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class JdbmNoDupsCursorTest
+public class NoDupsCursorTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmNoDupsCursorTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( NoDupsCursorTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
     transient Table<Integer,Integer> table;

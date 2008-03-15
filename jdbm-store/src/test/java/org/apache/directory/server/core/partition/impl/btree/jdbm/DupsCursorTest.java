@@ -45,9 +45,9 @@ import jdbm.recman.BaseRecordManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class JdbmDupsCursorTest
+public class DupsCursorTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmDupsCursorTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( DupsCursorTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
     private static final int SIZE = 15;
 
