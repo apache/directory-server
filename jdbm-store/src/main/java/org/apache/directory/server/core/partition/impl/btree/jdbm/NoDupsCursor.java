@@ -104,36 +104,17 @@ class NoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             //noinspection unchecked
             K next = ( K ) jdbmTuple.getKey();
 
-            //noinspection unchecked
             int nextCompared = table.getKeyComparator().compare( next, element.getKey() );
 
-            if ( nextCompared <= 0 )
+            if ( nextCompared > 0 )
             {
-                // just continue
-            }
-            else if ( nextCompared > 0 )
-            {
-                /*
-                 * If we just have values greater than the element argument
-                 * then we are before the first element and cannot backup, and
-                 * the call below to getPrevious() will fail.  In this special
-                 * case we just reset the Cursor's browser and return.
-                 */
-                if ( browser.getPrevious( jdbmTuple ) )
-                {
-                }
-                else
-                {
-                    browser = table.getBTree().browse( element.getKey() );
-                }
-
+                browser.getPrevious( jdbmTuple );
                 clearValue();
                 return;
             }
         }
 
         clearValue();
-        // just return
     }
 
 

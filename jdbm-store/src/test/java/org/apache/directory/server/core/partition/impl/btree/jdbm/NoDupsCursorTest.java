@@ -101,6 +101,13 @@ public class NoDupsCursorTest
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
         assertTrue( cursor.isElementReused() );
+
+        cursor = table.cursor();
+        assertFalse( cursor.previous() );
+
+        cursor = table.cursor();
+        assertFalse( cursor.next() );
+
         cursor.after( new Tuple<Integer,Integer>(7,7) );
         cursor.get();
     }
@@ -175,7 +182,13 @@ public class NoDupsCursorTest
         assertTrue( tuple.getValue().equals( 1 ) );
     }
     
-    
+
+    @Test
+    public void testMiscellaneous() throws Exception
+    {
+    }
+
+
     private class MockComparatorRegistry implements ComparatorRegistry
     {
         private Comparator<Integer> comparator = new Comparator<Integer>()
