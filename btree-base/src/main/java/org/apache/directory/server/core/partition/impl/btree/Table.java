@@ -231,7 +231,8 @@ public interface Table<K, V>
      * @param key the key of the record
      * @param value the value of the record.
      * @return the last value present for the key or null if the key did not
-     * exist before.
+     * exist before, if the key value pair existed the same exact value object
+     * is returned
      * @throws Exception if there is a failure to read or write to the
      * underlying Db
      * @throws IllegalArgumentException if a null key or value is used
