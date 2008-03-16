@@ -93,6 +93,23 @@ public class DupsCursorTest
 
 
     @Test
+    public void testEmptyTableOperations() throws Exception
+    {
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+        assertFalse( cursor.next() );
+        
+        cursor.afterLast();
+        assertFalse( cursor.previous() );
+
+        cursor.beforeFirst();
+        assertFalse( cursor.next() );
+
+        assertFalse( cursor.first() );
+        assertFalse( cursor.last() );
+    }
+
+
+    @Test
     public void testNextNoDups() throws Exception
     {
         // first try without duplicates at all

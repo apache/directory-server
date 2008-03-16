@@ -225,23 +225,18 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 dupsCursor = new KeyCursor<V>( bt, table.getValueComparator() );
             }
 
-            // *** meant to be an assignment = instead of == ***
-            if ( valueAvailable = dupsCursor.first() )
-            {
-                returnedTuple.setKey( containerTuple.getKey() );
-                returnedTuple.setValue( dupsCursor.get() );
-            }
-            else
-            {
-                clearValue();
-                dupsCursor = null;
-            }
-
-            return valueAvailable;
+            /*
+             * Since only tables with duplicate keys enabled use this
+             * cursor, entries must have at least one value, and therefore
+             * call to last() will always return true.
+             */
+            dupsCursor.first();
+            valueAvailable =  true;
+            returnedTuple.setKey( containerTuple.getKey() );
+            returnedTuple.setValue( dupsCursor.get() );
+            return true;
         }
 
-        clearValue();
-        dupsCursor = null;
         return false;
     }
 
@@ -249,6 +244,8 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     public boolean last() throws Exception
     {
         clearValue();
+        dupsCursor = null;
+
         if ( containerCursor.last() )
         {
             containerTuple.setBoth( containerCursor.get() );
@@ -265,22 +262,18 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
             }
 
-            // *** meant to be an assignment = instead of == ***
-            if ( valueAvailable = dupsCursor.last() )
-            {
-                returnedTuple.setKey( containerTuple.getKey() );
-                returnedTuple.setValue( dupsCursor.get() );
-            }
-            else
-            {
-                clearValue();
-                dupsCursor = null;
-            }
-            return valueAvailable;
+            /*
+             * Since only tables with duplicate keys enabled use this
+             * cursor, entries must have at least one value, and therefore
+             * call to last() will always return true.
+             */
+            dupsCursor.last();
+            valueAvailable = true;
+            returnedTuple.setKey( containerTuple.getKey() );
+            returnedTuple.setValue( dupsCursor.get() );
+            return true;
         }
 
-        clearValue();
-        dupsCursor = null;
         return false;
     }
 
@@ -300,7 +293,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
          * If the iterator over the values of the current key is null or is
          * extinguished then we need to advance to the previous key.
          */
-        while ( null == dupsCursor || ! dupsCursor.previous() )
+        if ( null == dupsCursor || ! dupsCursor.previous() )
         {
             /*
              * If the underlying cursor has more elements we get the previous
@@ -323,11 +316,14 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                     dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
                 }
 
+                /*
+                 * Since only tables with duplicate keys enabled use this
+                 * cursor, entries must have at least one value, and therefore
+                 * call to previous() after bringing the cursor to afterLast()
+                 * will always return true.
+                 */
                 dupsCursor.afterLast();
-                if ( dupsCursor.previous() )
-                {
-                    break;
-                }
+                dupsCursor.previous();
             }
             else
             {
@@ -348,7 +344,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
          * If the iterator over the values of the current key is null or is
          * extinguished then we need to advance to the next key.
          */
-        while ( null == dupsCursor || ! dupsCursor.next() )
+        if ( null == dupsCursor || ! dupsCursor.next() )
         {
             /*
              * If the underlying cursor has more elements we get the next
@@ -370,11 +366,14 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                     dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
                 }
 
+                /*
+                 * Since only tables with duplicate keys enabled use this
+                 * cursor, entries must have at least one value, and therefore
+                 * call to next() after bringing the cursor to beforeFirst()
+                 * will always return true.
+                 */
                 dupsCursor.beforeFirst();
-                if ( dupsCursor.next() )
-                {
-                    break;
-                }
+                dupsCursor.next();
             }
             else
             {
