@@ -102,7 +102,7 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
     }
 
 
-    public E put( E entry, Long id ) throws IOException
+    public E put( E entry, Long id ) throws Exception
     {
         return super.put( id, entry );
     }
@@ -114,7 +114,7 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
     }
 
 
-    public Long getCurrentId() throws IOException
+    public Long getCurrentId() throws Exception
     {
         Long id;
 
@@ -134,7 +134,7 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
     }
 
 
-    public Long getNextId() throws IOException
+    public Long getNextId() throws Exception
     {
         Long nextVal;
         Long lastVal;
@@ -169,7 +169,7 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
     }
 
 
-    public void setProperty( String property, String value ) throws IOException
+    public void setProperty( String property, String value ) throws Exception
     {
         synchronized ( adminTbl )
         {

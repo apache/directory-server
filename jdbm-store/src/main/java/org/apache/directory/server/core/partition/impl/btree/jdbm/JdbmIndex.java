@@ -420,7 +420,7 @@ public class JdbmIndex<K> implements Index<K>
     /**
      * @see Index#add(Object, Long)
      */
-    public synchronized void add( K attrVal, Long id ) throws IOException
+    public synchronized void add( K attrVal, Long id ) throws Exception
     {
         forward.put( getNormalized( attrVal ), id );
         reverse.put( id, getNormalized( attrVal ) );

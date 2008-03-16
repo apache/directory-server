@@ -28,6 +28,8 @@ import static org.junit.Assert.*;
 
 import org.apache.directory.server.core.partition.impl.btree.Table;
 import org.apache.directory.server.core.partition.impl.btree.TupleRenderer;
+import org.apache.directory.server.core.partition.impl.btree.Tuple;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
@@ -206,40 +208,63 @@ public class JdbmTableWithDuplicatesTest
         assertFalse( table.hasGreaterOrEqual( 1, 0 ) );
         assertFalse( table.hasLessOrEqual( 1, 0 ) );
     }
-    
-    
+
+
+    @Test
+    public void testPut() throws Exception
+    {
+        final int SIZE = 15;
+
+        for ( int ii = 0; ii < SIZE; ii++ )
+        {
+            table.put( ii, ii );
+        }
+        assertEquals( SIZE, table.count() );
+        assertNotNull( table.put( 0, 0 ) );
+
+        // add some duplicates
+        for ( int ii = 0; ii < SIZE*2; ii++ )
+        {
+            table.put( SIZE*2, ii );
+        }
+        assertEquals( SIZE*3, table.count() );
+        assertNotNull( table.put( 0, 0 ) );
+        assertNotNull( table.put( SIZE*2, 0 ) );
+    }
+
+
     @Test
     public void testHas() throws Exception
     {
         assertFalse( table.has( 1 ) );
         
-        for ( int ii = 0; ii < SIZE; ii++ )
+        for ( int ii = 0; ii < SIZE*2; ii++ )
         {
             table.put( 1, ii );
         }
-        assertEquals( SIZE, table.count() );
+        assertEquals( SIZE*2, table.count() );
 
         assertTrue( table.has( 1 ) );
         assertTrue( table.has( 1, 0 ) );
-        assertFalse( table.has( 1, SIZE ) );
+        assertFalse( table.has( 1, SIZE*2 ) );
 
         assertTrue( table.hasGreaterOrEqual( 1, 0 ) );
         assertTrue( table.hasLessOrEqual( 1, 0 ) );
         assertFalse( table.hasLessOrEqual( 1, -1 ) );
 
-        assertTrue( table.hasGreaterOrEqual( 1, SIZE - 1 ) );
-        assertTrue( table.hasLessOrEqual( 1, SIZE - 1 ) );
-        assertTrue( table.hasGreaterOrEqual( 1, SIZE - 1 ) );
-        assertTrue( table.hasLessOrEqual( 1, SIZE ) );
-        assertFalse( table.hasGreaterOrEqual( 1, SIZE ) );
-        assertFalse( table.has( 1, SIZE ) );
+        assertTrue( table.hasGreaterOrEqual( 1, SIZE*2 - 1 ) );
+        assertTrue( table.hasLessOrEqual( 1, SIZE*2 - 1 ) );
+        assertTrue( table.hasGreaterOrEqual( 1, SIZE*2 - 1 ) );
+        assertTrue( table.hasLessOrEqual( 1, SIZE*2 ) );
+        assertFalse( table.hasGreaterOrEqual( 1, SIZE*2 ) );
+        assertFalse( table.has( 1, SIZE*2 ) );
 
         // let's go over the this limit now and ask the same questions
-        table.put( 1, SIZE );
+        table.put( 1, SIZE*2 );
 
         assertTrue( table.has( 1 ) );
         assertTrue( table.has( 1, 0 ) );
-        assertTrue( table.has( 1, SIZE ) );
+        assertTrue( table.has( 1, SIZE*2 ) );
         assertFalse( table.has( null, null ) );
 
         assertTrue( table.hasGreaterOrEqual( 1, 0 ) );
@@ -248,15 +273,13 @@ public class JdbmTableWithDuplicatesTest
         assertFalse( table.hasGreaterOrEqual( null, null ) );
         assertFalse( table.hasLessOrEqual( null, null ) );
 
-        assertTrue( table.hasGreaterOrEqual( 1, SIZE ) );
-        assertTrue( table.hasLessOrEqual( 1, SIZE ) );
-        assertTrue( table.hasGreaterOrEqual( 1, SIZE ) );
-        assertTrue( table.hasLessOrEqual( 1, SIZE + 1 ) );
-        assertFalse( table.hasGreaterOrEqual( 1, SIZE + 1 ) );
-        assertFalse( table.has( 1, SIZE+1 ) );
+        assertTrue( table.hasGreaterOrEqual( 1, SIZE*2 ) );
+        assertTrue( table.hasLessOrEqual( 1, SIZE*2 ) );
+        assertTrue( table.hasGreaterOrEqual( 1, SIZE*2 ) );
+        assertTrue( table.hasLessOrEqual( 1, SIZE*2 + 1 ) );
+        assertFalse( table.hasGreaterOrEqual( 1, SIZE*2 + 1 ) );
+        assertFalse( table.has( 1, SIZE*2 + 1 ) );
         
-        table.remove( 1 );
-
         // now do not add duplicates and check has( key, boolean )
         for ( int ii = 0; ii < SIZE; ii++ )
         {
@@ -279,15 +302,69 @@ public class JdbmTableWithDuplicatesTest
         assertFalse( table.has( SIZE ) );
         assertFalse( table.hasGreaterOrEqual( SIZE ) );
         assertTrue( table.hasLessOrEqual( SIZE ) );
+
+        for ( int ii = 0; ii < SIZE; ii++ )
+        {
+            if ( ii == 1 ) // don't delete the node which had multiple values
+            {
+                continue;
+            }
+            table.remove( ii, ii );
+        }
+        
+        // delete all values of the duplicate key one by one
+        for ( int ii = 0; ii < SIZE * 2 + 1; ii++ )
+        {
+            table.remove( 1, ii );
+        }
+
+        Cursor<Tuple<Integer, Integer>> cursor = table.cursor();
+        System.out.println( "remaining ..." );
+        cursor.beforeFirst();
+        while ( cursor.next() )
+        {
+            System.out.println( cursor.get() );
+        }
+
+        assertFalse( table.hasLessOrEqual( 1 ) );
+        assertFalse( table.hasLessOrEqual( 1, 10 ) );
+        assertFalse( table.hasGreaterOrEqual( 1 ) );
+        assertFalse( table.hasGreaterOrEqual( 1, 0 ) );
+
+        table.put( 1, 0 );
+
     }
 
     
     @Test
     public void testRemove() throws Exception
     {
+        assertEquals( 0, table.count() );
+
         table.put( 1, 1 );
         table.put( 1, 2 );
-        table.remove( 1 );
+        assertEquals( 2, table.count() );
+        assertEquals( 1, ( int ) table.remove( 1 ) );
+        assertEquals( 0, table.count() );
+
+        table.put( 10, 10 );
+        assertEquals( 1, table.count() );
+        assertNull( table.remove( 10, 11 ) );
+        assertEquals( 1, table.count() );
+        assertNotNull( table.remove( 10, 10 ) );
+        assertEquals( 0, table.count() );
+
+        // add duplicates
+        for ( int ii = 0; ii < SIZE*2; ii++ )
+        {
+            table.put( 0, ii );
+        }
+
+        assertEquals( SIZE*2, table.count() );
+        assertNull( table.remove( 0, 100 ) );
+        assertEquals( SIZE*2, table.count() );
+
+        assertEquals( 0, ( int ) table.remove( 0 ) );
     }
     
     
@@ -325,46 +402,49 @@ public class JdbmTableWithDuplicatesTest
     @Test
     public void testDuplicateLimit() throws Exception
     {
-        for ( int ii = 0; ii < SIZE-1; ii++ )
+        for ( int ii = 0; ii < SIZE; ii++ )
         {
             table.put( 1, ii );
         }
-        assertEquals( SIZE-1, table.count() );
-        
-        table.put( 1, SIZE-1 );
         assertEquals( SIZE, table.count() );
-        
-        // this switches to B+Trees in JDBM implementations
-        table.put( 1, SIZE );
-        assertEquals( SIZE+1, table.count() );
-        
-        table.put( 1, SIZE+1 );
-        assertEquals( SIZE+2, table.count() );
+        assertEquals( SIZE, table.count( 1 ) );
 
+        // this switches to B+Trees from AvlTree
+        table.put( 1, SIZE );
+        assertEquals( SIZE + 1, table.count() );
+        assertEquals( SIZE + 1, table.count( 1 ) );
+
+        // go one more over still a B+Tree
+        table.put( 1, SIZE + 1 );
+        assertEquals( SIZE + 2, table.count() );
+        assertEquals( SIZE + 2, table.count( 1 ) );
         assertEquals( 0, ( int ) table.get( 1 ) );
         
         // now start removing and see what happens 
-        table.remove( 1, SIZE+1 );
-        assertFalse( table.has( 1, SIZE+1 ) );
-        assertEquals( SIZE+1, table.count() );
-    
+        table.remove( 1, SIZE + 1 );
+        assertFalse( table.has( 1, SIZE + 1 ) );
+        assertTrue( table.has( 1, SIZE ) );
+        assertEquals( SIZE + 1, table.count() );
+        assertEquals( SIZE + 1, table.count( 1 ) );
+
+        // this switches to AvlTree from B+Trees
         table.remove( 1, SIZE );
         assertFalse( table.has( 1, SIZE ) );
         assertEquals( SIZE, table.count() );
         assertEquals( SIZE, table.count( 1 ) );
         assertTrue( 0 == table.get( 1 ) );
     
-        for ( int ii = SIZE-1; ii >= 0; ii-- )
+        for ( int ii = SIZE - 1; ii >= 0; ii-- )
         {
             table.remove( 1, ii );
         }
         assertEquals( 0, table.count() );
 
-        for ( int ii = 0; ii < SIZE-1; ii++ )
+        for ( int ii = 0; ii < SIZE - 1; ii++ )
         {
             table.put( 1, ii );
         }
-        assertEquals( SIZE-1, table.count() );
+        assertEquals( SIZE - 1, table.count() );
         table.remove( 1 );
         assertEquals( 0, table.count() );
     }
@@ -417,7 +497,27 @@ public class JdbmTableWithDuplicatesTest
         assertEquals( 0, table.count( 1 ) );
         assertFalse( table.has( 1 ) );
     }
-    
+
+
+    @Test
+    public void testMiscellaneous() throws Exception
+    {
+        assertNotNull( ( ( JdbmTable ) table ).getMarshaller() );
+        ( ( JdbmTable ) table ).close();
+
+        // test value btree creation without serializer
+        table = new JdbmTable<Integer,Integer>( "test", SIZE, recman,
+                new SerializableComparator<Integer>( "" ),
+                new SerializableComparator<Integer>( "" ),
+                new IntegerSerializer(), null );
+        assertNull( ( ( JdbmTable ) table ).getValueSerializer() );
+        for ( int ii = 0; ii < SIZE + 1; ii++ )
+        {
+            table.put( 0, ii );
+        }
+        assertEquals( 0, ( int ) table.remove( 0 ) );
+    }
+
     
     /**
      * Let's test keys with a null or lack of any values.

@@ -253,9 +253,28 @@ public class JdbmTableNoDuplicatesTest
     
 
     @Test
+    public void testRemove() throws Exception
+    {
+        table.put( 1, 1 );
+        assertEquals( 1, ( int ) table.remove( 1 ) );
+        table.put( 10, 10 );
+        assertNull( table.remove( 10, 11 ) );
+        assertNull( table.remove( null ) );
+        assertNull( table.remove( null, null ) );
+    }
+
+
+    @Test
     public void testPut() throws Exception
     {
+        final int SIZE = 15;
 
+        for ( int ii = 0; ii < SIZE; ii++ )
+        {
+            table.put( ii, ii );
+        }
+        assertEquals( SIZE, table.count() );
+        assertNotNull( table.put( 0, 0 ) );
     }
     
 
