@@ -433,4 +433,174 @@ public class DupsCursorTest
         cursor.before( new Tuple<Integer, Integer>( 7, 2 ) );
         assertFalse( cursor.available() );
     }
+
+
+    @Test
+    public void testBeforeAfterBelowDupLimit() throws Exception
+    {
+        for ( int ii = 0; ii < SIZE*2 - 1; ii++ )
+        {
+            if ( ii > 12 && ii < 17 ) // keys with multiple values
+            {
+                table.put( 13, ii );
+            }
+            else if ( ii > 17 && ii < 21 ) // adds hole with no keys for ii
+            {
+            }
+            else // keys with single values
+            {
+                table.put( ii, ii );
+            }
+        }
+
+        // test before to advance just before a key with a single value
+        int ii = 5;
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+        cursor.before( new Tuple<Integer,Integer>( 5, 5 ) );
+        while ( cursor.next() )
+        {
+            if ( ii > 17 && ii < 21 )
+            {
+                assertFalse( table.has( ii ) );
+                continue;
+            }
+
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 12 && ii < 17 )
+            {
+                assertEquals( 13, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii++;
+        }
+
+        // test after to advance just before a key with a single value
+        ii = 6;
+        cursor = table.cursor();
+        cursor.after( new Tuple<Integer,Integer>( 5, null ) );
+        while ( cursor.next() )
+        {
+            if ( ii > 17 && ii < 21 )
+            {
+                assertFalse( table.has( ii ) );
+                continue;
+            }
+
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 12 && ii < 17 )
+            {
+                assertEquals( 13, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii++;
+        }
+
+        // test before to advance just before a key & value with multiple
+        // values for the key - we should advance just before the value
+        cursor = table.cursor();
+        cursor.before( new Tuple<Integer,Integer>( 13, 14 ) );
+
+        cursor.next();
+        Tuple<Integer,Integer> tuple = cursor.get();
+        assertEquals( 13, ( int ) tuple.getKey() );
+        assertEquals( 14, ( int ) tuple.getValue() );
+        ii = 15;
+
+        while ( cursor.next() )
+        {
+            if ( ii > 17 && ii < 21 )
+            {
+                assertFalse( table.has( ii ) );
+                continue;
+            }
+
+            tuple = cursor.get();
+            if ( ii > 12 && ii < 17 )
+            {
+                assertEquals( 13, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii++;
+        }
+
+        // test after to advance just before a key & value with multiple
+        // values for the key - we should advance just before the value
+        cursor = table.cursor();
+        cursor.after( new Tuple<Integer,Integer>( 13, 14 ) );
+
+        cursor.next();
+        tuple = cursor.get();
+        assertEquals( 13, ( int ) tuple.getKey() );
+        assertEquals( 15, ( int ) tuple.getValue() );
+        ii=16;
+
+        while ( cursor.next() )
+        {
+            if ( ii > 17 && ii < 21 )
+            {
+                assertFalse( table.has( ii ) );
+                continue;
+            }
+
+            tuple = cursor.get();
+            if ( ii > 12 && ii < 17 )
+            {
+                assertEquals( 13, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii++;
+        }
+
+        // test after to advance just before a key that does not exist
+        cursor = table.cursor();
+        cursor.after( new Tuple<Integer,Integer>( 18, null ) );
+
+        cursor.next();
+        tuple = cursor.get();
+        assertEquals( 21, ( int ) tuple.getKey() );
+        assertEquals( 21, ( int ) tuple.getValue() );
+        ii=22;
+
+        while ( cursor.next() )
+        {
+            if ( ii > 17 && ii < 21 )
+            {
+                assertFalse( table.has( ii ) );
+                continue;
+            }
+
+            tuple = cursor.get();
+            if ( ii > 12 && ii < 17 )
+            {
+                assertEquals( 13, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii++;
+        }
+    }
 }

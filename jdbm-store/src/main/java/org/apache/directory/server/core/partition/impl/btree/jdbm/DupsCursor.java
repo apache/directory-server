@@ -9,7 +9,6 @@ import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
-import org.apache.directory.shared.ldap.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +64,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     {
         this.table = table;
         this.containerCursor = new DupsContainerCursor<K,V>( table );
+        LOG.debug( "Created on table {}", table );
     }
 
 
@@ -74,43 +74,113 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     }
 
 
-    /**
-     * Advances this Cursor just before the record with key and value equal to 
-     * those provided in the Tuple argument.  If the key is not present the 
-     * Cursor advances to just before the greatest value of the key less than 
-     * but not greater than the one provided by the Tuple argument.  If the 
-     * key is present but the value is not present the Cursor advances to the 
-     * element with the same key containing a value less than but not greater
-     * than the value in the Tuple.
-     */
     public void before( Tuple<K,V> element ) throws Exception
     {
-        DupsContainer<V> container = new DupsContainer<V>( element.getValue() );
-        containerCursor.before( new Tuple<K,DupsContainer<V>>( element.getKey(), container ) );
+        containerCursor.before( new Tuple<K,DupsContainer<V>>( element.getKey(), null ) );
         
         if ( containerCursor.next() )
         {
             containerTuple.setBoth( containerCursor.get() );
-            
-            if ( containerTuple.getValue().isAvlTree() )
+            DupsContainer<V> values = containerTuple.getValue();
+
+            if ( values.isAvlTree() )
             {
-                LOG.debug( "Duplicates tuple {} stored in a AvlTree", containerTuple );
-                AvlTree<V> set = containerTuple.getValue().getAvlTree();
+                AvlTree<V> set = values.getAvlTree();
+                dupsCursor = new AvlTreeCursor<V>( set );
             }
-            else 
+            else if ( values.isBTreeRedirect() )
             {
-                LOG.debug( "Duplicates tuple {} are stored in a BTree", containerTuple );
-                BTreeRedirect redirect = containerTuple.getValue().getBTreeRedirect();
+                BTree tree = table.getBTree( values.getBTreeRedirect() );
+                dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
             }
+
+            if ( element.getValue() == null )
+            {
+                return;
+            }
+
+            // don't bother advancing the dupsCursor unless we're on same key
+            if ( table.getKeyComparator().compare( containerTuple.getKey(), element.getKey() ) != 0 )
+            {
+                return;
+            }
+
+            dupsCursor.before( element.getValue() );
+            return;
         }
 
-//        throw new NotImplementedException();
+        clearValue();
+        containerTuple.setKey( null );
+        containerTuple.setValue( null );
     }
 
 
     public void after( Tuple<K,V> element ) throws Exception
     {
-        throw new NotImplementedException();
+        /*
+         * There is a subtle difference between after and before handling
+         * with dupicate key values.  Say we have the following tuples:
+         *
+         * (0, 0)
+         * (1, 1)
+         * (1, 2)
+         * (1, 3)
+         * (2, 2)
+         *
+         * If we request an after cursor on (1, 2).  We must make sure that
+         * the container cursor does not advance after the entry with key 1
+         * since this would result in us skip returning (1. 3) on the call to
+         * next which will incorrectly return (2, 2) instead.
+         *
+         * So if the value is null in the element then we don't care about
+         * this obviously since we just want to advance past the duplicate key
+         * values all together.  But when it is not null, then we want to
+         * go right before this key instead of after it.
+         */
+
+        if ( element.getValue() == null )
+        {
+            containerCursor.after( new Tuple<K,DupsContainer<V>>( element.getKey(), null ) );
+        }
+        else
+        {
+            containerCursor.before( new Tuple<K,DupsContainer<V>>( element.getKey(), null ) );
+        }
+
+        if ( containerCursor.next() )
+        {
+            containerTuple.setBoth( containerCursor.get() );
+            DupsContainer<V> values = containerTuple.getValue();
+
+            if ( values.isAvlTree() )
+            {
+                AvlTree<V> set = values.getAvlTree();
+                dupsCursor = new AvlTreeCursor<V>( set );
+            }
+            else if ( values.isBTreeRedirect() )
+            {
+                BTree tree = table.getBTree( values.getBTreeRedirect() );
+                dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
+            }
+
+            if ( element.getValue() == null )
+            {
+                return;
+            }
+
+            // don't bother advancing the dupsCursor unless we're on same key
+            if ( table.getKeyComparator().compare( containerTuple.getKey(), element.getKey() ) != 0 )
+            {
+                return;
+            }
+
+            dupsCursor.after( element.getValue() );
+            return;
+        }
+
+        clearValue();
+        containerTuple.setKey( null );
+        containerTuple.setValue( null );
     }
 
 
