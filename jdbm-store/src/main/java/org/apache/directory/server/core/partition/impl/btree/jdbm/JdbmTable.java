@@ -386,28 +386,23 @@ public class JdbmTable<K,V> implements Table<K,V>
 
     public V get( K key ) throws IOException
     {
+        if ( key == null )
+        {
+            return null;
+        }
+
         if ( ! allowsDuplicates )
         {
             return getNoDups( key );
         }                         
 
         DupsContainer values = getDups( key );
-        
-        if ( values == null )
-        {
-            return null;
-        }
-        
+
         if ( values.isAvlTree() )
         {
             //noinspection unchecked
             AvlTree<V> set = values.getAvlTree();
 
-            if ( set == null )
-            {
-                return null;
-            }
-            
             if ( set.getFirst() == null )
             {
                 return null;
@@ -418,103 +413,78 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         // Handle values if they are stored in another BTree
         BTree tree = getBTree( values.getBTreeRedirect() );
-        
-        if ( tree.size() == 0 )
-        {
-            return null;
-        }
-        else
-        {
-            return firstKey( tree );
-        }
+        return firstKey( tree );
     }
 
     
     /**
-     * @see Table#has(java.lang.Object,
-     * java.lang.Object, boolean)
+     * @see Table#hasGreaterOrEqual(Object,Object)
      */
     @SuppressWarnings("unchecked")
-    public boolean has( K key, V val, boolean isGreaterThan ) throws IOException
+    public boolean hasGreaterOrEqual( K key, V val ) throws IOException
     {
-        if ( !allowsDuplicates )
-        {
-            Object rval = getNoDups( key );
-
-            // key does not exist so return nothing
-            if ( null == rval )
-            {
-                return false;
-            }
-            // val == val return true
-            else if ( val.equals( rval ) )
-            {
-                return true;
-            }
-            
-            /*
-             * Any comparisons below here would require use to use a value 
-             * comparator to determine ordering.  However since this Table
-             * has duplicate keys disabled (multiple values), there is no
-             * way to set a value comparator.  Perhaps this can change but 
-             * for now this will throw an unsupported operation exception.
-             * 
-             * If a value comparator is available then the following code 
-             * below will allow us to return the correct values.
-             */
-            
-            throw new UnsupportedOperationException( "Unfortunately this Table without duplicates enabled " +
-            		"does not contain a value comparator which is needed to answer your ordering question." );
-            
-//            // val >= val and test is for greater then return true
-//            else if ( comparator.compareValue( ( V ) rval, val ) >= 1 && isGreaterThan )
-//            {
-//                return true;
-//            }
-//            // val <= val and test is for lesser then return true
-//            else if ( comparator.compareValue( ( V ) rval, val ) <= 1 && !isGreaterThan )
-//            {
-//                return true;
-//            }
-//
-//            return false;
-            
-        }
-
-        DupsContainer values = getDups( key );
-        
-        if ( values == null )
+        if ( key == null )
         {
             return false;
         }
-        
+
+        if ( ! allowsDuplicates )
+        {
+            throw new UnsupportedOperationException( "Unfortunately this Table without duplicates enabled " +
+            		"does not contain a value comparator which is needed to answer your ordering question." );
+        }
+
+        DupsContainer values = getDups( key );
+
         if ( values.isAvlTree() )
         {
             AvlTree<V> set = values.getAvlTree();
-            LinkedAvlNode<V> result;
-    
-            if ( isGreaterThan )
-            {
-                result = set.findGreaterOrEqual( val );
-            }
-            else
-            {
-                result = set.findLessOrEqual( val );
-            }
-
+            LinkedAvlNode<V> result = set.findGreaterOrEqual( val );
             return result != null;
         }
-        
+
         // last option is to try a btree with BTreeRedirects
         BTree tree = getBTree( values.getBTreeRedirect() );
-        return tree.size() != 0 && btreeHas( tree, val, isGreaterThan );
+        return tree.size() != 0 && btreeHas( tree, val, true );
     }
-    
+
 
     /**
-     * @see Table#has(java.lang.Object, boolean)
+     * @see Table#hasLessOrEqual(Object,Object)
      */
-    public boolean has( K key, boolean isGreaterThan ) throws IOException
+    @SuppressWarnings("unchecked")
+    public boolean hasLessOrEqual( K key, V val ) throws IOException
+    {
+        if ( key == null )
+        {
+            return false;
+        }
+
+        if ( ! allowsDuplicates )
+        {
+            throw new UnsupportedOperationException( "Unfortunately this Table without duplicates enabled " +
+            		"does not contain a value comparator which is needed to answer your ordering question." );
+        }
+
+        DupsContainer values = getDups( key );
+
+        if ( values.isAvlTree() )
+        {
+            AvlTree<V> set = values.getAvlTree();
+            LinkedAvlNode<V> result = set.findLessOrEqual( val );
+            return result != null;
+        }
+
+        // last option is to try a btree with BTreeRedirects
+        BTree tree = getBTree( values.getBTreeRedirect() );
+        return tree.size() != 0 && btreeHas( tree, val, false );
+    }
+
+
+    /**
+     * @see Table#hasGreaterOrEqual(Object)
+     */
+    public boolean hasGreaterOrEqual( K key ) throws IOException
     {
         // See if we can find the border between keys greater than and less
         // than in the set of keys.  This will be the spot we search from.
@@ -528,19 +498,34 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
 
         // Greater searches are easy and quick thanks to findGreaterOrEqual
-        if ( isGreaterThan )
+        // A null return above means there were no equal or greater keys
+        if ( null == tuple )
         {
-            // A null return above means there were no equal or greater keys
-            if ( null == tuple )
-            {
-                return false;
-            }
+            return false;
+        }
 
-            // Not Null! - we found a tuple with equal or greater key value
+        // Not Null! - we found a tuple with equal or greater key value
+        return true;
+    }
+
+
+    /**
+     * @see Table#hasLessOrEqual(Object)
+     */
+    public boolean hasLessOrEqual( K key ) throws IOException
+    {
+        // See if we can find the border between keys greater than and less
+        // than in the set of keys.  This will be the spot we search from.
+        jdbm.helper.Tuple tuple = bt.findGreaterOrEqual( key );
+
+        // Test for equality first since it satisfies both greater/less than
+        //noinspection unchecked
+        if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
+        {
             return true;
         }
 
-        // Less than searches occur below and are not as efficient or easy.
+        // Less than searches are not as efficient or easy as greaterOrEqual.
         // We need to scan up from the begining if findGreaterOrEqual failed
         // or scan down if findGreaterOrEqual succeed.
         TupleBrowser browser;
@@ -602,6 +587,11 @@ public class JdbmTable<K,V> implements Table<K,V>
      */
     public boolean has( K key, V value ) throws IOException
     {
+        if ( key == null )
+        {
+            return false;
+        }
+
         if ( ! allowsDuplicates )
         {
             V stored = getNoDups( key );
@@ -609,11 +599,6 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         
         DupsContainer values = getDups( key );
-        
-        if ( values == null )
-        {
-            return false;
-        }
         
         if ( values.isAvlTree() )
         {

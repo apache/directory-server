@@ -491,7 +491,14 @@ public class JdbmIndex<K> implements Index<K>
      */
     public boolean hasValue( K attrVal, Long id, boolean isGreaterThan ) throws IOException
     {
-        return forward.has( getNormalized( attrVal ), id, isGreaterThan );
+        if ( isGreaterThan )
+        {
+            return forward.hasGreaterOrEqual( getNormalized( attrVal ), id );
+        }
+        else
+        {
+            return forward.hasLessOrEqual( getNormalized( attrVal ), id );
+        }
     }
 
 

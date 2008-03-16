@@ -132,26 +132,39 @@ public interface Table<K, V>
 
 
     /**
-     * Checks to see if this table has a record with a key greater/less than or
+     * Checks to see if this table has a record with a key greater than or
      * equal to the key argument.  The key argument need not exist for this
      * call to return true.  The underlying database must sort keys based on a
      * key comparator because this method depends on key ordering.
      *
      * @param key the key to compare keys to
-     * @param isGreaterThan boolean for greater than or less then comparison
-     * @return true if a record with a key greater/less than the key argument
-     * exists, false otherwise
+     * @return true if a Tuple with a key greater than or equal to the key
+     * argument exists, false otherwise
      * @throws Exception if there is a failure to read the underlying Db
      */
-    boolean has( K key, boolean isGreaterThan ) throws Exception;
+    boolean hasGreaterOrEqual( K key ) throws Exception;
 
 
     /**
-     * Checks to see if this table has a record with a key equal to the
-     * argument key with a value greater/less than or equal to the value
-     * argument provided.  The key argument <strong>MUST</strong> exist for
-     * this call to return true and the underlying Db must allows for sorted
-     * duplicate values.  The entire basis to this method depends on the fact
+     * Checks to see if this table has a record with a key less than or
+     * equal to the key argument.  The key argument need not exist for this
+     * call to return true.  The underlying database must sort keys based on a
+     * key comparator because this method depends on key ordering.
+     *
+     * @param key the key to compare keys to
+     * @return true if a Tuple with a key less than or equal to the key
+     * argument exists, false otherwise
+     * @throws Exception if there is a failure to read the underlying Db
+     */
+    boolean hasLessOrEqual( K key ) throws Exception;
+
+
+    /**
+     * Checks to see if this table has a Tuple with a key equal to the key
+     * argument, yet with a value greater than or equal to the value argument
+     * provided.  The key argument <strong>MUST</strong> exist for this call
+     * to return true and the underlying Db must allow for values of duplicate
+     * keys to be sorted.  The entire basis to this method depends on the fact
      * that tuples of the same key have values sorted according to a valid
      * value comparator.
      *
@@ -160,14 +173,36 @@ public interface Table<K, V>
      *
      * @param key the key
      * @param val the value to compare values to
-     * @param isGreaterThan boolean for greater than or less then comparison
-     * @return true if a record with a key greater/less than the key argument
-     * exists, false otherwise
+     * @return true if a Tuple with a key equal to the key argument and a
+     * value greater than the value argument exists, false otherwise
      * @throws Exception if there is a failure to read the underlying Db
      * or if the underlying Db is not of the Btree type that allows sorted
      * duplicate values.
      */
-    boolean has( K key, V val, boolean isGreaterThan ) throws Exception;
+    boolean hasGreaterOrEqual( K key, V val ) throws Exception;
+
+
+    /**
+     * Checks to see if this table has a Tuple with a key equal to the key
+     * argument, yet with a value less than or equal to the value argument
+     * provided.  The key argument <strong>MUST</strong> exist for this call
+     * to return true and the underlying Db must allow for values of duplicate
+     * keys to be sorted.  The entire basis to this method depends on the fact
+     * that tuples of the same key have values sorted according to a valid
+     * value comparator.
+     *
+     * If the table does not support duplicates then an
+     * UnsupportedOperationException is thrown.
+     *
+     * @param key the key
+     * @param val the value to compare values to
+     * @return true if a Tuple with a key equal to the key argument and a
+     * value less than the value argument exists, false otherwise
+     * @throws Exception if there is a failure to read the underlying Db
+     * or if the underlying Db is not of the Btree type that allows sorted
+     * duplicate values.
+     */
+    boolean hasLessOrEqual( K key, V val ) throws Exception;
 
 
     // ------------------------------------------------------------------------

@@ -61,6 +61,7 @@ public class JdbmTableNoDuplicatesTest
     @Before
     public void createTable() throws Exception
     {
+        destryTable();
         File tmpDir = null;
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
@@ -80,11 +81,25 @@ public class JdbmTableNoDuplicatesTest
     @After
     public void destryTable() throws Exception
     {
-        table.close();
+        if ( table != null )
+        {
+            table.close();
+        }
+
         table = null;
-        recman.close();
+
+        if ( recman != null )
+        {
+            recman.close();
+        }
+
         recman = null;
-        dbFile.deleteOnExit();
+
+        if ( dbFile != null )
+        {
+            dbFile.delete();
+        }
+        
         dbFile = null;
     }
     
@@ -138,10 +153,26 @@ public class JdbmTableNoDuplicatesTest
         // Test has operations
         assertFalse( table.has( 1 ) );
         assertFalse( table.has( 1, 0 ) );
-        assertFalse( table.has( 1, true ) );
-        assertFalse( table.has( 1, false ) );
-        assertFalse( table.has( 1, 0, true ) );
-        assertFalse( table.has( 1, 0, false ) );
+        assertFalse( table.hasGreaterOrEqual( 1 ) );
+        assertFalse( table.hasLessOrEqual( 1 ) );
+
+        try
+        {
+            assertFalse( table.hasGreaterOrEqual( 1, 0 ) );
+            fail( "Should never get here." );
+        }
+        catch ( UnsupportedOperationException e )
+        {
+        }
+
+        try
+        {
+            assertFalse( table.hasLessOrEqual( 1, 0 ) );
+            fail( "Should never get here." );
+        }
+        catch ( UnsupportedOperationException e )
+        {
+        }
     }
 
     
@@ -234,27 +265,42 @@ public class JdbmTableNoDuplicatesTest
         assertEquals( SIZE, table.count() );
 
         assertFalse( table.has( -1 ) );
-        assertTrue( table.has( -1 , true ) );
-        assertFalse( table.has( -1 , false ) );
+        assertTrue( table.hasGreaterOrEqual( -1 ) );
+        assertFalse( table.hasLessOrEqual( -1 ) );
         
         assertTrue( table.has( 0 ) );
-        assertTrue( table.has( 0 , true ) );
-        assertTrue( table.has( 0 , false ) );
+        assertTrue( table.hasGreaterOrEqual( 0 ) );
+        assertTrue( table.hasLessOrEqual( 0 ) );
         
-        assertTrue( table.has( SIZE-1 ) );
-        assertTrue( table.has( SIZE-1, true ) );
-        assertTrue( table.has( SIZE-1, false ) );
+        assertTrue( table.has( SIZE - 1 ) );
+        assertTrue( table.hasGreaterOrEqual( SIZE - 1 ) );
+        assertTrue( table.hasLessOrEqual( SIZE - 1 ) );
         
         assertFalse( table.has( SIZE ) );
-        assertFalse( table.has( SIZE, true ) );
-        assertTrue( table.has( SIZE, false ) );
-        
-        assertTrue( table.has( 1, 1, true ) );
-        assertTrue( table.has( 1, 1, false ) );
+        assertFalse( table.hasGreaterOrEqual( SIZE ) );
+        assertTrue( table.hasLessOrEqual( SIZE ) );
         
         try
         {
-            assertTrue( table.has( 1, 2, false ) );
+            assertFalse( table.hasGreaterOrEqual( 1, 1 ) );
+            fail( "Should never get here." );
+        }
+        catch ( UnsupportedOperationException e )
+        {
+        }
+
+        try
+        {
+            assertFalse( table.hasLessOrEqual( 1, 1 ) );
+            fail( "Should never get here." );
+        }
+        catch ( UnsupportedOperationException e )
+        {
+        }
+
+        try
+        {
+            assertTrue( table.hasLessOrEqual( 1, 2 ) );
             fail( "Should never get here since no dups tables " +
             		"freak when they cannot find a value comparator" );
         } 
