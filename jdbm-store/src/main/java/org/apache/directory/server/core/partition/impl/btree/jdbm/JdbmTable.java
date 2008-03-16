@@ -514,66 +514,40 @@ public class JdbmTable<K,V> implements Table<K,V>
      */
     public boolean hasLessOrEqual( K key ) throws IOException
     {
-        // See if we can find the border between keys greater than and less
-        // than in the set of keys.  This will be the spot we search from.
+        // Can only find greater than or equal to with JDBM so we find that
+        // and work backwards to see if we can find one less than the key
         jdbm.helper.Tuple tuple = bt.findGreaterOrEqual( key );
 
-        // Test for equality first since it satisfies both greater/less than
+        // Test for equality first since it satisfies equal to condition
         //noinspection unchecked
         if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
         {
             return true;
         }
 
-        // Less than searches are not as efficient or easy as greaterOrEqual.
-        // We need to scan up from the begining if findGreaterOrEqual failed
-        // or scan down if findGreaterOrEqual succeed.
-        TupleBrowser browser;
         if ( null == tuple )
         {
-            // findGreaterOrEqual failed so we create a tuple and scan from
-            // the lowest values up via getNext comparing each key to key
-            tuple = new jdbm.helper.Tuple();
-            browser = bt.browse();
-
-            // We should at most have to read one key.  If 1st key is not
-            // less than or equal to key then all keys are > key
-            // since the keys are assorted in ascending order based on the
-            // comparator.
-            if ( browser.getNext( tuple ) )
-            {
-                //noinspection unchecked
-                return keyComparator.compare( ( K ) tuple.getKey(), key ) <= 0;
-            }
+            /*
+             * Jdbm failed to find a key greater than or equal to the argument
+             * which means all the keys in the table are less than the
+             * supplied key argument.  We can hence return true if the table
+             * contains any Tuples.
+             */
+            return count > 0;
         }
         else
         {
-            // findGreaterOrEqual succeeded so use the existing tuple and
-            // scan the down from the highest key less than key via
-            // getPrevious while comparing each key to key.
-            browser = bt.browse( tuple.getKey() );
-
-            // The above call positions the browser just before the given
-            // key so we need to step forward once then back.  Remember this
-            // key represents a key greater than or equal to key.
-            //noinspection unchecked
-            if ( keyComparator.compare( ( K ) tuple.getKey(), key ) <= 0 )
+            /*
+             * We have the next tuple whose key is the next greater than the
+             * key argument supplied.  We use this key to advance a browser to
+             * that tuple and scan down to lesser Tuples until we hit one
+             * that is less than the key argument supplied.  Usually this will
+             * be the previous tuple if it exists.
+             */
+            TupleBrowser browser = bt.browse( tuple.getKey() );
+            if ( browser.getPrevious( tuple ) )
             {
                 return true;
-            }
-
-            browser.getNext( tuple );
-
-            // We should at most have to read one key, but we don't short
-            // the search as in the search above first because the chance of
-            // unneccessarily looping is nil since values get smaller.
-            while ( browser.getPrevious( tuple ) )
-            {
-                //noinspection unchecked
-                if ( keyComparator.compare( ( K ) tuple.getKey(), key ) <= 0 )
-                {
-                    return true;
-                }
             }
         }
 

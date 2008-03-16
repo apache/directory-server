@@ -251,7 +251,14 @@ public class JdbmTableNoDuplicatesTest
         assertFalse( table.has( 1 ) );
     }
     
+
+    @Test
+    public void testPut() throws Exception
+    {
+
+    }
     
+
     @Test
     public void testHas() throws Exception
     {
@@ -279,6 +286,9 @@ public class JdbmTableNoDuplicatesTest
         assertFalse( table.has( SIZE ) );
         assertFalse( table.hasGreaterOrEqual( SIZE ) );
         assertTrue( table.hasLessOrEqual( SIZE ) );
+        table.remove( 10 );
+        table.remove( 11 );
+        assertTrue( table.hasLessOrEqual( 11 ) );
         
         try
         {
