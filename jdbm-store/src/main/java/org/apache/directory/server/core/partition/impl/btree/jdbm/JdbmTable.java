@@ -334,7 +334,12 @@ public class JdbmTable<K,V> implements Table<K,V>
      */
     public int count( K key ) throws IOException
     {
-        if ( !allowsDuplicates )
+        if ( key == null )
+        {
+            return 0;
+        }
+
+        if ( ! allowsDuplicates )
         {
             if ( null == getNoDups( key ) )
             {
@@ -347,11 +352,6 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
 
         DupsContainer values = getDups( key );
-        
-        if ( values == null )
-        {
-            return 0;
-        }
         
         // -------------------------------------------------------------------
         // Handle the use of a AvlTree for storing duplicates
@@ -891,12 +891,12 @@ public class JdbmTable<K,V> implements Table<K,V>
             return new DupsContainer<V>( new AvlTree<V>( valueComparator ) );
         }
 
-        if ( ! BTreeRedirectMarshaller.isRedirect( serialized ) )
+        if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
         {
-            return new DupsContainer<V>( marshaller.deserialize( serialized ) );
+            return new DupsContainer<V>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
         }
 
-        return new DupsContainer<V>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+        return new DupsContainer<V>( marshaller.deserialize( serialized ) );
     }
 
 

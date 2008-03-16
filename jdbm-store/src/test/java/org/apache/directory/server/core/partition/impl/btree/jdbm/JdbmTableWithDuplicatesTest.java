@@ -78,7 +78,7 @@ public class JdbmTableWithDuplicatesTest
         table = new JdbmTable<Integer,Integer>( "test", SIZE, recman,
                 new SerializableComparator<Integer>( "" ),
                 new SerializableComparator<Integer>( "" ),
-                null, new IntegerSerializer() );
+                new IntegerSerializer(), new IntegerSerializer() );
         LOG.debug( "Created new table and populated it with data" );
     }
 
@@ -92,6 +92,43 @@ public class JdbmTableWithDuplicatesTest
         recman = null;
         dbFile.deleteOnExit();
         dbFile = null;
+    }
+
+
+    @Test
+    public void testSerializers() throws Exception
+    {
+        assertNotNull( ( ( JdbmTable ) table ).getKeySerializer() );
+        assertNotNull( ( ( JdbmTable ) table ).getValueSerializer() );
+    }
+
+
+    @Test
+    public void testCountOneArgNoValues() throws Exception
+    {
+        assertEquals( 0, table.count( 3 ) );
+    }
+
+
+    @Test( expected = NullPointerException.class )
+    public void testNullKeyComparator() throws Exception
+    {
+        assertNotNull( ( ( JdbmTable ) table ).getKeyComparator() );
+        new JdbmTable<Integer,Integer>( "test", SIZE, recman,
+            null,
+            new SerializableComparator<Integer>( "" ),
+            null, new IntegerSerializer() );
+    }
+
+
+    @Test( expected = NullPointerException.class )
+    public void testNullValueComparator() throws Exception
+    {
+        assertNotNull( ( ( JdbmTable ) table ).getValueComparator() );
+        new JdbmTable<Integer,Integer>( "test", SIZE, recman,
+            new SerializableComparator<Integer>( "" ),
+            null,
+            null, new IntegerSerializer() );
     }
 
 

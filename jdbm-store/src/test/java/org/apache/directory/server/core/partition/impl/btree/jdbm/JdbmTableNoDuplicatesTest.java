@@ -87,7 +87,7 @@ public class JdbmTableNoDuplicatesTest
         dbFile.deleteOnExit();
         dbFile = null;
     }
-
+    
 
     @Test
     public void testCloseReopen() throws Exception

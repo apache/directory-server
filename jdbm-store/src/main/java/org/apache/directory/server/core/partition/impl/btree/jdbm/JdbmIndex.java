@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import javax.naming.NamingException;
 import java.io.File;
 import java.io.IOException;
-import java.util.Comparator;
 
 
 /** 
