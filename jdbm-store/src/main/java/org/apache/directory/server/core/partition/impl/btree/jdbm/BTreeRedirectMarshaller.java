@@ -29,15 +29,16 @@ import org.apache.directory.shared.asn1.codec.binary.Hex;
 /**
  * Serializes and deserializes a BTreeRedirect object to and from a byte[]
  * representation.  The serialized form is a fixed size byte array of length
- * 16.  The first 8 bytes are the ascii values for the String 'redirect' and
- * the last 8 bytes encode the record identifier as a long for the BTree.
+ * 9.  The first byte contains the magic number of value 1 for this kind of
+ * object and the last 8 bytes encode the record identifier as a long for
+ * the BTree.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */public class BTreeRedirectMarshaller implements Marshaller<BTreeRedirect>
 {
-    /** fixed byte array size of 16 for serialized form */
-    static final int SIZE = 16;
+    /** fixed byte array size of 9 for serialized form */
+    static final int SIZE = 9;
     /** a reusable instance of this Marshaller */
     public static final BTreeRedirectMarshaller INSTANCE = new BTreeRedirectMarshaller();
 
@@ -48,23 +49,16 @@ import org.apache.directory.shared.asn1.codec.binary.Hex;
     {
         byte[] bites = new byte[SIZE];
 
-        bites[0] = 'r';
-        bites[1] = 'e';
-        bites[2] = 'd';
-        bites[3] = 'i';
-        bites[4] = 'r';
-        bites[5] = 'e';
-        bites[6] = 'c';
-        bites[7] = 't';
+        bites[0] = 1;
 
-        bites[8] =  ( byte ) ( redirect.recId >> 56 );
-        bites[9] =  ( byte ) ( redirect.recId >> 48 );
-        bites[10] = ( byte ) ( redirect.recId >> 40 );
-        bites[11] = ( byte ) ( redirect.recId >> 32 );
-        bites[12] = ( byte ) ( redirect.recId >> 24 );
-        bites[13] = ( byte ) ( redirect.recId >> 16 );
-        bites[14] = ( byte ) ( redirect.recId >> 8 );
-        bites[15] = ( byte ) redirect.recId;
+        bites[1] = ( byte ) ( redirect.recId >> 56 );
+        bites[2] = ( byte ) ( redirect.recId >> 48 );
+        bites[3] = ( byte ) ( redirect.recId >> 40 );
+        bites[4] = ( byte ) ( redirect.recId >> 32 );
+        bites[5] = ( byte ) ( redirect.recId >> 24 );
+        bites[6] = ( byte ) ( redirect.recId >> 16 );
+        bites[7] = ( byte ) ( redirect.recId >> 8 );
+        bites[8] = ( byte ) redirect.recId;
 
         return bites;
     }
@@ -75,65 +69,48 @@ import org.apache.directory.shared.asn1.codec.binary.Hex;
      */
     public final BTreeRedirect deserialize( byte[] bites ) throws IOException
     {
-        if ( bites.length != SIZE ||
-                  bites[0] != 'r' ||
-                  bites[1] != 'e' ||
-                  bites[2] != 'd' ||
-                  bites[3] != 'i' ||
-                  bites[4] != 'r' ||
-                  bites[5] != 'e' ||
-                  bites[6] != 'c' ||
-                  bites[7] != 't' )
+        if ( bites == null || bites.length != SIZE || bites[0] != 1 )
         {
-            throw new IOException( "Not a serialized BTreeRedirect object: "
-                    + new String( Hex.encodeHex( bites ) ) );
+            if ( bites != null )
+            {
+                throw new IOException( "Not a serialized BTreeRedirect object: "
+                        + new String( Hex.encodeHex( bites ) ) );
+            }
+            else
+            {
+                throw new IOException( "Not a serialized BTreeRedirect object: byte array is null." );
+            }
         }
 
         long recId;
-        recId = bites[8] + ( ( bites[8] < 0 ) ? 256 : 0 );
+        recId = bites[1] + ( ( bites[1] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[9] + ( ( bites[9] < 0 ) ? 256 : 0 );
+        recId += bites[2] + ( ( bites[2] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[10] + ( ( bites[10] < 0 ) ? 256 : 0 );
+        recId += bites[3] + ( ( bites[3] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[11] + ( ( bites[11] < 0 ) ? 256 : 0 );
+        recId += bites[4] + ( ( bites[4] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[12] + ( ( bites[12] < 0 ) ? 256 : 0 );
+        recId += bites[5] + ( ( bites[5] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[13] + ( ( bites[13] < 0 ) ? 256 : 0 );
+        recId += bites[6] + ( ( bites[6] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[14] + ( ( bites[14] < 0 ) ? 256 : 0 );
+        recId += bites[7] + ( ( bites[7] < 0 ) ? 256 : 0 );
         recId <<= 8;
-        recId += bites[15] + ( ( bites[15] < 0 ) ? 256 : 0 );
+        recId += bites[8] + ( ( bites[8] < 0 ) ? 256 : 0 );
 
         return new BTreeRedirect( recId );
     }
 
 
     /**
-     * Checks to see if a byte[] does not contain a redirect.  It's faster
-     * to check invalid bytes then to check for validity.
+     * Checks to see if a byte[] contains a redirect.
      *
-     * @param bites the bites to check for validity
-     * @return true if the bites do not contain a serialized BTreeRedirect,
-     * false if they do
+     * @param bites the bites to check for a redirect
+     * @return true if bites contain BTreeRedirect, false otherwise
      */
-    public static boolean isNotRedirect( byte[] bites )
+    public static boolean isRedirect( byte[] bites )
     {
-        if ( bites == null )
-        {
-            return true;
-        }
-
-        // faster to check if invalid than valid
-        return bites.length != SIZE ||
-                bites[0] != 'r' ||
-                bites[1] != 'e' ||
-                bites[2] != 'd' ||
-                bites[3] != 'i' ||
-                bites[4] != 'r' ||
-                bites[5] != 'e' ||
-                bites[6] != 'c' ||
-                bites[7] != 't';
+        return bites != null && bites.length == SIZE && bites[0] == 1;
     }
 }

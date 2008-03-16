@@ -673,8 +673,6 @@ public class JdbmTable<K,V> implements Table<K,V>
                 return value;
             }
             
-            boolean addSuccessful = true;
-            
             if ( set.getSize() > numDupLimit )
             {
                 BTree tree = convertToBTree( set );
@@ -687,13 +685,8 @@ public class JdbmTable<K,V> implements Table<K,V>
                 replaced = ( V ) bt.insert( key, marshaller.serialize( set ), true );
             }
 
-            // TODO this is a problem here since addSuccessful is not being set
-            if ( addSuccessful )
-            {
-                count++;
-                return replaced;
-            }
-            return null;
+            count++;
+            return replaced;
         }
         
         BTree tree = getBTree( values.getBTreeRedirect() );
@@ -801,7 +794,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         byte[] serialized = ( byte[] ) returned;
 
-        if ( BTreeRedirectMarshaller.isNotRedirect( serialized ) )
+        if ( ! BTreeRedirectMarshaller.isRedirect( serialized ) )
         {
             //noinspection unchecked
             AvlTree<V> set = marshaller.deserialize( serialized );
@@ -898,7 +891,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             return new DupsContainer<V>( new AvlTree<V>( valueComparator ) );
         }
 
-        if ( BTreeRedirectMarshaller.isNotRedirect( serialized ) )
+        if ( ! BTreeRedirectMarshaller.isRedirect( serialized ) )
         {
             return new DupsContainer<V>( marshaller.deserialize( serialized ) );
         }

@@ -45,14 +45,7 @@ public class BTreeRedirectMarshallerTest
     @Before
     public void setup()
     {
-        bites[0] = 'r';
-        bites[1] = 'e';
-        bites[2] = 'd';
-        bites[3] = 'i';
-        bites[4] = 'r';
-        bites[5] = 'e';
-        bites[6] = 'c';
-        bites[7] = 't';
+        bites[0] = 1;
 
         for ( int ii = 8; ii < BTreeRedirectMarshaller.SIZE; ii++ )
         {
@@ -72,7 +65,7 @@ public class BTreeRedirectMarshallerTest
     @Test
     public void testOne() throws IOException
     {
-        bites[15] = 1;
+        bites[8] = 1;
         assertEquals( 1, marshaller.deserialize( bites ).getRecId() );
         assertTrue( ArrayUtils.isEquals( bites, marshaller.serialize( new BTreeRedirect( 1 ) ) ) );
     }
@@ -81,7 +74,7 @@ public class BTreeRedirectMarshallerTest
     @Test
     public void testNegativeOne() throws IOException
     {
-        for ( int ii = 8; ii < BTreeRedirectMarshaller.SIZE; ii++ )
+        for ( int ii = 1; ii < BTreeRedirectMarshaller.SIZE; ii++ )
         {
             bites[ii] =  ( byte ) 0xFF;
         }
@@ -94,7 +87,7 @@ public class BTreeRedirectMarshallerTest
     @Test
     public void testLongMinValue() throws IOException
     {
-        bites[8] = ( byte ) 0x80;
+        bites[1] = ( byte ) 0x80;
         assertEquals( Long.MIN_VALUE, marshaller.deserialize( bites ).getRecId() );
         assertTrue( ArrayUtils.isEquals( bites, marshaller.serialize( new BTreeRedirect( Long.MIN_VALUE ) ) ) );
     }
@@ -103,9 +96,9 @@ public class BTreeRedirectMarshallerTest
     @Test
     public void testLongMaxValue() throws IOException
     {
-        bites[8] = ( byte ) 0x7F;
+        bites[1] = ( byte ) 0x7F;
 
-        for ( int ii = 9; ii < BTreeRedirectMarshaller.SIZE; ii++ )
+        for ( int ii = 2; ii < BTreeRedirectMarshaller.SIZE; ii++ )
         {
             bites[ii] =  ( byte ) 0xFF;
         }
@@ -124,6 +117,33 @@ public class BTreeRedirectMarshallerTest
             long orig = random.nextLong();
             bites = marshaller.serialize( new BTreeRedirect( orig ) );
             assertEquals( orig, marshaller.deserialize( bites ).getRecId() );
+        }
+    }
+
+
+    @Test
+    public void testMiscellaneous()
+    {
+        assertNotNull( new BTreeRedirect( 1 ).toString() );
+        assertFalse( BTreeRedirectMarshaller.isRedirect( null ) );
+
+        try
+        {
+            marshaller.deserialize( null );
+            fail( "Should not get here." );
+        }
+        catch ( IOException e )
+        {
+        }
+
+
+        try
+        {
+            marshaller.deserialize( "bogus".getBytes() );
+            fail( "Should not get here." );
+        }
+        catch ( IOException e )
+        {
         }
     }
 }
