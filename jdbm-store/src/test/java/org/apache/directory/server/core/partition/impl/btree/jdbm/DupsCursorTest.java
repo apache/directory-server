@@ -338,7 +338,14 @@ public class DupsCursorTest
     {
         for ( int ii = 0; ii < SIZE*3-1; ii++ )
         {
-            table.put( ii, ii );
+            if ( ii < 2 + SIZE ) // keys with multiple values
+            {
+                table.put( 0, ii );
+            }
+            else // keys with single values
+            {
+                table.put( ii, ii );
+            }
         }
         Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
 
@@ -346,8 +353,16 @@ public class DupsCursorTest
         while ( cursor.next() )
         {
             Tuple<Integer,Integer> tuple = cursor.get();
-            assertEquals( ii, ( int ) tuple.getKey() );
-            assertEquals( ii, ( int ) tuple.getValue() );
+            if ( ii < 2 + SIZE )
+            {
+                assertEquals( 0, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
             ii++;
         }
 
@@ -357,8 +372,16 @@ public class DupsCursorTest
         do
         {
             Tuple<Integer,Integer> tuple = cursor.get();
-            assertEquals( ii, ( int ) tuple.getKey() );
-            assertEquals( ii, ( int ) tuple.getValue() );
+            if ( ii < 2 + SIZE )
+            {
+                assertEquals( 0, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
             ii++;
         }
         while ( cursor.next() );
@@ -368,8 +391,17 @@ public class DupsCursorTest
         while ( cursor.previous() )
         {
             Tuple<Integer,Integer> tuple = cursor.get();
-            assertEquals( ii, ( int ) tuple.getKey() );
-            assertEquals( ii, ( int ) tuple.getValue() );
+
+            if ( ii < 2 + SIZE )
+            {
+                assertEquals( 0, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
             ii--;
         }
 
@@ -379,8 +411,16 @@ public class DupsCursorTest
         do
         {
             Tuple<Integer,Integer> tuple = cursor.get();
-            assertEquals( ii, ( int ) tuple.getKey() );
-            assertEquals( ii, ( int ) tuple.getValue() );
+            if ( ii < 2 + SIZE )
+            {
+                assertEquals( 0, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
             ii--;
         }
         while ( cursor.previous() );
@@ -392,8 +432,246 @@ public class DupsCursorTest
         while ( cursor.previous() )
         {
             Tuple<Integer,Integer> tuple = cursor.get();
-            assertEquals( ii, ( int ) tuple.getKey() );
-            assertEquals( ii, ( int ) tuple.getValue() );
+            if ( ii < 2 + SIZE )
+            {
+                assertEquals( 0, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii--;
+        }
+    }
+
+
+    @Test
+    public void testFirstOverDupLimit() throws Exception
+    {
+        for ( int ii = 0; ii < SIZE*3-1; ii++ )
+        {
+            if ( ii < 2 + SIZE ) // keys with multiple values
+            {
+                table.put( 0, ii );
+            }
+            else // keys with single values
+            {
+                table.put( ii, ii );
+            }
+        }
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+
+        int ii = 0;
+        while ( cursor.next() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii < 2 + SIZE )
+            {
+                assertEquals( 0, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii++;
+        }
+
+        // now go back to first and traverse all over again
+        cursor.first();
+        ii = 0;
+        do
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii < 2 + SIZE )
+            {
+                assertEquals( 0, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii++;
+        }
+        while ( cursor.next() );
+
+        // now go backwards
+        ii = SIZE*3-2;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+
+            if ( ii < 2 + SIZE )
+            {
+                assertEquals( 0, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii--;
+        }
+
+        // now advance to last and go backwards again
+        cursor.last();
+        ii = SIZE*3-2;
+        do
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii < 2 + SIZE )
+            {
+                assertEquals( 0, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii--;
+        }
+        while ( cursor.previous() );
+
+        // advance to first then last and go backwards again
+        cursor.beforeFirst();
+        cursor.afterLast();
+        ii = SIZE*3-2;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii < 2 + SIZE )
+            {
+                assertEquals( 0, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii--;
+        }
+    }
+
+
+
+
+    @Test
+    public void testLastOverDupLimit() throws Exception
+    {
+        for ( int ii = 0; ii < SIZE*3-1; ii++ )
+        {
+            if ( ii > 2 + SIZE ) // keys with multiple values
+            {
+                table.put( 3 + SIZE, ii );
+            }
+            else // keys with single values
+            {
+                table.put( ii, ii );
+            }
+        }
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+
+        int ii = 0;
+        while ( cursor.next() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 2 + SIZE )
+            {
+                assertEquals( 3 + SIZE, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii++;
+        }
+
+        // now go back to first and traverse all over again
+        cursor.first();
+        ii = 0;
+        do
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 2 + SIZE )
+            {
+                assertEquals( 3 + SIZE, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii++;
+        }
+        while ( cursor.next() );
+
+        // now go backwards
+        ii = SIZE*3-2;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+
+            if ( ii > 2 + SIZE )
+            {
+                assertEquals( 3 + SIZE, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii--;
+        }
+
+        // now advance to last and go backwards again
+        cursor.last();
+        ii = SIZE*3-2;
+        do
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 2 + SIZE )
+            {
+                assertEquals( 3 + SIZE, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            ii--;
+        }
+        while ( cursor.previous() );
+
+        // advance to first then last and go backwards again
+        cursor.beforeFirst();
+        cursor.afterLast();
+        ii = SIZE*3-2;
+        while ( cursor.previous() )
+        {
+            Tuple<Integer,Integer> tuple = cursor.get();
+            if ( ii > 2 + SIZE )
+            {
+                assertEquals( 3 + SIZE, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
+            else
+            {
+                assertEquals( ii, ( int ) tuple.getKey() );
+                assertEquals( ii, ( int ) tuple.getValue() );
+            }
             ii--;
         }
     }
