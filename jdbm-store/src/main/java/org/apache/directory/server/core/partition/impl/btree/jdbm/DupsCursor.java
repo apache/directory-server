@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A Cursor over a BTree which manages duplicate keys.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
 class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 {
@@ -88,7 +91,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 AvlTree<V> set = values.getAvlTree();
                 dupsCursor = new AvlTreeCursor<V>( set );
             }
-            else if ( values.isBTreeRedirect() )
+            else
             {
                 BTree tree = table.getBTree( values.getBTreeRedirect() );
                 dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
@@ -99,13 +102,12 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 return;
             }
 
-            // don't bother advancing the dupsCursor unless we're on same key
-            if ( table.getKeyComparator().compare( containerTuple.getKey(), element.getKey() ) != 0 )
+            // advance the dupsCursor only if we're on same key
+            if ( table.getKeyComparator().compare( containerTuple.getKey(), element.getKey() ) == 0 )
             {
-                return;
+                dupsCursor.before( element.getValue() );
             }
 
-            dupsCursor.before( element.getValue() );
             return;
         }
 
@@ -157,7 +159,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 AvlTree<V> set = values.getAvlTree();
                 dupsCursor = new AvlTreeCursor<V>( set );
             }
-            else if ( values.isBTreeRedirect() )
+            else
             {
                 BTree tree = table.getBTree( values.getBTreeRedirect() );
                 dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
@@ -168,13 +170,12 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 return;
             }
 
-            // don't bother advancing the dupsCursor unless we're on same key
-            if ( table.getKeyComparator().compare( containerTuple.getKey(), element.getKey() ) != 0 )
+            // only advance the dupsCursor if we're on same key
+            if ( table.getKeyComparator().compare( containerTuple.getKey(), element.getKey() ) == 0 )
             {
-                return;
+                dupsCursor.after( element.getValue() );
             }
 
-            dupsCursor.after( element.getValue() );
             return;
         }
 
@@ -258,7 +259,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 AvlTree<V> set = values.getAvlTree();
                 dupsCursor = new AvlTreeCursor<V>( set );
             }
-            else if ( values.isBTreeRedirect() )
+            else
             {
                 BTree tree = table.getBTree( values.getBTreeRedirect() );
                 dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
@@ -316,7 +317,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                     AvlTree<V> set = values.getAvlTree();
                     dupsCursor = new AvlTreeCursor<V>( set );
                 }
-                else if ( values.isBTreeRedirect() )
+                else
                 {
                     BTree tree = table.getBTree( values.getBTreeRedirect() );
                     dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
@@ -363,7 +364,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                     AvlTree<V> set = values.getAvlTree();
                     dupsCursor = new AvlTreeCursor<V>( set );
                 }
-                else if ( values.isBTreeRedirect() )
+                else
                 {
                     BTree tree = table.getBTree( values.getBTreeRedirect() );
                     dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
