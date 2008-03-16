@@ -215,7 +215,6 @@ class NoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     {
         if ( valueAvailable )
         {
-            //noinspection unchecked
             return returnedTuple;
         }
 

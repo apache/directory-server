@@ -32,10 +32,7 @@ import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.util.Comparator;
@@ -96,7 +93,7 @@ public class NoDupsCursorTest
 
 
     @Test( expected=InvalidCursorPositionException.class )
-    public void testOnEmptyTable() throws Exception
+    public void testEmptyTable() throws Exception
     {
         Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
         assertNotNull( cursor );
