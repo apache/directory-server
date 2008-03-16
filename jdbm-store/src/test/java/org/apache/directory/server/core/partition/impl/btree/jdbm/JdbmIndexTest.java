@@ -343,7 +343,6 @@ public class JdbmIndexTest
 
 
     @Test
-    @Ignore( "Will not work until duplicates cursor is finished." )
     public void testAddDropById() throws Exception
     {
         initIndex();
@@ -371,7 +370,6 @@ public class JdbmIndexTest
         assertEquals( "foo", idx.reverseLookup( 1L ) );
 
         idx.drop( 0L );
-        assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( "foo", idx.reverseLookup( 1L ) );
         assertFalse( idx.hasValue( "bar", 0L ) );
         assertFalse( idx.hasValue( "foo", 0L ) );
@@ -459,7 +457,6 @@ public class JdbmIndexTest
 
 
     @Test
-    @Ignore ( "not working now" )
     public void testSingleValuedAttribute() throws Exception
     {
         JdbmIndex jdbmIndex = new JdbmIndex();

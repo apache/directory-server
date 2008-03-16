@@ -368,13 +368,13 @@ public class JdbmIndex<K> implements Index<K>
     /**
      * @see Index#count(java.lang.Object)
      */
-    public int count( K attrVal ) throws IOException
+    public int count( K attrVal ) throws Exception
     {
         return forward.count( getNormalized( attrVal ) );
     }
 
 
-    public int greaterThanCount( K attrVal ) throws IOException
+    public int greaterThanCount( K attrVal ) throws Exception
     {
         return forward.greaterThanCount( getNormalized( attrVal ) );
     }
@@ -383,7 +383,7 @@ public class JdbmIndex<K> implements Index<K>
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.Index#lessThanCount(java.lang.Object)
      */
-    public int lessThanCount( K attrVal ) throws IOException
+    public int lessThanCount( K attrVal ) throws Exception
     {
         return forward.lessThanCount( getNormalized( attrVal ) );
     }
@@ -430,7 +430,7 @@ public class JdbmIndex<K> implements Index<K>
     /**
      * @see Index#drop(Object,Long)
      */
-    public synchronized void drop( K attrVal, Long id ) throws IOException
+    public synchronized void drop( K attrVal, Long id ) throws Exception
     {
         forward.remove( getNormalized( attrVal ), id );
         reverse.remove( id, getNormalized( attrVal ) );
@@ -480,7 +480,7 @@ public class JdbmIndex<K> implements Index<K>
     /**
      * @see Index#hasValue(Object,Long)
      */
-    public boolean hasValue( K attrVal, Long id ) throws IOException
+    public boolean hasValue( K attrVal, Long id ) throws Exception
     {
         return forward.has( getNormalized( attrVal ), id );
     }
@@ -489,7 +489,7 @@ public class JdbmIndex<K> implements Index<K>
     /**
      * @see Index#hasValue(Object, Long, boolean)
      */
-    public boolean hasValue( K attrVal, Long id, boolean isGreaterThan ) throws IOException
+    public boolean hasValue( K attrVal, Long id, boolean isGreaterThan ) throws Exception
     {
         if ( isGreaterThan )
         {
@@ -532,27 +532,15 @@ public class JdbmIndex<K> implements Index<K>
      * TODO I don't think the keyCache is required anymore since the normalizer
      * will cache values for us.
      */
-    public K getNormalized( K attrVal ) throws IOException
+    public K getNormalized( K attrVal ) throws Exception
     {
-        if ( attrVal instanceof Long )
-        {
-            return attrVal;
-        }
-
         //noinspection unchecked
         K normalized = ( K ) keyCache.get( attrVal );
 
         if ( null == normalized )
         {
-            try
-            {
-                //noinspection unchecked
-                normalized = ( K ) attribute.getEquality().getNormalizer().normalize( attrVal );
-            }
-            catch ( NamingException e )
-            {
-                throw new IOException ( "Failed to normalized the original value: " + attrVal, e );
-            }
+            //noinspection unchecked
+            normalized = ( K ) attribute.getEquality().getNormalizer().normalize( attrVal );
 
             // Double map it so if we use an already normalized
             // value we can get back the same normalized value.
