@@ -29,9 +29,9 @@ import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
-import org.apache.directory.shared.ldap.NotImplementedException;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
 
@@ -460,15 +460,17 @@ public class JdbmIndex<K> implements Index<K>
     // ------------------------------------------------------------------------
 
 
-    public Cursor<IndexRecord> reverseCursor() throws Exception
+    public Cursor<IndexEntry<K, Attributes>> reverseCursor() throws Exception
     {
-        throw new NotImplementedException();
+        //noinspection unchecked
+        return new IndexCursor<K, Attributes>( ( Cursor ) reverse.cursor(), false );
     }
 
 
-    public Cursor<IndexRecord> cursor() throws IOException
+    public Cursor<IndexEntry<K, Attributes>> forwardCursor() throws Exception
     {
-        throw new NotImplementedException();
+        //noinspection unchecked
+        return new IndexCursor<K, Attributes>( ( Cursor ) forward.cursor(), true );
     }
 
 

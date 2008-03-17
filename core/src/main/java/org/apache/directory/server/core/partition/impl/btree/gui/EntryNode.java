@@ -33,8 +33,9 @@ import javax.naming.directory.Attributes;
 import javax.swing.tree.TreeNode;
 
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
+import org.apache.directory.server.core.partition.impl.btree.ForwardIndexEntry;
 import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
+import org.apache.directory.server.core.partition.impl.btree.IndexEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -79,33 +80,33 @@ public class EntryNode implements TreeNode
 
         try
         {
-            List<IndexRecord> records = new ArrayList<IndexRecord>();
+            List<ForwardIndexEntry> recordForwards = new ArrayList<ForwardIndexEntry>();
             NamingEnumeration childList = db.list( id );
             
             while ( childList.hasMore() )
             {
-                IndexRecord old = ( IndexRecord ) childList.next();
-                IndexRecord newRec = new IndexRecord();
+                IndexEntry old = ( IndexEntry ) childList.next();
+                ForwardIndexEntry newRec = new ForwardIndexEntry();
                 newRec.copy( old );
-                records.add( newRec );
+                recordForwards.add( newRec );
             }
             
             childList.close();
 
-            Iterator list = records.iterator();
+            Iterator list = recordForwards.iterator();
 
             while ( list.hasNext() )
             {
-                IndexRecord rec = ( IndexRecord ) list.next();
+                IndexEntry rec = ( IndexEntry ) list.next();
 
                 if ( engine != null && exprNode != null )
                 {
-                    if ( db.getChildCount( (Long)rec.getEntryId() ) == 0 )
+                    if ( db.getChildCount( (Long)rec.getId() ) == 0 )
                     {
-                        if ( engine.evaluate( exprNode, (Long)rec.getEntryId() ) )
+                        if ( engine.evaluate( exprNode, (Long)rec.getId() ) )
                         {
-                            Attributes newEntry = db.lookup( (Long)rec.getEntryId() );
-                            EntryNode child = new EntryNode( (Long)rec.getEntryId(), this, db, newEntry, map, exprNode,
+                            Attributes newEntry = db.lookup( (Long)rec.getId() );
+                            EntryNode child = new EntryNode( (Long)rec.getId(), this, db, newEntry, map, exprNode,
                                 engine );
                             children.add( child );
                         }
@@ -116,15 +117,15 @@ public class EntryNode implements TreeNode
                     }
                     else
                     {
-                        Attributes newEntry = db.lookup( (Long)rec.getEntryId() );
-                        EntryNode child = new EntryNode( (Long)rec.getEntryId(), this, db, newEntry, map, exprNode, engine );
+                        Attributes newEntry = db.lookup( (Long)rec.getId() );
+                        EntryNode child = new EntryNode( (Long)rec.getId(), this, db, newEntry, map, exprNode, engine );
                         children.add( child );
                     }
                 }
                 else
                 {
-                    Attributes newEntry = db.lookup( (Long)rec.getEntryId() );
-                    EntryNode child = new EntryNode( (Long)rec.getEntryId(), this, db, newEntry, map );
+                    Attributes newEntry = db.lookup( (Long)rec.getId() );
+                    EntryNode child = new EntryNode( (Long)rec.getId(), this, db, newEntry, map );
                     children.add( child );
                 }
             }

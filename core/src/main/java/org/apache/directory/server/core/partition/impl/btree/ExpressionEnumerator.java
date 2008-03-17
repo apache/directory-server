@@ -89,9 +89,9 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the 
      * @throws NamingException if database access fails
      */
-    public NamingEnumeration<IndexRecord> enumerate( ExprNode node ) throws NamingException
+    public NamingEnumeration<ForwardIndexEntry> enumerate( ExprNode node ) throws NamingException
     {
-    	NamingEnumeration<IndexRecord> list = null;
+    	NamingEnumeration<ForwardIndexEntry> list = null;
 
         if ( node instanceof ScopeNode )
         {
@@ -170,7 +170,7 @@ public class ExpressionEnumerator implements Enumerator
      *
      * @param node the disjunction expression branch node
      */
-    private NamingEnumeration<IndexRecord> enumDisj( OrNode node ) throws NamingException
+    private NamingEnumeration<ForwardIndexEntry> enumDisj( OrNode node ) throws NamingException
     {
         List<ExprNode> children = node.getChildren();
         NamingEnumeration[] childEnumerations = new NamingEnumeration[children.size()];
@@ -190,10 +190,10 @@ public class ExpressionEnumerator implements Enumerator
      *
      * @param node a negation expression branch node
      */
-    private NamingEnumeration<IndexRecord> enumNeg( final BranchNode node ) throws NamingException
+    private NamingEnumeration<ForwardIndexEntry> enumNeg( final BranchNode node ) throws NamingException
     {
-    	NamingEnumeration<IndexRecord> baseEnumeration = null;
-    	NamingEnumeration<IndexRecord> enumeration = null;
+    	NamingEnumeration<ForwardIndexEntry> baseEnumeration = null;
+    	NamingEnumeration<ForwardIndexEntry> enumeration = null;
 
         try
         {
@@ -206,7 +206,7 @@ public class ExpressionEnumerator implements Enumerator
 
         IndexAssertion assertion = new IndexAssertion()
         {
-            public boolean assertCandidate( IndexRecord rec ) throws NamingException
+            public boolean assertCandidate( IndexEntry rec ) throws NamingException
             {
                 // NOTICE THE ! HERE
                 // The candidate is valid if it does not pass assertion. A
@@ -225,7 +225,7 @@ public class ExpressionEnumerator implements Enumerator
      *
      * @param node a conjunction expression branch node
      */
-    private NamingEnumeration<IndexRecord> enumConj( final AndNode node ) throws NamingException
+    private NamingEnumeration<ForwardIndexEntry> enumConj( final AndNode node ) throws NamingException
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
@@ -255,7 +255,7 @@ public class ExpressionEnumerator implements Enumerator
         final ExprNode minChild = children.get( minIndex );
         IndexAssertion assertion = new IndexAssertion()
         {
-            public boolean assertCandidate( IndexRecord rec ) throws NamingException
+            public boolean assertCandidate( IndexEntry rec ) throws NamingException
             {
                 for ( int ii = 0; ii < children.size(); ii++ )
                 {
@@ -277,7 +277,7 @@ public class ExpressionEnumerator implements Enumerator
         };
 
         // Do recursive call to build child enumeration then wrap and return
-        NamingEnumeration<IndexRecord> underlying = enumerate( minChild );
+        NamingEnumeration<ForwardIndexEntry> underlying = enumerate( minChild );
         IndexAssertionEnumeration iae;
         iae = new IndexAssertionEnumeration( underlying, assertion );
         return iae;
@@ -292,7 +292,7 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the index records matching the AVA
      * @throws NamingException if there is a failure while accessing the db
      */
-    private NamingEnumeration<IndexRecord> enumPresence( final PresenceNode node ) throws NamingException
+    private NamingEnumeration<ForwardIndexEntry> enumPresence( final PresenceNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -320,7 +320,7 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the index records matching the AVA
      * @throws NamingException if there is a failure while accessing the db
      */
-    private NamingEnumeration<IndexRecord> enumGreaterOrLesser( final SimpleNode node, final boolean isGreaterOrLesser ) throws NamingException
+    private NamingEnumeration<ForwardIndexEntry> enumGreaterOrLesser( final SimpleNode node, final boolean isGreaterOrLesser ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -348,7 +348,7 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the index records matching the AVA
      * @throws NamingException if there is a failure while accessing the db
      */
-    private NamingEnumeration<IndexRecord> enumEquality( final EqualityNode node ) throws NamingException
+    private NamingEnumeration<ForwardIndexEntry> enumEquality( final EqualityNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -375,11 +375,11 @@ public class ExpressionEnumerator implements Enumerator
      * @return the enumeration over all perspective candidates satisfying expr
      * @throws NamingException if db access failures result
      */
-    private NamingEnumeration<IndexRecord> nonIndexedScan( final LeafNode node ) throws NamingException
+    private NamingEnumeration<ForwardIndexEntry> nonIndexedScan( final LeafNode node ) throws NamingException
     {
         try
         {
-            NamingEnumeration<IndexRecord> underlying = db.getNdnIndex().listIndices();
+            NamingEnumeration<ForwardIndexEntry> underlying = db.getNdnIndex().listIndices();
         }
         catch ( java.io.IOException e )
         {
@@ -388,9 +388,9 @@ public class ExpressionEnumerator implements Enumerator
 
         IndexAssertion assertion = new IndexAssertion()
         {
-            public boolean assertCandidate( IndexRecord record ) throws NamingException
+            public boolean assertCandidate( IndexEntry entry ) throws NamingException
             {
-                return evaluator.getLeafEvaluator().evaluate( node, record );
+                return evaluator.getLeafEvaluator().evaluate( node, entry );
             }
         };
 

@@ -66,7 +66,7 @@ import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
+import org.apache.directory.server.core.partition.impl.btree.IndexEntry;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -658,8 +658,8 @@ public class PartitionFrame extends JFrame
         int count = 0;
         while ( cursor.hasMore() && count < limitMax )
         {
-            IndexRecord rec = ( IndexRecord ) cursor.next();
-            row[0] = rec.getEntryId();
+            IndexEntry rec = ( IndexEntry ) cursor.next();
+            row[0] = rec.getId();
             row[1] = partition.getEntryDn( ( Long ) row[0] );
             tableModel.addRow( row );
             count++;

@@ -29,7 +29,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     private final JdbmTable<K,V> table;
 
     /**
-     * An underlying Cursor which returns Tuples whose values are
+     * An wrappedCursor Cursor which returns Tuples whose values are
      * DupsContainer objects representing either AvlTrees or BTreeRedirect
      * objects used to store the values of duplicate keys.  It does not return
      * different values for the same key.
@@ -37,7 +37,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     private final DupsContainerCursor<K,V> containerCursor;
 
     /**
-     * The current Tuple returned from the underlying DupsContainerCursor.
+     * The current Tuple returned from the wrappedCursor DupsContainerCursor.
      */
     private final Tuple<K,DupsContainer<V>> containerTuple = new Tuple<K, DupsContainer<V>>();
 
@@ -296,7 +296,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         if ( null == dupsCursor || ! dupsCursor.previous() )
         {
             /*
-             * If the underlying cursor has more elements we get the previous
+             * If the wrappedCursor cursor has more elements we get the previous
              * key/AvlTree Tuple to work with and get a cursor over it's
              * values.
              */
@@ -347,7 +347,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         if ( null == dupsCursor || ! dupsCursor.next() )
         {
             /*
-             * If the underlying cursor has more elements we get the next
+             * If the wrappedCursor cursor has more elements we get the next
              * key/AvlTree Tuple to work with and get a cursor over it.
              */
             if ( containerCursor.next() )

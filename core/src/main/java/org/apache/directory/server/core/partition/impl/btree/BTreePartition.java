@@ -571,7 +571,7 @@ public abstract class BTreePartition implements Partition
     public abstract void delete( Long id ) throws NamingException;
 
 
-    public abstract NamingEnumeration<IndexRecord> list( Long id ) throws NamingException;
+    public abstract NamingEnumeration<ForwardIndexEntry> list( Long id ) throws NamingException;
 
 
     public abstract int getChildCount( Long id ) throws NamingException;

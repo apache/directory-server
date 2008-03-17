@@ -59,7 +59,7 @@ public class ScopeEnumerator implements Enumerator
      * @throws NamingException if any system indices fail
      * @see org.apache.directory.server.core.partition.impl.btree.Enumerator#enumerate(ExprNode)
      */
-    public NamingEnumeration<IndexRecord> enumerate( ExprNode node ) throws NamingException
+    public NamingEnumeration<ForwardIndexEntry> enumerate( ExprNode node ) throws NamingException
     {
         final ScopeNode snode = ( ScopeNode ) node;
         final Long id = db.getEntryId( snode.getBaseDn() );
@@ -67,10 +67,10 @@ public class ScopeEnumerator implements Enumerator
         switch ( snode.getScope() )
         {
             case ( SearchControls.OBJECT_SCOPE  ):
-                final IndexRecord record = new IndexRecord();
-                record.setEntryId( id );
-                record.setIndexKey( snode.getBaseDn() );
-                return new SingletonEnumeration<IndexRecord>( record );
+                final ForwardIndexEntry recordForward = new ForwardIndexEntry();
+                recordForward.setId( id );
+                recordForward.setValue( snode.getBaseDn() );
+                return new SingletonEnumeration<ForwardIndexEntry>( recordForward );
                 
             case ( SearchControls.ONELEVEL_SCOPE  ):
                 return enumerateChildren( snode.getBaseDn(), snode.getDerefAliases().isDerefInSearching() );
@@ -95,13 +95,13 @@ public class ScopeEnumerator implements Enumerator
      * @throws NamingException if any failures occur while accessing system
      * indices.
      */
-    private NamingEnumeration<IndexRecord> enumerateChildren( String dn, boolean deref ) throws NamingException
+    private NamingEnumeration<ForwardIndexEntry> enumerateChildren( String dn, boolean deref ) throws NamingException
     {
         Index idx = db.getHierarchyIndex();
         final Long id = db.getEntryId( dn );
         try
         {
-            final NamingEnumeration<IndexRecord> children = idx.listIndices( id );
+            final NamingEnumeration<ForwardIndexEntry> children = idx.listIndices( id );
         }
         catch ( java.io.IOException e )
         {
@@ -159,7 +159,7 @@ public class ScopeEnumerator implements Enumerator
      * @throws NamingException if any failures occur while accessing system
      * indices.
      */
-    private NamingEnumeration<IndexRecord> enumerateDescendants( final ScopeNode node ) throws NamingException
+    private NamingEnumeration<ForwardIndexEntry> enumerateDescendants( final ScopeNode node ) throws NamingException
     {
         Index idx = null;
 
@@ -173,7 +173,7 @@ public class ScopeEnumerator implements Enumerator
             idx = db.getNdnIndex();
             try
             {
-                NamingEnumeration<IndexRecord> underlying = idx.listIndices();
+                NamingEnumeration<ForwardIndexEntry> underlying = idx.listIndices();
             }
             catch ( java.io.IOException e )
             {
@@ -185,7 +185,7 @@ public class ScopeEnumerator implements Enumerator
         // Create an assertion to assert or evaluate an expression
         IndexAssertion assertion = new IndexAssertion()
         {
-            public boolean assertCandidate( IndexRecord rec ) throws NamingException
+            public boolean assertCandidate( IndexEntry rec ) throws NamingException
             {
                 return evaluator.evaluate( node, rec );
             }
@@ -195,7 +195,7 @@ public class ScopeEnumerator implements Enumerator
         idx = db.getNdnIndex();
         try
         {
-            NamingEnumeration<IndexRecord> underlying = idx.listIndices();
+            NamingEnumeration<ForwardIndexEntry> underlying = idx.listIndices();
         }
         catch ( java.io.IOException e )
         {
@@ -228,11 +228,11 @@ public class ScopeEnumerator implements Enumerator
          * Returns true if the candidate with id is a descendant of the base, 
          * false otherwise.
          * 
-         * @see org.apache.directory.server.core.partition.impl.btree.IndexAssertion#assertCandidate(IndexRecord)
+         * @see org.apache.directory.server.core.partition.impl.btree.IndexAssertion#assertCandidate(IndexEntry)
          */
-        public boolean assertCandidate( IndexRecord record ) throws NamingException
+        public boolean assertCandidate( IndexEntry entry ) throws NamingException
         {
-            String dn = db.getEntryDn( (Long)record.getEntryId() );
+            String dn = db.getEntryDn( (Long) entry.getId() );
             return dn.endsWith( scope.getBaseDn() );
         }
     }
@@ -245,15 +245,15 @@ public class ScopeEnumerator implements Enumerator
         /**
          * Returns true if the candidate is not an alias, false otherwise.
          * 
-         * @see IndexAssertion#assertCandidate(IndexRecord)
+         * @see IndexAssertion#assertCandidate(IndexEntry)
          */
-        public boolean assertCandidate( IndexRecord record ) throws NamingException
+        public boolean assertCandidate( IndexEntry entry ) throws NamingException
         {
             Index aliasIdx = db.getAliasIndex();
 
             try
             {
-                if ( null == aliasIdx.reverseLookup( record.getEntryId() ) )
+                if ( null == aliasIdx.reverseLookup( entry.getId() ) )
                 {
                     return true;
                 }

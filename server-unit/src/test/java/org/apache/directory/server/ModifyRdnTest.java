@@ -412,7 +412,7 @@ public class ModifyRdnTest extends AbstractServerTest
         assertNotNull( org );
   
         // Check values of ou
-        Attribute ou = org.getAttributes( "" ).get( "ou" );
+        Attribute ou = org.getObject( "" ).get( "ou" );
         assertTrue( ou.contains( newOu ) );
         assertTrue( !ou.contains( oldOu ) ); // old value is gone
         assertEquals( 1, ou.size() );
@@ -476,7 +476,7 @@ public class ModifyRdnTest extends AbstractServerTest
         assertNotNull( newCtx );
 
         // Check that cn contains the unecnoded value
-        Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
+        Attribute cn = newCtx.getObject( "" ).get( "cn" );
         assertEquals( "Number of cn occurences", 1, cn.size() );
         assertTrue( cn.contains( newCnVal ) );
 

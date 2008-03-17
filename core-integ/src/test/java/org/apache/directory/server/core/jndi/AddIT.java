@@ -66,7 +66,7 @@ public class AddIT
 //        attrs.put( cn );
 //        attrs.put( dc);
 //        sysRoot.createSubcontext( "uID=kevin", attrs );
-//        Attributes returned = sysRoot.getAttributes( "UID=kevin" );
+//        Attributes returned = sysRoot.getObject( "UID=kevin" );
 //        
 //        NamingEnumeration attrList = returned.getAll();
 //        while( attrList.hasMore() )

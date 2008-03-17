@@ -95,13 +95,13 @@ public class ExpressionEvaluator implements Evaluator
     // ------------------------------------------------------------------------
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, IndexRecord)
+     * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, IndexEntry)
      */
-    public boolean evaluate( ExprNode node, IndexRecord record ) throws NamingException
+    public boolean evaluate( ExprNode node, IndexEntry entry ) throws NamingException
     {
         if ( node.isLeaf() )
         {
-            return leafEvaluator.evaluate( node, record );
+            return leafEvaluator.evaluate( node, entry );
         }
 
         BranchNode bnode = ( BranchNode ) node;
@@ -110,7 +110,7 @@ public class ExpressionEvaluator implements Evaluator
         {
             for ( ExprNode child:bnode.getChildren() )
             {
-                if ( evaluate( child, record ) )
+                if ( evaluate( child, entry ) )
                 {
                     return true;
                 }
@@ -122,7 +122,7 @@ public class ExpressionEvaluator implements Evaluator
         {
             for ( ExprNode child:bnode.getChildren() )
             {
-                if ( !evaluate( child, record ) )
+                if ( !evaluate( child, entry ) )
                 {
                     return false;
                 }
@@ -134,7 +134,7 @@ public class ExpressionEvaluator implements Evaluator
         {
             if ( null != bnode.getFirstChild() )
             {
-                return !evaluate( bnode.getFirstChild(), record );
+                return !evaluate( bnode.getFirstChild(), entry );
             }
 
             throw new NamingException( "Negation has no child: " + node );

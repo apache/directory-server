@@ -52,23 +52,23 @@ public class ScopeEvaluator implements Evaluator
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, org.apache.directory.server.core.partition.impl.btree.IndexRecord)
+     * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, IndexEntry)
      */
-    public boolean evaluate( ExprNode node, IndexRecord record ) throws NamingException
+    public boolean evaluate( ExprNode node, IndexEntry entry ) throws NamingException
     {
         ScopeNode snode = ( ScopeNode ) node;
 
         switch ( snode.getScope() )
         {
             case ( SearchControls.OBJECT_SCOPE  ):
-                String dn = db.getEntryDn( (Long)record.getEntryId() );
+                String dn = db.getEntryDn( (Long) entry.getId() );
                 return dn.equals( snode.getBaseDn() );
                 
             case ( SearchControls.ONELEVEL_SCOPE  ):
-                return assertOneLevelScope( snode, (Long)record.getEntryId() );
+                return assertOneLevelScope( snode, (Long) entry.getId() );
             
             case ( SearchControls.SUBTREE_SCOPE  ):
-                return assertSubtreeScope( snode, (Long)record.getEntryId() );
+                return assertSubtreeScope( snode, (Long) entry.getId() );
             
             default:
                 throw new NamingException( "Unrecognized search scope!" );

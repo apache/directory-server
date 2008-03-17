@@ -28,10 +28,7 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.Oid;
-import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
-import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
-import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
+import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
@@ -885,7 +882,7 @@ public class JdbmStore
      * @param aliasId the id of alias entry to add
      * @throws NamingException if index addition fails, and if the alias is
      * not allowed due to chaining or cycle formation.
-     * @throws Exception if the underlying btrees cannot be altered
+     * @throws Exception if the wrappedCursor btrees cannot be altered
      */
     private void addAliasIndices( Long aliasId, LdapDN aliasDn, String aliasTarget ) throws Exception
     {
@@ -1167,12 +1164,12 @@ public class JdbmStore
     }
 
 
-    public Cursor<IndexRecord> list( Long id ) throws Exception
+    public Cursor<IndexEntry<Long, Attributes>> list( Long id ) throws Exception
     {
-        Cursor<IndexRecord> cursor = hierarchyIdx.cursor();
-        IndexRecord record = new IndexRecord();
-        record.setEntryId( id );
-        cursor.before( record );
+        Cursor<IndexEntry<Long,Attributes>> cursor = hierarchyIdx.forwardCursor();
+        ForwardIndexEntry recordForward = new ForwardIndexEntry();
+        recordForward.setId( id );
+        cursor.before( recordForward );
         return cursor;
     }
 
@@ -1232,15 +1229,15 @@ public class JdbmStore
         // Get all standard index attribute to value mappings
         for ( Index index:this.userIndices.values() )
         {
-            Cursor<IndexRecord> list = index.reverseCursor();
-            IndexRecord record = new IndexRecord();
-            record.setEntryId( id );
-            list.before( record );
+            Cursor<ForwardIndexEntry> list = index.reverseCursor();
+            ForwardIndexEntry recordForward = new ForwardIndexEntry();
+            recordForward.setId( id );
+            list.before( recordForward );
 
             while ( list.next() )
             {
-                IndexRecord rec = list.get();
-                Object val = rec.getIndexKey();
+                IndexEntry rec = list.get();
+                Object val = rec.getValue();
                 String attrId = index.getAttribute().getName();
                 Attribute attr = attributes.get( attrId );
 
@@ -1256,17 +1253,17 @@ public class JdbmStore
 
         // Get all existance mappings for this id creating a special key
         // that looks like so 'existance[attribute]' and the value is set to id
-        Cursor<IndexRecord> list = existanceIdx.reverseCursor();
-        IndexRecord record = new IndexRecord();
-        record.setEntryId( id );
-        list.before( record );
+        Cursor<IndexEntry<String,Attributes>> list = existanceIdx.reverseCursor();
+        ForwardIndexEntry recordForward = new ForwardIndexEntry();
+        recordForward.setId( id );
+        list.before( recordForward );
         StringBuffer val = new StringBuffer();
         
         while ( list.next() )
         {
-            IndexRecord rec = list.get();
+            IndexEntry rec = list.get();
             val.append( "_existance[" );
-            val.append( rec.getIndexKey() );
+            val.append( rec.getValue() );
             val.append( "]" );
 
             String valStr = val.toString();
@@ -1277,25 +1274,25 @@ public class JdbmStore
                 attr = new AttributeImpl( valStr );
             }
             
-            attr.add( rec.getEntryId() );
+            attr.add( rec.getId() );
             attributes.put( attr );
             val.setLength( 0 );
         }
 
         // Get all parent child mappings for this entry as the parent using the
         // key 'child' with many entries following it.
-        list = hierarchyIdx.cursor();
-        record = new IndexRecord();
-        record.setEntryId( id );
-        list.before( record );
+        Cursor<IndexEntry<Long,Attributes>> children = hierarchyIdx.forwardCursor();
+        recordForward = new ForwardIndexEntry();
+        recordForward.setId( id );
+        children.before( recordForward );
 
         Attribute childAttr = new AttributeImpl( "_child" );
         attributes.put( childAttr );
         
-        while ( list.next() )
+        while ( children.next() )
         {
-            IndexRecord rec = list.get();
-            childAttr.add( rec.getEntryId() );
+            IndexEntry rec = children.get();
+            childAttr.add( rec.getId() );
         }
 
         return attributes;
@@ -1751,12 +1748,12 @@ public class JdbmStore
             }
         }
 
-        Cursor<IndexRecord> children = list( id );
+        Cursor<IndexEntry<Long,Attributes>> children = list( id );
         while ( children.next() )
         {
             // Get the child and its id
-            IndexRecord rec = children.get();
-            Long childId = rec.getEntryId();
+            IndexEntry rec = children.get();
+            Long childId = rec.getId();
 
             /* 
              * Calculate the Dn for the child's new name by copying the parents
@@ -1866,9 +1863,9 @@ public class JdbmStore
         // Find all the aliases from movedBase down
         IndexAssertion isBaseDescendant = new IndexAssertion()
         {
-            public boolean assertCandidate( IndexRecord rec ) throws Exception
+            public boolean assertCandidate( IndexEntry rec ) throws Exception
             {
-                String dn = getEntryDn( rec.getEntryId() );
+                String dn = getEntryDn( rec.getId() );
                 return dn.endsWith( movedBase.toString() );
             }
         };
@@ -1882,13 +1879,13 @@ public class JdbmStore
 
         throw new NotImplementedException( "Fix the code below this line" );
 
-//        NamingEnumeration<IndexRecord> aliases =
+//        NamingEnumeration<ForwardIndexEntry> aliases =
 //                new IndexAssertionEnumeration( aliasIdx.listIndices( movedBase.toString(), true ), isBaseDescendant );
 //
 //        while ( aliases.hasMore() )
 //        {
-//            IndexRecord entry = aliases.next();
-//            dropAliasIndices( (Long)entry.getEntryId(), movedBase );
+//            ForwardIndexEntry entry = aliases.next();
+//            dropAliasIndices( (Long)entry.getId(), movedBase );
 //        }
     }
 

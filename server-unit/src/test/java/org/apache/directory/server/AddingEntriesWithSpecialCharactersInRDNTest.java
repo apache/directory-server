@@ -173,8 +173,8 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
        assertEquals("entry found", true, enm.hasMore());
        while (enm.hasMore()) {
            SearchResult sr = (SearchResult) enm.next();
-           attrs = sr.getAttributes();
-           Attribute cn = sr.getAttributes().get("cn");
+           attrs = sr.getObject();
+           Attribute cn = sr.getObject().get("cn");
            assertNotNull(cn);
            assertTrue(cn.contains("Mackie \"The Knife\" Messer"));
        }
@@ -198,8 +198,8 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
        assertEquals("entry found", true, enm.hasMore());
        while (enm.hasMore()) {
            SearchResult sr = (SearchResult) enm.next();
-           attrs = sr.getAttributes();
-           Attribute ou = sr.getAttributes().get("ou");
+           attrs = sr.getObject();
+           Attribute ou = sr.getObject().get("ou");
            assertNotNull(ou);
            assertTrue(ou.contains("AC\\DC"));
        }

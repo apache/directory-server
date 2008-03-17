@@ -25,6 +25,8 @@ import java.io.File;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.server.core.cursor.Cursor;
 
+import javax.naming.directory.Attributes;
+
 
 /**
  * An index into the master table which returns one or more entry's positions
@@ -174,10 +176,10 @@ public interface Index<K>
     void drop( K attrVal, Long id ) throws Exception;
 
 
-    Cursor<IndexRecord> reverseCursor() throws Exception;
+    Cursor<IndexEntry<K, Attributes>> reverseCursor() throws Exception;
 
 
-    Cursor<IndexRecord> cursor() throws Exception;
+    Cursor<IndexEntry<K, Attributes>> forwardCursor() throws Exception;
 
 
     boolean has( K attrVal, Long id ) throws Exception;

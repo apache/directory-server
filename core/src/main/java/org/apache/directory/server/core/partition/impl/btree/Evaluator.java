@@ -39,9 +39,9 @@ public interface Evaluator
      * Evaluates a candidate to determine if a filter expression selects it.
      * 
      * @param node the filter expression to evaluate on the candidate
-     * @param record the index record of the entry to evaluate
+     * @param entry the index record of the entry to evaluate
      * @return true if the filter selects the candidate false otherwise
      * @throws NamingException if there is a database fault during evaluation
      */
-    boolean evaluate( ExprNode node, IndexRecord record ) throws NamingException;
+    boolean evaluate( ExprNode node, IndexEntry entry ) throws NamingException;
 }

@@ -37,7 +37,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DisjunctionEnumeration implements NamingEnumeration<IndexRecord>
+public class DisjunctionEnumeration implements NamingEnumeration<IndexEntry>
 {
     /** The underlying child enumerations */
     private final NamingEnumeration[] children;
@@ -46,9 +46,9 @@ public class DisjunctionEnumeration implements NamingEnumeration<IndexRecord>
     /** Index of current cursor used */
     private int index = 0;
     /** Candidate to return */
-    private final IndexRecord candidate = new IndexRecord();
+    private final ForwardIndexEntry candidate = new ForwardIndexEntry();
     /** Prefetched record returned */
-    private final IndexRecord prefetched = new IndexRecord();
+    private final ForwardIndexEntry prefetched = new ForwardIndexEntry();
     /** Used to determine if this enumeration has been exhausted */
     private boolean hasMore = true;
 
@@ -91,9 +91,9 @@ public class DisjunctionEnumeration implements NamingEnumeration<IndexRecord>
         }
 
         // Grab the next candidate and add it's id to the LUT/hash of candidates
-        IndexRecord rec = ( IndexRecord ) children[index].next();
+        IndexEntry rec = ( IndexEntry ) children[index].next();
         prefetched.copy( rec );
-        candidates.put( rec.getEntryId(), rec.getEntryId() );
+        candidates.put( rec.getId(), rec.getId() );
     }
 
 
@@ -104,7 +104,7 @@ public class DisjunctionEnumeration implements NamingEnumeration<IndexRecord>
     /**
      * @see java.util.Enumeration#nextElement()
      */
-    public IndexRecord nextElement()
+    public IndexEntry nextElement()
     {
         try
         {
@@ -139,7 +139,7 @@ public class DisjunctionEnumeration implements NamingEnumeration<IndexRecord>
      * @return a candidate element
      * @throws NamingException if an error occurs
      */
-    public IndexRecord next() throws NamingException
+    public IndexEntry next() throws NamingException
     {
         // Store the last prefetched candidate to return in candidate
         candidate.copy( prefetched );
@@ -163,16 +163,16 @@ public class DisjunctionEnumeration implements NamingEnumeration<IndexRecord>
             }
 
             // Grab next candidate!
-            IndexRecord rec = ( IndexRecord ) children[index].next();
+            IndexEntry rec = ( IndexEntry ) children[index].next();
             prefetched.copy( rec );
 
             // Break through do/while if the candidate is seen for the first
             // time, meaning we have not returned it already.
         }
-        while ( candidates.containsKey( prefetched.getEntryId() ) );
+        while ( candidates.containsKey( prefetched.getId() ) );
 
         // Add candidate to LUT of encountered candidates.
-        candidates.put( candidate.getEntryId(), candidate.getEntryId() );
+        candidates.put( candidate.getId(), candidate.getId() );
 
         // Return the original value saved before overwriting prefetched
         return candidate;

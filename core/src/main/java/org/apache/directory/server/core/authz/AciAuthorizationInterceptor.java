@@ -1212,7 +1212,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          * not allowed are removed from the attribute.  If the attribute has no more
          * values remaining then the entire attribute is removed.
          */
-        //NamingEnumeration<String> idList = result.getAttributes().getIDs();
+        //NamingEnumeration<String> idList = result.getObject().getIDs();
         List<AttributeType> attributeToRemove = new ArrayList<AttributeType>();
         
         for ( AttributeType attributeType:resultEntry.getAttributeTypes() )

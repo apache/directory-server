@@ -133,8 +133,8 @@ public class DefaultSearchEngine implements SearchEngine
      */
     public boolean evaluate( ExprNode ilter, Long id ) throws NamingException
     {
-        IndexRecord rec = new IndexRecord();
-        rec.setEntryId( id );
+        IndexEntry rec = new ForwardIndexEntry();
+        rec.setId( id );
         return evaluator.evaluate( ilter, rec );
     }
 }

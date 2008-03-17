@@ -24,13 +24,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.After;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.registries.*;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.IndexEntry;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
+import javax.naming.directory.Attributes;
 import java.util.Set;
 import java.util.HashSet;
 import java.io.File;
@@ -38,7 +42,7 @@ import java.io.IOException;
 
 
 /**
- * TODO doc me!
+ * Tests the JdbmIndex.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -103,15 +107,15 @@ public class JdbmIndexTest
 
     void initIndex() throws Exception
     {
-        initIndex( new JdbmIndex() );
+        initIndex( new JdbmIndex<String>() );
     }
 
 
-    void initIndex( JdbmIndex jdbmIdx ) throws Exception
+    void initIndex( JdbmIndex<String> jdbmIdx ) throws Exception
     {
         if ( jdbmIdx == null )
         {
-            jdbmIdx = new JdbmIndex();
+            jdbmIdx = new JdbmIndex<String>();
         }
 
         jdbmIdx.init( registry.lookup( SchemaConstants.OU_AT ), dbFileDir );
@@ -148,7 +152,7 @@ public class JdbmIndexTest
         assertEquals( "ou", idx.getAttributeId() );
 
         destroyIndex();
-        initIndex( new JdbmIndex( "foo" ) );
+        initIndex( new JdbmIndex<String>( "foo" ) );
         assertEquals( "foo", idx.getAttributeId() );
     }
 
@@ -179,7 +183,7 @@ public class JdbmIndexTest
     public void testWkDirPath() throws Exception
     {
         // uninitialized index
-        JdbmIndex jdbmIndex = new JdbmIndex();
+        JdbmIndex<String> jdbmIndex = new JdbmIndex<String>();
         jdbmIndex.setWkDirPath( new File( dbFileDir, "foo" ) );
         assertEquals( "foo", jdbmIndex.getWkDirPath().getName() );
 
@@ -196,7 +200,7 @@ public class JdbmIndexTest
         assertEquals( dbFileDir, idx.getWkDirPath() );
 
         destroyIndex();
-        jdbmIndex = new JdbmIndex();
+        jdbmIndex = new JdbmIndex<String>();
         File wkdir = new File( dbFileDir, "foo" );
         wkdir.mkdirs();
         jdbmIndex.setWkDirPath( wkdir );
@@ -325,19 +329,57 @@ public class JdbmIndexTest
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
         assertNull( idx.reverseLookup( 0L ) );
+        assertFalse( idx.hasGreaterOrEqual( "foo", 0L ) );
+        assertFalse( idx.hasGreaterOrEqual( "foo", -24L ) );
+        assertFalse( idx.hasGreaterOrEqual( "foo", 24L ) );
+        assertFalse( idx.hasLessOrEqual( "foo", 0L ) );
+        assertFalse( idx.hasLessOrEqual( "foo", 24L ) );
+        assertFalse( idx.hasLessOrEqual( "foo", -24L ) );
 
         idx.add( "foo", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( "foo", idx.reverseLookup( 0L ) );
+        assertTrue( idx.has( "foo", 0L ) );
+        assertTrue( idx.hasGreaterOrEqual( "foo", 0L ) );
+        assertTrue( idx.hasGreaterOrEqual( "foo", -1L ) );
+        assertFalse( idx.hasGreaterOrEqual( "foo", 1L ) );
+        assertTrue( idx.hasLessOrEqual( "foo", 0L ) );
+        assertTrue( idx.hasLessOrEqual( "foo", 1L ) );
+        assertFalse( idx.hasLessOrEqual( "foo", -1L ) );
 
         idx.add( "foo", 1L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( "foo", idx.reverseLookup( 0L ) );
         assertEquals( "foo", idx.reverseLookup( 1L ) );
+        assertTrue( idx.has( "foo", 0L ) );
+        assertTrue( idx.has( "foo", 1L ) );
+        assertTrue( idx.hasGreaterOrEqual( "foo", 0L ) );
+        assertTrue( idx.hasGreaterOrEqual( "foo", 1L ) );
+        assertTrue( idx.hasGreaterOrEqual( "foo", -1L ) );
+        assertFalse( idx.hasGreaterOrEqual( "foo", 2L ) );
+        assertTrue( idx.hasLessOrEqual( "foo", 0L ) );
+        assertTrue( idx.hasLessOrEqual( "foo", 1L ) );
+        assertTrue( idx.hasLessOrEqual( "foo", 2L ) );
+        assertFalse( idx.hasLessOrEqual( "foo", -1L ) );
 
         idx.add( "bar", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "bar" ) );
         assertEquals( "bar", idx.reverseLookup( 0L ) );  // reverse lookup returns first val
+        assertTrue( idx.has( "bar", 0L ) ); 
+        assertTrue( idx.has( "foo", 0L ) );
+        assertTrue( idx.has( "foo", 1L ) );
+        assertTrue( idx.hasGreaterOrEqual( "bar", 0L ) );
+        assertTrue( idx.hasGreaterOrEqual( "foo", 0L ) );
+        assertTrue( idx.hasGreaterOrEqual( "foo", 1L ) );
+        assertTrue( idx.hasGreaterOrEqual( "foo", -1L ) );
+        assertFalse( idx.hasGreaterOrEqual( "foo", 2L ) );
+        assertFalse( idx.hasGreaterOrEqual( "bar", 1L ) );
+        assertTrue( idx.hasLessOrEqual( "bar", 0L ) );
+        assertTrue( idx.hasLessOrEqual( "foo", 0L ) );
+        assertTrue( idx.hasLessOrEqual( "foo", 1L ) );
+        assertTrue( idx.hasLessOrEqual( "foo", 2L ) );
+        assertFalse( idx.hasLessOrEqual( "foo", -1L ) );
+        assertFalse( idx.hasLessOrEqual( "bar", -1L ) );
     }
 
 
@@ -432,6 +474,61 @@ public class JdbmIndexTest
     // -----------------------------------------------------------------------
     // Miscellaneous Test Methods
     // -----------------------------------------------------------------------
+
+
+    @Test
+    public void testCursors() throws Exception
+    {
+        initIndex();
+        assertEquals( 0, idx.count() );
+
+        idx.add( "foo", 1234L );
+        assertEquals( 1, idx.count() );
+
+        idx.add( "foo", 333L );
+        assertEquals( 2, idx.count() );
+
+        idx.add( "bar", 555L );
+        assertEquals( 3, idx.count() );
+
+        // use forward index's cursor
+        Cursor<IndexEntry<String, Attributes>> cursor = idx.forwardCursor();
+        cursor.beforeFirst();
+
+        cursor.next();
+        IndexEntry<String,Attributes> e1 = cursor.get();
+        assertEquals( 555L, ( long ) e1.getId() );
+        assertEquals( "bar", e1.getValue() );
+
+        cursor.next();
+        IndexEntry<String,Attributes> e2 = cursor.get();
+        assertEquals( 333L, ( long ) e2.getId() );
+        assertEquals( "foo", e2.getValue() );
+
+        cursor.next();
+        IndexEntry<String,Attributes> e3 = cursor.get();
+        assertEquals( 1234L, ( long ) e3.getId() );
+        assertEquals( "foo", e3.getValue() );
+
+        // use reverse index's cursor
+        cursor = idx.reverseCursor();
+        cursor.beforeFirst();
+
+        cursor.next();
+        e1 = cursor.get();
+        assertEquals( 333L, ( long ) e1.getId() );
+        assertEquals( "foo", e1.getValue() );
+
+        cursor.next();
+        e2 = cursor.get();
+        assertEquals( 555L, ( long ) e2.getId() );
+        assertEquals( "bar", e2.getValue() );
+
+        cursor.next();
+        e3 = cursor.get();
+        assertEquals( 1234L, ( long ) e3.getId() );
+        assertEquals( "foo", e3.getValue() );
+    }
 
 
     @Test

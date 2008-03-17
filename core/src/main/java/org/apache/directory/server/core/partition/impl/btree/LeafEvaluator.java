@@ -164,18 +164,18 @@ public class LeafEvaluator implements Evaluator
     /**
      * Get the entry from the backend, if it's not already into the record
      */
-    private Attributes getEntry( IndexRecord rec ) throws NamingException
+    private Attributes getEntry( IndexEntry rec ) throws NamingException
     {
         // get the attributes associated with the entry 
-        Attributes entry = rec.getAttributes();
+        Attributes entry = rec.getObject();
 
         // resuscitate entry if need be
         // TODO Is this really needed ? 
         // How possibly can't we have the entry at this point ?
         if ( null == entry )
         {
-            rec.setAttributes( db.lookup( ( Long ) rec.getEntryId() ) );
-            entry = rec.getAttributes();
+            rec.setObject( db.lookup( ( Long ) rec.getId() ) );
+            entry = rec.getObject();
         }
 
         return entry;
@@ -183,35 +183,35 @@ public class LeafEvaluator implements Evaluator
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, IndexRecord)
+     * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, IndexEntry)
      */
-    public boolean evaluate( ExprNode node, IndexRecord record ) throws NamingException
+    public boolean evaluate( ExprNode node, IndexEntry entry ) throws NamingException
     {
         if ( node instanceof ScopeNode )
         {
-            return scopeEvaluator.evaluate( node, record );
+            return scopeEvaluator.evaluate( node, entry );
         }
 
         if ( node instanceof PresenceNode )
         {
             String attrId = ( ( PresenceNode ) node ).getAttribute();
-            return evalPresence( attrId, record );
+            return evalPresence( attrId, entry );
         }
         else if ( node instanceof EqualityNode )
         {
-            return evalEquality( ( EqualityNode ) node, record );
+            return evalEquality( ( EqualityNode ) node, entry );
         }
         else if ( node instanceof GreaterEqNode )
         {
-            return evalGreaterOrLesser( ( SimpleNode ) node, record, SimpleNode.EVAL_GREATER );
+            return evalGreaterOrLesser( ( SimpleNode ) node, entry, SimpleNode.EVAL_GREATER );
         }
         else if ( node instanceof LessEqNode )
         {
-            return evalGreaterOrLesser( ( SimpleNode ) node, record, SimpleNode.EVAL_LESSER );
+            return evalGreaterOrLesser( ( SimpleNode ) node, entry, SimpleNode.EVAL_LESSER );
         }
         else if ( node instanceof SubstringNode )
         {
-            return substringEvaluator.evaluate( node, record );
+            return substringEvaluator.evaluate( node, entry );
         }
         else if ( node instanceof ExtensibleNode )
         {
@@ -219,7 +219,7 @@ public class LeafEvaluator implements Evaluator
         }
         else if ( node instanceof ApproximateNode )
         {
-            return evalEquality( ( ApproximateNode ) node, record );
+            return evalEquality( ( ApproximateNode ) node, entry );
         }
         else
         {
@@ -233,17 +233,17 @@ public class LeafEvaluator implements Evaluator
      * a perspective candidate.
      * 
      * @param node the greater than or less than node to evaluate
-     * @param record the IndexRecord of the perspective candidate
+     * @param entry the ForwardIndexEntry of the perspective candidate
      * @param isGreaterOrLesser true if it is a greater than or equal to comparison,
      *      false if it is a less than or equal to comparison.
      * @return the ava evaluation on the perspective candidate
      * @throws NamingException if there is a database access failure
      */
-    private boolean evalGreaterOrLesser( SimpleNode node, IndexRecord record, boolean isGreaterOrLesser )
+    private boolean evalGreaterOrLesser( SimpleNode node, IndexEntry entry, boolean isGreaterOrLesser )
         throws NamingException
     {
         String attrId = node.getAttribute();
-        long id = ( Long ) record.getEntryId();
+        long id = ( Long ) entry.getId();
 
         if ( db.hasUserIndexOn( attrId ) )
         {
@@ -280,13 +280,13 @@ public class LeafEvaluator implements Evaluator
         }
 
         // resuscitate entry if need be
-        if ( null == record.getAttributes() )
+        if ( null == entry.getObject() )
         {
-            record.setAttributes( db.lookup( id ) );
+            entry.setObject( db.lookup( id ) );
         }
 
         // get the attribute associated with the node
-        Attribute attr = AttributeUtils.getAttribute( record.getAttributes(), attributeTypeRegistry.lookup( node
+        Attribute attr = AttributeUtils.getAttribute( entry.getObject(), attributeTypeRegistry.lookup( node
             .getAttribute() ) );
 
         // If we do not have the attribute just return false
@@ -345,11 +345,11 @@ public class LeafEvaluator implements Evaluator
      * candidate.
      * 
      * @param attrId the name of the attribute tested for presence 
-     * @param rec the IndexRecord of the perspective candidate
+     * @param rec the ForwardIndexEntry of the perspective candidate
      * @return the ava evaluation on the perspective candidate
      * @throws NamingException if there is a database access failure
      */
-    private boolean evalPresence( String attrId, IndexRecord rec ) throws NamingException
+    private boolean evalPresence( String attrId, IndexEntry rec ) throws NamingException
     {
         // First, check if the attributeType is indexed
         if ( db.hasUserIndexOn( attrId ) )
@@ -361,7 +361,7 @@ public class LeafEvaluator implements Evaluator
             // have a direct access to the entry.
             try
             {
-                if ( idx.hasValue( attrId, rec.getEntryId() ) )
+                if ( idx.hasValue( attrId, rec.getId() ) )
                 {
                     return true;
                 }
@@ -429,11 +429,11 @@ public class LeafEvaluator implements Evaluator
      * candidate.
      *
      * @param node the equality node to evaluate
-     * @param rec the IndexRecord of the perspective candidate
+     * @param rec the ForwardIndexEntry of the perspective candidate
      * @return the ava evaluation on the perspective candidate
      * @throws NamingException if there is a database access failure
      */
-    private boolean evalEquality( SimpleNode node, IndexRecord rec ) throws NamingException
+    private boolean evalEquality( SimpleNode node, IndexEntry rec ) throws NamingException
     {
         String filterAttr = node.getAttribute();
         Object filterValue = node.getValue();
@@ -448,7 +448,7 @@ public class LeafEvaluator implements Evaluator
 
             try
             {
-                if ( idx.hasValue( filterValue, rec.getEntryId() ) )
+                if ( idx.hasValue( filterValue, rec.getId() ) )
                 {
                     return true;
                 }

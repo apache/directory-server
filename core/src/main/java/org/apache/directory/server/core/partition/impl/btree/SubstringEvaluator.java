@@ -74,9 +74,9 @@ public class SubstringEvaluator implements Evaluator
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, IndexRecord)
+     * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, IndexEntry)
      */
-    public boolean evaluate( ExprNode node, IndexRecord record ) throws NamingException
+    public boolean evaluate( ExprNode node, IndexEntry entry ) throws NamingException
     {
         Pattern regex = null;
         SubstringNode snode = ( SubstringNode ) node;
@@ -129,10 +129,10 @@ public class SubstringEvaluator implements Evaluator
             // cycle through the attribute values testing for a match
             while ( entries.hasMore() )
             {
-                IndexRecord rec = ( IndexRecord ) entries.next();
+                IndexEntry rec = ( IndexEntry ) entries.next();
 
                 // once match is found cleanup and return true
-                if ( regex.matcher( ( String ) rec.getIndexKey() ).matches() )
+                if ( regex.matcher( ( String ) rec.getValue() ).matches() )
                 {
                     entries.close();
                     return true;
@@ -149,7 +149,7 @@ public class SubstringEvaluator implements Evaluator
 
         Attributes entry = record.getAttributes();
         
-        // resuscitate the entry if it has not been and set entry in IndexRecord
+        // resuscitate the entry if it has not been and set entry in ForwardIndexEntry
         if ( null == entry )
         {
             Attributes attrs = db.lookup( (Long)record.getEntryId() );

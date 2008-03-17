@@ -175,7 +175,7 @@ public class ServerContextFactoryTest extends AbstractServerTest
         InitialContext initialContext = new InitialContext( env );
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
         assertNotNull( appRoot );
-        Attributes attributes = appRoot.getAttributes( "" );
+        Attributes attributes = appRoot.getObject( "" );
         assertNotNull( attributes );
         assertEquals( "example", attributes.get( "dc" ).get() );
         Attribute attribute = attributes.get( "objectClass" );
@@ -199,7 +199,7 @@ public class ServerContextFactoryTest extends AbstractServerTest
         InitialContext initialContext = new InitialContext( env );
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
         assertNotNull( appRoot );
-        Attributes attributes = appRoot.getAttributes( "" );
+        Attributes attributes = appRoot.getObject( "" );
         assertNotNull( attributes );
         assertEquals( "testing", attributes.get( "ou" ).get() );
         Attribute attribute = attributes.get( "objectClass" );
@@ -223,7 +223,7 @@ public class ServerContextFactoryTest extends AbstractServerTest
         InitialContext initialContext = new InitialContext( env );
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
         assertNotNull( appRoot );
-        Attributes attributes = appRoot.getAttributes( "" );
+        Attributes attributes = appRoot.getObject( "" );
         assertNotNull( attributes );
         assertEquals( "MixedCase", attributes.get( "dc" ).get() );
         Attribute attribute = attributes.get( "objectClass" );

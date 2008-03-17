@@ -36,14 +36,14 @@ public interface IndexAssertion
     /**
      * Tests to see if a perspective candidate should be returned based on 
      * the evaluation of hard coded logic.  If the entry has not been 
-     * resusitated then the getAttributes member of the record will be null.  As
+     * resusitated then the getObject member of the record will be null.  As
      * a side-effect an index assertion may populate the entry attribute after
      * resusitating an entry from the master table.
      * 
-     * @param record an index record of the entry
+     * @param entry an index record of the entry
      * @return true if the entry should be returned, false otherwise
      * @throws NamingException if their are failures while asserting the 
      * condition
      */
-    boolean assertCandidate( IndexRecord record ) throws Exception;
+    boolean assertCandidate( IndexEntry entry ) throws Exception;
 }

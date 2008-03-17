@@ -47,7 +47,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
+import org.apache.directory.server.core.partition.impl.btree.IndexEntry;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -333,10 +333,10 @@ public class IndexDialog extends JDialog
 
             while ( list.hasMore() )
             {
-                IndexRecord rec = ( IndexRecord ) list.next();
+                IndexEntry rec = ( IndexEntry ) list.next();
                 row = new Object[2];
-                row[0] = rec.getIndexKey();
-                row[1] = rec.getEntryId();
+                row[0] = rec.getValue();
+                row[1] = rec.getId();
                 model.addRow( row );
                 count++;
             }

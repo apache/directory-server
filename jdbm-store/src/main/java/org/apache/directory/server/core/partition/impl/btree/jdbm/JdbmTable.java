@@ -61,7 +61,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
     /** the current count of entries in this Table */
     private int count;
-    /** the underlying JDBM btree used in this Table */
+    /** the wrappedCursor JDBM btree used in this Table */
     private BTree bt;
 
 
