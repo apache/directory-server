@@ -1322,7 +1322,7 @@ public class JdbmStore
             idx.add( mods, id );
 
             // If the attr didn't exist for this id add it to existance index
-            if ( !existanceIdx.hasValue( modsOid, id ) )
+            if ( !existanceIdx.has( modsOid, id ) )
             {
                 existanceIdx.add( modsOid, id );
             }
@@ -1627,7 +1627,7 @@ public class JdbmStore
             idx.add( newRdnValue, id );
 
             // Make sure the altered entry shows the existance of the new attrib
-            if ( !existanceIdx.hasValue( newRdn.getNormType(), id ) )
+            if ( !existanceIdx.has( newRdn.getNormType(), id ) )
             {
                 existanceIdx.add( newRdn.getNormType(), id );
             }

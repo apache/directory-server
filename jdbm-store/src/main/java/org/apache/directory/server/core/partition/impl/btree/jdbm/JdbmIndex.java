@@ -478,27 +478,29 @@ public class JdbmIndex<K> implements Index<K>
 
     
     /**
-     * @see Index#hasValue(Object,Long)
+     * @see Index#has(Object,Long)
      */
-    public boolean hasValue( K attrVal, Long id ) throws Exception
+    public boolean has( K attrVal, Long id ) throws Exception
     {
         return forward.has( getNormalized( attrVal ), id );
     }
 
 
     /**
-     * @see Index#hasValue(Object, Long, boolean)
+     * @see Index#hasGreaterOrEqual(Object, Long)
      */
-    public boolean hasValue( K attrVal, Long id, boolean isGreaterThan ) throws Exception
+    public boolean hasGreaterOrEqual( K attrVal, Long id ) throws Exception
     {
-        if ( isGreaterThan )
-        {
-            return forward.hasGreaterOrEqual( getNormalized( attrVal ), id );
-        }
-        else
-        {
-            return forward.hasLessOrEqual( getNormalized( attrVal ), id );
-        }
+        return forward.hasGreaterOrEqual( getNormalized( attrVal ), id );
+    }
+
+
+    /**
+     * @see Index#hasLessOrEqual(Object, Long)
+     */
+    public boolean hasLessOrEqual( K attrVal, Long id ) throws Exception
+    {
+        return forward.hasLessOrEqual( getNormalized( attrVal ), id );
     }
 
 

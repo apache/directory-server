@@ -23,7 +23,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.After;
-import org.junit.Ignore;
 import static org.junit.Assert.*;
 
 import org.apache.directory.server.schema.bootstrap.*;
@@ -371,8 +370,8 @@ public class JdbmIndexTest
 
         idx.drop( 0L );
         assertEquals( "foo", idx.reverseLookup( 1L ) );
-        assertFalse( idx.hasValue( "bar", 0L ) );
-        assertFalse( idx.hasValue( "foo", 0L ) );
+        assertFalse( idx.has( "bar", 0L ) );
+        assertFalse( idx.has( "foo", 0L ) );
 
         idx.drop( 1L );
         assertNull( idx.forwardLookup( "foo" ) );
@@ -414,12 +413,12 @@ public class JdbmIndexTest
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( "foo", idx.reverseLookup( 0L ) );
         assertEquals( "foo", idx.reverseLookup( 1L ) );
-        assertFalse( idx.hasValue( "bar", 0L ) );
+        assertFalse( idx.has( "bar", 0L ) );
 
         idx.drop( "foo", 0L );
         assertEquals( 1L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( "foo", idx.reverseLookup( 1L ) );
-        assertFalse( idx.hasValue( "foo", 0L ) );
+        assertFalse( idx.has( "foo", 0L ) );
 
         idx.drop( "foo", 1L );
         assertNull( idx.forwardLookup( "foo" ) );

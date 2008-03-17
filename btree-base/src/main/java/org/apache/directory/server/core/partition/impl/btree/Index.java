@@ -180,10 +180,13 @@ public interface Index<K>
     Cursor<IndexRecord> cursor() throws Exception;
 
 
-    boolean hasValue( K attrVal, Long id ) throws Exception;
+    boolean has( K attrVal, Long id ) throws Exception;
 
 
-    boolean hasValue( K attrVal, Long id, boolean isGreaterThan ) throws Exception;
+    boolean hasGreaterOrEqual( K attrVal, Long id ) throws Exception;
+
+
+    boolean hasLessOrEqual( K attrVal, Long id ) throws Exception;
 
 
     void close() throws Exception;
