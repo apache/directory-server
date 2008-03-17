@@ -32,12 +32,14 @@
     <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
   </issueManagement>
 
+  <!--
   <distributionManagement>
     <site>
       <id>apache.websites</id>
       <url>scp://minotaur.apache.org/www/directory.apache.org/subprojects/ldap/common</url>
     </site>
   </distributionManagement>
+  -->
 
   <description>
     Common LDAP converters : LDIF, DSML, CSV, etc
