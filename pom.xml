@@ -425,6 +425,10 @@
       <id>wesmckean</id>
       <url>http://directory.apache.org/community/who/wesmckean.html</url>
     </developer>
+    <developer>
+      <id>rjan</id>
+      <url>http://directory.apache.org/community/who/rjan.html</url>
+    </developer>
   </developers>
 
   <contributors>
