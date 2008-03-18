@@ -20,17 +20,23 @@
 package org.apache.directory.server.core.avltree;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -48,6 +54,8 @@ public class AvlTreeMarshallerTest
     static AvlTree<Integer> savedTree;
     
     File treeFile = new File( System.getProperty( "java.io.tmpdir" ) + File.separator + "avl.tree");
+    
+    private static final Logger LOG = LoggerFactory.getLogger( AvlTreeMarshallerTest.class.getSimpleName() );
     
     @Before
     public void createTree()
@@ -299,7 +307,7 @@ public class AvlTreeMarshallerTest
         
         savedTree = tree; // to reference in other tests
         
-        System.out.println("saved tree\n--------");
+        LOG.debug("saved tree\n--------");
         tree.printTree();
         
         assertTrue( true );
@@ -316,7 +324,7 @@ public class AvlTreeMarshallerTest
         
         AvlTree<Integer> unmarshalledTree = treeMarshaller.deserialize( data );
         
-        System.out.println("\nunmarshalled tree\n---------------");
+        LOG.debug("\nunmarshalled tree\n---------------");
         unmarshalledTree.printTree();
         
         assertTrue( savedTree.getRoot().getKey() == unmarshalledTree.getRoot().getKey() );
@@ -335,10 +343,17 @@ public class AvlTreeMarshallerTest
         unmarshalledTree.insert( 0 );
         assertTrue( 0 == unmarshalledTree.getFirst().getKey() );
         
-        System.out.println("\nmodified tree after unmarshalling\n---------------");
+        LOG.debug("\nmodified tree after unmarshalling\n---------------");
         unmarshalledTree.printTree();
         
         assertNotNull(unmarshalledTree.getFirst());
         assertNotNull(unmarshalledTree.getLast());
+    }
+    
+    
+    @Test( expected = IOException.class )
+    public void testDeserializeNullData() throws IOException
+    {
+        treeMarshaller.deserialize( null );
     }
 }
