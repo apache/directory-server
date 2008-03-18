@@ -34,6 +34,11 @@
     <url>http://issues.apache.org/jira/browse/DIRSHARED</url>
   </issueManagement>
 
+  <ciManagement>
+    <system>Continuum</system>
+    <url>http://vm094.oxylos.org/continuum/</url>
+  </ciManagement>
+
   <modules>
     <module>asn1</module>
     <module>ldap</module>
