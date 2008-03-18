@@ -46,6 +46,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.MultiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,7 @@ public class JdbmStore
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmStore.class );
     /** The default cache size is set to 10 000 objects */
-    private static final int DEFAULT_CACHE_SIZE = 10000;
+    static final int DEFAULT_CACHE_SIZE = 10000;
 
 
     /** the JDBM record manager used by this database */
@@ -138,7 +139,6 @@ public class JdbmStore
 
     private ServerEntry contextEntry;
     private String suffixDn;
-    private boolean enableOptimizer;
     private int cacheSize = DEFAULT_CACHE_SIZE;
     private String name;
 
@@ -217,19 +217,6 @@ public class JdbmStore
     public boolean isSyncOnWrite()
     {
         return isSyncOnWrite;
-    }
-
-
-    public void setEnableOptimizer( boolean enableOptimizer )
-    {
-        protect( "enableOptimizer" );
-        this.enableOptimizer = enableOptimizer;
-    }
-
-
-    public boolean isEnableOptimizer()
-    {
-        return enableOptimizer;
     }
 
 
@@ -448,7 +435,7 @@ public class JdbmStore
     /**
      * Close the parttion : we have to close all the userIndices and the master table.
      */
-    public synchronized void destroy()
+    public synchronized void destroy() throws Exception
     {
         LOG.debug( "destroy() called on store for {}", this.suffixDn );
 
@@ -459,41 +446,8 @@ public class JdbmStore
 
         List<JdbmIndex> array = new ArrayList<JdbmIndex>();
         array.addAll( userIndices.values() );
-
-        if ( null != ndnIdx )
-        {
-            array.add( ndnIdx );
-        }
-
-        if ( null != updnIdx )
-        {
-            array.add( updnIdx );
-        }
-
-        if ( null != aliasIdx )
-        {
-            array.add( aliasIdx );
-        }
-
-        if ( null != oneAliasIdx )
-        {
-            array.add( oneAliasIdx );
-        }
-
-        if ( null != subAliasIdx )
-        {
-            array.add( subAliasIdx );
-        }
-
-        if ( null != hierarchyIdx )
-        {
-            array.add( hierarchyIdx );
-        }
-
-        if ( null != existanceIdx )
-        {
-            array.add( existanceIdx );
-        }
+        array.addAll( systemIndices.values() );
+        MultiException errors = new MultiException( "Errors encountered on destroy()" );
 
         for ( JdbmIndex index:array )
         {
@@ -505,6 +459,7 @@ public class JdbmStore
             catch ( Throwable t )
             {
                 LOG.error( "Failed to close an index.", t );
+                errors.addThrowable( t );
             }
         }
 
@@ -516,6 +471,7 @@ public class JdbmStore
         catch ( Throwable t )
         {
             LOG.error( "Failed to close the master.", t );
+            errors.addThrowable( t );
         }
 
         try
@@ -526,6 +482,12 @@ public class JdbmStore
         catch ( Throwable t )
         {
             LOG.error( "Failed to close the record manager", t );
+            errors.addThrowable( t );
+        }
+
+        if ( errors.size() > 0 )
+        {
+            throw errors;
         }
 
         initialized = false;
@@ -726,24 +688,9 @@ public class JdbmStore
         {
             return userIndices.get( id );
         }
-        else
-        {
-            String name;
-            
-            try
-            {
-                name = oidRegistry.getPrimaryName( id );
-            }
-            catch ( NamingException e )
-            {
-                String msg = "Failed to resolve primary name for " + id + " in user index lookup";
-                LOG.error( msg, e );
-                throw new IndexNotFoundException( msg, id, e );
-            }
-            
-            throw new IndexNotFoundException( "A user index on attribute " + id + " (" 
-                + name + ") does not exist!" );
-        }
+
+        throw new IndexNotFoundException( "A user index on attribute " + id + " ("
+            + name + ") does not exist!" );
     }
 
 
@@ -764,24 +711,9 @@ public class JdbmStore
         {
             return systemIndices.get( id );
         }
-        else
-        {
-            String name;
-            
-            try
-            {
-                name = oidRegistry.getPrimaryName( id );
-            }
-            catch ( NamingException e )
-            {
-                String msg = "Failed to resolve primary name for " + id + " in user index lookup";
-                LOG.error( msg, e );
-                throw new IndexNotFoundException( msg, id, e );
-            }
-            
-            throw new IndexNotFoundException( "A system index on attribute " + id + " (" 
-                + name + ") does not exist!" );
-        }
+
+        throw new IndexNotFoundException( "A system index on attribute " + id + " ("
+            + name + ") does not exist!" );
     }
 
 
