@@ -262,6 +262,13 @@
 
   <inceptionYear>2003</inceptionYear>
 
+  <distributionManagement>
+    <site>
+      <id>apache.directory.apacheds</id>
+      <url>scpexe://vm094.oxylos.org/var/www/html/projects/apacheds/</url>
+    </site>
+  </distributionManagement>
+
   <mailingLists>
     <mailingList>
       <name>The Directory Developers List</name>
