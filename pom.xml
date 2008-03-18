@@ -135,7 +135,7 @@
   <distributionManagement>
     <site>
       <id>apache.directory.shared</id>
-      <url>scpexe://people.apache.org/home/felixk/public_html/projects/directory/shared/</url>
+      <url>scpexe://vm094.oxylos.org/var/www/html/projects/shared/</url>
     </site>
   </distributionManagement>
 
