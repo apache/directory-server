@@ -46,8 +46,6 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
     /** key Comparator for the AvlTree */
     private Comparator<E> comparator;
     
-    private LinkedAvlNode[] nodes;
-    
 
     /**
      * Creates a new instance of AvlTreeMarshaller with a custom key
@@ -190,8 +188,8 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
             
             int size = din.readInt();
             
-            nodes = new LinkedAvlNode[ size ];
-            LinkedAvlNode<E> root = readTree( din, null );
+            LinkedAvlNode[] nodes = new LinkedAvlNode[ size ];
+            LinkedAvlNode<E> root = readTree( din, null, nodes );
             
             AvlTree<E> tree = new AvlTree<E>( comparator );
             
@@ -231,7 +229,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
      * @return the deserialized AvlTree node
      * @throws IOException on failures to deserialize or read from the stream
      */
-    public LinkedAvlNode<E> readTree( DataInputStream in, LinkedAvlNode<E> node ) throws IOException
+    public LinkedAvlNode<E> readTree( DataInputStream in, LinkedAvlNode<E> node, LinkedAvlNode[] nodes ) throws IOException
     {
         int dLen = in.readInt();
       
@@ -250,14 +248,14 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
       
         if( childMarker == 2)
         {
-            node.setLeft( readTree( in, node.getLeft() ) );
+            node.setLeft( readTree( in, node.getLeft(), nodes ) );
         }
       
         childMarker = in.readInt();
       
         if( childMarker == 4 )
         {
-            node.setRight( readTree( in, node.getRight() ) );
+            node.setRight( readTree( in, node.getRight(), nodes ) );
         }
       
         return node;
