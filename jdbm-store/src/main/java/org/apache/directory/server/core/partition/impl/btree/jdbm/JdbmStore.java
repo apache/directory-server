@@ -312,7 +312,7 @@ public class JdbmStore
         recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
         // Create the master table (the table wcontaining all the entries)
-        master = new JdbmMasterTable<Attributes>( recMan );
+        master = new JdbmMasterTable<Attributes>( recMan, new AttributesSerializer() );
 
         // -------------------------------------------------------------------
         // Initializes the user and system indices
@@ -1095,7 +1095,7 @@ public class JdbmStore
             }
         }
 
-        master.put( entry, id );
+        master.put( id, entry );
         
         if ( isSyncOnWrite )
         {
@@ -1523,7 +1523,7 @@ public class JdbmStore
                 throw new NamingException( "Unidentified modification operation" );
         }
 
-        master.put( entry, id );
+        master.put( id, entry );
         
         if ( isSyncOnWrite )
         {
@@ -1560,7 +1560,7 @@ public class JdbmStore
             }
         }
 
-        master.put( entry, id );
+        master.put( id, entry );
         
         if ( isSyncOnWrite )
         {

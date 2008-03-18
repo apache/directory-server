@@ -23,6 +23,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import jdbm.RecordManager;
 import jdbm.helper.LongSerializer;
 import jdbm.helper.StringComparator;
+import jdbm.helper.Serializer;
 import org.apache.directory.server.core.partition.impl.btree.MasterTable;
 import org.apache.directory.server.schema.SerializableComparator;
 
@@ -81,11 +82,12 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
      * Creates the master table using JDBM B+Trees for the backing store.
      *
      * @param recMan the JDBM record manager
+     * @param serializer the serializer to use for persisting objects
      * @throws Exception if there is an error opening the Db file.
      */
-    public JdbmMasterTable( RecordManager recMan ) throws Exception
+    public JdbmMasterTable( RecordManager recMan, Serializer serializer ) throws Exception
     {
-        super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new AttributesSerializer() );
+        super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, serializer );
         adminTbl = new JdbmTable<String,String>( "admin", recMan, STRING_COMPARATOR, null, null );
         String seqValue = adminTbl.get( SEQPROP_KEY );
 
@@ -102,7 +104,7 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
     }
 
 
-    public E put( E entry, Long id ) throws Exception
+    public E put( Long id, E entry ) throws Exception
     {
         return super.put( id, entry );
     }
@@ -121,13 +123,6 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
         synchronized ( adminTbl )
         {
             id = new Long( adminTbl.get( SEQPROP_KEY ) );
-
-            //noinspection ConstantConditions
-            if ( null == id )
-            {
-                adminTbl.put( SEQPROP_KEY, "0" );
-                id = 0L;
-            }
         }
 
         return id;
@@ -142,18 +137,8 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
         synchronized ( adminTbl )
         {
             lastVal = new Long( adminTbl.get( SEQPROP_KEY ) );
-
-            //noinspection ConstantConditions
-            if ( null == lastVal )
-            {
-                adminTbl.put( SEQPROP_KEY, "1" );
-                return 1L;
-            }
-            else
-            {
-                nextVal = lastVal + 1L;
-                adminTbl.put( SEQPROP_KEY, nextVal.toString() );
-            }
+            nextVal = lastVal + 1L;
+            adminTbl.put( SEQPROP_KEY, nextVal.toString() );
         }
 
         return nextVal;
