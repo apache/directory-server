@@ -49,14 +49,6 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
 
         public int compare( Long o1, Long o2 )
         {
-            if ( o1 == null )
-            {
-                throw new IllegalArgumentException( "Argument 'obj1' is null" );
-            } else if ( o2 == null )
-            {
-                throw new IllegalArgumentException( "Argument 'obj2' is null" );
-            }
-
             return o1.compareTo( o2 );
         }
     };

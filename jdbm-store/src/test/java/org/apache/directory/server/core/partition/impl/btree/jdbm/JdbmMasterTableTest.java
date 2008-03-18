@@ -101,18 +101,25 @@ public class JdbmMasterTableTest
     public void testAll() throws Exception
     {
         assertNull( table.get( 0L ) );
+        assertEquals( 0, table.count() );
 
         assertEquals( 0, ( long ) table.getCurrentId() );
         assertEquals( 1, ( long ) table.getNextId() );
         assertEquals( 1, ( long ) table.getCurrentId() );
         assertNull( table.put( 1L, 5 ) );
         assertEquals( 5, ( int ) table.get( 1L ) );
+        assertEquals( 1, table.count() );
 
         assertEquals( 1, ( long ) table.getCurrentId() );
         assertEquals( 2, ( long ) table.getNextId() );
         assertEquals( 2, ( long ) table.getCurrentId() );
         assertNull( table.put( 2L, 6 ) );
         assertEquals( 6, ( int ) table.get( 2L ) );
+        assertEquals( 2, table.count() );
+
+        assertEquals( 5, ( long ) table.delete( 1L ) );
+        assertNull( table.get( 1L ) );
+        assertEquals( 1, table.count() );
 
         assertNull( table.getProperty( "foo" ) );
         table.setProperty( "foo", "bar" );
