@@ -252,6 +252,11 @@
         <version>3.2.3</version>
       </dependency>
 
+      <dependency>
+        <groupId>bouncycastle</groupId>
+        <artifactId>bcprov-jdk15</artifactId>
+        <version>136</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -335,6 +340,7 @@
     <module>jdbm-store</module>
     <module>btree-base</module>
     <module>core</module>
+    <!-- module>core-jndi</module -->
     <module>core-constants</module>
     <module>core-shared</module>
     <module>core-plugin</module>
@@ -372,7 +378,7 @@
     </developer>
     <developer>
       <id>akarasulu</id>
-      <url>http://directory.apache.org/community/who/akarasulu.html</url>
+      <url>http://directory.apache.org/community/%26resources/the-team.html</url>
     </developer>
     <developer>
       <id>bayard</id>
@@ -388,49 +394,49 @@
     </developer>
     <developer>
       <id>elecharny</id>
-      <url>http://directory.apache.org/community/who/elecharny.html</url>
+      <url>http://directory.apache.org/community%26resources/the-team.html</url>
     </developer>
     <developer>
       <id>erodriguez</id>
-      <url>http://directory.apache.org/community/who/erodriguez.html</url>
+      <url>http://directory.apache.org/community/%26resources/the-team.html</url>
     </developer>
     <developer>
       <id>ersiner</id>
-      <url>http://directory.apache.org/community/who/ersiner.html</url>
+      <url>http://directory.apache.org/community/%26resources/the-team.html</url>
     </developer>
     <developer>
       <id>jmachols</id>
-      <url>http://directory.apache.org/community/who/jmachols.html</url>
+      <url>http://directory.apache.org/community/%26resources/the-team.html</url>
     </developer>
     <developer>
       <id>niklas</id>
     </developer>
     <developer>
       <id>noel</id>
-      <url>http://directory.apache.org/community/who/noel.html</url>
+      <url>http://directory.apache.org/community/%26resources/the-team.html</url>
     </developer>
     <developer>
       <id>pamarcelot</id>
     </developer>
     <developer>
       <id>psteitz</id>
-      <url>http://directory.apache.org/community/who/psteitz.html</url>
+      <url>http://directory.apache.org/community/%26resources/the-team.html</url>
     </developer>
     <developer>
       <id>szoerner</id>
-      <url>http://directory.apache.org/community/who/szoerner.html</url>
+      <url>http://directory.apache.org/community/%26resources/the-team.html</url>
     </developer>
     <developer>
       <id>trustin</id>
-      <url>http://directory.apache.org/community/who/trustin.html</url>
+      <url>http://directory.apache.org/community/%26resources/the-team.html</url>
     </developer>
     <developer>
       <id>vtence</id>
-      <url>http://directory.apache.org/community/who/vtence.html</url>
+      <url>http://directory.apache.org/community/%26resources/the-team.html</url>
     </developer>
     <developer>
       <id>wesmckean</id>
-      <url>http://directory.apache.org/community/who/wesmckean.html</url>
+      <url>http://directory.apache.org/community/%26resources/the-team.html</url>
     </developer>
   </developers>
 
