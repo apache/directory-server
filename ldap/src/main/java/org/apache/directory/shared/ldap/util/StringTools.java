@@ -2004,7 +2004,7 @@ public class StringTools
         }
         else
         {
-            byte c = bytes[index++];
+            byte c = bytes[index];
 
             if ( ( ( c | 0x7F ) != 0x7F ) || ( ALPHA[c] == false ) )
             {
@@ -2035,7 +2035,7 @@ public class StringTools
         }
         else
         {
-            char c = chars[index++];
+            char c = chars[index];
 
             if ( ( c > 127 ) || ( ALPHA[c] == false ) )
             {
@@ -2073,7 +2073,7 @@ public class StringTools
         }
         else
         {
-            char c = string.charAt( index++ );
+            char c = string.charAt( index );
 
             if ( ( c > 127 ) || ( ALPHA[c] == false ) )
             {
@@ -2111,7 +2111,7 @@ public class StringTools
         }
         else
         {
-            char c = string.charAt( index++ );
+            char c = string.charAt( index );
 
             if ( ( c > 127 ) || ( ALPHA_LOWER_CASE[c] == false ) )
             {
@@ -2149,7 +2149,7 @@ public class StringTools
         }
         else
         {
-            char c = string.charAt( index++ );
+            char c = string.charAt( index );
 
             if ( ( c > 127 ) || ( ALPHA_UPPER_CASE[c] == false ) )
             {
@@ -2278,7 +2278,7 @@ public class StringTools
         }
         else
         {
-            char c = string.charAt( index++ );
+            char c = string.charAt( index );
 
             if ( ( c > 127 ) || ( ALPHA_DIGIT[c] == false ) )
             {
@@ -2308,7 +2308,7 @@ public class StringTools
         }
         else
         {
-            byte c = bytes[index++];
+            byte c = bytes[index];
 
             if ( ( ( c | 0x7F ) != 0x7F ) || ( CHAR[c] == false ) )
             {
@@ -2338,7 +2338,7 @@ public class StringTools
         }
         else
         {
-            char c = chars[index++];
+            char c = chars[index];
 
             if ( ( c > 127 ) || ( CHAR[c] == false ) )
             {
@@ -2375,7 +2375,7 @@ public class StringTools
         }
         else
         {
-            char c = string.charAt( index++ );
+            char c = string.charAt( index );
 
             if ( ( c > 127 ) || ( CHAR[c] == false ) )
             {
@@ -3246,9 +3246,7 @@ public class StringTools
         StringBuffer sb = new StringBuffer();
         boolean isFirst = true;
 
-        Iterator<?> iter = map.keySet().iterator();
-
-        while ( iter.hasNext() )
+        for ( Map.Entry<?, ?> entry:map.entrySet() )
         {
             if ( isFirst )
             {
@@ -3259,9 +3257,8 @@ public class StringTools
                 sb.append( ", " );
             }
 
-            Object key = iter.next();
-            sb.append( key );
-            sb.append( " = '" ).append( map.get( key ) ).append( "'" );
+            sb.append( entry.getKey() );
+            sb.append( " = '" ).append( entry.getValue() ).append( "'" );
         }
 
         return sb.toString();
@@ -3285,16 +3282,12 @@ public class StringTools
 
         StringBuffer sb = new StringBuffer();
 
-        Iterator<?> iter = map.keySet().iterator();
-
-        while ( iter.hasNext() )
+        for ( Map.Entry<?, ?> entry:map.entrySet() )
         {
-            Object key = iter.next();
             sb.append( tabs );
-            sb.append( key );
-            Object value = map.get( key );
+            sb.append( entry.getKey() );
 
-            sb.append( " = '" ).append( value.toString() ).append( "'\n" );
+            sb.append( " = '" ).append( entry.getValue().toString() ).append( "'\n" );
         }
 
         return sb.toString();

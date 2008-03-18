@@ -21,9 +21,8 @@ package org.apache.directory.shared.ldap.name;
 
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -2319,91 +2318,7 @@ public class LdapDNTest
                "2.5.4.11= Some   People   + domainComponent=  And   Some anImAls,DomainComponent = eXample,0.9.2342.19200300.100.1.25= cOm" ) );
    }
 
-
-   /**
-    * Test the serialization of a DN
-    *
-    * @throws Exception
-    */
-   @Test public void testNameSerialization() throws Exception
-   {
-       LdapDN name = new LdapDN( "ou= Some   People   + dc=  And   Some anImAls,dc = eXample,dc= cOm" );
-       name.normalize( oids );
-
-       FileOutputStream fOut = null;
-       ObjectOutputStream oOut = null;
-       File file = new File( "LdapDN.ser" );
-
-       try
-       {
-           fOut = new FileOutputStream( file );
-           oOut = new ObjectOutputStream( fOut );
-           oOut.writeObject( name );
-       }
-       catch ( IOException ioe )
-       {
-           throw ioe;
-       }
-       finally
-       {
-           try
-           {
-               if ( oOut != null )
-               {
-                   oOut.flush();
-                   oOut.close();
-               }
-
-               if ( fOut != null )
-               {
-                   fOut.close();
-               }
-           }
-           catch ( IOException ioe )
-           {
-               throw ioe;
-           }
-       }
-
-       FileInputStream fIn = null;
-       ObjectInputStream oIn = null;
-
-       try
-       {
-           fIn = new FileInputStream( file );
-           oIn = new ObjectInputStream( fIn );
-
-           LdapDN nameSer = ( LdapDN ) oIn.readObject();
-
-           assertEquals( 0, nameSer.compareTo( name ) );
-       }
-       catch ( IOException ioe )
-       {
-           throw ioe;
-       }
-       finally
-       {
-           try
-           {
-               if ( oIn != null )
-               {
-                   oIn.close();
-               }
-               
-               if ( fIn != null )
-               {
-                   fIn.close();
-               }
-               
-               file.delete();
-           }
-           catch ( IOException ioe )
-           {
-               throw ioe;
-           }
-       }
-   }
-
+   
    /**
     * Class to test for hashCode().
     */
@@ -2827,11 +2742,188 @@ public class LdapDNTest
         assertFalse( LdapDN.isValid( "a" ) );
         assertFalse( LdapDN.isValid( "a " ) );
 
-        assertFalse( LdapDN.isValid( "a=" ) );
-        assertFalse( LdapDN.isValid( "a= " ) );
+        assertTrue( LdapDN.isValid( "a=" ) );
+        assertTrue( LdapDN.isValid( "a= " ) );
 
         assertFalse( LdapDN.isValid( "=" ) );
         assertFalse( LdapDN.isValid( " = " ) );
         assertFalse( LdapDN.isValid( " = a" ) );
+    }
+    
+    private ByteArrayOutputStream serializeDN( LdapDN dn ) throws IOException
+    {
+        ObjectOutputStream oOut = null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try
+        {
+            oOut = new ObjectOutputStream( out );
+            oOut.writeObject( dn );
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oOut != null )
+                {
+                    oOut.flush();
+                    oOut.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+        
+        return out;
+    }
+    
+    
+    private LdapDN deserializeDN( ByteArrayOutputStream out ) throws IOException, ClassNotFoundException
+    {
+        ObjectInputStream oIn = null;
+        ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
+
+        try
+        {
+            oIn = new ObjectInputStream( in );
+
+            LdapDN dn = ( LdapDN ) oIn.readObject();
+            
+            return dn;
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oIn != null )
+                {
+                    oIn.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+    }
+
+    
+    /**
+     * Test the serialization of a DN
+     *
+     * @throws Exception
+     */
+    @Test public void testNameSerialization() throws Exception
+    {
+        LdapDN dn = new LdapDN( "ou= Some   People   + dc=  And   Some anImAls,dc = eXample,dc= cOm" );
+        dn.normalize( oids );
+
+        assertEquals( dn, deserializeDN( serializeDN( dn ) ) );
+    }
+
+
+    @Test public void testSerializeEmptyDN() throws Exception
+    {
+        LdapDN dn = LdapDN.EMPTY_LDAPDN;
+        
+        assertEquals( dn, deserializeDN( serializeDN( dn ) ) );
+    }
+
+
+    /**
+     * Test the serialization of a DN
+     *
+     * @throws Exception
+     */
+    @Test public void testNameStaticSerialization() throws Exception
+    {
+        LdapDN dn = new LdapDN( "ou= Some   People   + dc=  And   Some anImAls,dc = eXample,dc= cOm" );
+        dn.normalize( oids );
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        LdapDNSerializer.serialize( dn, out );
+        
+        byte[] data = baos.toByteArray();
+        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+        assertEquals( dn, LdapDNSerializer.deserialize( in ) );
+    }
+
+
+    /*
+    @Test public void testSerializationPerfs() throws Exception
+    {
+        LdapDN dn = new LdapDN( "ou= Some   People   + dc=  And   Some anImAls,dc = eXample,dc= cOm" );
+        dn.normalize( oids );
+
+        long t0 = System.currentTimeMillis();
+        
+        for ( int i = 0; i < 1000; i++ )
+        {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream( baos );
+
+            DnSerializer.serialize( dn, out );
+            
+            byte[] data = baos.toByteArray();
+            ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+            
+            LdapDN dn1 = DnSerializer.deserialize( in );
+        }
+        
+        long t1 = System.currentTimeMillis();
+        
+        System.out.println( "delta :" + ( t1 - t0) );
+
+        long t2 = System.currentTimeMillis();
+        
+        for ( int i = 0; i < 1000000; i++ )
+        {
+            //ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            //ObjectOutputStream out = new ObjectOutputStream( baos );
+
+            //DnSerializer.serializeString( dn, out );
+            
+            //byte[] data = baos.toByteArray();
+            //ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+            
+            //LdapDN dn1 = DnSerializer.deserializeString( in, oids );
+            dn.normalize( oids );
+        }
+        
+        long t3 = System.currentTimeMillis();
+
+        System.out.println( "delta :" + ( t3 - t2) );
+
+        //assertEquals( dn, DnSerializer.deserialize( in ) );
+    }
+    */
+
+    @Test public void testStaticSerializeEmptyDN() throws Exception
+    {
+        LdapDN dn = LdapDN.EMPTY_LDAPDN;
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream( baos );
+
+        LdapDNSerializer.serialize( dn, out );
+        
+        byte[] data = baos.toByteArray();
+        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+        assertEquals( dn, LdapDNSerializer.deserialize( in ) );
+        assertEquals( dn, deserializeDN( serializeDN( dn ) ) );
     }
 }

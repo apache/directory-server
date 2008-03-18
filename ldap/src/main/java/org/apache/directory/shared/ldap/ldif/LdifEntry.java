@@ -53,7 +53,7 @@ import java.util.Map;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class Entry implements Cloneable, Serializable
+public class LdifEntry implements Cloneable, Serializable
 {
     /** Used in toArray() */
     public static final ModificationItemImpl[] EMPTY_MODS = new ModificationItemImpl[0];
@@ -88,7 +88,7 @@ public class Entry implements Cloneable, Serializable
     /**
      * Creates a new Entry object.
      */
-    public Entry()
+    public LdifEntry()
     {
         changeType = ChangeType.Add; // Default LDIF content
         modificationList = new LinkedList<ModificationItemImpl>();
@@ -473,9 +473,9 @@ public class Entry implements Cloneable, Serializable
     /**
      * Clone method
      */
-    public Entry clone() throws CloneNotSupportedException
+    public LdifEntry clone() throws CloneNotSupportedException
     {
-        Entry clone = (Entry) super.clone();
+        LdifEntry clone = (LdifEntry) super.clone();
 
         if ( modificationList != null )
         {
@@ -669,12 +669,12 @@ public class Entry implements Cloneable, Serializable
             return false;
         }
         
-        if ( ! (o instanceof Entry ) )
+        if ( ! (o instanceof LdifEntry ) )
         {
             return false;
         }
         
-        Entry entry = (Entry)o;
+        LdifEntry entry = (LdifEntry)o;
         
         // Check the DN
         try

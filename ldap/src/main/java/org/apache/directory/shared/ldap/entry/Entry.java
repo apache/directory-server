@@ -20,6 +20,7 @@ package org.apache.directory.shared.ldap.entry;
 
 
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import javax.naming.NamingException;
 
@@ -39,7 +40,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Entry<T extends EntryAttribute<?>> extends Cloneable, Iterable<T>
+public interface Entry<T extends EntryAttribute> extends Cloneable, Iterable<T>
 {
     /**
      * Removes all the attributes.
@@ -74,6 +75,39 @@ public interface Entry<T extends EntryAttribute<?>> extends Cloneable, Iterable<
 
 
     /**
+     * Add some String values to the current Entry.
+     *
+     * @param upId The user provided ID of the attribute we want to add 
+     * some values to
+     * @param values The list of String values to add
+     * @throws NamingException
+     */
+    void add( String upId, String... values ) throws NamingException;
+
+    
+    /**
+     * Add some binary values to the current Entry.
+     *
+     * @param upId The user provided ID of the attribute we want to add 
+     * some values to
+     * @param values The list of binary values to add
+     * @throws NamingException
+     */
+    void add( String upId, byte[]... values ) throws NamingException;
+
+    
+    /**
+     * Add some Values to the current Entry.
+     *
+     * @param upId The user provided ID of the attribute we want to add 
+     * some values to
+     * @param values The list of Values to add
+     * @throws NamingException
+     */
+    void add( String upId, Value<?>... values ) throws NamingException;
+    
+    
+    /**
      * Places non-null attributes in the attribute collection. If there is
      * already an attribute with the same OID as any of the new attributes, 
      * the old ones are removed from the collection and are returned by this 
@@ -101,12 +135,12 @@ public interface Entry<T extends EntryAttribute<?>> extends Cloneable, Iterable<
     /**
      * Checks if an entry contains an attribute with a given value.
      *
-     * @param attribute The Attribute we are looking for
+     * @param attributeType The Attribute type we are looking for
      * @param value The searched value
      * @return <code>true</code> if the value is found within the attribute
      * @throws NamingException If the attribute does not exist
      */
-    boolean contains( T attribute, Value<?> value ) throws NamingException;
+    boolean contains( AttributeType attributeType, Value<?> value ) throws NamingException;
     
     
     /**

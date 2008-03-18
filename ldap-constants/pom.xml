@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.apache.directory.shared</groupId>
     <artifactId>shared-parent</artifactId>
-    <version>0.9.8-SNAPSHOT</version>
+    <version>0.9.9-SNAPSHOT</version>
   </parent>
   <artifactId>shared-ldap-constants</artifactId>
   <name>Apache Directory Protocol Ldap Shared Constants</name>
@@ -32,12 +32,14 @@
     <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
   </issueManagement>
 
+  <!--
   <distributionManagement>
     <site>
       <id>apache.websites</id>
       <url>scp://minotaur.apache.org/www/directory.apache.org/subprojects/ldap/common</url>
     </site>
   </distributionManagement>
+  -->
 
   <description>
     Common LDAP constants used by clients and servers.

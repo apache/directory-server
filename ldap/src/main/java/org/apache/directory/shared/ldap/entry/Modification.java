@@ -26,7 +26,7 @@ package org.apache.directory.shared.ldap.entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Modification<T extends EntryAttribute<?>>
+public interface Modification extends Cloneable
 {
     /**
      *  @return the operation
@@ -53,7 +53,7 @@ public interface Modification<T extends EntryAttribute<?>>
     /**
      * @return the attribute containing the modifications
      */
-    T getAttribute();
+    EntryAttribute getAttribute();
 
 
     /**
@@ -61,5 +61,14 @@ public interface Modification<T extends EntryAttribute<?>>
      *
      * @param attribute The modified attribute
      */
-    void setAttribute( T attribute );
+    void setAttribute( EntryAttribute attribute );
+    
+    
+    /**
+     * The clone operation
+     * TODO clone.
+     *
+     * @return
+     */
+    Modification clone();
 }

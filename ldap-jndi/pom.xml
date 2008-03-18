@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.apache.directory.shared</groupId>
     <artifactId>shared-parent</artifactId>
-    <version>0.9.8-SNAPSHOT</version>
+    <version>0.9.9-SNAPSHOT</version>
   </parent>
   <artifactId>shared-ldap-jndi</artifactId>
   <name>Apache Directory JNDI Shared</name>
@@ -32,12 +32,14 @@
     both in the server and in studio.
   </description>
   
+  <!--
   <distributionManagement>
     <site>
-      <id>apacheds.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/jndi-shared/</url>
+      <id>apache.websites</id>
+      <url>scp://minotaur.apache.org/www/directory.apache.org/subprojects/ldap/common</url>
     </site>
   </distributionManagement>
+  -->
 
 </project>
 

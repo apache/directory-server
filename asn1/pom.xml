@@ -21,18 +21,20 @@
   <parent>
     <groupId>org.apache.directory.shared</groupId>
     <artifactId>shared-parent</artifactId>
-    <version>0.9.8-SNAPSHOT</version>
+    <version>0.9.9-SNAPSHOT</version>
   </parent>
   <artifactId>shared-asn1</artifactId>
   <name>Apache Directory ASN.1 Shared</name>
   <packaging>jar</packaging>  
   
+  <!--
   <distributionManagement>
     <site>
       <id>apacheds.websites</id>
       <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/asn1/</url>
     </site>
   </distributionManagement>
+  -->
 
 </project>
 

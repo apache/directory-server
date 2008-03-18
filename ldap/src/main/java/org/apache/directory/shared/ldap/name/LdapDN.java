@@ -214,6 +214,18 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
+     * Create a DN when deserializing it.
+     */
+    /* No protection */ LdapDN( String upName, String normName, byte[] bytes )
+    {
+        normalized = true;
+        this.upName = upName;
+        this.normName = normName;
+        this.bytes = bytes;
+    }
+
+
+    /**
      * Static factory which creates a normalized DN from a String and a Map of OIDs.
      *
      * @param name The DN as a String
@@ -295,7 +307,7 @@ public class LdapDN implements Name, Externalizable
      */
     public String toNormName()
     {
-        if ( ( rdns == null ) || ( rdns.size() == 0 ) )
+        if ( rdns.size() == 0 )
         {
             bytes = null;
             return "";
@@ -351,7 +363,7 @@ public class LdapDN implements Name, Externalizable
      */
     private String toUpName()
     {
-        if ( ( rdns == null ) || ( rdns.size() == 0 ) )
+        if ( rdns.size() == 0 )
         {
             upName = "";
         }
@@ -491,12 +503,9 @@ public class LdapDN implements Name, Externalizable
     {
         int result = 37;
 
-        if ( ( rdns != null ) && ( rdns.size() != 0 ) )
+        for ( Rdn rdn : rdns )
         {
-            for ( Rdn rdn : rdns )
-            {
-                result = result * 17 + rdn.hashCode();
-            }
+            result = result * 17 + rdn.hashCode();
         }
 
         return result;
@@ -526,9 +535,9 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Get the number of NameComponent conatained in this LdapDN
+     * Get the number of NameComponent contained in this LdapDN
      *
-     * @return The number of NameComponent conatained in this LdapDN
+     * @return The number of NameComponent contained in this LdapDN
      */
     public int size()
     {
@@ -639,7 +648,6 @@ public class LdapDN implements Name, Externalizable
                 }
                 catch ( InvalidNameException e )
                 {
-                    e.printStackTrace();
                     LOG.error( "Failed to parse RDN for name " + name.toString(), e );
                     return false;
                 }
@@ -1173,6 +1181,25 @@ public class LdapDN implements Name, Externalizable
         return this;
     }
 
+
+    /**
+     * Adds a single RDN to a specific position.
+     *
+     * @param newRdn the RDN to add
+     * @param pos The position where we want to add the Rdn
+     * @return the updated name (not a new one)
+     */
+    public Name add( int pos, Rdn newRdn )
+    {
+        rdns.add( newRdn );
+        
+        normalizeInternal();
+        toUpName();
+
+        return this;
+    }
+
+
     /**
      * Adds a single normalized RDN to the (leaf) end of this name.
      *
@@ -1424,7 +1451,7 @@ public class LdapDN implements Name, Externalizable
                 {
                     return new AttributeTypeAndValue( atav.getUpType(), oidNormalizer.getAttributeTypeOid(), 
                     		atav.getUpValue(),
-                    		oidNormalizer.getNormalizer().normalize( atav.getValue() ) );
+                    		oidNormalizer.getNormalizer().normalize( atav.getNormValue() ) );
 
                 }
                 else
@@ -1488,7 +1515,7 @@ public class LdapDN implements Name, Externalizable
             {
             	AttributeTypeAndValue val = atavs.next();
                 AttributeTypeAndValue newAtav = atavOidToName( val, oidsMap );
-                rdn.addAttributeTypeAndValue( val.getUpType(), newAtav.getNormType(), val.getUpValue(), newAtav.getValue() );
+                rdn.addAttributeTypeAndValue( val.getUpType(), newAtav.getNormType(), val.getUpValue(), newAtav.getNormValue() );
             }
 
         }
@@ -1709,24 +1736,15 @@ public class LdapDN implements Name, Externalizable
         // Should we store the byte[] ???
         
         // Write the RDNs. Is it's null, the number will be -1. 
-        if ( rdns == null )
+        out.writeInt( rdns.size() );
+
+        // Loop on the RDNs
+        for ( Rdn rdn:rdns )
         {
-            out.writeInt( -1 );
+            out.writeObject( rdn );
         }
-        else if ( rdns.size() == 0 )
-        {
-            out.writeInt( 0 );
-        }
-        else
-        {
-            out.writeInt( rdns.size() );
-            
-            // Loop on the RDNs
-            for ( Rdn rdn:rdns )
-            {
-                out.writeObject( rdn );
-            }
-        }
+        
+        out.flush();
     }
 
 
@@ -1761,28 +1779,12 @@ public class LdapDN implements Name, Externalizable
         
         // Read the RDNs. Is it's null, the number will be -1.
         int nbRdns = in.readInt();
+        rdns = new ArrayList<Rdn>( nbRdns );
         
-        switch ( nbRdns )
+        for ( int i = 0; i < nbRdns; i++ )
         {
-            case -1 :
-                // No RDN at all... 
-                rdns = null;
-                break;
-                
-            case 0 :
-                // No RDN, but we have to initialize the list
-                // Note : this may not be a different case than -1
-                rdns = new ArrayList<Rdn>();
-                break;
-                
-            default :
-                for ( int i = 0; i < nbRdns; i++ )
-                {
-                    Rdn rdn = (Rdn)in.readObject();
-                    rdns.add( rdn );
-                }
-            
-                break;
+            Rdn rdn = (Rdn)in.readObject();
+            rdns.add( rdn );
         }
     }
 }

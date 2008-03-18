@@ -40,6 +40,13 @@
       <item name="ApacheCon Europe 2005" href="http://www.apachecon.com/"
             img="http://apache.org/images/ac2005eu_135x50.gif" />
     </menu>
+
+    <menu name="Parent">
+      <item name="Apache Directory Shared" href="../index.html" />
+    </menu>
+  
+    <menu ref="reports" />
+
  </body>
 
 </project>

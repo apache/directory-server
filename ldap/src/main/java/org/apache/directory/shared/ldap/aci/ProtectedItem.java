@@ -249,29 +249,6 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuilder buffer )
-        {
-            buffer.append( "{ " );
-            boolean isFirst = true;
-            
-            for ( String attributeType:attributeTypes )
-            {
-                if ( isFirst ) 
-                {
-                    isFirst = false;
-                }
-                else
-                {
-                    buffer.append( ", " );
-                }
-
-                buffer.append( attributeType );
-            }
-            
-            buffer.append( " }" );
-        }
-
-        
         /**
          * @see Object#toString()
          */
@@ -325,7 +302,7 @@ public abstract class ProtectedItem implements Serializable
 
         public String toString()
         {
-            return "attributeType: " + attributeTypes;
+            return "attributeType " + super.toString();
         }
     }
 
@@ -351,7 +328,7 @@ public abstract class ProtectedItem implements Serializable
 
         public String toString()
         {
-            return "allAttributeValues: " + attributeTypes;
+            return "allAttributeValues " + super.toString();
         }
     }
 
@@ -381,7 +358,7 @@ public abstract class ProtectedItem implements Serializable
 
         public String toString()
         {
-            return "selfValue: " + attributeTypes;
+            return "selfValue " + super.toString();
         }
     }
 
@@ -461,7 +438,7 @@ public abstract class ProtectedItem implements Serializable
             
             buf.append( " }" );
 
-            return "attributeValue: " + attributes;
+            return buf.toString();
         }
     }
 
@@ -604,7 +581,8 @@ public abstract class ProtectedItem implements Serializable
         public String toString()
         {
         	StringBuilder buf = new StringBuilder();
-            buf.append( "rangeOfValues: " );
+            
+            buf.append( "rangeOfValues " );
             buf.append( filter.toString() );
             
             return buf.toString();
@@ -668,7 +646,7 @@ public abstract class ProtectedItem implements Serializable
 
         public String toString()
         {
-            return "maxImmSub: " + value;
+            return "maxImmSub " + value;
         }
     }
 
@@ -801,7 +779,7 @@ public abstract class ProtectedItem implements Serializable
 
         public String toString()
         {
-            return "attributeType=" + attributeType + ", maxCount=" + maxCount;
+            return "{ type " + attributeType + ", maxCount " + maxCount + " }";
         }
     }
 
@@ -854,7 +832,7 @@ public abstract class ProtectedItem implements Serializable
 
         public String toString()
         {
-            return "{attributeType=" + attributeType + ", valuesIn=" + valuesIn + "}";
+            return "{ type " + attributeType + ", valuesIn " + valuesIn + " }";
         }
     }
 }

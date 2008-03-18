@@ -9,3 +9,11 @@ Sun Jan 20 10:36:53 EST 2008
 svn merge -r 604348:613574 https://svn.apache.org/repos/asf/directory/shared/branches/bigbang .
 Committed revision 613579
 
+
+Tue Mar 18 01:04:57 EDT 2008
+----------------------------
+svn merge -r 613574:638217 https://svn.apache.org/repos/asf/directory/shared/branches/bigbang .
+$Rev$
+$Date$
+
+

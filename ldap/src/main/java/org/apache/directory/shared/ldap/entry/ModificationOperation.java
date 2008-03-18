@@ -30,8 +30,8 @@ package org.apache.directory.shared.ldap.entry;
 public enum ModificationOperation
 {
     ADD_ATTRIBUTE( 1 ),
-    REPLACE_ATTRIBUTE( 3 ),
-    REMOVE_ATTRIBUTE( 2 );
+    REPLACE_ATTRIBUTE( 2 ),
+    REMOVE_ATTRIBUTE( 3 );
 
     /** Internal value */
     private int value;
@@ -53,5 +53,24 @@ public enum ModificationOperation
     public int getValue()
     {
         return value;
+    }
+    
+    
+    public String toString()
+    {
+        switch ( this )
+        {
+            case ADD_ATTRIBUTE :
+                return "add";
+                
+            case REPLACE_ATTRIBUTE :
+                return "replace";
+                
+            case REMOVE_ATTRIBUTE :
+                return "remove";
+                
+            default :
+                return "";
+        }
     }
 }
