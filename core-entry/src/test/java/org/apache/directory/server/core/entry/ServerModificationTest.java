@@ -21,8 +21,12 @@ package org.apache.directory.server.core.entry;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -35,12 +39,22 @@ public class ServerModificationTest
 {
     @Test public void testCreateServerModification() throws NamingException
     {
-        /*Modification mod = new ServerModification();
+        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        ServerAttribute attribute = new DefaultServerAttribute( at );
+        attribute.add( "test1", "test2" );
         
-        mod.setOperation( ModificationOperation.ADD_ATTRIBUTE );
-        AttributeType cnat = null;//new AT( SchemaConstants.CN_AT_OID );
-        EntryAttribute entry = new BasicServerAttribute( cnat, "test" );
-        mod.setAttribute( entry );*/
-        assertTrue( true );
+        Modification mod = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
+        Modification clone = mod.clone();
+        
+        attribute.remove( "test2" );
+        
+        ServerAttribute clonedAttribute = (ServerAttribute)clone.getAttribute();
+        
+        assertEquals( 1, mod.getAttribute().size() );
+        assertTrue( mod.getAttribute().contains( "test1" ) );
+
+        assertEquals( 2, clonedAttribute.size() );
+        assertTrue( clone.getAttribute().contains( "test1" ) );
+        assertTrue( clone.getAttribute().contains( "test2" ) );
     }
 }

@@ -18,6 +18,12 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.vendor;
+
+
+import org.apache.directory.server.dhcp.options.StringOption;
+
+
 /**
  * This option specifies the name of the client.  The name may or may
  * not be qualified with the local domain name (see section 3.17 for the
@@ -25,38 +31,30 @@
  * character set restrictions.
  * 
  * The code for this option is 12, and its minimum length is 1.
- */
-package org.apache.directory.server.dhcp.options.vendor;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class HostName extends DhcpOption
+public class HostName extends StringOption
 {
-    private byte[] hostName;
-
-
-    /**
-     * Creates a new instance of HostName.
-     *
-     * @param hostName
-     */
-    public HostName( byte[] hostName )
+    public HostName()
     {
-        super( 12, 1 );
-        this.hostName = hostName;
+    }
+    
+    /**
+     * @param string
+     */
+    public HostName(String name)
+    {
+        setString( name );
     }
 
 
-    protected void valueToByteBuffer( ByteBuffer out )
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
+     */
+    public byte getTag()
     {
-        out.put( hostName );
+        return 12;
     }
 }

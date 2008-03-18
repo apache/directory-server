@@ -18,14 +18,6 @@
  *  
  */
 
-/**
- * The LPR server option specifies a list of RFC 1179 line printer
- * servers available to the client.  Servers SHOULD be listed in order
- * of preference.
- * 
- * The code for the LPR server option is 9.  The minimum length for this
- * option is 4 octets, and the length MUST always be a multiple of 4.
- */
 package org.apache.directory.server.dhcp.options.vendor;
 
 
@@ -33,18 +25,23 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
 
 
 /**
+ * The LPR server option specifies a list of RFC 1179 line printer
+ * servers available to the client.  Servers SHOULD be listed in order
+ * of preference.
+ * 
+ * The code for the LPR server option is 9.  The minimum length for this
+ * option is 4 octets, and the length MUST always be a multiple of 4.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class LprServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of LprServers.
-     *
-     * @param lprServers
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public LprServers( byte[] lprServers )
+    public byte getTag()
     {
-        super( 9, lprServers );
+        return 9;
     }
 }

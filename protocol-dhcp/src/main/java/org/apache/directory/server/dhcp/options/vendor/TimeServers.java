@@ -18,6 +18,12 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.vendor;
+
+
+import org.apache.directory.server.dhcp.options.AddressListOption;
+
+
 /**
  * The time server option specifies a list of RFC 868 time servers
  * available to the client.  Servers SHOULD be listed in order of
@@ -26,26 +32,17 @@
  * The code for the time server option is 4.  The minimum length for
  * this option is 4 octets, and the length MUST always be a multiple of
  * 4.
- */
-package org.apache.directory.server.dhcp.options.vendor;
-
-
-import org.apache.directory.server.dhcp.options.AddressListOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class TimeServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of TimeServers.
-     *
-     * @param timeServers
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public TimeServers( byte[] timeServers )
+    public byte getTag()
     {
-        super( 4, timeServers );
+        return 4;
     }
 }

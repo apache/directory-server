@@ -23,6 +23,8 @@ package org.apache.directory.server.core.authz.support;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
@@ -36,6 +38,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -43,9 +46,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -80,14 +81,14 @@ public class MaxImmSubFilter implements ACITupleFilter
             PartitionNexusProxy proxy,
             Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
-            Attributes userEntry, 
+            ServerEntry userEntry, 
             AuthenticationLevel authenticationLevel,
             LdapDN entryName, 
             String attrId, 
-            Object attrValue, 
-            Attributes entry, 
+            Value<?> attrValue, 
+            ServerEntry entry, 
             Collection<MicroOperation> microOperations,
-            Attributes entryView )
+            ServerEntry entryView )
         throws NamingException
     {
         if ( entryName.size() == 0 )
@@ -160,7 +161,7 @@ public class MaxImmSubFilter implements ACITupleFilter
     private int getImmSubCount( Registries registries, PartitionNexusProxy proxy, LdapDN entryName ) throws NamingException
     {
         int cnt = 0;
-        NamingEnumeration<SearchResult> e = null;
+        NamingEnumeration<ServerSearchResult> e = null;
         
         try
         {

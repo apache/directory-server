@@ -26,7 +26,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
@@ -94,7 +94,7 @@ public abstract class AbstractTestCase extends TestCase
     protected boolean doDelete = true;
 
     /** A testEntries of entries as Attributes to add to the DIT for testing */
-    protected List<Entry> testEntries = new ArrayList<Entry>();
+    protected List<LdifEntry> testEntries = new ArrayList<LdifEntry>();
 
     /** An optional LDIF file path if set and present is read to add more test entries */
     private String ldifPath;
@@ -179,8 +179,8 @@ public abstract class AbstractTestCase extends TestCase
         // -------------------------------------------------------------------
 
         LdifReader reader = new LdifReader();
-    	List<Entry> entries = reader.parseLdif( LDIF );
-        Entry entry = entries.get(0);
+    	List<LdifEntry> entries = reader.parseLdif( LDIF );
+        LdifEntry entry = entries.get(0);
         testEntries.add( entry );
 
         // -------------------------------------------------------------------
@@ -214,7 +214,7 @@ public abstract class AbstractTestCase extends TestCase
 
         if ( in != null )
         {
-            Iterator<Entry> list = new LdifReader( in );
+            Iterator<LdifEntry> list = new LdifReader( in );
             
             while ( list.hasNext() )
             {
@@ -426,9 +426,9 @@ public abstract class AbstractTestCase extends TestCase
     protected void injectEntries( String ldif ) throws NamingException
     {
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
-        for ( Entry entry : entries )
+        for ( LdifEntry entry : entries )
         {
             rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
         }

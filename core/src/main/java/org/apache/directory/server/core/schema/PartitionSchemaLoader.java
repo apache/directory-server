@@ -35,14 +35,11 @@ import java.util.Stack;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.entry.ServerValue;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -53,6 +50,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -63,7 +61,6 @@ import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Base64;
     
 import org.slf4j.Logger;
@@ -200,16 +197,16 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
          * OID registry.  To prevent this we need to load all the OID's in advance
          * regardless of whether they are used or not.
          */
-        NamingEnumeration<SearchResult> ne = dao.listAllNames();
+        NamingEnumeration<ServerSearchResult> ne = dao.listAllNames();
         
         while ( ne.hasMore() )
         {
-            ServerEntry entry = ServerEntryUtils.toServerEntry( ne.next().getAttributes(), new LdapDN( "" ), registries );
+            ServerEntry entry = ne.next().getServerEntry();
             String oid = entry.get( mOidAT ).getString();
             ServerAttribute names = entry.get( mNameAT );
             targetRegistries.getOidRegistry().register( oid, oid );
             
-            for ( ServerValue<?> value:names )
+            for ( Value<?> value:names )
             {
                 targetRegistries.getOidRegistry().register( ( String ) value.get(), oid );
             }
@@ -249,17 +246,17 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     public Set<String> listDependentSchemaNames( String schemaName ) throws NamingException
     {
         Set<String> dependees = new HashSet<String>();
-        Set<SearchResult> results = dao.listSchemaDependents( schemaName );
+        Set<ServerSearchResult> results = dao.listSchemaDependents( schemaName );
         
         if ( results.isEmpty() )
         {
             return dependees;
         }
         
-        for ( SearchResult sr: results )
+        for ( ServerSearchResult sr: results )
         {
-            Attribute cn = AttributeUtils.getAttribute( sr.getAttributes(), cnAT );
-            dependees.add( (String)cn.get() );
+            ServerAttribute cn = sr.getServerEntry().get( cnAT );
+            dependees.add( cn.getString() );
         }
         
         return dependees;
@@ -277,17 +274,17 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     public Set<String> listEnabledDependentSchemaNames( String schemaName ) throws NamingException
     {
         Set<String> dependees = new HashSet<String>();
-        Set<SearchResult> results = dao.listEnabledSchemaDependents( schemaName );
+        Set<ServerSearchResult> results = dao.listEnabledSchemaDependents( schemaName );
         
         if ( results.isEmpty() )
         {
             return dependees;
         }
         
-        for ( SearchResult sr: results )
+        for ( ServerSearchResult sr: results )
         {
-            Attribute cn = AttributeUtils.getAttribute( sr.getAttributes(), cnAT );
-            dependees.add( (String)cn.get() );
+            ServerAttribute cn = sr.getServerEntry().get( cnAT );
+            dependees.add( cn.getString() );
         }
         
         return dependees;
@@ -428,12 +425,12 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading objectClasses", schema.getSchemaName() );
         
-        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        NamingEnumeration<ServerSearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.hasMore() )
         {
-            SearchResult result = list.next();
-            LdapDN resultDN = new LdapDN( result.getName() );
+        	ServerSearchResult result = list.next();
+            LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
             ObjectClass oc = factory.getObjectClass( attrs, targetRegistries, schema.getSchemaName() );
@@ -529,12 +526,12 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading attributeTypes", schema.getSchemaName() );
         
-        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        NamingEnumeration<ServerSearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.hasMore() )
         {
-            SearchResult result = list.next();
-            LdapDN resultDN = new LdapDN( result.getName() );
+        	ServerSearchResult result = list.next();
+            LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
             AttributeType at = factory.getAttributeType( attrs, targetRegistries, schema.getSchemaName() );
@@ -627,12 +624,12 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading matchingRules", schema.getSchemaName() );
         
-        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        NamingEnumeration<ServerSearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.hasMore() )
         {
-            SearchResult result = list.next();
-            LdapDN resultDN = new LdapDN( result.getName() );
+        	ServerSearchResult result = list.next();
+            LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
             MatchingRule mrule = factory.getMatchingRule( attrs, targetRegistries, schema.getSchemaName() );
@@ -660,12 +657,12 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading syntaxes", schema.getSchemaName() );
         
-        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        NamingEnumeration<ServerSearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.hasMore() )
         {
-            SearchResult result = list.next();
-            LdapDN resultDN = new LdapDN( result.getName() );
+        	ServerSearchResult result = list.next();
+            LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
             Syntax syntax = factory.getSyntax( attrs, targetRegistries, schema.getSchemaName() );
@@ -692,12 +689,12 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading syntaxCheckers", schema.getSchemaName() );
         
-        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        NamingEnumeration<ServerSearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.hasMore() )
         {
-            SearchResult result = list.next();
-            LdapDN resultDN = new LdapDN( result.getName() );
+        	ServerSearchResult result = list.next();
+            LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
             SyntaxChecker sc = factory.getSyntaxChecker( attrs, targetRegistries );
@@ -726,12 +723,12 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading normalizers", schema.getSchemaName() );
         
-        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        NamingEnumeration<ServerSearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.hasMore() )
         {
-            SearchResult result = list.next();
-            LdapDN resultDN = new LdapDN( result.getName() );
+        	ServerSearchResult result = list.next();
+            LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
             Normalizer normalizer = factory.getNormalizer( attrs, targetRegistries );
@@ -783,10 +780,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     
     private ServerEntry lookupPartition( LdapDN dn ) throws NamingException
     {
-        return ServerEntryUtils.toServerEntry( 
-            partition.lookup( 
-                new LookupOperationContext( registries, dn ) ), 
-            dn, registries );
+        return partition.lookup( new LookupOperationContext( registries, dn ) );
     }
     
     private void loadComparators( Schema schema, Registries targetRegistries ) throws NamingException
@@ -807,12 +801,12 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading comparators", schema.getSchemaName() );
         
-        NamingEnumeration<SearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
+        NamingEnumeration<ServerSearchResult> list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.hasMore() )
         {
-            SearchResult result = list.next();
-            LdapDN resultDN = new LdapDN( result.getName() );
+        	ServerSearchResult result = list.next();
+            LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
             Comparator comparator = factory.getComparator( attrs, targetRegistries );

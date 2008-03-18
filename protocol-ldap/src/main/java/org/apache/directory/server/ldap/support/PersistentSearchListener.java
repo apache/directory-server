@@ -28,6 +28,8 @@ import javax.naming.event.NamingEvent;
 import javax.naming.event.NamingExceptionEvent;
 import javax.naming.event.ObjectChangeListener;
 
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
@@ -243,6 +245,8 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
             }
         }
 
+        Object attr;
+        
         switch ( evt.getType() )
         {
             case ( NamingEvent.OBJECT_ADDED  ):
@@ -252,7 +256,16 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
                 }
             
                 respEntry.setObjectName( newBinding );
-                respEntry.setAttributes( ( Attributes ) evt.getChangeInfo() );
+                attr = evt.getChangeInfo();
+                
+                if ( attr instanceof ServerEntry )
+                {
+                    respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( (ServerEntry)attr ) );
+                }
+                else
+                {
+                    respEntry.setAttributes( ( Attributes ) attr );
+                }
                 
                 if ( ecControl != null )
                 {
@@ -268,7 +281,16 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
                 }
             
                 respEntry.setObjectName( oldBinding );
-                respEntry.setAttributes( ( Attributes ) evt.getOldBinding().getObject() );
+                attr = evt.getOldBinding().getObject();
+                
+                if ( attr instanceof ServerEntry )
+                {
+                    respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( (ServerEntry)attr ) );
+                }
+                else
+                {
+                    respEntry.setAttributes( ( Attributes ) attr );
+                }
 
                 if ( ecControl != null )
                 {
@@ -284,7 +306,16 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
                 }
             
                 respEntry.setObjectName( oldBinding );
-                respEntry.setAttributes( ( Attributes ) evt.getOldBinding().getObject() );
+                attr = evt.getOldBinding().getObject();
+                
+                if ( attr instanceof ServerEntry )
+                {
+                    respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( (ServerEntry)attr ) );
+                }
+                else
+                {
+                    respEntry.setAttributes( ( Attributes ) attr );
+                }
 
                 if ( ecControl != null )
                 {
@@ -300,7 +331,16 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
                 }
             
                 respEntry.setObjectName( newBinding );
-                respEntry.setAttributes( ( Attributes ) evt.getNewBinding().getObject() );
+                attr = evt.getNewBinding().getObject();
+                
+                if ( attr instanceof ServerEntry )
+                {
+                    respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( (ServerEntry)attr ) );
+                }
+                else
+                {
+                    respEntry.setAttributes( ( Attributes ) attr );
+                }
 
                 if ( ecControl != null )
                 {

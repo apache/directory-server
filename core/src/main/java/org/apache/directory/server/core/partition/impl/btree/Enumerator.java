@@ -42,5 +42,5 @@ public interface Enumerator
      * @return an enumeration over the 
      * @throws NamingException if database access fails
      */
-    NamingEnumeration enumerate( ExprNode node ) throws NamingException;
+    NamingEnumeration<IndexRecord> enumerate( ExprNode node ) throws NamingException;
 }

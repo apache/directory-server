@@ -40,7 +40,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.ListCursor;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
 import javax.naming.NamingException;
@@ -425,7 +425,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    public long log( LdapPrincipal principal, Entry forward, Entry reverse ) throws NamingException
+    public long log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws NamingException
     {
         currentRevision++;
         ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(), 

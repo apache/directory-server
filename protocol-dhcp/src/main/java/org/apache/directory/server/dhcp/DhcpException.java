@@ -50,4 +50,18 @@ public class DhcpException extends Exception
     {
         super( description );
     }
+
+
+    /**
+     * This constructor is used if a description of the event that caused the
+     * exception is required.
+     * 
+     * @param description
+     *            this is a description of the exception
+     * @param e
+     */
+    public DhcpException(String description, Exception e)
+    {
+        super( description, e );
+    }
 }

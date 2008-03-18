@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>9-SNAPSHOT</version>
+    <version>10-SNAPSHOT</version>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
@@ -39,19 +39,19 @@
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-asn1-codec</artifactId>
-        <version>0.9.8-SNAPSHOT</version>
+        <version>0.9.9-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-ldap</artifactId>
-        <version>0.9.8-SNAPSHOT</version>
+        <version>0.9.9-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-ldap-constants</artifactId>
-        <version>0.9.8-SNAPSHOT</version>
+        <version>0.9.9-SNAPSHOT</version>
       </dependency>
 
       <dependency>
@@ -63,13 +63,13 @@
       <dependency>
         <groupId>org.apache.mina</groupId>
         <artifactId>mina-core</artifactId>
-        <version>1.1.4-SNAPSHOT</version>
+        <version>1.1.6</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.mina</groupId>
         <artifactId>mina-filter-ssl</artifactId>
-        <version>1.1.4-SNAPSHOT</version>
+        <version>1.1.6</version>
       </dependency>
 
       <dependency>

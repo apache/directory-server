@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -58,8 +59,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.ConfigurationException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 
 
 /**
@@ -145,21 +144,21 @@ public class InterceptorChain
         }
 
 
-        public NamingEnumeration<SearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+        public NamingEnumeration<ServerSearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
         {
             return nexus.list( opContext );
         }
 
 
-        public NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
+        public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
         {
             return nexus.search( opContext );
         }
 
 
-        public Attributes lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
+        public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
         {
-            return ( Attributes ) nexus.lookup( opContext ).clone();
+            return ( ServerEntry ) nexus.lookup( opContext ).clone();
         }
 
 
@@ -796,7 +795,7 @@ public class InterceptorChain
     }
 
 
-    public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -818,7 +817,7 @@ public class InterceptorChain
     }
 
 
-    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
         throws NamingException
     {
         Entry entry = getStartingEntry();
@@ -841,7 +840,7 @@ public class InterceptorChain
     }
 
 
-    public Attributes lookup( LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -1186,7 +1185,7 @@ public class InterceptorChain
                 }
 
                 
-                public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
+                public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1207,7 +1206,7 @@ public class InterceptorChain
                 }
 
 
-                public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+                public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
                     throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1229,7 +1228,7 @@ public class InterceptorChain
                 }
 
 
-                public Attributes lookup( LookupOperationContext opContext ) throws NamingException
+                public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;

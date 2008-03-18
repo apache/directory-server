@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -49,6 +49,7 @@ import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -56,16 +57,13 @@ import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Binding;
-import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamespaceChangeListener;
@@ -117,7 +115,7 @@ public class EventInterceptor extends BaseInterceptor
      * @param namingListener the naming listener to register
      * @throws NamingException if there are failures adding the naming listener
      */
-    public void addNamingListener( EventContext ctx, Name name, ExprNode filter, SearchControls searchControls,
+    public void addNamingListener( EventContext ctx, LdapDN name, ExprNode filter, SearchControls searchControls,
         NamingListener namingListener ) throws NamingException
     {
         LdapDN normalizedBaseDn = new LdapDN( name );
@@ -247,7 +245,7 @@ public class EventInterceptor extends BaseInterceptor
         //super.add( next, opContext );
         
     	LdapDN name = opContext.getDn();
-        Attributes entry = ServerEntryUtils.toAttributesImpl( opContext.getEntry() );
+        ServerEntry entry = opContext.getEntry();
         
         Set<EventSourceRecord> selecting = getSelectingSources( name, entry );
         
@@ -277,7 +275,7 @@ public class EventInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
-        Attributes entry = nexus.lookup( new LookupOperationContext( opContext.getRegistries(), name ) );
+    	ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getRegistries(), name ) );
 
         next.delete( opContext );
         //super.delete( next, opContext );
@@ -307,9 +305,9 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    private void notifyOnModify( Registries registries, LdapDN name, List<ModificationItemImpl> mods, Attributes oriEntry ) throws NamingException
+    private void notifyOnModify( Registries registries, LdapDN name, List<Modification> mods, ServerEntry oriEntry ) throws NamingException
     {
-        Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         Set<EventSourceRecord> selecting = getSelectingSources( name, entry );
         
         if ( selecting.isEmpty() )
@@ -340,7 +338,7 @@ public class EventInterceptor extends BaseInterceptor
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes oriEntry = proxy.lookup( new LookupOperationContext( opContext.getRegistries(), opContext.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
+        ServerEntry oriEntry = proxy.lookup( new LookupOperationContext( opContext.getRegistries(), opContext.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
         
         next.modify( opContext );
 
@@ -350,7 +348,7 @@ public class EventInterceptor extends BaseInterceptor
 
     private void notifyOnNameChange( Registries registries, LdapDN oldName, LdapDN newName ) throws NamingException
     {
-        Attributes entry = nexus.lookup( new LookupOperationContext( registries, newName ) );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, newName ) );
         Set<EventSourceRecord> selecting = getSelectingSources( oldName, entry );
         
         if ( selecting.isEmpty() )
@@ -415,7 +413,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    Set<EventSourceRecord> getSelectingSources( LdapDN name, Attributes entry ) throws NamingException
+    Set<EventSourceRecord> getSelectingSources( LdapDN name, ServerEntry entry ) throws NamingException
     {
         if ( sources.isEmpty() )
         {
@@ -461,14 +459,14 @@ public class EventInterceptor extends BaseInterceptor
 
     class EventSourceRecord
     {
-        private Name base;
+        private LdapDN base;
         private SearchControls controls;
         private ExprNode filter;
         private EventContext context;
         private NamingListener listener;
 
 
-        public EventSourceRecord(Name base, ExprNode filter, EventContext context, SearchControls controls,
+        public EventSourceRecord( LdapDN base, ExprNode filter, EventContext context, SearchControls controls,
             NamingListener listener)
         {
             this.filter = filter;
@@ -497,7 +495,7 @@ public class EventInterceptor extends BaseInterceptor
         }
 
 
-        public Name getBase()
+        public LdapDN getBase()
         {
             return base;
         }

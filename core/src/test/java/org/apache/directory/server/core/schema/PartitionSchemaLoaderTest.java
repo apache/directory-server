@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.schema;
 
 
-import junit.framework.TestCase;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -40,6 +39,13 @@ import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import javax.naming.NamingException;
 import java.io.File;
@@ -56,24 +62,24 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PartitionSchemaLoaderTest extends TestCase
+public class PartitionSchemaLoaderTest
 {
-    private Registries registries;
-    private DirectoryService directoryService;
-    private JdbmPartition schemaPartition;
+    private static Registries registries;
+    private static DirectoryService directoryService;
+    private static JdbmPartition schemaPartition;
 
 
-    public void setUp() throws Exception
+    @BeforeClass public static void setUp() throws Exception
     {
-        super.setUp();
-
         // setup working directory
         directoryService = new DefaultDirectoryService();
         File workingDirectory = new File( System.getProperty( "workingDirectory", System.getProperty( "user.dir" ) ) );
+        
         if ( ! workingDirectory.exists() )
         {
             workingDirectory.mkdirs();
         }
+        
         directoryService.setWorkingDirectory( workingDirectory );
         
         // --------------------------------------------------------------------
@@ -147,7 +153,7 @@ public class PartitionSchemaLoaderTest extends TestCase
     }
     
     
-    public void testGetSchemas() throws NamingException
+    @Test public void testGetSchemas() throws NamingException
     {
         PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, registries );
         Map<String,Schema> schemas = loader.getSchemas();
@@ -266,7 +272,7 @@ public class PartitionSchemaLoaderTest extends TestCase
     }
     
     
-    public void testGetSchemaNames() throws NamingException
+    @Test public void testGetSchemaNames() throws NamingException
     {
         PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, registries );
         Set<String> schemaNames = loader.getSchemaNames();

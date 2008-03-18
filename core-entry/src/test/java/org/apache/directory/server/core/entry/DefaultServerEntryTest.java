@@ -29,7 +29,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
@@ -44,6 +43,7 @@ import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -53,6 +53,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
@@ -68,7 +69,6 @@ public class DefaultServerEntryTest
     private static BootstrapSchemaLoader loader;
     private static Registries registries;
     private static OidRegistry oidRegistry;
-    //private static AttributeType AT;
     
     /**
      * Initialize the registries once for the whole test suite
@@ -89,281 +89,6 @@ public class DefaultServerEntryTest
         bootstrapSchemas.add( new InetorgpersonSchema() );
         bootstrapSchemas.add( new CosineSchema() );
         loader.loadWithDependencies( bootstrapSchemas, registries );
-        
-        /*
-        AT = new AttributeType()
-        {
-            private static final long serialVersionUID = 1L;
-
-            public boolean isSingleValue()
-            {
-                return false;
-            }
-
-
-            public boolean isCanUserModify()
-            {
-                return true;
-            }
-
-
-            public boolean isCollective()
-            {
-                return false;
-            }
-
-
-            public UsageEnum getUsage()
-            {
-                return null;
-            }
-
-
-            public AttributeType getSuperior() throws NamingException
-            {
-                return null;
-            }
-
-
-            public Syntax getSyntax() throws NamingException
-            {
-                return new Syntax()
-                {
-
-                    private static final long serialVersionUID = 1L;
-
-                    public boolean isHumanReadable()
-                    {
-                        return true;
-                    }
-
-                    public SyntaxChecker getSyntaxChecker() throws NamingException
-                    {
-                        return null;
-                    }
-
-                    public boolean isObsolete()
-                    {
-                        return false;
-                    }
-
-                    public String getOid()
-                    {
-                        return null;
-                    }
-
-                    public String[] getNames()
-                    {
-                        return null;
-                    }
-
-                    public String getName()
-                    {
-                        return null;
-                    }
-
-                    public String getDescription()
-                    {
-                        return null;
-                    }
-
-                    public String getSchema()
-                    {
-                        return null;
-                    }
-
-                    public void setSchema( String schemaName )
-                    {
-                    }
-                };
-            }
-
-
-            public int getLength()
-            {
-                return 0;
-            }
-
-
-            public MatchingRule getEquality() throws NamingException
-            {
-                return new MatchingRule()
-                {
-                    private static final long serialVersionUID = 1L;
-
-                    public Syntax getSyntax() throws NamingException
-                    {
-                        return new Syntax()
-                        {
-                            private static final long serialVersionUID = 1L;
-
-
-                            public boolean isHumanReadable()
-                            {
-                                return true;
-                            }
-
-                            public SyntaxChecker getSyntaxChecker() throws NamingException
-                            {
-                                return null;
-                            }
-
-                            public boolean isObsolete()
-                            {
-                                return false;
-                            }
-
-                            public String getOid()
-                            {
-                                return null;
-                            }
-
-                            public String[] getNames()
-                            {
-                                return null;
-                            }
-
-                            public String getName()
-                            {
-                                return null;
-                            }
-
-                            public String getDescription()
-                            {
-                                return null;
-                            }
-
-                            public String getSchema()
-                            {
-                                return null;
-                            }
-
-                            public void setSchema( String schemaName )
-                            {
-                            }
-                        };
-                    }
-
-                    public Comparator getComparator() throws NamingException
-                    {
-                        return null;
-                    }
-
-                    public Normalizer getNormalizer() throws NamingException
-                    {
-                        return new Normalizer()
-                        {
-                            private static final long serialVersionUID = 1L;
-
-                            public Object normalize( Object value ) throws NamingException
-                            {
-                                return StringTools.deepTrimToLower( value.toString() );
-                            }
-                        };
-                    }
-
-                    public boolean isObsolete()
-                    {
-                        return false;
-                    }
-
-                    public String getOid()
-                    {
-                        return null;
-                    }
-
-                    public String[] getNames()
-                    {
-                        return null;
-                    }
-
-                    public String getName()
-                    {
-                        return null;
-                    }
-
-                    public String getDescription()
-                    {
-                        return null;
-                    }
-
-                    public String getSchema()
-                    {
-                        return null;
-                    }
-
-                    public void setSchema( String schemaName )
-                    {
-                    }
-                };
-            }
-
-
-            public MatchingRule getOrdering() throws NamingException
-            {
-                return null;
-            }
-
-
-            public MatchingRule getSubstr() throws NamingException
-            {
-                return null;
-            }
-
-
-            public boolean isAncestorOf( AttributeType descendant ) throws NamingException
-            {
-                return false;
-            }
-
-
-            public boolean isDescentantOf( AttributeType ancestor ) throws NamingException
-            {
-                return false;
-            }
-
-
-            public boolean isObsolete()
-            {
-                return false;
-            }
-
-
-            public String getOid()
-            {
-                return "1.2.3";
-            }
-
-
-            public String[] getNames()
-            {
-                return new String[]
-                    { "test" };
-            }
-
-
-            public String getName()
-            {
-                return "test";
-            }
-
-
-            public String getDescription()
-            {
-                return "test";
-            }
-
-
-            public String getSchema()
-            {
-                return null;
-            }
-
-
-            public void setSchema( String schemaName )
-            {
-            }
-        };*/
     }
 
 
@@ -375,11 +100,10 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         
-        ObjectClassAttribute oc = new ObjectClassAttribute( registries );
-        oc.add( "top", "person", "inetOrgPerson" );
+        AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
         
-        entry.addObjectClass( oc );
-        //entry.put( "cn", registries.getAttributeTypeRegistry().lookup( "cn" ), "test" );
+        entry.put( "objectClass", OBJECT_CLASS_AT, "top", "person", "inetOrgPerson", "organizationalPerson" );
+        entry.put( "cn", registries.getAttributeTypeRegistry().lookup( "cn" ), "test" );
         
         Attributes attributes = ServerEntryUtils.toAttributesImpl( entry );
         
@@ -399,8 +123,8 @@ public class DefaultServerEntryTest
             
         }
 
-        // We should still have the ObjectClass Attribute
-        assertEquals( 1, expected.size() );
+        // It should be empty
+        assertEquals( 0, expected.size() );
     }
 
 
@@ -412,11 +136,9 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries,dn );
         
-        ObjectClassAttribute oc = new ObjectClassAttribute( registries );
-        oc.add( "top", "person", "inetOrgPerson" );
+        AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
         
-        entry.addObjectClass( oc );
-        //entry.put( "cn", registries.getAttributeTypeRegistry().lookup( "cn" ), "test" );
+        entry.put( "objectClass", OBJECT_CLASS_AT, "top", "person", "inetOrgPerson", "organizationalPerson" );
         
         Attributes attributes = ServerEntryUtils.toBasicAttributes( entry );
         
@@ -472,8 +194,8 @@ public class DefaultServerEntryTest
         assertEquals( 0, result.size() );
         ServerAttribute sa = entry.get( "sn" );
         assertNotNull( sa );
-        assertEquals( atSN, sa.getType() );
-        assertEquals( "sn", sa.getType().getName() );
+        assertEquals( atSN, sa.getAttributeType() );
+        assertEquals( "sn", sa.getAttributeType().getName() );
         
         // Add two AT now
         AttributeType atL = registries.getAttributeTypeRegistry().lookup( "localityName" );
@@ -487,23 +209,23 @@ public class DefaultServerEntryTest
         assertEquals( 0, result.size() );
         sa = entry.get( "l" );
         assertNotNull( sa );
-        assertEquals( atL, sa.getType() );
-        assertEquals( "l", sa.getType().getName() );
+        assertEquals( atL, sa.getAttributeType() );
+        assertEquals( "l", sa.getAttributeType().getName() );
 
         sa = entry.get( "c" );
         assertNotNull( sa );
-        assertEquals( atC, sa.getType() );
-        assertEquals( "c", sa.getType().getName() );
+        assertEquals( atC, sa.getAttributeType() );
+        assertEquals( "c", sa.getAttributeType().getName() );
 
         sa = entry.get( "2.5.4.9" );
         assertNotNull( sa );
-        assertEquals( atStreet, sa.getType() );
-        assertEquals( "street", sa.getType().getName() );
+        assertEquals( atStreet, sa.getAttributeType() );
+        assertEquals( "street", sa.getAttributeType().getName() );
 
         sa = entry.get( "givenName" );
         assertNotNull( sa );
-        assertEquals( atGN, sa.getType() );
-        assertEquals( "givenName", sa.getType().getName() );
+        assertEquals( atGN, sa.getAttributeType() );
+        assertEquals( "givenName", sa.getAttributeType().getName() );
         
         // Now try to add existing ATs
         // First, set some value to the modified AT
@@ -529,7 +251,7 @@ public class DefaultServerEntryTest
 
         ServerAttribute oc = entry.get( "objectClass" );
         
-        assertEquals( OBJECT_CLASS_AT, oc.getType() );
+        assertEquals( OBJECT_CLASS_AT, oc.getAttributeType() );
         assertNull( oc.get() );
     }
 
@@ -580,7 +302,7 @@ public class DefaultServerEntryTest
 
         ServerAttribute sa = entry.get( "sn" );
         assertNotNull( sa );
-        assertEquals( "sn", sa.getType().getName() );
+        assertEquals( "sn", sa.getAttributeType().getName() );
         
         // Add different upIds now
         AttributeType atL = registries.getAttributeTypeRegistry().lookup( "localityName" );
@@ -596,26 +318,26 @@ public class DefaultServerEntryTest
 
         sa = entry.get( "l" );
         assertNotNull( sa );
-        assertEquals( atL, sa.getType() );
-        assertEquals( "l", sa.getType().getName() );
+        assertEquals( atL, sa.getAttributeType() );
+        assertEquals( "l", sa.getAttributeType().getName() );
         assertEquals( "L", sa.getUpId() );
 
         sa = entry.get( "c" );
         assertNotNull( sa );
-        assertEquals( atC, sa.getType() );
-        assertEquals( "c", sa.getType().getName() );
+        assertEquals( atC, sa.getAttributeType() );
+        assertEquals( "c", sa.getAttributeType().getName() );
         assertEquals( "CountryName", sa.getUpId() );
 
         sa = entry.get( "2.5.4.9" );
         assertNotNull( sa );
-        assertEquals( atStreet, sa.getType() );
-        assertEquals( "street", sa.getType().getName() );
+        assertEquals( atStreet, sa.getAttributeType() );
+        assertEquals( "street", sa.getAttributeType().getName() );
         assertEquals( "2.5.4.9", sa.getUpId() );
 
         sa = entry.get( "givenName" );
         assertNotNull( sa );
-        assertEquals( atGN, sa.getType() );
-        assertEquals( "givenName", sa.getType().getName() );
+        assertEquals( atGN, sa.getAttributeType() );
+        assertEquals( "givenName", sa.getAttributeType().getName() );
         assertEquals( "gn", sa.getUpId() );
         
         // Now try to add existing ATs
@@ -663,7 +385,7 @@ public class DefaultServerEntryTest
         ServerAttribute sa = new DefaultServerAttribute( atL, "france" );
         entry.put( sa );
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "l" ) );
         assertEquals( "france", entry.get( "l" ).get().get() );
         
@@ -672,7 +394,7 @@ public class DefaultServerEntryTest
         ServerAttribute sd = new DefaultServerAttribute( atStreet, "testStreet" );
         entry.put( sb, sc, sd );
 
-        assertEquals( 5, entry.size() );
+        assertEquals( 4, entry.size() );
         assertNotNull( entry.get( atC ) );
         assertEquals( "countryTest", entry.get( atC ).get().get() );
         assertNotNull( entry.get( atGN ) );
@@ -688,7 +410,7 @@ public class DefaultServerEntryTest
         assertEquals( 2, result.size() );
         assertEquals( "countryTest", result.get(0).get().get() );
         assertEquals( "test", result.get(1).get().get() );
-        assertEquals( 5, entry.size() );
+        assertEquals( 4, entry.size() );
         assertNotNull( entry.get( atC ) );
         assertEquals( "countryTestTest", entry.get( atC ).get().get() );
         assertNotNull( entry.get( atGN ) );
@@ -698,19 +420,18 @@ public class DefaultServerEntryTest
         
         // test an ObjectClass replacement
         AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
-        ServerAttribute oc = new ObjectClassAttribute( registries, "OBJECTCLASS", "person", "inetorgperson" );
+        ServerAttribute oc = new DefaultServerAttribute( "OBJECTCLASS", OBJECT_CLASS_AT, "person", "inetorgperson" );
         List<ServerAttribute> oldOc = entry.put( oc );
         
         assertNotNull( oldOc );
-        assertEquals( 1, oldOc.size() );
-        assertEquals( "top", oldOc.get( 0 ).get().get() );
+        assertEquals( 0, oldOc.size() );
         
         assertNotNull( entry.get( "objectClass" ) );
 
         ServerAttribute newOc = entry.get( "objectClass" );
         
         assertNotNull( newOc );
-        assertEquals( OBJECT_CLASS_AT, newOc.getType() );
+        assertEquals( OBJECT_CLASS_AT, newOc.getAttributeType() );
         assertEquals( 2, newOc.size() );
         assertEquals( "OBJECTCLASS", newOc.getUpId() );
         assertTrue( newOc.contains( "person", "inetOrgPerson" ) );
@@ -729,7 +450,7 @@ public class DefaultServerEntryTest
 
         // Test an empty AT
         entry.put( atCN, (String)null );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertNull( entry.get( atCN ).get().get() );
         
@@ -748,7 +469,7 @@ public class DefaultServerEntryTest
         atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         entry.put( atCN, "test" );
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 1, entry.get( atCN ).size() );
         assertEquals( "test", entry.get( atCN ).get().get() );
@@ -756,7 +477,7 @@ public class DefaultServerEntryTest
         // Add more than one value
         entry.put( atCN, "test1", "test2", "test3" );
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 3, entry.get( atCN ).size() );
         assertTrue( entry.contains( "cn", "test1" ) );
@@ -768,7 +489,7 @@ public class DefaultServerEntryTest
         
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( "test1", "test2", "test3" ) );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 2, entry.get( atCN ).size() );
         assertTrue( entry.contains( "cn", "test1" ) );
@@ -788,7 +509,7 @@ public class DefaultServerEntryTest
 
         // Test an empty AT
         entry.put( atPwd, (byte[])null );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPwd ).getUpId() );
         assertNull( entry.get( atPwd ).get().get() );
         
@@ -812,7 +533,7 @@ public class DefaultServerEntryTest
         atPwd = registries.getAttributeTypeRegistry().lookup( "userPassword" );
         entry.put( atPwd, password );
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPwd ).getUpId() );
         assertEquals( 1, entry.get( atPwd ).size() );
         assertTrue( Arrays.equals( password, (byte[])entry.get( atPwd ).get().get() ) );
@@ -820,7 +541,7 @@ public class DefaultServerEntryTest
         // Add more than one value
         entry.put( atPwd, test1, test2, test3 );
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPwd ).getUpId() );
         assertEquals( 3, entry.get( atPwd ).size() );
         assertTrue( entry.contains( "userpassword", test1 ) );
@@ -832,7 +553,7 @@ public class DefaultServerEntryTest
         
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( test1, test2, test3 ) );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPwd ).getUpId() );
         assertEquals( 2, entry.get( atPwd ).size() );
         assertTrue( entry.contains( "userpassword", test1 ) );
@@ -841,7 +562,7 @@ public class DefaultServerEntryTest
     
 
     /**
-     * Test the put( AT, ServerValue... ) method
+     * Test the put( AT, Value... ) method
      */
     @Test public void tesPutAtSVs() throws NamingException
     {
@@ -850,15 +571,15 @@ public class DefaultServerEntryTest
         
         // Adding a null value to an attribute
         AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-        entry.put( atCN, (ServerValue<?>)null );
+        entry.put( atCN, (Value<?>)null );
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         
         // Check that we can't use invalid arguments
         try
         {
-            entry.put( (AttributeType)null, (ServerValue<?>)null );
+            entry.put( (AttributeType)null, (Value<?>)null );
             fail();
         }
         catch( IllegalArgumentException iae )
@@ -868,10 +589,10 @@ public class DefaultServerEntryTest
         
         // Add a single value
         atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-        ServerValue<?> ssv = new ServerStringValue( atCN, "test" );
+        Value<?> ssv = new ServerStringValue( atCN, "test" );
         entry.put( atCN, ssv );
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 1, entry.get( atCN ).size() );
         assertEquals( "test", entry.get( atCN ).get().get() );
@@ -881,7 +602,7 @@ public class DefaultServerEntryTest
                          new ServerStringValue( atCN, "test2" ), 
                          new ServerStringValue( atCN, "test3" ));
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 3, entry.get( atCN ).size() );
         assertTrue( entry.contains( "cn", "test1" ) );
@@ -895,7 +616,7 @@ public class DefaultServerEntryTest
         
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( "test1", "test2", "test3" ) );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 2, entry.get( atCN ).size() );
         assertTrue( entry.contains( "cn", "test1" ) );
@@ -916,7 +637,7 @@ public class DefaultServerEntryTest
         // Adding a null value should be possible
         entry.put( "cn", (String)null );
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertNull( entry.get( atCN ).get().get() );
         
@@ -935,7 +656,7 @@ public class DefaultServerEntryTest
         atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         entry.put( "cn", "test" );
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 1, entry.get( atCN ).size() );
         assertEquals( "test", entry.get( atCN ).get().get() );
@@ -943,7 +664,7 @@ public class DefaultServerEntryTest
         // Add more than one value
         entry.put( "cn", "test1", "test2", "test3" );
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 3, entry.get( atCN ).size() );
         assertTrue( entry.contains( "cn", "test1" ) );
@@ -955,7 +676,7 @@ public class DefaultServerEntryTest
         
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( "test1", "test2", "test3" ) );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 2, entry.get( atCN ).size() );
         assertTrue( entry.contains( "cn", "test1" ) );
@@ -979,7 +700,7 @@ public class DefaultServerEntryTest
         
         // Adding a null value should be possible
         entry.put( "userPassword", (byte[])null );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertNull( entry.get( atPassword ).get().get() );
         
@@ -1002,7 +723,7 @@ public class DefaultServerEntryTest
         
         entry.put( "userPassword", test );
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertEquals( 1, entry.get( atPassword ).size() );
         assertTrue( Arrays.equals( test, (byte[])entry.get( atPassword ).get().get() ) );
@@ -1010,7 +731,7 @@ public class DefaultServerEntryTest
         // Add more than one value
         entry.put( "userPassword", test1, test2, test3 );
         
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertEquals( 3, entry.get( atPassword ).size() );
         assertTrue( entry.contains( "userPassword", test1 ) );
@@ -1022,7 +743,7 @@ public class DefaultServerEntryTest
         
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( test1, test2, test3 ) );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertEquals( 2, entry.get( atPassword ).size() );
         assertTrue( entry.contains( "userPassword", test1 ) );
@@ -1053,42 +774,35 @@ public class DefaultServerEntryTest
         
         // Test an empty AT
         entry.put( "commonName", atCN, (String)null );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
         // Check that we can use a null AttributeType
         entry.put( "commonName", (AttributeType)null, (String)null );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
         // Test that we can use a null upId
         entry.put( null, atCN, (String)null );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
-        // Test that we can't use an upId which is not compatible
-        // with the AT
-        try
-        {
-            entry.put( "sn", atCN, (String)null );
-            fail();
-        }
-        catch( IllegalArgumentException iae )
-        {
-            assertTrue( true );
-        }
+        // Test that if we use an upId which is not compatible
+        // with the AT, it is changed to the AT default name
+        entry.put( "sn", atCN, (String)null );
+        assertEquals( "cn", entry.get( atCN ).getId() );
         
         // Test that we can add some new attributes with values
         ServerAttribute result = entry.put( "CN", atCN, "test1", "test2", "test3" );
         assertNotNull( result );
         assertEquals( "cn", result.getUpId() );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "CN", entry.get( atCN ).getUpId() );
         assertNotNull( entry.get( atCN ).get() );
         assertTrue( entry.contains( "cn", "test1" ) );
@@ -1120,36 +834,38 @@ public class DefaultServerEntryTest
         
         // Test an empty AT
         entry.put( "userPassword", atPassword, (byte[])null );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
-        assertEquals( "userPassword", entry.get( atPassword ).getType().getName() );
+        assertEquals( "userPassword", entry.get( atPassword ).getAttributeType().getName() );
         assertNull( entry.get( atPassword ).get().get() );
         
         // Check that we can use a null AttributeType
-        entry.put( "userPassword", (AttributeType)null, (byte[])null );
-        assertEquals( 2, entry.size() );
+        try
+        {
+            entry.put( "userPassword", (AttributeType)null, (byte[])null );
+            fail();
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            assertTrue( true );
+        }
+        
+        assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
-        assertEquals( "userPassword", entry.get( atPassword ).getType().getName() );
+        assertEquals( "userPassword", entry.get( atPassword ).getAttributeType().getName() );
         assertNull( entry.get( atPassword ).get().get() );
         
         // Test that we can use a null upId
         entry.put( null, atPassword, (byte[])null );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
-        assertEquals( "userPassword", entry.get( atPassword ).getType().getName() );
+        assertEquals( "userPassword", entry.get( atPassword ).getAttributeType().getName() );
         assertNull( entry.get( atPassword ).get().get() );
         
-        // Test that we can't use an upId which is not compatible
-        // with the AT
-        try
-        {
-            entry.put( "sn", atPassword, (byte[])null );
-            fail();
-        }
-        catch( IllegalArgumentException iae )
-        {
-            assertTrue( true );
-        }
+        // Test that if we use an upId which is not compatible
+        // with the AT, it is changed to the AT default name
+        entry.put( "sn", atPassword, (byte[])null );
+        assertEquals( "userpassword", entry.get( atPassword ).getId() );
         
         // Test that we can add some new attributes with values
         byte[] test1 = StringTools.getBytesUtf8( "test1" );
@@ -1159,7 +875,7 @@ public class DefaultServerEntryTest
         ServerAttribute result = entry.put( "UserPassword", atPassword, test1, test2, test3 );
         assertNotNull( result );
         assertEquals( "userPassword", result.getUpId() );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "UserPassword", entry.get( atPassword ).getUpId() );
         assertNotNull( entry.get( atPassword ).get() );
         assertEquals( 3, entry.get( atPassword ).size() );
@@ -1182,7 +898,7 @@ public class DefaultServerEntryTest
         // Test that we get an error when the ID or AT are null
         try
         {
-            entry.put( null, (AttributeType)null, (ServerValue<?>)null );
+            entry.put( null, (AttributeType)null, (Value<?>)null );
             fail();
         }
         catch( IllegalArgumentException iae )
@@ -1191,31 +907,31 @@ public class DefaultServerEntryTest
         }
         
         // Test an empty AT
-        entry.put( "commonName", atCN, (ServerValue<?>)null );
-        assertEquals( 2, entry.size() );
+        entry.put( "commonName", atCN, (Value<?>)null );
+        assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
         // Check that we can use a null AttributeType
-        entry.put( "commonName", (AttributeType)null, (ServerValue<?>)null );
-        assertEquals( 2, entry.size() );
+        entry.put( "commonName", (AttributeType)null, (Value<?>)null );
+        assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
         // Test that we can use a null upId
-        entry.put( null, atCN, (ServerValue<?>)null );
-        assertEquals( 2, entry.size() );
+        entry.put( null, atCN, (Value<?>)null );
+        assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
         
         // Test that we can't use an upId which is not compatible
         // with the AT
         try
         {
-            entry.put( "sn", atCN, (ServerValue<?>)null );
+            entry.put( "sn", atCN, (Value<?>)null );
             fail();
         }
         catch( IllegalArgumentException iae )
@@ -1224,14 +940,14 @@ public class DefaultServerEntryTest
         }
         
         // Test that we can add some new attributes with values
-        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
-        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
-        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ServerStringValue( atCN, "test1" );
+        Value<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test3 = new ServerStringValue( atCN, "test3" );
 
         ServerAttribute result = entry.put( "CN", atCN, test1, test2, test3 );
         assertNotNull( result );
         assertEquals( "cn", result.getUpId() );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "CN", entry.get( atCN ).getUpId() );
         assertNotNull( entry.get( atCN ).get() );
         assertTrue( entry.contains( "cn", "test1" ) );
@@ -1253,7 +969,7 @@ public class DefaultServerEntryTest
         // Test that we get an error when the ID or AT are null
         try
         {
-            entry.put( (String)null, (ServerValue<?>)null );
+            entry.put( (String)null, (Value<?>)null );
             fail();
         }
         catch( IllegalArgumentException iae )
@@ -1262,21 +978,21 @@ public class DefaultServerEntryTest
         }
         
         // Test an null valued AT
-        entry.put( "commonName", (ServerValue<?>)null );
-        assertEquals( 2, entry.size() );
+        entry.put( "commonName", (Value<?>)null );
+        assertEquals( 1, entry.size() );
         assertEquals( "commonName", entry.get( atCN ).getUpId() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertNull( entry.get( atCN ).get().get() );
 
         // Test that we can add some new attributes with values
-        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
-        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
-        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ServerStringValue( atCN, "test1" );
+        Value<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test3 = new ServerStringValue( atCN, "test3" );
 
         ServerAttribute result = entry.put( "CN", test1, test2, test3 );
         assertNotNull( result );
         assertEquals( "commonName", result.getUpId() );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertEquals( "CN", entry.get( atCN ).getUpId() );
         assertNotNull( entry.get( atCN ).get() );
         assertTrue( entry.contains( "cn", "test1" ) );
@@ -1335,15 +1051,8 @@ public class DefaultServerEntryTest
         // Test the addition of a binary value
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
         
-        try
-        {
-            entry.add( atCN, test4 );
-            fail();
-        }
-        catch ( InvalidAttributeValueException iave )
-        {
-            assertTrue( true );
-        }
+        entry.add( atCN, test4 );
+        assertFalse( entry.get( atCN ).contains( test4 ) );
     }
 
 
@@ -1399,8 +1108,8 @@ public class DefaultServerEntryTest
 
         entry.add( atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( entry.contains( atPassword, test4 ) );
+        assertEquals( 0, entry.get( atPassword ).size() );
+        assertFalse( entry.contains( atPassword, test4 ) );
     }
 
 
@@ -1419,13 +1128,13 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
-        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
-        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ServerStringValue( atCN, "test1" );
+        Value<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test3 = new ServerStringValue( atCN, "test3" );
         
-        ServerValue<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
-        ServerValue<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
-        ServerValue<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
+        Value<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
+        Value<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        Value<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
         
         // Test a simple addition in atCN
         entry.add( atCN, test1 );
@@ -1463,15 +1172,8 @@ public class DefaultServerEntryTest
         // Test the addition of a String value. It should be converted to a byte array
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
 
-        try
-        {
-            entry.add( atCN, test4 );
-            fail();
-        }
-        catch ( InvalidAttributeValueException iave )
-        {
-            assertTrue( true );
-        }
+        entry.add( atCN, test4 );
+        assertFalse( entry.contains( atCN, test4 ) );
 
         // Now, work with a binary attribute
         // Test a simple addition
@@ -1512,8 +1214,8 @@ public class DefaultServerEntryTest
 
         entry.add( atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( entry.contains( atPassword, b4 ) );
+        assertEquals( 0, entry.get( atPassword ).size() );
+        assertFalse( entry.contains( atPassword, b4 ) );
     }
 
 
@@ -1530,8 +1232,8 @@ public class DefaultServerEntryTest
         // Test a simple addition
         entry.add( "CN", "test1" );
         assertNotNull( entry.get( atCN ) );
-        assertEquals( atCN, entry.get( atCN ).getType() );
-        assertEquals( "cn", entry.get( atCN ).getType().getName() );
+        assertEquals( atCN, entry.get( atCN ).getAttributeType() );
+        assertEquals( "cn", entry.get( atCN ).getAttributeType().getName() );
         assertEquals( "CN", entry.get( atCN ).getUpId() );
         assertEquals( 1, entry.get( atCN ).size() );
         assertEquals( "test1", entry.get( atCN ).get().get() );
@@ -1566,15 +1268,8 @@ public class DefaultServerEntryTest
         // Test the addition of a binary value
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
         
-        try
-        {
-            entry.add( "CN", test4 );
-            fail();
-        }
-        catch ( InvalidAttributeValueException iave )
-        {
-            assertTrue( true );
-        }
+        entry.add( "CN", test4 );
+        assertFalse( entry.contains(  "CN", test4 ) );
     }
 
 
@@ -1630,8 +1325,8 @@ public class DefaultServerEntryTest
 
         entry.add( "userPassword", "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( entry.contains( atPassword, test4 ) );
+        assertEquals( 0, entry.get( atPassword ).size() );
+        assertFalse( entry.contains( atPassword, test4 ) );
     }
 
 
@@ -1650,20 +1345,20 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
-        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
-        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ServerStringValue( atCN, "test1" );
+        Value<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test3 = new ServerStringValue( atCN, "test3" );
         
-        ServerValue<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
-        ServerValue<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
-        ServerValue<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
+        Value<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
+        Value<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        Value<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
         
         // Test a simple addition in atCN
         entry.add( "cN", test1 );
         assertNotNull( entry.get( atCN ) );
         assertEquals( 1, entry.get( atCN ).size() );
         assertEquals( "test1", entry.get( atCN ).get().get() );
-        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( atCN, entry.get( atCN ).getAttributeType() );
         assertEquals( "cN", entry.get( atCN ).getUpId() );
         
         // Test some more addition
@@ -1673,7 +1368,7 @@ public class DefaultServerEntryTest
         assertTrue( entry.contains( atCN, "test1" ) );
         assertTrue( entry.contains( atCN, "test2" ) );
         assertTrue( entry.contains( atCN, "test3" ) );
-        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( atCN, entry.get( atCN ).getAttributeType() );
         assertEquals( "cN", entry.get( atCN ).getUpId() );
         
         // Test some addition of existing values
@@ -1698,15 +1393,8 @@ public class DefaultServerEntryTest
         // Test the addition of a String value. It should be converted to a byte array
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
 
-        try
-        {
-            entry.add( "cN", test4 );
-            fail();
-        }
-        catch ( InvalidAttributeValueException iave )
-        {
-            assertTrue( true );
-        }
+        entry.add( "cN", test4 );
+        assertFalse( entry.contains( "cN", test4 ) );
 
         // Now, work with a binary attribute
         // Test a simple addition
@@ -1714,7 +1402,7 @@ public class DefaultServerEntryTest
         assertNotNull( entry.get( atPassword ) );
         assertEquals( 1, entry.get( atPassword ).size() );
         assertTrue( Arrays.equals( b1, (byte[])entry.get( atPassword ).get().get() ) );
-        assertEquals( atPassword, entry.get( atPassword ).getType() );
+        assertEquals( atPassword, entry.get( atPassword ).getAttributeType() );
         assertEquals( "userPASSWORD", entry.get( atPassword ).getUpId() );
         
         // Test some more addition
@@ -1749,8 +1437,8 @@ public class DefaultServerEntryTest
 
         entry.add( "userPASSWORD", "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( entry.contains( atPassword, b4 ) );
+        assertEquals( 0, entry.get( atPassword ).size() );
+        assertFalse( entry.contains( atPassword, b4 ) );
     }
 
 
@@ -1800,15 +1488,8 @@ public class DefaultServerEntryTest
         // Test the addition of a binary value
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
         
-        try
-        {
-            entry.add( "cn", atCN, test4 );
-            fail();
-        }
-        catch ( InvalidAttributeValueException iave )
-        {
-            assertTrue( true );
-        }
+        entry.add( "cn", atCN, test4 );
+        assertFalse( entry.contains( "cn", test4 ) );
     }
 
 
@@ -1864,8 +1545,8 @@ public class DefaultServerEntryTest
 
         entry.add( "userPassword", atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( entry.contains( atPassword, test4 ) );
+        assertEquals( 0, entry.get( atPassword ).size() );
+        assertFalse( entry.contains( atPassword, test4 ) );
     }
 
 
@@ -1884,20 +1565,20 @@ public class DefaultServerEntryTest
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
         byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
-        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
-        ServerValue<String> test3 = new ServerStringValue( atCN, "test3" );
+        Value<String> test1 = new ServerStringValue( atCN, "test1" );
+        Value<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test3 = new ServerStringValue( atCN, "test3" );
         
-        ServerValue<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
-        ServerValue<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
-        ServerValue<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
+        Value<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
+        Value<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        Value<byte[]> testB3 = new ServerBinaryValue( atPassword, b3 );
         
         // Test a simple addition in atCN
         entry.add( "cN", atCN, test1 );
         assertNotNull( entry.get( atCN ) );
         assertEquals( 1, entry.get( atCN ).size() );
         assertEquals( "test1", entry.get( atCN ).get().get() );
-        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( atCN, entry.get( atCN ).getAttributeType() );
         assertEquals( "cN", entry.get( atCN ).getUpId() );
         
         // Test some more addition
@@ -1907,7 +1588,7 @@ public class DefaultServerEntryTest
         assertTrue( entry.contains( atCN, "test1" ) );
         assertTrue( entry.contains( atCN, "test2" ) );
         assertTrue( entry.contains( atCN, "test3" ) );
-        assertEquals( atCN, entry.get( atCN ).getType() );
+        assertEquals( atCN, entry.get( atCN ).getAttributeType() );
         assertEquals( "cN", entry.get( atCN ).getUpId() );
         
         // Test some addition of existing values
@@ -1932,15 +1613,8 @@ public class DefaultServerEntryTest
         // Test the addition of a String value. It should be converted to a byte array
         byte[] test4 = StringTools.getBytesUtf8( "test4" );
 
-        try
-        {
-            entry.add( "cN", atCN, test4 );
-            fail();
-        }
-        catch ( InvalidAttributeValueException iave )
-        {
-            assertTrue( true );
-        }
+        entry.add( "cN", atCN, test4 );
+        assertFalse( entry.contains( "cN", test4 ) );
 
         // Now, work with a binary attribute
         // Test a simple addition
@@ -1948,7 +1622,7 @@ public class DefaultServerEntryTest
         assertNotNull( entry.get( atPassword ) );
         assertEquals( 1, entry.get( atPassword ).size() );
         assertTrue( Arrays.equals( b1, (byte[])entry.get( atPassword ).get().get() ) );
-        assertEquals( atPassword, entry.get( atPassword ).getType() );
+        assertEquals( atPassword, entry.get( atPassword ).getAttributeType() );
         assertEquals( "userPASSWORD", entry.get( atPassword ).getUpId() );
         
         // Test some more addition
@@ -1983,8 +1657,8 @@ public class DefaultServerEntryTest
 
         entry.add( "userPASSWORD", atPassword, "test4" );
         assertNotNull( entry.get( atPassword ) );
-        assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( entry.contains( atPassword, b4 ) );
+        assertEquals( 0, entry.get( atPassword ).size() );
+        assertFalse( entry.contains( atPassword, b4 ) );
     }
 
     //-------------------------------------------------------------------------
@@ -2012,13 +1686,12 @@ public class DefaultServerEntryTest
         
         byte[] b1 = StringTools.getBytesUtf8( "test1" );
         byte[] b2 = StringTools.getBytesUtf8( "test2" );
-        byte[] b3 = StringTools.getBytesUtf8( "test3" );
 
-        ServerValue<String> test1 = new ServerStringValue( atCN, "test1" );
-        ServerValue<String> test2 = new ServerStringValue( atCN, "test2" );
+        Value<String> test1 = new ServerStringValue( atCN, "test1" );
+        Value<String> test2 = new ServerStringValue( atCN, "test2" );
         
-        ServerValue<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
-        ServerValue<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
+        Value<byte[]> testB1 = new ServerBinaryValue( atPassword, b1 );
+        Value<byte[]> testB2 = new ServerBinaryValue( atPassword, b2 );
         
         // test a removal of an non existing attribute
         List<ServerAttribute> removed = entry.remove( atCN );
@@ -2026,31 +1699,31 @@ public class DefaultServerEntryTest
         
         // Test a simple removal
         entry.add( "cN", atCN, test1 );
-        assertEquals( 2, entry.size() );
+        assertEquals( 1, entry.size() );
         assertNotNull( entry.get( atCN ) );
         entry.remove( "CN" );
-        assertEquals( 1, entry.size() );
+        assertEquals( 0, entry.size() );
         assertNull( entry.get( atCN ) );
         
         // Test a removal of many elements
         entry.put( "CN", test1, test2 );
         entry.put( "userPassword", testB1, testB2 );
-        assertEquals( 3, entry.size() );
+        assertEquals( 2, entry.size() );
         assertNotNull( entry.get( atCN ) );
         assertNotNull( entry.get( atPassword ) );
         
         AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
         
         entry.remove( "cN", "UsErPaSsWoRd" );
-        assertEquals( 1, entry.size() );
+        assertEquals( 0, entry.size() );
         assertNull( entry.get( atCN ) );
         assertNull( entry.get( atPassword ) );
-        assertTrue( entry.contains( OBJECT_CLASS_AT, "top" ) );
+        assertFalse( entry.contains( OBJECT_CLASS_AT, "top" ) );
         
         // test the removal of a bad Attribute
         entry.put( "CN", test1, test2 );
         entry.put( "userPassword", testB1, testB2 );
-        assertEquals( 3, entry.size() );
+        assertEquals( 2, entry.size() );
         assertNotNull( entry.get( atCN ) );
         assertNotNull( entry.get( atPassword ) );
         
@@ -2072,6 +1745,5 @@ public class DefaultServerEntryTest
     {
         
     }
-
 }
 

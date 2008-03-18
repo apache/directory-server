@@ -18,44 +18,29 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.perhost;
+
+
+import org.apache.directory.server.dhcp.options.ShortOption;
+
+
 /**
  * This option specifies the maximum size datagram that the client
  * should be prepared to reassemble.  The size is specified as a 16-bit
  * unsigned integer.  The minimum value legal value is 576.
  * 
  * The code for this option is 22, and its length is 2.
- */
-package org.apache.directory.server.dhcp.options.perhost;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MaximumDatagramSize extends DhcpOption
+public class MaximumDatagramSize extends ShortOption
 {
-    private byte[] maximumDatagramSize;
-
-
-    /**
-     * Creates a new instance of MaximumDatagramSize.
-     *
-     * @param maximumDatagramSize
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public MaximumDatagramSize( byte[] maximumDatagramSize )
+    public byte getTag()
     {
-        super( 22, 2 );
-        this.maximumDatagramSize = maximumDatagramSize;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( maximumDatagramSize );
+        return 22;
     }
 }

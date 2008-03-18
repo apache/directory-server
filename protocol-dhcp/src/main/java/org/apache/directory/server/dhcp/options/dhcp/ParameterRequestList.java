@@ -21,8 +21,6 @@
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
-import java.nio.ByteBuffer;
-
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
 
@@ -44,23 +42,11 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class ParameterRequestList extends DhcpOption
 {
-    private byte[] parameterRequestList;
-
-
-    /**
-     * Creates a new instance of ParameterRequestList.
-     *
-     * @param parameterRequestList
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public ParameterRequestList( byte[] parameterRequestList )
+    public byte getTag()
     {
-        super( 55, 1 );
-        this.parameterRequestList = parameterRequestList;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( parameterRequestList );
+        return 55;
     }
 }

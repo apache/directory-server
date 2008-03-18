@@ -21,9 +21,10 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.directory.Attributes;
 
-import org.apache.directory.shared.ldap.message.ServerSearchResult;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -52,11 +53,11 @@ public class BTreeSearchResult extends ServerSearchResult
      * @param id the database id of the entry
      * @param name the user provided relative or distinguished name
      * @param obj the object if any
-     * @param attrs the attributes of the entry
+     * @param attrs the entry
      */
-    public BTreeSearchResult(Long id, String name, Object obj, Attributes attrs) throws InvalidNameException
+    public BTreeSearchResult( Long id, LdapDN dn, Object obj, ServerEntry attrs ) throws InvalidNameException
     {
-        super( name, obj, attrs );
+        super( dn, obj, attrs );
         this.id = id;
     }
 
@@ -67,12 +68,12 @@ public class BTreeSearchResult extends ServerSearchResult
      * @param id the database id of the entry
      * @param name the user provided relative or distinguished name
      * @param obj the object if any
-     * @param attrs the attributes of the entry
+     * @param attrs the entry
      * @param isRelative whether or not the name is relative to the base
      */
-    public BTreeSearchResult(Long id, String name, Object obj, Attributes attrs, boolean isRelative) throws InvalidNameException
+    public BTreeSearchResult( Long id, LdapDN dn, Object obj, ServerEntry attrs, boolean isRelative ) throws InvalidNameException
     {
-        super( name, obj, attrs, isRelative );
+        super( dn, obj, attrs, isRelative );
         this.id = id;
     }
 
@@ -84,11 +85,11 @@ public class BTreeSearchResult extends ServerSearchResult
      * @param name the user provided relative or distinguished name
      * @param className the classname of the entry if any
      * @param obj the object if any
-     * @param attrs the attributes of the entry
+     * @param attrs the entry
      */
-    public BTreeSearchResult(Long id, String name, String className, Object obj, Attributes attrs) throws InvalidNameException
+    public BTreeSearchResult( Long id, LdapDN dn, String className, Object obj, ServerEntry attrs ) throws InvalidNameException
     {
-        super( name, className, obj, attrs );
+        super( dn, className, obj, attrs );
         this.id = id;
     }
 
@@ -100,13 +101,13 @@ public class BTreeSearchResult extends ServerSearchResult
      * @param name the user provided relative or distinguished name
      * @param className the classname of the entry if any
      * @param obj the object if any
-     * @param attrs the attributes of the entry
+     * @param attrs the entry
      * @param isRelative whether or not the name is relative to the base
      */
-    public BTreeSearchResult(Long id, String name, String className, Object obj, Attributes attrs,
-        boolean isRelative) throws InvalidNameException
+    public BTreeSearchResult( Long id, LdapDN dn, String className, Object obj, ServerEntry attrs,
+        boolean isRelative ) throws InvalidNameException
     {
-        super( name, className, obj, attrs, isRelative );
+        super( dn, className, obj, attrs, isRelative );
         this.id = id;
     }
 

@@ -503,6 +503,8 @@ public class ModifyRemoveTest extends AbstractServerTest
             // expected
         } catch (InvalidAttributeValueException e) {
             // expected
+        } catch ( Exception e ) {
+            e.printStackTrace();
         }
 
         ctx.destroySubcontext(rdn);

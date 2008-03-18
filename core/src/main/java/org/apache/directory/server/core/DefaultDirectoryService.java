@@ -84,9 +84,8 @@ import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -108,6 +107,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -230,7 +230,7 @@ public class DefaultDirectoryService implements DirectoryService
     private List<Interceptor> interceptors;
     private Partition systemPartition;
     private Set<Partition> partitions = new HashSet<Partition>();
-    private List<? extends Entry> testEntries = new ArrayList<Entry>(); // List<Attributes>
+    private List<? extends LdifEntry> testEntries = new ArrayList<LdifEntry>(); // List<Attributes>
 
 
 
@@ -371,15 +371,15 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * Returns test directory entries({@link Entry}) to be loaded while
+     * Returns test directory entries({@link LdifEntry}) to be loaded while
      * bootstrapping.
      *
      * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
      * @return test entries to load during bootstrapping
      */
-    public List<Entry> getTestEntries()
+    public List<LdifEntry> getTestEntries()
     {
-        List<Entry> cloned = new ArrayList<Entry>();
+        List<LdifEntry> cloned = new ArrayList<LdifEntry>();
         cloned.addAll( testEntries );
         return cloned;
     }
@@ -392,10 +392,10 @@ public class DefaultDirectoryService implements DirectoryService
      * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
      * @param testEntries the test entries to load while bootstrapping
      */
-    public void setTestEntries( List<? extends Entry> testEntries )
+    public void setTestEntries( List<? extends LdifEntry> testEntries )
     {
         //noinspection MismatchedQueryAndUpdateOfCollection
-        List<Entry> cloned = new ArrayList<Entry>();
+        List<LdifEntry> cloned = new ArrayList<LdifEntry>();
         cloned.addAll( testEntries );
         this.testEntries = testEntries;
     }
@@ -600,9 +600,6 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         Hashtable<String, Object> environment = new Hashtable<String, Object>();
-        environment.remove( Context.SECURITY_PRINCIPAL );
-        environment.remove( Context.SECURITY_CREDENTIALS );
-        environment.remove( Context.SECURITY_AUTHENTICATION );
 
         if ( principal != null )
         {
@@ -695,12 +692,11 @@ public class DefaultDirectoryService implements DirectoryService
             while ( cursor.previous() ) // apply ldifs in reverse order
             {
                 ChangeLogEvent event = cursor.get();
-                Entry reverse = event.getReverseLdif();
-
+                LdifEntry reverse = event.getReverseLdif();
+                
                 switch( reverse.getChangeType().getChangeType() )
                 {
                     case( ChangeType.ADD_ORDINAL ):
-                        //System.out.println( "Reverted attributes : --> " + reverse.getObject() );
                         ctx.createSubcontext( reverse.getDn(), reverse.getAttributes() );
                         break;
                     case( ChangeType.DELETE_ORDINAL ):
@@ -988,7 +984,7 @@ public class DefaultDirectoryService implements DirectoryService
                                 SchemaConstants.INET_ORG_PERSON_OC );
 
             serverEntry.put( SchemaConstants.UID_AT, PartitionNexus.ADMIN_UID );
-            serverEntry.put( SchemaConstants.USER_PASSWORD_AT, PartitionNexus.ADMIN_PASSWORD );
+            serverEntry.put( SchemaConstants.USER_PASSWORD_AT, PartitionNexus.ADMIN_PASSWORD_BYTES );
             serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
             serverEntry.put( SchemaConstants.CN_AT, "system administrator" );
             serverEntry.put( SchemaConstants.SN_AT, "administrator" );
@@ -1104,18 +1100,14 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            attributes.put( objectClass );
+            ServerEntry serverEntry = new DefaultServerEntry( registries, configurationDn );
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
-            attributes.put( SchemaConstants.OU_AT, "configuration" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.put( SchemaConstants.OU_AT, "configuration" );
+            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            ServerEntry entry = ServerEntryUtils.toServerEntry( attributes, configurationDn, registries );
-            partitionNexus.add( new AddOperationContext( registries, configurationDn, entry ) );
+            partitionNexus.add( new AddOperationContext( registries, configurationDn, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1129,18 +1121,14 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            attributes.put( objectClass );
+            ServerEntry serverEntry = new DefaultServerEntry( registries, partitionsDn );
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
-            attributes.put( SchemaConstants.OU_AT, "partitions" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.put( SchemaConstants.OU_AT, "partitions" );
+            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            ServerEntry entry = ServerEntryUtils.toServerEntry( attributes, partitionsDn, registries );
-            partitionNexus.add( new AddOperationContext( registries, partitionsDn, entry ) );
+            partitionNexus.add( new AddOperationContext( registries, partitionsDn, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1154,18 +1142,14 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            attributes.put( objectClass );
+            ServerEntry serverEntry = new DefaultServerEntry( registries, servicesDn );
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
-            attributes.put( SchemaConstants.OU_AT, "services" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.put( SchemaConstants.OU_AT, "services" );
+            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            ServerEntry entry = ServerEntryUtils.toServerEntry( attributes, servicesDn, registries );
-            partitionNexus.add( new AddOperationContext( registries, servicesDn, entry ) );
+            partitionNexus.add( new AddOperationContext( registries, servicesDn, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1179,18 +1163,14 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            attributes.put( objectClass );
+            ServerEntry serverEntry = new DefaultServerEntry( registries, interceptorsDn );
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
 
-            attributes.put( SchemaConstants.OU_AT, "interceptors" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.put( SchemaConstants.OU_AT, "interceptors" );
+            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            ServerEntry entry = ServerEntryUtils.toServerEntry( attributes, interceptorsDn, registries );
-            partitionNexus.add( new AddOperationContext( registries, interceptorsDn, entry ) );
+            partitionNexus.add( new AddOperationContext( registries, interceptorsDn, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1204,19 +1184,17 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            Attributes attributes = new AttributesImpl();
-            Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            attributes.put( objectClass );
+            ServerEntry serverEntry = new DefaultServerEntry( registries, sysPrefRootDn );
+            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
+                SchemaConstants.TOP_OC, 
+                SchemaConstants.ORGANIZATIONAL_UNIT_OC,
+                SchemaConstants.EXTENSIBLE_OBJECT_OC );
 
-            attributes.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.EXTENSIBLE_OBJECT_OC );
-            attributes.put( "prefNodeName", "sysPrefRoot" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.put( "prefNodeName", "sysPrefRoot" );
+            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            ServerEntry entry = ServerEntryUtils.toServerEntry( attributes, sysPrefRootDn, registries );
-            partitionNexus.add( new AddOperationContext( registries, sysPrefRootDn, entry ) );
+            partitionNexus.add( new AddOperationContext( registries, sysPrefRootDn, serverEntry ) );
         }
 
         return firstStart;
@@ -1235,16 +1213,16 @@ public class DefaultDirectoryService implements DirectoryService
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
-        Attributes adminEntry = partitionNexus.lookup( new LookupOperationContext( registries, adminDn ) );
+        ServerEntry adminEntry = partitionNexus.lookup( new LookupOperationContext( registries, adminDn ) );
         Object userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
+        
         if ( userPassword instanceof byte[] )
         {
-            needToChangeAdminPassword = PartitionNexus.ADMIN_PASSWORD.equals( new String(
-                ( byte[] ) userPassword ) );
+            needToChangeAdminPassword = Arrays.equals( PartitionNexus.ADMIN_PASSWORD_BYTES, ( byte[] ) userPassword );
         }
-        else if ( userPassword.toString().equals( PartitionNexus.ADMIN_PASSWORD ) )
+        else if ( userPassword.toString().equals( PartitionNexus.ADMIN_PASSWORD_STRING ) )
         {
-            needToChangeAdminPassword = PartitionNexus.ADMIN_PASSWORD.equals( userPassword.toString() );
+            needToChangeAdminPassword = PartitionNexus.ADMIN_PASSWORD_STRING.equals( userPassword.toString() );
         }
 
         if ( needToChangeAdminPassword )
@@ -1267,11 +1245,11 @@ public class DefaultDirectoryService implements DirectoryService
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE );
         ServerLdapContext ctx = new ServerLdapContext( this, principal, new LdapDN() );
 
-        for ( Entry testEntry : testEntries )
+        for ( LdifEntry testEntry : testEntries )
         {
             try
             {
-                Entry entry = testEntry.clone();
+                LdifEntry entry = testEntry.clone();
                 Attributes attributes = entry.getAttributes();
                 String dn = entry.getDn();
 

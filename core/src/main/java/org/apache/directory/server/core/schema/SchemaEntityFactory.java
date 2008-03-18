@@ -33,10 +33,10 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerValue;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -126,7 +126,7 @@ public class SchemaEntityFactory
             Set<String> depsSet = new HashSet<String>();
             ServerAttribute depsAttr = entry.get( MetaSchemaConstants.M_DEPENDENCIES_AT );
             
-            for ( ServerValue<?> value:depsAttr )
+            for ( Value<?> value:depsAttr )
             {
                 depsSet.add( (String)value.get() );
             }
@@ -589,7 +589,7 @@ public class SchemaEntityFactory
         
         int pos = 0;
         
-        for ( ServerValue<?> value:attr )
+        for ( Value<?> value:attr )
         {
             strings[pos++] = (String)value.get();
         }
@@ -713,7 +713,7 @@ public class SchemaEntityFactory
         {
             List<String> values = new ArrayList<String>();
             
-            for ( ServerValue<?> name:names )
+            for ( Value<?> name:names )
             {
                 values.add( (String)name.get() );
             }

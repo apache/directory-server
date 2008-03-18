@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<spring:beans xmlns:spring="http://xbean.apache.org/schemas/spring/1.0" xmlns="http://apacheds.org/config/1.0">
+<spring:beans xmlns:spring="http://xbean.apache.org/schemas/spring/1.0" 
+			  xmlns:s="http://www.springframework.org/schema/beans"
+			  xmlns="http://apacheds.org/config/1.0">
 
   <defaultDirectoryService id="directoryService" instanceId="default"
                            workingDirectory="example.com"
@@ -26,12 +28,12 @@
         </indexedAttributes>
         <contextEntry>#systemContextEntry</contextEntry>
         <!-- contextEntry>
-          <value xmlns="http://www.springframework.org/schema/beans">
+          <s:value>
             objectClass: top
             objectClass: organizationalUnit
             objectClass: extensibleObject
             ou: system
-          </value>
+          </s:value>
         </contextEntry -->
       </jdbmPartition>
     </systemPartition>
@@ -58,12 +60,12 @@
         </indexedAttributes>
         <contextEntry>#exampleContextEntry</contextEntry>
         <!-- contextEntry>
-          <value xmlns="http://www.springframework.org/schema/beans">
+          <s:value>
             objectClass: top
             objectClass: domain
             objectClass: extensibleObject
             dc: example
-          </value>
+          </s:value>
         </contextEntry -->
       </jdbmPartition>
     </partitions>
@@ -154,23 +156,23 @@
     <socketAcceptor>#socketAcceptor</socketAcceptor>
     <!-- The list of supported authentication mechanisms.                   -->
     <supportedMechanisms>
-      <value xmlns="http://www.springframework.org/schema/beans">SIMPLE</value>
-      <value xmlns="http://www.springframework.org/schema/beans">CRAM-MD5</value>
-      <value xmlns="http://www.springframework.org/schema/beans">DIGEST-MD5</value>
-      <!--<value xmlns="http://www.springframework.org/schema/beans">GSSAPI</value>-->
+      <s:value>SIMPLE</s:value>
+      <s:value>CRAM-MD5</s:value>
+      <s:value>DIGEST-MD5</s:value>
+      <!--<s:value>GSSAPI</s:value>-->
     </supportedMechanisms>
 
     <!-- The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.  -->
     <saslQop>
-      <value xmlns="http://www.springframework.org/schema/beans">auth</value>
-      <value xmlns="http://www.springframework.org/schema/beans">auth-int</value>
-      <value xmlns="http://www.springframework.org/schema/beans">auth-conf</value>
+      <s:value>auth</s:value>
+      <s:value>auth-int</s:value>
+      <s:value>auth-conf</s:value>
     </saslQop>
 
     <!-- The realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI. -->
     <saslRealms>
-      <value xmlns="http://www.springframework.org/schema/beans">example.com</value>
-      <value xmlns="http://www.springframework.org/schema/beans">apache.org</value>
+      <s:value>example.com</s:value>
+      <s:value>apache.org</s:value>
     </saslRealms>
 
     <!-- the collection of extended operation handlers to install           -->

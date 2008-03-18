@@ -6,23 +6,24 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
- *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License. 
- *  
+ *
  */
 
 package org.apache.directory.server.dhcp.options;
 
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**
@@ -37,38 +38,105 @@ import java.util.Set;
  */
 public class OptionsField
 {
-    private Set<DhcpOption> options = new HashSet<DhcpOption>();
-
-
     /**
-     * Adds the provided {@link DhcpOption} to this {@link OptionsField}.
-     *
-     * @param option
+     * A map of option code (Integer)->DhcpOption. FIXME: use IntHashtable from
+     * commons collections
      */
+    private Map options = new HashMap();
+
+
     public void add( DhcpOption option )
     {
-        options.add( option );
+        options.put( new Integer( option.getTag() ), option );
     }
 
 
-    /**
-     * Returns whether this {@link OptionsField} is empty.
-     *
-     * @return true if this {@link OptionsField} is empty.
-     */
     public boolean isEmpty()
     {
         return options.isEmpty();
     }
 
 
-    /**
-     * Returns this {@link OptionsField} as an array of {@link DhcpOption}s.
-     *
-     * @return The array of {@link DhcpOption}s.
-     */
-    public DhcpOption[] toArray()
+    public Iterator iterator()
     {
-        return options.toArray( new DhcpOption[options.size()] );
+        return options.values().iterator();
+    }
+
+
+    /**
+     * Return the (first) DHCP option matching a given option class or
+     * <code>null</code> of the option isn't set.
+     * 
+     * @param class1
+     */
+    public DhcpOption get( Class optionClass )
+    {
+        Integer key = new Integer( DhcpOption.getTagByClass( optionClass ) );
+        return ( DhcpOption ) options.get( key );
+    }
+
+
+    /**
+     * Return the (first) DHCP option matching a given tag or <code>null</code>
+     * of the option isn't set.
+     * 
+     * @param class1
+     */
+    public DhcpOption get( int tag )
+    {
+        Integer key = new Integer( tag );
+        return ( DhcpOption ) options.get( key );
+    }
+
+
+    /**
+     * Merge the options from the given options field into my options. Existing
+     * options are replaced by the ones from the supplied options field.
+     * 
+     * @param options2
+     */
+    public void merge( OptionsField options )
+    {
+        if ( null == options )
+            return;
+
+        for ( Iterator i = options.iterator(); i.hasNext(); )
+        {
+            DhcpOption option = ( DhcpOption ) i.next();
+            this.options.put( new Integer( option.getTag() ), option );
+        }
+    }
+
+
+    /**
+     * Remove instances of the given option class.
+     * 
+     * @param class1
+     */
+    public void remove( Class c )
+    {
+        Integer key = new Integer( DhcpOption.getTagByClass( c ) );
+        options.remove( key );
+    }
+
+
+    /**
+     * Remove options matching the given tag
+     * 
+     * @param class1
+     */
+    public void remove( int tag )
+    {
+        Integer key = new Integer( tag );
+        options.remove( key );
+    }
+
+
+    /**
+     * @see Map#clear()
+     */
+    public void clear()
+    {
+        options.clear();
     }
 }

@@ -24,18 +24,18 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.entry.ServerValue;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -116,14 +115,14 @@ public class TriggerSpecCache
             ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration<SearchResult> results = 
+            NamingEnumeration<ServerSearchResult> results = 
                 nexus.search( new SearchOperationContext( registries, baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
             
             while ( results.hasMore() )
             {
-                SearchResult result = results.next();
-                LdapDN subentryDn = new LdapDN( result.getName() );
-                ServerEntry resultEntry = ServerEntryUtils.toServerEntry( result.getAttributes(), subentryDn, registries );
+            	ServerSearchResult result = results.next();
+                LdapDN subentryDn = result.getDn();
+                ServerEntry resultEntry = result.getServerEntry();
                 ServerAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
                 
                 if ( triggerSpec == null )
@@ -162,7 +161,7 @@ public class TriggerSpecCache
         
         List<TriggerSpecification> subentryTriggerSpecs = new ArrayList<TriggerSpecification>();
         
-        for ( ServerValue<?> value:triggerSpec )
+        for ( Value<?> value:triggerSpec )
         {
             TriggerSpecification item = null;
 
@@ -202,11 +201,11 @@ public class TriggerSpecCache
         }
 
         LdapDN normName = opContext.getDn();
-        List<ModificationItemImpl> mods = opContext.getModItems();
+        List<Modification> mods = opContext.getModItems();
 
         boolean isTriggerSpecModified = false;
 
-        for ( ModificationItemImpl mod : mods )
+        for ( Modification mod : mods )
         {
             isTriggerSpecModified |= mod.getAttribute().contains( PRESCRIPTIVE_TRIGGER_ATTR );
         }

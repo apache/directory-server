@@ -38,13 +38,11 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class StreetTalkServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of StreetTalkServers.
-     *
-     * @param streetTalkServer
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public StreetTalkServers( byte[] streetTalkServer )
+    public byte getTag()
     {
-        super( 75, streetTalkServer );
+        return 75;
     }
 }

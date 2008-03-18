@@ -31,7 +31,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
@@ -279,12 +279,12 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
-     * Returns test directory entries({@link Entry}) to be loaded while
+     * Returns test directory entries({@link LdifEntry}) to be loaded while
      * bootstrapping.
      *
      * @return test entries to load during bootstrapping
      */
-    List<Entry> getTestEntries();
+    List<LdifEntry> getTestEntries();
 
 
     /**
@@ -293,7 +293,7 @@ public interface DirectoryService extends ServerEntryFactory
      *
      * @param testEntries the test entries to load while bootstrapping
      */
-    void setTestEntries( List<? extends Entry> testEntries );
+    void setTestEntries( List<? extends LdifEntry> testEntries );
 
 
     /**

@@ -29,6 +29,7 @@ import org.apache.directory.server.schema.NameAndOptionalUIDComparator;
 import org.apache.directory.server.schema.NameAndOptionalUIDNormalizer;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.CachingNormalizer;
 import org.apache.directory.shared.ldap.schema.ComparableComparator;
 import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
@@ -176,14 +177,14 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
          ( 2.5.13.17 NAME 'octetStringMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
          */
-        comparator = new ComparableComparator();
+        comparator = new ByteArrayComparator();
         cb.schemaObjectProduced( this, "2.5.13.17", comparator );
 
         /*
          ( 2.5.13.18 NAME 'octetStringOrderingMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
          */
-        comparator = new ComparableComparator();
+        comparator = new ByteArrayComparator();
         cb.schemaObjectProduced( this, "2.5.13.18", comparator );
 
         /*

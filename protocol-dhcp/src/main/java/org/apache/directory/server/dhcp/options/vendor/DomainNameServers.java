@@ -18,6 +18,12 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.vendor;
+
+
+import org.apache.directory.server.dhcp.options.AddressListOption;
+
+
 /**
  * The domain name server option specifies a list of Domain Name System
  * (STD 13, RFC 1035 [8]) name servers available to the client.  Servers
@@ -26,26 +32,17 @@
  * The code for the domain name server option is 6.  The minimum length
  * for this option is 4 octets, and the length MUST always be a multiple
  * of 4.
- */
-package org.apache.directory.server.dhcp.options.vendor;
-
-
-import org.apache.directory.server.dhcp.options.AddressListOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class DomainNameServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of DomainNameServers.
-     *
-     * @param domainNameServers
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public DomainNameServers( byte[] domainNameServers )
+    public byte getTag()
     {
-        super( 6, domainNameServers );
+        return 6;
     }
 }

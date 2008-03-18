@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequest;
 import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -213,7 +213,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * @throws NamingException ??
      * @throws EncoderException ??
      */
-    private int addEntry( Entry entry, int messageId ) throws IOException, DecoderException,
+    private int addEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         NamingException, EncoderException
     {
         AddRequest addRequest = new AddRequest();
@@ -294,7 +294,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * @throws NamingException ??
      * @throws EncoderException ??
      */
-    private int deleteEntry( Entry entry, int messageId ) throws IOException, DecoderException,
+    private int deleteEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         NamingException, EncoderException
     {
         DelRequest delRequest = new DelRequest();
@@ -356,7 +356,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * @throws DecoderException ??
      * @throws EncoderException ??
      */
-    private int changeModRDNEntry( Entry entry, int messageId ) throws IOException, DecoderException,
+    private int changeModRDNEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         NamingException, EncoderException
     {
         ModifyDNRequest modifyDNRequest = new ModifyDNRequest();
@@ -425,7 +425,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * @throws DecoderException ??
      * @throws EncoderException ??
      */
-    private int changeModifyEntry( Entry entry, int messageId ) throws IOException, DecoderException,
+    private int changeModifyEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         NamingException, EncoderException
     {
         ModifyRequest modifyRequest = new ModifyRequest();
@@ -517,7 +517,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * @throws DecoderException ??
      * @throws EncoderException ??
      */
-    private int changeEntry( Entry entry, int messageId ) throws IOException, DecoderException,
+    private int changeEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
             NamingException, EncoderException
     {
         switch ( entry.getChangeType().getChangeType() )
@@ -842,13 +842,13 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         if ( ldifReader.containsEntries() )
         {
             // Parse the file and inject every entry
-            Iterator<Entry> entries = ldifReader.iterator();
+            Iterator<LdifEntry> entries = ldifReader.iterator();
             long t0 = System.currentTimeMillis();
             int nbAdd = 0;
 
             while ( entries.hasNext() )
             {
-                Entry entry = entries.next();
+                LdifEntry entry = entries.next();
 
                 // Check if we have had some error, has next() does not throw any exception
                 if ( ldifReader.hasError() )
@@ -907,13 +907,13 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         else
         {
             // Parse the file and inject every modification
-            Iterator<Entry> entries = ldifReader.iterator();
+            Iterator<LdifEntry> entries = ldifReader.iterator();
             long t0 = System.currentTimeMillis();
             int nbMod = 0;
 
             while ( entries.hasNext() )
             {
-                Entry entry = entries.next();
+                LdifEntry entry = entries.next();
 
                 // Check if we have had some error, has next() does not throw any exception
                 if ( ldifReader.hasError() )

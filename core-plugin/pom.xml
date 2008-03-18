@@ -44,11 +44,6 @@
     </dependency>
 
     <dependency>
-      <groupId>antlr</groupId>
-      <artifactId>antlr</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-shared</artifactId>
       <version>${pom.version}</version>
@@ -60,23 +55,5 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antlr-plugin</artifactId>
-        <configuration>
-          <grammars>openldap.g</grammars>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 </project>
 

@@ -18,6 +18,12 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.perhost;
+
+
+import org.apache.directory.server.dhcp.options.AddressListOption;
+
+
 /**
  * This option specifies policy filters for non-local source routing.
  * The filters consist of a list of IP addresses and masks which specify
@@ -28,38 +34,17 @@
  * 
  * The code for this option is 21.  The minimum length of this option is
  * 8, and the length MUST be a multiple of 8.
- */
-package org.apache.directory.server.dhcp.options.perhost;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class PolicyFilter extends DhcpOption
+public class PolicyFilter extends AddressListOption
 {
-    private byte[] policyFilter;
-
-
-    /**
-     * Creates a new instance of PolicyFilter.
-     *
-     * @param policyFilter
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public PolicyFilter( byte[] policyFilter )
+    public byte getTag()
     {
-        super( 21, 8 );
-        this.policyFilter = policyFilter;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( policyFilter );
+        return 21;
     }
 }

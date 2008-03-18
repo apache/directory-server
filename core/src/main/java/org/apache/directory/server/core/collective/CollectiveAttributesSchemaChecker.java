@@ -20,30 +20,26 @@
 
 package org.apache.directory.server.core.collective;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -81,28 +77,17 @@ public class CollectiveAttributesSchemaChecker
         }
     }
     
-    public void checkModify( Registries registries, LdapDN normName, int modOp, Attributes mods ) throws NamingException
+    public void checkModify( Registries registries, LdapDN normName, List<Modification> mods ) throws NamingException
     {
-        ArrayList<ModificationItemImpl> modsAsArray = new ArrayList<ModificationItemImpl>( mods.size() );
-        NamingEnumeration<? extends Attribute> allAttrs = mods.getAll();
+        ServerEntry originalEntry = nexus.lookup( new LookupOperationContext( registries, normName ) );
+        ServerEntry targetEntry = ServerEntryUtils.toServerEntry( 
+            SchemaUtils.getTargetEntry( ServerEntryUtils.toModificationItemImpl( mods ), ServerEntryUtils.toAttributesImpl( originalEntry ) ),
+            normName,
+            registries);
         
-        while ( allAttrs.hasMoreElements() )
-        {
-            Attribute attr = allAttrs.nextElement();
-            modsAsArray.add( new ModificationItemImpl( modOp, attr ) );
-        }
+        ServerAttribute targetObjectClasses = targetEntry.get( SchemaConstants.OBJECT_CLASS_AT );
         
-        checkModify( registries, normName, modsAsArray );
-    }
-    
-    
-    public void checkModify( Registries registries, LdapDN normName, List<ModificationItemImpl> mods ) throws NamingException
-    {
-        Attributes originalEntry = nexus.lookup( new LookupOperationContext( registries, normName ) );
-        Attributes targetEntry = SchemaUtils.getTargetEntry( mods, originalEntry );
-        Attribute targetObjectClasses = targetEntry.get( SchemaConstants.OBJECT_CLASS_AT );
-        
-        if ( AttributeUtils.containsValueCaseIgnore( targetObjectClasses, SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
+        if ( targetObjectClasses.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
             return;
         }
@@ -119,16 +104,16 @@ public class CollectiveAttributesSchemaChecker
     }
     
     
-    private boolean addsAnyCollectiveAttributes( List<ModificationItemImpl> mods ) throws NamingException
+    private boolean addsAnyCollectiveAttributes( List<Modification> mods ) throws NamingException
     {
-        for ( ModificationItem mod:mods )
+        for ( Modification mod:mods )
         {
-            Attribute attr = mod.getAttribute();
-            String attrID = attr.getID();
+            ServerAttribute attr = (ServerAttribute)mod.getAttribute();
+            String attrID = attr.getId();
             AttributeType attrType = attrTypeRegistry.lookup( attrID );
-            int modOp = mod.getModificationOp();
+            ModificationOperation modOp = mod.getOperation();
             
-            if ( ( ( modOp == DirContext.ADD_ATTRIBUTE ) || ( modOp == DirContext.REPLACE_ATTRIBUTE ) ) &&
+            if ( ( ( modOp == ModificationOperation.ADD_ATTRIBUTE ) || ( modOp == ModificationOperation.REPLACE_ATTRIBUTE ) ) &&
                 attrType.isCollective() )
             {
                 return true;

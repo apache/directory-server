@@ -25,6 +25,7 @@ import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.Oid;
@@ -34,11 +35,13 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -54,8 +57,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1241,14 +1242,14 @@ public class JdbmStore
      * @param mods the attribute and values to add 
      * @throws Exception if index alteration or attribute addition fails
      */
-    private void add( Long id, Attributes entry, Attribute mods ) throws Exception
+    private void add( Long id, Attributes entry, ServerAttribute mods ) throws Exception
     {
-        String modsOid = oidRegistry.getOid( mods.getID() );
+        String modsOid = oidRegistry.getOid( mods.getId() );
         
         if ( hasUserIndexOn( modsOid ) )
         {
             Index idx = getUserIndex( modsOid );
-            idx.add( mods, id );
+            idx.add( ServerEntryUtils.toAttributeImpl( mods ), id );
 
             // If the attr didn't exist for this id add it to existance index
             if ( !existanceIdx.has( modsOid, id ) )
@@ -1263,19 +1264,19 @@ public class JdbmStore
 
         if ( entryAttrToAddTo == null )
         {
-            entryAttrToAddTo = new AttributeImpl( mods.getID() );
+            entryAttrToAddTo = new AttributeImpl( mods.getId() );
             entry.put( entryAttrToAddTo );
         }
 
-        for ( int ii = 0; ii < mods.size(); ii++ )
+        for ( Value<?> value:mods )
         {
-            entryAttrToAddTo.add( mods.get( ii ) );
+            entryAttrToAddTo.add( value.get() );
         }
 
         if ( modsOid.equals( oidRegistry.getOid( SchemaConstants.ALIASED_OBJECT_NAME_AT ) ) )
         {
             String ndnStr = ndnIdx.reverseLookup( id );
-            addAliasIndices( id, new LdapDN( ndnStr ), ( String ) mods.get() );
+            addAliasIndices( id, new LdapDN( ndnStr ), mods.getString() );
         }
     }
 
@@ -1293,14 +1294,14 @@ public class JdbmStore
      * @param mods the attribute and its values to delete
      * @throws Exception if index alteration or attribute modification fails.
      */
-    private void remove( Long id, Attributes entry, Attribute mods ) throws Exception
+    private void remove( Long id, Attributes entry, ServerAttribute mods ) throws Exception
     {
-        String modsOid = oidRegistry.getOid( mods.getID() );
+        String modsOid = oidRegistry.getOid( mods.getId() );
         
         if ( hasUserIndexOn( modsOid ) )
         {
             Index idx = getUserIndex( modsOid );
-            idx.drop( mods, id );
+            idx.drop( ServerEntryUtils.toAttributeImpl( mods ), id );
 
             /* 
              * If no attribute values exist for this entryId in the index then
@@ -1326,11 +1327,10 @@ public class JdbmStore
         else
         {
             Attribute entryAttr = AttributeUtils.getAttribute( entry, attrType );
-            NamingEnumeration<?> values = mods.getAll();
             
-            while ( values.hasMore() )
+            for ( Value<?> value:mods )
             {
-                entryAttr.remove( values.next() );
+                entryAttr.remove( value.get() );
             }
 
             // if nothing is left just remove empty attribute
@@ -1360,9 +1360,9 @@ public class JdbmStore
      * @throws NamingException if index alteration or attribute modification 
      * fails.
      */
-    private void replace( Long id, Attributes entry, Attribute mods ) throws Exception
+    private void replace( Long id, Attributes entry, ServerAttribute mods ) throws Exception
     {
-        String modsOid = oidRegistry.getOid( mods.getID() );
+        String modsOid = oidRegistry.getOid( mods.getId() );
         
         if ( hasUserIndexOn( modsOid ) )
         {
@@ -1370,7 +1370,7 @@ public class JdbmStore
 
             // Drop all existing attribute value index entries and add new ones
             idx.drop( id );
-            idx.add( mods, id );
+            idx.add( ServerEntryUtils.toAttributeImpl( mods ), id );
 
             /* 
              * If no attribute values exist for this entryId in the index then
@@ -1392,67 +1392,49 @@ public class JdbmStore
         // replaces old attributes with new modified ones if they exist
         if ( mods.size() > 0 )
         {
-            entry.put( mods );
+            entry.put( ServerEntryUtils.toAttributeImpl( mods ) );
         }
         else  // removes old attributes if new replacements do not exist
         {
-            entry.remove( mods.getID() );
+            entry.remove( mods.getId() );
         }
 
         if ( modsOid.equals( aliasAttributeOid ) && mods.size() > 0 )
         {
             String ndnStr = ndnIdx.reverseLookup( id );
-            addAliasIndices( id, new LdapDN( ndnStr ), ( String ) mods.get() );
+            addAliasIndices( id, new LdapDN( ndnStr ), mods.getString() );
         }
     }
 
 
-    public void modify( LdapDN dn, int modOp, Attributes mods ) throws Exception
+    public void modify( LdapDN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception
     {
         NamingEnumeration<String> attrs;
         Long id = getEntryId( dn.toString() );
         Attributes entry = master.get( id );
 
-        switch ( modOp )
+        for ( AttributeType attributeType:mods.getAttributeTypes() )
         {
-            case ( DirContext.ADD_ATTRIBUTE  ):
-                attrs = mods.getIDs();
+            ServerAttribute attr = mods.get( attributeType );
 
-                while ( attrs.hasMore() )
-                {
-                    String attrId = attrs.next();
-                    Attribute attr = mods.get( attrId );
+            switch ( modOp )
+            {
+                case ADD_ATTRIBUTE :
                     add( id, entry, attr );
-                }
-
-                break;
+                    break;
                 
-            case ( DirContext.REMOVE_ATTRIBUTE  ):
-                attrs = mods.getIDs();
-
-                while ( attrs.hasMore() )
-                {
-                    String attrId = attrs.next();
-                    Attribute attr = mods.get( attrId );
+                case REMOVE_ATTRIBUTE :
                     remove( id, entry, attr );
-                }
-
-                break;
+                    break;
                 
-            case ( DirContext.REPLACE_ATTRIBUTE  ):
-                attrs = mods.getIDs();
-
-                while ( attrs.hasMore() )
-                {
-                    String attrId = attrs.next();
-                    Attribute attr = mods.get( attrId );
+                case REPLACE_ATTRIBUTE :
                     replace( id, entry, attr );
-                }
-
-                break;
-                
-            default:
-                throw new NamingException( "Unidentified modification operation" );
+    
+                    break;
+                    
+                default:
+                    throw new NamingException( "Unidentified modification operation" );
+            }
         }
 
         master.put( id, entry );
@@ -1464,26 +1446,26 @@ public class JdbmStore
     }
 
 
-    public void modify( LdapDN dn, List<ModificationItemImpl> mods ) throws Exception
+    public void modify( LdapDN dn, List<Modification> mods ) throws Exception
     {
         Long id = getEntryId( dn.toString() );
         Attributes entry = master.get( id );
 
-        for ( ModificationItem mod : mods )
+        for ( Modification mod : mods )
         {
-            Attribute attrMods = mod.getAttribute();
+            ServerAttribute attrMods = (ServerAttribute)mod.getAttribute();
 
-            switch ( mod.getModificationOp() )
+            switch ( mod.getOperation() )
             {
-                case ( DirContext.ADD_ATTRIBUTE ):
+                case ADD_ATTRIBUTE :
                     add( id, entry, attrMods );
                     break;
 
-                case ( DirContext.REMOVE_ATTRIBUTE ):
+                case REMOVE_ATTRIBUTE :
                     remove(id, entry, attrMods);
                     break;
 
-                case ( DirContext.REPLACE_ATTRIBUTE ):
+                case REPLACE_ATTRIBUTE :
                     replace( id, entry, attrMods );
                     break;
 

@@ -27,7 +27,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAdd
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -99,7 +99,7 @@ public class ReferralIT
         String ref2 = "ldap://maxwell:10389/ou=users,ou=system";
         td.rootCtx = getSystemContext( service );
 
-        Entry akarasulu = getUserAddLdif();
+        LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
 
         // -------------------------------------------------------------------

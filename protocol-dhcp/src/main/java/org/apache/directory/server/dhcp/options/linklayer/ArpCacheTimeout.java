@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.linklayer;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.IntOption;
 
 
 /**
@@ -35,25 +33,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ArpCacheTimeout extends DhcpOption
+public class ArpCacheTimeout extends IntOption
 {
-    private byte[] arpCacheTimeout;
-
-
-    /**
-     * Creates a new instance of ArpCacheTimeout.
-     *
-     * @param arpCacheTimeout
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public ArpCacheTimeout( byte[] arpCacheTimeout )
+    public byte getTag()
     {
-        super( 35, 4 );
-        this.arpCacheTimeout = arpCacheTimeout;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( arpCacheTimeout );
+        return 35;
     }
 }

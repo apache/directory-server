@@ -38,13 +38,11 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class StdaServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of StdaServers.
-     *
-     * @param stdaServer
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public StdaServers( byte[] stdaServer )
+    public byte getTag()
     {
-        super( 76, stdaServer );
+        return 76;
     }
 }

@@ -286,7 +286,7 @@ public class IndexDialog extends JDialog
 
         try
         {
-            NamingEnumeration list = null;
+            NamingEnumeration<IndexRecord> list = null;
 
             if ( scanType == EQUALITY_CURSOR )
             {

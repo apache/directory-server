@@ -22,10 +22,9 @@ package org.apache.directory.mitosis.operation.support;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
@@ -46,14 +45,14 @@ public class EntryUtil
     @SuppressWarnings("unchecked")
     public static boolean isEntryUpdatable( Registries registries, PartitionNexus nexus, LdapDN name, CSN newCSN ) throws NamingException
     {
-        Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
 
         if ( entry == null )
         {
             return true;
         }
 
-        Attribute entryCSNAttr = entry.get( Constants.ENTRY_CSN );
+        ServerAttribute entryCSNAttr = entry.get( Constants.ENTRY_CSN );
 
         if ( entryCSNAttr == null )
         {

@@ -18,6 +18,12 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.vendor;
+
+
+import org.apache.directory.server.dhcp.options.StringOption;
+
+
 /**
  * A string to specify a file, retrievable via TFTP, which contains
  * information which can be interpreted in the same way as the 64-octet
@@ -30,38 +36,17 @@
  *          ignored.
  * 
  * The code for this option is 18.  Its minimum length is 1.
- */
-package org.apache.directory.server.dhcp.options.vendor;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ExtensionsPath extends DhcpOption
+public class ExtensionsPath extends StringOption
 {
-    private byte[] extensionsPath;
-
-
-    /**
-     * Creates a new instance of ExtensionsPath.
-     *
-     * @param extensionsPath
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public ExtensionsPath( byte[] extensionsPath )
+    public byte getTag()
     {
-        super( 18, 1 );
-        this.extensionsPath = extensionsPath;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( extensionsPath );
+        return 18;
     }
 }

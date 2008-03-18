@@ -18,44 +18,29 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.perhost;
+
+
+import org.apache.directory.server.dhcp.options.ByteOption;
+
+
 /**
  * This option specifies whether the client should configure its IP
  * layer for packet forwarding.  A value of 0 means disable IP
  * forwarding, and a value of 1 means enable IP forwarding.
  * 
  * The code for this option is 19, and its length is 1.
- */
-package org.apache.directory.server.dhcp.options.perhost;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class IpForwarding extends DhcpOption
+public class IpForwarding extends ByteOption
 {
-    private byte[] ipForwarding;
-
-
-    /**
-     * Creates a new instance of IpForwarding.
-     *
-     * @param ipForwarding
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public IpForwarding( byte[] ipForwarding )
+    public byte getTag()
     {
-        super( 19, 1 );
-        this.ipForwarding = ipForwarding;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( ipForwarding );
+        return 19;
     }
 }

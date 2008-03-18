@@ -70,7 +70,7 @@ import org.apache.directory.server.core.partition.impl.btree.IndexEntry;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -449,7 +449,7 @@ public class PartitionFrame extends JFrame
 
             while ( list.hasNext() )
             {
-                Entry entry = ( Entry ) list.next();
+                LdifEntry entry = ( LdifEntry ) list.next();
                 String updn = entry.getDn();
                 Attributes attrs = entry.getAttributes();
                 

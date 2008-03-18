@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.StringOption;
 
 
 /**
@@ -35,25 +33,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class TftpServerName extends DhcpOption
+public class TftpServerName extends StringOption
 {
-    private byte[] tftpServerName;
-
-
-    /**
-     * Creates a new instance of TftpServerName.
-     *
-     * @param tftpServerName
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public TftpServerName( byte[] tftpServerName )
+    public byte getTag()
     {
-        super( 66, 1 );
-        this.tftpServerName = tftpServerName;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( tftpServerName );
+        return 66;
     }
 }

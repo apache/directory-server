@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.ByteOption;
 
 
 /**
@@ -48,25 +46,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class OptionOverload extends DhcpOption
+public class OptionOverload extends ByteOption
 {
-    private byte[] optionOverload;
-
-
-    /**
-     * Creates a new instance of OptionOverload.
-     *
-     * @param optionOverload
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public OptionOverload( byte[] optionOverload )
+    public byte getTag()
     {
-        super( 52, 1 );
-        this.optionOverload = optionOverload;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( optionOverload );
+        return 52;
     }
 }

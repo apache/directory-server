@@ -23,8 +23,11 @@ package org.apache.directory.server.core.jndi;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -42,14 +45,12 @@ import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -66,11 +67,9 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamingListener;
 import javax.naming.ldap.Control;
@@ -79,7 +78,6 @@ import javax.naming.spi.DirectoryManager;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -209,7 +207,7 @@ public abstract class ServerContext implements EventContext
     
     /**
      * Used to encapsulate [de]marshalling of controls before and after add operations.
-     * @param attributes
+     * @param entry
      * @param target
      */
     protected void doAddOperation( LdapDN target, ServerEntry entry ) throws NamingException
@@ -258,7 +256,7 @@ public abstract class ServerContext implements EventContext
      * @param searchControls
      * @return
      */
-    protected NamingEnumeration<SearchResult> doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
+    protected NamingEnumeration<ServerSearchResult> doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
                                                                  ExprNode filter, SearchControls searchControls )
         throws NamingException
     {
@@ -267,7 +265,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
         
         // execute search operation
-        NamingEnumeration<SearchResult> results = nexusProxy.search( opCtx );
+        NamingEnumeration<ServerSearchResult> results = nexusProxy.search( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -280,14 +278,14 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
      */
-    protected NamingEnumeration<SearchResult> doListOperation( LdapDN target ) throws NamingException
+    protected NamingEnumeration<ServerSearchResult> doListOperation( LdapDN target ) throws NamingException
     {
         // setup the op context and populate with request controls
         ListOperationContext opCtx = new ListOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
         
         // execute list operation
-        NamingEnumeration<SearchResult> results = nexusProxy.list( opCtx );
+        NamingEnumeration<ServerSearchResult> results = nexusProxy.list( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -311,7 +309,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
      */
-    protected Attributes doLookupOperation( LdapDN target ) throws NamingException
+    protected ServerEntry doLookupOperation( LdapDN target ) throws NamingException
     {
         // setup the op context and populate with request controls
         LookupOperationContext opCtx;
@@ -319,19 +317,19 @@ public abstract class ServerContext implements EventContext
         // execute lookup/getRootDSE operation
         opCtx = new LookupOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
-        Attributes attributes = nexusProxy.lookup( opCtx );
+        ServerEntry serverEntry = nexusProxy.lookup( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
-        return attributes;
+        return serverEntry;
     }
     
     
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
      */
-    protected Attributes doLookupOperation( LdapDN target, String[] attrIds ) throws NamingException
+    protected ServerEntry doLookupOperation( LdapDN target, String[] attrIds ) throws NamingException
     {
         // setup the op context and populate with request controls
         LookupOperationContext opCtx;
@@ -339,13 +337,23 @@ public abstract class ServerContext implements EventContext
         // execute lookup/getRootDSE operation
         opCtx = new LookupOperationContext( registries, target, attrIds );
         opCtx.addRequestControls( requestControls );
-        Attributes attributes = nexusProxy.lookup( opCtx );
+        ServerEntry serverEntry = nexusProxy.lookup( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
         
-        return attributes;
+        // Now remove the ObjectClass attribute if it has not been requested
+        if ( ( opCtx.getAttrsId() != null ) && ( opCtx.getAttrsId().size() != 0 ) )
+        {
+            if ( ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null ) && 
+                 (serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) )
+            {
+            	serverEntry.remove( SchemaConstants.OBJECT_CLASS_AT );
+            }
+        }
+        
+        return serverEntry;
     }
     
     
@@ -395,10 +403,10 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after modify operations.
      */
-    protected void doModifyOperation( LdapDN dn, List<ModificationItemImpl> modItems ) throws NamingException
+    protected void doModifyOperation( LdapDN dn, List<Modification> modifications ) throws NamingException
     {
         // setup the op context and populate with request controls
-        ModifyOperationContext opCtx = new ModifyOperationContext( registries, dn, modItems );
+        ModifyOperationContext opCtx = new ModifyOperationContext( registries, dn, modifications );
         opCtx.addRequestControls( requestControls );
         
         // execute modify operation
@@ -591,13 +599,9 @@ public abstract class ServerContext implements EventContext
      */
     public Context createSubcontext( Name name ) throws NamingException
     {
-        Attributes attributes = new AttributesImpl();
         LdapDN target = buildTarget( name );
-        
-        Attribute attribute = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        attribute.add( SchemaConstants.TOP_OC );
-        attribute.add( JavaLdapSupport.JCONTAINER_ATTR );
-        attributes.put( attribute );
+        ServerEntry serverEntry = new DefaultServerEntry( registries, target );
+        serverEntry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, JavaLdapSupport.JCONTAINER_ATTR );
         
         // Now add the CN attribute, which is mandatory
         Rdn rdn = target.getRdn();
@@ -606,7 +610,7 @@ public abstract class ServerContext implements EventContext
         {
             if ( SchemaConstants.CN_AT.equals( rdn.getNormType() )  )
             {
-                attributes.put( rdn.getUpType(), rdn.getUpValue() );
+                serverEntry.put( rdn.getUpType(), (String)rdn.getUpValue() );
             }
             else
             {
@@ -624,12 +628,12 @@ public abstract class ServerContext implements EventContext
 
         /*
          * Add the new context to the server which as a side effect adds 
-         * operational attributes to the attributes refering instance which
+         * operational attributes to the serverEntry refering instance which
          * can them be used to initialize a new ServerLdapContext.  Remember
          * we need to copy over the controls as well to propagate the complete 
-         * environment besides whats in the hashtable for env.
+         * environment besides what's in the hashtable for env.
          */
-        doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
+        doAddOperation( target, serverEntry );
         return new ServerLdapContext( service, principal, target );
     }
 
@@ -668,20 +672,20 @@ public abstract class ServerContext implements EventContext
     }
 
     
-    private void injectRdnAttributeValues( LdapDN target, Attributes attributes )
+    private void injectRdnAttributeValues( LdapDN target, ServerEntry serverEntry ) throws NamingException
     {
         // Add all the RDN attributes and their values to this entry
         Rdn rdn = target.getRdn( target.size() - 1 );
+        
         if ( rdn.size() == 1 )
         {
-            attributes.put( rdn.getUpType(), rdn.getValue() );
+            serverEntry.put( rdn.getUpType(), (String)rdn.getValue() );
         }
         else
         {
-            for ( Iterator<AttributeTypeAndValue> ii = rdn.iterator(); ii.hasNext(); /**/ )
-            {
-                AttributeTypeAndValue atav = ( AttributeTypeAndValue ) ii.next();
-                attributes.put( atav.getUpType(), atav.getValue() );
+        	for ( AttributeTypeAndValue atav:rdn )
+        	{
+                serverEntry.put( atav.getUpType(), (String)atav.getNormValue() );
             }
         }
     }
@@ -695,13 +699,14 @@ public abstract class ServerContext implements EventContext
         // First, use state factories to do a transformation
         DirStateFactory.Result res = DirectoryManager.getStateToBind( obj, name, this, env, null );
 
+        LdapDN target = buildTarget( name );
+        
         // let's be sure that the Attributes is case insensitive
-        Attributes outAttrs = AttributeUtils.toCaseInsensitive( res.getAttributes() );
+        ServerEntry outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( res.getAttributes() ), dn, registries );
 
-        if ( outAttrs != null )
+        if ( outServerEntry != null )
         {
-            LdapDN target = buildTarget( name );
-            doAddOperation( target, ServerEntryUtils.toServerEntry( outAttrs, target, registries ) );
+            doAddOperation( target, outServerEntry );
             return;
         }
 
@@ -709,8 +714,11 @@ public abstract class ServerContext implements EventContext
         {
 			Attributes attributes = (Attributes)obj;
 			
-			LdapDN target = buildTarget( name );
             doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
+		}
+        else if ( obj instanceof ServerEntry ) 
+        {
+            doAddOperation( target, (ServerEntry)obj );
 		}
         // Check for Referenceable
         else if ( obj instanceof Referenceable )
@@ -726,43 +734,38 @@ public abstract class ServerContext implements EventContext
         else if ( obj instanceof Serializable )
         {
             // Serialize and add outAttrs
-            Attributes attributes = new AttributesImpl();
+            ServerEntry serverEntry = new DefaultServerEntry( registries, target );
             
-            if ( outAttrs != null && outAttrs.size() > 0 )
+            if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-                NamingEnumeration<? extends Attribute> list = outAttrs.getAll();
-                
-                while ( list.hasMore() )
-                {
-                    attributes.put( list.next() );
-                }
+            	for ( ServerAttribute serverAttribute:outServerEntry )
+            	{
+            		serverEntry.put( serverAttribute );
+            	}
             }
 
             // Get target and inject all rdn attributes into entry
-            LdapDN target = buildTarget( name );
-            injectRdnAttributeValues( target, attributes );
+            injectRdnAttributeValues( target, serverEntry );
 
             // Serialize object into entry attributes and add it.
-            JavaLdapSupport.serialize( attributes, obj );
-            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
+            JavaLdapSupport.serialize( serverEntry, obj, registries );
+            doAddOperation( target, serverEntry );
         }
         else if ( obj instanceof DirContext )
         {
             // Grab attributes and merge with outAttrs
-            Attributes attributes = ( ( DirContext ) obj ).getAttributes( "" );
-            if ( outAttrs != null && outAttrs.size() > 0 )
+            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( ((DirContext)obj).getAttributes( "" ), target, registries );
+            
+            if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-                NamingEnumeration<? extends Attribute> list = outAttrs.getAll();
-                
-                while ( list.hasMore() )
-                {
-                    attributes.put( list.next() );
-                }
+            	for ( ServerAttribute serverAttribute:outServerEntry )
+            	{
+            		serverEntry.put( serverAttribute );
+            	}
             }
 
-            LdapDN target = buildTarget( name );
-            injectRdnAttributeValues( target, attributes );
-            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
+            injectRdnAttributeValues( target, serverEntry );
+            doAddOperation( target, serverEntry );
         }
         else
         {
@@ -911,20 +914,20 @@ public abstract class ServerContext implements EventContext
         Object obj;
         LdapDN target = buildTarget( name );
         
-        Attributes attributes;
+        ServerEntry serverEntry;
         
         if ( name.size() == 0 )
         {
-            attributes = ServerEntryUtils.toAttributesImpl( doGetRootDSEOperation( target ) );
+            serverEntry = doGetRootDSEOperation( target );
         }
         else
         {
-            attributes = doLookupOperation( target );
+            serverEntry = doLookupOperation( target );
         }
 
         try
         {
-            obj = DirectoryManager.getObjectInstance( null, name, this, env, attributes );
+            obj = DirectoryManager.getObjectInstance( null, name, this, env, ServerEntryUtils.toAttributesImpl( serverEntry ) );
         }
         catch ( Exception e )
         {
@@ -941,10 +944,10 @@ public abstract class ServerContext implements EventContext
         }
 
         // First lets test and see if the entry is a serialized java object
-        if ( attributes.get( JavaLdapSupport.JCLASSNAME_ATTR ) != null )
+        if ( serverEntry.get( JavaLdapSupport.JCLASSNAME_ATTR ) != null )
         {
             // Give back serialized object and not a context
-            return JavaLdapSupport.deserialize( attributes );
+            return JavaLdapSupport.deserialize( serverEntry );
         }
 
         // Initialize and return a context since the entry is not a java object
@@ -1026,7 +1029,7 @@ public abstract class ServerContext implements EventContext
     @SuppressWarnings(value={"unchecked"})
     public NamingEnumeration list( Name name ) throws NamingException
     {
-        return doListOperation( buildTarget( name ) );
+        return ServerEntryUtils.toSearchResultEnum( doListOperation( buildTarget( name ) ) );
     }
 
 

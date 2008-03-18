@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.perinterface;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.ByteOption;
 
 
 /**
@@ -37,25 +35,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class PerformMaskDiscovery extends DhcpOption
+public class PerformMaskDiscovery extends ByteOption
 {
-    private byte[] performMaskDiscovery;
-
-
-    /**
-     * Creates a new instance of PerformMaskDiscovery.
-     *
-     * @param performMaskDiscovery
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public PerformMaskDiscovery( byte[] performMaskDiscovery )
+    public byte getTag()
     {
-        super( 29, 1 );
-        this.performMaskDiscovery = performMaskDiscovery;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( performMaskDiscovery );
+        return 29;
     }
 }

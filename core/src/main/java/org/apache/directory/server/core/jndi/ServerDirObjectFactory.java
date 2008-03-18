@@ -69,5 +69,5 @@ public interface ServerDirObjectFactory extends DirObjectFactory
      *
      * @return the Class associated with this factory.
      */
-    Class getAssociatedClass();
+    Class<?> getAssociatedClass();
 }

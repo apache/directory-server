@@ -22,14 +22,14 @@ package org.apache.directory.server.core.interceptor.context;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class ModifyOperationContext extends AbstractOperationContext
 {
     /** The modification items */
-    private List<ModificationItemImpl> modItems;
+    private List<Modification> modItems;
 
 
     /**
@@ -54,7 +54,7 @@ public class ModifyOperationContext extends AbstractOperationContext
      */
     public ModifyOperationContext( Registries registries )
     {
-    	super( registries );
+        super( registries );
     }
 
 
@@ -64,7 +64,7 @@ public class ModifyOperationContext extends AbstractOperationContext
      * @param dn the dn of the entry to be modified
      * @param modItems the modifications to be performed on the entry
      */
-    public ModifyOperationContext( Registries registries, LdapDN dn, List<ModificationItemImpl> modItems )
+    public ModifyOperationContext( Registries registries, LdapDN dn, List<Modification> modItems )
     {
         super( registries, dn );
         this.modItems = modItems;
@@ -78,7 +78,7 @@ public class ModifyOperationContext extends AbstractOperationContext
      * @param modItems the modifications to be performed on the entry
      * @param collateralOperation true if op is collateral, false otherwise
      */
-    public ModifyOperationContext( Registries registries, LdapDN dn, List<ModificationItemImpl> modItems, boolean collateralOperation )
+    public ModifyOperationContext( Registries registries, LdapDN dn, List<Modification> modItems, boolean collateralOperation )
     {
         super( registries, dn, collateralOperation );
         this.modItems = modItems;
@@ -89,7 +89,7 @@ public class ModifyOperationContext extends AbstractOperationContext
      * Set the modified attributes
      * @param modItems The modified attributes
      */
-    public void setModItems( List<ModificationItemImpl> modItems )
+    public void setModItems( List<Modification> modItems )
     {
         this.modItems = modItems;
     }
@@ -98,21 +98,19 @@ public class ModifyOperationContext extends AbstractOperationContext
     /**
      * @return The modifications
      */
-    public List<ModificationItemImpl> getModItems() 
+    public List<Modification> getModItems() 
     {
         return modItems;
     }
 
 
-    @SuppressWarnings( value = "unchecked" )
-    public static List<ModificationItemImpl> createModItems( Attributes attributes, int modOp ) throws NamingException
+    public static List<Modification> createModItems( ServerEntry serverEntry, ModificationOperation modOp ) throws NamingException
     {
-        List<ModificationItemImpl> items = new ArrayList<ModificationItemImpl>( attributes.size() );
-        NamingEnumeration<Attribute> e = ( NamingEnumeration<Attribute> ) attributes.getAll();
+        List<Modification> items = new ArrayList<Modification>( serverEntry.size() );
         
-        while ( e.hasMore() )
+        for ( ServerAttribute attribute:serverEntry )
         {
-            items.add( new ModificationItemImpl( modOp, e.next() ) );
+            items.add( new ServerModification( modOp, attribute ) );
         }
 
         return items;
@@ -128,7 +126,7 @@ public class ModifyOperationContext extends AbstractOperationContext
         
         sb.append("ModifyContext for DN '").append( getDn().getUpName() ).append( "', modifications :\n" );
         
-        for ( ModificationItem mod:modItems )
+        for ( Modification mod:modItems )
         {
             sb.append( mod ).append( '\n' );
         }

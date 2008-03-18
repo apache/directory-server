@@ -73,12 +73,12 @@ public class AttributesTableModel extends AbstractTableModel
         this.entry = entry;
         this.isMutable = isMutable;
 
-        NamingEnumeration list = entry.getIDs();
+        NamingEnumeration<String> list = entry.getIDs();
         int rowCount = 0;
 
         while ( list.hasMoreElements() )
         {
-            String attrId = ( String ) list.nextElement();
+            String attrId = list.nextElement();
             rowCount = rowCount + entry.get( attrId ).size();
         }
 

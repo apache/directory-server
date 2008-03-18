@@ -23,17 +23,18 @@ package org.apache.directory.server.core.schema;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 
 import javax.naming.NamingException;
-import javax.naming.directory.SearchResult;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -100,27 +101,27 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
         throws NamingException;
     
     
-    public final void modify( LdapDN name, int modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, 
+    public final void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, 
         boolean cascade ) throws NamingException
     {
         modify( name, entry, targetEntry, cascade );
     }
 
 
-    public final void modify( LdapDN name, List<ModificationItemImpl> mods, ServerEntry entry,
+    public final void modify( LdapDN name, List<Modification> mods, ServerEntry entry,
         ServerEntry targetEntry, boolean cascade ) throws NamingException
     {
         modify( name, entry, targetEntry, cascade );
     }
 
     
-    protected Set<String> getOids( Set<SearchResult> results ) throws NamingException
+    protected Set<String> getOids( Set<ServerSearchResult> results ) throws NamingException
     {
         Set<String> oids = new HashSet<String>( results.size() );
         
-        for ( SearchResult result : results )
+        for ( ServerSearchResult result : results )
         {
-            LdapDN dn = new LdapDN( result.getName() );
+            LdapDN dn = result.getDn();
             dn.normalize( this.targetRegistries.getAttributeTypeRegistry().getNormalizerMapping() );
             oids.add( ( String ) dn.getRdn().getValue() );
         }

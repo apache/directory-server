@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.perinterface;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.ShortOption;
 
 
 /**
@@ -36,25 +34,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class InterfaceMtu extends DhcpOption
+public class InterfaceMtu extends ShortOption
 {
-    private byte[] interfaceMtu;
-
-
-    /**
-     * Creates a new instance of InterfaceMtu.
-     *
-     * @param interfaceMtu
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public InterfaceMtu( byte[] interfaceMtu )
+    public byte getTag()
     {
-        super( 26, 2 );
-        this.interfaceMtu = interfaceMtu;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( interfaceMtu );
+        return 26;
     }
 }

@@ -21,6 +21,8 @@
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
+import java.net.InetAddress;
+
 import org.apache.directory.server.dhcp.options.AddressOption;
 
 
@@ -43,13 +45,22 @@ import org.apache.directory.server.dhcp.options.AddressOption;
  */
 public class ServerIdentifier extends AddressOption
 {
-    /**
-     * Creates a new instance of ServerIdentifier.
-     *
-     * @param serverIdentifier
-     */
-    public ServerIdentifier( byte[] serverIdentifier )
+    public ServerIdentifier()
     {
-        super( 54, serverIdentifier );
+    }
+
+
+    public ServerIdentifier(InetAddress localHost)
+    {
+        setAddress( localHost );
+    }
+
+
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
+     */
+    public byte getTag()
+    {
+        return 54;
     }
 }

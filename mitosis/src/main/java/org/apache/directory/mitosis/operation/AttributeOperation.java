@@ -22,8 +22,12 @@ package org.apache.directory.mitosis.operation;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.InvalidAttributeIdentifierException;
 
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
@@ -40,6 +44,7 @@ public abstract class AttributeOperation extends Operation
 {
     private final LdapDN name;
     private final Attribute attribute;
+    private transient ServerAttribute serverAttribute;
 
 
     /**
@@ -48,24 +53,35 @@ public abstract class AttributeOperation extends Operation
      * @param name the normalized name of an entry 
      * @param attribute an attribute to modify
      */
-    public AttributeOperation( CSN csn, LdapDN name, Attribute attribute )
+    public AttributeOperation( CSN csn, LdapDN name, ServerAttribute serverAttribute )
     {
         super( csn );
 
         assert name != null;
-        assert attribute != null;
+        assert serverAttribute != null;
 
         this.name = name;
-        this.attribute = ( Attribute ) attribute.clone();
+        this.serverAttribute = (ServerAttribute)serverAttribute.clone();
+        this.attribute = ServerEntryUtils.toAttributeImpl( this.serverAttribute );
     }
 
 
     /**
      * Returns the attribute to modify.
      */
-    public Attribute getAttribute()
+    public ServerAttribute getAttribute( AttributeTypeRegistry atRegistry ) throws InvalidAttributeIdentifierException, NamingException
     {
-        return ( Attribute ) attribute.clone();
+        if ( serverAttribute != null )
+        {
+            return ( ServerAttribute ) serverAttribute.clone();
+        }
+        else
+        {
+            Attribute attr = (Attribute)attribute.clone();
+            
+            serverAttribute = ServerEntryUtils.toServerAttribute( attr, atRegistry.lookup( attr.getID() ) );
+            return (ServerAttribute)serverAttribute.clone();
+        }
     }
 
 
@@ -93,6 +109,14 @@ public abstract class AttributeOperation extends Operation
 
     protected abstract void execute1( PartitionNexus nexus, Registries registries ) throws NamingException;
 
+
+    /**
+     * Returns the attribute to modify.
+     */
+    public String getAttributeString()
+    {
+        return attribute.toString();
+    }
 
     /**
      * Returns string representation of this operation.

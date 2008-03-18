@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.mina.common.IoSession;

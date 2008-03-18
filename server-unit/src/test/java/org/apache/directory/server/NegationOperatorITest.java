@@ -37,7 +37,7 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 public class NegationOperatorITest extends AbstractServerTest
 {
     private LdapContext ctx = null;
-    private List<Entry> loadedEntries;
+    private List<LdifEntry> loadedEntries;
 
 
     /**

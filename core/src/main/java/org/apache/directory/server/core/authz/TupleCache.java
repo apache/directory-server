@@ -22,8 +22,7 @@ package org.apache.directory.server.core.authz;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.entry.ServerValue;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
@@ -34,11 +33,12 @@ import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
@@ -47,11 +47,9 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -133,15 +131,15 @@ public class TupleCache
                     SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration<SearchResult> results = nexus.search( 
+            NamingEnumeration<ServerSearchResult> results = nexus.search( 
                 new SearchOperationContext( registries, baseDn,
                     AliasDerefMode.NEVER_DEREF_ALIASES, filter, ctls ) );
             
             while ( results.hasMore() )
             {
-                SearchResult result = results.next();
-                LdapDN subentryDn = new LdapDN( result.getName() ).normalize( normalizerMap );
-                ServerEntry serverEntry = ServerEntryUtils.toServerEntry( result.getAttributes(), subentryDn, registries );
+            	ServerSearchResult result = results.next();
+                LdapDN subentryDn = result.getDn().normalize( normalizerMap );
+                ServerEntry serverEntry = result.getServerEntry();
                 ServerAttribute aci = serverEntry.get( prescriptiveAciAT );
                 
                 if ( aci == null )
@@ -196,7 +194,7 @@ public class TupleCache
 
         List<ACITuple> entryTuples = new ArrayList<ACITuple>();
         
-        for ( ServerValue<?> value:aciAttr )
+        for ( Value<?> value:aciAttr )
         {
             String aci = (String)value.get();
             ACIItem item = null;
@@ -234,19 +232,16 @@ public class TupleCache
     }
 
 
-    public void subentryModified( LdapDN normName, List<ModificationItemImpl> mods, ServerEntry entry ) throws NamingException
+    public void subentryModified( LdapDN normName, List<Modification> mods, ServerEntry entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
             return;
         }
 
-        for ( ModificationItemImpl mod : mods )
+        for ( Modification mod : mods )
         {
-            String attrID = mod.getAttribute().getID();
-            
-            if ( attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT ) ||
-                    attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT_OID ) )
+            if ( ((ServerAttribute)mod.getAttribute()).instanceOf( SchemaConstants.PRESCRIPTIVE_ACI_AT ) )
             {
                 subentryDeleted( normName, entry );
                 subentryAdded( normName, entry );
@@ -282,7 +277,7 @@ public class TupleCache
     }
 
 
-    public void subentryRenamed( Name oldName, Name newName )
+    public void subentryRenamed( LdapDN oldName, LdapDN newName )
     {
         tuples.put( newName.toString(), tuples.remove( oldName.toString() ) );
     }

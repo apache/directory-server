@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.message.SearchResponseEntry;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseReference;
 import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
-import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.common.IoSession;
@@ -105,7 +104,7 @@ class SearchResponseIterator implements Iterator<Response>
         {
             if ( underlying.hasMore() )
             {
-                ServerSearchResult result = ( ServerSearchResult ) underlying.next();
+                SearchResult result = (SearchResult ) underlying.next();
 
                 /*
                  * Now we have to build the prefetched object from the 'result'
@@ -113,13 +112,15 @@ class SearchResponseIterator implements Iterator<Response>
                  */
                 Attribute ref = result.getAttributes().get( SchemaConstants.REF_AT );
                 
-                if ( !ctx.isReferral( result.getDn() )
+                LdapDN dn = new LdapDN( result.getName() );
+                
+                if ( !ctx.isReferral( dn )
                     || req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
                 {
                     SearchResponseEntry respEntry;
                     respEntry = new SearchResponseEntryImpl( req.getMessageId() );
                     respEntry.setAttributes( result.getAttributes() );
-                    respEntry.setObjectName( result.getDn() );
+                    respEntry.setObjectName( dn );
                     prefetched = respEntry;
                 }
                 else

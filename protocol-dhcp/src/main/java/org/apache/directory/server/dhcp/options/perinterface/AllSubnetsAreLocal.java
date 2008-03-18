@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.perinterface;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.ByteOption;
 
 
 /**
@@ -39,25 +37,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AllSubnetsAreLocal extends DhcpOption
+public class AllSubnetsAreLocal extends ByteOption
 {
-    private byte[] allSubnetsAreLocal;
-
-
-    /**
-     * Creates a new instance of AllSubnetsAreLocal.
-     *
-     * @param allSubnetsAreLocal
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public AllSubnetsAreLocal( byte[] allSubnetsAreLocal )
+    public byte getTag()
     {
-        super( 27, 1 );
-        this.allSubnetsAreLocal = allSubnetsAreLocal;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( allSubnetsAreLocal );
+        return 27;
     }
 }

@@ -36,13 +36,11 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class NetbiosNameServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of NetbiosNameServers.
-     *
-     * @param netbiosNameServer
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public NetbiosNameServers( byte[] netbiosNameServer )
+    public byte getTag()
     {
-        super( 44, netbiosNameServer );
+        return 44;
     }
 }

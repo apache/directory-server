@@ -18,44 +18,29 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.vendor;
+
+
+import org.apache.directory.server.dhcp.options.ShortOption;
+
+
 /**
  * This option specifies the length in 512-octet blocks of the default
  * boot image for the client.  The file length is specified as an
  * unsigned 16-bit integer.
  * 
  * The code for this option is 13, and its length is 2.
- */
-package org.apache.directory.server.dhcp.options.vendor;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BootFileSize extends DhcpOption
+public class BootFileSize extends ShortOption
 {
-    private byte[] bootFileSize;
-
-
-    /**
-     * Creates a new instance of BootFileSize.
-     *
-     * @param bootFileSize
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public BootFileSize( byte[] bootFileSize )
+    public byte getTag()
     {
-        super( 13, 2 );
-        this.bootFileSize = bootFileSize;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( bootFileSize );
+        return 21;
     }
 }

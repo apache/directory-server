@@ -81,11 +81,11 @@ public class EntryNode implements TreeNode
         try
         {
             List<ForwardIndexEntry> recordForwards = new ArrayList<ForwardIndexEntry>();
-            NamingEnumeration childList = db.list( id );
+            NamingEnumeration<IndexEntry> childList = db.list( id );
             
             while ( childList.hasMore() )
             {
-                IndexEntry old = ( IndexEntry ) childList.next();
+                IndexEntry old = childList.next();
                 ForwardIndexEntry newRec = new ForwardIndexEntry();
                 newRec.copy( old );
                 recordForwards.add( newRec );
@@ -139,7 +139,7 @@ public class EntryNode implements TreeNode
     }
 
 
-    public Enumeration children()
+    public Enumeration<TreeNode> children()
     {
         return Collections.enumeration( children );
     }
@@ -199,7 +199,6 @@ public class EntryNode implements TreeNode
         }
         catch ( NamingException e )
         {
-            e.printStackTrace();
             buf.append( "ERROR: " + e.getMessage() );
         }
 

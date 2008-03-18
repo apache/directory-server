@@ -18,14 +18,6 @@
  *  
  */
 
-/**
- * The log server option specifies a list of MIT-LCS UDP log servers
- * available to the client.  Servers SHOULD be listed in order of
- * preference.
- * 
- * The code for the log server option is 7.  The minimum length for this
- * option is 4 octets, and the length MUST always be a multiple of 4.
- */
 package org.apache.directory.server.dhcp.options.vendor;
 
 
@@ -33,18 +25,23 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
 
 
 /**
+ * The log server option specifies a list of MIT-LCS UDP log servers
+ * available to the client.  Servers SHOULD be listed in order of
+ * preference.
+ * 
+ * The code for the log server option is 7.  The minimum length for this
+ * option is 4 octets, and the length MUST always be a multiple of 4.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class LogServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of LogServers.
-     *
-     * @param logServers
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public LogServers( byte[] logServers )
+    public byte getTag()
     {
-        super( 7, logServers );
+        return 7;
     }
 }

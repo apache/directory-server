@@ -47,11 +47,16 @@ class ObjectClassImpl extends AbstractSchemaObject implements MutableSchemaObjec
 
     private ObjectClassTypeEnum objectClassType;
     private ObjectClass[] superClasses;
-    private AttributeType[] mayList = EMPTY_AT_ARRAY;
-    private AttributeType[] mustList = EMPTY_AT_ARRAY;
-    private String[] superClassOids;
+
     private String[] mayListOids;
+    private AttributeType[] mayList = EMPTY_AT_ARRAY;
+    private boolean mayListReloaded;
+    
     private String[] mustListOids;
+    private AttributeType[] mustList = EMPTY_AT_ARRAY;
+    private boolean mustListReloaded;
+
+    private String[] superClassOids;
     
     
     protected ObjectClassImpl( String oid, Registries registries )
@@ -91,59 +96,73 @@ class ObjectClassImpl extends AbstractSchemaObject implements MutableSchemaObjec
         {
             return EMPTY_AT_ARRAY;
         }
-        
-        for ( int ii = 0; ii < mayListOids.length; ii++ )
+
+        if ( mayListReloaded )
         {
-            mayList[ii] = registries.getAttributeTypeRegistry().lookup( mayListOids[ii] );
+            for ( int ii = 0; ii < mayListOids.length; ii++ )
+            {
+                mayList[ii] = registries.getAttributeTypeRegistry().lookup( mayListOids[ii] );
+            }
+            
+            mayListReloaded = false;
         }
-        
+
         return mayList;
     }
     
     
-    public void setMayListOids( String[] mayListOids )
+    public void setMayListOids( String[] mayListOids ) throws NamingException
     {
         if ( mayListOids == null )
         {
             this.mayListOids = EMPTY_STR_ARRAY;
-            this.mayList = EMPTY_AT_ARRAY;
+            mayList = EMPTY_AT_ARRAY;
         }
         else
         {
             this.mayListOids = mayListOids;
-            this.mayList = new AttributeType[mayListOids.length];
+            mayList = new AttributeType[mayListOids.length];
         }
+
+        mayListReloaded = true;
     }
 
 
     public AttributeType[] getMustList() throws NamingException
     {
-        if ( this.mustListOids == null )
+        if ( mustListOids == null )
         {
             return EMPTY_AT_ARRAY;
         }
         
-        for ( int ii = 0; ii < mustListOids.length; ii++ )
+        if ( mustListReloaded )
         {
-            mustList[ii] = registries.getAttributeTypeRegistry().lookup( mustListOids[ii] );
+            for ( int ii = 0; ii < mustListOids.length; ii++ )
+            {
+                mustList[ii] = registries.getAttributeTypeRegistry().lookup( mustListOids[ii] );
+            }
+            
+            mustListReloaded = false;
         }
         
         return mustList;
     }
     
     
-    public void setMustListOids( String[] mustListOids )
+    public void setMustListOids( String[] mustListOids ) throws NamingException
     {
         if ( mustListOids == null )
         {
             this.mustListOids = EMPTY_STR_ARRAY;
-            this.mustList = EMPTY_AT_ARRAY;
+            mustList = EMPTY_AT_ARRAY;
         }
         else
         {
             this.mustListOids = mustListOids;
-            this.mustList = new AttributeType[mustListOids.length];
+            mustList = new AttributeType[mustListOids.length];
         }
+        
+        mustListReloaded = true;
     }
 
 

@@ -37,13 +37,11 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class NtpServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of NtpServers.
-     *
-     * @param ntpServers
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public NtpServers( byte[] ntpServers )
+    public byte getTag()
     {
-        super( 42, ntpServers );
+        return 42;
     }
 }

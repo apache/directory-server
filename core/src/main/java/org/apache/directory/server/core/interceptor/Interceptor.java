@@ -22,6 +22,7 @@ package org.apache.directory.server.core.interceptor;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -47,8 +48,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 import java.util.Iterator;
 
 
@@ -200,19 +199,19 @@ public interface Interceptor
     /**
      * Filters {@link Partition#list( ListOperationContext )} call.
      */
-    NamingEnumeration<SearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException;
+    NamingEnumeration<ServerSearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException;
 
 
     /**
      * Filters {@link Partition#search( SearchOperationContext )} call.
      */
-    NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException;
+    NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException;
 
 
     /**
      * Filters {@link Partition#lookup( LookupOperationContext )} call.
      */
-    Attributes lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException;
+    ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException;
 
 
     /**

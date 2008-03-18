@@ -23,7 +23,7 @@ package org.apache.directory.server.core.changelog;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 
 import javax.naming.NamingException;
 
@@ -64,7 +64,7 @@ public interface ChangeLogStore
      * @return the new revision reached after having applied the forward LDIF
      * @throws NamingException if there are problems logging the change
      */
-    long log( LdapPrincipal principal, Entry forward, Entry reverse ) throws NamingException;
+    long log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws NamingException;
 
     
     /**

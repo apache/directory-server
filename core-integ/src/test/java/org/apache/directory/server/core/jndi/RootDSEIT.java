@@ -122,8 +122,36 @@ public class RootDSEIT
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
 
         Attributes attributes = ctx.getAttributes( "", new String[]
-            { "namingContexts", "vendorName" } );
+            { "namingContexts", "VENDORNAME" } );
         assertEquals( 2, attributes.size() );
+        assertEquals( "Apache Software Foundation", attributes.get( "vendorName" ).get() );
+        assertTrue( attributes.get( "namingContexts" ).contains( "ou=system" ) );
+    }
+
+
+    /**
+     * Checks for ObjectClass, namingContexts and vendorName attributes.
+     *
+     * @throws NamingException if there are any problems
+     */
+    @Test
+    public void testGetInitialContextLookupAttributesByNameWithOC() throws NamingException
+    {
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( Context.PROVIDER_URL, "" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+
+        InitialContext initCtx = new InitialContext( env );
+        assertNotNull( initCtx );
+        DirContext ctx = ( DirContext ) initCtx.lookup( "" );
+
+        Attributes attributes = ctx.getAttributes( "", new String[]
+            { "ObjectClass", "namingContexts", "VENDORNAME" } );
+        assertEquals( 3, attributes.size() );
         assertEquals( "Apache Software Foundation", attributes.get( "vendorName" ).get() );
         assertTrue( attributes.get( "namingContexts" ).contains( "ou=system" ) );
     }

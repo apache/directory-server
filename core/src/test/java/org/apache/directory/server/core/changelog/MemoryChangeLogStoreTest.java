@@ -22,7 +22,7 @@ package org.apache.directory.server.core.changelog;
 import junit.framework.TestCase;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -58,13 +58,13 @@ public class MemoryChangeLogStoreTest extends TestCase
     {
         assertEquals( "first revision is always 0", 0, store.getCurrentRevision() );
 
-        Entry forward = new Entry();
+        LdifEntry forward = new LdifEntry();
         forward.setDn( "ou=system" );
         forward.setChangeType( ChangeType.Add );
         forward.putAttribute( "objectClass", "organizationalUnit" );
         forward.putAttribute( "ou", "system" );
 
-        Entry reverse = LdifUtils.reverseAdd( new LdapDN( forward.getDn() ) );
+        LdifEntry reverse = LdifUtils.reverseAdd( new LdapDN( forward.getDn() ) );
         assertEquals( 1, store.log( new LdapPrincipal(), forward, reverse ) );
         assertEquals( 1, store.getCurrentRevision() );
     }

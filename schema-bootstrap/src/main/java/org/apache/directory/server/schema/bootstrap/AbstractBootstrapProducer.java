@@ -231,10 +231,30 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         private final MatchingRuleRegistry matchingRuleRegistry;
         private final AttributeTypeRegistry attributeTypeRegistry;
         private String superiorId;
+        
+        /** The equality OID for this AttributeType */
         private String equalityId;
+
+        /** The MatchingRule associated with the equalityID */
+        private MatchingRule equalityMR;
+        
+        /** The substring OID for this AttributeType */
         private String substrId;
+        
+        /** The MatchingRule associated with the substrID */
+        private MatchingRule substrMR;
+        
+        /** The ordering OID for this AttributeType */
         private String orderingId;
+        
+        /** The MatchingRule associated with the orderingID */
+        private MatchingRule orderingMR;
+
+        /** The syntax OID for this attributeType */
         private String syntaxId;
+        
+        /** The Syntax associated with the syntaxID */
+        private Syntax syntax;
 
 
         public BootstrapAttributeType(String oid, Registries registries)
@@ -276,19 +296,24 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
 
 
+        /**
+         * @return The MatchingRule associated with the AttributeType
+         */
         public MatchingRule getEquality() throws NamingException
         {
-            if ( equalityId != null )
-            {
-                return this.matchingRuleRegistry.lookup( equalityId );
-            }
+        	if ( equalityMR == null )
+        	{
+	            if ( equalityId != null )
+	            {
+	                equalityMR = this.matchingRuleRegistry.lookup( equalityId );
+	            }
+	            else if ( superiorId != null )
+	            {
+	            	equalityMR = getSuperior().getEquality();
+	            }
+        	}
 
-            if ( superiorId != null )
-            {
-                return getSuperior().getEquality();
-            }
-
-            return null;
+            return equalityMR;
         }
 
 
@@ -300,17 +325,19 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
 
         public MatchingRule getSubstr() throws NamingException
         {
-            if ( substrId != null )
+            if ( substrMR == null )
             {
-                return this.matchingRuleRegistry.lookup( substrId );
+                if ( substrId != null )
+                {
+                    substrMR = matchingRuleRegistry.lookup( substrId );
+                }
+                else if ( superiorId != null )
+                {
+                    substrMR = getSuperior().getSubstr();
+                }
             }
 
-            if ( superiorId != null )
-            {
-                return getSuperior().getSubstr();
-            }
-
-            return null;
+            return substrMR;
         }
 
 
@@ -332,19 +359,24 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
 
 
+        /**
+         * @return The Ordering Matching Rule associated with this AttributeType
+         */
         public MatchingRule getOrdering() throws NamingException
         {
-            if ( orderingId != null )
+            if ( orderingMR == null )
             {
-                return this.matchingRuleRegistry.lookup( orderingId );
+                if ( orderingId != null )
+                {
+                    orderingMR = matchingRuleRegistry.lookup( orderingId );
+                }
+                else if ( superiorId != null )
+                {
+                    orderingMR = getSuperior().getOrdering();
+                }
             }
 
-            if ( superiorId != null )
-            {
-                return getSuperior().getOrdering();
-            }
-
-            return null;
+            return orderingMR;
         }
 
 
@@ -360,19 +392,24 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
 
 
+        /**
+         * @return The Syntax associated with the AttributeType
+         */
         public Syntax getSyntax() throws NamingException
         {
-            if ( syntaxId != null )
-            {
-                return this.syntaxRegistry.lookup( syntaxId );
-            }
+        	if ( syntax == null )
+        	{
+	            if ( syntaxId != null )
+	            {
+	                syntax = syntaxRegistry.lookup( syntaxId );
+	            }
+	            else if ( superiorId != null )
+	            {
+	            	syntax = getSuperior().getSyntax();
+	            }
+        	}
 
-            if ( superiorId != null )
-            {
-                return getSuperior().getSyntax();
-            }
-
-            return null;
+        	return syntax;
         }
 
 

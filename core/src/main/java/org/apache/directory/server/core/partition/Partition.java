@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -40,7 +41,6 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 
 
 /**
@@ -248,7 +248,7 @@ public interface Partition
      * @return a NamingEnumeration containing objects of type {@link SearchResult}
      * @throws NamingException if there are any problems
      */
-    NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException;
+    NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException;
 
 
     /**
@@ -265,7 +265,7 @@ public interface Partition
      * <a href="http://java.sun.com/j2se/1.4.2/docs/api/
      * javax/naming/directory/SearchResult.html">SearchResult</a>.
      */
-    NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+    NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
         throws NamingException;
 
 
@@ -281,7 +281,7 @@ public interface Partition
      * @return an Attributes object representing the entry
      * @throws NamingException if there are any problems
      */
-    Attributes lookup( LookupOperationContext lookupContext ) throws NamingException;
+    ServerEntry lookup( LookupOperationContext lookupContext ) throws NamingException;
 
     /**
      * Fast operation to check and see if a particular entry exists.

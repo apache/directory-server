@@ -23,13 +23,14 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -51,13 +52,13 @@ public interface ACITupleFilter
      * @param scope the scope of the operation to be performed
      * @param proxy the proxy interceptor for this filter to access the DIT
      * @param userGroupNames the collection of group ({@link Name})s which the current user belongs to
-     * @param userName the {@link Name} of the current user
-     * @param userEntry the {@link Attributes} of the current user entry in the DIT
+     * @param userName the {@link DN} of the current user
+     * @param userEntry the {@link ServerEntry} of the current user entry in the DIT
      * @param authenticationLevel the level of authentication of the current user
      * @param entryName the {@link Name} of the entry the current user accesses
      * @param attrId the attribute ID the current user accesses
      * @param attrValue the value of the attribute the current user accesses
-     * @param entry the {@link Attributes} of the entry the current user accesses
+     * @param entry the {@link ServerEntry} of the entry the current user accesses
      * @param microOperations the set of {@link MicroOperation}s the current user will perform
      * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
      * @return the collection of filtered tuples
@@ -70,13 +71,13 @@ public interface ACITupleFilter
             PartitionNexusProxy proxy,
             Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
-            Attributes userEntry,
+            ServerEntry userEntry,
             AuthenticationLevel authenticationLevel, 
             LdapDN entryName, 
             String attrId,
-            Object attrValue, 
-            Attributes entry, 
+            Value<?> attrValue, 
+            ServerEntry entry, 
             Collection<MicroOperation> microOperations,
-            Attributes entryView )
+            ServerEntry entryView )
         throws NamingException;
 }

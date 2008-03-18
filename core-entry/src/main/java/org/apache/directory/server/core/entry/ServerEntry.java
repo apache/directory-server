@@ -20,6 +20,7 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 
@@ -40,43 +41,6 @@ public interface ServerEntry extends Entry<ServerAttribute>, Cloneable
     // -----------------------------------------------------------------------
     // Schema Related Methods
     // -----------------------------------------------------------------------
-
-
-    /**
-     * Adds an objectClass to the objectClass attribute of this ServerEntry using
-     * a specific alias name with the case provided by the user.
-     *
-     * @param objectClass the objectClass to add to this ServerEntry
-     * @param alias the optional user provided alias to use
-     * @return true if the objectClass is added, false otherwise
-     * @throws NamingException if there are problems resolving entities while
-     * adding the objectClass and its ancestors
-     */
-    boolean addObjectClass( ObjectClass objectClass, String alias ) throws NamingException;
-
-
-    /**
-     * Adds an objectClass to the objectClass attribute of this ServerEntry using
-     * the first alias it can find.  If no alias name exists the numeric OID of the
-     * objectClass is added as a value to the objectClass attribute.
-     *
-     * @param objectClass the objectClass to add to this ServerEntry
-     * @return true if the objectClass is added, false otherwise
-     * @throws NamingException if there are problems resolving entities while
-     * adding the objectClass and its ancestors
-     */
-    boolean addObjectClass( ObjectClass objectClass ) throws NamingException;
-
-
-    /**
-     * Checks to see if this entry is of the objectClass.
-     *
-     * @param objectClass the objectClass to check for in this ServerEntry
-     * @return true if this entry is of the objectClass, false otherwise
-     */
-    boolean hasObjectClass( ObjectClass objectClass );
-
-
     /**
      * Checks to see if this entry is of the objectClass.
      *
@@ -84,78 +48,6 @@ public interface ServerEntry extends Entry<ServerAttribute>, Cloneable
      * @return true if this entry is of the objectClass, false otherwise
      */
     boolean hasObjectClass( String objectClass );
-
-
-    /**
-     * Gets the first structural objectClass that it can find within the entry.
-     * If the entry is inconsistent and contains no objectClass attribute then
-     * null is returned.  If the entry is inconsistent and contains more than
-     * one structural objectClass which is illegal, then the first to be found
-     * will be returned.
-     *
-     * @return the first structural objectClass found in this entry
-     */
-    ObjectClass getStructuralObjectClass();
-
-
-    /**
-     * Gets all the structural objectClasses that are found within the entry
-     * even though such a condition is considered invalid.  Only one structural
-     * objectClass can be present within a valid entry.  The entry can also be
-     * inconsistent by having no structural objectClasses then an empty set is
-     * returned.
-     *
-     * @return all the structural objectClasses found in this entry
-     */
-    Set<ObjectClass> getStructuralObjectClasses();
-
-
-    /**
-     * Gets all the auxiliary objectClasses that it can find within the entry.
-     * If the entry is inconsistent and contains no objectClass attribute then
-     * the empty set is returned.
-     *
-     * @return the set of auxiliary objectClasses found in this entry
-     */
-    Set<ObjectClass> getAuxiliaryObjectClasses();
-
-
-    /**
-     * Gets all the abstract objectClasses that it can find within the entry.
-     * If the entry is inconsistent and contains no objectClass attribute then
-     * the empty set is returned.
-     *
-     * @return the set of abstract objectClasses found in this entry
-     */
-    Set<ObjectClass> getAbstractObjectClasses();
-
-
-    /**
-     * Gets the objectClasses associated with this entry. If there is no
-     * objectClass attribute contained within this entry then an empty set
-     * is returned.
-     *
-     * @return the objectClasses which govern the structure of this entry
-     */
-    Set<ObjectClass> getAllObjectClasses();
-
-
-    /**
-     * Gets the combinded set of all required attributes for this entry across
-     * all objectClasses.
-     *
-     * @return the combinded set of all required attributes
-     */
-    Set<AttributeType> getMustList();
-
-
-    /**
-     * Gets the combined set of all optional attributes for this entry across
-     * all objectClasses.
-     *
-     * @return the combined set of all optional attributes
-     */
-    Set<AttributeType> getMayList();
 
     
     /**
@@ -254,7 +146,7 @@ public interface ServerEntry extends Entry<ServerAttribute>, Cloneable
      *         <code>null</code>
      * @throws NamingException if there are resolution issues
      */
-    ServerAttribute put( AttributeType attributeType, ServerValue<?>... values ) throws NamingException;
+    ServerAttribute put( AttributeType attributeType, Value<?>... values ) throws NamingException;
 
     /**
      * Places a new attribute with the supplied attributeType and value into this
@@ -271,7 +163,7 @@ public interface ServerEntry extends Entry<ServerAttribute>, Cloneable
      *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute put( String upId, ServerValue<?>... values ) throws NamingException;
+    ServerAttribute put( String upId, Value<?>... values ) throws NamingException;
 
 
     /**

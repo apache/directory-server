@@ -31,10 +31,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -59,8 +55,8 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.entry.ServerValue;
+import org.apache.directory.server.core.entry.ServerModification;
+import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
@@ -70,13 +66,14 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionKeyEncoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +150,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 log.debug( "Adding Attribute id : 'userPassword',  Values : [ {} ]", sb.toString() );
             }
 
-            ServerValue<?> principalNameValue = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get();
+            Value<?> principalNameValue = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get();
             
             String principalName = (String)principalNameValue.get();
 
@@ -216,65 +213,64 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext )
         throws NamingException
     {
-        List<ModificationItemImpl> mods = modContext.getModItems();
+        List<Modification> mods = modContext.getModItems();
 
         String operation = null;
 
         // Loop over attributes being modified to pick out 'userPassword' and 'krb5PrincipalName'.
-        for ( ModificationItem mod:mods )
+        for ( Modification mod:mods )
         {
             if ( log.isDebugEnabled() )
             {
-                switch ( mod.getModificationOp() )
+                switch ( mod.getOperation() )
                 {
-                    case DirContext.ADD_ATTRIBUTE:
+                    case ADD_ATTRIBUTE:
                         operation = "Adding";
                         break;
                         
-                    case DirContext.REMOVE_ATTRIBUTE:
+                    case REMOVE_ATTRIBUTE:
                         operation = "Removing";
                         break;
                         
-                    case DirContext.REPLACE_ATTRIBUTE:
+                    case REPLACE_ATTRIBUTE:
                         operation = "Replacing";
                         break;
                 }
             }
 
-            Attribute attr = mod.getAttribute();
-            String attrId = attr.getID();
+            ServerAttribute attr = (ServerAttribute)mod.getAttribute();
 
-            if ( attrId.equalsIgnoreCase( SchemaConstants.USER_PASSWORD_AT ) )
+            if ( attr.instanceOf( SchemaConstants.USER_PASSWORD_AT ) )
             {
                 Object firstValue = attr.get();
+                String password = null;
 
-                if ( firstValue instanceof String )
+                if ( firstValue instanceof ServerStringValue )
                 {
-                    log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, firstValue );
+                    password = ((ServerStringValue)firstValue).get();
+                    log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, password );
                 }
-                else if ( firstValue instanceof byte[] )
+                else if ( firstValue instanceof ServerBinaryValue )
                 {
-                    String string = StringTools.utf8ToString( ( byte[] ) firstValue );
+                    password = StringTools.utf8ToString( ((ServerBinaryValue)firstValue).get() );
 
                     if ( log.isDebugEnabled() )
                     {
                         StringBuffer sb = new StringBuffer();
-                        sb.append( "'" + string + "' ( " );
-                        sb.append( StringTools.dumpBytes( ( byte[] ) firstValue ).trim() );
+                        sb.append( "'" + password + "' ( " );
+                        sb.append( StringTools.dumpBytes( ((ServerBinaryValue)firstValue).get() ).trim() );
                         sb.append( " )" );
                         log.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
                     }
-
-                    firstValue = string;
                 }
 
-                subContext.setUserPassword( ( String ) firstValue );
+                subContext.setUserPassword( password );
                 log.debug( "Got userPassword '{}'.", subContext.getUserPassword() );
             }
 
-            if ( attrId.equalsIgnoreCase( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ) )
+            if ( attr.instanceOf( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ) )
             {
-                subContext.setPrincipalName( ( String ) attr.get() );
+                subContext.setPrincipalName( attr.getString() );
                 log.debug( "Got principal '{}'.", subContext.getPrincipalName() );
             }
         }
@@ -295,7 +291,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes userEntry;
+        ServerEntry userEntry;
 
         LookupOperationContext lookupContext = 
             new LookupOperationContext( modContext.getRegistries(),
@@ -315,9 +311,9 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             throw new LdapAuthenticationException( "Failed to authenticate user '" + principalDn + "'." );
         }
 
-        Attribute objectClass = userEntry.get( SchemaConstants.OBJECT_CLASS_AT );
+        ServerAttribute objectClass = userEntry.get( SchemaConstants.OBJECT_CLASS_AT );
         
-        if ( !AttributeUtils.containsValueCaseIgnore( objectClass, SchemaConstants.KRB5_PRINCIPAL_OC ) )
+        if ( !objectClass.contains( SchemaConstants.KRB5_PRINCIPAL_OC ) )
         {
             return;
         }
@@ -329,13 +325,13 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         if ( subContext.getPrincipalName() == null )
         {
-            Attribute principalAttribute = userEntry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
-            String principalName = ( String ) principalAttribute.get();
+            ServerAttribute principalAttribute = userEntry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
+            String principalName = principalAttribute.getString();
             subContext.setPrincipalName( principalName );
             log.debug( "Found principal '{}' from lookup.", principalName );
         }
 
-        Attribute keyVersionNumberAttr = userEntry.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
+        ServerAttribute keyVersionNumberAttr = userEntry.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
 
         if ( keyVersionNumberAttr == null )
         {
@@ -344,7 +340,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         }
         else
         {
-            int oldKeyVersionNumber = Integer.valueOf( ( String ) keyVersionNumberAttr.get() );
+            int oldKeyVersionNumber = Integer.valueOf( keyVersionNumberAttr.getString() );
             int newKeyVersionNumber = oldKeyVersionNumber + 1;
             subContext.setNewKeyVersionNumber( newKeyVersionNumber );
             log.debug( "Found key version number '{}', setting to '{}'.", oldKeyVersionNumber, newKeyVersionNumber );
@@ -362,7 +358,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      */
     void deriveKeys( ModifyOperationContext modContext, ModifySubContext subContext ) throws NamingException
     {
-        List<ModificationItemImpl> mods = modContext.getModItems();
+        List<Modification> mods = modContext.getModItems();
 
         String principalName = subContext.getPrincipalName();
         String userPassword = subContext.getUserPassword();
@@ -372,22 +368,35 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, userPassword );
 
-        List<ModificationItemImpl> newModsList = new ArrayList<ModificationItemImpl>();
+        List<Modification> newModsList = new ArrayList<Modification>();
 
         // Make sure we preserve any other modification items.
-        for ( ModificationItemImpl mod:mods )
+        for ( Modification mod:mods )
         {
             newModsList.add( mod );
         }
+        
+        AttributeTypeRegistry atRegistry = modContext.getRegistries().getAttributeTypeRegistry();
 
         // Add our modification items.
-        newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
-            KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principalName ) ) );
-        newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
-            KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, Integer.toString( kvno ) ) ) );
+        newModsList.add( 
+            new ServerModification( 
+                ModificationOperation.REPLACE_ATTRIBUTE, 
+                new DefaultServerAttribute(
+                    KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
+                    atRegistry.lookup( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ),
+                    principalName ) ) );
+        newModsList.add( 
+            new ServerModification( 
+                ModificationOperation.REPLACE_ATTRIBUTE, 
+                new DefaultServerAttribute(
+                    KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, 
+                    atRegistry.lookup( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ),
+                    Integer.toString( kvno ) ) ) );
         
-        Attribute attribute = ServerEntryUtils.toAttributeImpl( getKeyAttribute( modContext.getRegistries(), keys ) );
-        newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attribute ) );
+        ServerAttribute attribute = getKeyAttribute( modContext.getRegistries(), keys );
+        newModsList.add( 
+            new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute ) );
 
         modContext.setModItems( newModsList );
     }

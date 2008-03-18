@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.subtree;
 
 
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -29,7 +30,6 @@ import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 
 
 /**
@@ -54,20 +54,23 @@ public class RefinementEvaluator
     }
 
 
-    public boolean evaluate( ExprNode node, Attribute objectClasses ) throws NamingException
+    public boolean evaluate( ExprNode node, ServerAttribute objectClasses ) throws NamingException
     {
         if ( node == null )
         {
             throw new IllegalArgumentException( "node cannot be null" );
         }
+        
         if ( objectClasses == null )
         {
             throw new IllegalArgumentException( "objectClasses cannot be null" );
         }
-        if ( !objectClasses.getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
+        
+        if ( !objectClasses.instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             throw new IllegalArgumentException( "Attribute objectClasses should be of id 'objectClass'" );
         }
+        
         if ( node.isLeaf() )
         {
             return leafEvaluator.evaluate( ( SimpleNode ) node, objectClasses );

@@ -63,5 +63,5 @@ public interface ServerDirStateFactory extends DirStateFactory
      *
      * @return the class associated with this factory.
      */
-    Class getAssociatedClass();
+    Class<?> getAssociatedClass();
 }

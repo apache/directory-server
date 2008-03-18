@@ -28,14 +28,17 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.server.core.authz.support.RelatedProtectedItemFilter;
 import org.apache.directory.server.core.authz.support.RelatedUserClassFilter;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
@@ -48,10 +51,15 @@ import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests {@link RelatedUserClassFilter}.
@@ -59,158 +67,178 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RelatedProtectedItemFilterTest extends TestCase
+public class RelatedProtectedItemFilterTest
 {
     private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
     private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
-    private static final LdapDN GROUP_NAME;
-    private static final LdapDN USER_NAME;
-    private static final Set<LdapDN> USER_NAMES = new HashSet<LdapDN>();
-    private static final Set<LdapDN> GROUP_NAMES = new HashSet<LdapDN>();
+    private static LdapDN GROUP_NAME;
+    private static LdapDN USER_NAME;
+    private static Set<LdapDN> USER_NAMES = new HashSet<LdapDN>();
+    private static Set<LdapDN> GROUP_NAMES = new HashSet<LdapDN>();
 
     private static final AttributeTypeRegistry ATTR_TYPE_REGISTRY_A = new DummyAttributeTypeRegistry( false );
     private static final AttributeTypeRegistry ATTR_TYPE_REGISTRY_B = new DummyAttributeTypeRegistry( true );
-    private static final OidRegistry OID_REGISTRY = new DummyOidRegistry();
+    private static OidRegistry OID_REGISTRY;
 
-    private static final RelatedProtectedItemFilter filterA;
-    private static final RelatedProtectedItemFilter filterB;
+    private static RelatedProtectedItemFilter filterA;
+    private static RelatedProtectedItemFilter filterB;
 
-    static
+    /** A reference to the directory service */
+    private static DirectoryService service;
+    
+    /** The CN attribute Type */
+    private static AttributeType CN_AT;
+
+    /** The SN attribute Type */
+    private static AttributeType SN_AT;
+
+    
+    @BeforeClass public static void setup() throws NamingException
     {
-        try
-        {
-            GROUP_NAME = new LdapDN( "ou=test,ou=groups,ou=system" );
-            USER_NAME = new LdapDN( "ou=test, ou=users, ou=system" );
+        service = new DefaultDirectoryService();
+        OID_REGISTRY = service.getRegistries().getOidRegistry();
 
-            filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-                OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_A ), OID_REGISTRY, ATTR_TYPE_REGISTRY_A );
+        GROUP_NAME = new LdapDN( "ou=test,ou=groups,ou=system" );
+        USER_NAME = new LdapDN( "ou=test, ou=users, ou=system" );
 
-            filterB = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-                OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_B ), OID_REGISTRY, ATTR_TYPE_REGISTRY_B );
-        }
-        catch ( NamingException e )
-        {
-            throw new Error();
-        }
+        filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
+            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_A ), OID_REGISTRY, ATTR_TYPE_REGISTRY_A );
+
+        filterB = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
+            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_B ), OID_REGISTRY, ATTR_TYPE_REGISTRY_B );
 
         USER_NAMES.add( USER_NAME );
         GROUP_NAMES.add( GROUP_NAME );
+        CN_AT = service.getRegistries().getAttributeTypeRegistry().lookup( "cn" );
+        SN_AT = service.getRegistries().getAttributeTypeRegistry().lookup( "sn" );
     }
 
-
-    public void testZeroTuple() throws Exception
+    
+    private Collection<Attribute> convert( Collection<ServerAttribute> attributes )
     {
-        Assert.assertEquals( 0, filterA.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
+        Set<Attribute> jndiAttributes = new HashSet<Attribute>();
+        
+        for ( ServerAttribute attribute:attributes )
+        {
+            jndiAttributes.add( ServerEntryUtils.toAttributeImpl( attribute ) );
+        }
+        
+        return jndiAttributes;
+    }
+
+    @Test public void testZeroTuple() throws Exception
+    {
+        assertEquals( 0, filterA.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
             null, null, null, null, null, null, null, null, null ).size() );
     }
 
 
-    public void testEntry() throws Exception
+    @Test public void testEntry() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( ProtectedItem.ENTRY );
 
-        Assert.assertEquals( 1, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, null, null,
+        assertEquals( 1, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, null, null,
             AuthenticationLevel.NONE, null, "ou", null, null, null, null ).size() );
     }
 
 
-    public void testAllUserAttributeTypes() throws Exception
+    @Test public void testAllUserAttributeTypes() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
 
         // Test wrong scope
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "userAttr", null, null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
+            "cn", null, null, null, null ).size() );
 
         tuples = getTuples( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
 
-        Assert.assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "userAttr", null, null, null, null ).size() );
+        assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
+            null, null, "cn", null, null, null, null ).size() );
     }
 
 
-    public void testAllUserAttributeTypesAndValues() throws Exception
+    @Test public void testAllUserAttributeTypesAndValues() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
 
         // Test wrong scope
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "userAttr", null, null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
+            "cn", null, null, null, null ).size() );
 
         tuples = getTuples( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
 
-        Assert.assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "userAttr", null, null, null, null ).size() );
+        assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
+            null, null, "cn", null, null, null, null ).size() );
     }
 
 
-    public void testAllAttributeValues() throws Exception
+    @Test public void testAllAttributeValues() throws Exception
     {
         Collection<String> attrTypes = new ArrayList<String>();
-        attrTypes.add( "attrA" );
+        attrTypes.add( "cn" );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.AllAttributeValues( attrTypes ) );
 
         // Test wrong scope
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "attrA", null, null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
+            "cn", null, null, null, null ).size() );
 
         tuples = getTuples( new ProtectedItem.AllAttributeValues( attrTypes ) );
 
-        Assert.assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME, null,
-            null, null, "attrA", null, null, null, null ).size() );
+        assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME, null,
+            null, null, "cn", null, null, null, null ).size() );
 
-        Assert.assertEquals( 0, filterB.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME, null,
-            null, null, "attrB", null, null, null, null ).size() );
+        assertEquals( 0, filterB.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME, null,
+            null, null, "sn", null, null, null, null ).size() );
     }
 
 
-    public void testAttributeType() throws Exception
+    @Test public void testAttributeType() throws Exception
     {
         Collection<String> attrTypes = new ArrayList<String>();
-        attrTypes.add( "attrA" );
+        attrTypes.add( "cn" );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.AttributeType( attrTypes ) );
 
         // Test wrong scope
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "attrA", null, null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
+            "cn", null, null, null, null ).size() );
 
         tuples = getTuples( new ProtectedItem.AttributeType( attrTypes ) );
 
-        Assert.assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "attrA", null, null, null, null ).size() );
+        assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
+            null, null, "cn", null, null, null, null ).size() );
 
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "attrB", null, null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
+            null, null, "sn", null, null, null, null ).size() );
     }
 
 
-    public void testAttributeValue() throws Exception
+    @Test public void testAttributeValue() throws Exception
     {
-        Collection<Attribute> attributes = new ArrayList<Attribute>();
-        attributes.add( new AttributeImpl( "attrA", "valueA" ) );
-        Collection<ACITuple> tuples = getTuples( new ProtectedItem.AttributeValue( attributes ) );
+        Collection<ServerAttribute> attributes = new ArrayList<ServerAttribute>();
+        attributes.add( new DefaultServerAttribute( "cn", CN_AT, "valueA" ) );
+        Collection<ACITuple> tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes ) ) );
 
         // Test wrong scope
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "attrA", null, null, null, null ).size() );
-        tuples = getTuples( new ProtectedItem.AttributeValue( attributes ) );
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "attrA", null, null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
+            "cn", null, null, null, null ).size() );
+        tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes )  ) );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
+            null, null, "cn", null, null, null, null ).size() );
 
-        tuples = getTuples( new ProtectedItem.AttributeValue( attributes ) );
+        tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes )  ) );
 
-        Assert.assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "attrA", "valueA", null, null, null ).size() );
+        assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
+            null, null, null, "cn", new ClientStringValue( "valueA" ), null, null, null ).size() );
 
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "attrA", "valueB", null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
+            null, null, null, "cn", new ClientStringValue( "valueB" ), null, null, null ).size() );
 
-        tuples = getTuples( new ProtectedItem.AttributeValue( attributes ) );
+        tuples = getTuples( new ProtectedItem.AttributeValue( convert( attributes )  ) );
 
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "attrB", "valueA", null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
+            null, null, null, "sn", new ClientStringValue( "valueA" ), null, null, null ).size() );
     }
 
 
@@ -220,106 +248,107 @@ public class RelatedProtectedItemFilterTest extends TestCase
     }
 
 
-    public void testMaxImmSub() throws Exception
+    @Test public void testMaxImmSub() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.MaxImmSub( 2 ) );
 
-        // Should always retain ruples.
-        Assert.assertEquals( 1, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "attrA", null, null, null, null ).size() );
+        // Should always retain tuples.
+        assertEquals( 1, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
+            "cn", null, null, null, null ).size() );
     }
 
 
-    public void testMaxValueCount() throws Exception
+    @Test public void testMaxValueCount() throws Exception
     {
         Collection<MaxValueCountItem> mvcItems = new ArrayList<MaxValueCountItem>();
-        mvcItems.add( new MaxValueCountItem( "attrA", 3 ) );
+        mvcItems.add( new MaxValueCountItem( "cn", 3 ) );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.MaxValueCount( mvcItems ) );
 
         // Test wrong scope
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "attrA", null, null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
+            "cn", null, null, null, null ).size() );
         tuples = getTuples( new ProtectedItem.MaxValueCount( mvcItems ) );
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "attrA", null, null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
+            null, null, "cn", null, null, null, null ).size() );
 
         tuples = getTuples( new ProtectedItem.MaxValueCount( mvcItems ) );
 
-        Assert.assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "attrA", null, null, null, null ).size() );
+        assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
+            null, null, null, "cn", null, null, null, null ).size() );
 
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "attrB", null, null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
+            null, null, null, "sn", null, null, null, null ).size() );
     }
 
 
     /* this test requires a real registry with real values or the dummy registry
      * needs to be altered to contain some usable mock data.  This is a result of
      * using the registry now in this operation.    
+     *
     public void testRangeOfValues() throws Exception
     {
-        Attributes entry = new AttributesImpl( true );
-        entry.put( "attrA", "valueA" );
-        Collection tuples = getTuples( new ProtectedItem.RangeOfValues( new PresenceNode( "attrA" ) ) );
+        ServerEntry entry = new DefaultServerEntry( service.getRegistries(), USER_NAME );
+        entry.put( "cn", "valueA" );
+        Collection<ACITuple> tuples = getTuples( new ProtectedItem.RangeOfValues( new PresenceNode( "cn" ) ) );
 
         Assert.assertEquals( 1, filterA.filter( tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null,
             new LdapDN( "ou=testEntry" ), null, null, entry, null ).size() );
 
-        entry.remove( "attrA" );
-        Assert.assertEquals( 0, filterA.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
+        entry.remove( "cn" );
+        Assert.assertEquals( 0, filterA.filter( service.getRegistries(), tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
             null, null, new LdapDN( "ou=testEntry" ), null, null, entry, null ).size() );
     }
     */
 
 
-    public void testRestrictedBy() throws Exception
+    @Test public void testRestrictedBy() throws Exception
     {
         Collection<RestrictedByItem> rbItems = new ArrayList<RestrictedByItem>();
-        rbItems.add( new RestrictedByItem( "attrA", "attrB" ) );
+        rbItems.add( new RestrictedByItem( "cn", "sn" ) );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.RestrictedBy( rbItems ) );
 
         // Test wrong scope
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "attrA", null, null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
+            "cn", null, null, null, null ).size() );
         tuples = getTuples( new ProtectedItem.RestrictedBy( rbItems ) );
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
-            null, null, "attrA", null, null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
+            null, null, "cn", null, null, null, null ).size() );
 
         tuples = getTuples( new ProtectedItem.RestrictedBy( rbItems ) );
 
-        Assert.assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "attrA", null, null, null, null ).size() );
+        assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
+            null, null, null, "cn", null, null, null, null ).size() );
 
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "attrB", null, null, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
+            null, null, null, "sn", null, null, null, null ).size() );
     }
 
 
-    public void testSelfValue() throws Exception
+    @Test public void testSelfValue() throws Exception
     {
         Collection<String> attrTypes = new ArrayList<String>();
-        attrTypes.add( "attrA" );
+        attrTypes.add( "cn" );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
 
-        Attributes entry = new AttributesImpl();
-        entry.put( "attrA", USER_NAME.toNormName() );
+        ServerEntry entry = new DefaultServerEntry( service.getRegistries(), USER_NAME );
+        entry.put( "cn", USER_NAME.toNormName() );
 
         // Test wrong scope
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
-            "attrA", null, entry, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null, null, null,
+            "cn", null, entry, null, null ).size() );
 
         tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
 
-        Assert.assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "attrA", null, entry, null, null ).size() );
+        assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
+            null, null, null, "cn", null, entry, null, null ).size() );
 
-        entry.remove( "attrA" );
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "attrA", null, entry, null, null ).size() );
+        entry.remove( "cn" );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
+            null, null, null, "cn", null, entry, null, null ).size() );
 
         tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
-        Assert.assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
-            null, null, null, "attrB", null, entry, null, null ).size() );
+        assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
+            null, null, null, "sn", null, entry, null, null ).size() );
     }
 
 

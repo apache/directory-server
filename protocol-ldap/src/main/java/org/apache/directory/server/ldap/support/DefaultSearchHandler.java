@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.support;
 
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
@@ -29,6 +30,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AbandonListener;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;

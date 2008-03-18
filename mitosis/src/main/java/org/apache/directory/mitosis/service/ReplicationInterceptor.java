@@ -35,7 +35,7 @@ import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerValue;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -56,6 +56,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -73,11 +74,7 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 import java.net.InetSocketAddress;
 import java.text.ParseException;
@@ -329,7 +326,7 @@ public class ReplicationInterceptor extends BaseInterceptor
         }
 
         // Iterate all context partitions to send all entries of them.
-        for ( ServerValue<?> namingContext:namingContextsAttr )
+        for ( Value<?> namingContext:namingContextsAttr )
         {
             // Convert attribute value to JNDI name.
             LdapDN contextName;
@@ -351,20 +348,21 @@ public class ReplicationInterceptor extends BaseInterceptor
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         ctrl.setReturningAttributes( new String[] { "entryCSN", "entryDeleted" } );
 
-        NamingEnumeration<SearchResult> e = nexus.search(
+        NamingEnumeration<ServerSearchResult> e = nexus.search(
             new SearchOperationContext( registries, contextName, AliasDerefMode.DEREF_ALWAYS, filter, ctrl ) );
 
         List<LdapDN> names = new ArrayList<LdapDN>();
+        
         try
         {
             while ( e.hasMore() )
             {
-                SearchResult sr = e.next();
-                LdapDN name = new LdapDN( sr.getName() );
+            	ServerSearchResult sr = e.next();
+                LdapDN name = sr.getDn();
                 
                 if ( name.size() > contextName.size() )
                 {
-                    names.add( new LdapDN( sr.getName() ) );
+                    names.add( name );
                 }
             }
         }
@@ -378,7 +376,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             try
             {
                 name.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-                Attributes entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+                ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
                 LOG.info( "[Replica-{}] Purge: " + name + " (" + entry + ')', configuration.getReplicaId() );
                 nexus.delete( new DeleteOperationContext( registries, name ) );
             }
@@ -450,12 +448,11 @@ public class ReplicationInterceptor extends BaseInterceptor
             // Check DELETED attribute.
             try
             {
-                Attributes entry = nextInterceptor.lookup( new LookupOperationContext( registries, entryContext.getDn() ) );
+                ServerEntry entry = nextInterceptor.lookup( new LookupOperationContext( registries, entryContext.getDn() ) );
                 hasEntry = !isDeleted( entry );
             }
             catch ( NameNotFoundException e )
             {
-                System.out.println( e.toString( true ) );
                 hasEntry = false;
             }
         }
@@ -464,7 +461,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws NamingException
     {
         if ( lookupContext.getAttrsId() != null )
         {
@@ -492,18 +489,16 @@ public class ReplicationInterceptor extends BaseInterceptor
             }
         }
 
-        Attributes result = nextInterceptor.lookup( lookupContext );
+        ServerEntry result = nextInterceptor.lookup( lookupContext );
         ensureNotDeleted( lookupContext.getDn(), result );
         return result;
     }
 
 
     @Override
-    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        DirContext ctx = ( DirContext ) InvocationStack.getInstance().peek().getCaller();
-
-    	NamingEnumeration<SearchResult> result = nextInterceptor.search(
+    	NamingEnumeration<ServerSearchResult> result = nextInterceptor.search(
 	            new SearchOperationContext(
 	                registries, opContext.getDn(), opContext.getAliasDerefMode(),
 	                new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
@@ -515,7 +510,7 @@ public class ReplicationInterceptor extends BaseInterceptor
 
 
     @Override
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         SearchControls searchControls = opContext.getSearchControls();
 
@@ -528,14 +523,14 @@ public class ReplicationInterceptor extends BaseInterceptor
             searchControls.setReturningAttributes( newAttrIds );
         }
 
-    	NamingEnumeration<SearchResult> result = nextInterceptor.search(
+    	NamingEnumeration<ServerSearchResult> result = nextInterceptor.search(
             new SearchOperationContext( registries, opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(), searchControls ) );
         return new SearchResultFilteringEnumeration( result, searchControls, InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER, "Search Replication filter" );
     }
 
 
-    private void ensureNotDeleted( LdapDN name, Attributes entry ) throws NamingException {
+    private void ensureNotDeleted( LdapDN name, ServerEntry entry ) throws NamingException {
         if ( isDeleted( entry ) )
         {
             LdapNameNotFoundException e = new LdapNameNotFoundException( "Deleted entry: " + name.getUpName() );
@@ -545,15 +540,14 @@ public class ReplicationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean isDeleted( Attributes entry ) throws NamingException
+    private boolean isDeleted( ServerEntry entry ) throws NamingException
     {
         if ( entry == null )
         {
             return true;
         }
 
-        Attribute deleted = entry.get( Constants.ENTRY_DELETED );
-        return ( deleted != null && "TRUE".equalsIgnoreCase( deleted.get().toString() ) );
+        return entry.contains( Constants.ENTRY_DELETED, "TRUE" );
     }
 
 

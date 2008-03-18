@@ -29,8 +29,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -51,11 +50,8 @@ public class SubstringEvaluator implements Evaluator
     private BTreePartition db;
     
     /** Oid Registry used to translate attributeIds to OIDs */
-    private OidRegistry oidRegistry;
+    private Registries registries;
     
-    /** AttributeType registry needed for normalizing and comparing values */
-    private AttributeTypeRegistry attributeTypeRegistry;
-
 
     /**
      * Creates a new SubstringEvaluator for substring expressions.
@@ -64,12 +60,10 @@ public class SubstringEvaluator implements Evaluator
      * @param oidRegistry the OID registry for name to OID mapping
      * @param attributeTypeRegistry the attributeType registry
      */
-    public SubstringEvaluator( BTreePartition db, OidRegistry oidRegistry,
-        AttributeTypeRegistry attributeTypeRegistry )
+    public SubstringEvaluator( BTreePartition db, Registries registries )
     {
         this.db = db;
-        this.oidRegistry = oidRegistry;
-        this.attributeTypeRegistry = attributeTypeRegistry;
+        this.registries = registries;
     }
 
 
@@ -82,8 +76,8 @@ public class SubstringEvaluator implements Evaluator
         SubstringNode snode = ( SubstringNode ) node;
         String filterAttribute = snode.getAttribute();
         
-        String oid = oidRegistry.getOid( filterAttribute );
-        AttributeType type = attributeTypeRegistry.lookup( oid );
+        String oid = registries.getOidRegistry().getOid( filterAttribute );
+        AttributeType type = registries.getAttributeTypeRegistry().lookup( oid );
 
         MatchingRule rule = type.getSubstr();
         
@@ -209,9 +203,9 @@ public class SubstringEvaluator implements Evaluator
         
         // If we do not have the attribute, loop through the descendant
         // May be the node Attribute has descendant ?
-        if ( attributeTypeRegistry.hasDescendants( filterAttribute ) )
+        if ( registries.getAttributeTypeRegistry().hasDescendants( filterAttribute ) )
         {
-            Iterator<AttributeType> descendants = attributeTypeRegistry.descendants( filterAttribute );
+            Iterator<AttributeType> descendants = registries.getAttributeTypeRegistry().descendants( filterAttribute );
 
             while ( descendants.hasNext() )
             {

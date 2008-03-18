@@ -24,9 +24,9 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -53,14 +54,14 @@ public class RestrictedByFilter implements ACITupleFilter
             PartitionNexusProxy proxy,
             Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
-            Attributes userEntry, 
+            ServerEntry userEntry, 
             AuthenticationLevel authenticationLevel,
             LdapDN entryName, 
             String attrId, 
-            Object attrValue, 
-            Attributes entry, 
+            Value<?> attrValue, 
+            ServerEntry entry, 
             Collection<MicroOperation> microOperations,
-            Attributes entryView )
+            ServerEntry entryView )
         throws NamingException
     {
         if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
@@ -76,6 +77,7 @@ public class RestrictedByFilter implements ACITupleFilter
         for ( Iterator<ACITuple> ii = tuples.iterator() ; ii.hasNext(); )
         {
             ACITuple tuple = ii.next();
+            
             if ( !tuple.isGrant() )
             {
                 continue;
@@ -91,7 +93,7 @@ public class RestrictedByFilter implements ACITupleFilter
     }
 
 
-    public boolean isRemovable( ACITuple tuple, String attrId, Object attrValue, Attributes entry )
+    public boolean isRemovable( ACITuple tuple, String attrId, Value<?> attrValue, ServerEntry entry ) throws NamingException
     {
         for ( ProtectedItem item : tuple.getProtectedItems() )
         {
@@ -106,7 +108,7 @@ public class RestrictedByFilter implements ACITupleFilter
                     // TODO Fix DIRSEVER-832 
                     if ( attrId.equalsIgnoreCase( rbItem.getAttributeType() ) )
                     {
-                        Attribute attr = entry.get( rbItem.getValuesIn() );
+                        ServerAttribute attr = entry.get( rbItem.getValuesIn() );
                         
                         // TODO Fix DIRSEVER-832
                         if ( ( attr == null ) || !attr.contains( attrValue ) )

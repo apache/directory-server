@@ -21,8 +21,6 @@
 package org.apache.directory.server.dhcp.options.perinterface;
 
 
-import java.nio.ByteBuffer;
-
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
 
@@ -40,23 +38,11 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class PerformRouterDiscovery extends DhcpOption
 {
-    private byte[] performRouterDiscovery;
-
-
-    /**
-     * Creates a new instance of PerformRouterDiscovery.
-     *
-     * @param performRouterDiscovery
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public PerformRouterDiscovery( byte[] performRouterDiscovery )
+    public byte getTag()
     {
-        super( 31, 1 );
-        this.performRouterDiscovery = performRouterDiscovery;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( performRouterDiscovery );
+        return 31;
     }
 }

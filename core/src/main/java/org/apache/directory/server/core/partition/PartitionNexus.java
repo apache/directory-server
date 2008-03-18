@@ -42,6 +42,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -59,7 +60,8 @@ public abstract class PartitionNexus implements Partition
     public final static String ADMIN_UID = "admin";
     
     /** the initial admin passwd set on startup */
-    public static final String ADMIN_PASSWORD = "secret";
+    public static final String ADMIN_PASSWORD_STRING = "secret";
+    public static final byte[] ADMIN_PASSWORD_BYTES = StringTools.getBytesUtf8( ADMIN_PASSWORD_STRING );
     
    
     /**

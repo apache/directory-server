@@ -266,7 +266,7 @@ public class CompareAuthorizationIT
     {
         DirContext adminCtx = getContextAsAdmin();
         Attributes user = new AttributesImpl( "uid", "bob", true );
-        user.put( "userPassword", "bobspassword".getBytes() );
+        user.put( "userPassword", "bobspassword" );
         Attribute objectClass = new AttributeImpl( "objectClass" );
         user.put( objectClass );
         objectClass.add( "top" );

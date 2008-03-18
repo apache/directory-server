@@ -37,13 +37,11 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class NisServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of NisServers.
-     *
-     * @param nisServers
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public NisServers( byte[] nisServers )
+    public byte getTag()
     {
-        super( 41, nisServers );
+        return 41;
     }
 }

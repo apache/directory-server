@@ -26,7 +26,6 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
@@ -74,10 +73,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
          * especially subentry related ones like "triggerExecutionSubentries".
          */
-        ServerEntry deletedEntry = ServerEntryUtils.toServerEntry( 
-            proxy.lookup( new LookupOperationContext( registries, deletedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS ),
-            deletedEntryName,
-            registries );
+        ServerEntry deletedEntry = proxy.lookup( new LookupOperationContext( registries, deletedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         
         return deletedEntry;
     }

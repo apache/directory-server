@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.perinterface;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.AddressOption;
 
 
 /**
@@ -35,25 +33,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BroadcastAddress extends DhcpOption
+public class BroadcastAddress extends AddressOption
 {
-    private byte[] broadcastAddress;
-
-
-    /**
-     * Creates a new instance of BroadcastAddress.
-     *
-     * @param broadcastAddress
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public BroadcastAddress( byte[] broadcastAddress )
+    public byte getTag()
     {
-        super( 28, 4 );
-        this.broadcastAddress = broadcastAddress;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( broadcastAddress );
+        return 28;
     }
 }

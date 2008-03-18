@@ -37,7 +37,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.slf4j.Logger;
@@ -183,7 +183,7 @@ public class LdifFileLoader
 
             while ( ldifIterator.hasNext() )
             {
-                Entry entry = ldifIterator.next();
+                LdifEntry entry = ldifIterator.next();
 
                 String dn = entry.getDn();
 

@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -62,8 +63,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 
 
 /**
@@ -267,7 +266,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -291,7 +290,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -385,7 +384,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {

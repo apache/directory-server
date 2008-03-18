@@ -6,54 +6,40 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
- *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License. 
- *  
+ *
  */
 
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.StringOption;
 
 
 /**
  * This option is used to identify a bootfile when the 'file' field in
  * the DHCP header has been used for DHCP options.
- * 
+*
  * The code for this option is 67, and its minimum length is 1.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BootfileName extends DhcpOption
+public class BootfileName extends StringOption
 {
-    private byte[] bootFileName;
-
-
-    /**
-     * Creates a new instance of BootfileName.
-     *
-     * @param bootFileName
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public BootfileName( byte[] bootFileName )
+    public byte getTag()
     {
-        super( 67, 1 );
-        this.bootFileName = bootFileName;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( bootFileName );
+        return 67;
     }
 }

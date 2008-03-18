@@ -26,7 +26,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAdd
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -57,7 +57,7 @@ public class ListIT
     @Test
     public void testListSystemAsNonAdmin() throws NamingException
     {
-        Entry akarasulu = getUserAddLdif();
+        LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
 
         LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
@@ -79,7 +79,7 @@ public class ListIT
     @Test
     public void testListUsersAsNonAdmin() throws NamingException
     {
-        Entry akarasulu = getUserAddLdif();
+        LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
 
         LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
@@ -121,7 +121,7 @@ public class ListIT
     {
         LdapContext sysRoot = getSystemContext( service );
         HashSet<String> set = new HashSet<String>();
-        Entry akarasulu = getUserAddLdif();
+        LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
 
         NamingEnumeration<NameClassPair> list = sysRoot.list( "ou=users" );

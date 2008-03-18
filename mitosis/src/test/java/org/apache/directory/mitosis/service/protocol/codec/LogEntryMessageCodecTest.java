@@ -33,7 +33,8 @@ import org.apache.directory.mitosis.service.protocol.codec.LogEntryMessageDecode
 import org.apache.directory.mitosis.service.protocol.codec.LogEntryMessageEncoder;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -43,12 +44,16 @@ public class LogEntryMessageCodecTest extends AbstractMessageCodecTest
 {
     private static Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
 
+    private static DefaultDirectoryService service;
+    
     static 
     {
         oids.put( "ou", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
         oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
         oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        service = new DefaultDirectoryService();        
     }
+    
     
 
     public LogEntryMessageCodecTest() throws InvalidNameException, NamingException
@@ -60,7 +65,6 @@ public class LogEntryMessageCodecTest extends AbstractMessageCodecTest
         oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
         oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
          */
-        
         super(
             new LogEntryMessage( 
                 1234, 
@@ -68,7 +72,8 @@ public class LogEntryMessageCodecTest extends AbstractMessageCodecTest
                     new DefaultCSN( System.currentTimeMillis(),
                         new ReplicaId( "testReplica0" ), 1234 ), 
                     new LdapDN( "ou=system" ).normalize( oids ),
-                    new AttributeImpl( "Hello", "Test" ) ) ), 
+                    new DefaultServerAttribute( "ou", 
+                        service.getRegistries().getAttributeTypeRegistry().lookup( "ou" ), "Test" ) ) ), 
             new LogEntryMessageEncoder(), 
             new LogEntryMessageDecoder() );
     }

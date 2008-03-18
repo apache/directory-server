@@ -44,11 +44,15 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
 {
     /** static class logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultComparatorRegistry.class );
+    
     /** the comparators in this registry */
     private final Map<String,Comparator> byOid;
+    
     /** maps oids to a comparator description */
     private final Map<String,ComparatorDescription> oidToDescription;
 
+    /** A speedup for debug */
+    private static final boolean DEBUG = LOG.isDebugEnabled();
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -81,7 +85,8 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
 
         oidToDescription.put( description.getNumericOid(), description );
         byOid.put( description.getNumericOid(), comparator );
-        if ( LOG.isDebugEnabled() )
+        
+        if ( DEBUG )
         {
             LOG.debug( "registed comparator with OID: " + description.getNumericOid() );
         }
@@ -106,10 +111,12 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
         if ( byOid.containsKey( oid ) )
         {
             Comparator c = byOid.get( oid );
-            if ( LOG.isDebugEnabled() )
+            
+            if ( DEBUG )
             {
                 LOG.debug( "looked up comparator with OID: " + oid );
             }
+            
             return c;
         }
 

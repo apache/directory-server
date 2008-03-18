@@ -132,7 +132,7 @@ public class ModifyReplaceITest extends AbstractServerTest
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext( rdn, attrs );
 
-        Attribute attr = new AttributeImpl( "numberOfOctaves" );
+        Attribute attr = new AttributeImpl( "l" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
 
         ctx.modifyAttributes( rdn, new ModificationItemImpl[]
