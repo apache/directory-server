@@ -265,6 +265,11 @@
     <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
   </issueManagement>
 
+  <ciManagement>
+    <system>Continuum</system>
+    <url>http://vm094.oxylos.org/continuum/</url>
+  </ciManagement>
+
   <inceptionYear>2003</inceptionYear>
 
   <distributionManagement>
