@@ -19,7 +19,7 @@
  */
 
 /**
- * Provides the entry point to an instance of the {@link KdcServer}
+ * Provides the entry point to an instance of the {@link org.apache.directory.server.kerberos.kdc.KdcServer}
  * (KDC), as well as classes common to the KDC's two services:  the
  * Authentication Service (AS) and the Ticket-Granting Service (TGS).
  * <p/>

@@ -558,6 +558,38 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <aggregate>true</aggregate>
+          <tags>
+            <tag>
+              <name>org.apache.xbean.XBean</name>
+              <placement>a</placement>
+              <head>XBean</head>
+            </tag>
+            <tag>
+              <name>org.apache.xbean.Property</name>
+              <placement>a</placement>
+              <head>XBean Property</head>
+            </tag>
+            <tag>
+              <name>org.apache.xbean.DestroyMethod</name>
+              <placement>a</placement>
+              <head>XBean DestroyMethod</head>
+            </tag>
+            <tag>
+              <name>note</name>
+              <placement>a</placement>
+              <head>NOTE</head>
+            </tag>
+            <tag>
+              <name>todo</name>
+              <placement>a</placement>
+              <head>TODO</head>
+            </tag>
+            <tag>
+              <name>warning</name>
+              <placement>a</placement>
+              <head>WARNING</head>
+            </tag>
+          </tags>
         </configuration>
       </plugin>
     </plugins>

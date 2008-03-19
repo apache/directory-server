@@ -193,7 +193,7 @@ public class Ticket extends AbstractAsn1Object
 
     /**
      * Set the server KerberosPrincipal
-     * @param sName the server KerberosPrincipal
+     * @param serverPrincipal the server KerberosPrincipal
      */
     public void setServerPrincipal( KerberosPrincipal serverPrincipal ) throws InvalidTicketException
     {
@@ -272,7 +272,7 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getAuthorizationData();
     }
-
+    */
 
     /**
      * Returns the auth {@link KerberosTime}.
@@ -283,7 +283,7 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getAuthTime();
     }
-
+    */
 
     /**
      * Returns the client {@link HostAddresses}.
@@ -294,7 +294,7 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getClientAddresses();
     }
-
+    */
 
     /**
      * Returns the client {@link KerberosPrincipal}.
@@ -305,7 +305,8 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getClientPrincipal();
     }
-
+    */
+    
     /**
      * Returns the client {@link PrincipalName}.
      *
@@ -315,7 +316,7 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getClientPrincipalName();
     }
-
+    */
 
     /**
      * Returns the client realm.
@@ -326,7 +327,7 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getClientRealm();
     }
-
+    */
 
     /**
      * Returns the end {@link KerberosTime}.
@@ -337,7 +338,7 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getEndTime();
     }
-
+    */
 
     /**
      * Returns the {@link TicketFlags}.
@@ -348,7 +349,8 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getFlags();
     }
-
+    */
+    
     /**
      * Returns the integer value for the {@link TicketFlags}.
      *
@@ -358,7 +360,7 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getFlags().getIntValue();
     }
-
+    */
 
     /**
      * Returns the renew till {@link KerberosTime}.
@@ -369,7 +371,7 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getRenewTill();
     }
-
+    */
 
     /**
      * Returns the session {@link EncryptionKey}.
@@ -380,7 +382,7 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getSessionKey();
     }
-
+    */
 
     /**
      * Returns the start {@link KerberosTime}.
@@ -391,7 +393,7 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getStartTime();
     }
-
+    */
 
     /**
      * Returns the {@link TransitedEncoding}.
@@ -402,7 +404,7 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getTransitedEncoding();
     }
-
+    */
 
     /**
      * Returns the flag at the given index.
@@ -414,7 +416,8 @@ public class Ticket extends AbstractAsn1Object
     {
         return encTicketPart.getFlags().isFlagSet( flag );
     }
-
+    */
+    
     /**
      * Compute the Ticket length
      * 

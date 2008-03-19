@@ -128,7 +128,7 @@ public class SchemaPartitionDao
      * Creates a schema dao object backing information within a schema partition.
      * 
      * @param partition the schema partition
-     * @param bootstrapRegistries the bootstrap registries that were used to start up the schema partition
+     * @param registries the bootstrap registries that were used to start up the schema partition
      * @throws NamingException if there are problems initializing this schema partion dao
      */
     public SchemaPartitionDao( Partition partition, Registries registries ) throws NamingException

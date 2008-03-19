@@ -42,7 +42,8 @@ public class RemoveContextPartitionOperationContext extends AbstractOperationCon
     /**
      * Creates a new instance of RemoveContextPartitionOperationContext.
      *
-     * @param entryDn The Entry DN from which the partition should be removed
+     * @param registries
+     * @param dn The Entry DN from which the partition should be removed
      */
     public RemoveContextPartitionOperationContext( Registries registries, LdapDN dn )
     {

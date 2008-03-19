@@ -51,7 +51,7 @@ public class BTreeSearchResult extends ServerSearchResult
      * Creates a database search result.
      * 
      * @param id the database id of the entry
-     * @param name the user provided relative or distinguished name
+     * @param dn the user provided relative or distinguished name
      * @param obj the object if any
      * @param attrs the entry
      */
@@ -66,7 +66,7 @@ public class BTreeSearchResult extends ServerSearchResult
      * Creates a database search result.
      * 
      * @param id the database id of the entry
-     * @param name the user provided relative or distinguished name
+     * @param dn the user provided relative or distinguished name
      * @param obj the object if any
      * @param attrs the entry
      * @param isRelative whether or not the name is relative to the base
@@ -82,7 +82,7 @@ public class BTreeSearchResult extends ServerSearchResult
      * Creates a database search result.
      * 
      * @param id the database id of the entry
-     * @param name the user provided relative or distinguished name
+     * @param dn the user provided relative or distinguished name
      * @param className the classname of the entry if any
      * @param obj the object if any
      * @param attrs the entry
@@ -98,7 +98,7 @@ public class BTreeSearchResult extends ServerSearchResult
      * Creates a database search result.
      * 
      * @param id the database id of the entry
-     * @param name the user provided relative or distinguished name
+     * @param dn the user provided relative or distinguished name
      * @param className the classname of the entry if any
      * @param obj the object if any
      * @param attrs the entry

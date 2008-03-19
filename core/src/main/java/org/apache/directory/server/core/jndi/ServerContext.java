@@ -254,7 +254,7 @@ public abstract class ServerContext implements EventContext
      * @param aliasDerefMode
      * @param filter
      * @param searchControls
-     * @return
+     * @return NamingEnumeration
      */
     protected NamingEnumeration<ServerSearchResult> doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
                                                                  ExprNode filter, SearchControls searchControls )

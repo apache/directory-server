@@ -84,8 +84,8 @@ import java.util.List;
 
 /**
  * An {@link Interceptor} that intercepts LDAP operations and propagates the
- * changes occurred by the operations into other {@link Replica}s so the DIT
- * of each {@link Replica} in the cluster has the same content without any
+ * changes occurred by the operations into other {@link ReplicaId}s so the DIT
+ * of each {@link ReplicaId} in the cluster has the same content without any
  * conflict.
  * <p>
  * Once an operation is invoked, this interceptor transforms it into one or
@@ -100,14 +100,14 @@ import java.util.List;
  * <li>To store the created {@link Operation} itself to
  *     {@link ReplicationStore} so that it can be retrieved later by
  *     {@link ReplicationLogCleanJob} and {@link ReplicationClientContextHandler}
- * <li>To transfer itself to other {@link Replica}s via TCP/IP communication
+ * <li>To transfer itself to other {@link ReplicaId}s via TCP/IP communication
  *     between {@link ReplicationClientContextHandler} and
  *     {@link ReplicationServerContextHandler}
  * </ul>
  * The first two actions (modifying the local DIT and storing the
  * {@link Operation} to {@link ReplicationStore}) are performed automatically
  * when
- * {@link Operation#execute(PartitionNexus, ReplicationStore, AttributeTypeRegistry)}
+ * {@link Operation#execute(PartitionNexus, ReplicationStore, Registries)}
  * method is invoked.  {@link ReplicationInterceptor} always call it instead of
  * forwarding the requested operation to the next {@link Interceptor}.
  * <p>

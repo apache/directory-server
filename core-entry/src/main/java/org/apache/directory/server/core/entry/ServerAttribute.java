@@ -53,7 +53,7 @@ public interface ServerAttribute extends ClientAttribute
      * AttributeType
      * </p>
      *
-     * @param the attributeType associated with this entry attribute
+     * @param attributeType the attributeType associated with this entry attribute
      */
     void setAttributeType( AttributeType attributeType );
 

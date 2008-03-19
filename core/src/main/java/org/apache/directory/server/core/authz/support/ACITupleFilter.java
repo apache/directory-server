@@ -51,11 +51,11 @@ public interface ACITupleFilter
      * @param tuples the collection of tuples to filter
      * @param scope the scope of the operation to be performed
      * @param proxy the proxy interceptor for this filter to access the DIT
-     * @param userGroupNames the collection of group ({@link Name})s which the current user belongs to
-     * @param userName the {@link DN} of the current user
+     * @param userGroupNames the collection of group ({@link LdapDN})s which the current user belongs to
+     * @param userName the {@link LdapDN} of the current user
      * @param userEntry the {@link ServerEntry} of the current user entry in the DIT
      * @param authenticationLevel the level of authentication of the current user
-     * @param entryName the {@link Name} of the entry the current user accesses
+     * @param entryName the {@link LdapDN} of the entry the current user accesses
      * @param attrId the attribute ID the current user accesses
      * @param attrValue the value of the attribute the current user accesses
      * @param entry the {@link ServerEntry} of the entry the current user accesses

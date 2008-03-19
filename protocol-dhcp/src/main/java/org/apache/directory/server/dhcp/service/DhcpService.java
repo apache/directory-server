@@ -42,7 +42,7 @@ public interface DhcpService
      * @param localAddress TODO
      * @param clientAddress 
      * @param request
-     * @return
+     * @return DhcpMessage
      * @throws DhcpException 
      */
     public DhcpMessage getReplyFor( InetSocketAddress localAddress, InetSocketAddress clientAddress, DhcpMessage request ) throws DhcpException;

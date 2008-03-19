@@ -360,7 +360,7 @@ public class SchemaChecker
         }
         throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
     }
-
+    */
 
     /**
      * Makes sure a modify operation does not replace RDN attributes or their value.
@@ -379,6 +379,7 @@ public class SchemaChecker
      * @param name the distinguished name of the attribute being modified
      * @param mod the modification operation being performed (should be REPLACE_ATTRIBUTE )
      * @param attribute the attribute being modified
+     * @param oidRegistry
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyReplace( LdapDN name, ModificationOperation mod, ServerAttribute attribute, OidRegistry oidRegistry )
@@ -451,7 +452,8 @@ public class SchemaChecker
      *
      * @param name the distinguished name of the attribute being modified
      * @param mod the modification operation being performed (should be REPLACE_ATTRIBUTE )
-     * @param attributes the attributes being modified
+     * @param entry
+     * @param oidRegistry
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyReplace( LdapDN name, int mod, ServerEntry entry, OidRegistry oidRegistry )
@@ -602,7 +604,8 @@ public class SchemaChecker
      *
      * @param name the distinguished name of the attribute being modified
      * @param mod the modification operation being performed (should be REMOVE_ATTRIBUTE )
-     * @param attributes the attributes being modified
+     * @param entry
+     * @param oidRegistry
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyRemove( LdapDN name, int mod, ServerEntry entry, OidRegistry oidRegistry )

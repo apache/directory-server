@@ -57,8 +57,7 @@ public class SubstringEvaluator implements Evaluator
      * Creates a new SubstringEvaluator for substring expressions.
      *
      * @param db the database this evaluator uses
-     * @param oidRegistry the OID registry for name to OID mapping
-     * @param attributeTypeRegistry the attributeType registry
+     * @param registries the OID registry for name to OID mapping
      */
     public SubstringEvaluator( BTreePartition db, Registries registries )
     {

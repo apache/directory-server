@@ -50,8 +50,9 @@ public abstract class AttributeOperation extends Operation
     /**
      * Create a new operation that affects an entry with the specified name.
      * 
+     * @param csn
      * @param name the normalized name of an entry 
-     * @param attribute an attribute to modify
+     * @param serverAttribute an attribute to modify
      */
     public AttributeOperation( CSN csn, LdapDN name, ServerAttribute serverAttribute )
     {

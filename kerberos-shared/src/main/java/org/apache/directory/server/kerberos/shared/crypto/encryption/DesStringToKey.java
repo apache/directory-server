@@ -290,7 +290,7 @@ public class DesStringToKey
      * If the secret key is weak, correct by exclusive OR'ing
      * with the constant 0xF0.
      * 
-     * @param keyValue The key to correct, if necessary.
+     * @param secretKey The key to correct, if necessary.
      * @return The corrected key.
      */
     protected byte[] getStrongKey( byte[] secretKey )

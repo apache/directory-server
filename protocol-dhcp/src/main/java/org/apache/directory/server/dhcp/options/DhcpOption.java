@@ -195,7 +195,7 @@ public abstract class DhcpOption
     /**
      * Get the option's code tag.
      * 
-     * @return
+     * @return byte
      */
     public abstract byte getTag();
 
@@ -218,7 +218,7 @@ public abstract class DhcpOption
      * implementation which serializes the parsed data back into a byte array if
      * they override {@link #setData(byte[])}.
      * 
-     * @return
+     * @return byte[]
      */
     public byte[] getData()
     {

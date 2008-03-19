@@ -51,7 +51,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
      * Creates a new instance of CramMd5CallbackHandler.
      *
      * @param session the mina IoSession
-     * @param message the bind message
+     * @param bindRequest the bind message
      * @param directoryService the directory service core
      */
     public CramMd5CallbackHandler( DirectoryService directoryService,  IoSession session, BindRequest bindRequest )

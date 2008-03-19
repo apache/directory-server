@@ -251,7 +251,7 @@ public class ServerStringValue extends ClientStringValue
      * change. Syntax checks only result on the first check, and when the wrapped
      * value changes.
      *
-     * @see Value<T>#isValid()
+     * @see Value#isValid()
      */
     public final boolean isValid()
     {
@@ -276,7 +276,7 @@ public class ServerStringValue extends ClientStringValue
 
 
     /**
-     * @see Value<T>#compareTo(ServerValue)
+     * @see Value#compareTo(Value)
      * @throws IllegalStateException on failures to extract the comparator, or the
      * normalizers needed to perform the required comparisons based on the schema
      */

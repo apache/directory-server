@@ -68,9 +68,6 @@ public class PaData extends AbstractAsn1Object
 
     /**
      * Creates a new instance of PreAuthenticationData.
-     *
-     * @param paDataType
-     * @param dataValue
      */
     public PaData()
     {
@@ -81,7 +78,7 @@ public class PaData extends AbstractAsn1Object
      * Creates a new instance of PreAuthenticationData.
      *
      * @param paDataType
-     * @param dataValue
+     * @param paDataValue
      */
     public PaData( PaDataType paDataType, byte[] paDataValue )
     {

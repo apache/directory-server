@@ -112,7 +112,7 @@ public class Subnet extends DhcpConfigElement
      * possibly range.
      * 
      * @param clientAddress
-     * @return
+     * @return boolean
      */
     public boolean contains( InetAddress clientAddress )
     {
@@ -133,7 +133,7 @@ public class Subnet extends DhcpConfigElement
      * Check whether the specified address is within the range for this subnet.
      * 
      * @param clientAddress
-     * @return
+     * @return boolean
      */
     public boolean isInRange( InetAddress clientAddress )
     {

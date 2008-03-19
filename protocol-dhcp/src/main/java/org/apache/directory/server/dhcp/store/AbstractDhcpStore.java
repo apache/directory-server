@@ -226,7 +226,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
      * 
      * @param requestedLeaseTime
      * @param properties
-     * @return
+     * @return long
      */
     private long determineLeaseTime( long requestedLeaseTime, Map properties )
     {
@@ -268,7 +268,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
      * is a member of, the host's group options and the host's options.
      * 
      * @param element
-     * @return
+     * @return OptionsField
      */
     protected abstract OptionsField getOptions( DhcpConfigElement element );
 
@@ -281,7 +281,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
      * is a member of, the host's group options and the host's options.
      * 
      * @param element
-     * @return
+     * @return Map
      */
     protected abstract Map getProperties( DhcpConfigElement element );
 
@@ -291,7 +291,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
      * 
      * @param hardwareAddress
      * @param existingLease
-     * @return
+     * @return Map
      */
     protected abstract Lease findExistingLease( HardwareAddress hardwareAddress, Lease existingLease );
 
@@ -300,7 +300,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
      * Find a host to with the explicitely designated hardware address.
      * 
      * @param hardwareAddress
-     * @return
+     * @return Host
      * @throws DhcpException
      */
     protected abstract Host findDesignatedHost( HardwareAddress hardwareAddress ) throws DhcpException;
@@ -310,7 +310,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
      * Find the subnet definition matching the given address.
      * 
      * @param clientAddress
-     * @return
+     * @return Subnet
      */
     protected abstract Subnet findSubnet( InetAddress clientAddress );
 }

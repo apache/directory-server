@@ -45,7 +45,7 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of BindOperationContext.
      *
-     * @param Registries The global registries
+     * @param registries The global registries
      */
     public BindOperationContext( Registries registries )
     {

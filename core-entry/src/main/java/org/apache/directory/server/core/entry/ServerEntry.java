@@ -158,7 +158,6 @@ public interface ServerEntry extends Entry<ServerAttribute>, Cloneable
      * value: the value of <code>obj</code> may be <code>null</code>.
      *
      * @param upId the user provided identifier for the new attribute
-     * @param attributeType the type of the new attribute to be put
      * @param values the value of the new attribute to be put
      * @return the old attribute of the same type, if exists; otherwise
      *         <code>null</code>

@@ -92,7 +92,7 @@ public class ExpressionEvaluator implements Evaluator
     // ------------------------------------------------------------------------
 
     /**
-     * @see Evaluator#evaluate(ExprNode, String, Attributes)
+     * @see Evaluator#evaluate(ExprNode, String, ServerEntry)
      */
     public boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws NamingException
     {

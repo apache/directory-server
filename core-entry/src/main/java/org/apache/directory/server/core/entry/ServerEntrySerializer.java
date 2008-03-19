@@ -59,7 +59,8 @@ public class ServerEntrySerializer
     }
     
     /**
-     * @see Externalizable#writeExternal(ObjectOutput)<p>
+     * @see Externalizable#writeExternal(ObjectOutput)
+     * <p>
      * 
      * This is the place where we serialize entries, and all theirs
      * elements. the reason why we don't call the underlying methods

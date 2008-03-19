@@ -46,7 +46,7 @@ public interface MechanismHandler
      * {@link SaslServer} to create and what initialization parameters it will require.
      *
      * @param session
-     * @param message
+     * @param bindRequest
      * @return The {@link SaslServer} to use for the duration of the bound session.
      * @throws Exception
      */
