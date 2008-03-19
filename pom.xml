@@ -548,6 +548,7 @@
               <report>issue-tracking</report>
               <report>license</report>
               <report>scm</report>
+              <report>index</report>
             </reports>
           </reportSet>
         </reportSets>
