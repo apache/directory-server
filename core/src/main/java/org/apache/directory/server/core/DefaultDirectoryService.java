@@ -61,6 +61,7 @@ import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
 import org.apache.directory.server.core.schema.SchemaPartitionDao;
 import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -992,6 +993,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
             serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
 
+            TlsKeyGenerator.addKeyPair( serverEntry );
             partitionNexus.add( new AddOperationContext( registries, PartitionNexus.getAdminName(), serverEntry ) );
         }
 

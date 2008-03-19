@@ -58,9 +58,8 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
     
     @Before public void setUp() throws Exception
     {
-
         super.setUp();
-
+        
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
@@ -73,6 +72,7 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
         spContainer.get( "objectClass" ).add( "organizationalUnit" );
         spContainer.put( "ou", "Stored Procedures" );
         spCtx = ( LdapContext ) ctx.createSubcontext( "ou=Stored Procedures", spContainer );
+        assertNotNull( spCtx );
         
         // Initialize OIDs maps for normalization
         oids = new HashMap<String, OidNormalizer>();

@@ -134,10 +134,9 @@
   </dnsServer>
 -->
 
-<!-- no certificate  -->
   <ldapServer id="ldapsServer"
-          enabled="false"
-              ipPort="60636"
+              enabled="true"
+              ipPort="10636"
               enableLdaps="true">
     <directoryService>#directoryService</directoryService>
     <socketAcceptor>#socketAcceptor</socketAcceptor>
@@ -177,7 +176,7 @@
 
     <!-- the collection of extended operation handlers to install           -->
     <extendedOperationHandlers>
-      <!--startTlsHandler/-->
+      <startTlsHandler/>
       <gracefulShutdownHandler/>
       <launchDiagnosticUiHandler/>
       <!-- The Stored Procedure Extended Operation is not stable yet and it may cause security risks.-->
