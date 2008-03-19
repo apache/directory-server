@@ -302,7 +302,7 @@ public class TwixTransformer implements TransformerSpi
     private Message transformExtendedRequest( LdapMessage twixMessage, int messageId )
     {
         ExtendedRequest extendedRequest = twixMessage.getExtendedRequest();
-        ExtendedRequestImpl snickersMessage = null;
+        ExtendedRequestImpl snickersMessage;
 
         if ( extendedRequest.getRequestName().equals( GracefulShutdownRequest.EXTENSION_OID ) )
         {
