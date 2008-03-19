@@ -302,5 +302,16 @@
     <connection>scm:svn:http://svn.apache.org/repos/asf/directory/shared/branches/bigbang</connection>
   </scm>
 
+  <repositories>
+    <repository>
+      <id>apache.directory.snapshot.repo</id>
+      <name>Snapshot repository for the Apache Directory project</name>
+      <url>http://vm094.oxylos.org/mirror-maven2/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>
+  </repositories>
+  
 </project>
 
