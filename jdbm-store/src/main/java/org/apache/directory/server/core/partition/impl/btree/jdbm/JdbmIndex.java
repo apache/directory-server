@@ -44,7 +44,7 @@ import java.io.IOException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmIndex<K> implements Index<K>
+public class JdbmIndex<K,O> implements Index<K,O>
 {
     /**
      * default duplicate limit before duplicate keys switch to using a btree for values
@@ -460,17 +460,43 @@ public class JdbmIndex<K> implements Index<K>
     // ------------------------------------------------------------------------
 
 
-    public Cursor<IndexEntry<K, Attributes>> reverseCursor() throws Exception
+    public Cursor<IndexEntry<K, O>> reverseCursor() throws Exception
     {
         //noinspection unchecked
-        return new IndexCursor<K, Attributes>( ( Cursor ) reverse.cursor(), false );
+        return new IndexCursor<K, O>( ( Cursor ) reverse.cursor(), false );
     }
 
 
-    public Cursor<IndexEntry<K, Attributes>> forwardCursor() throws Exception
+    public Cursor<IndexEntry<K, O>> forwardCursor() throws Exception
     {
         //noinspection unchecked
-        return new IndexCursor<K, Attributes>( ( Cursor ) forward.cursor(), true );
+        return new IndexCursor<K, O>( ( Cursor ) forward.cursor(), true );
+    }
+
+
+    public Cursor<IndexEntry<K, O>> reverseCursor( Long id ) throws Exception
+    {
+        //noinspection unchecked
+        return new IndexCursor<K, O>( ( Cursor ) reverse.cursor( id ), false );
+    }
+
+
+    public Cursor<IndexEntry<K, O>> forwardCursor( K key ) throws Exception
+    {
+        //noinspection unchecked
+        return new IndexCursor<K, O>( ( Cursor ) forward.cursor( key ), true );
+    }
+
+
+    public Cursor<K> reverseValueCursor( Long id ) throws Exception
+    {
+        return reverse.valueCursor( id );
+    }
+
+
+    public Cursor<Long> forwardValueCursor( K key ) throws Exception
+    {
+        return forward.valueCursor( key );
     }
 
 

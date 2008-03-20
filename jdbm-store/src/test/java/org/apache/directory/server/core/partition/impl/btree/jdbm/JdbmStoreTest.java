@@ -31,13 +31,13 @@ import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.registries.*;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
-import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
+import javax.naming.directory.Attributes;
 import java.io.File;
 import java.util.Set;
 import java.util.HashSet;
@@ -134,7 +134,7 @@ public class JdbmStoreTest
         JdbmStore store = new JdbmStore();
 
         assertNull( store.getAliasIndex() );
-        store.setAliasIndex( new JdbmIndex<String>( "alias" ) );
+        store.setAliasIndex( new JdbmIndex<String,Attributes>( "alias" ) );
         assertNotNull( store.getAliasIndex() );
 
         assertEquals( JdbmStore.DEFAULT_CACHE_SIZE, store.getCacheSize() );
@@ -146,11 +146,11 @@ public class JdbmStoreTest
         assertNotNull( store.getContextEntry() );
 
         assertNull( store.getExistanceIndex() );
-        store.setExistanceIndex( new JdbmIndex<String>( "existence" ) );
+        store.setExistanceIndex( new JdbmIndex<String,Attributes>( "existence" ) );
         assertNotNull( store.getExistanceIndex() );
 
         assertNull( store.getHierarchyIndex() );
-        store.setHierarchyIndex( new JdbmIndex<Long>( "hierarchy" ) );
+        store.setHierarchyIndex( new JdbmIndex<Long,Attributes>( "hierarchy" ) );
         assertNotNull( store.getHierarchyIndex() );
 
         assertNull( store.getName() );
@@ -158,15 +158,15 @@ public class JdbmStoreTest
         assertEquals( "foo", store.getName() );
 
         assertNull( store.getNdnIndex() );
-        store.setNdnIndex( new JdbmIndex<String>( "ndn" ) );
+        store.setNdnIndex( new JdbmIndex<String,Attributes>( "ndn" ) );
         assertNotNull( store.getNdnIndex() );
 
         assertNull( store.getOneAliasIndex() );
-        store.setOneAliasIndex( new JdbmIndex<Long>( "oneAlias" ) );
+        store.setOneAliasIndex( new JdbmIndex<Long,Attributes>( "oneAlias" ) );
         assertNotNull( store.getNdnIndex() );
 
         assertNull( store.getSubAliasIndex() );
-        store.setSubAliasIndex( new JdbmIndex<Long>( "subAlias" ) );
+        store.setSubAliasIndex( new JdbmIndex<Long,Attributes>( "subAlias" ) );
         assertNotNull( store.getSubAliasIndex() );
 
         assertNull( store.getSuffixDn() );
@@ -174,7 +174,7 @@ public class JdbmStoreTest
         assertEquals( "dc=example,dc=com", store.getSuffixDn() );
 
         assertNull( store.getUpdnIndex() );
-        store.setUpdnIndex( new JdbmIndex<String>( "updn" ) );
+        store.setUpdnIndex( new JdbmIndex<String,Attributes>( "updn" ) );
         assertNotNull( store.getUpdnIndex() );
 
         assertNull( store.getUpSuffix() );
@@ -204,7 +204,7 @@ public class JdbmStoreTest
     public void testSimplePropertiesLocked() throws Exception
     {
         assertNotNull( store.getAliasIndex() );
-        try { store.setAliasIndex( new JdbmIndex<String>( "alias" ) ); fail(); }
+        try { store.setAliasIndex( new JdbmIndex<String,Attributes>( "alias" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertEquals( 10, store.getCacheSize() );
@@ -216,11 +216,11 @@ public class JdbmStoreTest
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getExistanceIndex() );
-        try { store.setExistanceIndex( new JdbmIndex<String>( "existence" ) ); fail(); }
+        try { store.setExistanceIndex( new JdbmIndex<String,Attributes>( "existence" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getHierarchyIndex() );
-        try { store.setHierarchyIndex( new JdbmIndex<Long>( "hierarchy" ) ); fail(); }
+        try { store.setHierarchyIndex( new JdbmIndex<Long,Attributes>( "hierarchy" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getName() );
@@ -228,15 +228,15 @@ public class JdbmStoreTest
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getNdnIndex() );
-        try { store.setNdnIndex( new JdbmIndex<String>( "ndn" ) ); fail(); }
+        try { store.setNdnIndex( new JdbmIndex<String,Attributes>( "ndn" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getOneAliasIndex() );
-        try { store.setOneAliasIndex( new JdbmIndex<Long>( "oneAlias" ) ); fail(); }
+        try { store.setOneAliasIndex( new JdbmIndex<Long,Attributes>( "oneAlias" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getSubAliasIndex() );
-        try { store.setSubAliasIndex( new JdbmIndex<Long>( "subAlias" ) ); fail(); }
+        try { store.setSubAliasIndex( new JdbmIndex<Long,Attributes>( "subAlias" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getSuffixDn() );
@@ -244,7 +244,7 @@ public class JdbmStoreTest
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getUpdnIndex() );
-        try { store.setUpdnIndex( new JdbmIndex<String>( "updn" ) ); fail(); }
+        try { store.setUpdnIndex( new JdbmIndex<String,Attributes>( "updn" ) ); fail(); }
         catch( IllegalStateException e ) {}
         Iterator<String> systemIndices = store.systemIndices();
         for ( int ii = 0; ii < 7; ii++ )
@@ -290,10 +290,24 @@ public class JdbmStoreTest
 
 
     @Test
-    public void testEmptyStore() throws Exception
+    public void testFreshStore() throws Exception
     {
         LdapDN dn = new LdapDN( "dc=example,dc=com" );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         assertEquals( 1L, ( long ) store.getEntryId( dn.toNormName() ) );
+        assertEquals( 1, store.count() );
+//        assertEquals( "dc=example,dc=com", store.getEntryUpdn( "dc=example,dc=com" ) );
+    }
+
+
+    @Test
+    public void testEntryOperations() throws Exception
+    {
+        LdapDN dn = new LdapDN( "ou=Engineering,dc=example,dc=com" );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        entry.add( "objectClass", "top", "organizationalUnit" );
+        entry.add( "ou", "Engineering" );
+        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
     }
 }

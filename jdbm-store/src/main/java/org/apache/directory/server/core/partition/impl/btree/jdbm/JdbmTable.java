@@ -26,6 +26,8 @@ import jdbm.helper.*;
 
 import org.apache.directory.server.core.avltree.*;
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.EmptyCursor;
+import org.apache.directory.server.core.cursor.SingletonCursor;
 import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -762,6 +764,69 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
 
         return new NoDupsCursor<K,V>( this );
+    }
+
+
+    public Cursor<Tuple<K,V>> cursor( K key ) throws Exception
+    {
+        if ( key == null )
+        {
+            return new EmptyCursor<Tuple<K,V>>();
+        }
+
+        Object raw = bt.find( key );
+
+        if ( null == raw )
+        {
+            return new EmptyCursor<Tuple<K,V>>();
+        }
+
+        if ( ! allowsDuplicates )
+        {
+            //noinspection unchecked
+            return new SingletonCursor<Tuple<K,V>>( new Tuple<K,V>( key, ( V ) raw ) );
+        }
+
+        byte[] serialized = ( byte[] ) raw;
+        if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
+        {
+            BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+            return new SameKeyTupleCursor<K,V>( tree, key, keyComparator ); 
+        }
+
+        AvlTree<V> set = marshaller.deserialize( serialized );
+        return new KeySetTupleCursor<K,V>( set, key, valueComparator );
+    }
+
+
+    public Cursor<V> valueCursor( K key ) throws Exception
+    {
+        if ( key == null )
+        {
+            return new EmptyCursor<V>();
+        }
+
+        Object raw = bt.find( key );
+
+        if ( null == raw )
+        {
+            return new EmptyCursor<V>();
+        }
+
+        if ( ! allowsDuplicates )
+        {
+            //noinspection unchecked
+            return new SingletonCursor<V>( ( V ) raw );
+        }
+
+        byte[] serialized = ( byte[] ) raw;
+        if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
+        {
+            BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+            return new KeyCursor<V>( tree, valueComparator );
+        }
+
+        return new AvlTreeCursor<V>( marshaller.deserialize( serialized ) );
     }
 
 

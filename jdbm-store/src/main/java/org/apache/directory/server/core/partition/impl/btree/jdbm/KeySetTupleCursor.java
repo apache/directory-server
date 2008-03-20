@@ -22,46 +22,42 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
+import org.apache.directory.server.core.avltree.AvlTree;
+import org.apache.directory.server.core.avltree.AvlTreeCursor;
 
 import java.util.Comparator;
 
-import jdbm.helper.TupleBrowser;
-import jdbm.btree.BTree;
-
 
 /**
- * Cursor over a set of values for the same key which are store in another
- * BTree.  This Cursor is limited to the same key and it's tuples will always
- * return the same key.
+ * Cursor over a set of values for the same key which are store in an in
+ * memory AvlTree.  This Cursor is limited to the same key and it's tuples
+ * will always return the same key.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SameKeyTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
+public class KeySetTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 {
-    private final Comparator<K> comparator;
-    private final BTree btree;
+    private final Comparator<V> comparator;
+    private final AvlTreeCursor<V> wrapped;
     private final K key;
 
-    private jdbm.helper.Tuple valueTuple = new jdbm.helper.Tuple();
-    private Tuple returnedTuple = new Tuple();
-    private TupleBrowser browser;
+    private Tuple<K,V> returnedTuple = new Tuple<K,V>();
     private boolean valueAvailable;
 
 
     /**
-     * Creates a Cursor over the tuples of a JDBM BTree.
+     * Creates a Cursor over the tuples of an AvlTree.
      *
-     * @param btree the JDBM BTree to build a Cursor over
+     * @param avlTree the AvlTree to build a Tuple returning Cursor over
      * @param key the constant key for which values are returned
      * @param comparator the Comparator used to determine <b>key</b> ordering
-     * @throws Exception of there are problems accessing the BTree
      */
-    public SameKeyTupleCursor( BTree btree, K key, Comparator<K> comparator ) throws Exception
+    public KeySetTupleCursor( AvlTree<V> avlTree, K key, Comparator<V> comparator )
     {
         this.key = key;
-        this.btree = btree;
         this.comparator = comparator;
+        this.wrapped = new AvlTreeCursor<V>( avlTree );
     }
 
 
@@ -81,22 +77,22 @@ public class SameKeyTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 
     /**
      * Positions this Cursor over the same keys before the value of the
-     * supplied valueTuple.  The supplied element Tuple's key is not considered at
-     * all.
+     * supplied element Tuple.  The supplied element Tuple's key is not
+     * considered at all.
      *
      * @param element the valueTuple who's value is used to position this Cursor
      * @throws Exception if there are failures to position the Cursor
      */
     public void before( Tuple<K,V> element ) throws Exception
     {
-        browser = btree.browse( element.getValue() );
+        wrapped.before( element.getValue() );
         clearValue();
     }
 
 
     public void after( Tuple<K,V> element ) throws Exception
     {
-        browser = btree.browse( element.getValue() );
+        wrapped.after( element.getValue() );
 
         /*
          * While the next value is less than or equal to the element keep
@@ -105,13 +101,11 @@ public class SameKeyTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
          * the element then we stop, backup, and return so subsequent calls
          * to getNext() will return a value greater than the element.
          */
-        while ( browser.getNext( valueTuple ) )
+        while ( wrapped.next() )
         {
-            //noinspection unchecked
-            K next = ( K ) valueTuple.getKey();
+            V next = wrapped.get();
 
-            //noinspection unchecked
-            int nextCompared = comparator.compare( next, element.getKey() );
+            int nextCompared = comparator.compare( next, element.getValue() );
 
             if ( nextCompared <= 0 )
             {
@@ -122,15 +116,15 @@ public class SameKeyTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 /*
                  * If we just have values greater than the element argument
                  * then we are before the first element and cannot backup, and
-                 * the call below to getPrevious() will fail.  In this special
-                 * case we just reset the Cursor's browser and return.
+                 * the call below to previous() will fail.  In this special
+                 * case we just reset the Cursor's position and return.
                  */
-                if ( browser.getPrevious( valueTuple ) )
+                if ( wrapped.previous() )
                 {
                 }
                 else
                 {
-                    browser = btree.browse( element.getKey() );
+                    wrapped.before( element.getValue() );
                 }
 
                 clearValue();
@@ -139,43 +133,40 @@ public class SameKeyTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         }
 
         clearValue();
-        // just return
     }
 
 
     public void beforeFirst() throws Exception
     {
-        browser = btree.browse();
+        wrapped.beforeFirst();
         clearValue();
     }
 
 
     public void afterLast() throws Exception
     {
-        browser = btree.browse( null );
+        wrapped.afterLast();
     }
 
 
     public boolean first() throws Exception
     {
-        beforeFirst();
-        return next();
+        return wrapped.first();
     }
 
 
     public boolean last() throws Exception
     {
-        afterLast();
-        return previous();
+        return wrapped.last();
     }
 
 
     public boolean previous() throws Exception
     {
-        if ( browser.getPrevious( valueTuple ) )
+        if ( wrapped.previous() )
         {
             returnedTuple.setKey( key );
-            returnedTuple.setValue( valueTuple.getKey() );
+            returnedTuple.setValue( wrapped.get() );
             return valueAvailable = true;
         }
         else
@@ -188,10 +179,10 @@ public class SameKeyTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 
     public boolean next() throws Exception
     {
-        if ( browser.getNext( valueTuple ) )
+        if ( wrapped.next() )
         {
             returnedTuple.setKey( key );
-            returnedTuple.setValue( valueTuple.getKey() );
+            returnedTuple.setValue( wrapped.get() );
             return valueAvailable = true;
         }
         else
@@ -206,7 +197,6 @@ public class SameKeyTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     {
         if ( valueAvailable )
         {
-            //noinspection unchecked
             return returnedTuple;
         }
 

@@ -265,12 +265,45 @@ public interface Table<K, V>
 
 
     /**
-     * Creates a Cursor that traverses records in a Table.
+     * Creates a Cursor that traverses Tuples in a Table.
      *
      * @return a Cursor over Tuples containing the key value pairs
      * @throws Exception if there are failures accessing underlying stores
      */
     Cursor<Tuple<K,V>> cursor() throws Exception;
+
+
+    /**
+     * Creates a Cursor that traverses Table Tuples for the same key. Only
+     * Tuples with the provided key will be returned if the key exists at
+     * all.  If the key does not exist an empty Cursor is returned.  The
+     * motivation behind this method is to minimize the need for callers to
+     * actively constrain Cursor operations based on the Tuples they return
+     * to a specific key.  This Cursor is naturally limited to return only
+     * the tuples for the same key.
+     *
+     * @param key the duplicate key to return the Tuples of
+     * @return a Cursor over Tuples containing the same key
+     * @throws Exception if there are failures accessing underlying stores
+     */
+    Cursor<Tuple<K,V>> cursor( K key ) throws Exception;
+
+
+    /**
+     * Creates a Cursor that traverses Table values for the same key. Only
+     * Tuples with the provided key will have their values returned if the key
+     * exists at all.  If the key does not exist an empty Cursor is returned.
+     * The motivation behind this method is to minimize the need for callers
+     * to actively constrain Cursor operations to a specific key while
+     * removing overheads in creating new Tuples or population one that is
+     * reused to return key value pairs.  This Cursor is naturally limited to
+     * return only the values for the same key.
+     *
+     * @param key the duplicate key to return the values of
+     * @return a Cursor over values of a key
+     * @throws Exception if there are failures accessing underlying stores
+     */
+    Cursor<V> valueCursor( K key ) throws Exception;
 
 
     // ------------------------------------------------------------------------

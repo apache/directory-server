@@ -67,7 +67,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class JdbmStore
+public class JdbmStore<E>
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmStore.class );
@@ -95,19 +95,19 @@ public class JdbmStore
     private boolean isSyncOnWrite = true;
 
     /** the normalized distinguished name index */
-    private JdbmIndex<String> ndnIdx;
+    private JdbmIndex<String,E> ndnIdx;
     /** the user provided distinguished name index */
-    private JdbmIndex<String> updnIdx;
+    private JdbmIndex<String,E> updnIdx;
     /** the attribute existance index */
-    private JdbmIndex<String> existanceIdx;
+    private JdbmIndex<String,E> existanceIdx;
     /** the parent child relationship index */
-    private JdbmIndex<Long> hierarchyIdx;
+    private JdbmIndex<Long,E> hierarchyIdx;
     /** the one level scope alias index */
-    private JdbmIndex<Long> oneAliasIdx;
+    private JdbmIndex<Long,E> oneAliasIdx;
     /** the subtree scope alias index */
-    private JdbmIndex<Long> subAliasIdx;
+    private JdbmIndex<Long,E> subAliasIdx;
     /** a system index on aliasedObjectName attribute */
-    private JdbmIndex<String> aliasIdx;
+    private JdbmIndex<String,E> aliasIdx;
     
     /** Two static declaration to avoid lookup all over the code */
     private static AttributeType OBJECT_CLASS_AT;
@@ -331,7 +331,7 @@ public class JdbmStore
 
         if ( ndnIdx == null )
         {
-            ndnIdx = new JdbmIndex<String>();
+            ndnIdx = new JdbmIndex<String,E>();
             ndnIdx.setAttributeId( Oid.NDN );
             systemIndices.put( Oid.NDN, ndnIdx );
             ndnIdx.init( attributeTypeRegistry.lookup( Oid.NDN ), workingDirectory );
@@ -339,7 +339,7 @@ public class JdbmStore
 
         if ( updnIdx == null )
         {
-            updnIdx = new JdbmIndex<String>();
+            updnIdx = new JdbmIndex<String,E>();
             updnIdx.setAttributeId( Oid.UPDN );
             systemIndices.put( Oid.UPDN, updnIdx );
             updnIdx.init( attributeTypeRegistry.lookup( Oid.UPDN ), workingDirectory );
@@ -347,7 +347,7 @@ public class JdbmStore
 
         if ( existanceIdx == null )
         {
-            existanceIdx = new JdbmIndex<String>();
+            existanceIdx = new JdbmIndex<String,E>();
             existanceIdx.setAttributeId( Oid.EXISTANCE );
             systemIndices.put( Oid.EXISTANCE, existanceIdx );
             existanceIdx.init( attributeTypeRegistry.lookup( Oid.EXISTANCE ), workingDirectory );
@@ -355,7 +355,7 @@ public class JdbmStore
 
         if ( hierarchyIdx == null )
         {
-            hierarchyIdx = new JdbmIndex<Long>();
+            hierarchyIdx = new JdbmIndex<Long,E>();
             hierarchyIdx.setAttributeId( Oid.HIERARCHY );
             systemIndices.put( Oid.HIERARCHY, hierarchyIdx );
             hierarchyIdx.init( attributeTypeRegistry.lookup( Oid.HIERARCHY ), workingDirectory );
@@ -363,7 +363,7 @@ public class JdbmStore
 
         if ( oneAliasIdx == null )
         {
-            oneAliasIdx = new JdbmIndex<Long>();
+            oneAliasIdx = new JdbmIndex<Long,E>();
             oneAliasIdx.setAttributeId( Oid.ONEALIAS );
             systemIndices.put( Oid.ONEALIAS, oneAliasIdx );
             oneAliasIdx.init( attributeTypeRegistry.lookup( Oid.ONEALIAS ), workingDirectory );
@@ -371,7 +371,7 @@ public class JdbmStore
 
         if ( subAliasIdx == null )
         {
-            subAliasIdx = new JdbmIndex<Long>();
+            subAliasIdx = new JdbmIndex<Long,E>();
             subAliasIdx.setAttributeId( Oid.SUBALIAS );
             systemIndices.put( Oid.SUBALIAS, subAliasIdx );
             subAliasIdx.init( attributeTypeRegistry.lookup( Oid.SUBALIAS ), workingDirectory );
@@ -379,7 +379,7 @@ public class JdbmStore
 
         if ( aliasIdx == null )
         {
-            aliasIdx = new JdbmIndex<String>();
+            aliasIdx = new JdbmIndex<String,E>();
             aliasIdx.setAttributeId( Oid.ALIAS );
             systemIndices.put( Oid.ALIAS, aliasIdx );
             aliasIdx.init( attributeTypeRegistry.lookup( Oid.ALIAS ), workingDirectory );
@@ -435,6 +435,9 @@ public class JdbmStore
 
     /**
      * Close the parttion : we have to close all the userIndices and the master table.
+     * 
+     * @throws Exception lazily thrown on any closer failures to avoid leaving
+     * open files
      */
     public synchronized void destroy() throws Exception
     {
@@ -557,7 +560,7 @@ public class JdbmStore
     }
 
 
-    public void setExistanceIndex( JdbmIndex<String> index ) throws NamingException
+    public void setExistanceIndex( JdbmIndex<String,E> index ) throws NamingException
     {
         protect( "existanceIndex" );
         existanceIdx = index;
@@ -571,7 +574,7 @@ public class JdbmStore
     }
 
 
-    public void setHierarchyIndex( JdbmIndex<Long> index ) throws NamingException
+    public void setHierarchyIndex( JdbmIndex<Long,E> index ) throws NamingException
     {
         protect( "hierarchyIndex" );
         hierarchyIdx = index;
@@ -585,7 +588,7 @@ public class JdbmStore
     }
 
 
-    public void setAliasIndex( JdbmIndex<String> index ) throws NamingException
+    public void setAliasIndex( JdbmIndex<String,E> index ) throws NamingException
     {
         protect( "aliasIndex" );
         aliasIdx = index;
@@ -599,7 +602,7 @@ public class JdbmStore
     }
 
 
-    public void setOneAliasIndex( JdbmIndex<Long> index ) throws NamingException
+    public void setOneAliasIndex( JdbmIndex<Long,E> index ) throws NamingException
     {
         protect( "oneAliasIndex" );
         oneAliasIdx = index;
@@ -613,7 +616,7 @@ public class JdbmStore
     }
 
 
-    public void setSubAliasIndex( JdbmIndex<Long> index ) throws NamingException
+    public void setSubAliasIndex( JdbmIndex<Long,E> index ) throws NamingException
     {
         protect( "subAliasIndex" );
         subAliasIdx = index;
@@ -627,7 +630,7 @@ public class JdbmStore
     }
 
 
-    public void setUpdnIndex( JdbmIndex<String> index ) throws NamingException
+    public void setUpdnIndex( JdbmIndex<String,E> index ) throws NamingException
     {
         protect( "updnIndex" );
         updnIdx = index;
@@ -641,7 +644,7 @@ public class JdbmStore
     }
 
 
-    public void setNdnIndex( JdbmIndex<String> index ) throws NamingException
+    public void setNdnIndex( JdbmIndex<String,E> index ) throws NamingException
     {
         protect( "ndnIndex" );
         ndnIdx = index;
@@ -1097,9 +1100,9 @@ public class JdbmStore
     }
 
 
-    public Cursor<IndexEntry<Long, Attributes>> list( Long id ) throws Exception
+    public Cursor<IndexEntry<Long,E>> list( Long id ) throws Exception
     {
-        Cursor<IndexEntry<Long,Attributes>> cursor = hierarchyIdx.forwardCursor();
+        Cursor<IndexEntry<Long,E>> cursor = hierarchyIdx.forwardCursor();
         ForwardIndexEntry recordForward = new ForwardIndexEntry();
         recordForward.setId( id );
         cursor.before( recordForward );
@@ -1186,7 +1189,7 @@ public class JdbmStore
 
         // Get all existance mappings for this id creating a special key
         // that looks like so 'existance[attribute]' and the value is set to id
-        Cursor<IndexEntry<String,Attributes>> list = existanceIdx.reverseCursor();
+        Cursor<IndexEntry<String,E>> list = existanceIdx.reverseCursor();
         ForwardIndexEntry recordForward = new ForwardIndexEntry();
         recordForward.setId( id );
         list.before( recordForward );
@@ -1214,7 +1217,7 @@ public class JdbmStore
 
         // Get all parent child mappings for this entry as the parent using the
         // key 'child' with many entries following it.
-        Cursor<IndexEntry<Long,Attributes>> children = hierarchyIdx.forwardCursor();
+        Cursor<IndexEntry<Long,E>> children = hierarchyIdx.forwardCursor();
         recordForward = new ForwardIndexEntry();
         recordForward.setId( id );
         children.before( recordForward );
@@ -1662,7 +1665,7 @@ public class JdbmStore
             }
         }
 
-        Cursor<IndexEntry<Long,Attributes>> children = list( id );
+        Cursor<IndexEntry<Long,E>> children = list( id );
         while ( children.next() )
         {
             // Get the child and its id
