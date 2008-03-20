@@ -35,11 +35,24 @@ public abstract class AbstractExprNode implements ExprNode
     /** The map of annotations */
     protected Map<String, Object> annotations;
 
+    protected final AssertionType assertionType;
+    
+    
     /**
      * Creates a node by setting abstract node type.
      */
-    protected AbstractExprNode()
+    protected AbstractExprNode( AssertionType assertionType )
     {
+        this.assertionType = assertionType;
+    }
+    
+    
+    /**
+     * @see ExprNode#getAssertionType()
+     */
+    public AssertionType getAssertionType()
+    {
+        return assertionType;
     }
 
     

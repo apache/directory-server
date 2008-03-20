@@ -36,7 +36,7 @@ public class ApproximateNode extends SimpleNode
      */
     public ApproximateNode( String attribute, byte[] value )
     {
-        super( attribute, value );
+        super( attribute, value, AssertionType.APPROXIMATE );
     }
 
 
@@ -48,7 +48,7 @@ public class ApproximateNode extends SimpleNode
      */
     public ApproximateNode( String attribute, String value )
     {
-        super( attribute, value );
+        super( attribute, value, AssertionType.APPROXIMATE );
     }
 
 

@@ -36,7 +36,7 @@ public class EqualityNode extends SimpleNode
      */
     public EqualityNode( String attribute, byte[] value )
     {
-        super( attribute, value );
+        super( attribute, value, AssertionType.EQUALITY );
     }
 
 
@@ -48,7 +48,7 @@ public class EqualityNode extends SimpleNode
      */
     public EqualityNode( String attribute, String value )
     {
-        super( attribute, value );
+        super( attribute, value, AssertionType.EQUALITY );
     }
 
 

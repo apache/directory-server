@@ -53,7 +53,7 @@ public class ScopeNode extends AbstractExprNode
      */
     public ScopeNode( AliasDerefMode aliasDerefAliases, String baseDn, int scope )
     {
-        super();
+        super( AssertionType.SCOPE );
         this.scope = scope;
         this.baseDn = baseDn;
         this.aliasDerefAliases = aliasDerefAliases;

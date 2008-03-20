@@ -36,7 +36,7 @@ public class GreaterEqNode extends SimpleNode
      */
     public GreaterEqNode( String attribute, byte[] value )
     {
-        super( attribute, value );
+        super( attribute, value, AssertionType.GREATEREQ );
     }
 
 
@@ -48,7 +48,7 @@ public class GreaterEqNode extends SimpleNode
      */
     public GreaterEqNode( String attribute, String value )
     {
-        super( attribute, value );
+        super( attribute, value, AssertionType.GREATEREQ );
     }
 
 

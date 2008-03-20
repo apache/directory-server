@@ -48,7 +48,7 @@ public class AssertionNode extends AbstractExprNode
      * 
      * @param assertion the arbitrary selection logic.
      */
-    public AssertionNode(Assertion assertion)
+    public AssertionNode( Assertion assertion )
     {
         this( assertion, "ASSERTION" );
     }
@@ -63,7 +63,7 @@ public class AssertionNode extends AbstractExprNode
      */
     public AssertionNode( Assertion assertion, String desc )
     {
-        super();
+        super( AssertionType.ASSERTION );
         this.desc = desc;
         this.assertion = assertion;
 
