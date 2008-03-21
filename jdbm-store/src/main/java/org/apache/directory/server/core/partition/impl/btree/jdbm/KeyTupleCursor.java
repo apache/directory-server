@@ -37,7 +37,7 @@ import jdbm.btree.BTree;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SameKeyTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
+public class KeyTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 {
     private final Comparator<K> comparator;
     private final BTree btree;
@@ -57,7 +57,7 @@ public class SameKeyTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
      * @param comparator the Comparator used to determine <b>key</b> ordering
      * @throws Exception of there are problems accessing the BTree
      */
-    public SameKeyTupleCursor( BTree btree, K key, Comparator<K> comparator ) throws Exception
+    public KeyTupleCursor( BTree btree, K key, Comparator<K> comparator ) throws Exception
     {
         this.key = key;
         this.btree = btree;

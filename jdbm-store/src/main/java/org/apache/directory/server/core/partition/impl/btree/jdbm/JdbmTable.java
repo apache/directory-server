@@ -791,7 +791,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
         {
             BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
-            return new SameKeyTupleCursor<K,V>( tree, key, keyComparator ); 
+            return new KeyTupleCursor<K,V>( tree, key, keyComparator );
         }
 
         AvlTree<V> set = marshaller.deserialize( serialized );
