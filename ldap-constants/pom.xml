@@ -45,17 +45,5 @@
     Common LDAP constants used by clients and servers.
   </description>
 
-  <mailingLists>
-    <mailingList>
-      <name>Apache Directory Project</name>
-      <subscribe>dev-subscribe@directory.apache.org</subscribe>
-      <unsubscribe>dev-unsubscribe@directory.apache.org</unsubscribe>
-      <archive>http://mail-archives.apache.org/mod_mbox/dev/</archive>
-      <otherArchives>
-        <otherArchive>http://www.archivum.info/dev@directory.apache.org/</otherArchive>
-      </otherArchives>
-    </mailingList>
-  </mailingLists>
-
 </project>
 

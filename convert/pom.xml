@@ -45,18 +45,6 @@
     Common LDAP converters : LDIF, DSML, CSV, etc
   </description>
 
-  <mailingLists>
-    <mailingList>
-      <name>Apache Directory Project</name>
-      <subscribe>dev-subscribe@directory.apache.org</subscribe>
-      <unsubscribe>dev-unsubscribe@directory.apache.org</unsubscribe>
-      <archive>http://mail-archives.apache.org/mod_mbox/dev/</archive>
-      <otherArchives>
-        <otherArchive>http://www.archivum.info/dev@directory.apache.org/</otherArchive>
-      </otherArchives>
-    </mailingList>
-  </mailingLists>
-
   <dependencies>
 
     <dependency>
