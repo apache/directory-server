@@ -57,13 +57,5 @@
     </mailingList>
   </mailingLists>
 
-  <licenses>
-    <license>
-      <name>Apache 2.0 License</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-
 </project>
 
