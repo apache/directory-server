@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -733,6 +734,16 @@ public class JdbmStore<E>
     }
 
 
+    /**
+     * Gets the Long id of an entry's parent using the child entry's
+     * normalized dn. Note that the suffix entry returns 0, which does not
+     * map to any entry.
+     *
+     * @param dn the normalized distinguished name of the child
+     * @return the id of the parent entry or zero if the suffix entry the
+     * normalized suffix dn string is used
+     * @throws Exception on failures to access the underlying store
+     */
     public Long getParentId( String dn ) throws Exception
     {
         Long childId = ndnIdx.forwardLookup( dn );
@@ -1048,6 +1059,12 @@ public class JdbmStore<E>
 
     public void delete( Long id ) throws Exception
     {
+        if ( id == 1 )
+        {
+            throw new LdapOperationNotSupportedException(
+                "Deletion of the suffix entry is not permitted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
         Attributes entry = lookup( id );
         Long parentId = getParentId( id );
         NamingEnumeration<String> attrs = entry.getIDs();
@@ -1100,10 +1117,17 @@ public class JdbmStore<E>
     }
 
 
+    /**
+     * Gets an IndexEntry Cursor over the child nodes of an entry.
+     *
+     * @param id the id of the parent entry
+     * @return an IndexEntry Cursor over the child entries
+     * @throws Exception on failures to access the underlying store
+     */
     public Cursor<IndexEntry<Long,E>> list( Long id ) throws Exception
     {
-        Cursor<IndexEntry<Long,E>> cursor = hierarchyIdx.forwardCursor();
-        ForwardIndexEntry recordForward = new ForwardIndexEntry();
+        Cursor<IndexEntry<Long,E>> cursor = hierarchyIdx.forwardCursor( id );
+        ForwardIndexEntry<Long,E> recordForward = new ForwardIndexEntry<Long,E>();
         recordForward.setId( id );
         cursor.before( recordForward );
         return cursor;
@@ -1153,6 +1177,14 @@ public class JdbmStore<E>
     }
 
 
+    /**
+     * This is primarily a convenience method used to extract all the indices
+     * associated with an entry.
+     *
+     * @param id the id of the entry to get index information for
+     * @return the index names and values as an Attributes object
+     * @throws Exception if there are failures accessing the underlying store
+     */
     public Attributes getIndices( Long id ) throws Exception
     {
         Attributes attributes = new AttributesImpl();
@@ -1163,17 +1195,17 @@ public class JdbmStore<E>
         attributes.put( "_parent", getParentId( id ) );
 
         // Get all standard index attribute to value mappings
-        for ( Index index:this.userIndices.values() )
+        for ( Index index : userIndices.values() )
         {
-            Cursor<ForwardIndexEntry> list = index.reverseCursor();
-            ForwardIndexEntry recordForward = new ForwardIndexEntry();
+            Cursor<ForwardIndexEntry<Long,E>> list = index.reverseCursor();
+            ForwardIndexEntry<Long,E> recordForward = new ForwardIndexEntry<Long,E>();
             recordForward.setId( id );
             list.before( recordForward );
 
             while ( list.next() )
             {
-                IndexEntry rec = list.get();
-                Object val = rec.getValue();
+                IndexEntry<Long,E> rec = list.get();
+                String val = rec.getValue().toString();
                 String attrId = index.getAttribute().getName();
                 Attribute attr = attributes.get( attrId );
 
@@ -1190,7 +1222,7 @@ public class JdbmStore<E>
         // Get all existance mappings for this id creating a special key
         // that looks like so 'existance[attribute]' and the value is set to id
         Cursor<IndexEntry<String,E>> list = existanceIdx.reverseCursor();
-        ForwardIndexEntry recordForward = new ForwardIndexEntry();
+        ForwardIndexEntry<String,E> recordForward = new ForwardIndexEntry<String,E>();
         recordForward.setId( id );
         list.before( recordForward );
         StringBuffer val = new StringBuffer();
@@ -1199,7 +1231,7 @@ public class JdbmStore<E>
         {
             IndexEntry rec = list.get();
             val.append( "_existance[" );
-            val.append( rec.getValue() );
+            val.append( rec.getValue().toString() );
             val.append( "]" );
 
             String valStr = val.toString();
@@ -1210,7 +1242,7 @@ public class JdbmStore<E>
                 attr = new AttributeImpl( valStr );
             }
             
-            attr.add( rec.getId() );
+            attr.add( rec.getId().toString() );
             attributes.put( attr );
             val.setLength( 0 );
         }
@@ -1218,17 +1250,17 @@ public class JdbmStore<E>
         // Get all parent child mappings for this entry as the parent using the
         // key 'child' with many entries following it.
         Cursor<IndexEntry<Long,E>> children = hierarchyIdx.forwardCursor();
-        recordForward = new ForwardIndexEntry();
+        ForwardIndexEntry<Long,E> longRecordForward = new ForwardIndexEntry<Long,E>();
         recordForward.setId( id );
-        children.before( recordForward );
+        children.before( longRecordForward );
 
         Attribute childAttr = new AttributeImpl( "_child" );
         attributes.put( childAttr );
         
         while ( children.next() )
         {
-            IndexEntry rec = children.get();
-            childAttr.add( rec.getId() );
+            IndexEntry<Long,E> rec = children.get();
+            childAttr.add( rec.getId().toString() );
         }
 
         return attributes;

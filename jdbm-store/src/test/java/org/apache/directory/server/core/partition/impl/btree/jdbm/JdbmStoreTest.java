@@ -33,9 +33,13 @@ import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
+import org.apache.directory.server.core.partition.impl.btree.IndexEntry;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 import javax.naming.directory.Attributes;
 import java.io.File;
@@ -290,24 +294,71 @@ public class JdbmStoreTest
 
 
     @Test
+    public void testGetIndicies() throws Exception
+    {
+        Attributes attrs = store.getIndices( 1L );
+        assertNotNull( attrs );
+        assertNotNull( attrs.get( "_nDn" ) );
+        assertNotNull( attrs.get( "_upDn" ) );
+        assertNotNull( attrs.get( "_parent" ) );
+        LOG.debug( attrs.toString() );
+    }
+
+
+    @Test
+    public void testPersistentProperties() throws Exception
+    {
+        assertNull( store.getProperty( "foo" ) );
+        store.setProperty( "foo", "bar" );
+        assertEquals( "bar", store.getProperty( "foo" ) );
+    }
+
+
+    @Test
     public void testFreshStore() throws Exception
     {
         LdapDN dn = new LdapDN( "dc=example,dc=com" );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         assertEquals( 1L, ( long ) store.getEntryId( dn.toNormName() ) );
         assertEquals( 1, store.count() );
-//        assertEquals( "dc=example,dc=com", store.getEntryUpdn( "dc=example,dc=com" ) );
+        assertEquals( "dc=example,dc=com", store.getEntryUpdn( dn.toNormName() ) );
+        assertEquals( dn.toNormName(), store.getEntryDn( 1L ) );
+        assertEquals( dn.getUpName(), store.getEntryUpdn( 1L ) );
+        assertNotNull( store.getSuffixEntry() );
+
+        // note that the suffix entry returns 0 for it's parent which does not exist
+        assertEquals( 0L, ( long ) store.getParentId( dn.toNormName() ) );
+        assertNull( store.getParentId( 0L ) );
+
+        // should not be allowed
+        try { store.delete( 1L ); fail(); } catch( LdapOperationNotSupportedException e )
+        {
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
+        }
     }
 
 
     @Test
     public void testEntryOperations() throws Exception
     {
+        assertEquals( 0, store.getChildCount( 1L ) );
         LdapDN dn = new LdapDN( "ou=Engineering,dc=example,dc=com" );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Engineering" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+
+        Cursor<IndexEntry<Long,Attributes>> cursor = store.list( 1L );
+        assertNotNull( cursor );
+        cursor.beforeFirst();
+        assertTrue( cursor.next() );
+        assertEquals( 2L, ( long ) cursor.get().getId() );
+        assertFalse( cursor.next() );
+        assertEquals( 1, store.getChildCount( 1L ) );
+
+        store.delete( 2L );
+        assertEquals( 0, store.getChildCount( 1L ) );
+        assertEquals( 1, store.count() );
     }
 }
