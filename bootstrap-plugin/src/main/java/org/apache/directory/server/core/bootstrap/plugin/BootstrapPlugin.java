@@ -627,12 +627,12 @@ public class BootstrapPlugin extends AbstractMojo
      * Creates the configuration and initializes the partition so we can start
      * adding entries into it.
      *
-     * @throws MojoFailureException
+     * @param workingDirectory the working directory for partition resources
+     * @throws Exception when the partition cannot be fired up
      */
-    private void initializePartition( File workingDirectory ) throws MojoFailureException, Exception
+    private void initializePartition( File workingDirectory ) throws Exception
     {
         store.setCacheSize( 1000 );
-        store.setEnableOptimizer( false );
         store.setName( "schema" );
         store.setSuffixDn( SchemaConstants.OU_AT + "=schema" );
         store.setSyncOnWrite( false );
@@ -704,7 +704,7 @@ public class BootstrapPlugin extends AbstractMojo
      * Loads all the bootstrap schemas into the registries in preparation for
      * loading them into the schema partition.
      *
-     * @throws MojoFailureException
+     * @throws MojoFailureException when the schema cannot be initialized
      */
     private void initializeSchemas() throws MojoFailureException
     {
@@ -748,12 +748,12 @@ public class BootstrapPlugin extends AbstractMojo
         }
         
         ClassLoader cl = new URLClassLoader( urls, parent );
-        
-        for ( int ii = 0; ii < bootstrapSchemaClasses.length; ii++ )
+
+        for ( String bootstrapSchemaClass : bootstrapSchemaClasses )
         {
             try
             {
-                Class<?> schemaClass = cl.loadClass( bootstrapSchemaClasses[ii] );
+                Class<?> schemaClass = cl.loadClass( bootstrapSchemaClass );
                 schema = ( BootstrapSchema ) schemaClass.newInstance();
                 schemas.put( schema.getSchemaName(), schema );
             }
@@ -763,22 +763,22 @@ public class BootstrapPlugin extends AbstractMojo
                 getLog().info( "ClassLoader URLs: " + Arrays.asList( ( ( URLClassLoader ) getClass().getClassLoader() ).getURLs() ) );
                 e.printStackTrace();
                 throw new MojoFailureException( "Could not find BootstrapSchema class: "
-                        + bootstrapSchemaClasses[ii] );
+                    + bootstrapSchemaClass );
             }
             catch ( InstantiationException e )
             {
                 e.printStackTrace();
                 throw new MojoFailureException( "Could not instantiate BootstrapSchema class: "
-                        + bootstrapSchemaClasses[ii] );
+                    + bootstrapSchemaClass );
             }
             catch ( IllegalAccessException e )
             {
                 e.printStackTrace();
                 throw new MojoFailureException( "Could not instantiate BootstrapSchema class due to security: "
-                        + bootstrapSchemaClasses[ii] );
+                    + bootstrapSchemaClass );
             }
 
-            getLog().info( "\t" + bootstrapSchemaClasses[ii] );
+            getLog().info( "\t" + bootstrapSchemaClass );
         }
         
         getLog().info( "" );
@@ -851,7 +851,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private final String getNameOrNumericoid( SchemaObject object )
+    private String getNameOrNumericoid( SchemaObject object )
     {
         // first try to use userfriendly name if we can
         if ( object.getName() != null )
@@ -863,7 +863,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private final boolean hasEntry( LdapDN dn ) throws Exception
+    private boolean hasEntry( LdapDN dn ) throws Exception
     {
         Long id = store.getEntryId( dn.toNormName() );
         
@@ -871,7 +871,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private final StringBuffer getDbFileListing() throws IndexNotFoundException
+    private StringBuffer getDbFileListing() throws IndexNotFoundException
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "schema/master.db\n" );
