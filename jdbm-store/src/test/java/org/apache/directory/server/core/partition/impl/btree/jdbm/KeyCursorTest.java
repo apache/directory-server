@@ -59,7 +59,7 @@ public class KeyCursorTest
     BTree bt;
     Comparator<String> comparator;
 
-    KeyCursor<String> cursor;
+    KeyBTreeCursor<String> cursor;
 
 
     @SuppressWarnings({"unchecked"})
@@ -89,8 +89,8 @@ public class KeyCursorTest
         bt.insert( "8", EMPTY_BYTES, true );
         bt.insert( "9", EMPTY_BYTES, true );
 
-        cursor = new KeyCursor<String>( bt, comparator );
-        LOG.debug( "Created new KeyCursor and populated it's btree" );
+        cursor = new KeyBTreeCursor<String>( bt, comparator );
+        LOG.debug( "Created new KeyBTreeCursor and populated it's btree" );
     }
 
 

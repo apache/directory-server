@@ -36,7 +36,7 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KeySetTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
+public class KeyTupleAvlCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 {
     private final Comparator<V> comparator;
     private final AvlTreeCursor<V> wrapped;
@@ -53,7 +53,7 @@ public class KeySetTupleCursor<K,V> extends AbstractCursor<Tuple<K,V>>
      * @param key the constant key for which values are returned
      * @param comparator the Comparator used to determine <b>key</b> ordering
      */
-    public KeySetTupleCursor( AvlTree<V> avlTree, K key, Comparator<V> comparator )
+    public KeyTupleAvlCursor( AvlTree<V> avlTree, K key, Comparator<V> comparator )
     {
         this.key = key;
         this.comparator = comparator;

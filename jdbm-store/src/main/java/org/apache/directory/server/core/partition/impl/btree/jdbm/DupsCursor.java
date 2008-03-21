@@ -94,7 +94,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             else
             {
                 BTree tree = table.getBTree( values.getBTreeRedirect() );
-                dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
+                dupsCursor = new KeyBTreeCursor<V>( tree, table.getValueComparator() );
             }
 
             if ( element.getValue() == null )
@@ -162,7 +162,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             else
             {
                 BTree tree = table.getBTree( values.getBTreeRedirect() );
-                dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
+                dupsCursor = new KeyBTreeCursor<V>( tree, table.getValueComparator() );
             }
 
             if ( element.getValue() == null )
@@ -222,7 +222,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             else
             {
                 BTree bt = table.getBTree( values.getBTreeRedirect() );
-                dupsCursor = new KeyCursor<V>( bt, table.getValueComparator() );
+                dupsCursor = new KeyBTreeCursor<V>( bt, table.getValueComparator() );
             }
 
             /*
@@ -259,7 +259,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             else
             {
                 BTree tree = table.getBTree( values.getBTreeRedirect() );
-                dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
+                dupsCursor = new KeyBTreeCursor<V>( tree, table.getValueComparator() );
             }
 
             /*
@@ -313,7 +313,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 else
                 {
                     BTree tree = table.getBTree( values.getBTreeRedirect() );
-                    dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
+                    dupsCursor = new KeyBTreeCursor<V>( tree, table.getValueComparator() );
                 }
 
                 /*
@@ -363,7 +363,7 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 else
                 {
                     BTree tree = table.getBTree( values.getBTreeRedirect() );
-                    dupsCursor = new KeyCursor<V>( tree, table.getValueComparator() );
+                    dupsCursor = new KeyBTreeCursor<V>( tree, table.getValueComparator() );
                 }
 
                 /*
