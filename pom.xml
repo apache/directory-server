@@ -265,8 +265,6 @@
     <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
   </issueManagement>
 
-  <inceptionYear>2003</inceptionYear>
-
   <distributionManagement>
     <site>
       <id>apache.directory.apacheds</id>
@@ -445,13 +443,6 @@
       <name>Nick Faiz</name>
     </contributor>
   </contributors>
-
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-    </license>
-  </licenses>
 
   <build>
     <pluginManagement>
@@ -644,7 +635,7 @@
             </executions>
           </plugin>
           <plugin>
-	  <groupId>org.apache.maven.plugins</groupId>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
             <!-- TODO delete version tag after upgrade to TLP pom 9 -->
             <version>2.0.3</version>
@@ -673,7 +664,6 @@
       </build>
     </profile>
   </profiles>
-
 
   <scm>
     <connection>
