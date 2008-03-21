@@ -272,22 +272,6 @@
     </site>
   </distributionManagement>
 
-  <mailingLists>
-    <mailingList>
-      <name>The Directory Developers List</name>
-      <subscribe>dev-subscribe@directory.apache.org</subscribe>
-      <unsubscribe>dev-unsubscribe@directory.apache.org</unsubscribe>
-      <post>dev@directory.apache.org</post>
-      <archive>http://mail-archives.apache.org/mod_mbox/directory-dev</archive>
-    </mailingList>
-    <mailingList>
-      <name>The Directory Commits (SVN) List</name>
-      <subscribe>commits-subscribe@directory.apache.org</subscribe>
-      <unsubscribe>commits-unsubscribe@directory.apache.org</unsubscribe>
-      <archive>http://mail-archives.apache.org/mod_mbox/directory-commits</archive>
-    </mailingList>
-  </mailingLists>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
