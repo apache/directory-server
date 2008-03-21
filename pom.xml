@@ -438,12 +438,6 @@
     </developer>
   </developers>
 
-  <contributors>
-    <contributor>
-      <name>Nick Faiz</name>
-    </contributor>
-  </contributors>
-
   <build>
     <pluginManagement>
       <plugins>
