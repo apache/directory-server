@@ -19,6 +19,9 @@
 package org.apache.directory.server.core.cursor;
 
 
+import java.util.Iterator;
+
+
 /**
  * Simple class that contains often used Cursor code.
  *
@@ -48,5 +51,11 @@ public abstract class AbstractCursor<E> implements Cursor<E>
     public void close()
     {
         closed = true;
+    }
+
+
+    public Iterator<E> iterator()
+    {
+        return new CursorIterator<E>( this );
     }
 }

@@ -331,7 +331,7 @@ public class JdbmStoreTest
         assertNull( store.getParentId( 0L ) );
 
         // should not be allowed
-        try { store.delete( 1L ); fail(); } catch( LdapOperationNotSupportedException e )
+xxx        try { store.delete( 1L ); fail(); } catch( LdapOperationNotSupportedException e )
         {
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }

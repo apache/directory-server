@@ -75,6 +75,13 @@
 
     <dependency>
       <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-xdbm-tools</artifactId>
+      <version>${pom.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-schema-registries</artifactId>
       <version>${pom.version}</version>
     </dependency>

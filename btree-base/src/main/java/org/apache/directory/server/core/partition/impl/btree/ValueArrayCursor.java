@@ -19,9 +19,8 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.cursor.CursorClosedException;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
+import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.NotImplementedException;
 
 import java.util.Arrays;
@@ -34,7 +33,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ValueArrayCursor<K,V> implements Cursor<Tuple>
+public class ValueArrayCursor<K,V> extends AbstractCursor<Tuple>
 {
     private static final int BEFORE_FIRST = -1;
 
@@ -42,7 +41,6 @@ public class ValueArrayCursor<K,V> implements Cursor<Tuple>
     private final List<V> values;
     private final Tuple<K,V> tuple = new Tuple<K,V>();
 
-    private boolean closed;
     private int pos = BEFORE_FIRST;
 
 
@@ -59,16 +57,6 @@ public class ValueArrayCursor<K,V> implements Cursor<Tuple>
         this.key = key;
         this.tuple.setKey( key );
         this.values = values;
-    }
-
-
-    protected void checkClosed( String operation ) throws Exception
-    {
-        if ( closed )
-        {
-            throw new CursorClosedException( "Attempting " + operation
-                    + " operation on a closed Cursor." );
-        }
     }
 
 
@@ -188,12 +176,6 @@ public class ValueArrayCursor<K,V> implements Cursor<Tuple>
     }
 
 
-    public boolean isClosed() throws Exception
-    {
-        return closed;
-    }
-
-
     public boolean previous() throws Exception
     {
         checkClosed( "previous()" );
@@ -242,11 +224,5 @@ public class ValueArrayCursor<K,V> implements Cursor<Tuple>
     public boolean isElementReused()
     {
         return true;
-    }
-
-
-    public void close() throws Exception
-    {
-        closed = true;
     }
 }

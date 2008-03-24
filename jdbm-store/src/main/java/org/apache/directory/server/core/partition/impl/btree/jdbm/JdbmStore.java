@@ -34,6 +34,7 @@ import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.xdbm.tools.IndexUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -753,6 +754,7 @@ public class JdbmStore<E>
 
     public Long getParentId( Long childId ) throws Exception
     {
+        IndexUtils.printContents( hierarchyIdx, null );
         return hierarchyIdx.reverseLookup( childId );
     }
 

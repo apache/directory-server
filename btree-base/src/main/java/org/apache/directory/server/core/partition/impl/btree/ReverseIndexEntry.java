@@ -113,4 +113,16 @@ public class ReverseIndexEntry<V,O> implements IndexEntry<V,O>
         tuple.setKey( entry.getId() );
         tuple.setValue( entry.getValue() );
     }
+
+
+    public String toString()
+    {
+        StringBuilder buf = new StringBuilder();
+        buf.append( "ReverseIndexEntry[ " );
+        buf.append( tuple.getKey() );
+        buf.append( ", " );
+        buf.append( tuple.getValue() );
+        buf.append( " ]" );
+        return buf.toString();
+    }
 }

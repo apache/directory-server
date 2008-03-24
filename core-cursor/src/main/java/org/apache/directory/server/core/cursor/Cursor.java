@@ -37,7 +37,7 @@ package org.apache.directory.server.core.cursor;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Cursor<E>
+public interface Cursor<E> extends Iterable<E>
 {
     /**
      * Determines whether or not a call to get() will succeed.

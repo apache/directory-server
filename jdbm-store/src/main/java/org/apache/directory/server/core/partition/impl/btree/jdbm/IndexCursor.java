@@ -25,6 +25,9 @@ import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.ForwardIndexEntry;
 import org.apache.directory.server.core.partition.impl.btree.ReverseIndexEntry;
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.CursorIterator;
+
+import java.util.Iterator;
 
 
 /**
@@ -153,5 +156,11 @@ public class IndexCursor<K,O> implements Cursor<IndexEntry<K,O>>
     public void close() throws Exception
     {
         wrappedCursor.close();
+    }
+
+
+    public Iterator<IndexEntry<K, O>> iterator()
+    {
+        return new CursorIterator<IndexEntry<K,O>>( this );
     }
 }

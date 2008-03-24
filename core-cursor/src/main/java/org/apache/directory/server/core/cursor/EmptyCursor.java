@@ -19,6 +19,9 @@
 package org.apache.directory.server.core.cursor;
 
 
+import java.util.Iterator;
+
+
 /**
  * An empty Cursor implementation.
  *
