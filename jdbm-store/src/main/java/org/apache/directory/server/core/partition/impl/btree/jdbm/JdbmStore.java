@@ -754,7 +754,6 @@ public class JdbmStore<E>
 
     public Long getParentId( Long childId ) throws Exception
     {
-        IndexUtils.printContents( hierarchyIdx, null );
         return hierarchyIdx.reverseLookup( childId );
     }
 
