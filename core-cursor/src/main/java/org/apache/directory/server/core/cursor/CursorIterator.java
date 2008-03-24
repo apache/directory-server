@@ -32,18 +32,20 @@ import java.util.Iterator;
  */
 public class CursorIterator<E> implements Iterator<E>
 {
-    private Cursor<E> cursor;
+    private final Cursor<E> cursor;
+    private boolean available;
 
 
     public CursorIterator( Cursor cursor )
     {
         this.cursor = cursor;
+        this.available = cursor.available();
     }
 
 
     public boolean hasNext()
     {
-        return cursor.available();
+        return available;
     }
 
 
@@ -52,7 +54,7 @@ public class CursorIterator<E> implements Iterator<E>
         try
         {
             E element = cursor.get();
-            cursor.next();
+            available = cursor.next();
             return element;
         }
         catch ( Exception e )
