@@ -34,7 +34,7 @@ import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.xdbm.tools.IndexUtils;
+import org.apache.directory.server.xdbm.store.Store;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -69,7 +69,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class JdbmStore<E>
+public class JdbmStore<E> implements Store<E>
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmStore.class );
@@ -165,22 +165,6 @@ public class JdbmStore<E>
     public File getWorkingDirectory()
     {
         return workingDirectory;
-    }
-
-
-    public void setUserIndices( Set<JdbmIndex> userIndices )
-    {
-        protect( "userIndices" );
-        for ( JdbmIndex index : userIndices )
-        {
-            this.userIndices.put( index.getAttributeId(), index );
-        }
-    }
-
-
-    public Set<JdbmIndex> getUserIndices()
-    {
-        return new HashSet<JdbmIndex>( userIndices.values() );
     }
 
 
@@ -550,106 +534,139 @@ public class JdbmStore<E>
     // ------------------------------------------------------------------------
 
 
-    public void addIndex( JdbmIndex index ) throws NamingException
+    private JdbmIndex<?, E> convertIndex( Index<?,E> index )
     {
-        userIndices.put( index.getAttributeId(), index );
+        if ( index instanceof JdbmIndex )
+        {
+            return ( JdbmIndex<?,E> ) index;
+        }
+
+        LOG.warn( "Supplied index {} is not a JdbmIndex.  " +
+            "Will create new JdbmIndex using copied configuration parameters.", index );
+        JdbmIndex<?,E> jdbmIndex = new JdbmIndex<Object, E>( index.getAttributeId() );
+        jdbmIndex.setCacheSize( index.getCacheSize() );
+        jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
+        jdbmIndex.setWkDirPath( index.getWkDirPath() );
+        return jdbmIndex;
     }
 
 
-    public JdbmIndex getExistanceIndex()
+    public void setUserIndices( Set<Index<?,E>> userIndices )
+    {
+        protect( "userIndices" );
+        for ( Index index : userIndices )
+        {
+            this.userIndices.put( index.getAttributeId(), convertIndex( index ) );
+        }
+    }
+
+
+    public Set<Index> getUserIndices()
+    {
+        return new HashSet<Index>( userIndices.values() );
+    }
+
+
+    public void addIndex( Index index ) throws NamingException
+    {
+        userIndices.put( index.getAttributeId(), convertIndex( index ) );
+    }
+
+
+    public Index getExistanceIndex()
     {
         return existanceIdx;
     }
 
 
-    public void setExistanceIndex( JdbmIndex<String,E> index ) throws NamingException
+    public void setExistanceIndex( Index<String,E> index ) throws NamingException
     {
         protect( "existanceIndex" );
-        existanceIdx = index;
+        existanceIdx = ( JdbmIndex<String,E> ) convertIndex( index );
         systemIndices.put( index.getAttributeId(), existanceIdx );
     }
 
 
-    public JdbmIndex getHierarchyIndex()
+    public Index getHierarchyIndex()
     {
         return hierarchyIdx;
     }
 
 
-    public void setHierarchyIndex( JdbmIndex<Long,E> index ) throws NamingException
+    public void setHierarchyIndex( Index<Long,E> index ) throws NamingException
     {
         protect( "hierarchyIndex" );
-        hierarchyIdx = index;
+        hierarchyIdx = ( JdbmIndex<Long,E> ) convertIndex( index );
         systemIndices.put( index.getAttributeId(), hierarchyIdx );
     }
 
 
-    public JdbmIndex getAliasIndex()
+    public Index getAliasIndex()
     {
         return aliasIdx;
     }
 
 
-    public void setAliasIndex( JdbmIndex<String,E> index ) throws NamingException
+    public void setAliasIndex( Index<String,E> index ) throws NamingException
     {
         protect( "aliasIndex" );
-        aliasIdx = index;
+        aliasIdx = ( JdbmIndex<String,E> ) convertIndex( index );
         systemIndices.put( index.getAttributeId() , aliasIdx );
     }
 
 
-    public JdbmIndex getOneAliasIndex()
+    public Index getOneAliasIndex()
     {
         return oneAliasIdx;
     }
 
 
-    public void setOneAliasIndex( JdbmIndex<Long,E> index ) throws NamingException
+    public void setOneAliasIndex( Index<Long,E> index ) throws NamingException
     {
         protect( "oneAliasIndex" );
-        oneAliasIdx = index;
+        oneAliasIdx = ( JdbmIndex<Long,E> ) convertIndex( index );
         systemIndices.put( index.getAttributeId(), oneAliasIdx );
     }
 
 
-    public JdbmIndex getSubAliasIndex()
+    public Index getSubAliasIndex()
     {
         return subAliasIdx;
     }
 
 
-    public void setSubAliasIndex( JdbmIndex<Long,E> index ) throws NamingException
+    public void setSubAliasIndex( Index<Long,E> index ) throws NamingException
     {
         protect( "subAliasIndex" );
-        subAliasIdx = index;
+        subAliasIdx = ( JdbmIndex<Long,E> ) convertIndex( index );
         systemIndices.put( index.getAttributeId(), subAliasIdx );
     }
 
 
-    public JdbmIndex getUpdnIndex()
+    public Index getUpdnIndex()
     {
         return updnIdx;
     }
 
 
-    public void setUpdnIndex( JdbmIndex<String,E> index ) throws NamingException
+    public void setUpdnIndex( Index<String,E> index ) throws NamingException
     {
         protect( "updnIndex" );
-        updnIdx = index;
+        updnIdx = ( JdbmIndex<String,E> ) convertIndex( index );
         systemIndices.put( index.getAttributeId(), updnIdx );
     }
 
 
-    public JdbmIndex getNdnIndex()
+    public Index getNdnIndex()
     {
         return ndnIdx;
     }
 
 
-    public void setNdnIndex( JdbmIndex<String,E> index ) throws NamingException
+    public void setNdnIndex( Index<String,E> index ) throws NamingException
     {
         protect( "ndnIndex" );
-        ndnIdx = index;
+        ndnIdx = ( JdbmIndex<String,E> ) convertIndex( index );
         systemIndices.put( index.getAttributeId(), ndnIdx );
     }
 
@@ -678,7 +695,7 @@ public class JdbmStore<E>
     }
 
 
-    public JdbmIndex getUserIndex( String id ) throws IndexNotFoundException
+    public Index getUserIndex( String id ) throws IndexNotFoundException
     {
         try
         {
@@ -700,7 +717,7 @@ public class JdbmStore<E>
     }
 
 
-    public JdbmIndex getSystemIndex( String id ) throws IndexNotFoundException
+    public Index getSystemIndex( String id ) throws IndexNotFoundException
     {
         try
         {
