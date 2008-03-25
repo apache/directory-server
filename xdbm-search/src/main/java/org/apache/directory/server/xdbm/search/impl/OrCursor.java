@@ -22,37 +22,36 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.core.cursor.Cursor;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 
 /**
  * A Cursor of Cursors performing a union on all underlying Cursors resulting
  * in the disjunction of expressions represented by the constituant child
- * Cursors. This cursor prefetches underlying Cursor values so that it can
- * comply with the defined Cursor semantics.
+ * Cursors.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DisjunctionEnumeration implements NamingEnumeration<IndexEntry>
+public class OrCursor<V,E> implements Cursor<IndexEntry<V,E>>
 {
-    /** The underlying child enumerations */
-    private final NamingEnumeration<IndexRecord>[] children;
+    /** The underlying child Cursors */
+    private final Cursor<IndexEntry<V,E>>[] children;
     
     /** LUT used to avoid returning duplicates */
     private final Map<Object, Object> candidates = new HashMap<Object, Object>();
     /** Index of current cursor used */
     private int index = 0;
     /** Candidate to return */
-    private final ForwardIndexEntry candidate = new ForwardIndexEntry();
+    private final ForwardIndexEntry<V,E> candidate = new ForwardIndexEntry<V,E>();
     /** Prefetched record returned */
-    private final ForwardIndexEntry prefetched = new ForwardIndexEntry();
+    private final ForwardIndexEntry<V,E> prefetched = new ForwardIndexEntry<V,E>();
     /** Used to determine if this enumeration has been exhausted */
     private boolean hasMore = true;
 
@@ -62,14 +61,14 @@ public class DisjunctionEnumeration implements NamingEnumeration<IndexEntry>
     // ------------------------------------------------------------------------
 
     /**
-     * Creates a DisjunctionEnumeration over a set of child NamingEnumerations.
+     * Creates a OrCursor over a set of child NamingEnumerations.
      * The returned result is the union of all underlying NamingEnumerations 
      * without duplicates.
      *
      * @param children array of child NamingInstances
      * @throws NamingException if something goes wrong
      */
-    public DisjunctionEnumeration( NamingEnumeration<IndexRecord>[] children ) throws NamingException
+    public OrCursor( Cursor<IndexEntry<V,E>>[] children ) throws NamingException
     {
         this.children = children;
 

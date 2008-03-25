@@ -31,7 +31,7 @@ import org.apache.directory.server.core.cursor.Cursor;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Enumerator<E>
+public interface CursorBuilder<V,E>
 {
     /**
      * Creates an enumeration to enumerate through the set of candidates 
@@ -41,5 +41,5 @@ public interface Enumerator<E>
      * @return an enumeration over the 
      * @throws Exception if database access fails
      */
-    Cursor<IndexEntry<Long,E>> enumerate( ExprNode node ) throws Exception;
+    Cursor<IndexEntry<V,E>> enumerate( ExprNode node ) throws Exception;
 }

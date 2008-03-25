@@ -20,7 +20,6 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -28,6 +27,7 @@ import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Store;
 
 
 /**
@@ -36,10 +36,10 @@ import org.apache.directory.server.xdbm.IndexEntry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ScopeEvaluator implements Evaluator
+public class ScopeEvaluator<E> implements Evaluator<E>
 {
     /** Database used to evaluate scope with */
-    private BTreePartition db;
+    private Store<E> db;
 
 
     /**
@@ -47,7 +47,7 @@ public class ScopeEvaluator implements Evaluator
      *
      * @param db the database used to evaluate scope node
      */
-    public ScopeEvaluator(BTreePartition db)
+    public ScopeEvaluator( Store<E> db )
     {
         this.db = db;
     }
@@ -56,24 +56,24 @@ public class ScopeEvaluator implements Evaluator
     /**
      * @see Evaluator#evaluate(ExprNode, org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( ExprNode node, IndexEntry entry ) throws NamingException
+    public boolean evaluate( ExprNode node, IndexEntry<Long,E> entry ) throws Exception
     {
         ScopeNode snode = ( ScopeNode ) node;
 
         switch ( snode.getScope() )
         {
             case ( SearchControls.OBJECT_SCOPE  ):
-                String dn = db.getEntryDn( (Long) entry.getId() );
+                String dn = db.getEntryDn( entry.getId() );
                 return dn.equals( snode.getBaseDn() );
                 
             case ( SearchControls.ONELEVEL_SCOPE  ):
-                return assertOneLevelScope( snode, (Long) entry.getId() );
+                return assertOneLevelScope( snode, entry.getId() );
             
             case ( SearchControls.SUBTREE_SCOPE  ):
-                return assertSubtreeScope( snode, (Long) entry.getId() );
+                return assertSubtreeScope( snode, entry.getId() );
             
             default:
-                throw new NamingException( "Unrecognized search scope!" );
+                throw new IllegalStateException( "Unrecognized search scope!" );
         }
     }
 
@@ -86,13 +86,13 @@ public class ScopeEvaluator implements Evaluator
      * @param id the candidate to assert which can be any db entry's id
      * @return true if the candidate is within one level scope whether or not
      * alias dereferencing is enabled.
-     * @throws NamingException if the index lookups fail.
+     * @throws Exception if the index lookups fail.
      */
-    public boolean assertSubtreeScope( final ScopeNode node, final Long id ) throws NamingException
+    public boolean assertSubtreeScope( final ScopeNode node, final Long id ) throws Exception
     {
         String dn = db.getEntryDn( id );
         AliasDerefMode mode = node.getDerefAliases();
-        Object baseId = db.getEntryId( node.getBaseDn() );
+        Long baseId = db.getEntryId( node.getBaseDn() );
         boolean isDescendant = dn.endsWith( node.getBaseDn() );
 
         /*
@@ -112,16 +112,9 @@ public class ScopeEvaluator implements Evaluator
          */
         Index idx = db.getAliasIndex();
 
-        try
+        if ( null != idx.reverseLookup( id ) )
         {
-            if ( null != idx.reverseLookup( id ) )
-            {
-                return false;
-            }
-        }
-        catch ( java.io.IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            return false;
         }
 
         /*
@@ -146,16 +139,7 @@ public class ScopeEvaluator implements Evaluator
          * the lookup returns true accepting the candidate.  Otherwise the 
          * candidate is rejected with a false return because it is not in scope.
          */
-        idx = db.getSubAliasIndex();
-
-        try
-        {
-            return idx.hasValue( baseId, id );
-        }
-        catch ( java.io.IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        return db.getSubAliasIndex().has( baseId, id );
     }
 
 
@@ -167,21 +151,14 @@ public class ScopeEvaluator implements Evaluator
      * @param id the candidate to assert which can be any db entry's id 
      * @return true if the candidate is within one level scope whether or not
      * alias dereferencing is enabled.
-     * @throws NamingException if the index lookups fail.
+     * @throws Exception if the index lookups fail.
      */
-    public boolean assertOneLevelScope( final ScopeNode node, final Long id ) throws NamingException
+    public boolean assertOneLevelScope( final ScopeNode node, final Long id ) throws Exception
     {
         AliasDerefMode mode = node.getDerefAliases();
-        Object baseId = db.getEntryId( node.getBaseDn() );
-        Index idx = db.getHierarchyIndex();
-        try
-        {
-            boolean isChild = idx.hasValue( baseId, id );
-        }
-        catch ( java.io.IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        Long baseId = db.getEntryId( node.getBaseDn() );
+        Index<Long,E> idx = db.getHierarchyIndex();
+        boolean isChild = idx.has( baseId, id );
 
         /*
          * The candidate id could be any entry in the db.  If search 
@@ -198,18 +175,11 @@ public class ScopeEvaluator implements Evaluator
          * candidate id is an alias, if so we reject it since aliases should
          * not be returned.
          */
-        idx = db.getAliasIndex();
+        Index<String,E> aliasIndex= db.getAliasIndex();
 
-        try
+        if ( null != aliasIndex.reverseLookup( id ) )
         {
-            if ( null != idx.reverseLookup( id ) )
-            {
-                return false;
-            }
-        }
-        catch ( java.io.IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            return false;
         }
 
         /*
@@ -231,15 +201,6 @@ public class ScopeEvaluator implements Evaluator
          * the lookup returns true accepting the candidate.  Otherwise the 
          * candidate is rejected with a false return because it is not in scope.
          */
-        idx = db.getOneAliasIndex();
-
-        try
-        {
-            return idx.hasValue( baseId, id );
-        }
-        catch ( java.io.IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        return db.getOneAliasIndex().has( baseId, id );
     }
 }

@@ -21,35 +21,33 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertionEnumeration;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.NotImplementedException;
 
 
 /**
- * Enumerator that creates a NamingEnumeration over the set of candidates that 
+ * CursorBuilder that creates a NamingEnumeration over the set of candidates that
  * satisfy a substring filter expression.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubstringEnumerator implements Enumerator
+public class SubstringCursorBuilder<V,E> implements CursorBuilder<V, E>
 {
     /** Database used */
-    private final BTreePartition db;
+    private final Store<E> db;
     
     /** Evaluator used is an Avalon dependent object */
     private final SubstringEvaluator evaluator;
@@ -59,13 +57,15 @@ public class SubstringEnumerator implements Enumerator
 
 
     /**
-     * Creates a SubstringEnumerator for a database.
+     * Creates a SubstringCursorBuilder for a database.
      *
      * @param db the database
+     * @param attributeTypeRegistry the attributeType registry
      * @param evaluator a substring evaluator
      */
-    public SubstringEnumerator(BTreePartition db, AttributeTypeRegistry attributeTypeRegistry,
-        SubstringEvaluator evaluator)
+    public SubstringCursorBuilder( Store<E> db,
+                                   AttributeTypeRegistry attributeTypeRegistry,
+                                   SubstringEvaluator evaluator)
     {
         this.db = db;
         this.evaluator = evaluator;
@@ -74,17 +74,17 @@ public class SubstringEnumerator implements Enumerator
 
 
     // ------------------------------------------------------------------------
-    // SubstringEnumerator Methods
+    // SubstringCursorBuilder Methods
     // ------------------------------------------------------------------------
 
     /**
-     * @see Enumerator#enumerate(
+     * @see CursorBuilder#enumerate(
      * org.apache.directory.shared.ldap.filter.ExprNode)
      */
-    public NamingEnumeration<ForwardIndexEntry> enumerate( final ExprNode node ) throws NamingException
+    public Cursor<IndexEntry<V,E>> enumerate( final ExprNode node ) throws Exception
     {
-        Pattern regex = null;
-        Index idx = null;
+        Pattern     regex;
+        Index idx;
         final SubstringNode snode = ( SubstringNode ) node;
         AttributeType type = attributeTypeRegistry.lookup( snode.getAttribute() );
 
@@ -103,16 +103,7 @@ public class SubstringEnumerator implements Enumerator
              * Build out regex in this block so we do not do it twice in the
              * evaluator if there is no index on the attribute of the substr ava
              */
-            try
-            {
-                regex = snode.getRegex( normalizer );
-            }
-            catch ( PatternSyntaxException e )
-            {
-                NamingException ne = new NamingException( "SubstringNode '" + node + "' had incorrect syntax" );
-                ne.setRootCause( e );
-                throw ne;
-            }
+            regex = snode.getRegex( normalizer );
 
             /*
              * Get the user index and return an index enumeration using the the
@@ -122,25 +113,17 @@ public class SubstringEnumerator implements Enumerator
             idx = db.getUserIndex( snode.getAttribute() );
             if ( null == snode.getInitial() )
             {
-                try
-                {
-                    return idx.listIndices( regex );
-                }
-                catch ( java.io.IOException e )
-                {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+                // @TODO NEED REGULAR EXPRESSION CURSOR HERE
+                // return idx.forwardCursor( regex );
+                
+                throw new NotImplementedException( "TODO NEED REGULAR EXPRESSION CURSOR HERE" );
             }
             else
             {
-                try
-                {
-                    return idx.listIndices( regex, snode.getInitial() );
-                }
-                catch ( java.io.IOException e )
-                {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+                // @TODO NEED REGULAR EXPRESSION CURSOR HERE
+//                    return idx.forwardCursor( regex, snode.getInitial() );
+
+                throw new NotImplementedException( "TODO NEED REGULAR EXPRESSION CURSOR HERE" );
             }
         }
 
@@ -153,18 +136,11 @@ public class SubstringEnumerator implements Enumerator
          * underlying enumeration.  An evaluator in an assertion is used to 
          * constrain the result set.
          */
-        try
-        {
-            NamingEnumeration<ForwardIndexEntry> underlying = db.getNdnIndex().listIndices();
-        }
-        catch ( java.io.IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        Cursor<IndexEntry<String,E>> underlying = db.getNdnIndex().forwardCursor();
 
         IndexAssertion assertion = new IndexAssertion()
         {
-            public boolean assertCandidate( final IndexEntry entry ) throws NamingException
+            public boolean assertCandidate( final IndexEntry entry ) throws Exception
             {
                 return evaluator.evaluate( node, entry );
             }

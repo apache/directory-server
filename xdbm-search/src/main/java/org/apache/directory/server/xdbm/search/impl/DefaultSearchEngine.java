@@ -49,8 +49,8 @@ public class DefaultSearchEngine<E> implements SearchEngine<E>
     private Store<E> db;
     /** Evaluator flyweight used for filter expression assertions */
     private Evaluator<E> evaluator;
-    /** Enumerator flyweight that creates enumerations on filter expressions */
-    private Enumerator<E> enumerator;
+    /** CursorBuilder flyweight that creates enumerations on filter expressions */
+    private CursorBuilder<E> cursorBuilder;
 
 
     // ------------------------------------------------------------------------
@@ -61,15 +61,15 @@ public class DefaultSearchEngine<E> implements SearchEngine<E>
      * Creates a DefaultSearchEngine for searching a Database without setting
      * up the database.
      * @param db the btree based partition
-     * @param enumerator an expression enumerator
+     * @param cursorBuilder an expression cursorBuilder
      * @param evaluator an expression evaluator
      * @param optimizer an optimizer to use during search
      */
-    public DefaultSearchEngine( Store<E> db, Evaluator<E> evaluator, Enumerator<E> enumerator, Optimizer optimizer )
+    public DefaultSearchEngine( Store<E> db, Evaluator<E> evaluator, CursorBuilder<E> cursorBuilder, Optimizer optimizer )
     {
         this.db = db;
         this.evaluator = evaluator;
-        this.enumerator = enumerator;
+        this.cursorBuilder = cursorBuilder;
         this.optimizer = optimizer;
     }
 
@@ -124,7 +124,7 @@ public class DefaultSearchEngine<E> implements SearchEngine<E>
 
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );
-        return enumerator.enumerate( root );
+        return cursorBuilder.enumerate( root );
     }
 
 

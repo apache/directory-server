@@ -20,35 +20,35 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
-import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertionEnumeration;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
+import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.SingletonCursor;
 
 
 /**
- * Enumerates candidates based on scope.
+ * Creates a Cursor which traverses candidates based on scope constraints.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ScopeEnumerator implements Enumerator
+public class ScopeCursorBuilder<E> implements CursorBuilder<String, E>
 {
     /** Database used to enumerate based on scope */
-    private BTreePartition db = null;
+    private Store<E> db = null;
     /** Filter scope expression evaluator */
-    private ScopeEvaluator evaluator = null;
+    private ScopeEvaluator<E> evaluator = null;
 
 
-    public ScopeEnumerator(BTreePartition db, ScopeEvaluator evaluator)
+    public ScopeCursorBuilder( Store<E> db, ScopeEvaluator evaluator)
     {
         this.db = db;
         this.evaluator = evaluator;
@@ -61,10 +61,10 @@ public class ScopeEnumerator implements Enumerator
      *
      * @param node the scope node 
      * @return the candidates that are within scope
-     * @throws NamingException if any system indices fail
-     * @see Enumerator#enumerate(ExprNode)
+     * @throws Exception if any system indices fail
+     * @see CursorBuilder#enumerate(ExprNode)
      */
-    public NamingEnumeration<ForwardIndexEntry> enumerate( ExprNode node ) throws NamingException
+    public Cursor<ForwardIndexEntry<String,E>> enumerate( ExprNode node ) throws Exception
     {
         final ScopeNode snode = ( ScopeNode ) node;
         final Long id = db.getEntryId( snode.getBaseDn() );
@@ -72,10 +72,10 @@ public class ScopeEnumerator implements Enumerator
         switch ( snode.getScope() )
         {
             case ( SearchControls.OBJECT_SCOPE  ):
-                final ForwardIndexEntry recordForward = new ForwardIndexEntry();
+                final ForwardIndexEntry<Long,E> recordForward = new ForwardIndexEntry<String,E>();
                 recordForward.setId( id );
                 recordForward.setValue( snode.getBaseDn() );
-                return new SingletonEnumeration<ForwardIndexEntry>( recordForward );
+                return new SingletonCursor<ForwardIndexEntry<Long,E>>( recordForward );
                 
             case ( SearchControls.ONELEVEL_SCOPE  ):
                 return enumerateChildren( snode.getBaseDn(), snode.getDerefAliases().isDerefInSearching() );
@@ -84,7 +84,7 @@ public class ScopeEnumerator implements Enumerator
                 return enumerateDescendants( snode );
             
             default:
-                throw new NamingException( "Unrecognized search scope!" );
+                throw new IllegalStateException( "Unrecognized search scope!" );
         }
     }
 
@@ -97,21 +97,14 @@ public class ScopeEnumerator implements Enumerator
      * @param deref whether or not we dereference while searching
      * @return the enumeration of all entries in direct or alias extended one 
      * level scope to the base
-     * @throws NamingException if any failures occur while accessing system
+     * @throws Exception if any failures occur while accessing system
      * indices.
      */
-    private NamingEnumeration<ForwardIndexEntry> enumerateChildren( String dn, boolean deref ) throws NamingException
+    private Cursor<IndexEntry<Long,E>> enumerateChildren( String dn, boolean deref ) throws Exception
     {
-        Index idx = db.getHierarchyIndex();
+        Index<Long,E> idx = db.getHierarchyIndex();
         final Long id = db.getEntryId( dn );
-        try
-        {
-            final NamingEnumeration<ForwardIndexEntry> children = idx.listIndices( id );
-        }
-        catch ( java.io.IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        final Cursor<IndexEntry<Long,E>> children = idx.forwardCursor( id );
 
         /*
          * If alias dereferencing is not enabled while searching then we just
@@ -135,22 +128,14 @@ public class ScopeEnumerator implements Enumerator
 
         // List all entries brought into one level scope at base by aliases
         idx = db.getOneAliasIndex();
-        try
-        {
-            NamingEnumeration aliasIntroduced = idx.listIndices( id );
-        }
-        catch ( java.io.IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        Cursor aliasIntroduced = idx.forwardCursor( id );
 
         // Still need to use assertion enum to weed out aliases
-        NamingEnumeration nonAliasChildren = new IndexAssertionEnumeration( children, new AssertNotAlias() );
+        Cursor nonAliasChildren = new IndexAssertionEnumeration( children, new AssertNotAlias() );
 
         // Combine both into one enumeration
-        NamingEnumeration[] all =
-            { nonAliasChildren, aliasIntroduced };
-        return new DisjunctionEnumeration( all );
+        Cursor[] all = { nonAliasChildren, aliasIntroduced };
+        return new OrCursor( all );
     }
 
 
@@ -161,12 +146,12 @@ public class ScopeEnumerator implements Enumerator
      * @param node the scope node
      * @return the enumeration of all entries in direct or alias extended 
      * subtree scope to the base
-     * @throws NamingException if any failures occur while accessing system
+     * @throws Exception if any failures occur while accessing system
      * indices.
      */
-    private NamingEnumeration<ForwardIndexEntry> enumerateDescendants( final ScopeNode node ) throws NamingException
+    private Cursor<ForwardIndexEntry> enumerateDescendants( final ScopeNode node ) throws Exception
     {
-        Index idx = null;
+        Index idx;
 
         /*
          * If we do not dereference while searching then we simply return any
@@ -176,21 +161,14 @@ public class ScopeEnumerator implements Enumerator
         {
             // Gets a NamingEnumeration over all elements
             idx = db.getNdnIndex();
-            try
-            {
-                NamingEnumeration<ForwardIndexEntry> underlying = idx.listIndices();
-            }
-            catch ( java.io.IOException e )
-            {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
+            Cursor<ForwardIndexEntry> underlying = idx.forwardCursor();
             return new IndexAssertionEnumeration( underlying, new AssertDescendant( node ) );
         }
 
         // Create an assertion to assert or evaluate an expression
         IndexAssertion assertion = new IndexAssertion()
         {
-            public boolean assertCandidate( IndexEntry rec ) throws NamingException
+            public boolean assertCandidate( IndexEntry rec ) throws Exception
             {
                 return evaluator.evaluate( node, rec );
             }
@@ -198,16 +176,10 @@ public class ScopeEnumerator implements Enumerator
 
         // Gets a NamingEnumeration over all elements
         idx = db.getNdnIndex();
-        try
-        {
-            NamingEnumeration<ForwardIndexEntry> underlying = idx.listIndices();
-        }
-        catch ( java.io.IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        Cursor<ForwardIndexEntry> underlying = idx.forwardCursor();
         return new IndexAssertionEnumeration( underlying, assertion );
     }
+
 
     /**
      * Asserts an entry is a descendant.
@@ -233,14 +205,15 @@ public class ScopeEnumerator implements Enumerator
          * Returns true if the candidate with id is a descendant of the base, 
          * false otherwise.
          * 
-         * @see org.apache.directory.server.core.partition.impl.btree.IndexAssertion#assertCandidate(org.apache.directory.server.xdbm.IndexEntry)
+         * @see IndexAssertion#assertCandidate(IndexEntry)
          */
-        public boolean assertCandidate( IndexEntry entry ) throws NamingException
+        public boolean assertCandidate( IndexEntry entry ) throws Exception
         {
-            String dn = db.getEntryDn( (Long) entry.getId() );
+            String dn = db.getEntryDn( entry.getId() );
             return dn.endsWith( scope.getBaseDn() );
         }
     }
+
 
     /**
      * Asserts an entry is NOT an alias.
@@ -252,23 +225,9 @@ public class ScopeEnumerator implements Enumerator
          * 
          * @see IndexAssertion#assertCandidate(IndexEntry)
          */
-        public boolean assertCandidate( IndexEntry entry ) throws NamingException
+        public boolean assertCandidate( IndexEntry entry ) throws Exception
         {
-            Index aliasIdx = db.getAliasIndex();
-
-            try
-            {
-                if ( null == aliasIdx.reverseLookup( entry.getId() ) )
-                {
-                    return true;
-                }
-            }
-            catch ( java.io.IOException e )
-            {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-
-            return false;
+            return null == db.getAliasIndex().reverseLookup( entry.getId() );
         }
     }
 }

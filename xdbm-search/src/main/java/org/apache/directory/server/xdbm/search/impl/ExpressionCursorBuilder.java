@@ -29,6 +29,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertionEnumeration;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -51,21 +52,21 @@ import org.apache.directory.shared.ldap.filter.SubstringNode;
 
 
 /**
- * Enumerates over candidates that satisfy a filter expression.
+ * Builds Cursors over candidates that satisfy a filter expression.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExpressionEnumerator implements Enumerator
+public class ExpressionCursorBuilder<E> implements CursorBuilder<E>
 {
     /** The database used by this enumerator */
-    private BTreePartition db = null;
-    /** Enumerator flyweight for evaulating filter scope assertions */
-    private ScopeEnumerator scopeEnumerator;
-    /** Enumerator flyweight for evaulating filter substring assertions */
-    private SubstringEnumerator substringEnumerator;
+    private Store<E> db = null;
+    /** CursorBuilder flyweight for evaulating filter scope assertions */
+    private ScopeCursorBuilder<E> scopeEnumerator;
+    /** CursorBuilder flyweight for evaulating filter substring assertions */
+    private SubstringCursorBuilder<E> substringEnumerator;
     /** Evaluator dependency on a ExpressionEvaluator */
-    private ExpressionEvaluator evaluator;
+    private ExpressionEvaluator<E> evaluator;
 
 
     /**
@@ -74,15 +75,15 @@ public class ExpressionEnumerator implements Enumerator
      * @param db database used by this enumerator
      * @param evaluator
      */
-    public ExpressionEnumerator(BTreePartition db, AttributeTypeRegistry attributeTypeRegistry,
+    public ExpressionCursorBuilder(BTreePartition db, AttributeTypeRegistry attributeTypeRegistry,
         ExpressionEvaluator evaluator)
     {
         this.db = db;
         this.evaluator = evaluator;
 
         LeafEvaluator leafEvaluator = evaluator.getLeafEvaluator();
-        scopeEnumerator = new ScopeEnumerator( db, leafEvaluator.getScopeEvaluator() );
-        substringEnumerator = new SubstringEnumerator( db, attributeTypeRegistry, leafEvaluator.getSubstringEvaluator() );
+        scopeEnumerator = new ScopeCursorBuilder( db, leafEvaluator.getScopeEvaluator() );
+        substringEnumerator = new SubstringCursorBuilder( db, attributeTypeRegistry, leafEvaluator.getSubstringEvaluator() );
     }
 
 
@@ -186,7 +187,7 @@ public class ExpressionEnumerator implements Enumerator
             childEnumerations[ii] = enumerate( children.get( ii ) );
         }
 
-        return new DisjunctionEnumeration( childEnumerations );
+        return new OrCursor( childEnumerations );
     }
 
 
