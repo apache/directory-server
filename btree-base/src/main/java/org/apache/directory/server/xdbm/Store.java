@@ -23,9 +23,6 @@ package org.apache.directory.server.xdbm;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.xdbm.IndexNotFoundException;
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -179,43 +176,43 @@ public interface Store<E>
     void addIndex( Index index ) throws NamingException;
 
 
-    Index getExistanceIndex();
+    Index<String,E> getExistanceIndex();
 
 
     void setExistanceIndex( Index<String,E> index ) throws NamingException;
 
 
-    Index getHierarchyIndex();
+    Index<Long,E> getHierarchyIndex();
 
 
     void setHierarchyIndex( Index<Long,E> index ) throws NamingException;
 
 
-    Index getAliasIndex();
+    Index<String,E> getAliasIndex();
 
 
     void setAliasIndex( Index<String,E> index ) throws NamingException;
 
 
-    Index getOneAliasIndex();
+    Index<Long,E> getOneAliasIndex();
 
 
     void setOneAliasIndex( Index<Long,E> index ) throws NamingException;
 
 
-    Index getSubAliasIndex();
+    Index<Long,E> getSubAliasIndex();
 
 
     void setSubAliasIndex( Index<Long,E> index ) throws NamingException;
 
 
-    Index getUpdnIndex();
+    Index<String,E> getUpdnIndex();
 
 
     void setUpdnIndex( Index<String,E> index ) throws NamingException;
 
 
-    Index getNdnIndex();
+    Index<String,E> getNdnIndex();
 
 
     void setNdnIndex( Index<String,E> index ) throws NamingException;

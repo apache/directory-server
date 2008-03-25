@@ -17,12 +17,9 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.xdbm.search.impl;
 
 
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.shared.ldap.filter.AndNode;
@@ -34,6 +31,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
+import org.apache.directory.server.core.cursor.Cursor;
 
 
 /**
@@ -43,16 +41,16 @@ import org.apache.directory.server.xdbm.search.SearchEngine;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultSearchEngine implements SearchEngine
+public class DefaultSearchEngine<E> implements SearchEngine<E>
 {
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
     /** the Database this DefaultSearchEngine operates on */
-    private Store db;
+    private Store<E> db;
     /** Evaluator flyweight used for filter expression assertions */
-    private ExpressionEvaluator evaluator;
+    private Evaluator<E> evaluator;
     /** Enumerator flyweight that creates enumerations on filter expressions */
-    private ExpressionEnumerator enumerator;
+    private Enumerator<E> enumerator;
 
 
     // ------------------------------------------------------------------------
@@ -67,8 +65,7 @@ public class DefaultSearchEngine implements SearchEngine
      * @param evaluator an expression evaluator
      * @param optimizer an optimizer to use during search
      */
-    public DefaultSearchEngine( Store db, ExpressionEvaluator evaluator,
-        ExpressionEnumerator enumerator, Optimizer optimizer )
+    public DefaultSearchEngine( Store<E> db, Evaluator<E> evaluator, Enumerator<E> enumerator, Optimizer optimizer )
     {
         this.db = db;
         this.evaluator = evaluator;
@@ -88,12 +85,12 @@ public class DefaultSearchEngine implements SearchEngine
     }
 
 
-    public NamingEnumeration<IndexEntry> search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
+    public Cursor<IndexEntry<Long,E>> search( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
         throws Exception
     {
-        Name effectiveBase;
+        LdapDN effectiveBase;
         Long baseId = db.getEntryId( base.toString() );
-        String aliasedBase = ( String ) db.getAliasIndex().reverseLookup( baseId );
+        String aliasedBase = db.getAliasIndex().reverseLookup( baseId );
 
         // --------------------------------------------------------------------
         // Determine the effective base with aliases
@@ -132,11 +129,11 @@ public class DefaultSearchEngine implements SearchEngine
 
 
     /**
-     * @see org.apache.directory.server.xdbm.search.SearchEngine#evaluate(ExprNode, Long)
+     * @see SearchEngine#evaluate(ExprNode, Long)
      */
-    public boolean evaluate( ExprNode ilter, Long id ) throws NamingException
+    public boolean evaluate( ExprNode ilter, Long id ) throws Exception
     {
-        IndexEntry rec = new ForwardIndexEntry();
+        IndexEntry<Long,E> rec = new ForwardIndexEntry<Long,E>();
         rec.setId( id );
         return evaluator.evaluate( ilter, rec );
     }

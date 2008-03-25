@@ -17,10 +17,8 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.xdbm.search.impl;
 
-
-import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -34,7 +32,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Evaluator
+public interface Evaluator<E>
 {
     /**
      * Evaluates a candidate to determine if a filter expression selects it.
@@ -42,7 +40,7 @@ public interface Evaluator
      * @param node the filter expression to evaluate on the candidate
      * @param entry the index record of the entry to evaluate
      * @return true if the filter selects the candidate false otherwise
-     * @throws NamingException if there is a database fault during evaluation
+     * @throws Exception if there is a database fault during evaluation
      */
-    boolean evaluate( ExprNode node, IndexEntry entry ) throws NamingException;
+    boolean evaluate( ExprNode node, IndexEntry<Long,E> entry ) throws Exception;
 }

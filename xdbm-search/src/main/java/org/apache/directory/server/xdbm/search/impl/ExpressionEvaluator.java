@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.xdbm.search.impl;
 
 
 import javax.naming.NamingException;
@@ -94,7 +94,7 @@ public class ExpressionEvaluator implements Evaluator
     // ------------------------------------------------------------------------
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, IndexEntry)
+     * @see Evaluator#evaluate(ExprNode, IndexEntry)
      */
     public boolean evaluate( ExprNode node, IndexEntry entry ) throws NamingException
     {

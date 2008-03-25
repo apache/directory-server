@@ -17,12 +17,11 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.xdbm.search.impl;
 
 
 import java.util.List;
 
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.shared.ldap.filter.AndNode;
@@ -52,17 +51,17 @@ import org.apache.directory.server.xdbm.Store;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultOptimizer implements Optimizer
+public class DefaultOptimizer<E> implements Optimizer
 {
     /** the database this optimizer operates on */
-    private Store db;
+    private Store<E> db;
 
     /**
      * Creates an optimizer on a database.
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer( Store db )
+    public DefaultOptimizer( Store<E> db )
     {
         this.db = db;
     }
@@ -161,7 +160,13 @@ public class DefaultOptimizer implements Optimizer
             }
             else if ( node instanceof NotNode )
             {
-            	count = getNegationScan( (NotNode)node );
+                /*
+                 * A negation filter is always worst case since we will have
+                 * to retrieve all entries from the master table then test
+                 * each one against the negated child filter.  There is no way
+                 * to use the indices.
+                 */
+                count = Long.MAX_VALUE;
             }
             else
             {
@@ -188,7 +193,7 @@ public class DefaultOptimizer implements Optimizer
      *
      * @param node a AND (Conjunction) BranchNode
      * @return the calculated scan count
-     * @throws NamingException if there is an error
+     * @throws Exception if there is an error
      */
     private long getConjunctionScan( BranchNode node ) throws Exception
     {
@@ -206,28 +211,13 @@ public class DefaultOptimizer implements Optimizer
 
 
     /**
-     * A negation filter is always worst case since we will have to retrieve all
-     * entries from the master table then test each one against the negated
-     * child filter.  There is no way to use the indices.
-     *
-     * @param node the negation node
-     * @return the scan count
-     * @throws NamingException if there is an error
-     */
-    private long getNegationScan( BranchNode node ) throws NamingException
-    {
-        return Long.MAX_VALUE;
-    }
-
-
-    /**
      * Disjunctions (OR) are the union of candidates across all subexpressions 
      * so we add all the counts of the child nodes. Notice that we annotate the 
      * child node with a recursive call.
      *
      * @param node the OR branch node
      * @return the scan count on the OR node
-     * @throws NamingException if there is an error
+     * @throws Exception if there is an error
      */
     private long getDisjunctionScan( BranchNode node ) throws Exception
     {
@@ -250,13 +240,14 @@ public class DefaultOptimizer implements Optimizer
      *
      * @param node the node to get a scan count for 
      * @return the worst case
-     * @throws NamingException if there is an error accessing an index
+     * @throws Exception if there is an error accessing an index
      */
     private long getEqualityScan( SimpleNode node ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            Index idx = db.getUserIndex( node.getAttribute() );
+            //noinspection unchecked
+            Index<Object,E> idx = db.getUserIndex( node.getAttribute() );
             return idx.count( node.getValue() );
         }
 
@@ -272,13 +263,14 @@ public class DefaultOptimizer implements Optimizer
      * @param node the greater or less than node to get a count for 
      * @param isGreaterThan if true test is for >=, otherwise <=
      * @return the scan count of all nodes satisfying the AVA
-     * @throws NamingException if there is an error accessing an index
+     * @throws Exception if there is an error accessing an index
      */
     private long getGreaterLessScan( SimpleNode node, boolean isGreaterThan ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            Index idx = db.getUserIndex( node.getAttribute() );
+            //noinspection unchecked
+            Index<Object, E> idx = db.getUserIndex( node.getAttribute() );
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue() );
@@ -301,7 +293,7 @@ public class DefaultOptimizer implements Optimizer
      *
      * @param node the leaf node to get a full scan count for 
      * @return the worst case full scan count
-     * @throws NamingException if there is an error access database indices
+     * @throws Exception if there is an error access database indices
      */
     private long getFullScan( LeafNode node ) throws Exception
     {
@@ -321,13 +313,13 @@ public class DefaultOptimizer implements Optimizer
      *
      * @param node the presence node
      * @return the number of entries matched for the presence of an attribute
-     * @throws NamingException if errors result
+     * @throws Exception if errors result
      */
     private long getPresenceScan( PresenceNode node ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            Index idx = db.getExistanceIndex();
+            Index<String,E> idx = db.getExistanceIndex();
             return idx.count( node.getAttribute() );
         }
 
@@ -340,7 +332,7 @@ public class DefaultOptimizer implements Optimizer
      *
      * @param node the ScopeNode
      * @return the scan count for scope
-     * @throws NamingException if any errors result
+     * @throws Exception if any errors result
      */
     private long getScopeScan( ScopeNode node ) throws Exception
     {

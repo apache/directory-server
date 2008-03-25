@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.xdbm.search.impl;
 
 
 import javax.naming.NamingEnumeration;
@@ -30,6 +30,8 @@ import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.core.partition.impl.btree.IndexAssertionEnumeration;
+import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
 
 
 /**
@@ -60,7 +62,7 @@ public class ScopeEnumerator implements Enumerator
      * @param node the scope node 
      * @return the candidates that are within scope
      * @throws NamingException if any system indices fail
-     * @see org.apache.directory.server.core.partition.impl.btree.Enumerator#enumerate(ExprNode)
+     * @see Enumerator#enumerate(ExprNode)
      */
     public NamingEnumeration<ForwardIndexEntry> enumerate( ExprNode node ) throws NamingException
     {

@@ -574,7 +574,7 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Index getExistanceIndex()
+    public Index<String,E> getExistanceIndex()
     {
         return existanceIdx;
     }
@@ -588,7 +588,7 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Index getHierarchyIndex()
+    public Index<Long,E> getHierarchyIndex()
     {
         return hierarchyIdx;
     }
@@ -602,7 +602,7 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Index getAliasIndex()
+    public Index<String,E> getAliasIndex()
     {
         return aliasIdx;
     }
@@ -616,7 +616,7 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Index getOneAliasIndex()
+    public Index<Long,E> getOneAliasIndex()
     {
         return oneAliasIdx;
     }
@@ -630,7 +630,7 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Index getSubAliasIndex()
+    public Index<Long,E> getSubAliasIndex()
     {
         return subAliasIdx;
     }
@@ -644,7 +644,7 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Index getUpdnIndex()
+    public Index<String,E> getUpdnIndex()
     {
         return updnIdx;
     }
@@ -658,7 +658,7 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Index getNdnIndex()
+    public Index<String,E> getNdnIndex()
     {
         return ndnIdx;
     }

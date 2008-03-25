@@ -17,22 +17,21 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.xdbm.search.impl;
 
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.core.cursor.Cursor;
 
 
 /**
- * An enumeration builder or factory for filter expressions.
+ * Builds a Cursor over IndexEntry set satisfying a filter expression.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Enumerator
+public interface Enumerator<E>
 {
     /**
      * Creates an enumeration to enumerate through the set of candidates 
@@ -40,7 +39,7 @@ public interface Enumerator
      * 
      * @param node a filter expression root
      * @return an enumeration over the 
-     * @throws NamingException if database access fails
+     * @throws Exception if database access fails
      */
-    NamingEnumeration<IndexRecord> enumerate( ExprNode node ) throws NamingException;
+    Cursor<IndexEntry<Long,E>> enumerate( ExprNode node ) throws Exception;
 }

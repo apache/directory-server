@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.filter.ExprNode;
 
 
@@ -42,7 +40,7 @@ public interface Optimizer
      * Annotates the expression node tree for optimized traversal metrics.
      *
      * @param node the root of the expression node tree
-     * @throws NamingException if there are failures while optimizing
+     * @throws Exception if there are failures while optimizing
      */
     void annotate( ExprNode node ) throws Exception;
 }
