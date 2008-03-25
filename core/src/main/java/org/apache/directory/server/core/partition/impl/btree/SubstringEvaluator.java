@@ -30,6 +30,8 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;

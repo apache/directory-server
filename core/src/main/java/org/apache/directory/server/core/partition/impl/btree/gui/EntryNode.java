@@ -33,9 +33,9 @@ import javax.naming.directory.Attributes;
 import javax.swing.tree.TreeNode;
 
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.core.partition.impl.btree.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
-import org.apache.directory.server.core.partition.impl.btree.IndexEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 

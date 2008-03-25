@@ -26,6 +26,8 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexEntry;
 
 
 /**
@@ -52,7 +54,7 @@ public class ScopeEvaluator implements Evaluator
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, IndexEntry)
+     * @see org.apache.directory.server.core.partition.impl.btree.Evaluator#evaluate(ExprNode, org.apache.directory.server.xdbm.IndexEntry)
      */
     public boolean evaluate( ExprNode node, IndexEntry entry ) throws NamingException
     {

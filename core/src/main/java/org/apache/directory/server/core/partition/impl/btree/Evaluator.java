@@ -23,6 +23,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.server.xdbm.IndexEntry;
 
 
 /**

@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.IndexEntry;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;

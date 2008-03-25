@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import org.apache.directory.server.xdbm.IndexEntry;
+
 import javax.naming.NamingException;
 
 

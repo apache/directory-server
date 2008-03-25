@@ -26,8 +26,8 @@ import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import org.apache.directory.server.core.partition.impl.btree.Table;
-import org.apache.directory.server.core.partition.impl.btree.TupleRenderer;
+import org.apache.directory.server.xdbm.Table;
+import org.apache.directory.server.xdbm.TupleRenderer;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;

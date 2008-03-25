@@ -28,9 +28,8 @@ import org.apache.directory.server.core.avltree.*;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.EmptyCursor;
 import org.apache.directory.server.core.cursor.SingletonCursor;
-import org.apache.directory.server.core.partition.impl.btree.*;
-import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.server.xdbm.*;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 
 import java.io.IOException;
@@ -258,7 +257,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#isDupsEnabled()
+     * @see org.apache.directory.server.xdbm.Table#isDupsEnabled()
      */
     public boolean isDupsEnabled()
     {
@@ -267,7 +266,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#getName()
+     * @see org.apache.directory.server.xdbm.Table#getName()
      */
     public String getName()
     {
@@ -276,7 +275,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#getRenderer()
+     * @see org.apache.directory.server.xdbm.Table#getRenderer()
      */
     public TupleRenderer getRenderer()
     {
@@ -325,7 +324,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
 
     /**
-     * @see Table#count(java.lang.Object)
+     * @see org.apache.directory.server.xdbm.Table#count(java.lang.Object)
      */
     public int count( K key ) throws IOException
     {
@@ -357,7 +356,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#count()
+     * @see org.apache.directory.server.xdbm.Table#count()
      */
     public int count() throws IOException
     {
@@ -469,7 +468,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
 
     /**
-     * @see Table#hasGreaterOrEqual(Object)
+     * @see org.apache.directory.server.xdbm.Table#hasGreaterOrEqual(Object)
      */
     public boolean hasGreaterOrEqual( K key ) throws IOException
     {
@@ -543,7 +542,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#has(java.lang.Object,
+     * @see org.apache.directory.server.xdbm.Table#has(java.lang.Object,
      * java.lang.Object)
      */
     public boolean has( K key, V value ) throws IOException
@@ -580,7 +579,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#put(java.lang.Object,
+     * @see org.apache.directory.server.xdbm.Table#put(java.lang.Object,
      * java.lang.Object)
      */
     @SuppressWarnings("unchecked")
@@ -643,7 +642,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     
 
     /**
-     * @see Table#remove(java.lang.Object,
+     * @see org.apache.directory.server.xdbm.Table#remove(java.lang.Object,
      * java.lang.Object)
      */
     public V remove( K key, V value ) throws IOException
@@ -756,7 +755,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
 
-    public Cursor<Tuple<K,V>> cursor() throws Exception
+    public Cursor<org.apache.directory.server.xdbm.Tuple<K,V>> cursor() throws Exception
     {
         if ( allowsDuplicates )
         {
@@ -767,24 +766,24 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
 
-    public Cursor<Tuple<K,V>> cursor( K key ) throws Exception
+    public Cursor<org.apache.directory.server.xdbm.Tuple<K,V>> cursor( K key ) throws Exception
     {
         if ( key == null )
         {
-            return new EmptyCursor<Tuple<K,V>>();
+            return new EmptyCursor<org.apache.directory.server.xdbm.Tuple<K,V>>();
         }
 
         Object raw = bt.find( key );
 
         if ( null == raw )
         {
-            return new EmptyCursor<Tuple<K,V>>();
+            return new EmptyCursor<org.apache.directory.server.xdbm.Tuple<K,V>>();
         }
 
         if ( ! allowsDuplicates )
         {
             //noinspection unchecked
-            return new SingletonCursor<Tuple<K,V>>( new Tuple<K,V>( key, ( V ) raw ) );
+            return new SingletonCursor<org.apache.directory.server.xdbm.Tuple<K,V>>( new org.apache.directory.server.xdbm.Tuple<K,V>( key, ( V ) raw ) );
         }
 
         byte[] serialized = ( byte[] ) raw;

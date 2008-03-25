@@ -17,62 +17,62 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.xdbm;
 
 
 /**
- * An index id value pair based on a Tuple which can optionally reference the
- * indexed obj if one has already been loaded.
- * 
+ * An index id value pair which can optionally reference the indexed obj
+ * if one has already been loaded.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ForwardIndexEntry<V,O> implements IndexEntry<V,O>
+public class ReverseIndexEntry<V,O> implements IndexEntry<V,O>
 {
     /** The underlying Tuple */
-    private final Tuple<V,Long> tuple = new Tuple<V,Long>();
+    private final Tuple<Long,V> tuple = new Tuple<Long,V>();
 
-    /** The referenced obj if loaded from the store */
+    /** The indexed object if loaded from the store */
     private O obj;
 
 
     /**
-     * Sets the key value tuple represented by this ForwardIndexEntry optionally
+     * Sets the Tuple value represented by this ReverseIndexEntry optionally
      * setting the obj associated with the id if one was loaded from the
      * master table.
      *
-     * @param tuple the tuple for the ForwardIndexEntry
-     * @param entry the resusitated obj if any
+     * @param tuple the tuple for the ReverseIndexEntry
+     * @param obj the resusitated object that is indexed if any
      */
-    public void setTuple( Tuple<V,Long> tuple, O entry )
+    public void setTuple( Tuple<Long,V> tuple, O obj )
     {
         this.tuple.setKey( tuple.getKey() );
         this.tuple.setValue( tuple.getValue() );
-        this.obj = entry;
+        this.obj = obj;
     }
 
 
     public Long getId()
     {
-        return tuple.getValue();
+        return tuple.getKey();
     }
 
 
     public V getValue()
     {
-        return tuple.getKey();
+        return tuple.getValue();
     }
 
 
     public void setId( Long id )
     {
-        tuple.setValue( id );
+        tuple.setKey( id );
     }
 
 
-    public void setValue( V value )
+    public void setValue( V key )
     {
-        tuple.setKey( value );
+        tuple.setValue( key );
     }
 
 
@@ -110,18 +110,18 @@ public class ForwardIndexEntry<V,O> implements IndexEntry<V,O>
     public void copy( IndexEntry<V, O> entry )
     {
         this.obj = entry.getObject();
-        tuple.setKey( entry.getValue() );
-        tuple.setValue( entry.getId() );
+        tuple.setKey( entry.getId() );
+        tuple.setValue( entry.getValue() );
     }
 
 
     public String toString()
     {
         StringBuilder buf = new StringBuilder();
-        buf.append( "ForwardIndexEntry[ " );
-        buf.append( tuple.getValue() );
-        buf.append( ", " );
+        buf.append( "ReverseIndexEntry[ " );
         buf.append( tuple.getKey() );
+        buf.append( ", " );
+        buf.append( tuple.getValue() );
         buf.append( " ]" );
         return buf.toString();
     }

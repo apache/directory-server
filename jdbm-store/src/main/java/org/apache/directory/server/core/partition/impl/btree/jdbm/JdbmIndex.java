@@ -27,11 +27,13 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
 
@@ -219,7 +221,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Index#getAttribute()
+     * @see org.apache.directory.server.xdbm.Index#getAttribute()
      */
     public AttributeType getAttribute()
     {
@@ -357,7 +359,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
 
     /**
-     * @see Index#count()
+     * @see org.apache.directory.server.xdbm.Index#count()
      */
     public int count() throws IOException
     {
@@ -381,7 +383,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
     
     
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Index#lessThanCount(java.lang.Object)
+     * @see org.apache.directory.server.xdbm.Index#lessThanCount(java.lang.Object)
      */
     public int lessThanCount( K attrVal ) throws Exception
     {
@@ -404,7 +406,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
 
     /**
-     * @see Index#reverseLookup(Long)
+     * @see org.apache.directory.server.xdbm.Index#reverseLookup(Long)
      */
     public K reverseLookup( Long id ) throws Exception
     {
@@ -515,7 +517,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
 
     /**
-     * @see Index#hasGreaterOrEqual(Object, Long)
+     * @see org.apache.directory.server.xdbm.Index#hasGreaterOrEqual(Object, Long)
      */
     public boolean hasGreaterOrEqual( K attrVal, Long id ) throws Exception
     {
@@ -524,7 +526,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
 
     /**
-     * @see Index#hasLessOrEqual(Object, Long)
+     * @see org.apache.directory.server.xdbm.Index#hasLessOrEqual(Object, Long)
      */
     public boolean hasLessOrEqual( K attrVal, Long id ) throws Exception
     {
@@ -538,7 +540,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
     
     /**
-     * @see Index#close()
+     * @see org.apache.directory.server.xdbm.Index#close()
      */
     public synchronized void close() throws IOException
     {

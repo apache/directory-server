@@ -26,6 +26,9 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;

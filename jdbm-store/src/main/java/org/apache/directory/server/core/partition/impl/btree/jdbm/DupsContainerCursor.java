@@ -22,7 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.cursor.AbstractCursor;
-import org.apache.directory.server.core.partition.impl.btree.Tuple;
+import org.apache.directory.server.xdbm.Tuple;
 import jdbm.helper.TupleBrowser;
 
 import java.io.IOException;

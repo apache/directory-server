@@ -20,7 +20,7 @@
 package org.apache.directory.server.xdbm.tools;
 
 
-import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.cursor.Cursor;
 
 import java.io.OutputStream;

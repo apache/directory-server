@@ -29,7 +29,7 @@ import jdbm.RecordManager;
 import jdbm.btree.BTree;
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.server.core.partition.impl.btree.Tuple;
+import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.util.LongComparator;
 //import org.apache.directory.shared.ldap.util.BigIntegerComparator;
 

@@ -17,15 +17,15 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.store;
+package org.apache.directory.server.xdbm;
 
 
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
-import org.apache.directory.server.core.partition.impl.btree.IndexEntry;
-import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -42,13 +42,60 @@ import java.util.List;
 
 
 /**
- * TODO doc me!
+ * Represents an entry store based on the Table, Index, and MasterTable
+ * database structure.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
 public interface Store<E>
 {
+    /*
+     * W H Y   H A V E   A   S T O R E   I N T E R F A C E  ?
+     * ------------------------------------------------------
+     *
+     * Some may question why we have this Store interface when the Partition
+     * interface abstracts away partition implementation details in the server
+     * core.  This is due to a complicated chicken and egg problem with the
+     * additional need to abstract stores for the SearchEngine.  This way the
+     * SearchEngine and it's default implementation can be independent of the
+     * Partition interface.  Once this is achieved the default SearchEngine
+     * implementation can be removed from the core.  This will allow for
+     * better modularization, with the ability to easily substitute new
+     * SearchEngine implementations into ApacheDS.
+     *
+     *
+     * H I S T O R Y
+     * -------------
+     *
+     * Originally the JdbmStore class came about due to a cyclic dependency.
+     * The bootstrap-partition module is created by the bootstrap-plugin
+     * module.  The core depends on the bootstrap-partition module to
+     * bootstrap the server.  The bootstrap-partition module depends on the
+     * bootstrap-plugin which builds a JdbmStore stuffing it with all the
+     * information needed for the server to bootstrap.  The bootstrap-plugin
+     * hence must be built before it can generate the bootstrap-partition and
+     * it cannot have a dependency on the core.  We could not use the
+     * JdbmPartition because it depends on the Partition interface and this
+     * is an integral part of the core.  If we did then there would be a
+     * cyclic dependency between modules in the apacheds pom.  To avoid this
+     * the JdbmStore class was created and the guts of the JDBM partition were
+     * put into the jdbm-store module.  This jdbm-store module does not depend
+     * on core and can be used by the bootstrap-plugin to build the
+     * bootstrap-partition.
+     *
+     * Hence it's project dependencies that drove the creation of the
+     * JdbmStore class.  Later we realized, the default SeachEngine used by
+     * all Table, Index, MasterTable scheme based partitions depends on
+     * BTreePartition which depends on Partition.  We would like to remove
+     * this search engine out of the core so it can easily be swapped out,
+     * but most importantly so we can have the search depend on any kind of
+     * store.  There's no reason why the SearchEngine should depend on a
+     * Partition (store with search capabilities) when it just needs a simple
+     * store and it's indices to conduct search operations.
+     */
+
+
     void setWorkingDirectory( File workingDirectory );
 
 

@@ -20,10 +20,9 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.apache.directory.server.core.partition.impl.btree.IndexEntry;
-import org.apache.directory.server.core.partition.impl.btree.Tuple;
-import org.apache.directory.server.core.partition.impl.btree.ForwardIndexEntry;
-import org.apache.directory.server.core.partition.impl.btree.ReverseIndexEntry;
+import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.CursorIterator;
 

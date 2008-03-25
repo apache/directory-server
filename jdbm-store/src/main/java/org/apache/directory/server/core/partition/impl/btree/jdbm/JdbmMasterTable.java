@@ -24,7 +24,7 @@ import jdbm.RecordManager;
 import jdbm.helper.LongSerializer;
 import jdbm.helper.StringComparator;
 import jdbm.helper.Serializer;
-import org.apache.directory.server.core.partition.impl.btree.MasterTable;
+import org.apache.directory.server.xdbm.MasterTable;
 import org.apache.directory.server.schema.SerializableComparator;
 
 import java.io.IOException;

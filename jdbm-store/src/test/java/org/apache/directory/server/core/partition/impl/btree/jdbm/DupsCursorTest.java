@@ -21,8 +21,8 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.directory.server.core.partition.impl.btree.Table;
-import org.apache.directory.server.core.partition.impl.btree.Tuple;
+import org.apache.directory.server.xdbm.Table;
+import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.schema.SerializableComparator;

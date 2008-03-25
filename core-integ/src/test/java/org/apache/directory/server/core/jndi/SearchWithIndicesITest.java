@@ -31,7 +31,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemC
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.message.AttributeImpl;

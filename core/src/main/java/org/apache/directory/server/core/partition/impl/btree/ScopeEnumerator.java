@@ -27,6 +27,9 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexEntry;
 
 
 /**
@@ -228,7 +231,7 @@ public class ScopeEnumerator implements Enumerator
          * Returns true if the candidate with id is a descendant of the base, 
          * false otherwise.
          * 
-         * @see org.apache.directory.server.core.partition.impl.btree.IndexAssertion#assertCandidate(IndexEntry)
+         * @see org.apache.directory.server.core.partition.impl.btree.IndexAssertion#assertCandidate(org.apache.directory.server.xdbm.IndexEntry)
          */
         public boolean assertCandidate( IndexEntry entry ) throws NamingException
         {
