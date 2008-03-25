@@ -42,6 +42,8 @@ import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.search.Optimizer;
+import org.apache.directory.server.xdbm.Store;
 
 
 /**
@@ -53,14 +55,14 @@ import org.apache.directory.server.xdbm.Index;
 public class DefaultOptimizer implements Optimizer
 {
     /** the database this optimizer operates on */
-    private BTreePartition db;
+    private Store db;
 
     /**
      * Creates an optimizer on a database.
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer(BTreePartition db)
+    public DefaultOptimizer( Store db )
     {
         this.db = db;
     }
@@ -72,7 +74,7 @@ public class DefaultOptimizer implements Optimizer
      * index on the attribute does not exist an IndexNotFoundException will be
      * thrown.
      *
-     * @see Optimizer#annotate(ExprNode)
+     * @see org.apache.directory.server.xdbm.search.Optimizer#annotate(ExprNode)
      */
     public void annotate( ExprNode node ) throws Exception
     {

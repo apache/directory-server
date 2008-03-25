@@ -31,8 +31,9 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.*;
+import org.apache.directory.server.xdbm.search.Optimizer;
+import org.apache.directory.server.xdbm.search.SearchEngine;
 
 
 /**
@@ -47,7 +48,7 @@ public class DefaultSearchEngine implements SearchEngine
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
     /** the Database this DefaultSearchEngine operates on */
-    private BTreePartition db;
+    private Store db;
     /** Evaluator flyweight used for filter expression assertions */
     private ExpressionEvaluator evaluator;
     /** Enumerator flyweight that creates enumerations on filter expressions */
@@ -66,7 +67,7 @@ public class DefaultSearchEngine implements SearchEngine
      * @param evaluator an expression evaluator
      * @param optimizer an optimizer to use during search
      */
-    public DefaultSearchEngine( BTreePartition db, ExpressionEvaluator evaluator,
+    public DefaultSearchEngine( Store db, ExpressionEvaluator evaluator,
         ExpressionEnumerator enumerator, Optimizer optimizer )
     {
         this.db = db;
@@ -87,7 +88,7 @@ public class DefaultSearchEngine implements SearchEngine
     }
 
 
-    public NamingEnumeration<IndexRecord> search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration<IndexEntry> search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
         throws Exception
     {
         Name effectiveBase;
@@ -131,7 +132,7 @@ public class DefaultSearchEngine implements SearchEngine
 
 
     /**
-     * @see SearchEngine#evaluate(ExprNode, Long)
+     * @see org.apache.directory.server.xdbm.search.SearchEngine#evaluate(ExprNode, Long)
      */
     public boolean evaluate( ExprNode ilter, Long id ) throws NamingException
     {

@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.xdbm.search;
 
 
 import javax.naming.NamingException;

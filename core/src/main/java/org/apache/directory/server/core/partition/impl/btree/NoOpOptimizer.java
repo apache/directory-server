@@ -23,6 +23,8 @@ import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.server.xdbm.search.Optimizer;
+
 
 /**
  * A do nothing optimizer which labels all nodes with <code>

@@ -35,7 +35,7 @@ import javax.swing.tree.TreeNode;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
+import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 

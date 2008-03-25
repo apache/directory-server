@@ -327,6 +327,7 @@
     <module>schema-registries</module>
     <module>jdbm-store</module>
     <module>btree-base</module>
+    <module>xdbm-search</module>
     <module>xdbm-tools</module>
     <module>core</module>
     <module>core-constants</module>
@@ -563,6 +564,7 @@
         <module>jdbm-store</module>
         <module>constants</module>
         <module>btree-base</module>
+        <module>xdbm-search</module>
         <module>xdbm-tools</module>
         <module>core</module>
         <module>core-shared</module>

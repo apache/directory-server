@@ -17,16 +17,16 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.xdbm.search;
 
 
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.core.cursor.Cursor;
 
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 
@@ -37,7 +37,7 @@ import javax.naming.directory.SearchControls;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SearchEngine
+public interface SearchEngine<E>
 {
     /**
      * @todo put this in the right place
@@ -84,8 +84,10 @@ public interface SearchEngine
      * @return enumeration over SearchResults
      * @throws Exception if the search fails
      */
-    NamingEnumeration<IndexRecord> search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter,
-                              SearchControls searchCtls ) throws Exception;
+    Cursor<IndexEntry<Long,E>> search( LdapDN base,
+                                       AliasDerefMode aliasDerefMode,
+                                       ExprNode filter,
+                                       SearchControls searchCtls ) throws Exception;
 
 
     /**
