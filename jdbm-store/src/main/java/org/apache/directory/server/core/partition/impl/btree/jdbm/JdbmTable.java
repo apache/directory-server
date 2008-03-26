@@ -794,7 +794,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
 
         AvlTree<V> set = marshaller.deserialize( serialized );
-        return new KeyTupleAvlCursor<K,V>( set, key, valueComparator );
+        return new KeyTupleAvlCursor<K,V>( set, key );
     }
 
 

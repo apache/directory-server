@@ -25,8 +25,6 @@ import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
 
-import java.util.Comparator;
-
 
 /**
  * Cursor over a set of values for the same key which are store in an in
@@ -38,7 +36,6 @@ import java.util.Comparator;
  */
 public class KeyTupleAvlCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 {
-    private final Comparator<V> comparator;
     private final AvlTreeCursor<V> wrapped;
     private final K key;
 
@@ -51,12 +48,10 @@ public class KeyTupleAvlCursor<K,V> extends AbstractCursor<Tuple<K,V>>
      *
      * @param avlTree the AvlTree to build a Tuple returning Cursor over
      * @param key the constant key for which values are returned
-     * @param comparator the Comparator used to determine <b>key</b> ordering
      */
-    public KeyTupleAvlCursor( AvlTree<V> avlTree, K key, Comparator<V> comparator )
+    public KeyTupleAvlCursor( AvlTree<V> avlTree, K key )
     {
         this.key = key;
-        this.comparator = comparator;
         this.wrapped = new AvlTreeCursor<V>( avlTree );
     }
 
@@ -93,45 +88,6 @@ public class KeyTupleAvlCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     public void after( Tuple<K,V> element ) throws Exception
     {
         wrapped.after( element.getValue() );
-
-        /*
-         * While the next value is less than or equal to the element keep
-         * advancing forward to the next item.  If we cannot advance any
-         * further then stop and return.  If we find a value greater than
-         * the element then we stop, backup, and return so subsequent calls
-         * to getNext() will return a value greater than the element.
-         */
-        while ( wrapped.next() )
-        {
-            V next = wrapped.get();
-
-            int nextCompared = comparator.compare( next, element.getValue() );
-
-            if ( nextCompared <= 0 )
-            {
-                // just continue
-            }
-            else if ( nextCompared > 0 )
-            {
-                /*
-                 * If we just have values greater than the element argument
-                 * then we are before the first element and cannot backup, and
-                 * the call below to previous() will fail.  In this special
-                 * case we just reset the Cursor's position and return.
-                 */
-                if ( wrapped.previous() )
-                {
-                }
-                else
-                {
-                    wrapped.before( element.getValue() );
-                }
-
-                clearValue();
-                return;
-            }
-        }
-
         clearValue();
     }
 
@@ -151,13 +107,15 @@ public class KeyTupleAvlCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 
     public boolean first() throws Exception
     {
-        return wrapped.first();
+        beforeFirst();
+        return next();
     }
 
 
     public boolean last() throws Exception
     {
-        return wrapped.last();
+        afterLast();
+        return previous();
     }
 
 
