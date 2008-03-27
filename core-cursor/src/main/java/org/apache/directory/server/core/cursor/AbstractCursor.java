@@ -48,7 +48,7 @@ public abstract class AbstractCursor<E> implements Cursor<E>
     }
 
 
-    public void close()
+    public void close() throws Exception
     {
         closed = true;
     }

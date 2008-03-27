@@ -23,25 +23,16 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.NamingEnumeration;
 
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.filter.ApproximateNode;
-import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.ExtensibleNode;
-import org.apache.directory.shared.ldap.filter.GreaterEqNode;
-import org.apache.directory.shared.ldap.filter.LessEqNode;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.ScopeNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.filter.SubstringNode;
+import org.apache.directory.shared.ldap.filter.*;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -56,7 +47,7 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LeafEvaluator implements Evaluator
+public class LeafEvaluator implements Evaluator<Attributes>
 {
     /** equality matching type constant */
     private static final int EQUALITY_MATCH = 0;
@@ -68,29 +59,26 @@ public class LeafEvaluator implements Evaluator
     private static final int SUBSTRING_MATCH = 2;
 
     /** Database used to evaluate leaf with */
-    private BTreePartition db;
+    private final Store db;
 
     /** Oid Registry used to translate attributeIds to OIDs */
-    private Registries registries;
+    private final Registries registries;
 
     /** Substring node evaluator we depend on */
-    private SubstringEvaluator substringEvaluator;
+    private final SubstringEvaluator substringEvaluator;
 
     /** ScopeNode evaluator we depend on */
-    private ScopeEvaluator scopeEvaluator;
+    private final ScopeEvaluator scopeEvaluator;
+
+    /** The LeafNode this expression evaluator evaluates on candidates */
+    private final ExprNode expression;
 
 
-    /**
-     * Creates a leaf expression node evaluator.
-     *
-     * @param db
-     * @param scopeEvaluator
-     * @param substringEvaluator
-     */
-    public LeafEvaluator( BTreePartition db, Registries registries,
+    public LeafEvaluator( Store db, Registries registries, ExprNode expression,
         ScopeEvaluator scopeEvaluator, SubstringEvaluator substringEvaluator )
     {
         this.db = db;
+        this.expression = expression;
         this.registries = registries;
         this.scopeEvaluator = scopeEvaluator;
         this.substringEvaluator = substringEvaluator;
@@ -112,16 +100,9 @@ public class LeafEvaluator implements Evaluator
     /**
      * Match a filter value against an entry's attribute. An entry's attribute
      * may have more than one value, and the values may not be normalized. 
-     * @param node
-     * @param attr
-     * @param type
-     * @param normalizer
-     * @param comparator
-     * @return
-     * @throws NamingException
      */
     private boolean matchValue( SimpleNode node, Attribute attr, AttributeType type, Normalizer normalizer,
-        Comparator<Object> comparator ) throws NamingException
+        Comparator<Object> comparator ) throws Exception
     {
         // get the normalized AVA filter value
         Object filterValue = node.getValue();
@@ -161,7 +142,7 @@ public class LeafEvaluator implements Evaluator
     /**
      * Get the entry from the backend, if it's not already into the record
      */
-    private Attributes getEntry( IndexEntry rec ) throws NamingException
+    private Attributes getEntry( IndexEntry<?,Attributes> rec ) throws Exception
     {
         // get the attributes associated with the entry 
         Attributes entry = rec.getObject();
@@ -171,7 +152,7 @@ public class LeafEvaluator implements Evaluator
         // How possibly can't we have the entry at this point ?
         if ( null == entry )
         {
-            rec.setObject( db.lookup( ( Long ) rec.getId() ) );
+            rec.setObject( db.lookup( rec.getId() ) );
             entry = rec.getObject();
         }
 
@@ -180,11 +161,11 @@ public class LeafEvaluator implements Evaluator
 
 
     /**
-     * @see Evaluator#evaluate(ExprNode, IndexEntry)
+     * @see Evaluator#evaluate(IndexEntry)
      */
-    public boolean evaluate( ExprNode node, IndexEntry entry ) throws NamingException
+    public boolean evaluate( IndexEntry entry ) throws Exception
     {
-        if ( node instanceof ScopeNode )
+        if ( expression instanceof ScopeNode )
         {
             return scopeEvaluator.evaluate( node, entry );
         }
@@ -234,10 +215,10 @@ public class LeafEvaluator implements Evaluator
      * @param isGreaterOrLesser true if it is a greater than or equal to comparison,
      *      false if it is a less than or equal to comparison.
      * @return the ava evaluation on the perspective candidate
-     * @throws NamingException if there is a database access failure
+     * @throws Exception if there is a database access failure
      */
     private boolean evalGreaterOrLesser( SimpleNode node, IndexEntry entry, boolean isGreaterOrLesser )
-        throws NamingException
+        throws Exception
     {
         String attrId = node.getAttribute();
         long id = ( Long ) entry.getId();
@@ -574,9 +555,9 @@ public class LeafEvaluator implements Evaluator
      *
      * @param attrId the attribute identifier
      * @return the normalizer for equality matching
-     * @throws NamingException if there is a failure
+     * @throws Exception if there is a failure
      */
-    private Normalizer getNormalizer( String attrId, int matchType ) throws NamingException
+    private Normalizer getNormalizer( String attrId, int matchType ) throws Exception
     {
         MatchingRule mrule = getMatchingRule( attrId, matchType );
 
@@ -594,9 +575,9 @@ public class LeafEvaluator implements Evaluator
      *
      * @param attrId the attribute identifier
      * @return the matching rule
-     * @throws NamingException if there is a failure
+     * @throws Exception if there is a failure
      */
-    private MatchingRule getMatchingRule( String attrId, int matchType ) throws NamingException
+    private MatchingRule getMatchingRule( String attrId, int matchType ) throws Exception
     {
         MatchingRule mrule = null;
         String oid = registries.getOidRegistry().getOid( attrId );

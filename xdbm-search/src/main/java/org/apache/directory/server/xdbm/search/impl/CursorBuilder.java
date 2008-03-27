@@ -41,5 +41,5 @@ public interface CursorBuilder<V,E>
      * @return an enumeration over the 
      * @throws Exception if database access fails
      */
-    Cursor<IndexEntry<V,E>> enumerate( ExprNode node ) throws Exception;
+    Cursor<IndexEntry<V,E>> build( ExprNode node ) throws Exception;
 }

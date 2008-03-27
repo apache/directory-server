@@ -65,23 +65,23 @@ public class ExpressionCursorBuilder<E> implements CursorBuilder<E>
     private ScopeCursorBuilder<E> scopeEnumerator;
     /** CursorBuilder flyweight for evaulating filter substring assertions */
     private SubstringCursorBuilder<E> substringEnumerator;
-    /** Evaluator dependency on a ExpressionEvaluator */
-    private ExpressionEvaluator<E> evaluator;
+    /** Evaluator dependency on a ExpressionEvaluatorBuilder */
+    private ExpressionEvaluatorBuilder<E> evaluatorBuilder;
 
 
     /**
      * Creates an expression tree enumerator.
      *
      * @param db database used by this enumerator
-     * @param evaluator
+     * @param evaluatorBuilder
      */
     public ExpressionCursorBuilder(BTreePartition db, AttributeTypeRegistry attributeTypeRegistry,
-        ExpressionEvaluator evaluator)
+        ExpressionEvaluatorBuilder evaluatorBuilder )
     {
         this.db = db;
-        this.evaluator = evaluator;
+        this.evaluatorBuilder = evaluatorBuilder;
 
-        LeafEvaluator leafEvaluator = evaluator.getLeafEvaluator();
+        LeafEvaluator leafEvaluator = evaluatorBuilder.getLeafEvaluator();
         scopeEnumerator = new ScopeCursorBuilder( db, leafEvaluator.getScopeEvaluator() );
         substringEnumerator = new SubstringCursorBuilder( db, attributeTypeRegistry, leafEvaluator.getSubstringEvaluator() );
     }
@@ -217,7 +217,7 @@ public class ExpressionCursorBuilder<E> implements CursorBuilder<E>
                 // NOTICE THE ! HERE
                 // The candidate is valid if it does not pass assertion. A
                 // candidate that passes assertion is therefore invalid.
-                return !evaluator.evaluate( node.getFirstChild(), rec );
+                return !evaluatorBuilder.evaluate( node.getFirstChild(), rec );
             }
         };
 
@@ -272,7 +272,7 @@ public class ExpressionCursorBuilder<E> implements CursorBuilder<E>
                     {
                         continue;
                     }
-                    else if ( !evaluator.evaluate( child, rec ) )
+                    else if ( !evaluatorBuilder.evaluate( child, rec ) )
                     {
                         return false;
                     }
@@ -396,7 +396,7 @@ public class ExpressionCursorBuilder<E> implements CursorBuilder<E>
         {
             public boolean assertCandidate( IndexEntry entry ) throws NamingException
             {
-                return evaluator.getLeafEvaluator().evaluate( node, entry );
+                return evaluatorBuilder.getLeafEvaluator().evaluate( node, entry );
             }
         };
 

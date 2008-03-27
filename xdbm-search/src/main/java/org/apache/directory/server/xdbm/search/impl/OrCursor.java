@@ -20,214 +20,219 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.AbstractCursor;
+import org.apache.directory.server.core.cursor.CursorIterator;
+import org.apache.directory.server.xdbm.IndexEntry;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import javax.naming.NamingException;
+import java.util.*;
 
 
 /**
- * A Cursor of Cursors performing a union on all underlying Cursors resulting
- * in the disjunction of expressions represented by the constituant child
- * Cursors.
+ * An OR'ing Cursor intended for returning large result sets.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $$Rev$$
  */
-public class OrCursor<V,E> implements Cursor<IndexEntry<V,E>>
+public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
 {
-    /** The underlying child Cursors */
-    private final Cursor<IndexEntry<V,E>>[] children;
-    
-    /** LUT used to avoid returning duplicates */
-    private final Map<Object, Object> candidates = new HashMap<Object, Object>();
-    /** Index of current cursor used */
-    private int index = 0;
-    /** Candidate to return */
-    private final ForwardIndexEntry<V,E> candidate = new ForwardIndexEntry<V,E>();
-    /** Prefetched record returned */
-    private final ForwardIndexEntry<V,E> prefetched = new ForwardIndexEntry<V,E>();
-    /** Used to determine if this enumeration has been exhausted */
-    private boolean hasMore = true;
+    private static final String UNSUPPORTED_MSG =
+        "DisjunctionCursors are not ordered and do not support positioning by element.";
+    private final Cursor<IndexEntry<?,E>>[] cursors;
+    private final Evaluator[] evaluators;
+    private final List<Set<Long>> blacklists;
+    private int cursorIndex = -1;
+    private boolean available = false;
 
 
-    // ------------------------------------------------------------------------
-    // C O N S T R U C T O R S
-    // ------------------------------------------------------------------------
-
-    /**
-     * Creates a OrCursor over a set of child NamingEnumerations.
-     * The returned result is the union of all underlying NamingEnumerations 
-     * without duplicates.
-     *
-     * @param children array of child NamingInstances
-     * @throws NamingException if something goes wrong
-     */
-    public OrCursor( Cursor<IndexEntry<V,E>>[] children ) throws NamingException
+    public OrCursor( Cursor<IndexEntry<?,E>>[] cursors, Evaluator[] evaluators )
     {
-        this.children = children;
-
-        // Close this cursor if their are no children.
-        if ( children.length <= 0 )
+        if ( cursors.length <= 1 )
         {
-            hasMore = false;
-            return;
+            throw new IllegalArgumentException(
+                "Must have 2 or more sub-expression Cursors for a disjunction" );
         }
 
-        // Advance to the first cursor that has a candidate for us.
-        while ( !children[index].hasMore() )
+        this.cursors = cursors;
+        this.evaluators = evaluators;
+        this.blacklists = new ArrayList<Set<Long>>();
+        //noinspection ForLoopReplaceableByForEach
+        for ( int ii = 0; ii < cursors.length; ii++ )
         {
-            index++;
+            this.blacklists.add( new HashSet<Long>() );
+        }
+    }
 
-            // Close and return if we exhaust the cursors without finding a
-            // valid candidate to return.
-            if ( index >= children.length )
+
+    public boolean available()
+    {
+        return available;
+    }
+
+
+    public void before( IndexEntry<?, E> element ) throws Exception
+    {
+        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+    }
+
+
+    public void after( IndexEntry<?, E> element ) throws Exception
+    {
+        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+    }
+
+
+    public void beforeFirst() throws Exception
+    {
+        cursorIndex = 0;
+        cursors[cursorIndex].beforeFirst();
+    }
+
+
+    public void afterLast() throws Exception
+    {
+        cursorIndex = cursors.length - 1;
+        cursors[cursorIndex].afterLast();
+    }
+
+
+    public boolean first() throws Exception
+    {
+        beforeFirst();
+        return available = next();
+    }
+
+
+    public boolean last() throws Exception
+    {
+        afterLast();
+        return available = previous();
+    }
+
+
+    private boolean isBlackListed( Long id )
+    {
+        return blacklists.get( cursorIndex ).contains( id );
+    }
+
+
+    /**
+     * The first sub-expression Cursor to advance to an entry adds the entry
+     * to the blacklists of other Cursors that might return that entry.
+     *
+     * @param indexEntry the index entry to blacklist
+     * @throws Exception if there are problems accessing underlying db
+     */
+    private void blackListIfDuplicate( IndexEntry<?,E> indexEntry ) throws Exception
+    {
+        for ( int ii = 0; ii < evaluators.length; ii++ )
+        {
+            if ( ii == cursorIndex )
             {
-                close();
-                return;
+                continue;
+            }
+
+            if ( evaluators[ii].evaluate( indexEntry ) )
+            {
+                blacklists.get( ii ).add( indexEntry.getId() );
+            }
+        }
+    }
+
+
+    public boolean previous() throws Exception
+    {
+        while ( cursors[cursorIndex].previous() )
+        {
+            IndexEntry<?,E> candidate = cursors[cursorIndex].get();
+            if ( ! isBlackListed( candidate.getId() ) )
+            {
+                blackListIfDuplicate( candidate );
+                return available = true;
             }
         }
 
-        // Grab the next candidate and add it's id to the LUT/hash of candidates
-        IndexEntry rec = children[index].next();
-        prefetched.copy( rec );
-        candidates.put( rec.getId(), rec.getId() );
-    }
-
-
-    // ------------------------------------------------------------------------
-    // java.util.Enumeration Implementation Methods 
-    // ------------------------------------------------------------------------
-
-    /**
-     * @see java.util.Enumeration#nextElement()
-     */
-    public IndexEntry nextElement()
-    {
-        try
+        while ( cursorIndex > 0 )
         {
-            return next();
-        }
-        catch ( NamingException e )
-        {
-            throw new NoSuchElementException();
-        }
-    }
+            cursorIndex--;
+            cursors[cursorIndex].afterLast();
 
-
-    /**
-     * @see java.util.Enumeration#hasMoreElements()
-     */
-    public boolean hasMoreElements()
-    {
-        return hasMore();
-    }
-
-
-    // ------------------------------------------------------------------------
-    // NamingEnumeration Method Implementations
-    // ------------------------------------------------------------------------
-
-    /**
-     * Advances this Cursor one position.  Duplicates are not returned so if
-     * underlying cursors keep returning duplicates the child cursors will be
-     * advanced until a unique candidate is found or all child cursors are
-     * exhausted.
-     *
-     * @return a candidate element
-     * @throws NamingException if an error occurs
-     */
-    public IndexEntry next() throws NamingException
-    {
-        // Store the last prefetched candidate to return in candidate
-        candidate.copy( prefetched );
-
-        do
-        {
-            // Advance to a Cursor that has the next valid candidate for us.
-            while ( !children[index].hasMore() )
+            while ( cursors[cursorIndex].previous() )
             {
-                index++;
-
-                /* Close and return existing prefetched candidate if we
-                 * have exhausted the underlying Cursors without finding a
-                 * valid candidate to return.
-                 */
-                if ( index >= children.length )
+                IndexEntry<?,E> candidate = cursors[cursorIndex].get();
+                if ( ! isBlackListed( candidate.getId() ) )
                 {
-                    close();
-                    return candidate;
+                    blackListIfDuplicate( candidate );
+                    return available = true;
                 }
             }
-
-            // Grab next candidate!
-            IndexEntry rec = children[index].next();
-            prefetched.copy( rec );
-
-            // Break through do/while if the candidate is seen for the first
-            // time, meaning we have not returned it already.
         }
-        while ( candidates.containsKey( prefetched.getId() ) );
 
-        // Add candidate to LUT of encountered candidates.
-        candidates.put( candidate.getId(), candidate.getId() );
-
-        // Return the original value saved before overwriting prefetched
-        return candidate;
+        return available = false;
     }
 
 
-    /**
-     * Tests if a prefetched value exists and a call to advance will hence
-     * succeed.
-     *
-     * @return true if a call to advance will succeed false otherwise.
-     */
-    public boolean hasMore()
+    public boolean next() throws Exception
     {
-        return hasMore;
+        while ( cursors[cursorIndex].next() )
+        {
+            IndexEntry<?,E> candidate = cursors[cursorIndex].get();
+            if ( ! isBlackListed( candidate.getId() ) )
+            {
+                blackListIfDuplicate( candidate );
+                return available = true;
+            }
+        }
+
+        while ( cursorIndex < cursors.length - 1 )
+        {
+            cursorIndex++;
+            cursors[cursorIndex].beforeFirst();
+
+            while ( cursors[cursorIndex].next() )
+            {
+                IndexEntry<?,E> candidate = cursors[cursorIndex].get();
+                if ( ! isBlackListed( candidate.getId() ) )
+                {
+                    blackListIfDuplicate( candidate );
+                    return available = true;
+                }
+            }
+        }
+
+        return available = false;
     }
 
 
-    /**
-     * Closes all the underlying Cursors and not fail fast.  All enumerations 
-     * will have close attempts made on them.
-     * 
-     * @throws NamingException if we cannot close all enumerations
-     */
-    public void close() throws NamingException
+    public IndexEntry<?, E> get() throws Exception
     {
-        Throwable throwable = null;
-        hasMore = false;
-
-        for ( int ii = 0; ii < children.length; ii++ )
+        if ( available )
         {
-            try
-            {
-                // Close all children but don't fail fast meaning don't stop
-                // closing all children if one fails to close for some reason.
-                children[ii].close();
-            }
-            catch ( Throwable t )
-            {
-                throwable = t;
-            }
+            return cursors[cursorIndex].get();
         }
 
-        if ( null != throwable && throwable instanceof NamingException )
+        throw new InvalidPropertiesFormatException( "Cursor has not been positioned." );
+    }
+
+
+    public boolean isElementReused()
+    {
+        return cursors[cursorIndex].isElementReused();
+    }
+
+
+    public Iterator<IndexEntry<?, E>> iterator()
+    {
+        return new CursorIterator<IndexEntry<?, E>>( this );
+    }
+
+
+    public void close() throws Exception
+    {
+        for ( Cursor cursor : cursors )
         {
-            throw ( NamingException ) throwable;
+            cursor.close();
         }
-        else if ( null != throwable )
-        {
-            NamingException ne = new NamingException();
-            ne.setRootCause( throwable );
-            throw ne;
-        }
+        super.close();
     }
 }

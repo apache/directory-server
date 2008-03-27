@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.filter.OrNode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExpressionEvaluator implements Evaluator
+public class ExpressionEvaluatorBuilder implements EvaluatorBuilder
 {
     /** Leaf Evaluator flyweight use for leaf filter assertions */
     private LeafEvaluator leafEvaluator;
@@ -53,7 +53,7 @@ public class ExpressionEvaluator implements Evaluator
      *
      * @param leafEvaluator handles leaf node evaluation.
      */
-    public ExpressionEvaluator(LeafEvaluator leafEvaluator)
+    public ExpressionEvaluatorBuilder(LeafEvaluator leafEvaluator)
     {
         this.leafEvaluator = leafEvaluator;
     }
@@ -67,7 +67,7 @@ public class ExpressionEvaluator implements Evaluator
      * @param oidRegistry the oid reg used for attrID to oid resolution
      * @param attributeTypeRegistry the attribtype reg used for value comparison
      */
-    public ExpressionEvaluator(BTreePartition db, Registries registries )
+    public ExpressionEvaluatorBuilder(BTreePartition db, Registries registries )
     {
         ScopeEvaluator scopeEvaluator = null;
         SubstringEvaluator substringEvaluator = null;

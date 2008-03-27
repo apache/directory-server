@@ -21,31 +21,23 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.server.xdbm.IndexEntry;
 
 
 /**
- * Evaluates candidate entries to see if they match a filter expression.
- * 
+ * Builds a filter expression evaluator which checks if candidates match an
+ * expression filter.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Evaluator<E>
+public interface EvaluatorBuilder<E>
 {
     /**
-     * Evaluates a candidate to determine if a filter expression selects it.
-     * 
-     * @param entry the index record of the entry to evaluate
-     * @return true if filter selects the candidate false otherwise
-     * @throws Exception if there are database faults during evaluation
-     */
-    boolean evaluate( IndexEntry<?,E> entry ) throws Exception;
-
-
-    /**
-     * Gets the expression used by this expression Evaluator.
+     * Builds an Evaluator based on the filter expression provided.
      *
-     * @return the AST for the expression
+     * @param expression the filter expression AST
+     * @return the evaluator for the AST
+     * @throws Exception on database faults during construction
      */
-    ExprNode getExpression();
+    Evaluator<E> build( ExprNode expression ) throws Exception;
 }
