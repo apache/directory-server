@@ -39,12 +39,12 @@ import jdbm.btree.BTree;
  */
 public class KeyTupleBTreeCursor<K,V> extends AbstractCursor<Tuple<K,V>>
 {
-    private final Comparator<K> comparator;
+    private final Comparator<V> comparator;
     private final BTree btree;
     private final K key;
 
     private jdbm.helper.Tuple valueTuple = new jdbm.helper.Tuple();
-    private Tuple returnedTuple = new Tuple();
+    private Tuple<K,V> returnedTuple = new Tuple<K,V>();
     private TupleBrowser browser;
     private boolean valueAvailable;
 
@@ -57,7 +57,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractCursor<Tuple<K,V>>
      * @param comparator the Comparator used to determine <b>key</b> ordering
      * @throws Exception of there are problems accessing the BTree
      */
-    public KeyTupleBTreeCursor( BTree btree, K key, Comparator<K> comparator ) throws Exception
+    public KeyTupleBTreeCursor( BTree btree, K key, Comparator<V> comparator ) throws Exception
     {
         this.key = key;
         this.btree = btree;
@@ -108,10 +108,10 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         while ( browser.getNext( valueTuple ) )
         {
             //noinspection unchecked
-            K next = ( K ) valueTuple.getKey();
+            V next = ( V ) valueTuple.getKey();
 
             //noinspection unchecked
-            int nextCompared = comparator.compare( next, element.getKey() );
+            int nextCompared = comparator.compare( next, element.getValue() );
 
             if ( nextCompared <= 0 )
             {
@@ -175,7 +175,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         if ( browser.getPrevious( valueTuple ) )
         {
             returnedTuple.setKey( key );
-            returnedTuple.setValue( valueTuple.getKey() );
+            returnedTuple.setValue( ( V ) valueTuple.getKey() );
             return valueAvailable = true;
         }
         else
@@ -191,7 +191,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         if ( browser.getNext( valueTuple ) )
         {
             returnedTuple.setKey( key );
-            returnedTuple.setValue( valueTuple.getKey() );
+            returnedTuple.setValue( ( V ) valueTuple.getKey() );
             return valueAvailable = true;
         }
         else
