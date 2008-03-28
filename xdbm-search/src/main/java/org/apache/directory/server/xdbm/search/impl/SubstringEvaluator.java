@@ -22,16 +22,16 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.Iterator;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -46,116 +46,132 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubstringEvaluator implements Evaluator
+public class SubstringEvaluator implements Evaluator<Attributes>
 {
     /** Database used while evaluating candidates */
-    private BTreePartition db;
+    private final Store<Attributes> db;
     
     /** Oid Registry used to translate attributeIds to OIDs */
-    private Registries registries;
-    
+    private final Registries registries;
+
+    /** The Substring expression */
+    private final SubstringNode node;
+
+    /** The regular expression generated for the SubstringNode pattern */
+    private final Pattern regex;
+
+    private final AttributeType type;
+
+    private final Normalizer normalizer;
+
+    private final Index idx;
+
 
     /**
      * Creates a new SubstringEvaluator for substring expressions.
      *
+     * @param node the substring expression node
      * @param db the database this evaluator uses
-     * @param oidRegistry the OID registry for name to OID mapping
-     * @param attributeTypeRegistry the attributeType registry
+     * @param registries the set of registries
+     * @throws Exception if there are failures accessing resources and the db
      */
-    public SubstringEvaluator( BTreePartition db, Registries registries )
+    public SubstringEvaluator( SubstringNode node, Store<Attributes> db, Registries registries ) throws Exception
     {
         this.db = db;
+        this.node = node;
         this.registries = registries;
-    }
 
-
-    /**
-     * @see Evaluator#evaluate(ExprNode, IndexEntry)
-     */
-    public boolean evaluate( ExprNode node, IndexEntry entry ) throws NamingException
-    {
-        Pattern regex = null;
-        SubstringNode snode = ( SubstringNode ) node;
-        String filterAttribute = snode.getAttribute();
-        
-        String oid = registries.getOidRegistry().getOid( filterAttribute );
-        AttributeType type = registries.getAttributeTypeRegistry().lookup( oid );
+        String oid = registries.getOidRegistry().getOid( node.getAttribute() );
+        type = registries.getAttributeTypeRegistry().lookup( oid );
 
         MatchingRule rule = type.getSubstr();
-        
+
         if ( rule == null )
         {
             rule = type.getEquality();
         }
 
-        Normalizer normalizer = rule.getNormalizer();
+        normalizer = rule.getNormalizer();
+        // compile the regular expression to search for a matching attribute
+        regex = node.getRegex( normalizer );
 
-        if ( db.hasUserIndexOn( filterAttribute ) )
+        if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            Index idx = db.getUserIndex( filterAttribute );
+            idx = db.getUserIndex( node.getAttribute() );
+        }
+        else
+        {
+            idx = null;
+        }
+    }
 
-            /*
-             * Note that this is using the reverse half of the index giving a 
-             * considerable performance improvement on this kind of operation.
-             * Otherwise we would have to scan the entire index if there were
-             * no reverse lookups.
-             */
 
-            try
+    /**
+     * @see Evaluator#evaluate(IndexEntry)
+     */
+    public boolean evaluate( IndexEntry<?,Attributes> indexEntry ) throws Exception
+    {
+
+        if ( idx == null )
+        {
+            return evaluateWithoutIndex( indexEntry );
+        }
+        else
+        {
+            return evaluateWithIndex( indexEntry );
+        }
+    }
+
+
+    public ExprNode getExpression()
+    {
+        return node;
+    }
+
+
+    private boolean evaluateWithIndex( IndexEntry<?,Attributes> indexEntry ) throws Exception
+    {
+        /*
+         * Note that this is using the reverse half of the index giving a
+         * considerable performance improvement on this kind of operation.
+         * Otherwise we would have to scan the entire index if there were
+         * no reverse lookups.
+         */
+        //noinspection unchecked
+        Cursor<IndexEntry<?,Attributes>> entries = idx.reverseCursor( indexEntry.getId() );
+
+        // cycle through the attribute values testing for a match
+        while ( entries.next() )
+        {
+            IndexEntry rec = entries.get();
+
+            // once match is found cleanup and return true
+            if ( regex.matcher( ( String ) rec.getValue() ).matches() )
             {
-                NamingEnumeration entries = idx.listReverseIndices( record.getEntryId() );
+                entries.close();
+                return true;
             }
-            catch ( java.io.IOException e )
-            {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-
-            // compile the regular expression to search for a matching attribute
-            try
-            {
-                regex = snode.getRegex( normalizer );
-            }
-            catch ( PatternSyntaxException pse )
-            {
-                NamingException ne = new NamingException( "SubstringNode '" + node + "' had " + "incorrect syntax" );
-                ne.setRootCause( pse );
-                throw ne;
-            }
-
-            // cycle through the attribute values testing for a match
-            while ( entries.hasMore() )
-            {
-                IndexEntry rec = ( IndexEntry ) entries.next();
-
-                // once match is found cleanup and return true
-                if ( regex.matcher( ( String ) rec.getValue() ).matches() )
-                {
-                    entries.close();
-                    return true;
-                }
-            }
-
-            // we fell through so a match was not found - assertion was false.
-            //return false;
         }
 
-        // --------------------------------------------------------------------
-        // Index not defined beyond this point
-        // --------------------------------------------------------------------
+        // we fell through so a match was not found - assertion was false.
+        return false;
+    }
 
-        Attributes entry = record.getAttributes();
-        
-        // resuscitate the entry if it has not been and set entry in ForwardIndexEntry
+
+    private boolean evaluateWithoutIndex( IndexEntry<?,Attributes> indexEntry ) throws Exception
+    {
+        Attributes entry = indexEntry.getObject();
+
+        // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
-            Attributes attrs = db.lookup( (Long)record.getEntryId() );
-            record.setAttributes( attrs );
-            entry = record.getAttributes();
+            entry = db.lookup( indexEntry.getId() );
+            indexEntry.setObject( entry );
         }
 
         // Of course, if the entry does not contains any attributes
         // (very unlikely !!!), get out of here
-        // TODO Can this simply happens ???
+        // TODO Can this simply happens ??? Full test coverage will show it
         if ( entry == null )
         {
             return false;
@@ -167,30 +183,19 @@ public class SubstringEvaluator implements Evaluator
         // if the attribute does not exist just return false
         if ( attr != null)
         {
-            // compile the regular expression to search for a matching attribute
-            try
-            {
-                regex = snode.getRegex( normalizer );
-            }
-            catch ( PatternSyntaxException pse )
-            {
-                NamingException ne = new NamingException( "SubstringNode '" + node + "' had " + "incorrect syntax" );
-                ne.setRootCause( pse );
-                throw ne;
-            }
 
             /*
-             * Cycle through the attribute values testing normalized version 
+             * Cycle through the attribute values testing normalized version
              * obtained from using the substring matching rule's normalizer.
-             * The test uses the comparator obtained from the appropriate 
+             * The test uses the comparator obtained from the appropriate
              * substring matching rule.
              */
             NamingEnumeration values = attr.getAll();
-            
+
             while ( values.hasMore() )
             {
                 String value = ( String ) normalizer.normalize( values.next() );
-    
+
                 // Once match is found cleanup and return true
                 if ( regex.matcher( value ).matches() )
                 {
@@ -198,16 +203,20 @@ public class SubstringEvaluator implements Evaluator
                     return true;
                 }
             }
-            
+
             // Fall through as we didn't find any matching value for this attribute.
             // We will have to check in the potential descendant, if any.
         }
-        
+
         // If we do not have the attribute, loop through the descendant
         // May be the node Attribute has descendant ?
-        if ( registries.getAttributeTypeRegistry().hasDescendants( filterAttribute ) )
+        if ( registries.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
         {
-            Iterator<AttributeType> descendants = registries.getAttributeTypeRegistry().descendants( filterAttribute );
+            // TODO check to see if descendant handling is necessary for the
+            // index so we can match properly even when for example a name
+            // attribute is used instead of more specific commonName 
+            Iterator<AttributeType> descendants =
+                registries.getAttributeTypeRegistry().descendants( node.getAttribute() );
 
             while ( descendants.hasNext() )
             {
@@ -215,36 +224,20 @@ public class SubstringEvaluator implements Evaluator
 
                 attr = AttributeUtils.getAttribute( entry, descendant );
 
-                if ( null == attr )
+                if ( null != attr )
                 {
-                    continue;
-                }
-                else
-                {
-                    // compile the regular expression to search for a matching attribute
-                    try
-                    {
-                        regex = snode.getRegex( normalizer );
-                    }
-                    catch ( PatternSyntaxException pse )
-                    {
-                        NamingException ne = new NamingException( "SubstringNode '" + node + "' had " + "incorrect syntax" );
-                        ne.setRootCause( pse );
-                        throw ne;
-                    }
-
                     /*
-                     * Cycle through the attribute values testing normalized version 
+                     * Cycle through the attribute values testing normalized version
                      * obtained from using the substring matching rule's normalizer.
-                     * The test uses the comparator obtained from the appropriate 
+                     * The test uses the comparator obtained from the appropriate
                      * substring matching rule.
                      */
                     NamingEnumeration values = attr.getAll();
-                    
+
                     while ( values.hasMore() )
                     {
                         String value = ( String ) normalizer.normalize( values.next() );
-            
+
                         // Once match is found cleanup and return true
                         if ( regex.matcher( value ).matches() )
                         {
@@ -255,8 +248,7 @@ public class SubstringEvaluator implements Evaluator
                 }
             }
         }
-        
-        
+
         // we fell through so a match was not found - assertion was false.
         return false;
     }

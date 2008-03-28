@@ -78,10 +78,9 @@ public class SubstringCursorBuilder<V,E> implements CursorBuilder<V, E>
     // ------------------------------------------------------------------------
 
     /**
-     * @see CursorBuilder#enumerate(
-     * org.apache.directory.shared.ldap.filter.ExprNode)
+     * @see CursorBuilder#build(ExprNode)
      */
-    public Cursor<IndexEntry<V,E>> enumerate( final ExprNode node ) throws Exception
+    public Cursor<IndexEntry<V,E>> build( final ExprNode node ) throws Exception
     {
         Pattern     regex;
         Index idx;
