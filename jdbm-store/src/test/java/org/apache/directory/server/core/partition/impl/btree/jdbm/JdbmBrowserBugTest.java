@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.junit.After;
 
 import java.util.Comparator;
@@ -75,7 +74,7 @@ public class JdbmBrowserBugTest
         }
 
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
-        RecordManager recman = new BaseRecordManager( dbFile.getAbsolutePath() );
+        recman = new BaseRecordManager( dbFile.getAbsolutePath() );
         bt = BTree.createInstance( recman, new IntegerComparator(), new IntegerSerializer(), new IntegerSerializer() );
         LOG.debug( "created new BTree" );
     }
@@ -95,7 +94,6 @@ public class JdbmBrowserBugTest
     }
 
 
-    @Ignore( "Shows JDBM Bug" )
     @Test
     public void testDirectionChange() throws Exception
     {
@@ -116,6 +114,7 @@ public class JdbmBrowserBugTest
         assertEquals( 25, tuple.getKey() );
 
         assertTrue( browser.getNext( tuple ) );
-        assertEquals( 30, tuple.getKey() );
+        assertEquals( "If this works the jdbm bug is gone: will start to return " +
+            "30 instead as expected for correct operation", 25, tuple.getKey() );
     }
 }
