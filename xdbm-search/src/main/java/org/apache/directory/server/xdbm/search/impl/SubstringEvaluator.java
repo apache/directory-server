@@ -123,6 +123,12 @@ public class SubstringEvaluator implements Evaluator<Attributes>
     }
 
 
+    public Pattern getPattern()
+    {
+        return regex;
+    }
+
+
     public ExprNode getExpression()
     {
         return node;
