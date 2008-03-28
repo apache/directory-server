@@ -23,7 +23,6 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.Iterator;
 
@@ -37,14 +36,10 @@ import jdbm.recman.BaseRecordManager;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
-import org.apache.directory.server.xdbm.Table;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -62,8 +57,6 @@ public class KeyTupleBTreeCursorTest
     
     private static final Integer KEY = new Integer( 1 );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
-    
-    private static final Logger LOG = LoggerFactory.getLogger( KeyTupleBTreeCursorTest.class.getSimpleName() );
     
     @Before
     public void createTree() throws Exception
@@ -159,7 +152,7 @@ public class KeyTupleBTreeCursorTest
         assertEquals( 25, ( int ) cursor.get().getValue() );
     
         assertTrue( cursor.next() );
-        assertEquals( 30, ( int ) cursor.get().getValue() );// this is failing, cursor is still at 25 
+        assertEquals( 30, ( int ) cursor.get().getValue() ); 
     
     }
 
