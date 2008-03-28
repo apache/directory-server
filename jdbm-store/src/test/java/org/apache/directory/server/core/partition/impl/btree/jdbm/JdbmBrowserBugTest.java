@@ -108,12 +108,15 @@ public class JdbmBrowserBugTest
         Tuple tuple = new Tuple();
         TupleBrowser browser = bt.browse( null );
         assertTrue( browser.getPrevious( tuple ) );
+        //noinspection AssertEqualsBetweenInconvertibleTypes
         assertEquals( 30, tuple.getKey() );
 
         assertTrue( browser.getPrevious( tuple ) );
+        //noinspection AssertEqualsBetweenInconvertibleTypes
         assertEquals( 25, tuple.getKey() );
 
         assertTrue( browser.getNext( tuple ) );
+        //noinspection AssertEqualsBetweenInconvertibleTypes
         assertEquals( "If this works the jdbm bug is gone: will start to return " +
             "30 instead as expected for correct operation", 25, tuple.getKey() );
     }
