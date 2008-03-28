@@ -25,9 +25,11 @@ import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.After;
 
 import java.util.Comparator;
 import java.io.File;
+import java.io.IOException;
 
 import jdbm.RecordManager;
 import jdbm.btree.BTree;
@@ -52,6 +54,8 @@ public class JdbmBrowserBugTest
     BTree bt;
     private static final String TEST_OUTPUT_PATH = "test.output.path";
     private static final Logger LOG = LoggerFactory.getLogger( JdbmBrowserBugTest.class.getSimpleName() );
+    private File dbFile = null;
+    private RecordManager recman = null;
 
     @Before
     public void createTree() throws Exception
@@ -70,10 +74,24 @@ public class JdbmBrowserBugTest
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
         }
 
-        File dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
+        dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         RecordManager recman = new BaseRecordManager( dbFile.getAbsolutePath() );
         bt = BTree.createInstance( recman, new IntegerComparator(), new IntegerSerializer(), new IntegerSerializer() );
         LOG.debug( "created new BTree" );
+    }
+
+
+    @After
+    public void cleanup() throws IOException
+    {
+        recman.close();
+        recman = null;
+        bt = null;
+        if ( dbFile.exists() )
+        {
+            dbFile.delete();
+        }
+        dbFile = null;
     }
 
 
