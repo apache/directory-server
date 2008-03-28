@@ -62,6 +62,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         this.key = key;
         this.btree = btree;
         this.comparator = comparator;
+        this.browser = btree.browse();
     }
 
 
@@ -174,6 +175,12 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     {
         if ( browser.getPrevious( valueTuple ) )
         {
+            // work around to fix direction change problem with jdbm browser
+            if ( returnedTuple.getValue() != null &&
+                comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 )
+            {
+                browser.getPrevious( valueTuple ) ;
+            }
             returnedTuple.setKey( key );
             returnedTuple.setValue( ( V ) valueTuple.getKey() );
             return valueAvailable = true;
@@ -190,6 +197,12 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     {
         if ( browser.getNext( valueTuple ) )
         {
+            // work around to fix direction change problem with jdbm browser
+            if ( returnedTuple.getValue() != null &&
+                 comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 )
+            {
+                browser.getNext( valueTuple ) ;
+            }
             returnedTuple.setKey( key );
             returnedTuple.setValue( ( V ) valueTuple.getKey() );
             return valueAvailable = true;

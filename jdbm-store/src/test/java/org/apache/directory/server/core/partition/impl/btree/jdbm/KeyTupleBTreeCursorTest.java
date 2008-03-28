@@ -113,7 +113,7 @@ public class KeyTupleBTreeCursorTest
         cursor.get(); // should throw InvalidCursorPositionException
     }
     
-    @Ignore
+
     @Test
     public void testNonEmptyCursor() throws Exception
     {
