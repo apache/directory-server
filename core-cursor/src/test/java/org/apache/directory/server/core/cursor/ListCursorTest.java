@@ -21,7 +21,6 @@ package org.apache.directory.server.core.cursor;
 
 import junit.framework.TestCase;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +36,7 @@ import java.util.List;
  */
 public class ListCursorTest extends TestCase
 {
-    public void testEmptyList() throws IOException
+    public void testEmptyList() throws Exception
     {
         ListCursor<String> cursor = new ListCursor<String>();
 
@@ -47,7 +46,7 @@ public class ListCursorTest extends TestCase
     }
 
 
-    public void testSingleElementList() throws IOException
+    public void testSingleElementList() throws Exception
     {
         ListCursor<String> cursor = new ListCursor<String>( Collections.singletonList( "singleton" ) );
         cursor.close();
@@ -130,7 +129,7 @@ public class ListCursorTest extends TestCase
     }
 
 
-    public void testManyElementList() throws IOException
+    public void testManyElementList() throws Exception
     {
         List<String> list = new ArrayList<String>();
         list.add( "item 1" );
