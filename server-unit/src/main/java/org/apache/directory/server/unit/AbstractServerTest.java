@@ -28,6 +28,8 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.support.extended.StartTlsHandler;
+import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -235,6 +237,8 @@ public abstract class AbstractServerTest extends TestCase
         directoryService.startup();
 
         configureLdapServer();
+        ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
+        ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
         ldapServer.start();
         setContexts( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }

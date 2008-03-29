@@ -57,7 +57,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public abstract class PartitionNexus implements Partition
 {
     /** the admin super user uid */
-    public final static String ADMIN_UID = "admin";
+    public static final String ADMIN_UID = "admin";
     
     /** the initial admin passwd set on startup */
     public static final String ADMIN_PASSWORD_STRING = "secret";

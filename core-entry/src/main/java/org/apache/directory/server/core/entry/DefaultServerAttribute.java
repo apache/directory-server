@@ -148,8 +148,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      * names, the previously loaded ID will be kept.
      * </p>
      *
-     * @param upId The attribute ID
-     * @param attributeType The associated attributeType
+     * @param id The attribute ID
      */
     public void setId( String id )
     {
@@ -217,7 +216,6 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      * </p>
      *
      * @param upId The attribute ID
-     * @param attributeType The associated attributeType
      */
     public void setUpId( String upId )
     {
@@ -361,7 +359,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      * AttributeType
      * </p>
      *
-     * @param the attributeType associated with this entry attribute
+     * @param attributeType the attributeType associated with this entry attribute
      */
     public void setAttributeType( AttributeType attributeType )
     {
@@ -713,7 +711,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      * If the value's type is different from the attribute's type,
      * the value is not added.
      *
-     * @param val some new values to be added which may be null
+     * @param vals some new values to be added which may be null
      * @return the number of added values, or 0 if none has been added
      */
     public int add( String... vals )
@@ -763,7 +761,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      * values are consistent with the attribute's type.
      * <p>
      *
-     * @param val some new values to be added which may be null
+     * @param vals some new values to be added which may be null
      * @return the number of added values, or 0 if none has been added
      */
     public int add( byte[]... vals )

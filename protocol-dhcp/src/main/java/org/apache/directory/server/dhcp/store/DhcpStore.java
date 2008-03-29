@@ -87,7 +87,7 @@ public interface DhcpStore
      * @param selectionBase
      * @param requestedLeaseTime
      * @param options
-     * @return
+     * @return Lease
      * @throws DhcpException 
      */
     Lease getExistingLease( HardwareAddress hardwareAddress, InetAddress requestedAddress, InetAddress selectionBase,

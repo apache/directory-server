@@ -144,8 +144,6 @@ public class PrincipalName extends AbstractAsn1Object
 
     /**
      * Creates a new empty instance of PrincipalName.
-     *
-     * @param principal A Sun kerberosPrincipal instance
      */
     public PrincipalName()
     {
@@ -191,7 +189,7 @@ public class PrincipalName extends AbstractAsn1Object
     /**
      * Creates a new instance of PrincipalName.
      *
-     * @param nameComponent
+     * @param nameString
      * @param nameType
      */
     public PrincipalName( String nameString, int nameType ) throws ParseException

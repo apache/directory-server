@@ -105,9 +105,8 @@ public class ServerEntryUtils
     /**
      * Convert a BasicAttribute or a AttributeImpl to a ServerAtribute
      *
-     * @param attributes the BasicAttributes or AttributesImpl instance to convert
-     * @param registries The registries, needed ro build a ServerEntry
-     * @param dn The DN which is needed by the ServerEntry 
+     * @param attribute the BasicAttributes or AttributesImpl instance to convert
+     * @param attributeType
      * @return An instance of a ServerEntry object
      * 
      * @throws InvalidAttributeIdentifierException If we had an incorrect attribute

@@ -96,7 +96,7 @@ public abstract class AbstractDhcpService implements DhcpService {
 	 * 
 	 * @param clientAddress
 	 * @param request the request message
-	 * @return response message or <code>null</code> to ignore (don't reply to)
+	 * @return DhcpMessage response message or <code>null</code> to ignore (don't reply to)
 	 *         it.
 	 */
 	protected DhcpMessage handleUnknownMessage(InetSocketAddress clientAddress,
@@ -110,10 +110,10 @@ public abstract class AbstractDhcpService implements DhcpService {
 	/**
 	 * Handle DHCPINFORM message. The default implementation just ignores it.
 	 * 
+	 * @param localAddress
 	 * @param clientAddress
-	 * @param clientAddress2
 	 * @param request the request message
-	 * @return response message or <code>null</code> to ignore (don't reply to)
+	 * @return DhcpMessage response message or <code>null</code> to ignore (don't reply to)
 	 *         it.
 	 */
 	protected DhcpMessage handleINFORM(InetSocketAddress localAddress,
@@ -131,7 +131,7 @@ public abstract class AbstractDhcpService implements DhcpService {
 	 * @param localAddress
 	 * @param clientAddress
 	 * @param request the request message
-	 * @return response message or <code>null</code> to ignore (don't reply to)
+	 * @return DhcpMessage response message or <code>null</code> to ignore (don't reply to)
 	 *         it.
 	 */
 	protected DhcpMessage handleRELEASE(InetSocketAddress localAddress,
@@ -149,7 +149,7 @@ public abstract class AbstractDhcpService implements DhcpService {
 	 * @param localAddress
 	 * @param clientAddress
 	 * @param request the request message
-	 * @return response message or <code>null</code> to ignore (don't reply to)
+	 * @return DhcpMessage response message or <code>null</code> to ignore (don't reply to)
 	 *         it.
 	 */
 	protected DhcpMessage handleREQUEST(InetSocketAddress localAddress,
@@ -167,7 +167,7 @@ public abstract class AbstractDhcpService implements DhcpService {
 	 * @param localAddress
 	 * @param clientAddress
 	 * @param request the request message
-	 * @return response message or <code>null</code> to ignore (don't reply to)
+	 * @return DhcpMessage response message or <code>null</code> to ignore (don't reply to)
 	 *         it.
 	 * @throws DhcpException
 	 */
@@ -186,7 +186,7 @@ public abstract class AbstractDhcpService implements DhcpService {
 	 * @param localAddress
 	 * @param clientAddress
 	 * @param request the request message
-	 * @return response message or <code>null</code> to ignore (don't reply to)
+	 * @return DhcpMessage response message or <code>null</code> to ignore (don't reply to)
 	 *         it.
 	 * @throws DhcpException
 	 */
@@ -213,7 +213,7 @@ public abstract class AbstractDhcpService implements DhcpService {
 	 * 
 	 * @param localAddress
 	 * @param request
-	 * @return
+	 * @return DhcpMessage
 	 */
 	protected final DhcpMessage initGeneralReply(InetSocketAddress localAddress,
 			DhcpMessage request) {
@@ -239,7 +239,7 @@ public abstract class AbstractDhcpService implements DhcpService {
 	 * Check if an address is the zero-address
 	 * 
 	 * @param addr
-	 * @return
+	 * @return boolean
 	 */
 	private boolean isZeroAddress(byte[] addr) {
 		for (int i = 0; i < addr.length; i++)
@@ -255,7 +255,7 @@ public abstract class AbstractDhcpService implements DhcpService {
 	 * 
 	 * @param clientAddress
 	 * @param request
-	 * @return
+	 * @return InetAddress
 	 */
 	protected final InetAddress determineSelectionBase(
 			InetSocketAddress clientAddress, DhcpMessage request) {

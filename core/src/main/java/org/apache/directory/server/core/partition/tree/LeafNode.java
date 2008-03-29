@@ -54,9 +54,6 @@ public class LeafNode implements Node
     }
     
 
-    /**
-     * @see Node#getPartition()
-     */
     public Partition getPartition()
     {
         return partition;

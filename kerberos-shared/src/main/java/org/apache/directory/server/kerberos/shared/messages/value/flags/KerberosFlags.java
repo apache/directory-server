@@ -49,7 +49,7 @@ public interface KerberosFlags
     
     /**
      * Check if a flag is set
-     * @param flags The flags to test
+     * @param flag The flags to test
      * @return True if the flag is set in the list of flags
      */
     boolean isFlagSet( int flag );

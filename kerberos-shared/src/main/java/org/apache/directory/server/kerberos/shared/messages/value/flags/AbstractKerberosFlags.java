@@ -119,7 +119,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
     
     /**
      * Check if a flag is set
-     * @param flags The flags to test
+     * @param flag The flags to test
      * @return True if the flag is set in the list of flags
      */
     public boolean isFlagSet( int flag )
@@ -154,8 +154,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
     
     /**
      * Modify a byte array to an integer value
-     * @param value The 4 bytes byte array to transform.
-     * @return The int which contains the bytes value.
+     * @param bytes The 4 bytes byte array to transform.
      */
     public void setFlags( byte[] bytes )
     {

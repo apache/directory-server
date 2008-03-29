@@ -55,7 +55,7 @@ import java.util.Iterator;
 
 /**
  * An {@link ACITupleFilter} that discards all tuples that doesn't satisfy
- * {@link ProtectedItem.MaxImmSub} constraint if available. (18.8.3.3, X.501)
+ * {@link org.apache.directory.shared.ldap.aci.ProtectedItem.MaxImmSub} constraint if available. (18.8.3.3, X.501)
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

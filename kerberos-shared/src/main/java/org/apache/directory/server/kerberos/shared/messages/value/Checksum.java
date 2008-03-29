@@ -78,7 +78,7 @@ public class Checksum extends AbstractAsn1Object
     /**
      * Creates a new instance of Checksum.
      *
-     * @param checksumType The checksum type used
+     * @param cksumtype The checksum type used
      * @param checksum The checksum value
      */
     public Checksum( ChecksumType cksumtype, byte[] checksum )
@@ -145,7 +145,7 @@ public class Checksum extends AbstractAsn1Object
     /**
      * Set the {@link ChecksumType}.
      *
-     * @param cksumtype The checksum algorithm used
+     * @param cksumType The checksum algorithm used
      */
     public void setChecksumType( ChecksumType cksumType )
     {

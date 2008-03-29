@@ -67,7 +67,7 @@ public class OptionsField
      * Return the (first) DHCP option matching a given option class or
      * <code>null</code> of the option isn't set.
      * 
-     * @param class1
+     * @param optionClass
      */
     public DhcpOption get( Class optionClass )
     {
@@ -80,7 +80,7 @@ public class OptionsField
      * Return the (first) DHCP option matching a given tag or <code>null</code>
      * of the option isn't set.
      * 
-     * @param class1
+     * @param tag
      */
     public DhcpOption get( int tag )
     {
@@ -93,7 +93,7 @@ public class OptionsField
      * Merge the options from the given options field into my options. Existing
      * options are replaced by the ones from the supplied options field.
      * 
-     * @param options2
+     * @param options
      */
     public void merge( OptionsField options )
     {
@@ -111,7 +111,7 @@ public class OptionsField
     /**
      * Remove instances of the given option class.
      * 
-     * @param class1
+     * @param c
      */
     public void remove( Class c )
     {
@@ -123,7 +123,7 @@ public class OptionsField
     /**
      * Remove options matching the given tag
      * 
-     * @param class1
+     * @param tag
      */
     public void remove( int tag )
     {

@@ -137,7 +137,7 @@ public class BranchNode implements Node
     /**
      * Get's a child using an rdn string.
      * 
-     * @param the rdn to use as the node key
+     * @param rdn the rdn to use as the node key
      * @return the child node corresponding to the rdn.
      */
     public Node getChild( String rdn )

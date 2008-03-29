@@ -37,9 +37,7 @@ public class ChangePasswordReply extends AbstractPasswordMessage
     /**
      * Creates a new instance of ChangePasswordReply.
      *
-     * @param messageLength
      * @param versionNumber
-     * @param authHeaderLength
      * @param applicationReply
      * @param privateMessage
      */

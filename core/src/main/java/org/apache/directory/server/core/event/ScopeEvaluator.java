@@ -43,7 +43,7 @@ public class ScopeEvaluator implements Evaluator
 
 
     /**
-     * @see Evaluator#evaluate(ExprNode, String, Attributes)
+     * @see Evaluator#evaluate(ExprNode , String, ServerEntry)
      */
     public boolean evaluate( ExprNode node, String dn, ServerEntry record ) throws NamingException
     {

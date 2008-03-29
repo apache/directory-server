@@ -86,7 +86,7 @@ public class Lease
 
 
     /**
-     * @return
+     * @return InetAddress
      */
     public InetAddress getClientAddress()
     {
@@ -95,7 +95,7 @@ public class Lease
 
 
     /**
-     * @return
+     * @return InetAddress
      */
     public InetAddress getNextServerAddress()
     {
@@ -104,7 +104,7 @@ public class Lease
 
 
     /**
-     * @return
+     * @return OptionsField
      */
     public OptionsField getOptions()
     {
@@ -113,7 +113,7 @@ public class Lease
 
 
     /**
-     * @return
+     * @return int
      */
     public int getState()
     {
@@ -122,7 +122,7 @@ public class Lease
 
 
     /**
-     * @param state2
+     * @param state
      */
     public void setState( int state )
     {

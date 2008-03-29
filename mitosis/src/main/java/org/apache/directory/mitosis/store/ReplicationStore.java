@@ -55,13 +55,13 @@ public interface ReplicationStore
     void close();
 
     /**
-     * Returns the {@link ReplicaId} of the {@link Replica} that this storage
+     * Returns the {@link ReplicaId} of the {@link ReplicaId} that this storage
      * is associated with.
      */
     ReplicaId getReplicaId();
 
     /**
-     * Returns the set of {@link ReplicaId}s of the {@link Replica}s that
+     * Returns the set of {@link ReplicaId}s of the {@link ReplicaId}s that
      * belongs to the same cluster.
      */
     Set<ReplicaId> getKnownReplicaIds();
@@ -127,7 +127,7 @@ public interface ReplicationStore
 
     /**
      * Returns the number of {@link Operation}s logged by
-     * the {@link Replica} with the specified {@link ReplicaId}
+     * the {@link ReplicaId} with the specified {@link ReplicaId}
      * in this storage .
      */
     int getLogSize( ReplicaId replicaId );

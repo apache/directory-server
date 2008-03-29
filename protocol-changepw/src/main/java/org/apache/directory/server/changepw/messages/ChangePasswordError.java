@@ -35,9 +35,7 @@ public class ChangePasswordError extends AbstractPasswordMessage
     /**
      * Creates a new instance of ChangePasswordError.
      *
-     * @param messageLength
      * @param versionNumber
-     * @param authHeaderLength
      * @param errorMessage
      */
     public ChangePasswordError( short versionNumber, ErrorMessage errorMessage )

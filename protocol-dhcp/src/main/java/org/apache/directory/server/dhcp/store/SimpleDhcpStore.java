@@ -92,7 +92,7 @@ public class SimpleDhcpStore extends AbstractDhcpStore
     /**
      * @param hardwareAddress
      * @param existingLease
-     * @return
+     * @return Lease
      */
     protected Lease findExistingLease( HardwareAddress hardwareAddress, Lease existingLease )
     {
@@ -104,7 +104,7 @@ public class SimpleDhcpStore extends AbstractDhcpStore
 
     /**
      * @param hardwareAddress
-     * @return
+     * @return Host
      * @throws DhcpException
      */
     protected Host findDesignatedHost( HardwareAddress hardwareAddress ) throws DhcpException
@@ -157,7 +157,7 @@ public class SimpleDhcpStore extends AbstractDhcpStore
      * Find the subnet for the given client address.
      * 
      * @param clientAddress
-     * @return
+     * @return Subnet
      */
     protected Subnet findSubnet( InetAddress clientAddress )
     {

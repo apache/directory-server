@@ -19,8 +19,8 @@
  */
 
 /**
- * Provides {@link RecordStore} interface for serving DNS resource records
- * to {@link DNSServer}.
+ * Provides {@link org.apache.directory.server.dns.store.RecordStore} interface for serving DNS resource records
+ * to {@link org.apache.directory.server.dns.DnsServer}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

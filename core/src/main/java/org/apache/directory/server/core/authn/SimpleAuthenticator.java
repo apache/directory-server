@@ -133,7 +133,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
     /**
      * Creates a new instance.
-     * @
+     * @see AbstractAuthenticator
      */
     public SimpleAuthenticator()
     {

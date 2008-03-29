@@ -43,7 +43,7 @@ import java.util.Set;
 /**
  * A JavaBeans {@link PropertyEditor} that can convert {@link ServerEntry} to
  * LDIF string and vice versa. This class is useful when you're going to
- * configure a {@link DirectoryService} with 3rd party containers such as <a
+ * configure a {@link org.apache.directory.server.core.DirectoryService} with 3rd party containers such as <a
  * href="http://www.springframework.org/">Spring Framework</a>.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

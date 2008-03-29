@@ -203,7 +203,7 @@ public abstract class BTreePartition implements Partition
     /**
      * Sets root entry for this BTreePartition.
      *
-     * @param rootEntry the root suffix entry of this BTreePartition
+     * @param rootEntryAttr the root suffix entry of this BTreePartition
      */
     public void setContextEntry( Attributes rootEntryAttr )
     {

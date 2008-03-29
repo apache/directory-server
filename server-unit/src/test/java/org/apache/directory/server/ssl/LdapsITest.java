@@ -30,9 +30,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
 import java.util.Hashtable;
 
 
@@ -77,34 +74,6 @@ public class LdapsITest extends AbstractServerTest
     protected void configureLdapServer()
     {
         ldapServer.setEnableLdaps( true );
-        ldapServer.setLdapsCertificatePassword( "boguspw" );
-//        ldapServer.setIpPort( ldapsPort );
-
-        // Copy the bogus certificate to the certificates directory.
-        InputStream in = getClass().getResourceAsStream( "/bogus.cert" );
-        ldapServer.getLdapsCertificateFile().getParentFile().mkdirs();
-
-        try
-        {
-            FileOutputStream out = new FileOutputStream( ldapServer.getLdapsCertificateFile() );
-
-            for ( ;; )
-            {
-                int c = in.read();
-                if ( c < 0 )
-                {
-                    break;
-                }
-                out.write( c );
-            }
-
-            in.close();
-            out.close();
-        } catch ( IOException e )
-        {
-            throw new RuntimeException( e );
-        }
-
     }
 
     /**

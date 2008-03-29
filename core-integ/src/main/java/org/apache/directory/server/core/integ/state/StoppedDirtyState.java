@@ -90,7 +90,7 @@ public class StoppedDirtyState implements TestServiceState
 
 
     /**
-     * @TODO you're not figuring in changes in the factory and not reinstantiating the service
+     * @todo you're not figuring in changes in the factory and not reinstantiating the service
      *
      * @param testClass
      * @param testMethod

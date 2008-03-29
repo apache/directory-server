@@ -379,7 +379,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
     /**
      * Returns the attribute associated with an AttributeType
      * 
-     * @param the AttributeType we are looking for
+     * @param attributeType the AttributeType we are looking for
      * @return the associated attribute
      */
     public ServerAttribute get( AttributeType attributeType )
@@ -391,7 +391,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
     /**
      * Returns the attribute associated with a String
      * 
-     * @param the Attribute ID we are looking for
+     * @param attributeType the Attribute ID we are looking for
      * @return the associated attribute
      */
     public ServerAttribute get( String attributeType ) throws NamingException
@@ -438,7 +438,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
      * If there is already a ServerAttribute with the same AttributeType, 
      * it will be removed from the entry and returned back to the caller.
      * 
-     * @param attributeTypse the new ServerAttribute attributeType to be added
+     * @param attributeTypes the new ServerAttribute attributeType to be added
      * @return The list of existing ServerAttribute, if any with the same AttributeType
      */
     public List<ServerAttribute> set( AttributeType... attributeTypes )
@@ -837,7 +837,7 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
     /**
      * Checks if an entry contains an attribute with a given value.
      *
-     * @param attribute The Attribute we are looking for
+     * @param attributeType The Attributetype we are looking for
      * @param value The searched value
      * @return <code>true</code> if the value is found within the attribute
      * @throws NamingException If there is a problem
@@ -1349,7 +1349,8 @@ public final class DefaultServerEntry implements ServerEntry, Externalizable
 
     
     /**
-     * @see Externalizable#writeExternal(ObjectOutput)<p>
+     * @see Externalizable#writeExternal(ObjectOutput)
+     * <p>
      * 
      * This is the place where we serialize entries, and all theirs
      * elements. the reason why we don't call the underlying methods

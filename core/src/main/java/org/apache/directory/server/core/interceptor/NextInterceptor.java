@@ -91,13 +91,13 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link PartitionNexus#addContextPartition( nextInterceptor, AddContextPartitionOperationContext )}.
+     * Calls the next interceptor's {@link PartitionNexus#addContextPartition( AddContextPartitionOperationContext )}.
      */
     void addContextPartition( AddContextPartitionOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link PartitionNexus#removeContextPartition( NextInterceptor, RemoveContextPartitionOperationContext )}.
+     * Calls the next interceptor's {@link PartitionNexus#removeContextPartition( RemoveContextPartitionOperationContext )}.
      */
     void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws NamingException;
 

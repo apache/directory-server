@@ -49,9 +49,6 @@ public class ServerSearchResult // extends SearchResult
     private Object object;
     
 
-    /**
-     * @see javax.naming.directory.SearchResult#SearchResult(String, Object, ServerEntry)
-     */
     public ServerSearchResult( LdapDN dn, Object obj, ServerEntry serverEntry ) throws InvalidNameException
     {
         this.dn = dn;
@@ -60,9 +57,6 @@ public class ServerSearchResult // extends SearchResult
     }
 
 
-    /**
-     * @see javax.naming.directory.SearchResult#SearchResult(String, Object, ServerEntry)
-     */
     public ServerSearchResult( LdapDN dn, Object obj, ServerEntry serverEntry, boolean isRelative ) throws InvalidNameException
     {
         this.dn = dn;
@@ -72,9 +66,6 @@ public class ServerSearchResult // extends SearchResult
     }
 
 
-    /**
-     * @see javax.naming.directory.SearchResult#SearchResult(String, Object, ServerEntry)
-     */
     public ServerSearchResult( LdapDN dn, String className, Object obj, ServerEntry serverEntry ) throws InvalidNameException
     {
         this.dn = dn;
@@ -83,9 +74,6 @@ public class ServerSearchResult // extends SearchResult
     }
 
 
-    /**
-     * @see javax.naming.directory.SearchResult#SearchResult(String, String, Object, ServerEntry, boolean)
-     */
     public ServerSearchResult( LdapDN dn, String className, Object obj, ServerEntry serverEntry, boolean isRelative ) throws InvalidNameException
     {
         this.dn = dn;

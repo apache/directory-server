@@ -52,9 +52,9 @@ public final class HardwareAddress
 
 
     /**
-     * @param htype
-     * @param hlen
-     * @param chaddr
+     * @param type
+     * @param length
+     * @param address
      */
     public HardwareAddress(short type, short length, byte[] address)
     {
@@ -178,7 +178,7 @@ public final class HardwareAddress
      * specification given in {@link #toString()}.
      * 
      * @param s
-     * @return
+     * @return HardwareAddress
      * @throws ParseException
      */
     public static HardwareAddress valueOf( String s )

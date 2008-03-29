@@ -172,7 +172,7 @@ public class AttributesFactory
     /**
      * 
      * @param matchingRule
-     * @return
+     * @return Attributes
      * @throws NamingException
      */
     public Attributes getAttributes( MatchingRule matchingRule, Schema schema ) throws NamingException
@@ -242,7 +242,7 @@ public class AttributesFactory
      * </pre>
      * 
      * @param attributeType
-     * @return
+     * @return Attributes
      * @throws NamingException
      */
     public Attributes getAttributes( AttributeType attributeType, Schema schema ) throws NamingException

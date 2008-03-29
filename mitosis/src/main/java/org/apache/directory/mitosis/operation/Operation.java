@@ -98,7 +98,7 @@ public class Operation implements Serializable
 
 
     /**
-     * Exeutes this operation on the specified nexus.
+     * Executes this operation on the specified nexus.
      */
     public final void execute( PartitionNexus nexus, ReplicationStore store, Registries registries ) 
         throws NamingException

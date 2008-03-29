@@ -34,8 +34,6 @@ import org.apache.directory.server.dhcp.options.OptionsField;
 public class DhcpMessage {
 	/**
 	 * Flag value: request broadcast answer.
-	 * 
-	 * @see #flags;
 	 */
 	public static final int FLAG_BROADCAST = 0x01;
 
@@ -140,8 +138,7 @@ public class DhcpMessage {
 	 * 
 	 * @param messageType
 	 * @param op
-	 * @param hardwareAddressType
-	 * @param hardwareAddressLength
+	 * @param hardwareAddress
 	 * @param hops
 	 * @param transactionId
 	 * @param seconds
@@ -150,7 +147,6 @@ public class DhcpMessage {
 	 * @param assignedClientAddress
 	 * @param nextServerAddress
 	 * @param relayAgentAddress
-	 * @param clientHardwareAddress
 	 * @param serverHostname
 	 * @param bootFileName
 	 * @param options

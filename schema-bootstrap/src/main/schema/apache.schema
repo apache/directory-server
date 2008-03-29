@@ -421,3 +421,46 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.1.3.10 NAME 'schemaModificationAttributes'
 # END Schema Subentry Modification Attribute Schema 
 # =================================================
 
+# =============================================
+# SSL/TLS Key Management for LDAPS and StartTLS  
+# =============================================
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.38
+    NAME 'privateKeyFormat'
+    DESC 'The format of the private key used for TLS'
+    EQUALITY caseExactIA5Match
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.41
+    NAME 'publicKeyFormat'
+    DESC 'The format of the public key used for TLS'
+    EQUALITY caseExactIA5Match
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.39
+    NAME 'keyAlgorithm'
+    DESC 'The algorithm used for the key/pair used by the server for TLS'
+    EQUALITY caseExactIA5Match
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.40
+    NAME 'privateKey'
+    DESC 'The private key material used for TLS'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 SINGLE-VALUE )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.42
+    NAME 'publicKey'
+    DESC 'The public key material used for TLS'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 SINGLE-VALUE )
+
+objectclass ( 1.3.6.1.4.1.18060.0.4.1.3.11
+    NAME 'tlsKeyInfo'
+    SUP top
+    AUXILIARY
+    MUST ( privateKeyFormat $ keyAlgorithm $ privateKey $
+           publicKeyFormat $ publicKey ) )
+
+# =================================================
+# END SSL/TLS Key Management for LDAPS and StartTLS 
+# =================================================
+    

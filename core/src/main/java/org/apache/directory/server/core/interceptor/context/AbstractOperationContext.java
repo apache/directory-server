@@ -59,7 +59,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * Creates a new instance of AbstractOperationContext.
      *
-     * @param Registries The global registries
+     * @param registries The global registries
      */
     public AbstractOperationContext( Registries registries )
     {
@@ -70,7 +70,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * Creates a new instance of AbstractOperationContext.
      *
-     * @param Registries The global registries
+     * @param registries The global registries
      * @param dn The associated DN
      */
     public AbstractOperationContext( Registries registries, LdapDN dn )
@@ -83,7 +83,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * Creates a new instance of AbstractOperationContext.
      *
-     * @param Registries The global registries
+     * @param registries The global registries
      * @param dn the associated DN
      * @param collateralOperation true if op is collateral, false otherwise
      */
@@ -99,7 +99,7 @@ public abstract class AbstractOperationContext implements OperationContext
      * Creates an operation context where the operation is considered a side
      * effect of a direct operation.
      *
-     * @param Registries The global registries
+     * @param registries The global registries
      * @param collateralOperation true if this is a side effect operation
      */
     public AbstractOperationContext( Registries registries, boolean collateralOperation )
