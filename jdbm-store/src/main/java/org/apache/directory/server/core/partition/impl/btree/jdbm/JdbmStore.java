@@ -112,6 +112,9 @@ public class JdbmStore<E> implements Store<E>
     /** a system index on aliasedObjectName attribute */
     private JdbmIndex<String,E> aliasIdx;
     
+    /** a system index on the entries of descendants of root DN*/
+    private JdbmIndex<Long,E> subLevelIdx;
+    
     /** Two static declaration to avoid lookup all over the code */
     private static AttributeType OBJECT_CLASS_AT;
     private static AttributeType ALIASED_OBJECT_NAME_AT;
@@ -371,6 +374,14 @@ public class JdbmStore<E> implements Store<E>
             systemIndices.put( Oid.ALIAS, aliasIdx );
             aliasIdx.init( attributeTypeRegistry.lookup( Oid.ALIAS ), workingDirectory );
         }
+        
+        if ( subLevelIdx == null )
+        {
+            subLevelIdx = new JdbmIndex<Long, E>();
+            subLevelIdx.setAttributeId( Oid.SUBLEVEL );
+            systemIndices.put( Oid.SUBLEVEL, subLevelIdx );
+            subLevelIdx.init( attributeTypeRegistry.lookup( Oid.SUBLEVEL ), workingDirectory );
+        }
     }
 
 
@@ -518,7 +529,8 @@ public class JdbmStore<E> implements Store<E>
         array.add( subAliasIdx );
         array.add( hierarchyIdx );
         array.add( existanceIdx );
-
+        array.add( subLevelIdx );
+        
         // Sync all user defined userIndices
         for ( Index idx:array )
         {
@@ -672,6 +684,20 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
+    public Index<Long,E> getSubLevelIndex()
+    {
+        return subLevelIdx;
+    }
+
+
+    public void setSubLevelIndex( Index<Long,E> index ) throws NamingException
+    {
+        protect( "subLevelIndex" );
+        subLevelIdx = ( JdbmIndex<Long,E> ) convertIndex( index );
+        systemIndices.put( index.getAttributeId(), subLevelIdx );
+    }
+    
+    
     public Iterator<String> userIndices()
     {
         return userIndices.keySet().iterator();
@@ -1034,7 +1060,14 @@ public class JdbmStore<E> implements Store<E>
         ndnIdx.add( normName.toNormName(), id );
         updnIdx.add( normName.getUpName(), id );
         hierarchyIdx.add( parentId, id );
-
+        
+        Long tempId = parentId;
+        while( tempId != null && tempId != 0 && tempId != 1 )
+        {
+            subLevelIdx.add( tempId, id );
+            tempId = getParentId( tempId );
+        }
+        
         // Now work on the user defined userIndices
         NamingEnumeration<String> list = entry.getIDs();
         
@@ -1098,7 +1131,8 @@ public class JdbmStore<E> implements Store<E>
         ndnIdx.drop( id );
         updnIdx.drop( id );
         hierarchyIdx.drop( id );
-
+        subLevelIdx.drop( id );
+        
         // Remove parent's reference to entry only if entry is not the upSuffix
         if ( !parentId.equals( 0L ) )
         {

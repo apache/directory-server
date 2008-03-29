@@ -42,8 +42,9 @@ public class Oid
     public static final String SUBALIAS = "1.3.6.1.4.1.18060.0.4.1.2.6";
     /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.7) for _alias index */
     public static final String ALIAS = "1.3.6.1.4.1.18060.0.4.1.2.7";
-
-
+    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.8) for _subLevel index*/
+    public static final String SUBLEVEL = "1.3.6.1.4.1.18060.0.4.1.2.8";
+    
     private Oid()
     {
     }
