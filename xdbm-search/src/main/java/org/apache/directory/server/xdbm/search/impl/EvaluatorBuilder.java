@@ -20,24 +20,114 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.shared.ldap.filter.ExprNode;
+import javax.naming.directory.Attributes;
+
+import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.shared.ldap.filter.*;
+import org.apache.directory.shared.ldap.NotImplementedException;
+
+import java.util.List;
+import java.util.ArrayList;
 
 
 /**
- * Builds a filter expression evaluator which checks if candidates match an
- * expression filter.
- *
+ * Top level filter expression evaluator builder implemenation.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface EvaluatorBuilder<E>
+public class EvaluatorBuilder
 {
+    private final Store<Attributes> db;
+    private final Registries registries;
+
+
+    // ------------------------------------------------------------------------
+    // C O N S T R U C T O R S
+    // ------------------------------------------------------------------------
+
+
     /**
-     * Builds an Evaluator based on the filter expression provided.
+     * Creates a top level Evaluator where leaves are delegated to a leaf node
+     * evaluator which will be created.
      *
-     * @param expression the filter expression AST
-     * @return the evaluator for the AST
-     * @throws Exception on database faults during construction
+     * @param db the database this evaluator operates upon
+     * @param registries the schema registries
+     * @throws Exception failure to access db or lookup schema in registries
      */
-    Evaluator<? extends ExprNode,E> build( ExprNode expression ) throws Exception;
+    public EvaluatorBuilder( Store<Attributes> db, Registries registries ) throws Exception
+    {
+        this.db = db;
+        this.registries = registries;
+    }
+
+
+    public Evaluator<? extends ExprNode, Attributes> build( ExprNode node ) throws Exception
+    {
+        switch ( node.getAssertionType() )
+        {
+                /* ---------- LEAF NODE HANDLING ---------- */
+
+            case APPROXIMATE:
+                return new ApproximateEvaluator( ( ApproximateNode ) node, db, registries );
+            case EQUALITY:
+                return new EqualityEvaluator( ( EqualityNode ) node, db, registries );
+            case GREATEREQ:
+                return new GreaterEqEvaluator( ( GreaterEqNode ) node, db, registries );
+            case LESSEQ:
+                return new LessEqEvaluator( ( LessEqNode ) node, db, registries );
+            case PRESENCE:
+                return new PresenceEvaluator( ( PresenceNode ) node, db, registries );
+            case SCOPE:
+//                return new ScopeEvaluator( ( ScopeNode ) node, db, registries );
+                throw new NotImplementedException( "SOON!!!!!" );
+            case SUBSTRING:
+                return new SubstringEvaluator( ( SubstringNode ) node, db, registries );
+
+                /* ---------- LOGICAL OPERATORS ---------- */
+
+            case AND:
+                return buildAndEvaluator( ( AndNode ) node );
+            case NOT:
+                return new NotEvaluator( ( NotNode ) node, build( ( ( NotNode ) node).getFirstChild() ) );
+            case OR:
+                return buildOrEvaluator( ( OrNode ) node );
+
+                /* ----------  NOT IMPLEMENTED  ---------- */
+
+            case ASSERTION:
+            case EXTENSIBLE:
+                throw new NotImplementedException();
+
+            default:
+                throw new IllegalStateException( "Unknown assertion type: " + node.getAssertionType() );
+        }
+    }
+
+
+    AndEvaluator buildAndEvaluator( AndNode node ) throws Exception
+    {
+        List<ExprNode> children = node.getChildren();
+        List<Evaluator<? extends ExprNode,Attributes>> evaluators =
+            new ArrayList<Evaluator<? extends ExprNode,Attributes>>( children.size() );
+        for ( ExprNode child : children )
+        {
+            evaluators.add( build( child ) );
+        }
+        return new AndEvaluator( node, evaluators );
+    }
+
+
+    OrEvaluator buildOrEvaluator( OrNode node ) throws Exception
+    {
+        List<ExprNode> children = node.getChildren();
+        List<Evaluator<? extends ExprNode,Attributes>> evaluators =
+            new ArrayList<Evaluator<? extends ExprNode,Attributes>>( children.size() );
+        for ( ExprNode child : children )
+        {
+            evaluators.add( build( child ) );
+        }
+        return new OrEvaluator( node, evaluators );
+    }
 }
