@@ -25,11 +25,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.NotNode;
-import org.apache.directory.shared.ldap.filter.OrNode;
+import org.apache.directory.shared.ldap.filter.*;
 
 
 /**
@@ -38,7 +34,7 @@ import org.apache.directory.shared.ldap.filter.OrNode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExpressionEvaluatorBuilder implements EvaluatorBuilder<Attributes>
+public class ExpressionEvaluatorBuilder implements EvaluatorBuilder<ExprNode,Attributes>
 {
     private final Store<Attributes> db;
     private final Registries registries;
@@ -70,11 +66,11 @@ public class ExpressionEvaluatorBuilder implements EvaluatorBuilder<Attributes>
     /**
      * @see EvaluatorBuilder#build(ExprNode)
      */
-    public Evaluator<Attributes> build( ExprNode node ) throws NamingException
+    public Evaluator<ExprNode, Attributes> build( ExprNode node ) throws NamingException
     {
         if ( node.isLeaf() )
         {
-            return new LeafEvaluator( node );
+            switch ( )
         }
 
         BranchNode bnode = ( BranchNode ) node;
