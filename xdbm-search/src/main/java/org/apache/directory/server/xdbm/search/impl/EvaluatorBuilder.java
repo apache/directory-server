@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface EvaluatorBuilder<N extends ExprNode, E>
+public interface EvaluatorBuilder<E>
 {
     /**
      * Builds an Evaluator based on the filter expression provided.
@@ -39,5 +39,5 @@ public interface EvaluatorBuilder<N extends ExprNode, E>
      * @return the evaluator for the AST
      * @throws Exception on database faults during construction
      */
-    Evaluator<N,E> build( ExprNode expression ) throws Exception;
+    Evaluator<? extends ExprNode,E> build( ExprNode expression ) throws Exception;
 }
