@@ -22,14 +22,14 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.AbstractCursor;
-import org.apache.directory.server.core.cursor.CursorIterator;
+import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.xdbm.IndexEntry;
 
 import java.util.*;
 
 
 /**
- * An OR'ing Cursor intended for returning large result sets.
+ * A Cursor returning candidates satisfying a logical disjunction expression.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
@@ -37,7 +37,7 @@ import java.util.*;
 public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
 {
     private static final String UNSUPPORTED_MSG =
-        "DisjunctionCursors are not ordered and do not support positioning by element.";
+        "OrCursors are not ordered and do not support positioning by element.";
     private final Cursor<IndexEntry<?,E>>[] cursors;
     private final Evaluator[] evaluators;
     private final List<Set<Long>> blacklists;
@@ -86,6 +86,7 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
     {
         cursorIndex = 0;
         cursors[cursorIndex].beforeFirst();
+        available = false;
     }
 
 
@@ -93,6 +94,7 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
     {
         cursorIndex = cursors.length - 1;
         cursors[cursorIndex].afterLast();
+        available = false;
     }
 
 
@@ -132,6 +134,7 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
                 continue;
             }
 
+            //noinspection unchecked
             if ( evaluators[ii].evaluate( indexEntry ) )
             {
                 blacklists.get( ii ).add( indexEntry.getId() );
@@ -211,19 +214,13 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
             return cursors[cursorIndex].get();
         }
 
-        throw new InvalidPropertiesFormatException( "Cursor has not been positioned." );
+        throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
     }
 
 
     public boolean isElementReused()
     {
         return cursors[cursorIndex].isElementReused();
-    }
-
-
-    public Iterator<IndexEntry<?, E>> iterator()
-    {
-        return new CursorIterator<IndexEntry<?, E>>( this );
     }
 
 

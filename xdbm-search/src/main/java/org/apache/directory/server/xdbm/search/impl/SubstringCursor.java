@@ -136,12 +136,14 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<String, Attribute
     public void beforeFirst() throws Exception
     {
         wrapped.beforeFirst();
+        available = false;
     }
 
 
     public void afterLast() throws Exception
     {
         wrapped.afterLast();
+        available = false;
     }
 
 
