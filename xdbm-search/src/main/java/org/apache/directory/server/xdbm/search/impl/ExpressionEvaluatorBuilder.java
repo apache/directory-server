@@ -21,9 +21,10 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -37,26 +38,15 @@ import org.apache.directory.shared.ldap.filter.OrNode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExpressionEvaluatorBuilder implements EvaluatorBuilder
+public class ExpressionEvaluatorBuilder implements EvaluatorBuilder<Attributes>
 {
-    /** Leaf Evaluator flyweight use for leaf filter assertions */
-    private LeafEvaluator leafEvaluator;
+    private final Store<Attributes> db;
+    private final Registries registries;
 
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-
-    /**
-     * Creates a top level Evaluator where leaves are delegated to a leaf node
-     * evaluator which is already provided.
-     *
-     * @param leafEvaluator handles leaf node evaluation.
-     */
-    public ExpressionEvaluatorBuilder(LeafEvaluator leafEvaluator)
-    {
-        this.leafEvaluator = leafEvaluator;
-    }
 
 
     /**
@@ -64,43 +54,27 @@ public class ExpressionEvaluatorBuilder implements EvaluatorBuilder
      * evaluator which will be created.
      *
      * @param db the database this evaluator operates upon
-     * @param oidRegistry the oid reg used for attrID to oid resolution
-     * @param attributeTypeRegistry the attribtype reg used for value comparison
      */
-    public ExpressionEvaluatorBuilder(BTreePartition db, Registries registries )
+    public ExpressionEvaluatorBuilder( Store<Attributes> db, Registries registries ) throws Exception
     {
-        ScopeEvaluator scopeEvaluator = null;
-        SubstringEvaluator substringEvaluator = null;
-
-        scopeEvaluator = new ScopeEvaluator( db );
-        substringEvaluator = new SubstringEvaluator( db, registries );
-        leafEvaluator = new LeafEvaluator( db, registries, scopeEvaluator, substringEvaluator );
-    }
-
-
-    /**
-     * Gets the leaf evaluator used by this top level expression evaluator.
-     *
-     * @return the leaf evaluator used by this top level expression evaluator
-     */
-    public LeafEvaluator getLeafEvaluator()
-    {
-        return leafEvaluator;
+        this.db = db;
+        this.registries = registries;
     }
 
 
     // ------------------------------------------------------------------------
-    // Evaluator.evaluate() implementation
+    // EvaluatorBuilder.build() implementation
     // ------------------------------------------------------------------------
 
+
     /**
-     * @see Evaluator#evaluate(ExprNode, IndexEntry)
+     * @see EvaluatorBuilder#build(ExprNode)
      */
-    public boolean evaluate( ExprNode node, IndexEntry entry ) throws NamingException
+    public Evaluator<Attributes> build( ExprNode node ) throws NamingException
     {
         if ( node.isLeaf() )
         {
-            return leafEvaluator.evaluate( node, entry );
+            return new LeafEvaluator( node );
         }
 
         BranchNode bnode = ( BranchNode ) node;

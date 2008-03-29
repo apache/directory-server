@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -63,10 +64,8 @@ public class ExpressionCursorBuilder<E> implements CursorBuilder<E>
     private Store<E> db = null;
     /** CursorBuilder flyweight for evaulating filter scope assertions */
     private ScopeCursorBuilder<E> scopeEnumerator;
-    /** CursorBuilder flyweight for evaulating filter substring assertions */
-    private SubstringCursorBuilder<E> substringEnumerator;
     /** Evaluator dependency on a ExpressionEvaluatorBuilder */
-    private ExpressionEvaluatorBuilder<E> evaluatorBuilder;
+    private ExpressionEvaluatorBuilder<Attributes> evaluatorBuilder;
 
 
     /**

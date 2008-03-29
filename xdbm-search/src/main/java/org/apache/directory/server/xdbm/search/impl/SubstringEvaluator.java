@@ -32,7 +32,6 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -46,7 +45,7 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubstringEvaluator implements Evaluator<Attributes>
+public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
 {
     /** Database used while evaluating candidates */
     private final Store<Attributes> db;
@@ -64,7 +63,7 @@ public class SubstringEvaluator implements Evaluator<Attributes>
 
     private final Normalizer normalizer;
 
-    private final Index idx;
+    private final Index<String,Attributes> idx;
 
 
     /**
@@ -97,6 +96,7 @@ public class SubstringEvaluator implements Evaluator<Attributes>
 
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
+            //noinspection unchecked
             idx = db.getUserIndex( node.getAttribute() );
         }
         else
@@ -129,7 +129,7 @@ public class SubstringEvaluator implements Evaluator<Attributes>
     }
 
 
-    public ExprNode getExpression()
+    public SubstringNode getExpression()
     {
         return node;
     }
@@ -143,8 +143,7 @@ public class SubstringEvaluator implements Evaluator<Attributes>
          * Otherwise we would have to scan the entire index if there were
          * no reverse lookups.
          */
-        //noinspection unchecked
-        Cursor<IndexEntry<?,Attributes>> entries = idx.reverseCursor( indexEntry.getId() );
+        Cursor<IndexEntry<String,Attributes>> entries = idx.reverseCursor( indexEntry.getId() );
 
         // cycle through the attribute values testing for a match
         while ( entries.next() )

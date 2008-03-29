@@ -50,7 +50,7 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<String, Attribute
     public SubstringCursor( Store<Attributes> db,
                             final SubstringEvaluator substringEvaluator ) throws Exception
     {
-        SubstringNode node = ( SubstringNode ) substringEvaluator.getExpression();
+        SubstringNode node = substringEvaluator.getExpression();
 
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
