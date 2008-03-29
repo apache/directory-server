@@ -27,6 +27,9 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.filter.*;
 import org.apache.directory.shared.ldap.NotImplementedException;
 
+import java.util.List;
+import java.util.ArrayList;
+
 
 /**
  * Top level filter expression evaluator builder implemenation.
@@ -91,11 +94,11 @@ public class ExpressionEvaluatorBuilder implements EvaluatorBuilder<Attributes>
                 /* ---------- LOGICAL OPERATORS ---------- */
 
             case AND:
-                throw new NotImplementedException();
+                return buildAndEvaluator( ( AndNode ) node );
             case NOT:
                 throw new NotImplementedException();
             case OR:
-                throw new NotImplementedException();
+                return buildOrEvaluator( ( OrNode ) node );
 
                 /* ----------  NOT IMPLEMENTED  ---------- */
 
@@ -146,5 +149,31 @@ public class ExpressionEvaluatorBuilder implements EvaluatorBuilder<Attributes>
 //        {
 //                throw new NamingException( "Unrecognized branch node operator: " + bnode );
 //        }
+    }
+
+
+    AndEvaluator buildAndEvaluator( AndNode node ) throws Exception
+    {
+        List<ExprNode> children = node.getChildren();
+        List<Evaluator<? extends ExprNode,Attributes>> evaluators =
+            new ArrayList<Evaluator<? extends ExprNode,Attributes>>( children.size() );
+        for ( ExprNode child : children )
+        {
+            evaluators.add( build( child ) );
+        }
+        return new AndEvaluator( node, evaluators );
+    }
+
+
+    OrEvaluator buildOrEvaluator( OrNode node ) throws Exception
+    {
+        List<ExprNode> children = node.getChildren();
+        List<Evaluator<? extends ExprNode,Attributes>> evaluators =
+            new ArrayList<Evaluator<? extends ExprNode,Attributes>>( children.size() );
+        for ( ExprNode child : children )
+        {
+            evaluators.add( build( child ) );
+        }
+        return new OrEvaluator( node, evaluators );
     }
 }
