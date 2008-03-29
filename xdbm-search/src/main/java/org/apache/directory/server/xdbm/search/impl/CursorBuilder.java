@@ -21,18 +21,20 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import java.util.List;
+import java.util.ArrayList;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
 import org.apache.directory.server.core.partition.impl.btree.IndexAssertionEnumeration;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
@@ -56,33 +58,73 @@ import org.apache.directory.shared.ldap.filter.SubstringNode;
  * Builds Cursors over candidates that satisfy a filter expression.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 642490 $
  */
-public class CursorBuilder<E>
+public class CursorBuilder
 {
-    /** The database used by this enumerator */
-    private Store<E> db = null;
-    /** CursorBuilder flyweight for evaulating filter scope assertions */
-    private ScopeCursorBuilder<E> scopeEnumerator;
+    /** The database used by this builder */
+    private Store<Attributes> db = null;
     /** Evaluator dependency on a EvaluatorBuilder */
-    private EvaluatorBuilder<Attributes> evaluatorBuilder;
+    private EvaluatorBuilder evaluatorBuilder;
+    private final Registries registries;
 
 
     /**
      * Creates an expression tree enumerator.
      *
      * @param db database used by this enumerator
-     * @param evaluatorBuilder
+     * @param evaluatorBuilder the evaluator builder
+     * @param registries the schema registries
      */
-    public CursorBuilder(BTreePartition db, AttributeTypeRegistry attributeTypeRegistry,
-        EvaluatorBuilder evaluatorBuilder )
+    public CursorBuilder( Store<Attributes> db,
+                          EvaluatorBuilder evaluatorBuilder,
+                          Registries registries )
     {
         this.db = db;
         this.evaluatorBuilder = evaluatorBuilder;
+        this.registries = registries;
+    }
 
-        LeafEvaluator leafEvaluator = evaluatorBuilder.getLeafEvaluator();
-        scopeEnumerator = new ScopeCursorBuilder( db, leafEvaluator.getScopeEvaluator() );
-        substringEnumerator = new SubstringCursorBuilder( db, attributeTypeRegistry, leafEvaluator.getSubstringEvaluator() );
+
+    public Cursor<IndexEntry<?,Attributes>> build( ExprNode node ) throws Exception
+    {
+        switch ( node.getAssertionType() )
+        {
+            /* ---------- LEAF NODE HANDLING ---------- */
+
+            case APPROXIMATE:
+                throw new NotImplementedException();
+            case EQUALITY:
+                throw new NotImplementedException();
+            case GREATEREQ:
+                throw new NotImplementedException();
+            case LESSEQ:
+                throw new NotImplementedException();
+            case PRESENCE:
+                throw new NotImplementedException();
+            case SCOPE:
+                throw new NotImplementedException();
+            case SUBSTRING:
+                return new SubstringCursor( db, ( SubstringEvaluator ) evaluatorBuilder.build( node ) );
+
+            /* ---------- LOGICAL OPERATORS ---------- */
+
+            case AND:
+                return buildAndCursor( ( AndNode ) node );
+            case NOT:
+                return new NotCursor( db, evaluatorBuilder.build( ( ( NotNode ) node).getFirstChild() ) );
+            case OR:
+                return buildOrCursor( ( OrNode ) node );
+
+            /* ----------  NOT IMPLEMENTED  ---------- */
+
+            case ASSERTION:
+            case EXTENSIBLE:
+                throw new NotImplementedException();
+
+            default:
+                throw new IllegalStateException( "Unknown assertion type: " + node.getAssertionType() );
+        }
     }
 
 
@@ -171,66 +213,37 @@ public class CursorBuilder<E>
 
 
     /**
-     * Creates an enumeration over a disjunction expression branch node.
+     * Creates a OrCursor over a disjunction expression branch node.
      *
      * @param node the disjunction expression branch node
+     * @return Cursor over candidates satisfying disjunction expression
+     * @throws Exception on db or registry access failures
      */
-    private NamingEnumeration<ForwardIndexEntry> enumDisj( OrNode node ) throws NamingException
+    private Cursor<IndexEntry<?,Attributes>> buildOrCursor( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        NamingEnumeration<IndexRecord>[] childEnumerations = new NamingEnumeration[children.size()];
+        List<Cursor<IndexEntry<?,Attributes>>> childCursors = new ArrayList<Cursor<IndexEntry<?,Attributes>>>(children.size());
+        List<Evaluator> childEvaluators = new ArrayList<Evaluator>( children.size() );
 
-        // Recursively create NamingEnumerations for each child expression node
-        for ( int ii = 0; ii < childEnumerations.length; ii++ )
+        // Recursively create Cursors and Evaluators for each child expression node
+        for ( ExprNode child : children )
         {
-            childEnumerations[ii] = enumerate( children.get( ii ) );
+            childCursors.add( build( child ) );
+            childEvaluators.add( evaluatorBuilder.build( child ) );
         }
 
-        return new OrCursor( childEnumerations );
+        //noinspection unchecked
+        return new OrCursor( childCursors, childEvaluators );
     }
 
 
     /**
-     * Creates an enumeration over a negation expression branch node.
-     *
-     * @param node a negation expression branch node
-     */
-    private NamingEnumeration<ForwardIndexEntry> enumNeg( final BranchNode node ) throws NamingException
-    {
-    	NamingEnumeration<ForwardIndexEntry> baseEnumeration = null;
-    	NamingEnumeration<ForwardIndexEntry> enumeration = null;
-
-        try
-        {
-            baseEnumeration = db.getNdnIndex().listIndices();
-        }
-        catch ( java.io.IOException e )
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-
-        IndexAssertion assertion = new IndexAssertion()
-        {
-            public boolean assertCandidate( IndexEntry rec ) throws NamingException
-            {
-                // NOTICE THE ! HERE
-                // The candidate is valid if it does not pass assertion. A
-                // candidate that passes assertion is therefore invalid.
-                return !evaluatorBuilder.evaluate( node.getFirstChild(), rec );
-            }
-        };
-
-        enumeration = new IndexAssertionEnumeration( baseEnumeration, assertion, true );
-        return enumeration;
-    }
-
-
-    /**
-     * Creates an enumeration over a conjunction expression branch node.
+     * Creates an AndCursor over a conjunction expression branch node.
      *
      * @param node a conjunction expression branch node
+     * @return Cursor over the conjunction expression
      */
-    private NamingEnumeration<ForwardIndexEntry> enumConj( final AndNode node ) throws NamingException
+    private Cursor<IndexEntry<?,Attributes>> buildAndCursor( AndNode node ) throws Exception
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
@@ -239,8 +252,7 @@ public class CursorBuilder<E>
         /*
          * We scan the child nodes of a branch node searching for the child
          * expression node with the smallest scan count.  This is the child
-         * we will use for iteration by creating a NamingEnumeration over its
-         * expression.
+         * we will use for iteration by creating a Cursor over its expression.
          */
         final List<ExprNode> children = node.getChildren();
         
@@ -256,36 +268,23 @@ public class CursorBuilder<E>
             }
         }
 
-        // Once found we build the child enumeration & the wrapping enum
-        final ExprNode minChild = children.get( minIndex );
-        IndexAssertion assertion = new IndexAssertion()
+        // Once found we build the child Evaluators minus the one for the minChild
+        ExprNode minChild = children.get( minIndex );
+        List<Evaluator<? extends ExprNode, Attributes>> childEvaluators =
+            new ArrayList<Evaluator<? extends ExprNode, Attributes>>( children.size() - 1 );
+        for ( ExprNode child : children )
         {
-            public boolean assertCandidate( IndexEntry rec ) throws NamingException
+            if ( child == minChild )
             {
-                for ( int ii = 0; ii < children.size(); ii++ )
-                {
-                    ExprNode child = children.get( ii );
-
-                    // Skip the child (with min scan count) chosen for enum
-                    if ( child == minChild )
-                    {
-                        continue;
-                    }
-                    else if ( !evaluatorBuilder.evaluate( child, rec ) )
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
+                continue;
             }
-        };
 
-        // Do recursive call to build child enumeration then wrap and return
-        NamingEnumeration<ForwardIndexEntry> underlying = enumerate( minChild );
-        IndexAssertionEnumeration iae;
-        iae = new IndexAssertionEnumeration( underlying, assertion );
-        return iae;
+            childEvaluators.add( evaluatorBuilder.build( child ) );
+        }
+
+        // Do recursive call to build min child Cursor then create AndCursor
+        Cursor<IndexEntry<?,Attributes>> childCursor = build( minChild );
+        return new AndCursor( childCursor, childEvaluators );
     }
 
 

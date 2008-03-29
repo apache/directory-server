@@ -34,20 +34,21 @@ import java.util.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
+public class OrCursor<Attributes> extends AbstractCursor<IndexEntry<?,Attributes>>
 {
     private static final String UNSUPPORTED_MSG =
         "OrCursors are not ordered and do not support positioning by element.";
-    private final Cursor<IndexEntry<?,E>>[] cursors;
-    private final Evaluator[] evaluators;
+    private final List<Cursor<IndexEntry<?,Attributes>>> cursors;
+    private final List<Evaluator> evaluators;
     private final List<Set<Long>> blacklists;
     private int cursorIndex = -1;
     private boolean available = false;
 
 
-    public OrCursor( Cursor<IndexEntry<?,E>>[] cursors, Evaluator[] evaluators )
+    // TODO - do same evaluator fail fast optimization that we do in AndCursor
+    public OrCursor( List<Cursor<IndexEntry<?,Attributes>>> cursors, List<Evaluator> evaluators )
     {
-        if ( cursors.length <= 1 )
+        if ( cursors.size() <= 1 )
         {
             throw new IllegalArgumentException(
                 "Must have 2 or more sub-expression Cursors for a disjunction" );
@@ -57,7 +58,7 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
         this.evaluators = evaluators;
         this.blacklists = new ArrayList<Set<Long>>();
         //noinspection ForLoopReplaceableByForEach
-        for ( int ii = 0; ii < cursors.length; ii++ )
+        for ( int ii = 0; ii < cursors.size(); ii++ )
         {
             this.blacklists.add( new HashSet<Long>() );
         }
@@ -70,13 +71,13 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
     }
 
 
-    public void before( IndexEntry<?, E> element ) throws Exception
+    public void before( IndexEntry<?, Attributes> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<?, E> element ) throws Exception
+    public void after( IndexEntry<?, Attributes> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -85,15 +86,15 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
     public void beforeFirst() throws Exception
     {
         cursorIndex = 0;
-        cursors[cursorIndex].beforeFirst();
+        cursors.get( cursorIndex ).beforeFirst();
         available = false;
     }
 
 
     public void afterLast() throws Exception
     {
-        cursorIndex = cursors.length - 1;
-        cursors[cursorIndex].afterLast();
+        cursorIndex = cursors.size() - 1;
+        cursors.get( cursorIndex ).afterLast();
         available = false;
     }
 
@@ -125,9 +126,9 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
      * @param indexEntry the index entry to blacklist
      * @throws Exception if there are problems accessing underlying db
      */
-    private void blackListIfDuplicate( IndexEntry<?,E> indexEntry ) throws Exception
+    private void blackListIfDuplicate( IndexEntry<?,Attributes> indexEntry ) throws Exception
     {
-        for ( int ii = 0; ii < evaluators.length; ii++ )
+        for ( int ii = 0; ii < evaluators.size(); ii++ )
         {
             if ( ii == cursorIndex )
             {
@@ -135,7 +136,7 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
             }
 
             //noinspection unchecked
-            if ( evaluators[ii].evaluate( indexEntry ) )
+            if ( evaluators.get( ii ).evaluate( indexEntry ) )
             {
                 blacklists.get( ii ).add( indexEntry.getId() );
             }
@@ -145,9 +146,9 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
 
     public boolean previous() throws Exception
     {
-        while ( cursors[cursorIndex].previous() )
+        while ( cursors.get( cursorIndex ).previous() )
         {
-            IndexEntry<?,E> candidate = cursors[cursorIndex].get();
+            IndexEntry<?,Attributes> candidate = cursors.get( cursorIndex ).get();
             if ( ! isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );
@@ -158,11 +159,11 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
         while ( cursorIndex > 0 )
         {
             cursorIndex--;
-            cursors[cursorIndex].afterLast();
+            cursors.get( cursorIndex ).afterLast();
 
-            while ( cursors[cursorIndex].previous() )
+            while ( cursors.get( cursorIndex ).previous() )
             {
-                IndexEntry<?,E> candidate = cursors[cursorIndex].get();
+                IndexEntry<?,Attributes> candidate = cursors.get( cursorIndex ).get();
                 if ( ! isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
@@ -177,9 +178,9 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
 
     public boolean next() throws Exception
     {
-        while ( cursors[cursorIndex].next() )
+        while ( cursors.get( cursorIndex ).next() )
         {
-            IndexEntry<?,E> candidate = cursors[cursorIndex].get();
+            IndexEntry<?,Attributes> candidate = cursors.get( cursorIndex ).get();
             if ( ! isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );
@@ -187,14 +188,14 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
             }
         }
 
-        while ( cursorIndex < cursors.length - 1 )
+        while ( cursorIndex < cursors.size() - 1 )
         {
             cursorIndex++;
-            cursors[cursorIndex].beforeFirst();
+            cursors.get( cursorIndex ).beforeFirst();
 
-            while ( cursors[cursorIndex].next() )
+            while ( cursors.get( cursorIndex ).next() )
             {
-                IndexEntry<?,E> candidate = cursors[cursorIndex].get();
+                IndexEntry<?,Attributes> candidate = cursors.get( cursorIndex ).get();
                 if ( ! isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
@@ -207,11 +208,11 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
     }
 
 
-    public IndexEntry<?, E> get() throws Exception
+    public IndexEntry<?, Attributes> get() throws Exception
     {
         if ( available )
         {
-            return cursors[cursorIndex].get();
+            return cursors.get( cursorIndex ).get();
         }
 
         throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
@@ -220,7 +221,7 @@ public class OrCursor<E> extends AbstractCursor<IndexEntry<?,E>>
 
     public boolean isElementReused()
     {
-        return cursors[cursorIndex].isElementReused();
+        return cursors.get( cursorIndex ).isElementReused();
     }
 
 

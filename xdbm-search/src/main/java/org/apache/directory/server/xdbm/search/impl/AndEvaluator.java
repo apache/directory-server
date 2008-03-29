@@ -72,8 +72,8 @@ public class AndEvaluator implements Evaluator<AndNode,Attributes>
         {
             public int compare( Evaluator<?, Attributes> e1, Evaluator<?, Attributes> e2 )
             {
-                int scanCount1 = ( Integer ) e1.getExpression().get( "count" );
-                int scanCount2 = ( Integer ) e2.getExpression().get( "count" );
+                long scanCount1 = ( Long ) e1.getExpression().get( "count" );
+                long scanCount2 = ( Long ) e2.getExpression().get( "count" );
 
                 if ( scanCount1 == scanCount2 )
                 {

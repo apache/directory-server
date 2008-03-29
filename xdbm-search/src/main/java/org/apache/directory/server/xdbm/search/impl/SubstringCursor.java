@@ -38,7 +38,7 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class SubstringCursor extends AbstractCursor<IndexEntry<String, Attributes>>
+public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 {
     private static final String UNSUPPORTED_MSG =
         "SubstringCursors may not be ordered and do not support positioning by element.";
@@ -121,13 +121,13 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<String, Attribute
     }
 
 
-    public void before( IndexEntry<String, Attributes> element ) throws Exception
+    public void before( IndexEntry<?, Attributes> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<String, Attributes> element ) throws Exception
+    public void after( IndexEntry<?, Attributes> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -191,7 +191,7 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<String, Attribute
     }
 
 
-    public IndexEntry<String, Attributes> get() throws Exception
+    public IndexEntry<?, Attributes> get() throws Exception
     {
         if ( available )
         {
