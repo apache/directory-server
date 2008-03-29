@@ -20,70 +20,46 @@
 package org.apache.directory.shared.ldap.filter;
 
 /**
- * All the different kind of assertions :
- * 
+ * All the different kind of assertions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 470116 $
  */
-public enum AssertionType {
+public enum AssertionType
+{
     /** equality assertion node */
-    EQUALITY(0),
+    EQUALITY,
 
     /** presence assertion node */
-    PRESENCE(1),
+    PRESENCE,
 
     /** substring match assertion node */
-    SUBSTRING(2),
+    SUBSTRING,
 
     /** greater than or equal to assertion node */
-    GREATEREQ(3),
+    GREATEREQ,
 
     /** less than or equal to assertion node */
-    LESSEQ(4),
+    LESSEQ,
 
     /** approximate assertion node */
-    APPROXIMATE(5),
+    APPROXIMATE,
 
     /** extensible match assertion node */
-    EXTENSIBLE(6),
+    EXTENSIBLE,
 
     /** scope assertion node */
-    SCOPE(7),
+    SCOPE,
 
     /** Predicate assertion node */
-    ASSERTION(8),
+    ASSERTION,
 
     /** OR operator constant */
-    OR(9),
+    OR,
 
     /** AND operator constant */
-    AND(10),
+    AND,
 
     /** NOT operator constant */
-    NOT(11);
-    
-    /** Stores the integer value of each element of the enumeration */
-    private int value;
-    
-    /**
-     * Private constructor so no other instances can be created other than the
-     * public static constants in this class.
-     * 
-     * @param value the integer value of the enumeration.
-     */
-    private AssertionType( int value )
-    {
-       this.value = value;
-    }
-
-    
-    /**
-     * @return The value associated with the current element.
-     */
-    public int getValue()
-    {
-        return value;
-    }
-
+    NOT
 }
