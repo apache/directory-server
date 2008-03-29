@@ -1,0 +1,236 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
+package org.apache.directory.server.xdbm.search.impl;
+
+
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.core.cursor.AbstractCursor;
+import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
+
+import javax.naming.directory.Attributes;
+
+
+/**
+ * A Cursor over entry candidates matching an approximate assertion filter.
+ * This Cursor really is a copy of EqualityCursor for now but later on
+ * approximate matching can be implemented and this can change.  It operates
+ * in two modes.  The first is when an index exists for the attribute the
+ * approximate assertion is built on.  The second is when the user index for
+ * the assertion attribute does not exist.  Different Cursors are used in each
+ * of these cases where the other remains null.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $$Rev$$
+ */
+public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
+{
+    private static final String UNSUPPORTED_MSG =
+        "EqualityCursors only support positioning by element when a user index exists on the asserted attribute.";
+
+    /** An approximate evaluator for candidates */
+    private final ApproximateEvaluator approximateEvaluator;
+
+    /** Cursor over attribute entry matching filter: set when index present */
+    private final Cursor<IndexEntry<?,Attributes>> userIdxCursor;
+
+    /** NDN Cursor on all entries in  (set when no index on user attribute) */
+    private final Cursor<IndexEntry<String,Attributes>> ndnIdxCursor;
+
+    /** used only when ndnIdxCursor is used (no index on attribute) */
+    private boolean available = false;
+
+
+    public ApproximateCursor( Store<Attributes> db, ApproximateEvaluator approximateEvaluator ) throws Exception
+    {
+        this.approximateEvaluator = approximateEvaluator;
+
+        String attribute = approximateEvaluator.getExpression().getAttribute();
+        Object value = approximateEvaluator.getExpression().getValue();
+        if ( db.hasUserIndexOn( attribute ) )
+        {
+            //noinspection unchecked
+            userIdxCursor = db.getUserIndex( attribute ).forwardCursor( value );
+            ndnIdxCursor = null;
+        }
+        else
+        {
+            ndnIdxCursor = db.getNdnIndex().forwardCursor();
+            userIdxCursor = null;
+        }
+    }
+
+
+    public boolean available()
+    {
+        if ( userIdxCursor != null )
+        {
+            return userIdxCursor.available();
+        }
+        else
+        {
+            return available;
+        }
+    }
+
+
+    public void before( IndexEntry<?, Attributes> element ) throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            userIdxCursor.before( element );
+        }
+        else
+        {
+            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        }
+    }
+
+
+    public void after( IndexEntry<?, Attributes> element ) throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            userIdxCursor.after( element );
+        }
+        else
+        {
+            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        }
+    }
+
+
+    public void beforeFirst() throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            userIdxCursor.beforeFirst();
+        }
+        else
+        {
+            ndnIdxCursor.beforeFirst();
+            available = false;
+        }
+    }
+
+
+    public void afterLast() throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            userIdxCursor.afterLast();
+        }
+        else
+        {
+            ndnIdxCursor.afterLast();
+            available = false;
+        }
+    }
+
+
+    public boolean first() throws Exception
+    {
+        beforeFirst();
+        return next();
+    }
+
+
+    public boolean last() throws Exception
+    {
+        afterLast();
+        return previous();
+    }
+
+
+    public boolean previous() throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            return userIdxCursor.previous();
+        }
+        else
+        {
+            while( ndnIdxCursor.previous() )
+            {
+                IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
+                if ( approximateEvaluator.evaluate( candidate ) )
+                {
+                     return available = true;
+                }
+            }
+
+            return available = false;
+        }
+    }
+
+
+    public boolean next() throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            return userIdxCursor.next();
+        }
+        else
+        {
+            while( ndnIdxCursor.next() )
+            {
+                IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
+                if ( approximateEvaluator.evaluate( candidate ) )
+                {
+                     return available = true;
+                }
+            }
+
+            return available = false;
+        }
+    }
+
+
+    public IndexEntry<?, Attributes> get() throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            return userIdxCursor.get();
+        }
+        else
+        {
+            if ( available )
+            {
+                return ndnIdxCursor.get();
+            }
+
+            throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+        }
+    }
+
+
+    public boolean isElementReused()
+    {
+        if ( userIdxCursor != null )
+        {
+            return userIdxCursor.isElementReused();
+        }
+        else
+        {
+            return ndnIdxCursor.isElementReused();
+        }
+    }
+}

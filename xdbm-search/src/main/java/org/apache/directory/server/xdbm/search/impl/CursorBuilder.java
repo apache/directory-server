@@ -58,7 +58,7 @@ import org.apache.directory.shared.ldap.filter.SubstringNode;
  * Builds Cursors over candidates that satisfy a filter expression.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 642490 $
+ * @version $Rev$
  */
 public class CursorBuilder
 {
@@ -93,9 +93,9 @@ public class CursorBuilder
             /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
-                throw new NotImplementedException();
+                return new ApproximateCursor( db, ( ApproximateEvaluator ) evaluatorBuilder.build( node ) );
             case EQUALITY:
-                throw new NotImplementedException();
+                return new EqualityCursor( db, ( EqualityEvaluator ) evaluatorBuilder.build( node ) );
             case GREATEREQ:
                 throw new NotImplementedException();
             case LESSEQ:
