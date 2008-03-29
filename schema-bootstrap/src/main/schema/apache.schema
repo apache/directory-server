@@ -2,17 +2,18 @@
 #                                Apache Schema
 # =============================================================================
 #
-#              +-----------------------------+-----------------+
-#              |  Apache AttributeType OID   |      name       |
-#              +-----------------------------+-----------------+
-#              | 1.3.6.1.4.1.18060.0.4.1.2.1 | apacheNdn       |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.2 | apacheUpdn      |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.3 | apacheExistance |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.4 | apacheHierarchy |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.5 | apacheOneAlias  |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.6 | apacheSubAlias  |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.7 | apacheAlias     |
-#              +-----------------------------+-----------------+
+#              +------------------------------+-----------------+
+#              |  Apache AttributeType OID    |      name       |
+#              +------------------------------+-----------------+
+#              | 1.3.6.1.4.1.18060.0.4.1.2.1  | apacheNdn       |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.2  | apacheUpdn      |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.3  | apacheExistance |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.4  | apacheHierarchy |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.5  | apacheOneAlias  |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.6  | apacheSubAlias  |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.7  | apacheAlias     |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.43 | apacheSublevel  |
+#              +------------------------------+-----------------+
 # =============================================================================
 
 
@@ -67,6 +68,13 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.7 NAME 'apacheAlias'
     EQUALITY distinguishedNameMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
     SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.43 NAME 'apacheSublevel'
+    DESC 'Index attribute used to track descendants'
+    EQUALITY integerMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
@@ -463,4 +471,5 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.1.3.11
 # =================================================
 # END SSL/TLS Key Management for LDAPS and StartTLS 
 # =================================================
-    
+
+# LAST ATTRIBUTE_TYPE WAS = 1.3.6.1.4.1.18060.0.4.1.2.43 START USING 1.3.6.1.4.1.18060.0.4.1.2.44
