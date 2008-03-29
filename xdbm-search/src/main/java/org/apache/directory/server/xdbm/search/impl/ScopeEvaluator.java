@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.server.xdbm.Index;
@@ -36,45 +35,52 @@ import org.apache.directory.server.xdbm.Store;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ScopeEvaluator<E> implements Evaluator<E>
+public class ScopeEvaluator<E> implements Evaluator<ScopeNode,E>
 {
     /** Database used to evaluate scope with */
-    private Store<E> db;
+    private final Store<E> db;
+    private final ScopeNode node;
 
 
     /**
      * Creates a scope node evaluator for search expressions.
      *
+     * @param node the scope node
      * @param db the database used to evaluate scope node
      */
-    public ScopeEvaluator( Store<E> db )
+    public ScopeEvaluator( ScopeNode node , Store<E> db )
     {
         this.db = db;
+        this.node = node;
     }
 
 
     /**
-     * @see Evaluator#evaluate(ExprNode, org.apache.directory.server.xdbm.IndexEntry)
+     * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( ExprNode node, IndexEntry<Long,E> entry ) throws Exception
+    public boolean evaluate( IndexEntry<?,E> entry ) throws Exception
     {
-        ScopeNode snode = ( ScopeNode ) node;
-
-        switch ( snode.getScope() )
+        switch ( node.getScope() )
         {
             case ( SearchControls.OBJECT_SCOPE  ):
                 String dn = db.getEntryDn( entry.getId() );
-                return dn.equals( snode.getBaseDn() );
+                return dn.equals( node.getBaseDn() );
                 
             case ( SearchControls.ONELEVEL_SCOPE  ):
-                return assertOneLevelScope( snode, entry.getId() );
+                return assertOneLevelScope( node, entry.getId() );
             
             case ( SearchControls.SUBTREE_SCOPE  ):
-                return assertSubtreeScope( snode, entry.getId() );
+                return assertSubtreeScope( node, entry.getId() );
             
             default:
                 throw new IllegalStateException( "Unrecognized search scope!" );
         }
+    }
+
+
+    public ScopeNode getExpression()
+    {
+        return node;
     }
 
 

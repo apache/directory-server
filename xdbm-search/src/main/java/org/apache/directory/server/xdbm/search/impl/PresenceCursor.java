@@ -25,54 +25,87 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import javax.naming.directory.Attributes;
 
 
 /**
- * A Cursor returning candidates satisfying a logical negation expression.
+ * A returning candidates satisfying an attribute presence expression.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class NotCursor extends AbstractCursor<IndexEntry<?, Attributes>>
+public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 {
     private static final String UNSUPPORTED_MSG =
-        "NotCursors are not ordered and do not support positioning by element.";
+        "PresenceCursors do not support positioning by element without a user index on the presence attribute.";
     private final Cursor<IndexEntry<String,Attributes>> ndnCursor;
-    private final Evaluator<? extends ExprNode, Attributes> childEvaluator;
+    private final Cursor<IndexEntry<String,Attributes>> existenceCursor;
+    private final PresenceEvaluator presenceEvaluator;
     private boolean available = false;
 
 
-    public NotCursor( Store<Attributes> db,
-                      Evaluator<? extends ExprNode, Attributes> childEvaluator ) throws Exception
+    public PresenceCursor( Store<Attributes> db, PresenceEvaluator presenceEvaluator ) throws Exception
     {
-        this.childEvaluator = childEvaluator;
-        this.ndnCursor = db.getNdnIndex().forwardCursor();
+        this.presenceEvaluator = presenceEvaluator;
+        AttributeType type = presenceEvaluator.getAttributeType();
+
+        if ( db.hasUserIndexOn( type.getOid() ) )
+        {
+            existenceCursor = db.getExistanceIndex().forwardCursor( type.getOid() );
+            ndnCursor = null;
+        }
+        else
+        {
+            existenceCursor = null;
+            ndnCursor = db.getNdnIndex().forwardCursor();
+        }
     }
 
 
     public boolean available()
     {
+        if ( existenceCursor != null )
+        {
+            return existenceCursor.available();
+        }
+
         return available;
     }
 
 
     public void before( IndexEntry<?, Attributes> element ) throws Exception
     {
+        if ( existenceCursor != null )
+        {
+            //noinspection unchecked
+            existenceCursor.before( ( IndexEntry<String,Attributes> ) element );
+        }
+
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
     public void after( IndexEntry<?, Attributes> element ) throws Exception
     {
+        if ( existenceCursor != null )
+        {
+            //noinspection unchecked
+            existenceCursor.after( ( IndexEntry<String,Attributes> ) element );
+        }
+
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
     public void beforeFirst() throws Exception
     {
+        if ( existenceCursor != null )
+        {
+            existenceCursor.beforeFirst();
+        }
+
         ndnCursor.beforeFirst();
         available = false;
     }
@@ -80,6 +113,11 @@ public class NotCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public void afterLast() throws Exception
     {
+        if ( existenceCursor != null )
+        {
+            existenceCursor.afterLast();
+        }
+
         ndnCursor.afterLast();
         available = false;
     }
@@ -87,6 +125,11 @@ public class NotCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public boolean first() throws Exception
     {
+        if ( existenceCursor != null )
+        {
+            return existenceCursor.first();
+        }
+
         beforeFirst();
         return next();
     }
@@ -94,6 +137,11 @@ public class NotCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public boolean last() throws Exception
     {
+        if ( existenceCursor != null )
+        {
+            return existenceCursor.last();
+        }
+
         afterLast();
         return previous();
     }
@@ -101,25 +149,35 @@ public class NotCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public boolean previous() throws Exception
     {
+        if ( existenceCursor != null )
+        {
+            return existenceCursor.previous();
+        }
+
         while ( ndnCursor.previous() )
         {
             IndexEntry<?,Attributes> candidate = ndnCursor.get();
-            if ( ! childEvaluator.evaluate( candidate ) )
+            if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return available = true;
             }
         }
-
+        
         return available = false;
     }
 
 
     public boolean next() throws Exception
     {
+        if ( existenceCursor != null )
+        {
+            return existenceCursor.next();
+        }
+
         while ( ndnCursor.next() )
         {
             IndexEntry<?,Attributes> candidate = ndnCursor.get();
-            if ( ! childEvaluator.evaluate( candidate ) )
+            if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return available = true;
             }
@@ -129,8 +187,18 @@ public class NotCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     }
 
 
-    public IndexEntry<?, Attributes> get() throws Exception
+    public IndexEntry<String, Attributes> get() throws Exception
     {
+        if ( existenceCursor != null )
+        {
+            if ( existenceCursor.available() )
+            {
+                return existenceCursor.get();
+            }
+
+            throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+        }
+
         if ( available )
         {
             return ndnCursor.get();
@@ -142,6 +210,11 @@ public class NotCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public boolean isElementReused()
     {
+        if ( existenceCursor != null )
+        {
+            return existenceCursor.isElementReused();
+        }
+
         return ndnCursor.isElementReused();
     }
 
@@ -149,6 +222,14 @@ public class NotCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     public void close() throws Exception
     {
         super.close();
-        ndnCursor.close();
+
+        if ( existenceCursor != null )
+        {
+            existenceCursor.close();
+        }
+        else
+        {
+            ndnCursor.close();
+        }
     }
 }

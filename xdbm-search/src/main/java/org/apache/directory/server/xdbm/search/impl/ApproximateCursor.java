@@ -85,10 +85,8 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         {
             return userIdxCursor.available();
         }
-        else
-        {
-            return available;
-        }
+
+        return available;
     }
 
 
@@ -166,19 +164,17 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         {
             return userIdxCursor.previous();
         }
-        else
-        {
-            while( ndnIdxCursor.previous() )
-            {
-                IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
-                if ( approximateEvaluator.evaluate( candidate ) )
-                {
-                     return available = true;
-                }
-            }
 
-            return available = false;
+        while( ndnIdxCursor.previous() )
+        {
+            IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
+            if ( approximateEvaluator.evaluate( candidate ) )
+            {
+                 return available = true;
+            }
         }
+
+        return available = false;
     }
 
 
@@ -188,19 +184,17 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         {
             return userIdxCursor.next();
         }
-        else
-        {
-            while( ndnIdxCursor.next() )
-            {
-                IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
-                if ( approximateEvaluator.evaluate( candidate ) )
-                {
-                     return available = true;
-                }
-            }
 
-            return available = false;
+        while( ndnIdxCursor.next() )
+        {
+            IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
+            if ( approximateEvaluator.evaluate( candidate ) )
+            {
+                 return available = true;
+            }
         }
+
+        return available = false;
     }
 
 
@@ -210,15 +204,13 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         {
             return userIdxCursor.get();
         }
-        else
-        {
-            if ( available )
-            {
-                return ndnIdxCursor.get();
-            }
 
-            throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+        if ( available )
+        {
+            return ndnIdxCursor.get();
         }
+
+        throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
     }
 
 
@@ -228,9 +220,22 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         {
             return userIdxCursor.isElementReused();
         }
+
+        return ndnIdxCursor.isElementReused();
+    }
+
+
+    public void close() throws Exception
+    {
+        super.close();
+
+        if ( userIdxCursor != null )
+        {
+            userIdxCursor.close();
+        }
         else
         {
-            return ndnIdxCursor.isElementReused();
+            ndnIdxCursor.close();
         }
     }
 }

@@ -227,10 +227,10 @@ public class OrCursor<Attributes> extends AbstractCursor<IndexEntry<?,Attributes
 
     public void close() throws Exception
     {
+        super.close();
         for ( Cursor cursor : cursors )
         {
             cursor.close();
         }
-        super.close();
     }
 }

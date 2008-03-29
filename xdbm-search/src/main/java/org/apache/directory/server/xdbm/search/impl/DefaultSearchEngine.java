@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -41,16 +42,16 @@ import org.apache.directory.server.core.cursor.Cursor;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultSearchEngine<E> implements SearchEngine<E>
+public class DefaultSearchEngine implements SearchEngine<Attributes>
 {
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
     /** the Database this DefaultSearchEngine operates on */
-    private Store<E> db;
+    private Store<Attributes> db;
     /** Evaluator flyweight used for filter expression assertions */
-    private Evaluator<E> evaluator;
+    private Evaluator<? extends ExprNode, Attributes> evaluator;
     /** CursorBuilder flyweight that creates enumerations on filter expressions */
-    private CursorBuilder<E> cursorBuilder;
+    private CursorBuilder cursorBuilder;
 
 
     // ------------------------------------------------------------------------
@@ -65,7 +66,9 @@ public class DefaultSearchEngine<E> implements SearchEngine<E>
      * @param evaluator an expression evaluator
      * @param optimizer an optimizer to use during search
      */
-    public DefaultSearchEngine( Store<E> db, Evaluator<E> evaluator, CursorBuilder<E> cursorBuilder, Optimizer optimizer )
+    public DefaultSearchEngine( Store<Attributes> db,
+                                Evaluator<? extends ExprNode, Attributes> evaluator,
+                                CursorBuilder cursorBuilder, Optimizer optimizer )
     {
         this.db = db;
         this.evaluator = evaluator;
@@ -85,7 +88,7 @@ public class DefaultSearchEngine<E> implements SearchEngine<E>
     }
 
 
-    public Cursor<IndexEntry<Long,E>> search( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
+    public Cursor<IndexEntry<?,Attributes>> search( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
         throws Exception
     {
         LdapDN effectiveBase;
@@ -124,17 +127,17 @@ public class DefaultSearchEngine<E> implements SearchEngine<E>
 
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );
-        return cursorBuilder.enumerate( root );
+        return cursorBuilder.build( root );
     }
 
 
     /**
      * @see SearchEngine#evaluate(ExprNode, Long)
      */
-    public boolean evaluate( ExprNode ilter, Long id ) throws Exception
+    public boolean evaluate( ExprNode filter, Long id ) throws Exception
     {
-        IndexEntry<Long,E> rec = new ForwardIndexEntry<Long,E>();
+        IndexEntry<?,Attributes> rec = new ForwardIndexEntry<Object,Attributes>();
         rec.setId( id );
-        return evaluator.evaluate( ilter, rec );
+        return evaluator.evaluate( rec );
     }
 }

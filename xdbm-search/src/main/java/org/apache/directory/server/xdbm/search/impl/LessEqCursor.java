@@ -220,19 +220,17 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
              */
             return available = userIdxCursor.previous();
         }
-        else
-        {
-            while( ndnIdxCursor.previous() )
-            {
-                IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
-                if ( lessEqEvaluator.evaluate( candidate ) )
-                {
-                     return available = true;
-                }
-            }
 
-            return available = false;
+        while( ndnIdxCursor.previous() )
+        {
+            IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
+            if ( lessEqEvaluator.evaluate( candidate ) )
+            {
+                 return available = true;
+            }
         }
+
+        return available = false;
     }
 
 
@@ -258,19 +256,17 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
             return available = false;
         }
-        else
-        {
-            while( ndnIdxCursor.next() )
-            {
-                IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
-                if ( lessEqEvaluator.evaluate( candidate ) )
-                {
-                     return available = true;
-                }
-            }
 
-            return available = false;
+        while( ndnIdxCursor.next() )
+        {
+            IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
+            if ( lessEqEvaluator.evaluate( candidate ) )
+            {
+                 return available = true;
+            }
         }
+
+        return available = false;
     }
 
 
@@ -285,15 +281,13 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
             throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
         }
-        else
-        {
-            if ( available )
-            {
-                return ndnIdxCursor.get();
-            }
 
-            throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
+        if ( available )
+        {
+            return ndnIdxCursor.get();
         }
+
+        throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
     }
 
 
@@ -303,9 +297,22 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         {
             return userIdxCursor.isElementReused();
         }
+
+        return ndnIdxCursor.isElementReused();
+    }
+
+
+    public void close() throws Exception
+    {
+        super.close();
+
+        if ( userIdxCursor != null )
+        {
+            userIdxCursor.close();
+        }
         else
         {
-            return ndnIdxCursor.isElementReused();
+            ndnIdxCursor.close();
         }
     }
 }

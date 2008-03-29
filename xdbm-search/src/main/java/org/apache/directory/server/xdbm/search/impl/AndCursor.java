@@ -146,6 +146,13 @@ public class AndCursor extends AbstractCursor<IndexEntry<?,Attributes>>
     }
 
 
+    public void close() throws Exception
+    {
+        super.close();
+        wrapped.close();
+    }
+
+
     /**
      * TODO - duplicate code from AndEvaluator just make utility for this and
      * for the same code in the OrEvaluator once done.

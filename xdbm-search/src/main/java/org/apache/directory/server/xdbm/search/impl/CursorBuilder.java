@@ -78,7 +78,7 @@ public class CursorBuilder
             case LESSEQ:
                 return new LessEqCursor( db, ( LessEqEvaluator ) evaluatorBuilder.build( node ) );
             case PRESENCE:
-                throw new NotImplementedException();
+                return new PresenceCursor( db, ( PresenceEvaluator ) evaluatorBuilder.build( node ) );
             case SCOPE:
                 throw new NotImplementedException();
             case SUBSTRING:

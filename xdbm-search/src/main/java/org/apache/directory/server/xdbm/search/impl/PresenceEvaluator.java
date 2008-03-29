@@ -55,16 +55,15 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, Attributes>
         this.db = db;
         this.node = node;
         this.registries = registries;
+        this.type = registries.getAttributeTypeRegistry().lookup( node.getAttribute() );
 
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             idx = db.getExistanceIndex();
-            type = null;
         }
         else
         {
             idx = null;
-            type = registries.getAttributeTypeRegistry().lookup( node.getAttribute() );
         }
     }
 
@@ -72,6 +71,12 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, Attributes>
     public PresenceNode getExpression()
     {
         return node;
+    }
+
+
+    public AttributeType getAttributeType()
+    {
+        return type;
     }
 
 
