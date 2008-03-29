@@ -26,7 +26,7 @@ package org.apache.directory.shared.ldap.filter;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 470116 $
  */
-public enum AssertionEnum {
+public enum AssertionType {
     /** equality assertion node */
     EQUALITY(0),
 
@@ -72,7 +72,7 @@ public enum AssertionEnum {
      * 
      * @param value the integer value of the enumeration.
      */
-    private AssertionEnum( int value )
+    private AssertionType( int value )
     {
        this.value = value;
     }

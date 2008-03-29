@@ -55,10 +55,18 @@ public interface ExprNode
      */
     boolean isLeaf();
 
+    
+    /**
+     * Gets the assertion type of this node. Make it possible to use switch
+     * statements on the node type.
+     * 
+     * @return the assertion type
+     */
+    AssertionType getAssertionType();
 
     /**
      * Recursively appends the refinement string representation of this node and its
-     * descendents in prefix notation to a buffer.
+     * descendants in prefix notation to a buffer.
      * 
      * @param buf the buffer to append to.
      * @throws UnsupportedOperationException if this node isn't a part of a refinement.

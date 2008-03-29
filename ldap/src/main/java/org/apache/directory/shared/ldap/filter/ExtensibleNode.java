@@ -48,7 +48,7 @@ public class ExtensibleNode extends LeafNode
      */
     public ExtensibleNode( String attribute )
     {
-        super( attribute );
+        super( attribute, AssertionType.EXTENSIBLE );
         
         dnAttributes = false;
     }
@@ -77,7 +77,7 @@ public class ExtensibleNode extends LeafNode
      */
     public ExtensibleNode( String attribute, byte[] value, String matchingRuleId, boolean dnAttributes )
     {
-        super( attribute );
+        super( attribute, AssertionType.EXTENSIBLE );
 
         if ( value != null )
         {

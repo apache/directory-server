@@ -1,3 +1,6 @@
+$Rev$
+$Date$
+
 This file shows the last time I merged from the big bang branch here as a commit
 number:
 
@@ -13,7 +16,9 @@ Committed revision 613579
 Tue Mar 18 01:04:57 EDT 2008
 ----------------------------
 svn merge -r 613574:638217 https://svn.apache.org/repos/asf/directory/shared/branches/bigbang .
-$Rev$
-$Date$
+
+Fri Mar 28 22:43:55 EDT 2008
+----------------------------
+svn merge -r 638217:642491 https://svn.apache.org/repos/asf/directory/shared/branches/bigbang .
 
 

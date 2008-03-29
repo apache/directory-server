@@ -43,9 +43,9 @@ public abstract class SimpleNode extends LeafNode
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    protected SimpleNode( String attribute, byte[] value )
+    protected SimpleNode( String attribute, byte[] value, AssertionType assertionType )
     {
-        super( attribute );
+        super( attribute, assertionType );
         this.value = value;
     }
 
@@ -56,9 +56,9 @@ public abstract class SimpleNode extends LeafNode
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    protected SimpleNode( String attribute, String value )
+    protected SimpleNode( String attribute, String value, AssertionType assertionType )
     {
-        super( attribute );
+        super( attribute, assertionType );
         this.value = value;
     }
 

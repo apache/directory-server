@@ -58,7 +58,7 @@ public class SubstringNode extends LeafNode
      */
     public SubstringNode( String attribute, String initialPattern, String finalPattern )
     {
-        super( attribute );
+        super( attribute, AssertionType.SUBSTRING );
 
         anyPattern = new ArrayList<String>( 2 );
         this.finalPattern = finalPattern;
@@ -75,7 +75,7 @@ public class SubstringNode extends LeafNode
      */
     public SubstringNode( String attribute )
     {
-        super( attribute );
+        super( attribute, AssertionType.SUBSTRING );
 
         anyPattern = new ArrayList<String>( 2 );
         this.finalPattern = null;
@@ -94,7 +94,7 @@ public class SubstringNode extends LeafNode
      */
     public SubstringNode( List<String> anyPattern, String attribute, String initialPattern, String finalPattern )
     {
-        super( attribute );
+        super( attribute, AssertionType.SUBSTRING );
 
         this.anyPattern = anyPattern;
         this.finalPattern = finalPattern;
