@@ -61,48 +61,63 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
         this.db = db;
         this.node = node;
         this.registries = registries;
+        this.type = registries.getAttributeTypeRegistry().lookup( node.getAttribute() );
 
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
             idx = db.getUserIndex( node.getAttribute() );
-            type = null;
-            normalizer = null;
-            comparator = null;
         }
         else
         {
             idx = null;
-            type = registries.getAttributeTypeRegistry().lookup( node.getAttribute() );
-
-            /*
-             * We prefer matching using the Normalizer and Comparator pair from
-             * the ordering matchingRule if one is available.  It may very well
-             * not be.  If so then we resort to using the Normalizer and
-             * Comparator from the equality matchingRule as a last resort.
-             */
-            MatchingRule mr = type.getOrdering();
-
-            if ( mr == null )
-            {
-                mr = type.getEquality();
-            }
-
-            if ( mr == null )
-            {
-                throw new IllegalStateException(
-                    "Could not find matchingRule to use for GreaterEqNode evaluation: " + node );
-            }
-
-            normalizer = mr.getNormalizer();
-            comparator = mr.getComparator();
         }
+
+        /*
+         * We prefer matching using the Normalizer and Comparator pair from
+         * the ordering matchingRule if one is available.  It may very well
+         * not be.  If so then we resort to using the Normalizer and
+         * Comparator from the equality matchingRule as a last resort.
+         */
+        MatchingRule mr = type.getOrdering();
+
+        if ( mr == null )
+        {
+            mr = type.getEquality();
+        }
+
+        if ( mr == null )
+        {
+            throw new IllegalStateException(
+                "Could not find matchingRule to use for GreaterEqNode evaluation: " + node );
+        }
+
+        normalizer = mr.getNormalizer();
+        comparator = mr.getComparator();
     }
 
 
     public GreaterEqNode getExpression()
     {
         return node;
+    }
+
+
+    public AttributeType getAttributeType()
+    {
+        return type;
+    }
+
+
+    public Normalizer getNormalizer()
+    {
+        return normalizer;
+    }
+
+
+    public Comparator getComparator()
+    {
+        return comparator;
     }
 
 

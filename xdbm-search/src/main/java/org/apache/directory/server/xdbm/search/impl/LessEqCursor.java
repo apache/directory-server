@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
@@ -30,24 +31,22 @@ import javax.naming.directory.Attributes;
 
 
 /**
- * A Cursor over entry candidates matching an approximate assertion filter.
- * This Cursor really is a copy of EqualityCursor for now but later on
- * approximate matching can be implemented and this can change.  It operates
- * in two modes.  The first is when an index exists for the attribute the
- * approximate assertion is built on.  The second is when the user index for
+ * A Cursor over entry candidates matching a LessEq assertion filter.  This
+ * Cursor operates in two modes.  The first is when an index exists for the
+ * attribute the assertion is built on.  The second is when the user index for
  * the assertion attribute does not exist.  Different Cursors are used in each
  * of these cases where the other remains null.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
+public class LessEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 {
     private static final String UNSUPPORTED_MSG =
-        "ApproximateCursors only support positioning by element when a user index exists on the asserted attribute.";
+        "LessEqCursors only support positioning by element when a user index exists on the asserted attribute.";
 
-    /** An approximate evaluator for candidates */
-    private final ApproximateEvaluator approximateEvaluator;
+    /** An less eq evaluator for candidates */
+    private final LessEqEvaluator lessEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
     private final Cursor<IndexEntry<?,Attributes>> userIdxCursor;
@@ -55,20 +54,19 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final Cursor<IndexEntry<String,Attributes>> ndnIdxCursor;
 
-    /** used only when ndnIdxCursor is used (no index on attribute) */
+    /** used in both modes */
     private boolean available = false;
 
 
-    public ApproximateCursor( Store<Attributes> db, ApproximateEvaluator approximateEvaluator ) throws Exception
+    public LessEqCursor( Store<Attributes> db, LessEqEvaluator lessEqEvaluator ) throws Exception
     {
-        this.approximateEvaluator = approximateEvaluator;
+        this.lessEqEvaluator = lessEqEvaluator;
 
-        String attribute = approximateEvaluator.getExpression().getAttribute();
-        Object value = approximateEvaluator.getExpression().getValue();
+        String attribute = lessEqEvaluator.getExpression().getAttribute();
         if ( db.hasUserIndexOn( attribute ) )
         {
             //noinspection unchecked
-            userIdxCursor = db.getUserIndex( attribute ).forwardCursor( value );
+            userIdxCursor = db.getUserIndex( attribute ).forwardCursor();
             ndnIdxCursor = null;
         }
         else
@@ -81,14 +79,7 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public boolean available()
     {
-        if ( userIdxCursor != null )
-        {
-            return userIdxCursor.available();
-        }
-        else
-        {
-            return available;
-        }
+        return available;
     }
 
 
@@ -96,7 +87,38 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
+            /*
+             * First we need to check and make sure this element is within
+             * bounds as mandated by the assertion node.  To do so we compare
+             * it's value with the value of the expression node.  If the
+             * element's value is greater than this upper bound then we
+             * position the userIdxCursor after the last node.
+             *
+             * If the element's value is equal to this upper bound then we
+             * position the userIdxCursor right before the last node.
+             *
+             * If the element's value is smaller, then we delegate to the
+             * before() method of the userIdxCursor.
+             */
+            //noinspection unchecked
+            int compareValue = lessEqEvaluator.getComparator().compare( element.getValue(),
+                 lessEqEvaluator.getExpression().getValue() );
+
+            if ( compareValue > 0 )
+            {
+                afterLast();
+                return;
+            }
+            else if ( compareValue == 0 )
+            {
+                last();
+                previous();
+                available = false;
+                return;
+            }
+
             userIdxCursor.before( element );
+            available = false;
         }
         else
         {
@@ -109,7 +131,30 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
+            //noinspection unchecked
+            int comparedValue = lessEqEvaluator.getComparator().compare( element.getValue(),
+                 lessEqEvaluator.getExpression().getValue() );
+
+            /*
+             * First we need to check and make sure this element is within
+             * bounds as mandated by the assertion node.  To do so we compare
+             * it's value with the value of the expression node.
+             *
+             * If the element's value is equal to or greater than this upper
+             * bound then we position the userIdxCursor after the last node.
+             *
+             * If the element's value is smaller, then we delegate to the
+             * after() method of the userIdxCursor.
+             */
+            if ( comparedValue >= 0 )
+            {
+                afterLast();
+                return;
+            }
+
+            // Element is in the valid range as specified by assertion
             userIdxCursor.after( element );
+            available = false;
         }
         else
         {
@@ -127,8 +172,9 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         else
         {
             ndnIdxCursor.beforeFirst();
-            available = false;
         }
+
+        available = false;
     }
 
 
@@ -136,13 +182,16 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
-            userIdxCursor.afterLast();
+            IndexEntry<Object,Attributes> advanceTo = new ForwardIndexEntry<Object,Attributes>();
+            advanceTo.setValue( lessEqEvaluator.getExpression().getValue() );
+            userIdxCursor.after( advanceTo );
         }
         else
         {
             ndnIdxCursor.afterLast();
-            available = false;
         }
+
+        available = false;
     }
 
 
@@ -164,14 +213,19 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
-            return userIdxCursor.previous();
+            /*
+             * No need to do the same check that is done in next() since
+             * values are decreasing with calls to previous().  We will
+             * always have lesser values.
+             */
+            return available = userIdxCursor.previous();
         }
         else
         {
             while( ndnIdxCursor.previous() )
             {
                 IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
-                if ( approximateEvaluator.evaluate( candidate ) )
+                if ( lessEqEvaluator.evaluate( candidate ) )
                 {
                      return available = true;
                 }
@@ -186,14 +240,30 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
-            return userIdxCursor.next();
+            /*
+             * We have to check and make sure the next value complies by
+             * being less than or eq to the expression node's value.  We need
+             * to do this since values are increasing and we must limit to our
+             * upper bound.
+             */
+            while ( userIdxCursor.next() )
+            {
+                IndexEntry<?,Attributes> candidate = userIdxCursor.get();
+                //noinspection unchecked
+                if ( lessEqEvaluator.getComparator().compare( candidate.getValue(), lessEqEvaluator.getExpression().getValue() ) <= 0 )
+                {
+                    return available = true;
+                }
+            }
+
+            return available = false;
         }
         else
         {
             while( ndnIdxCursor.next() )
             {
                 IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
-                if ( approximateEvaluator.evaluate( candidate ) )
+                if ( lessEqEvaluator.evaluate( candidate ) )
                 {
                      return available = true;
                 }
@@ -208,7 +278,12 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
-            return userIdxCursor.get();
+            if ( available )
+            {
+                return userIdxCursor.get();
+            }
+
+            throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
         }
         else
         {

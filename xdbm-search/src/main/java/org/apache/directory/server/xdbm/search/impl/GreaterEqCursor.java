@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
@@ -30,24 +31,22 @@ import javax.naming.directory.Attributes;
 
 
 /**
- * A Cursor over entry candidates matching an approximate assertion filter.
- * This Cursor really is a copy of EqualityCursor for now but later on
- * approximate matching can be implemented and this can change.  It operates
- * in two modes.  The first is when an index exists for the attribute the
- * approximate assertion is built on.  The second is when the user index for
+ * A Cursor over entry candidates matching a GreaterEq assertion filter.  This
+ * Cursor operates in two modes.  The first is when an index exists for the
+ * attribute the assertion is built on.  The second is when the user index for
  * the assertion attribute does not exist.  Different Cursors are used in each
  * of these cases where the other remains null.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
+public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 {
     private static final String UNSUPPORTED_MSG =
-        "ApproximateCursors only support positioning by element when a user index exists on the asserted attribute.";
+        "GreaterEqCursors only support positioning by element when a user index exists on the asserted attribute.";
 
-    /** An approximate evaluator for candidates */
-    private final ApproximateEvaluator approximateEvaluator;
+    /** An greater eq evaluator for candidates */
+    private final GreaterEqEvaluator greaterEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
     private final Cursor<IndexEntry<?,Attributes>> userIdxCursor;
@@ -55,20 +54,19 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final Cursor<IndexEntry<String,Attributes>> ndnIdxCursor;
 
-    /** used only when ndnIdxCursor is used (no index on attribute) */
+    /** used in both modes */
     private boolean available = false;
 
 
-    public ApproximateCursor( Store<Attributes> db, ApproximateEvaluator approximateEvaluator ) throws Exception
+    public GreaterEqCursor( Store<Attributes> db, GreaterEqEvaluator greaterEqEvaluator ) throws Exception
     {
-        this.approximateEvaluator = approximateEvaluator;
+        this.greaterEqEvaluator = greaterEqEvaluator;
 
-        String attribute = approximateEvaluator.getExpression().getAttribute();
-        Object value = approximateEvaluator.getExpression().getValue();
+        String attribute = greaterEqEvaluator.getExpression().getAttribute();
         if ( db.hasUserIndexOn( attribute ) )
         {
             //noinspection unchecked
-            userIdxCursor = db.getUserIndex( attribute ).forwardCursor( value );
+            userIdxCursor = db.getUserIndex( attribute ).forwardCursor();
             ndnIdxCursor = null;
         }
         else
@@ -81,14 +79,7 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public boolean available()
     {
-        if ( userIdxCursor != null )
-        {
-            return userIdxCursor.available();
-        }
-        else
-        {
-            return available;
-        }
+        return available;
     }
 
 
@@ -96,7 +87,24 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
+            /*
+             * First we need to check and make sure this element is within
+             * bounds as mandated by the assertion node.  To do so we compare
+             * it's value with the value of the node.  If it is smaller or
+             * equal to this lower bound then we simply position the
+             * userIdxCursor before the first node.  Otherwise we let the
+             * underlying userIdx Cursor position the element.
+             */
+            //noinspection unchecked
+            if ( greaterEqEvaluator.getComparator().compare( element.getValue(),
+                 greaterEqEvaluator.getExpression().getValue() ) <= 0 )
+            {
+                beforeFirst();
+                return;
+            }
+
             userIdxCursor.before( element );
+            available = false;
         }
         else
         {
@@ -109,7 +117,33 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
+            //noinspection unchecked
+            int comparedValue = greaterEqEvaluator.getComparator().compare( element.getValue(),
+                 greaterEqEvaluator.getExpression().getValue() );
+
+            /*
+             * First we need to check and make sure this element is within
+             * bounds as mandated by the assertion node.  To do so we compare
+             * it's value with the value of the node.  If it is equal to this
+             * lower bound then we simply position the userIdxCursor after
+             * this first node.  If it is less than this value then we
+             * position the Cursor before the first entry.
+             */
+            if ( comparedValue == 0 )
+            {
+                userIdxCursor.after( element );
+                available = false;
+                return;
+            }
+            else if ( comparedValue < 0 )
+            {
+                beforeFirst();
+                return;
+            }
+
+            // Element is in the valid range as specified by assertion
             userIdxCursor.after( element );
+            available = false;
         }
         else
         {
@@ -122,13 +156,16 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
-            userIdxCursor.beforeFirst();
+            IndexEntry<Object,Attributes> advanceTo = new ForwardIndexEntry<Object,Attributes>();
+            advanceTo.setValue( greaterEqEvaluator.getExpression().getValue() );
+            userIdxCursor.before( advanceTo );
         }
         else
         {
             ndnIdxCursor.beforeFirst();
-            available = false;
         }
+
+        available = false;
     }
 
 
@@ -141,8 +178,9 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         else
         {
             ndnIdxCursor.afterLast();
-            available = false;
         }
+
+        available = false;
     }
 
 
@@ -164,14 +202,28 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
-            return userIdxCursor.previous();
+            /*
+             * We have to check and make sure the previous value complies by
+             * being greater than or eq to the expression node's value
+             */
+            while ( userIdxCursor.previous() )
+            {
+                IndexEntry<?,Attributes> candidate = userIdxCursor.get();
+                //noinspection unchecked
+                if ( greaterEqEvaluator.getComparator().compare( candidate.getValue(), greaterEqEvaluator.getExpression().getValue() ) >= 0 )
+                {
+                    return available = true;
+                }
+            }
+
+            return available = false;
         }
         else
         {
             while( ndnIdxCursor.previous() )
             {
                 IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
-                if ( approximateEvaluator.evaluate( candidate ) )
+                if ( greaterEqEvaluator.evaluate( candidate ) )
                 {
                      return available = true;
                 }
@@ -186,14 +238,18 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
-            return userIdxCursor.next();
+            /*
+             * No need to do the same check that is done in previous() since
+             * values are increasing with calls to next().
+             */
+            return available = userIdxCursor.next();
         }
         else
         {
             while( ndnIdxCursor.next() )
             {
                 IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
-                if ( approximateEvaluator.evaluate( candidate ) )
+                if ( greaterEqEvaluator.evaluate( candidate ) )
                 {
                      return available = true;
                 }
@@ -208,7 +264,12 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
-            return userIdxCursor.get();
+            if ( available )
+            {
+                return userIdxCursor.get();
+            }
+
+            throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
         }
         else
         {
