@@ -1130,7 +1130,11 @@ public class JdbmStore<E> implements Store<E>
         ndnIdx.drop( id );
         updnIdx.drop( id );
         hierarchyIdx.drop( id );
-        subLevelIdx.drop( id );
+
+        if( parentId != 1 )// should not use getParentId() to compare, onelevel index drops the 'id'
+        {
+            subLevelIdx.drop( id );
+        }
         
         // Remove parent's reference to entry only if entry is not the upSuffix
         if ( !parentId.equals( 0L ) )
