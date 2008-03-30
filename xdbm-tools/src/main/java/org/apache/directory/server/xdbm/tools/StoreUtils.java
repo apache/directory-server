@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.xdbm.tools;
 
+
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -26,8 +27,8 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
+
 /**
- * 
  * A utility class for loading example LDIF data.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -41,6 +42,10 @@ public class StoreUtils
      * <a href="http://cwiki.apache.org/confluence/display/DIRxSRVx11/Structure+and+Organization">
      * Structure and Organization</a>
      *
+     * TODO might want to make this load an LDIF instead in the future
+     * TODO add alias entries
+     * TODO correct size of spaces in user provided DN
+     * 
      * @param store the store object to be initialized
      * @param registries oid registries
      * @throws Exception on access exceptions
