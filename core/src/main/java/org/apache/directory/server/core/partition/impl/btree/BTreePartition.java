@@ -38,6 +38,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.xdbm.search.Optimizer;
@@ -316,7 +317,7 @@ public abstract class BTreePartition implements Partition
     {
         SearchControls searchCtls = opContext.getSearchControls();
         String[] attrIds = searchCtls.getReturningAttributes();
-        NamingEnumeration<IndexRecord> underlying;
+        Cursor<IndexEntry> underlying;
 
         underlying = searchEngine.search( 
             opContext.getDn(),

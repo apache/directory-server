@@ -31,14 +31,9 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.core.partition.impl.btree.DefaultOptimizer;
-import org.apache.directory.server.core.partition.impl.btree.DefaultSearchEngine;
-import org.apache.directory.server.core.partition.impl.btree.ExpressionEnumerator;
-import org.apache.directory.server.core.partition.impl.btree.ExpressionEvaluator;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.core.partition.impl.btree.NoOpOptimizer;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -257,7 +252,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void sync() throws NamingException
+    public final void sync() throws Exception
     {
         store.sync();
     }
