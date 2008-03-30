@@ -33,7 +33,7 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.2 NAME 'apacheUpdn'
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.3 NAME 'apacheExistance'
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.3 NAME 'apachePresence'
     DESC 'Index attribute used to track the existence of attributes'
     SUP name
     EQUALITY caseIgnoreMatch
@@ -41,7 +41,7 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.3 NAME 'apacheExistance'
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.4 NAME 'apacheHierarchy'
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.4 NAME 'apacheOneLevel'
     DESC 'Index attribute used to track the DIT hierarchy'
     EQUALITY integerMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.27

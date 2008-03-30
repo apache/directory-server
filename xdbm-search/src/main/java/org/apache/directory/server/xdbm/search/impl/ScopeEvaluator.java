@@ -163,7 +163,7 @@ public class ScopeEvaluator<E> implements Evaluator<ScopeNode,E>
     {
         AliasDerefMode mode = node.getDerefAliases();
         Long baseId = db.getEntryId( node.getBaseDn() );
-        Index<Long,E> idx = db.getHierarchyIndex();
+        Index<Long,E> idx = db.getOneLevelIndex();
         boolean isChild = idx.has( baseId, id );
 
         /*

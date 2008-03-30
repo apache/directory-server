@@ -59,7 +59,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, Attributes>
 
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            idx = db.getExistanceIndex();
+            idx = db.getPresenceIndex();
         }
         else
         {

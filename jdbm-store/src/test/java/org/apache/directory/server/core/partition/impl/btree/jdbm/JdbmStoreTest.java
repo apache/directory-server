@@ -149,13 +149,13 @@ public class JdbmStoreTest
         store.setContextEntry( new DefaultServerEntry( registries, new LdapDN() ) );
         assertNotNull( store.getContextEntry() );
 
-        assertNull( store.getExistanceIndex() );
-        store.setExistanceIndex( new JdbmIndex<String,Attributes>( "existence" ) );
-        assertNotNull( store.getExistanceIndex() );
+        assertNull( store.getPresenceIndex() );
+        store.setPresenceIndex( new JdbmIndex<String,Attributes>( "existence" ) );
+        assertNotNull( store.getPresenceIndex() );
 
-        assertNull( store.getHierarchyIndex() );
-        store.setHierarchyIndex( new JdbmIndex<Long,Attributes>( "hierarchy" ) );
-        assertNotNull( store.getHierarchyIndex() );
+        assertNull( store.getOneLevelIndex() );
+        store.setOneLevelIndex( new JdbmIndex<Long,Attributes>( "hierarchy" ) );
+        assertNotNull( store.getOneLevelIndex() );
 
         assertNull( store.getName() );
         store.setName( "foo" );
@@ -219,12 +219,12 @@ public class JdbmStoreTest
         try { store.setContextEntry( new DefaultServerEntry( registries, new LdapDN() ) ); fail(); }
         catch( IllegalStateException e ) {}
 
-        assertNotNull( store.getExistanceIndex() );
-        try { store.setExistanceIndex( new JdbmIndex<String,Attributes>( "existence" ) ); fail(); }
+        assertNotNull( store.getPresenceIndex() );
+        try { store.setPresenceIndex( new JdbmIndex<String,Attributes>( "existence" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
-        assertNotNull( store.getHierarchyIndex() );
-        try { store.setHierarchyIndex( new JdbmIndex<Long,Attributes>( "hierarchy" ) ); fail(); }
+        assertNotNull( store.getOneLevelIndex() );
+        try { store.setOneLevelIndex( new JdbmIndex<Long,Attributes>( "hierarchy" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getName() );
@@ -251,7 +251,7 @@ public class JdbmStoreTest
         try { store.setUpdnIndex( new JdbmIndex<String,Attributes>( "updn" ) ); fail(); }
         catch( IllegalStateException e ) {}
         Iterator<String> systemIndices = store.systemIndices();
-        for ( int ii = 0; ii < 7; ii++ )
+        for ( int ii = 0; ii < 8; ii++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );

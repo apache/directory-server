@@ -28,7 +28,6 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -322,65 +321,65 @@ public class JdbmStore<E> implements Store<E>
         if ( ndnIdx == null )
         {
             ndnIdx = new JdbmIndex<String,E>();
-            ndnIdx.setAttributeId( Oid.NDN );
-            systemIndices.put( Oid.NDN, ndnIdx );
-            ndnIdx.init( attributeTypeRegistry.lookup( Oid.NDN ), workingDirectory );
+            ndnIdx.setAttributeId( NDN );
+            systemIndices.put( NDN, ndnIdx );
+            ndnIdx.init( attributeTypeRegistry.lookup( NDN ), workingDirectory );
         }
 
         if ( updnIdx == null )
         {
             updnIdx = new JdbmIndex<String,E>();
-            updnIdx.setAttributeId( Oid.UPDN );
-            systemIndices.put( Oid.UPDN, updnIdx );
-            updnIdx.init( attributeTypeRegistry.lookup( Oid.UPDN ), workingDirectory );
+            updnIdx.setAttributeId( UPDN );
+            systemIndices.put( UPDN, updnIdx );
+            updnIdx.init( attributeTypeRegistry.lookup( UPDN ), workingDirectory );
         }
 
         if ( existanceIdx == null )
         {
             existanceIdx = new JdbmIndex<String,E>();
-            existanceIdx.setAttributeId( Oid.EXISTANCE );
-            systemIndices.put( Oid.EXISTANCE, existanceIdx );
-            existanceIdx.init( attributeTypeRegistry.lookup( Oid.EXISTANCE ), workingDirectory );
+            existanceIdx.setAttributeId( PRESENCE );
+            systemIndices.put( PRESENCE, existanceIdx );
+            existanceIdx.init( attributeTypeRegistry.lookup( PRESENCE ), workingDirectory );
         }
 
         if ( hierarchyIdx == null )
         {
             hierarchyIdx = new JdbmIndex<Long,E>();
-            hierarchyIdx.setAttributeId( Oid.HIERARCHY );
-            systemIndices.put( Oid.HIERARCHY, hierarchyIdx );
-            hierarchyIdx.init( attributeTypeRegistry.lookup( Oid.HIERARCHY ), workingDirectory );
+            hierarchyIdx.setAttributeId( ONELEVEL );
+            systemIndices.put( ONELEVEL, hierarchyIdx );
+            hierarchyIdx.init( attributeTypeRegistry.lookup( ONELEVEL ), workingDirectory );
         }
 
         if ( oneAliasIdx == null )
         {
             oneAliasIdx = new JdbmIndex<Long,E>();
-            oneAliasIdx.setAttributeId( Oid.ONEALIAS );
-            systemIndices.put( Oid.ONEALIAS, oneAliasIdx );
-            oneAliasIdx.init( attributeTypeRegistry.lookup( Oid.ONEALIAS ), workingDirectory );
+            oneAliasIdx.setAttributeId( ONEALIAS );
+            systemIndices.put( ONEALIAS, oneAliasIdx );
+            oneAliasIdx.init( attributeTypeRegistry.lookup( ONEALIAS ), workingDirectory );
         }
 
         if ( subAliasIdx == null )
         {
             subAliasIdx = new JdbmIndex<Long,E>();
-            subAliasIdx.setAttributeId( Oid.SUBALIAS );
-            systemIndices.put( Oid.SUBALIAS, subAliasIdx );
-            subAliasIdx.init( attributeTypeRegistry.lookup( Oid.SUBALIAS ), workingDirectory );
+            subAliasIdx.setAttributeId( SUBALIAS );
+            systemIndices.put( SUBALIAS, subAliasIdx );
+            subAliasIdx.init( attributeTypeRegistry.lookup( SUBALIAS ), workingDirectory );
         }
 
         if ( aliasIdx == null )
         {
             aliasIdx = new JdbmIndex<String,E>();
-            aliasIdx.setAttributeId( Oid.ALIAS );
-            systemIndices.put( Oid.ALIAS, aliasIdx );
-            aliasIdx.init( attributeTypeRegistry.lookup( Oid.ALIAS ), workingDirectory );
+            aliasIdx.setAttributeId( ALIAS );
+            systemIndices.put( ALIAS, aliasIdx );
+            aliasIdx.init( attributeTypeRegistry.lookup( ALIAS ), workingDirectory );
         }
         
         if ( subLevelIdx == null )
         {
             subLevelIdx = new JdbmIndex<Long, E>();
-            subLevelIdx.setAttributeId( Oid.SUBLEVEL );
-            systemIndices.put( Oid.SUBLEVEL, subLevelIdx );
-            subLevelIdx.init( attributeTypeRegistry.lookup( Oid.SUBLEVEL ), workingDirectory );
+            subLevelIdx.setAttributeId( SUBLEVEL );
+            systemIndices.put( SUBLEVEL, subLevelIdx );
+            subLevelIdx.init( attributeTypeRegistry.lookup( SUBLEVEL ), workingDirectory );
         }
     }
 
@@ -586,13 +585,13 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Index<String,E> getExistanceIndex()
+    public Index<String,E> getPresenceIndex()
     {
         return existanceIdx;
     }
 
 
-    public void setExistanceIndex( Index<String,E> index ) throws NamingException
+    public void setPresenceIndex( Index<String,E> index ) throws NamingException
     {
         protect( "existanceIndex" );
         existanceIdx = ( JdbmIndex<String,E> ) convertIndex( index );
@@ -600,13 +599,13 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Index<Long,E> getHierarchyIndex()
+    public Index<Long,E> getOneLevelIndex()
     {
         return hierarchyIdx;
     }
 
 
-    public void setHierarchyIndex( Index<Long,E> index ) throws NamingException
+    public void setOneLevelIndex( Index<Long,E> index ) throws NamingException
     {
         protect( "hierarchyIndex" );
         hierarchyIdx = ( JdbmIndex<Long,E> ) convertIndex( index );
@@ -1497,7 +1496,6 @@ public class JdbmStore<E> implements Store<E>
 
     public void modify( LdapDN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception
     {
-        NamingEnumeration<String> attrs;
         Long id = getEntryId( dn.toString() );
         Attributes entry = master.get( id );
 

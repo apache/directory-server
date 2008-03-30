@@ -53,7 +53,7 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
         if ( db.hasUserIndexOn( type.getOid() ) )
         {
-            existenceCursor = db.getExistanceIndex().forwardCursor( type.getOid() );
+            existenceCursor = db.getPresenceIndex().forwardCursor( type.getOid() );
             ndnCursor = null;
         }
         else

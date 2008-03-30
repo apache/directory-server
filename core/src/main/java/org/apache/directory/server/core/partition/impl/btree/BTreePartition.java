@@ -36,7 +36,6 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
 import org.apache.directory.server.schema.registries.Registries;
@@ -72,13 +71,13 @@ public abstract class BTreePartition implements Partition
     static
     {
         Set<String> set = new HashSet<String>();
-        set.add( Oid.ALIAS );
-        set.add( Oid.EXISTANCE );
-        set.add( Oid.HIERARCHY );
-        set.add( Oid.NDN );
-        set.add( Oid.ONEALIAS );
-        set.add( Oid.SUBALIAS );
-        set.add( Oid.UPDN );
+        set.add( Store.ALIAS );
+        set.add( Store.PRESENCE );
+        set.add( Store.ONELEVEL );
+        set.add( Store.NDN );
+        set.add( Store.ONEALIAS );
+        set.add( Store.SUBALIAS );
+        set.add( Store.UPDN );
         SYS_INDEX_OIDS = Collections.unmodifiableSet( set );
     }
 

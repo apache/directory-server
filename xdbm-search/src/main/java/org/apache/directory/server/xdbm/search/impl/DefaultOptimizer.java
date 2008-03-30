@@ -319,7 +319,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            Index<String,E> idx = db.getExistanceIndex();
+            Index<String,E> idx = db.getPresenceIndex();
             return idx.count( node.getAttribute() );
         }
 

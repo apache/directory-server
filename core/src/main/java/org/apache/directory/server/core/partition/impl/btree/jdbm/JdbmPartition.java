@@ -29,7 +29,6 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.DefaultOptimizer;
@@ -38,6 +37,7 @@ import org.apache.directory.server.core.partition.impl.btree.ExpressionEnumerato
 import org.apache.directory.server.core.partition.impl.btree.ExpressionEvaluator;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.core.partition.impl.btree.NoOpOptimizer;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
@@ -200,31 +200,31 @@ public class JdbmPartition extends BTreePartition
             String oid = registries.getOidRegistry().getOid( index.getAttributeId() );
             if ( SYS_INDEX_OIDS.contains( registries.getOidRegistry().getOid( index.getAttributeId() ) ) )
             {
-                if ( oid.equals( Oid.ALIAS ) )
+                if ( oid.equals( Store.ALIAS ) )
                 {
                     store.setAliasIndex( index );
                 }
-                else if ( oid.equals( Oid.EXISTANCE ) )
+                else if ( oid.equals( Store.PRESENCE ) )
                 {
-                    store.setExistanceIndex( index );
+                    store.setPresenceIndex( index );
                 }
-                else if ( oid.equals( Oid.HIERARCHY ) )
+                else if ( oid.equals( Store.ONELEVEL ) )
                 {
-                    store.setHierarchyIndex( index );
+                    store.setOneLevelIndex( index );
                 }
-                else if ( oid.equals( Oid.NDN ) )
+                else if ( oid.equals( Store.NDN ) )
                 {
                     store.setNdnIndex( index );
                 }
-                else if ( oid.equals( Oid.ONEALIAS ) )
+                else if ( oid.equals( Store.ONEALIAS ) )
                 {
                     store.setOneAliasIndex( index );
                 }
-                else if ( oid.equals( Oid.SUBALIAS ) )
+                else if ( oid.equals( Store.SUBALIAS ) )
                 {
                     store.setSubAliasIndex( index );
                 }
-                else if ( oid.equals( Oid.UPDN ) )
+                else if ( oid.equals( Store.UPDN ) )
                 {
                     store.setUpdnIndex( index );
                 }
@@ -279,7 +279,7 @@ public class JdbmPartition extends BTreePartition
 
     public final Index getExistanceIndex()
     {
-        return store.getExistanceIndex();
+        return store.getPresenceIndex();
     }
 
 
@@ -287,14 +287,14 @@ public class JdbmPartition extends BTreePartition
     {
         if ( index instanceof JdbmIndex )
         {
-            store.setExistanceIndex( ( JdbmIndex ) index );
+            store.setPresenceIndex( ( JdbmIndex ) index );
         }
     }
 
 
     public final Index getHierarchyIndex()
     {
-        return store.getHierarchyIndex();
+        return store.getOneLevelIndex();
     }
 
 
@@ -302,7 +302,7 @@ public class JdbmPartition extends BTreePartition
     {
         if ( index instanceof JdbmIndex )
         {
-            store.setHierarchyIndex( ( JdbmIndex ) index );
+            store.setOneLevelIndex( ( JdbmIndex ) index );
         }
     }
 
