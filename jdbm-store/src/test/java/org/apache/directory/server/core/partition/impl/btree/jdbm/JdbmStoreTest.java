@@ -99,18 +99,12 @@ public class JdbmStoreTest
         store = new JdbmStore<Attributes>();
         store.setName( "example" );
         store.setCacheSize( 10 );
-        store.setSuffixDn( "dc=example,dc=com" );
         store.setWorkingDirectory( wkdir );
         store.setSyncOnWrite( false );
 
-        DefaultServerEntry contextEntry = new DefaultServerEntry( registries,
-            new LdapDN( "dc=example,dc=com" ) );
-        contextEntry.add( "objectClass", "domain" );
-        contextEntry.add( "dc", "example" );
-        store.setContextEntry( contextEntry );
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
-        store.init( registries.getOidRegistry(), attributeRegistry );
+        JdbmStoreUtil.initWithExampleData( store, registries );
         LOG.debug( "Created new store" );
     }
 
@@ -157,6 +151,10 @@ public class JdbmStoreTest
         assertNull( store.getOneLevelIndex() );
         store.setOneLevelIndex( new JdbmIndex<Long,Attributes>( "hierarchy" ) );
         assertNotNull( store.getOneLevelIndex() );
+        
+        assertNull( store.getSubLevelIndex() );
+        store.setSubLevelIndex( new JdbmIndex<Long,Attributes>( "sublevel" ) );
+        assertNotNull( store.getSubLevelIndex() );
 
         assertNull( store.getName() );
         store.setName( "foo" );
@@ -228,6 +226,10 @@ public class JdbmStoreTest
         try { store.setOneLevelIndex( new JdbmIndex<Long,Attributes>( "hierarchy" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
+        assertNotNull( store.getSubLevelIndex() );
+        try { store.setSubLevelIndex( new JdbmIndex<Long,Attributes>( "sublevel" ) ); fail(); }
+        catch( IllegalStateException e ) {}
+        
         assertNotNull( store.getName() );
         try { store.setName( "foo" ); fail(); }
         catch( IllegalStateException e ) {}
@@ -318,11 +320,11 @@ public class JdbmStoreTest
     @Test
     public void testFreshStore() throws Exception
     {
-        LdapDN dn = new LdapDN( "dc=example,dc=com" );
+        LdapDN dn = new LdapDN( "o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         assertEquals( 1L, ( long ) store.getEntryId( dn.toNormName() ) );
-        assertEquals( 1, store.count() );
-        assertEquals( "dc=example,dc=com", store.getEntryUpdn( dn.toNormName() ) );
+        assertEquals( 7, store.count() );
+        assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.toNormName() ) );
         assertEquals( dn.toNormName(), store.getEntryDn( 1L ) );
         assertEquals( dn.getUpName(), store.getEntryUpdn( 1L ) );
         assertNotNull( store.getSuffixEntry() );
@@ -342,24 +344,53 @@ public class JdbmStoreTest
     @Test
     public void testEntryOperations() throws Exception
     {
-        assertEquals( 0, store.getChildCount( 1L ) );
-        LdapDN dn = new LdapDN( "ou=Engineering,dc=example,dc=com" );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
-        entry.add( "objectClass", "top", "organizationalUnit" );
-        entry.add( "ou", "Engineering" );
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        assertEquals( 3, store.getChildCount( 1L ) );
+//        LdapDN dn = new LdapDN( "ou=Engineering,dc=example,dc=com" );
+//        dn.normalize( attributeRegistry.getNormalizerMapping() );
+//        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+//        entry.add( "objectClass", "top", "organizationalUnit" );
+//        entry.add( "ou", "Engineering" );
+//        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
 
         Cursor<IndexEntry<Long,Attributes>> cursor = store.list( 1L );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
         assertEquals( 2L, ( long ) cursor.get().getId() );
-        assertFalse( cursor.next() );
-        assertEquals( 1, store.getChildCount( 1L ) );
-
+        assertTrue( cursor.next() );
+        assertEquals( 3, store.getChildCount( 1L ) );
+        
         store.delete( 2L );
-        assertEquals( 0, store.getChildCount( 1L ) );
-        assertEquals( 1, store.count() );
+        assertEquals( 2, store.getChildCount( 1L ) );
+        assertEquals( 6, store.count() );
     }
+    
+    
+    @Test
+    public void testSubLevelIndex() throws Exception
+    {
+      Index idx = store.getSubLevelIndex();
+      
+      assertEquals( 3, idx.count() );
+      
+      Cursor<IndexEntry<Long,Attributes>> cursor = idx.forwardCursor( 2L );
+      
+      assertTrue( cursor.next() );
+      assertEquals( 5, cursor.get().getId() );
+      
+      assertTrue( cursor.next() );
+      assertEquals( 6, cursor.get().getId() );
+
+      assertFalse( cursor.next() );
+      
+      idx.drop( 5L );
+      
+      cursor = idx.forwardCursor( 2L );
+
+      assertTrue( cursor.next() );
+      assertEquals( 6, cursor.get().getId() );
+      
+      assertFalse( cursor.next() );
+    }
+    
 }
