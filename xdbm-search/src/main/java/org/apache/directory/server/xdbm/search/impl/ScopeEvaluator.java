@@ -23,14 +23,12 @@ package org.apache.directory.server.xdbm.search.impl;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.shared.ldap.filter.ScopeNode;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 
 
 /**
- * Evaluates ScopeNode assertions on candidates using a database.
+ * Evaluates ScopeNode assertions on candidates using an entry database.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -39,7 +37,12 @@ public class ScopeEvaluator<E> implements Evaluator<ScopeNode,E>
 {
     /** Database used to evaluate scope with */
     private final Store<E> db;
+
+    /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode node;
+
+    /** The entry identifier of the scope base */
+    private final Long baseId;
 
 
     /**
@@ -47,11 +50,14 @@ public class ScopeEvaluator<E> implements Evaluator<ScopeNode,E>
      *
      * @param node the scope node
      * @param db the database used to evaluate scope node
+     * @throws Exception on db access failure
      */
-    public ScopeEvaluator( ScopeNode node , Store<E> db )
+    public ScopeEvaluator( Store<E> db, ScopeNode node ) throws Exception
     {
         this.db = db;
         this.node = node;
+
+        baseId = db.getEntryId( node.getBaseDn() );
     }
 
 
@@ -63,15 +69,11 @@ public class ScopeEvaluator<E> implements Evaluator<ScopeNode,E>
         switch ( node.getScope() )
         {
             case ( SearchControls.OBJECT_SCOPE  ):
-                String dn = db.getEntryDn( entry.getId() );
-                return dn.equals( node.getBaseDn() );
-                
+                return entry.getId().longValue() == baseId.longValue();
             case ( SearchControls.ONELEVEL_SCOPE  ):
-                return assertOneLevelScope( node, entry.getId() );
-            
+                return isInOneLevelScope( entry.getId() );
             case ( SearchControls.SUBTREE_SCOPE  ):
-                return assertSubtreeScope( node, entry.getId() );
-            
+                return isInSubtreeScope( entry.getId() );
             default:
                 throw new IllegalStateException( "Unrecognized search scope!" );
         }
@@ -88,25 +90,21 @@ public class ScopeEvaluator<E> implements Evaluator<ScopeNode,E>
      * Asserts whether or not a candidate has one level scope while taking
      * alias dereferencing into account.
      * 
-     * @param node the scope node containing the base and alias handling mode
      * @param id the candidate to assert which can be any db entry's id
      * @return true if the candidate is within one level scope whether or not
      * alias dereferencing is enabled.
      * @throws Exception if the index lookups fail.
      */
-    public boolean assertSubtreeScope( final ScopeNode node, final Long id ) throws Exception
+    public boolean isInSubtreeScope( final Long id ) throws Exception
     {
-        String dn = db.getEntryDn( id );
-        AliasDerefMode mode = node.getDerefAliases();
-        Long baseId = db.getEntryId( node.getBaseDn() );
-        boolean isDescendant = dn.endsWith( node.getBaseDn() );
+        boolean isDescendant = db.getSubLevelIndex().has( baseId, id );
 
         /*
          * The candidate id could be any entry in the db.  If search 
          * dereferencing is not enabled then we return the results of the 
          * descendant test.
          */
-        if ( !mode.isDerefInSearching() )
+        if ( !node.getDerefAliases().isDerefInSearching() )
         {
             return isDescendant;
         }
@@ -116,16 +114,14 @@ public class ScopeEvaluator<E> implements Evaluator<ScopeNode,E>
          * candidate id is an alias, if so we reject it since aliases should
          * not be returned.
          */
-        Index idx = db.getAliasIndex();
-
-        if ( null != idx.reverseLookup( id ) )
+        if ( null != db.getAliasIndex().reverseLookup( id ) )
         {
             return false;
         }
 
         /*
          * The candidate is NOT an alias at this point.  So if it is a 
-         * descendant we just return it since it is in normal subtree scope.
+         * descendant we just return true since it is in normal subtree scope.
          */
         if ( isDescendant )
         {
@@ -153,25 +149,21 @@ public class ScopeEvaluator<E> implements Evaluator<ScopeNode,E>
      * Asserts whether or not a candidate has one level scope while taking
      * alias dereferencing into account.
      * 
-     * @param node the scope node containing the base and alias handling mode
      * @param id the candidate to assert which can be any db entry's id 
      * @return true if the candidate is within one level scope whether or not
      * alias dereferencing is enabled.
      * @throws Exception if the index lookups fail.
      */
-    public boolean assertOneLevelScope( final ScopeNode node, final Long id ) throws Exception
+    public boolean isInOneLevelScope( final Long id ) throws Exception
     {
-        AliasDerefMode mode = node.getDerefAliases();
-        Long baseId = db.getEntryId( node.getBaseDn() );
-        Index<Long,E> idx = db.getOneLevelIndex();
-        boolean isChild = idx.has( baseId, id );
+        boolean isChild = db.getOneLevelIndex().has( baseId, id );
 
         /*
          * The candidate id could be any entry in the db.  If search 
          * dereferencing is not enabled then we return the results of the child 
          * test. 
          */
-        if ( !mode.isDerefInSearching() )
+        if ( !node.getDerefAliases().isDerefInSearching() )
         {
             return isChild;
         }
@@ -181,16 +173,14 @@ public class ScopeEvaluator<E> implements Evaluator<ScopeNode,E>
          * candidate id is an alias, if so we reject it since aliases should
          * not be returned.
          */
-        Index<String,E> aliasIndex= db.getAliasIndex();
-
-        if ( null != aliasIndex.reverseLookup( id ) )
+        if ( null != db.getAliasIndex().reverseLookup( id ) )
         {
             return false;
         }
 
         /*
          * The candidate is NOT an alias at this point.  So if it is a child we
-         * just return it since it is in normal one level scope.
+         * just return true since it is in normal one level scope.
          */
         if ( isChild )
         {

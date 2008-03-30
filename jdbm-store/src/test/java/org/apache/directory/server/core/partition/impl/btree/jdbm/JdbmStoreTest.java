@@ -34,6 +34,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -59,7 +60,7 @@ public class JdbmStoreTest
     private static final Logger LOG = LoggerFactory.getLogger( JdbmStoreTest.class.getSimpleName() );
 
     File wkdir;
-    JdbmStore store;
+    JdbmStore<Attributes> store;
     Registries registries = null;
     AttributeTypeRegistry attributeRegistry;
 
@@ -95,7 +96,7 @@ public class JdbmStoreTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new JdbmStore();
+        store = new JdbmStore<Attributes>();
         store.setName( "example" );
         store.setCacheSize( 10 );
         store.setSuffixDn( "dc=example,dc=com" );
@@ -135,7 +136,7 @@ public class JdbmStoreTest
     @Test
     public void testSimplePropertiesUnlocked() throws Exception
     {
-        JdbmStore store = new JdbmStore();
+        JdbmStore<Attributes> store = new JdbmStore<Attributes>();
 
         assertNull( store.getAliasIndex() );
         store.setAliasIndex( new JdbmIndex<String,Attributes>( "alias" ) );
@@ -185,8 +186,8 @@ public class JdbmStoreTest
         assertNull( store.getSuffix() );
 
         assertEquals( 0, store.getUserIndices().size() );
-        Set<JdbmIndex> set = new HashSet<JdbmIndex>();
-        set.add( new JdbmIndex( "foo" ) );
+        Set<Index<?,Attributes>> set = new HashSet<Index<?,Attributes>>();
+        set.add( new JdbmIndex<Object,Attributes>( "foo" ) );
         store.setUserIndices( set );
         assertEquals( set.size(), store.getUserIndices().size() );
 
