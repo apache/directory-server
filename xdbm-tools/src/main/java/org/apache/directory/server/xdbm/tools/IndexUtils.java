@@ -35,6 +35,12 @@ import java.io.PrintStream;
  */
 public class IndexUtils
 {
+    public static void printContents( Index idx ) throws Exception
+    {
+        printContents( idx, System.out );    
+    }
+
+
     public static void printContents( Index idx, OutputStream outputStream ) throws Exception
     {
         PrintStream out;
