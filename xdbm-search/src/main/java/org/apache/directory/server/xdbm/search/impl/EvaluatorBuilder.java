@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Store;
@@ -43,11 +44,6 @@ public class EvaluatorBuilder
     private final Registries registries;
 
 
-    // ------------------------------------------------------------------------
-    // C O N S T R U C T O R S
-    // ------------------------------------------------------------------------
-
-
     /**
      * Creates a top level Evaluator where leaves are delegated to a leaf node
      * evaluator which will be created.
@@ -67,7 +63,7 @@ public class EvaluatorBuilder
     {
         switch ( node.getAssertionType() )
         {
-                /* ---------- LEAF NODE HANDLING ---------- */
+            /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
                 return new ApproximateEvaluator( ( ApproximateNode ) node, db, registries );
@@ -80,12 +76,18 @@ public class EvaluatorBuilder
             case PRESENCE:
                 return new PresenceEvaluator( ( PresenceNode ) node, db, registries );
             case SCOPE:
-//                return new ScopeEvaluator( ( ScopeNode ) node, db, registries );
-                throw new NotImplementedException( "SOON!!!!!" );
+                if ( ( ( ScopeNode ) node ).getScope() == SearchControls.ONELEVEL_SCOPE )
+                {
+                    return new OneLevelScopeEvaluator<Attributes>( db, ( ScopeNode ) node );
+                }
+                else
+                {
+                    return new SubtreeScopeEvaluator<Attributes>( db, ( ScopeNode ) node );
+                }
             case SUBSTRING:
                 return new SubstringEvaluator( ( SubstringNode ) node, db, registries );
 
-                /* ---------- LOGICAL OPERATORS ---------- */
+            /* ---------- LOGICAL OPERATORS ---------- */
 
             case AND:
                 return buildAndEvaluator( ( AndNode ) node );
@@ -94,7 +96,7 @@ public class EvaluatorBuilder
             case OR:
                 return buildOrEvaluator( ( OrNode ) node );
 
-                /* ----------  NOT IMPLEMENTED  ---------- */
+            /* ----------  NOT IMPLEMENTED  ---------- */
 
             case ASSERTION:
             case EXTENSIBLE:

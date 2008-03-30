@@ -34,7 +34,7 @@ import java.util.*;
  * A Cursor returning candidates satisfying a logical conjunction expression.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
+ * @version $Rev$
  */
 public class AndCursor extends AbstractCursor<IndexEntry<?,Attributes>>
 {

@@ -24,15 +24,13 @@ import java.util.List;
 import java.util.ArrayList;
 
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.NotNode;
-import org.apache.directory.shared.ldap.filter.OrNode;
+import org.apache.directory.shared.ldap.filter.*;
 
 
 /**
@@ -80,7 +78,14 @@ public class CursorBuilder
             case PRESENCE:
                 return new PresenceCursor( db, ( PresenceEvaluator ) evaluatorBuilder.build( node ) );
             case SCOPE:
-                throw new NotImplementedException();
+                if ( ( ( ScopeNode ) node ).getScope() == SearchControls.ONELEVEL_SCOPE )
+                {
+                    return new OneLevelScopeCursor( db, ( OneLevelScopeEvaluator ) evaluatorBuilder.build( node ) );
+                }
+                else
+                {
+                    return new SubtreeScopeCursor( db, ( SubtreeScopeEvaluator ) evaluatorBuilder.build( node ) );
+                }
             case SUBSTRING:
                 return new SubstringCursor( db, ( SubstringEvaluator ) evaluatorBuilder.build( node ) );
 
