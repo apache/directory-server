@@ -119,9 +119,9 @@ public class ForwardIndexEntry<V,O> implements IndexEntry<V,O>
     {
         StringBuilder buf = new StringBuilder();
         buf.append( "ForwardIndexEntry[ " );
-        buf.append( tuple.getValue() );
-        buf.append( ", " );
         buf.append( tuple.getKey() );
+        buf.append( ", " );
+        buf.append( tuple.getValue() );
         buf.append( " ]" );
         return buf.toString();
     }
