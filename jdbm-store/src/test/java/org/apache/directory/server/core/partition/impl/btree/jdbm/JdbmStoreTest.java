@@ -31,10 +31,10 @@ import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.registries.*;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -104,7 +104,7 @@ public class JdbmStoreTest
 
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
-        JdbmStoreUtil.initWithExampleData( store, registries );
+        StoreUtils.loadExampleData( store, registries );
         LOG.debug( "Created new store" );
     }
 
@@ -376,10 +376,10 @@ public class JdbmStoreTest
       Cursor<IndexEntry<Long,Attributes>> cursor = idx.forwardCursor( 2L );
       
       assertTrue( cursor.next() );
-      assertEquals( 5, cursor.get().getId() );
+      assertEquals( 5, ( long ) cursor.get().getId() );
       
       assertTrue( cursor.next() );
-      assertEquals( 6, cursor.get().getId() );
+      assertEquals( 6, ( long ) cursor.get().getId() );
 
       assertFalse( cursor.next() );
       
@@ -388,7 +388,7 @@ public class JdbmStoreTest
       cursor = idx.forwardCursor( 2L );
 
       assertTrue( cursor.next() );
-      assertEquals( 6, cursor.get().getId() );
+      assertEquals( 6, ( long ) cursor.get().getId() );
       
       assertFalse( cursor.next() );
     }
