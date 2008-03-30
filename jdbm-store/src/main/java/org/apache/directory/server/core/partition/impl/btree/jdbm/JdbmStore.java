@@ -1838,7 +1838,9 @@ public class JdbmStore<E> implements Store<E>
          */
         oneLevelIdx.drop( oldParentId, childId );
         oneLevelIdx.add( newParentId, childId );
-
+        
+        updateSubLevelIndex( childId, oldParentId, newParentId );
+        
         /*
          * Build the new user provided DN (updn) for the child using the child's
          * user provided RDN & the new parent's UPDN.  Basically add the child's
@@ -1854,6 +1856,68 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
+    /**
+     * 
+     * updates the SubLevel Index as part of a move operation.
+     *
+     * @param childId child id to be moved
+     * @param oldParentId old parent's id
+     * @param newParentId new parent's id
+     * @throws Exception
+     */
+    private void updateSubLevelIndex( Long childId, Long oldParentId, Long newParentId ) throws Exception
+    {
+        Long tempId = oldParentId;
+        List<Long> parentIds = new ArrayList<Long>();
+
+        // find all the parents of the oldParentId
+        while( tempId != 0 && tempId != 1 && tempId != null )
+        {
+          parentIds.add( tempId );
+          tempId = getParentId( tempId );
+        }
+
+        // find all the children of the childId
+        Cursor<IndexEntry<Long,E>> cursor = subLevelIdx.forwardCursor( childId );
+        
+        List<Long> childIds = new ArrayList<Long>();
+        childIds.add( childId );
+        
+        while( cursor.next() )
+        {
+            childIds.add( cursor.get().getId() );
+        }
+        
+        // detach the childId and all its children from oldParentId and all it parents excluding the root
+        for( Long pid : parentIds )
+        {
+            for( Long cid: childIds )
+            {
+                subLevelIdx.drop( pid, cid );
+            }
+        }
+        
+        parentIds.clear();
+        tempId = newParentId;
+
+        // find all the parents of the newParentId
+        while( tempId != 0 && tempId != 1 && tempId != null )
+        {
+          parentIds.add( tempId );
+          tempId = getParentId( tempId );
+        }
+        
+        // attach the childId and all its children to newParentId and all it parents excluding the root
+        for( Long id : parentIds )
+        {
+            for( Long cid: childIds )
+            {
+                subLevelIdx.add( id, cid );
+            }
+        }
+    }
+    
+    
     /**
      * For all aliases including and under the moved base, this method removes
      * one and subtree alias index tuples for old ancestors above the moved base
