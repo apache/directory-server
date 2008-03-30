@@ -17,12 +17,13 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree.jdbm;
+package org.apache.directory.server.xdbm.tools;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -32,20 +33,19 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class JdbmStoreUtil
+public class StoreUtils
 {
 
     /**
-     * 
-     * initializes With the example data shown in 
+     * Initializes and loads a store with the example data shown in
      * <a href="http://cwiki.apache.org/confluence/display/DIRxSRVx11/Structure+and+Organization">
      * Structure and Organization</a>
      *
-     * @param store the jdbm store object to be initialized
+     * @param store the store object to be initialized
      * @param registries oid registries
-     * @throws Exception
+     * @throws Exception on access exceptions
      */
-    public static void initWithExampleData( JdbmStore store, Registries registries ) throws Exception
+    public static void loadExampleData( Store store, Registries registries ) throws Exception
     {
         store.setSuffixDn( "o=Good Times Co." );
         
@@ -101,5 +101,7 @@ public class JdbmStoreUtil
         entry.add( "ou", "Engineering" );
         entry.add( "cn",  "Jack Daniels");
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+
+        // still need to add aliases
     }
 }
