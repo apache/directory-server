@@ -103,7 +103,7 @@ public class JdbmStore<E> implements Store<E>
     /** the attribute existance index */
     private JdbmIndex<String,E> existanceIdx;
     /** the parent child relationship index */
-    private JdbmIndex<Long,E> hierarchyIdx;
+    private JdbmIndex<Long,E> oneLevelIdx;
     /** the one level scope alias index */
     private JdbmIndex<Long,E> oneAliasIdx;
     /** the subtree scope alias index */
@@ -342,12 +342,12 @@ public class JdbmStore<E> implements Store<E>
             existanceIdx.init( attributeTypeRegistry.lookup( PRESENCE ), workingDirectory );
         }
 
-        if ( hierarchyIdx == null )
+        if ( oneLevelIdx == null )
         {
-            hierarchyIdx = new JdbmIndex<Long,E>();
-            hierarchyIdx.setAttributeId( ONELEVEL );
-            systemIndices.put( ONELEVEL, hierarchyIdx );
-            hierarchyIdx.init( attributeTypeRegistry.lookup( ONELEVEL ), workingDirectory );
+            oneLevelIdx = new JdbmIndex<Long,E>();
+            oneLevelIdx.setAttributeId( ONELEVEL );
+            systemIndices.put( ONELEVEL, oneLevelIdx );
+            oneLevelIdx.init( attributeTypeRegistry.lookup( ONELEVEL ), workingDirectory );
         }
 
         if ( oneAliasIdx == null )
@@ -526,7 +526,7 @@ public class JdbmStore<E> implements Store<E>
         array.add( aliasIdx );
         array.add( oneAliasIdx );
         array.add( subAliasIdx );
-        array.add( hierarchyIdx );
+        array.add( oneLevelIdx );
         array.add( existanceIdx );
         array.add( subLevelIdx );
         
@@ -601,15 +601,15 @@ public class JdbmStore<E> implements Store<E>
 
     public Index<Long,E> getOneLevelIndex()
     {
-        return hierarchyIdx;
+        return oneLevelIdx;
     }
 
 
     public void setOneLevelIndex( Index<Long,E> index ) throws NamingException
     {
         protect( "hierarchyIndex" );
-        hierarchyIdx = ( JdbmIndex<Long,E> ) convertIndex( index );
-        systemIndices.put( index.getAttributeId(), hierarchyIdx );
+        oneLevelIdx = ( JdbmIndex<Long,E> ) convertIndex( index );
+        systemIndices.put( index.getAttributeId(), oneLevelIdx );
     }
 
 
@@ -791,13 +791,13 @@ public class JdbmStore<E> implements Store<E>
     public Long getParentId( String dn ) throws Exception
     {
         Long childId = ndnIdx.forwardLookup( dn );
-        return hierarchyIdx.reverseLookup( childId );
+        return oneLevelIdx.reverseLookup( childId );
     }
 
 
     public Long getParentId( Long childId ) throws Exception
     {
-        return hierarchyIdx.reverseLookup( childId );
+        return oneLevelIdx.reverseLookup( childId );
     }
 
 
@@ -1058,7 +1058,7 @@ public class JdbmStore<E> implements Store<E>
 
         ndnIdx.add( normName.toNormName(), id );
         updnIdx.add( normName.getUpName(), id );
-        hierarchyIdx.add( parentId, id );
+        oneLevelIdx.add( parentId, id );
         
         Long tempId = parentId;
         while( tempId != null && tempId != 0 && tempId != 1 )
@@ -1129,7 +1129,7 @@ public class JdbmStore<E> implements Store<E>
 
         ndnIdx.drop( id );
         updnIdx.drop( id );
-        hierarchyIdx.drop( id );
+        oneLevelIdx.drop( id );
 
         if( parentId != 1 )// should not use getParentId() to compare, onelevel index drops the 'id'
         {
@@ -1139,7 +1139,7 @@ public class JdbmStore<E> implements Store<E>
         // Remove parent's reference to entry only if entry is not the upSuffix
         if ( !parentId.equals( 0L ) )
         {
-            hierarchyIdx.drop( parentId, id );
+            oneLevelIdx.drop( parentId, id );
         }
 
         while ( attrs.hasMore() )
@@ -1182,7 +1182,7 @@ public class JdbmStore<E> implements Store<E>
      */
     public Cursor<IndexEntry<Long,E>> list( Long id ) throws Exception
     {
-        Cursor<IndexEntry<Long,E>> cursor = hierarchyIdx.forwardCursor( id );
+        Cursor<IndexEntry<Long,E>> cursor = oneLevelIdx.forwardCursor( id );
         ForwardIndexEntry<Long,E> recordForward = new ForwardIndexEntry<Long,E>();
         recordForward.setId( id );
         cursor.before( recordForward );
@@ -1192,7 +1192,7 @@ public class JdbmStore<E> implements Store<E>
 
     public int getChildCount( Long id ) throws Exception
     {
-        return hierarchyIdx.count( id );
+        return oneLevelIdx.count( id );
     }
 
 
@@ -1305,7 +1305,7 @@ public class JdbmStore<E> implements Store<E>
 
         // Get all parent child mappings for this entry as the parent using the
         // key 'child' with many entries following it.
-        Cursor<IndexEntry<Long,E>> children = hierarchyIdx.forwardCursor();
+        Cursor<IndexEntry<Long,E>> children = oneLevelIdx.forwardCursor();
         ForwardIndexEntry<Long,E> longRecordForward = new ForwardIndexEntry<Long,E>();
         recordForward.setId( id );
         children.before( longRecordForward );
@@ -1836,8 +1836,8 @@ public class JdbmStore<E> implements Store<E>
          * Drop the old parent child relationship and add the new one
          * Set the new parent id for the child replacing the old parent id
          */
-        hierarchyIdx.drop( oldParentId, childId );
-        hierarchyIdx.add( newParentId, childId );
+        oneLevelIdx.drop( oldParentId, childId );
+        oneLevelIdx.add( newParentId, childId );
 
         /*
          * Build the new user provided DN (updn) for the child using the child's
