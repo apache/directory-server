@@ -25,7 +25,6 @@ import java.util.Iterator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.registries.Registries;
@@ -34,6 +33,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -108,7 +108,7 @@ public class RestrictedByFilter implements ACITupleFilter
                     // TODO Fix DIRSEVER-832 
                     if ( attrId.equalsIgnoreCase( rbItem.getAttributeType() ) )
                     {
-                        ServerAttribute attr = entry.get( rbItem.getValuesIn() );
+                        EntryAttribute attr = entry.get( rbItem.getValuesIn() );
                         
                         // TODO Fix DIRSEVER-832
                         if ( ( attr == null ) || !attr.contains( attrValue ) )

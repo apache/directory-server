@@ -29,7 +29,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -38,6 +37,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -183,7 +183,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<ServerSear
     public void doReferralExceptionOnSearchBase( Registries registries ) throws NamingException
     {
         // the refs attribute may be filtered out so we might need to lookup the entry
-        ServerAttribute refs = prefetched.getServerEntry().get( SchemaConstants.REF_AT );
+        EntryAttribute refs = prefetched.getServerEntry().get( SchemaConstants.REF_AT );
         
         if ( refs == null )
         {

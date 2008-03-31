@@ -36,6 +36,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -144,7 +145,7 @@ public class GroupCache
             {
             	ServerSearchResult result = results.next();
                 LdapDN groupDn = result.getDn().normalize( normalizerMap );
-                ServerAttribute members = getMemberAttribute( result.getServerEntry() );
+                EntryAttribute members = getMemberAttribute( result.getServerEntry() );
 
                 if ( members != null )
                 {
@@ -175,20 +176,20 @@ public class GroupCache
      * @param entry the entry inspected for member attributes
      * @return the member attribute
      */
-    private ServerAttribute getMemberAttribute( ServerEntry entry ) throws NamingException
+    private EntryAttribute getMemberAttribute( ServerEntry entry ) throws NamingException
     {
-        ServerAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( oc == null )
         {
-            ServerAttribute member = entry.get( memberAT );
+            EntryAttribute member = entry.get( memberAT );
         	
             if ( member != null )
             {
                 return member;
             }
 
-            ServerAttribute uniqueMember = entry.get( uniqueMemberAT );
+            EntryAttribute uniqueMember = entry.get( uniqueMemberAT );
             
             if ( uniqueMember != null )
             {
@@ -221,7 +222,7 @@ public class GroupCache
      * @param members the member attribute values being added
      * @throws NamingException if there are problems accessing the attr values
      */
-    private void addMembers( Set<String> memberSet, ServerAttribute members ) throws NamingException
+    private void addMembers( Set<String> memberSet, EntryAttribute members ) throws NamingException
     {
         for ( Value<?> value:members )
         {
@@ -250,7 +251,7 @@ public class GroupCache
      * @param members the set of member values
      * @throws NamingException if there are problems accessing the attr values
      */
-    private void removeMembers( Set<String> memberSet, ServerAttribute members ) throws NamingException
+    private void removeMembers( Set<String> memberSet, EntryAttribute members ) throws NamingException
     {
         for ( Value<?> value:members )
         {
@@ -281,7 +282,7 @@ public class GroupCache
      */
     public void groupAdded( LdapDN name, ServerEntry entry ) throws NamingException
     {
-        ServerAttribute members = getMemberAttribute( entry );
+        EntryAttribute members = getMemberAttribute( entry );
 
         if ( members == null )
         {
@@ -308,7 +309,7 @@ public class GroupCache
      */
     public void groupDeleted( LdapDN name, ServerEntry entry ) throws NamingException
     {
-        ServerAttribute members = getMemberAttribute( entry );
+        EntryAttribute members = getMemberAttribute( entry );
 
         if ( members == null )
         {
@@ -333,7 +334,7 @@ public class GroupCache
      * @param members the members being added, removed or replaced
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void modify( Set<String> memberSet, ModificationOperation modOp, ServerAttribute members ) throws NamingException
+    private void modify( Set<String> memberSet, ModificationOperation modOp, EntryAttribute members ) throws NamingException
     {
 
         switch ( modOp )
@@ -372,9 +373,9 @@ public class GroupCache
      */
     public void groupModified( LdapDN name, List<Modification> mods, ServerEntry entry, Registries registries ) throws NamingException
     {
-        ServerAttribute members = null;
+        EntryAttribute members = null;
         String memberAttrId = null;
-        ServerAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( oc.contains( SchemaConstants.GROUP_OF_NAMES_OC ) )
         {
@@ -429,7 +430,7 @@ public class GroupCache
      */
     public void groupModified( LdapDN name, ModificationOperation modOp, ServerEntry mods ) throws NamingException
     {
-        ServerAttribute members = getMemberAttribute( mods );
+        EntryAttribute members = getMemberAttribute( mods );
 
         if ( members == null )
         {

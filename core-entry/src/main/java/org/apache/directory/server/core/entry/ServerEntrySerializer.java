@@ -26,6 +26,7 @@ import java.io.ObjectOutput;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDNSerializer;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -99,10 +100,10 @@ public class ServerEntrySerializer
         // here, to be able to restore it in the readExternal :
         // we need access to the registries, which are not available
         // in the ServerAttribute class.
-        for ( ServerAttribute attribute:entry )
+        for ( EntryAttribute attribute:entry )
         {
             // We store the OID, as the AttributeType might have no name
-            out.writeUTF( attribute.getAttributeType().getOid() );
+            out.writeUTF( ((ServerAttribute)attribute).getAttributeType().getOid() );
             
             // And store the attribute.
             // Store the UP id

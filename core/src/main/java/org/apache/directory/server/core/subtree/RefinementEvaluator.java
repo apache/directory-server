@@ -22,6 +22,7 @@ package org.apache.directory.server.core.subtree;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -54,7 +55,7 @@ public class RefinementEvaluator
     }
 
 
-    public boolean evaluate( ExprNode node, ServerAttribute objectClasses ) throws NamingException
+    public boolean evaluate( ExprNode node, EntryAttribute objectClasses ) throws NamingException
     {
         if ( node == null )
         {
@@ -66,7 +67,7 @@ public class RefinementEvaluator
             throw new IllegalArgumentException( "objectClasses cannot be null" );
         }
         
-        if ( !objectClasses.instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
+        if ( !((ServerAttribute)objectClasses).instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             throw new IllegalArgumentException( "Attribute objectClasses should be of id 'objectClass'" );
         }

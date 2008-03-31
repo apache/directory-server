@@ -245,7 +245,7 @@ public interface Partition
      * retrieval.
      *
      * @param opContext the context containing the distinguished/absolute name for the search/listing
-     * @return a NamingEnumeration containing objects of type {@link ServerSearchResult}
+     * @return a NamingEnumeration containing objects of type {@link SearchResult}
      * @throws NamingException if there are any problems
      */
     NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException;

@@ -25,6 +25,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -200,14 +201,14 @@ public class SchemaChecker
      * without a STRUCTURAL objectClass
      */
     public static void preventStructuralClassRemovalOnModifyRemove( ObjectClassRegistry registry, LdapDN name, ModificationOperation mod,
-        ServerAttribute attribute, ServerAttribute entryObjectClasses ) throws NamingException
+        EntryAttribute attribute, EntryAttribute entryObjectClasses ) throws NamingException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
         {
             return;
         }
 
-        if ( !attribute.instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
+        if ( !((ServerAttribute)attribute).instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             return;
         }
@@ -472,7 +473,7 @@ public class SchemaChecker
 
             if ( rdnAttributes.contains( id ) )
             {
-                ServerAttribute rdnAttr = entry.get( id );
+                EntryAttribute rdnAttr = entry.get( id );
 
                 // if the attribute values to delete are not specified then all values
                 // for the attribute are to be deleted in which case we must just throw
@@ -643,7 +644,7 @@ public class SchemaChecker
                 // of the Rdn attribute so we must check if one of those values
                 // are used by the Rdn attribute value pair for the name of the entry
                 String rdnValue = getRdnValue( id, name, oidRegistry );
-                ServerAttribute rdnAttr = entry.get( id );
+                EntryAttribute rdnAttr = entry.get( id );
                 
                 for ( Value<?> value:rdnAttr )
                 {

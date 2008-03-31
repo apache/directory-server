@@ -31,6 +31,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -123,7 +124,7 @@ public class TriggerSpecCache
             	ServerSearchResult result = results.next();
                 LdapDN subentryDn = result.getDn();
                 ServerEntry resultEntry = result.getServerEntry();
-                ServerAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+                EntryAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
                 
                 if ( triggerSpec == null )
                 {
@@ -143,7 +144,7 @@ public class TriggerSpecCache
     private boolean hasPrescriptiveTrigger( ServerEntry entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveTrigger
-        ServerAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+        EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
 
         return triggerSpec != null;
     }
@@ -152,7 +153,7 @@ public class TriggerSpecCache
     public void subentryAdded( LdapDN normName, ServerEntry entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveTrigger
-        ServerAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+        EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
         
         if ( triggerSpec == null )
         {

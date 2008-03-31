@@ -43,9 +43,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.slf4j.Logger;
@@ -193,7 +193,8 @@ public class TlsKeyGenerator
      */
     public static void addKeyPair( ServerEntry entry ) throws NamingException
     {
-        ServerAttribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        
         if ( objectClass == null )
         {
             entry.put( SchemaConstants.OBJECT_CLASS_AT, TLS_KEY_INFO_OC, SchemaConstants.INET_ORG_PERSON_OC );

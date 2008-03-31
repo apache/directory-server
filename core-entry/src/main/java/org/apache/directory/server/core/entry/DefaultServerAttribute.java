@@ -1114,7 +1114,18 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
         {
             for ( Value<?> value:values )
             {
-                sb.append( "    " ).append( upId ).append( ": " ).append( value ).append( '\n' );
+                sb.append( "    " ).append( upId ).append( ": " );
+                
+                if ( value.isNull() )
+                {
+                    sb.append( "''" );
+                }
+                else
+                {
+                    sb.append( value );
+                }
+                
+                sb.append( '\n' );
             }
         }
         else

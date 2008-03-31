@@ -60,6 +60,7 @@ import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -272,7 +273,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private void addPerscriptiveAciTuples( PartitionNexusProxy proxy, Collection<ACITuple> tuples, LdapDN dn,
         ServerEntry entry ) throws NamingException
     {
-        ServerAttribute oc = entry.get( objectClassType );
+        EntryAttribute oc = entry.get( objectClassType );
         
         /*
          * If the protected entry is a subentry, then the entry being evaluated
@@ -290,7 +291,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             entry = proxy.lookup( new LookupOperationContext( registries, parentDn), PartitionNexusProxy.LOOKUP_BYPASS );
         }
 
-        ServerAttribute subentries = entry.get( acSubentryType );
+        EntryAttribute subentries = entry.get( acSubentryType );
         
         if ( subentries == null )
         {
@@ -315,7 +316,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      */
     private void addEntryAciTuples( Collection<ACITuple> tuples, ServerEntry entry ) throws NamingException
     {
-        ServerAttribute entryAci = entry.get( entryAciType );
+        EntryAttribute entryAci = entry.get( entryAciType );
         
         if ( entryAci == null )
         {
@@ -375,7 +376,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         		               { SchemaConstants.SUBENTRY_ACI_AT }) , 
         		PartitionNexusProxy.LOOKUP_BYPASS );
         
-        ServerAttribute subentryAci = administrativeEntry.get( subentryAciType );
+        EntryAttribute subentryAci = administrativeEntry.get( subentryAciType );
 
         if ( subentryAci == null )
         {
@@ -456,7 +457,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
         ServerEntry subentryAttrs = subentryInterceptor.getSubentryAttributes( name, serverEntry );
         
-        for ( ServerAttribute attribute:serverEntry )
+        for ( EntryAttribute attribute:serverEntry )
         {
             subentryAttrs.put( attribute );
         }
@@ -476,7 +477,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             ADD_PERMS, tuples, subentryAttrs, null );
 
         // now we must check if attribute type and value scope permission is granted
-        for ( ServerAttribute attribute:serverEntry )
+        for ( EntryAttribute attribute:serverEntry )
         {
             for ( Value<?> value:attribute )
             {
@@ -615,7 +616,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
                 case REMOVE_ATTRIBUTE :
                     perms = REMOVE_PERMS;
-                    ServerAttribute entryAttr = entry.get( attr.getId() );
+                    EntryAttribute entryAttr = entry.get( attr.getId() );
 
                     if ( entryAttr != null )
                     {
@@ -736,7 +737,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             LOOKUP_PERMS, tuples, entry, null );
 
         // check that we have read access to every attribute type and value
-        for ( ServerAttribute attribute:entry )
+        for ( EntryAttribute attribute:entry )
         {
             
             for ( Value<?> value:attribute )
@@ -897,7 +898,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
         ServerEntry subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
         
-        for ( ServerAttribute attribute:importedEntry )
+        for ( EntryAttribute attribute:importedEntry )
         {
             subentryAttrs.put( attribute );
         }
@@ -976,7 +977,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
         ServerEntry subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
         
-        for ( ServerAttribute attribute:importedEntry )
+        for ( EntryAttribute attribute:importedEntry )
         {
             subentryAttrs.put( attribute );
         }
@@ -1175,7 +1176,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             // if attribute type scope access is not allowed then remove the attribute and continue
             String id = attributeType.getName();
-            ServerAttribute attr = resultEntry.get( attributeType );
+            EntryAttribute attr = resultEntry.get( attributeType );
         
             if ( !engine.hasPermission( 
                         registries, 
@@ -1232,7 +1233,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         
         for ( AttributeType attributeType:attributeToRemove )
         {
-            resultEntry.remove( attributeType );
+            resultEntry.removeAttributes( attributeType );
         }
 
         result.setServerEntry( resultEntry );

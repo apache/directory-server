@@ -25,10 +25,10 @@ import java.util.regex.PatternSyntaxException;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
@@ -84,7 +84,7 @@ public class SubstringEvaluator implements Evaluator
         
 
         // get the attribute
-        ServerAttribute attr = entry.get( snode.getAttribute() );
+        EntryAttribute attr = entry.get( snode.getAttribute() );
 
         // if the attribute does not exist just return false
         if ( null == attr )

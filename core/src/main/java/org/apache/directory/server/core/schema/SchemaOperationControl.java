@@ -51,6 +51,7 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -288,7 +289,7 @@ public class SchemaOperationControl
 
     public void add( LdapDN name, ServerEntry entry ) throws NamingException
     {
-        ServerAttribute oc = entry.get( objectClassAT );
+        EntryAttribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {
@@ -337,7 +338,7 @@ public class SchemaOperationControl
 
     public void delete( LdapDN name, ServerEntry entry, boolean doCascadeDelete ) throws NamingException
     {
-        ServerAttribute oc = entry.get( objectClassAT );
+        EntryAttribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {
@@ -386,7 +387,7 @@ public class SchemaOperationControl
     public void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, 
         ServerEntry targetEntry, boolean cascade ) throws NamingException
     {
-        ServerAttribute oc = entry.get( objectClassAT );
+        EntryAttribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {
@@ -415,7 +416,7 @@ public class SchemaOperationControl
     public void modify( LdapDN name, List<Modification> mods, ServerEntry entry, ServerEntry targetEntry,
         boolean doCascadeModify ) throws NamingException
     {
-        ServerAttribute oc = entry.get( objectClassAT );
+        EntryAttribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {
@@ -446,7 +447,7 @@ public class SchemaOperationControl
     public void modifyRn( LdapDN name, Rdn newRdn, boolean deleteOldRn, ServerEntry entry, boolean doCascadeModify ) 
         throws NamingException
     {
-        ServerAttribute oc = entry.get( objectClassAT );
+        EntryAttribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {
@@ -475,7 +476,7 @@ public class SchemaOperationControl
     public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, 
         boolean cascade ) throws NamingException
     {
-        ServerAttribute oc = entry.get( objectClassAT );
+        EntryAttribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {
@@ -504,7 +505,7 @@ public class SchemaOperationControl
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws NamingException
     {
-        ServerAttribute oc = entry.get( objectClassAT );
+        EntryAttribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {
@@ -659,7 +660,7 @@ public class SchemaOperationControl
      * @throws NamingException if there are problems updating the registries and the
      * schema partition
      */
-    private void modifyRemoveOperation( String opAttrOid, ServerAttribute mods, boolean doCascadeModify ) 
+    private void modifyRemoveOperation( String opAttrOid, EntryAttribute mods, boolean doCascadeModify ) 
         throws NamingException
     {
         int index = opAttr2handlerIndex.get( opAttrOid );
@@ -793,7 +794,7 @@ public class SchemaOperationControl
      * @throws NamingException if there are problems updating the registries and the
      * schema partition
      */
-    private void modifyAddOperation( String opAttrOid, ServerAttribute mods, boolean doCascadeModify ) throws NamingException
+    private void modifyAddOperation( String opAttrOid, EntryAttribute mods, boolean doCascadeModify ) throws NamingException
     {
         if ( doCascadeModify )
         {
@@ -802,6 +803,7 @@ public class SchemaOperationControl
 
         int index = opAttr2handlerIndex.get( opAttrOid );
         SchemaChangeHandler handler = opAttr2handlerMap.get( opAttrOid );
+        
         switch( index )
         {
             case( COMPARATOR_INDEX ):

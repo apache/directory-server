@@ -33,6 +33,7 @@ import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -140,7 +141,7 @@ public class TupleCache
             	ServerSearchResult result = results.next();
                 LdapDN subentryDn = result.getDn().normalize( normalizerMap );
                 ServerEntry serverEntry = result.getServerEntry();
-                ServerAttribute aci = serverEntry.get( prescriptiveAciAT );
+                EntryAttribute aci = serverEntry.get( prescriptiveAciAT );
                 
                 if ( aci == null )
                 {
@@ -160,7 +161,7 @@ public class TupleCache
     private boolean hasPrescriptiveACI( ServerEntry entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
-        ServerAttribute aci = entry.get( prescriptiveAciAT );
+        EntryAttribute aci = entry.get( prescriptiveAciAT );
 
         if ( aci == null )
         {
@@ -185,7 +186,7 @@ public class TupleCache
     public void subentryAdded( LdapDN normName, ServerEntry entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
-        ServerAttribute aciAttr = entry.get( prescriptiveAciAT );
+        EntryAttribute aciAttr = entry.get( prescriptiveAciAT );
         
         if ( !hasPrescriptiveACI( entry ) )
         {

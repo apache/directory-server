@@ -25,7 +25,6 @@ import java.util.Iterator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.registries.Registries;
@@ -34,6 +33,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -111,7 +111,7 @@ public class MaxValueCountFilter implements ACITupleFilter
             MaxValueCountItem mvcItem = k.next();
             if ( attrId.equalsIgnoreCase( mvcItem.getAttributeType() ) )
             {
-                ServerAttribute attr = entryView.get( attrId );
+                EntryAttribute attr = entryView.get( attrId );
                 int attrCount = attr == null ? 0 : attr.size();
                 
                 if ( attrCount > mvcItem.getMaxCount() )

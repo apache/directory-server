@@ -49,6 +49,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -203,7 +204,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         int types = 0;
         
-        ServerAttribute oc = subentry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute oc = subentry.get( SchemaConstants.OBJECT_CLASS_AT );
         
         if ( oc == null )
         {
@@ -340,7 +341,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( evaluator.evaluate( ss, apDn, dn, entryAttrs ) )
             {                
-                ServerAttribute operational;
+                EntryAttribute operational;
                 
                 if ( subentry.isAccessControlSubentry() )
                 {
@@ -410,7 +411,7 @@ public class SubentryInterceptor extends BaseInterceptor
     	LdapDN name = addContext.getDn();
         ServerEntry entry = addContext.getEntry();
     	
-        ServerAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
@@ -418,7 +419,7 @@ public class SubentryInterceptor extends BaseInterceptor
             LdapDN apName = ( LdapDN ) name.clone();
             apName.remove( name.size() - 1 );
             ServerEntry ap = nexus.lookup( new LookupOperationContext( registries, apName ) );
-            ServerAttribute administrativeRole = ap.get( "administrativeRole" );
+            EntryAttribute administrativeRole = ap.get( "administrativeRole" );
 
             // check that administrativeRole has something valid in it for us
             if ( administrativeRole == null || administrativeRole.size() <= 0 )
@@ -516,7 +517,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apDn, name, entry ) )
                 {
-                    ServerAttribute operational;
+                    EntryAttribute operational;
                     
                     if ( subentry.isAccessControlSubentry() )
                     {
@@ -591,7 +592,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
     	LdapDN name = opContext.getDn();
     	ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
-        ServerAttribute objectClasses = entry.get( objectClassType );
+    	EntryAttribute objectClasses = entry.get( objectClassType );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
@@ -711,7 +712,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 for ( String aSUBENTRY_OPATTRS : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
-                    ServerAttribute opAttr = entry.get( aSUBENTRY_OPATTRS );
+                    EntryAttribute opAttr = entry.get( aSUBENTRY_OPATTRS );
                     
                     if ( opAttr != null )
                     {
@@ -752,7 +753,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         
-        ServerAttribute objectClasses = entry.get( objectClassType );
+        EntryAttribute objectClasses = entry.get( objectClassType );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
@@ -828,7 +829,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
         
-        ServerAttribute objectClasses = entry.get( objectClassType );
+        EntryAttribute objectClasses = entry.get( objectClassType );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
@@ -903,7 +904,7 @@ public class SubentryInterceptor extends BaseInterceptor
         
         ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
 
-        ServerAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
@@ -1021,7 +1022,7 @@ public class SubentryInterceptor extends BaseInterceptor
         ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         
         ServerEntry oldEntry = (ServerEntry) entry.clone();
-        ServerAttribute objectClasses = entry.get( objectClassType );
+        EntryAttribute objectClasses = entry.get( objectClassType );
         boolean isSubtreeSpecificationModification = false;
         Modification subtreeMod = null;
 
@@ -1294,7 +1295,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         for ( String opAttrId : SUBENTRY_OPATTRS )
         {
-            ServerAttribute opAttr = candidate.get( opAttrId );
+            EntryAttribute opAttr = candidate.get( opAttrId );
 
             if ( ( opAttr != null ) && opAttr.contains( dn ) )
             {
@@ -1331,9 +1332,9 @@ public class SubentryInterceptor extends BaseInterceptor
         for ( AttributeType attributeType:operational.getAttributeTypes() )
         {
             ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
-            ServerAttribute result = new DefaultServerAttribute( attributeType );
-            ServerAttribute opAttrAdditions = operational.get( attributeType );
-            ServerAttribute opAttrInEntry = entry.get( attributeType );
+            EntryAttribute result = new DefaultServerAttribute( attributeType );
+            EntryAttribute opAttrAdditions = operational.get( attributeType );
+            EntryAttribute opAttrInEntry = entry.get( attributeType );
 
             for ( Value<?> value:opAttrAdditions )
             {
@@ -1375,7 +1376,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            ServerAttribute objectClasses = 
+            EntryAttribute objectClasses = 
                 result.getServerEntry().get( SchemaConstants.OBJECT_CLASS_AT );
             
             if ( objectClasses != null )
@@ -1419,7 +1420,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            ServerAttribute objectClasses = 
+            EntryAttribute objectClasses = 
                 result.getServerEntry().get( SchemaConstants.OBJECT_CLASS_AT);
             
             if ( objectClasses != null )
@@ -1472,7 +1473,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 for ( String aSUBENTRY_OPATTRS : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
-                    ServerAttribute opAttr = oldEntry.get( aSUBENTRY_OPATTRS );
+                    EntryAttribute opAttr = oldEntry.get( aSUBENTRY_OPATTRS );
                     
                     if ( opAttr != null )
                     {

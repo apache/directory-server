@@ -1473,7 +1473,7 @@ public class DefaultServerAttributeTest
         assertEquals( "    CommonName: (null)\n", attr.toString() );
         
         attr.add( (String)null );
-        assertEquals( "    CommonName: 'null'\n", attr.toString() );
+        assertEquals( "    CommonName: ''\n", attr.toString() );
 
         attr.put( "a", "b" );
         assertEquals( "    CommonName: 'a'\n    CommonName: 'b'\n", attr.toString() );

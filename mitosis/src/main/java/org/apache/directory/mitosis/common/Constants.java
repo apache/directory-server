@@ -23,11 +23,11 @@ package org.apache.directory.mitosis.common;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.invocation.Invocation;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 
 
 /**
@@ -65,7 +65,7 @@ public class Constants
             throws NamingException
         {
             ServerEntry entry = result.getServerEntry();
-            ServerAttribute deleted = entry.get( ENTRY_DELETED );
+            EntryAttribute deleted = entry.get( ENTRY_DELETED );
             Object value = deleted == null ? null : deleted.get();
             return ( value == null || !"TRUE".equalsIgnoreCase( value.toString() ) );
         }

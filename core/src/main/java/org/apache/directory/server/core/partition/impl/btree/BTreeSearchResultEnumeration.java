@@ -36,6 +36,7 @@ import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
@@ -219,7 +220,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                     break;
                 }
                 
-                ServerAttribute attr = attrs.get( registries.getAttributeTypeRegistry().lookup( attrId ) );
+                EntryAttribute attr = attrs.get( registries.getAttributeTypeRegistry().lookup( attrId ) );
                 
                 // there is no attribute by that name in the entry so we continue
                 if ( null == attr )

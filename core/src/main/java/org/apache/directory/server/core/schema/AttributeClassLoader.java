@@ -27,6 +27,7 @@ import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 
 
@@ -47,14 +48,14 @@ public class AttributeClassLoader extends ClassLoader
     }
     
     
-    public void setAttribute( ServerAttribute attribute ) throws NamingException
+    public void setAttribute( EntryAttribute attribute ) throws NamingException
     {
-        if ( attribute.getAttributeType().getSyntax().isHumanReadable() )
+        if ( ((ServerAttribute)attribute).getAttributeType().getSyntax().isHumanReadable() )
         {
             throw new InvalidAttributeValueException( "The attribute must be binary" );
         }
         
-        this.attribute = attribute;
+        this.attribute = (ServerAttribute)attribute;
     }
 
     

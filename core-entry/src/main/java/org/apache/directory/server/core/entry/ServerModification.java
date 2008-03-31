@@ -40,17 +40,17 @@ public class ServerModification implements Modification
     private ModificationOperation operation;
     
     /** The attribute which contains the modification */
-    private ServerAttribute attribute;
+    private EntryAttribute attribute;
  
     
-    public ServerModification( ModificationOperation operation, ServerAttribute attribute )
+    public ServerModification( ModificationOperation operation, EntryAttribute attribute )
     {
         this.operation = operation;
         this.attribute = attribute;
     }
     
     
-    public ServerModification( int operation, ServerAttribute attribute )
+    public ServerModification( int operation, EntryAttribute attribute )
     {
         setOperation( operation );
         this.attribute = attribute;

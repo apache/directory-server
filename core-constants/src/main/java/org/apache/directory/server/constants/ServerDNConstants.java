@@ -60,4 +60,8 @@ public class ServerDNConstants
     
     /** the dn base of the system preference hierarchy */
     public final static String SYSPREFROOT_SYSTEM_DN = "prefNodeName=sysPrefRoot,ou=system";
+    
+    /** The ldifDile base which stores the name of the loaded ldif files */
+    public final static String LDIF_FILES_DN = "ou=loadedLdifFiles,ou=configuration,ou=system";
+
 }

@@ -39,6 +39,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -125,8 +126,8 @@ public class OperationFactory
 
         // Insert 'entryUUID' and 'entryDeleted'.
         ServerEntry cloneEntry = ( ServerEntry ) entry.clone();
-        cloneEntry.remove( Constants.ENTRY_UUID );
-        cloneEntry.remove( Constants.ENTRY_DELETED );
+        cloneEntry.removeAttributes( Constants.ENTRY_UUID );
+        cloneEntry.removeAttributes( Constants.ENTRY_DELETED );
         cloneEntry.put( Constants.ENTRY_UUID, uuidFactory.newInstance().toOctetString() );
         cloneEntry.put( Constants.ENTRY_DELETED, "FALSE" );
 
@@ -301,7 +302,7 @@ public class OperationFactory
                 {
                     // Delete the old RDN attribute value
                     String oldRDNAttributeID = oldName.getRdn().getUpType();
-                    ServerAttribute oldRDNAttribute = entry.get( oldRDNAttributeID );
+                    EntryAttribute oldRDNAttribute = entry.get( oldRDNAttributeID );
                     
                     if ( oldRDNAttribute != null )
                     {
@@ -310,7 +311,7 @@ public class OperationFactory
                         if ( removed && oldRDNAttribute.size() == 0 )
                         {
                             // Now an empty attribute, remove it.
-                            entry.remove( oldRDNAttributeID );
+                            entry.removeAttributes( oldRDNAttributeID );
                         }
                     }
                 }
@@ -318,7 +319,7 @@ public class OperationFactory
                 // Add the new RDN attribute value.
                 String newRDNAttributeID = newRdn.getUpType();
                 String newRDNAttributeValue = ( String ) newRdn.getUpValue();
-                ServerAttribute newRDNAttribute = entry.get( newRDNAttributeID );
+                EntryAttribute newRDNAttribute = entry.get( newRDNAttributeID );
                 
                 if ( newRDNAttribute != null )
                 {
@@ -366,7 +367,7 @@ public class OperationFactory
         if ( nexus.hasEntry( new EntryOperationContext( registries, newEntryName ) ) )
         {
             ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, newEntryName ) );
-            ServerAttribute deleted = entry.get( Constants.ENTRY_DELETED );
+            EntryAttribute deleted = entry.get( Constants.ENTRY_DELETED );
             Object value = deleted == null ? null : deleted.get();
 
             /*

@@ -44,6 +44,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -188,7 +189,7 @@ public class ExceptionInterceptor extends BaseInterceptor
                 throw e2;
             }
             
-            ServerAttribute objectClass = attrs.get( SchemaConstants.OBJECT_CLASS_AT );
+            EntryAttribute objectClass = attrs.get( SchemaConstants.OBJECT_CLASS_AT );
             
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
@@ -324,8 +325,8 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             if ( item.getOperation() == ModificationOperation.ADD_ATTRIBUTE )
             {
-                ServerAttribute modAttr = (ServerAttribute)item.getAttribute();
-                ServerAttribute entryAttr = entry.get( modAttr.getId() );
+                EntryAttribute modAttr = (ServerAttribute)item.getAttribute();
+                EntryAttribute entryAttr = entry.get( modAttr.getId() );
 
                 if ( entryAttr != null )
                 {

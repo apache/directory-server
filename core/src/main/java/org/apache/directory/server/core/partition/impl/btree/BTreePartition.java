@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerSearchResult;
@@ -40,6 +39,7 @@ import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -342,7 +342,7 @@ public abstract class BTreePartition implements Partition
 
         for ( String attrId:opContext.getAttrsId() )
         {
-            ServerAttribute attr = entry.get( attrId );
+            EntryAttribute attr = entry.get( attrId );
 
             if ( attr != null )
             {

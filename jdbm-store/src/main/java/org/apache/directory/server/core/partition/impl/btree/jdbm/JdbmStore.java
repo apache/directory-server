@@ -38,6 +38,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -1312,7 +1313,7 @@ public class JdbmStore
      * @throws NamingException if index alteration or attribute addition
      * fails.
      */
-    private void add( Long id, Attributes entry, ServerAttribute mods ) throws NamingException
+    private void add( Long id, Attributes entry, EntryAttribute mods ) throws NamingException
     {
         String modsOid = oidRegistry.getOid( mods.getId() );
         
@@ -1365,7 +1366,7 @@ public class JdbmStore
      * @throws NamingException if index alteration or attribute modification 
      * fails.
      */
-    private void remove( Long id, Attributes entry, ServerAttribute mods ) throws NamingException
+    private void remove( Long id, Attributes entry, EntryAttribute mods ) throws NamingException
     {
         String modsOid = oidRegistry.getOid( mods.getId() );
         
@@ -1431,7 +1432,7 @@ public class JdbmStore
      * @throws NamingException if index alteration or attribute modification 
      * fails.
      */
-    private void replace( Long id, Attributes entry, ServerAttribute mods ) throws NamingException
+    private void replace( Long id, Attributes entry, EntryAttribute mods ) throws NamingException
     {
         String modsOid = oidRegistry.getOid( mods.getId() );
         
@@ -1486,7 +1487,7 @@ public class JdbmStore
 
         for ( AttributeType attributeType:mods.getAttributeTypes() )
         {
-            ServerAttribute attr = mods.get( attributeType );
+            EntryAttribute attr = mods.get( attributeType );
 
             switch ( modOp )
             {

@@ -30,7 +30,6 @@ import java.util.Set;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.ServerSearchResult;
@@ -43,6 +42,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -571,7 +571,7 @@ public class SchemaPartitionDao
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
         dn.normalize( attrRegistry.getNormalizerMapping() );
         ServerEntry entry = partition.lookup( new LookupOperationContext( registries, dn ) );
-        ServerAttribute disabledAttr = entry.get( disabledAttributeType );
+        EntryAttribute disabledAttr = entry.get( disabledAttributeType );
         List<Modification> mods = new ArrayList<Modification>( 3 );
         
         if ( disabledAttr == null )
@@ -865,7 +865,7 @@ public class SchemaPartitionDao
             while( ne.hasMore() )
             {
             	ServerSearchResult sr = ne.next();
-                ServerAttribute disabled = sr.getServerEntry().get( disabledAttributeType );
+            	EntryAttribute disabled = sr.getServerEntry().get( disabledAttributeType );
                 
                 if ( disabled == null )
                 {

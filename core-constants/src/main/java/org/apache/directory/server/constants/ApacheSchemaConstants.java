@@ -83,8 +83,7 @@ public interface ApacheSchemaConstants
     String WINDOWS_FILE_OC                          = "windowsFile";
     String WINDOWS_FILE_OC_OID                      = "1.3.6.1.4.1.18060.0.4.1.3.6";
 
-
-    // Apache Schema constants
+    // ---- AttributeType ----------------------------------------------------------
     // ApacheNdn
     String APACHE_N_DN_AT                           = "apacheNdn";
     String APACHE_N_DN_OID                          = "1.3.6.1.4.1.18060.0.4.1.2.1";
@@ -128,4 +127,12 @@ public interface ApacheSchemaConstants
     // SubschemaSubentryName
     String SUBSCHEMA_SUBENTRY_NAME_AT = "subschemaSubentryName";
     String SUBSCHEMA_SUBENTRY_NAME_AT_OID = "";
+    
+    // WindowsFilePath
+    String WINDOWS_FILE_AT                          = "windowsFilePath";
+    String WINDOWS_FILE_AT_OID                      = "1.3.6.1.4.1.18060.0.4.1.2.19";
+
+    // WindowsFilePath
+    String UNIX_FILE_AT                             = "unixFilePath";
+    String UNIX_FILE_AT_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.20";
 }
