@@ -20,11 +20,22 @@
 package org.apache.directory.server.xdbm.tools;
 
 
+import java.util.Set;
+
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -125,4 +136,96 @@ public class StoreUtils
         entry.add( "aliasedObjectName", "cn=Johnny Walker,ou=Sales,o=Good Times Co." );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
     }
+    
+    
+    /**
+     * This is primarily a convenience method used to extract all the attributes
+     * associated with an entry.
+     *
+     * @param id the id of the entry to get index information for
+     * @return the index names and values as an Attributes object
+     * @throws Exception if there are failures accessing the underlying store
+     */
+    @SuppressWarnings("unchecked")
+    public Attributes getAttributes( Store store, Long id ) throws Exception
+    {
+        Attributes attributes = new AttributesImpl();
+
+        // Get the distinguishedName to id mapping
+        attributes.put( "_nDn", store.getEntryDn( id ) );
+        attributes.put( "_upDn", store.getEntryUpdn( id ) );
+        attributes.put( "_parent", store.getParentId( id ) );
+
+        // Get all standard index attribute to value mappings
+        for ( Index index : ( Set<Index> )store.getUserIndices() )
+        {
+            Cursor<ForwardIndexEntry> list = index.reverseCursor();
+            ForwardIndexEntry recordForward = new ForwardIndexEntry();
+            recordForward.setId( id );
+            list.before( recordForward );
+
+            while ( list.next() )
+            {
+                IndexEntry rec = list.get();
+                String val = rec.getValue().toString();
+                String attrId = index.getAttribute().getName();
+                Attribute attr = attributes.get( attrId );
+
+                if ( attr == null )
+                {
+                    attr = new AttributeImpl( attrId );
+                }
+                
+                attr.add( val );
+                attributes.put( attr );
+            }
+        }
+
+        // Get all existance mappings for this id creating a special key
+        // that looks like so 'existance[attribute]' and the value is set to id
+        Cursor<IndexEntry> list = store.getPresenceIndex().reverseCursor();
+        ForwardIndexEntry recordForward = new ForwardIndexEntry();
+        recordForward.setId( id );
+        list.before( recordForward );
+        StringBuffer val = new StringBuffer();
+        
+        while ( list.next() )
+        {
+            IndexEntry rec = list.get();
+            val.append( "_existance[" );
+            val.append( rec.getValue().toString() );
+            val.append( "]" );
+
+            String valStr = val.toString();
+            Attribute attr = attributes.get( valStr );
+            
+            if ( attr == null )
+            {
+                attr = new AttributeImpl( valStr );
+            }
+            
+            attr.add( rec.getId().toString() );
+            attributes.put( attr );
+            val.setLength( 0 );
+        }
+
+        // Get all parent child mappings for this entry as the parent using the
+        // key 'child' with many entries following it.
+        Cursor<IndexEntry> children = store.getOneLevelIndex().forwardCursor();
+        ForwardIndexEntry longRecordForward = new ForwardIndexEntry();
+        recordForward.setId( id );
+        children.before( longRecordForward );
+
+        Attribute childAttr = new AttributeImpl( "_child" );
+        attributes.put( childAttr );
+        
+        while ( children.next() )
+        {
+            IndexEntry rec = children.get();
+            childAttr.add( rec.getId().toString() );
+        }
+
+        return attributes;
+    }
+
 }

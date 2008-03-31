@@ -327,17 +327,6 @@ public interface Store<E>
     String getProperty( String propertyName ) throws Exception;
 
 
-    /**
-     * This is primarily a convenience method used to extract all the indices
-     * associated with an entry.
-     *
-     * @param id the id of the entry to get index information for
-     * @return the index names and values as an Attributes object
-     * @throws Exception if there are failures accessing the underlying store
-     */
-    Attributes getIndices( Long id ) throws Exception;
-
-
     void modify( LdapDN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception;
 
 

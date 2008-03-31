@@ -299,18 +299,6 @@ public class JdbmStoreTest
 
 
     @Test
-    public void testGetIndicies() throws Exception
-    {
-        Attributes attrs = store.getIndices( 1L );
-        assertNotNull( attrs );
-        assertNotNull( attrs.get( "_nDn" ) );
-        assertNotNull( attrs.get( "_upDn" ) );
-        assertNotNull( attrs.get( "_parent" ) );
-        LOG.debug( attrs.toString() );
-    }
-
-
-    @Test
     public void testPersistentProperties() throws Exception
     {
         assertNull( store.getProperty( "foo" ) );
