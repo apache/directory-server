@@ -325,7 +325,7 @@ public class JdbmStoreTest
         LdapDN dn = new LdapDN( "o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         assertEquals( 1L, ( long ) store.getEntryId( dn.toNormName() ) );
-        assertEquals( 7, store.count() );
+        assertEquals( 9, store.count() );
         assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.toNormName() ) );
         assertEquals( dn.toNormName(), store.getEntryDn( 1L ) );
         assertEquals( dn.getUpName(), store.getEntryUpdn( 1L ) );
@@ -364,16 +364,16 @@ public class JdbmStoreTest
         
         store.delete( 2L );
         assertEquals( 2, store.getChildCount( 1L ) );
-        assertEquals( 6, store.count() );
+        assertEquals( 8, store.count() );
     }
     
-    @Ignore // this test fails with NotImplEx due to the dropMovedAliasIndices() method in JdbmStore 
+//    @Ignore // this test fails with NotImplEx due to the dropMovedAliasIndices() method in JdbmStore 
     @Test
     public void testSubLevelIndex() throws Exception
     {
       Index idx = store.getSubLevelIndex();
       
-      assertEquals( 3, idx.count() );
+      assertEquals( 5, idx.count() );
       
       Cursor<IndexEntry<Long,Attributes>> cursor = idx.forwardCursor( 2L );
       
@@ -394,6 +394,7 @@ public class JdbmStoreTest
       
       assertFalse( cursor.next() );
       
+      // dn id 10
       LdapDN martinDn = new LdapDN( "cn=Marting King,ou=Sales,o=Good Times Co." );
       martinDn.normalize( attributeRegistry.getNormalizerMapping() );
       DefaultServerEntry entry = new DefaultServerEntry( registries, martinDn );
@@ -405,7 +406,7 @@ public class JdbmStoreTest
       cursor = idx.forwardCursor( 2L);
       cursor.afterLast();
       assertTrue( cursor.previous() );
-      assertEquals( 8, ( long ) cursor.get().getId() );
+      assertEquals( 10, ( long ) cursor.get().getId() );
       
       LdapDN newParentDn = new LdapDN( "ou=Board of Directors,o=Good Times Co." );
       newParentDn.normalize( attributeRegistry.getNormalizerMapping() );
@@ -414,9 +415,9 @@ public class JdbmStoreTest
       cursor = idx.forwardCursor( 3L);
       cursor.afterLast();
       assertTrue( cursor.previous() );
-      assertEquals( 8, ( long ) cursor.get().getId() );
+      assertEquals( 10, ( long ) cursor.get().getId() );
       
-      // dn id 9
+      // dn id 11
       LdapDN marketingDn = new LdapDN( "ou=Marketing,ou=Sales,o=Good Times Co." );
       marketingDn.normalize( attributeRegistry.getNormalizerMapping() );
       entry = new DefaultServerEntry( registries, marketingDn );
@@ -424,7 +425,7 @@ public class JdbmStoreTest
       entry.add( "ou", "Marketing" );
       store.add( marketingDn, ServerEntryUtils.toAttributesImpl( entry ) );
 
-      // dn id 10
+      // dn id 12
       LdapDN jimmyDn = new LdapDN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
       jimmyDn.normalize( attributeRegistry.getNormalizerMapping() );
       entry = new DefaultServerEntry( registries, jimmyDn );
@@ -438,10 +439,10 @@ public class JdbmStoreTest
       cursor = idx.forwardCursor( 3L);
       cursor.afterLast();
       assertTrue( cursor.previous() );
-      assertEquals( 10, ( long ) cursor.get().getId() );
+      assertEquals( 12, ( long ) cursor.get().getId() );
       
       assertTrue( cursor.previous() );
-      assertEquals( 9, ( long ) cursor.get().getId() );
+      assertEquals( 11, ( long ) cursor.get().getId() );
     }
     
 }
