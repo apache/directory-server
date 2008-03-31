@@ -31,6 +31,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
@@ -466,8 +467,8 @@ public class ServerEntryUtils
     }
     
     
-    public static List<Modification> toServerModification( ModificationItem[] modifications, AttributeTypeRegistry atRegistry )
-    throws NamingException
+    public static List<Modification> toServerModification( ModificationItem[] modifications, 
+        AttributeTypeRegistry atRegistry ) throws NamingException
     {
 	    if ( modifications != null )
 	    {
@@ -478,6 +479,27 @@ public class ServerEntryUtils
 	            String attributeId = modification.getAttribute().getID();
                 String id = stripOptions( attributeId );
 	            Set<String> options = getOptions( attributeId );
+
+	            // -------------------------------------------------------------------
+	            // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
+	            // (deletion) causes an error
+	            // -------------------------------------------------------------------
+	            
+                // TODO - after removing JNDI we need to make the server handle 
+	            // this in the codec
+                
+	            if ( ! atRegistry.hasAttributeType( id ) 
+	                 && modification.getAttribute().size() == 0 
+	                 && modification.getModificationOp() == DirContext.REPLACE_ATTRIBUTE )
+	            {
+	                continue;
+	            }
+
+	            // -------------------------------------------------------------------
+	            // END DIRSERVER-646 Fix
+	            // -------------------------------------------------------------------
+	            
+	            
 	            // TODO : handle options
 	            AttributeType attributeType = atRegistry.lookup( id );
 	            modificationsList.add( toModification( (ModificationItemImpl)modification, attributeType ) );

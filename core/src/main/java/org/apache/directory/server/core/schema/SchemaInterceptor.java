@@ -1236,19 +1236,6 @@ public class SchemaInterceptor extends BaseInterceptor
 
         ObjectClassRegistry ocRegistry = this.registries.getObjectClassRegistry();
 
-        // -------------------------------------------------------------------
-        // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
-        // (deletion) causes an error
-        // -------------------------------------------------------------------
-        
-        if ( ( mods.size() == 1 ) && 
-             ( mods.get( 0 ).getAttribute().size() == 0 ) && 
-             ( mods.get( 0 ).getOperation() == ModificationOperation.REPLACE_ATTRIBUTE ) &&
-             ! atRegistry.hasAttributeType( mods.get( 0 ).getAttribute().getId() ) )
-        {
-            return;
-        }
-        
         // Now, apply the modifications on the cloned entry before applying it on the
         // real object.
         for ( Modification mod:mods )
