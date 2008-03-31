@@ -43,7 +43,6 @@ public class StoreUtils
      * Structure and Organization</a>
      *
      * TODO might want to make this load an LDIF instead in the future
-     * TODO add alias entries
      * TODO correct size of spaces in user provided DN
      * 
      * @param store the store object to be initialized
@@ -83,12 +82,12 @@ public class StoreUtils
         entry.add( "ou", "Engineering" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
         
-        dn = new LdapDN( "cn=JOnny WAlkeR,ou=Sales,o=Good Times Co." );
+        dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         entry = new DefaultServerEntry( registries, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
-        entry.add( "cn",  "JOnny WAlkeR");
+        entry.add( "cn",  "JOhnny WAlkeR");
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
         
         dn = new LdapDN( "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
@@ -107,6 +106,23 @@ public class StoreUtils
         entry.add( "cn",  "Jack Daniels");
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
 
-        // still need to add aliases
+        // aliases
+        dn = new LdapDN( "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co." );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        entry = new DefaultServerEntry( registries, dn );
+        entry.add( "objectClass", "top", "alias", "extensibleObject" );
+        entry.add( "ou", "Board of Directors" );
+        entry.add( "commonName",  "Jim Bean");
+        entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
+        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+
+        dn = new LdapDN( "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co." );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        entry = new DefaultServerEntry( registries, dn );
+        entry.add( "objectClass", "top", "alias", "extensibleObject" );
+        entry.add( "ou", "Engineering" );
+        entry.add( "2.5.4.3",  "Johnny Walker");
+        entry.add( "aliasedObjectName", "cn=Johnny Walker,ou=Sales,o=Good Times Co." );
+        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
     }
 }
