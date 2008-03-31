@@ -105,7 +105,23 @@ public abstract class AbstractServerTest extends TestCase
      */
     protected List<LdifEntry> loadTestLdif( boolean verifyEntries ) throws NamingException
     {
-        InputStream in = getClass().getResourceAsStream( getClass().getSimpleName() + ".ldif" );
+        return loadLdif( getClass().getResourceAsStream( getClass().getSimpleName() + ".ldif" ), verifyEntries );
+    }
+
+
+    /**
+     * Loads an LDIF from an input stream and adds the entries it contains to 
+     * the server.  It appears as though the administrator added these entries
+     * to the server.
+     *
+     * @param in the input stream containing the LDIF entries to load
+     * @param verifyEntries whether or not all entry additions are checked
+     * to see if they were in fact correctly added to the server
+     * @return a list of entries added to the server in the order they were added
+     * @throws NamingException of the load fails
+     */
+    protected List<LdifEntry> loadLdif( InputStream in, boolean verifyEntries ) throws NamingException
+    {
         if ( in == null )
         {
             return EMPTY_LIST;
