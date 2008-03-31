@@ -185,13 +185,13 @@ objectclass ( 1.3.6.1.1.1.2.3 NAME 'ipService'
 objectclass ( 1.3.6.1.1.1.2.4 NAME 'ipProtocol'
 	DESC 'Abstraction of an IP protocol'
 	SUP top STRUCTURAL
-	MUST ( cn $ ipProtocolNumber $ description )
+	MUST ( cn $ ipProtocolNumber )
 	MAY description )
 
 objectclass ( 1.3.6.1.1.1.2.5 NAME 'oncRpc'
 	DESC 'Abstraction of an ONC/RPC binding'
 	SUP top STRUCTURAL
-	MUST ( cn $ oncRpcNumber $ description )
+	MUST ( cn $ oncRpcNumber )
 	MAY description )
 
 objectclass ( 1.3.6.1.1.1.2.6 NAME 'ipHost'
