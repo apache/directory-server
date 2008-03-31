@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.ldap.entry;
 
-import java.io.Serializable;
+import java.io.Externalizable;
 
 import javax.naming.NamingException;
 
@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Value<T> extends Cloneable, Serializable, Comparable<Value<T>>
+public interface Value<T> extends Cloneable, Externalizable, Comparable<Value<T>>
 {
     
     Value<T> clone();

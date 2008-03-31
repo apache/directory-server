@@ -29,6 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Arrays;
 
 
@@ -335,6 +340,25 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
     }
 
 
+    /**
+     * @see Externalizable#readExternal(ObjectInput)
+     */
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        // TODO implement this method
+        return;
+    }
+
+    
+    /**
+     * @see Externalizable#writeExternal(ObjectOutput)
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        // TODO Implement this method
+    }
+    
+    
     /**
      * Dumps binary in hex with label.
      *

@@ -537,6 +537,15 @@ public class DefaultClientAttributeTest
         assertFalse( attr6.isHR() );
         assertTrue( attr6.contains( new byte[]{'a'} ) );
         assertTrue( attr6.contains( (byte[])null ) );
+        
+        EntryAttribute attr7 = new DefaultClientAttribute( "test" );
+        
+        attr7.add( "a", "b" );
+        assertEquals( 2, attr7.size() );
+        
+        assertEquals( 1, attr7.add( "b", "c" ) );
+        assertEquals( 3, attr7.size() );
+        assertTrue( attr7.contains( "a", "b", "c" ) );
     }
 
 
