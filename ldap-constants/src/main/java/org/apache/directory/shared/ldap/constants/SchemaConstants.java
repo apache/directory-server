@@ -140,10 +140,15 @@ public interface SchemaConstants
     String SN_AT_OID = "2.5.4.4";
     
     // Ou
+    String O_AT = "o";
+    String ORGANIZATION_NAME_AT = "organizationName";
+    String O_AT_OID = "2.5.4.10";
+
+    // Ou
     String OU_AT = "ou";
     String ORGANIZATIONAL_UNIT_NAME_AT = "organizationalUnitName";
     String OU_AT_OID = "2.5.4.11";
-    
+
     // Member
     String MEMBER_AT = "member";
     String MEMBER_AT_OID = "2.5.4.31";
