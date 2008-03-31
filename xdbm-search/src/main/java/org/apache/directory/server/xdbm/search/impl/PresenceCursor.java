@@ -41,7 +41,7 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     private static final String UNSUPPORTED_MSG =
         "PresenceCursors do not support positioning by element without a user index on the presence attribute.";
     private final Cursor<IndexEntry<String,Attributes>> ndnCursor;
-    private final Cursor<IndexEntry<String,Attributes>> existenceCursor;
+    private final Cursor<IndexEntry<String,Attributes>> presenceCursor;
     private final PresenceEvaluator presenceEvaluator;
     private boolean available = false;
 
@@ -53,12 +53,12 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
         if ( db.hasUserIndexOn( type.getOid() ) )
         {
-            existenceCursor = db.getPresenceIndex().forwardCursor( type.getOid() );
+            presenceCursor = db.getPresenceIndex().forwardCursor( type.getOid() );
             ndnCursor = null;
         }
         else
         {
-            existenceCursor = null;
+            presenceCursor = null;
             ndnCursor = db.getNdnIndex().forwardCursor();
         }
     }
@@ -66,9 +66,9 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public boolean available()
     {
-        if ( existenceCursor != null )
+        if ( presenceCursor != null )
         {
-            return existenceCursor.available();
+            return presenceCursor.available();
         }
 
         return available;
@@ -77,10 +77,10 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public void before( IndexEntry<?, Attributes> element ) throws Exception
     {
-        if ( existenceCursor != null )
+        if ( presenceCursor != null )
         {
             //noinspection unchecked
-            existenceCursor.before( ( IndexEntry<String,Attributes> ) element );
+            presenceCursor.before( ( IndexEntry<String,Attributes> ) element );
         }
 
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
@@ -89,10 +89,10 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public void after( IndexEntry<?, Attributes> element ) throws Exception
     {
-        if ( existenceCursor != null )
+        if ( presenceCursor != null )
         {
             //noinspection unchecked
-            existenceCursor.after( ( IndexEntry<String,Attributes> ) element );
+            presenceCursor.after( ( IndexEntry<String,Attributes> ) element );
         }
 
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
@@ -101,9 +101,10 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public void beforeFirst() throws Exception
     {
-        if ( existenceCursor != null )
+        if ( presenceCursor != null )
         {
-            existenceCursor.beforeFirst();
+            presenceCursor.beforeFirst();
+            return;
         }
 
         ndnCursor.beforeFirst();
@@ -113,9 +114,10 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public void afterLast() throws Exception
     {
-        if ( existenceCursor != null )
+        if ( presenceCursor != null )
         {
-            existenceCursor.afterLast();
+            presenceCursor.afterLast();
+            return;
         }
 
         ndnCursor.afterLast();
@@ -125,9 +127,9 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public boolean first() throws Exception
     {
-        if ( existenceCursor != null )
+        if ( presenceCursor != null )
         {
-            return existenceCursor.first();
+            return presenceCursor.first();
         }
 
         beforeFirst();
@@ -137,9 +139,9 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public boolean last() throws Exception
     {
-        if ( existenceCursor != null )
+        if ( presenceCursor != null )
         {
-            return existenceCursor.last();
+            return presenceCursor.last();
         }
 
         afterLast();
@@ -149,9 +151,9 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public boolean previous() throws Exception
     {
-        if ( existenceCursor != null )
+        if ( presenceCursor != null )
         {
-            return existenceCursor.previous();
+            return presenceCursor.previous();
         }
 
         while ( ndnCursor.previous() )
@@ -169,9 +171,9 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public boolean next() throws Exception
     {
-        if ( existenceCursor != null )
+        if ( presenceCursor != null )
         {
-            return existenceCursor.next();
+            return presenceCursor.next();
         }
 
         while ( ndnCursor.next() )
@@ -189,11 +191,11 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public IndexEntry<String, Attributes> get() throws Exception
     {
-        if ( existenceCursor != null )
+        if ( presenceCursor != null )
         {
-            if ( existenceCursor.available() )
+            if ( presenceCursor.available() )
             {
-                return existenceCursor.get();
+                return presenceCursor.get();
             }
 
             throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );
@@ -210,9 +212,9 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public boolean isElementReused()
     {
-        if ( existenceCursor != null )
+        if ( presenceCursor != null )
         {
-            return existenceCursor.isElementReused();
+            return presenceCursor.isElementReused();
         }
 
         return ndnCursor.isElementReused();
@@ -223,9 +225,9 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         super.close();
 
-        if ( existenceCursor != null )
+        if ( presenceCursor != null )
         {
-            existenceCursor.close();
+            presenceCursor.close();
         }
         else
         {

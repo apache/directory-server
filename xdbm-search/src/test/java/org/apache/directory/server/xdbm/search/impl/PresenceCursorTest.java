@@ -31,10 +31,12 @@ import org.apache.directory.server.xdbm.tools.IndexUtils;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 import javax.naming.directory.Attributes;
 import java.io.File;
@@ -96,7 +98,7 @@ public class PresenceCursorTest
         store.setSyncOnWrite( false );
 
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID ) );
+        store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
         StoreUtils.loadExampleData( store, registries );
         LOG.debug( "Created new store" );
     }
@@ -121,8 +123,65 @@ public class PresenceCursorTest
 
 
     @Test
-    public void testPresenceIndex() throws Exception
+    public void testIndexedAttributes() throws Exception
     {
-        IndexUtils.printContents( store.getPresenceIndex() );
+        PresenceNode node = new PresenceNode( SchemaConstants.CN_AT_OID );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+
+        cursor.beforeFirst();
+        assertTrue( cursor.next() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 7, ( long ) cursor.get().getId() );
+        assertFalse( cursor.next() );
+
+        node = new PresenceNode( SchemaConstants.OU_AT_OID );
+        evaluator = new PresenceEvaluator( node, store, registries );
+        cursor = new PresenceCursor( store, evaluator );
+
+        cursor.beforeFirst();
+        assertTrue( cursor.next() );
+        assertEquals( 2, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 3, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 4, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 7, ( long ) cursor.get().getId() );
+        assertFalse( cursor.next() );
+    }
+
+
+    @Test
+    public void testNonIndexedAttributes() throws Exception
+    {
+        PresenceNode node = new PresenceNode( SchemaConstants.SN_AT_OID );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+
+        cursor.beforeFirst();
+        assertTrue( cursor.next() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 7, ( long ) cursor.get().getId() );
+        assertFalse( cursor.next() );
+
+        node = new PresenceNode( SchemaConstants.O_AT_OID );
+        evaluator = new PresenceEvaluator( node, store, registries );
+        cursor = new PresenceCursor( store, evaluator );
+
+        cursor.beforeFirst();
+        assertTrue( cursor.next() );
+        assertEquals( 1, ( long ) cursor.get().getId() );
+        assertFalse( cursor.next() );
     }
 }
