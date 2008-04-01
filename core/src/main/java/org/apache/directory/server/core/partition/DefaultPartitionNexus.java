@@ -147,7 +147,6 @@ public class DefaultPartitionNexus extends PartitionNexus
     
     /** The OID registry */
     private OidRegistry oidRegistry;
-    private Object partitionLookupTreeLock = new Object();
 
 
     /**
@@ -1115,12 +1114,13 @@ public class DefaultPartitionNexus extends PartitionNexus
     public Partition getPartition( LdapDN dn ) throws NamingException
     {
         Enumeration<String> rdns = dn.getAll();
-        Node currentNode = partitionLookupTree;
         
         // This is synchronized so that we can't read the
         // partitionList when it is modified.
-        synchronized ( partitionLookupTreeLock )
+        synchronized ( partitionLookupTree )
         {
+            Node currentNode = partitionLookupTree;
+
             // Iterate through all the RDN until we find the associated partition
             while ( rdns.hasMoreElements() )
             {
@@ -1137,6 +1137,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 }
 
                 BranchNode currentBranch = ( BranchNode ) currentNode;
+                
                 if ( currentBranch.contains( rdn ) )
                 {
                     currentNode = currentBranch.getChild( rdn );
