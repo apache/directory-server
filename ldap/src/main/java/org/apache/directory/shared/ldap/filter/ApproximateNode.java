@@ -26,7 +26,7 @@ package org.apache.directory.shared.ldap.filter;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision: 519266 $
  */
-public class ApproximateNode extends SimpleNode
+public class ApproximateNode extends EqualityNode
 {
     /**
      * Creates a new ApproximateNode object.

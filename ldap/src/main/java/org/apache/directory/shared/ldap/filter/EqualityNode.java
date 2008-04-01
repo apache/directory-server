@@ -53,6 +53,30 @@ public class EqualityNode extends SimpleNode
 
 
     /**
+     * Creates a new Equality object.
+     * 
+     * @param attribute the attribute name
+     * @param value the value to test for
+     */
+    protected EqualityNode( String attribute, byte[] value, AssertionType assertionType )
+    {
+        super( attribute, value, assertionType );
+    }
+
+
+    /**
+     * Creates a new Equality object.
+     * 
+     * @param attribute the attribute name
+     * @param value the value to test for
+     */
+    protected EqualityNode( String attribute, String value, AssertionType assertionType )
+    {
+        super( attribute, value, assertionType );
+    }
+
+
+    /**
      * @see Object#hashCode()
      */
     public int hashCode()
