@@ -25,7 +25,6 @@ import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
