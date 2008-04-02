@@ -103,11 +103,18 @@
       <version>${pom.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-bouncycastle-reduced</artifactId>
+      <version>0.9.9-SNAPSHOT</version>
+    </dependency>
 
+<!--
     <dependency>
       <groupId>bouncycastle</groupId>
       <artifactId>bcprov-jdk15</artifactId>
     </dependency>
+-->
 
   </dependencies>
 
