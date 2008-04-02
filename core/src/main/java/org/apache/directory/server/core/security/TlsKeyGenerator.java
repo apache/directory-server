@@ -73,7 +73,22 @@ public class TlsKeyGenerator
     public static final String CERTIFICATE_PRINCIPAL_DN =
         "CN=ApacheDS, OU=Directory, O=ASF, C=US";
     private static final String ALGORITHM = "RSA";
-    private static final int KEY_SIZE = 1024;
+    
+    /* 
+     * Eventually we have to make several of these parameters configurable,
+     * however note to pass export restrictions we must use a key size of
+     * 512 or less here as the default.  Users can configure this setting
+     * later based on their own legal situations.  This is required to 
+     * classify ApacheDS in the ECCN 5D002 category.  Please see the following
+     * page for more information:
+     * 
+     *    http://www.apache.org/dev/crypto.html
+     * 
+     * Also ApacheDS must be classified on the following page:
+     * 
+     *    http://www.apache.org/licenses/exports
+     */ 
+    private static final int KEY_SIZE = 512;
     private static final long YEAR_MILLIS = 365*24*3600*1000;
     
 
