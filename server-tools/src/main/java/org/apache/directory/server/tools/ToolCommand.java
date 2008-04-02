@@ -19,18 +19,136 @@
  */
 package org.apache.directory.server.tools;
 
-import org.apache.directory.server.constants.ServerDNConstants;
+
+import java.io.File;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.apache.directory.daemon.InstallationLayout;
+import org.apache.directory.server.configuration.ApacheDS;
 
 
 /**
- * Interface that must be extended by every type of command.
+ * Simple base class for tool commands.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$
  */
-public interface ToolCommand
+public abstract class ToolCommand
 {
-    // Default values
-    public final static int DEFAULT_PORT = 10389;
-    public final static String DEFAULT_HOST = "localhost";
-    public final static String DEFAULT_PASSWORD = "secret";
-    public final static String DEFAULT_USER = ServerDNConstants.ADMIN_SYSTEM_DN;
-    public final static String DEFAULT_AUTH = "simple";
+    private final String name;
+    private boolean debugEnabled = false;
+    private boolean verboseEnabled = false;
+    private boolean quietEnabled = false;
+    private String version;
+    private InstallationLayout layout;
+    private ApacheDS apacheDS;
+
+
+    protected ToolCommand(String name)
+    {
+        this.name = name;
+    }
+
+
+    public abstract void execute( CommandLine cmd ) throws Exception;
+
+
+    public abstract Options getOptions();
+
+
+    public String getName()
+    {
+        return this.name;
+    }
+
+
+    public void setLayout( File installationDirectory )
+    {
+        this.layout = new InstallationLayout( installationDirectory );
+    }
+
+
+    public void setLayout( String installationPath )
+    {
+        this.layout = new InstallationLayout( installationPath );
+    }
+
+
+    public void setLayout( InstallationLayout layout )
+    {
+        this.layout = layout;
+    }
+
+
+    public InstallationLayout getLayout()
+    {
+        return layout;
+    }
+
+
+    public void setApacheDS( ApacheDS apacheDS )
+    {
+        this.apacheDS = apacheDS;
+    }
+
+
+    public ApacheDS getApacheDS()
+    {
+        return apacheDS;
+    }
+
+
+    public void setVersion( String version )
+    {
+        this.version = version;
+    }
+
+
+    public String getVersion()
+    {
+        return version;
+    }
+
+
+    public String toString()
+    {
+        return getName();
+    }
+
+
+    public void setDebugEnabled( boolean debugEnabled )
+    {
+        this.debugEnabled = debugEnabled;
+    }
+
+
+    public boolean isDebugEnabled()
+    {
+        return debugEnabled;
+    }
+
+
+    public void setVerboseEnabled( boolean verboseEnabled )
+    {
+        this.verboseEnabled = verboseEnabled;
+    }
+
+
+    public boolean isVerboseEnabled()
+    {
+        return verboseEnabled;
+    }
+
+
+    public void setQuietEnabled( boolean quietEnabled )
+    {
+        this.quietEnabled = quietEnabled;
+    }
+
+
+    public boolean isQuietEnabled()
+    {
+        return quietEnabled;
+    }
 }

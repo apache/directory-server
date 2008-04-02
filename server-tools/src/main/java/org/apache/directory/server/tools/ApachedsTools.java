@@ -19,17 +19,14 @@
  */
 package org.apache.directory.server.tools;
 
-
 import java.io.IOException;
+import java.net.URL;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
-import org.apache.directory.server.tools.listeners.ExceptionListener;
-import org.apache.directory.server.tools.listeners.SysErrListener;
-import org.apache.directory.server.tools.listeners.SysOutListener;
-import org.apache.directory.server.tools.request.BaseToolCommandCL;
-import org.apache.directory.server.tools.util.ListenerParameter;
+import org.apache.directory.server.configuration.ApacheDS;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 
 /**
@@ -40,23 +37,10 @@ import org.apache.directory.server.tools.util.ListenerParameter;
  */
 public class ApachedsTools
 {
-    public static void main( String[] args )
+    public static void main( String[] args ) throws Exception
     {
-        ToolCommandListener outputListener = new SysOutListener();
-        ToolCommandListener errorListener = new SysErrListener();
-        ToolCommandListener exceptionListener = new ExceptionListener();
-
-        BaseCommand tools = null;
-        try
-        {
-            tools = getInstance();
-        }
-        catch ( Exception e )
-        {
-            System.err.println( "An error has occurred. Apache DS Tools must quit." + "\nError: " + e.getMessage() );
-            System.exit( 1 );
-        }
-
+        BaseCommand tools = getInstance();
+        
         if ( !BaseCommand.hasBannerOption( args ) )
         {
             tools.printBanner();
@@ -90,7 +74,7 @@ public class ApachedsTools
             System.exit( 0 );
         }
 
-        BaseToolCommandCL cmd = ( BaseToolCommandCL ) tools.getCommands().get( command );
+        ToolCommand cmd = ( ToolCommand ) tools.getCommands().get( command );
         if ( cmd == null )
         {
             System.err.println( "Unknown command: " + args[0] );
@@ -110,30 +94,29 @@ public class ApachedsTools
         cmd.setDebugEnabled( cmdline.hasOption( 'd' ) );
         cmd.setVerboseEnabled( cmdline.hasOption( 'v' ) );
         cmd.setVersion( tools.getProductVersion() );
-
-        if ( cmdline.hasOption( 'c' ) && ( cmdline.getOptionValue( 'i' ) == null ) )
+        if ( cmdline.getOptionValue( 'i' ) != null )
+        {
+            cmd.setLayout( cmdline.getOptionValue( 'i' ) );
+            if ( !cmd.isQuietEnabled() )
+            {
+                System.out.println( "loading settings from: " + cmd.getLayout().getConfigurationFile() );
+            }
+            ApplicationContext factory = null;
+            URL configUrl = cmd.getLayout().getConfigurationFile().toURL();
+            factory = new FileSystemXmlApplicationContext( configUrl.toString() );
+            cmd.setApacheDS( ( ApacheDS ) factory.getBean( "apacheDS" ) );
+        }
+        else if ( cmdline.hasOption( 'c' ) )
         {
             System.err.println( "forced configuration load (-c) requires the -i option" );
             System.exit( 1 );
         }
 
-        try
-        {
-            cmd.execute( cmdline, new ListenerParameter[]
-                { new ListenerParameter( BaseToolCommandExecutor.OUTPUTLISTENER_PARAMETER, outputListener ),
-                    new ListenerParameter( BaseToolCommandExecutor.ERRORLISTENER_PARAMETER, errorListener ),
-                    new ListenerParameter( BaseToolCommandExecutor.EXCEPTIONLISTENER_PARAMETER, exceptionListener ) } );
-        }
-        catch ( Exception e )
-        {
-            System.err.println( "An error has occurred. Apache DS Tools must quit." + "\nError: " + e.getMessage() );
-            System.exit( 1 );
-        }
+        cmd.execute( cmdline );
     }
 
 
-    public static BaseCommand getInstance() throws InstantiationException, IllegalAccessException,
-        ClassNotFoundException
+    public static BaseCommand getInstance() throws InstantiationException, IllegalAccessException, ClassNotFoundException
     {
         Properties props = new Properties();
         try
@@ -151,7 +134,7 @@ public class ApachedsTools
         String productCommand = props.getProperty( "product.command", "apacheds-tools" );
         String productBanner = props.getProperty( "product.banner", BaseCommand.BANNER );
         String productClass = props.getProperty( "product.class", "org.apache.directory.server.tools.BaseCommand" );
-
+        
         BaseCommand baseCommand = ( BaseCommand ) Class.forName( productClass ).newInstance();
         baseCommand.setProductBanner( productBanner );
         baseCommand.setProductDisplayName( productDisplayName );
