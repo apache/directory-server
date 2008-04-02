@@ -8,7 +8,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.directory.shared</groupId>
   <artifactId>shared-bouncycastle-reduced</artifactId>
-  <name>Apache Directory bouncycastle reduced repackaging</name>
+  <name>Apache Directory Reduced Bouncycastle (repackaged)</name>
+  <description>
+    Repackages the BouncyCastle jar including only those files we require
+    rather than everything which includes patented algorithms like IDEA.
+  </description>
   <dependencies>
     <dependency>
       <groupId>bouncycastle</groupId>
