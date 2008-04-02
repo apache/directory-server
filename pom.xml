@@ -533,6 +533,7 @@
   <profiles>
     <profile>
       <id>release</id>
+
       <modules>
         <module>bootstrap-extract</module>
         <module>bootstrap-partition</module>
@@ -542,7 +543,6 @@
         <module>utils</module>
         <module>schema-registries</module>
         <module>jdbm-store</module>
-        <module>constants</module>
         <module>btree-base</module>
         <module>core</module>
         <module>core-shared</module>
