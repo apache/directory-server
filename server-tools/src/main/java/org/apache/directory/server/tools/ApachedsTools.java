@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.tools;
 
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
@@ -40,7 +41,7 @@ public class ApachedsTools
     public static void main( String[] args ) throws Exception
     {
         BaseCommand tools = getInstance();
-        
+
         if ( !BaseCommand.hasBannerOption( args ) )
         {
             tools.printBanner();
@@ -116,7 +117,8 @@ public class ApachedsTools
     }
 
 
-    public static BaseCommand getInstance() throws InstantiationException, IllegalAccessException, ClassNotFoundException
+    public static BaseCommand getInstance() throws InstantiationException, IllegalAccessException,
+        ClassNotFoundException
     {
         Properties props = new Properties();
         try
@@ -134,7 +136,7 @@ public class ApachedsTools
         String productCommand = props.getProperty( "product.command", "apacheds-tools" );
         String productBanner = props.getProperty( "product.banner", BaseCommand.BANNER );
         String productClass = props.getProperty( "product.class", "org.apache.directory.server.tools.BaseCommand" );
-        
+
         BaseCommand baseCommand = ( BaseCommand ) Class.forName( productClass ).newInstance();
         baseCommand.setProductBanner( productBanner );
         baseCommand.setProductDisplayName( productDisplayName );

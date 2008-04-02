@@ -117,7 +117,7 @@ public class GracefulShutdownCommand extends ToolCommand
                 isSuccess = false;
                 System.err.print( "shutdown request failed with error: " + t.getMessage() );
             }
-            catch( CommunicationException e )
+            catch ( CommunicationException e )
             {
                 isSuccess = true;
             }

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.tools;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -68,6 +69,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
 
+
 /**
  * A command to import data into a server. The data to be imported must be
  * stored in a Ldif File, and they could be added entries or modified entries.
@@ -78,7 +80,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class ImportCommand extends ToolCommand
 {
     public static final String PORT_RANGE = "(" + AvailablePortFinder.MIN_PORT_NUMBER + ", "
-            + AvailablePortFinder.MAX_PORT_NUMBER + ")";
+        + AvailablePortFinder.MAX_PORT_NUMBER + ")";
 
     private int port = 10389;
 
@@ -95,9 +97,9 @@ public class ImportCommand extends ToolCommand
     private String logs;
 
     private boolean ignoreErrors = false;
-    
+
     private static final int IMPORT_ERROR = -1;
-    private static final int IMPORT_SUCCESS= 0;
+    private static final int IMPORT_SUCCESS = 0;
 
     /**
      * Socket used to connect to the server
@@ -110,6 +112,7 @@ public class ImportCommand extends ToolCommand
 
     private Asn1Decoder ldapDecoder = new LdapDecoder();
 
+
     /**
      * The constructor save the command's name into it's super class
      * 
@@ -118,6 +121,7 @@ public class ImportCommand extends ToolCommand
     {
         super( "import" );
     }
+
 
     /**
      * Connect to the LDAP server through a socket and establish the Input and
@@ -136,11 +140,13 @@ public class ImportCommand extends ToolCommand
         channel.configureBlocking( true );
     }
 
+
     private void sendMessage( ByteBuffer bb ) throws IOException
     {
         channel.write( bb );
         bb.clear();
     }
+
 
     private LdapMessage readResponse( ByteBuffer bb ) throws IOException, DecoderException, NamingException
     {
@@ -164,29 +170,30 @@ public class ImportCommand extends ToolCommand
 
                 if ( ldapMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
                 {
-                    messageResp = ( (LdapMessageContainer) ldapMessageContainer ).getLdapMessage();
+                    messageResp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
 
                     if ( messageResp instanceof BindResponse )
                     {
-                        BindResponse resp = ( (LdapMessageContainer) ldapMessageContainer ).getLdapMessage().getBindResponse();
+                        BindResponse resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
+                            .getBindResponse();
 
-                        if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS  )
+                        if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
                         {
                             System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
                         }
                     }
                     else if ( messageResp instanceof ExtendedResponse )
                     {
-                        ExtendedResponse resp = ( (LdapMessageContainer) ldapMessageContainer ).getLdapMessage()
-                                .getExtendedResponse();
+                        ExtendedResponse resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
+                            .getExtendedResponse();
 
-                        if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS  )
+                        if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
                         {
                             System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
                         }
                     }
 
-                    ( (LdapMessageContainer) ldapMessageContainer ).clean();
+                    ( ( LdapMessageContainer ) ldapMessageContainer ).clean();
                     break;
                 }
                 else
@@ -200,6 +207,7 @@ public class ImportCommand extends ToolCommand
 
     }
 
+
     /**
      * Send the entry to the encoder, then wait for a
      * reponse from the LDAP server on the results of the operation.
@@ -210,7 +218,7 @@ public class ImportCommand extends ToolCommand
      *            message id number
      */
     private int addEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException, InvalidNameException,
-            NamingException, EncoderException
+        NamingException, EncoderException
     {
         AddRequest addRequest = new AddRequest();
 
@@ -230,7 +238,7 @@ public class ImportCommand extends ToolCommand
 
         for ( NamingEnumeration attrs = attributes.getAll(); attrs.hasMoreElements(); )
         {
-            Attribute attribute = (Attribute) attrs.nextElement();
+            Attribute attribute = ( Attribute ) attrs.nextElement();
 
             addRequest.addAttributeType( attribute.getID() );
 
@@ -245,7 +253,7 @@ public class ImportCommand extends ToolCommand
 
         message.setProtocolOP( addRequest );
         message.setMessageId( messageId );
-        
+
         // Encode and send the addRequest message
         ByteBuffer bb = message.encode( null );
         bb.flip();
@@ -265,17 +273,18 @@ public class ImportCommand extends ToolCommand
             {
                 System.out.println( "Add of Entry " + entry.getDn() + " was successful" );
             }
-            
+
             return IMPORT_SUCCESS;
         }
         else
         {
-            System.err.println( "Add of entry " + entry.getDn() + " failed for the following reasons provided by the server:\n"
-                    + result.getErrorMessage() );
-            
+            System.err.println( "Add of entry " + entry.getDn()
+                + " failed for the following reasons provided by the server:\n" + result.getErrorMessage() );
+
             return IMPORT_ERROR;
         }
     }
+
 
     /**
      * Send the entry to the encoder, then wait for a
@@ -286,8 +295,8 @@ public class ImportCommand extends ToolCommand
      * @param msgId
      *            message id number
      */
-    private int deleteEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException, InvalidNameException,
-            NamingException, EncoderException
+    private int deleteEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
+        InvalidNameException, NamingException, EncoderException
     {
         DelRequest delRequest = new DelRequest();
 
@@ -297,14 +306,14 @@ public class ImportCommand extends ToolCommand
         {
             System.out.println( "Deleting entry " + dn );
         }
-        
+
         delRequest.setEntry( new LdapDN( dn ) );
-        
+
         LdapMessage message = new LdapMessage();
 
         message.setProtocolOP( delRequest );
         message.setMessageId( messageId );
-        
+
         // Encode and send the delete request
         ByteBuffer bb = message.encode( null );
         bb.flip();
@@ -324,16 +333,17 @@ public class ImportCommand extends ToolCommand
             {
                 System.out.println( "Delete of Entry " + entry.getDn() + " was successful" );
             }
-            
+
             return IMPORT_SUCCESS;
         }
         else
         {
-            System.err.println( "Delete of entry " + entry.getDn() + " failed for the following reasons provided by the server:\n"
-                    + result.getErrorMessage() );
+            System.err.println( "Delete of entry " + entry.getDn()
+                + " failed for the following reasons provided by the server:\n" + result.getErrorMessage() );
             return IMPORT_ERROR;
         }
     }
+
 
     /**
      * Send the entry to the encoder, then wait for a
@@ -344,8 +354,8 @@ public class ImportCommand extends ToolCommand
      * @param msgId
      *            message id number
      */
-    private int changeModRDNEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException, InvalidNameException,
-            NamingException, EncoderException
+    private int changeModRDNEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
+        InvalidNameException, NamingException, EncoderException
     {
         ModifyDNRequest modifyDNRequest = new ModifyDNRequest();
 
@@ -355,21 +365,21 @@ public class ImportCommand extends ToolCommand
         {
             System.out.println( "Modify DN of entry " + dn );
         }
-        
+
         modifyDNRequest.setEntry( new LdapDN( dn ) );
         modifyDNRequest.setDeleteOldRDN( entry.isDeleteOldRdn() );
         modifyDNRequest.setNewRDN( new Rdn( entry.getNewRdn() ) );
-        
+
         if ( StringTools.isEmpty( entry.getNewSuperior() ) == false )
         {
             modifyDNRequest.setNewSuperior( new LdapDN( entry.getNewSuperior() ) );
         }
-        
+
         LdapMessage message = new LdapMessage();
 
         message.setProtocolOP( modifyDNRequest );
         message.setMessageId( messageId );
-        
+
         // Encode and send the delete request
         ByteBuffer bb = message.encode( null );
         bb.flip();
@@ -389,17 +399,18 @@ public class ImportCommand extends ToolCommand
             {
                 System.out.println( "ModifyDn of Entry " + entry.getDn() + " was successful" );
             }
-            
+
             return IMPORT_SUCCESS;
         }
         else
         {
-            System.err.println( "ModifyDn of entry " + entry.getDn() + " failed for the following reasons provided by the server:\n"
-                    + result.getErrorMessage() );
+            System.err.println( "ModifyDn of entry " + entry.getDn()
+                + " failed for the following reasons provided by the server:\n" + result.getErrorMessage() );
             return IMPORT_ERROR;
         }
     }
-    
+
+
     /**
      * Send the entry to the encoder, then wait for a
      * reponse from the LDAP server on the results of the operation.
@@ -409,8 +420,8 @@ public class ImportCommand extends ToolCommand
      * @param msgId
      *            message id number
      */
-    private int changeModifyEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException, InvalidNameException,
-            NamingException, EncoderException
+    private int changeModifyEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
+        InvalidNameException, NamingException, EncoderException
     {
         ModifyRequest modifyRequest = new ModifyRequest();
 
@@ -420,36 +431,36 @@ public class ImportCommand extends ToolCommand
         {
             System.out.println( "Modify of entry " + dn );
         }
-        
+
         modifyRequest.setObject( new LdapDN( dn ) );
         modifyRequest.initModifications();
-        
+
         Iterator modifications = entry.getModificationItems().iterator();
-        
+
         while ( modifications.hasNext() )
         {
-            ModificationItemImpl modification = (ModificationItemImpl)modifications.next();
-            
+            ModificationItemImpl modification = ( ModificationItemImpl ) modifications.next();
+
             switch ( modification.getModificationOp() )
             {
-                case DirContext.ADD_ATTRIBUTE :
-                    modifyRequest.setCurrentOperation(  LdapConstants.OPERATION_ADD );
-                    break;
-                    
-                case DirContext.REMOVE_ATTRIBUTE :
-                    modifyRequest.setCurrentOperation(  LdapConstants.OPERATION_DELETE );
+                case DirContext.ADD_ATTRIBUTE:
+                    modifyRequest.setCurrentOperation( LdapConstants.OPERATION_ADD );
                     break;
 
-                case DirContext.REPLACE_ATTRIBUTE :
-                    modifyRequest.setCurrentOperation(  LdapConstants.OPERATION_REPLACE );
+                case DirContext.REMOVE_ATTRIBUTE:
+                    modifyRequest.setCurrentOperation( LdapConstants.OPERATION_DELETE );
                     break;
-                    
-                default :
+
+                case DirContext.REPLACE_ATTRIBUTE:
+                    modifyRequest.setCurrentOperation( LdapConstants.OPERATION_REPLACE );
+                    break;
+
+                default:
                     System.err.println( "Unknown modify operation for DN " + dn );
             }
-            
+
             modifyRequest.addAttributeTypeAndValues( modification.getAttribute().getID() );
-            
+
             for ( NamingEnumeration values = modification.getAttribute().getAll(); values.hasMoreElements(); )
             {
                 Object value = values.nextElement();
@@ -461,7 +472,7 @@ public class ImportCommand extends ToolCommand
 
         message.setProtocolOP( modifyRequest );
         message.setMessageId( messageId );
-        
+
         // Encode and send the delete request
         ByteBuffer bb = message.encode( null );
         bb.flip();
@@ -481,17 +492,18 @@ public class ImportCommand extends ToolCommand
             {
                 System.out.println( "Modify of Entry " + entry.getDn() + " was successful" );
             }
-            
+
             return IMPORT_SUCCESS;
         }
         else
         {
-            System.err.println( "Modify of entry " + entry.getDn() + " failed for the following reasons provided by the server:\n"
-                    + result.getErrorMessage() );
+            System.err.println( "Modify of entry " + entry.getDn()
+                + " failed for the following reasons provided by the server:\n" + result.getErrorMessage() );
             return IMPORT_ERROR;
         }
     }
-    
+
+
     /**
      * Send the change operation to the encoder, then wait for a
      * reponse from the LDAP server on the results of the operation.
@@ -501,10 +513,10 @@ public class ImportCommand extends ToolCommand
      * @param msgId
      *            message id number
      */
-    private int changeEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException, InvalidNameException,
-            NamingException, EncoderException
+    private int changeEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
+        InvalidNameException, NamingException, EncoderException
     {
-    	switch ( entry.getChangeType().getChangeType() )
+        switch ( entry.getChangeType().getChangeType() )
         {
             case ChangeType.ADD_ORDINAL:
                 // No difference with the injection of new entries
@@ -525,6 +537,7 @@ public class ImportCommand extends ToolCommand
         }
     }
 
+
     /**
      * Bind to the ldap server
      * 
@@ -539,7 +552,7 @@ public class ImportCommand extends ToolCommand
         if ( "simple".equals( auth ) )
         {
             authentication = new SimpleAuthentication();
-            ( (SimpleAuthentication) authentication ).setSimple( StringTools.getBytesUtf8( password ) );
+            ( ( SimpleAuthentication ) authentication ).setSimple( StringTools.getBytesUtf8( password ) );
         }
 
         bindRequest.setAuthentication( authentication );
@@ -548,7 +561,7 @@ public class ImportCommand extends ToolCommand
 
         message.setProtocolOP( bindRequest );
         message.setMessageId( messageId );
-        
+
         // Encode and send the bind request
         ByteBuffer bb = message.encode( null );
         bb.flip();
@@ -572,11 +585,12 @@ public class ImportCommand extends ToolCommand
         }
         else
         {
-            System.err.println( "Binding of user " + user + " failed for the following reasons provided by the server:\n"
-                    + result.getErrorMessage() );
+            System.err.println( "Binding of user " + user
+                + " failed for the following reasons provided by the server:\n" + result.getErrorMessage() );
             System.exit( 1 );
         }
     }
+
 
     /**
      * Unbind from the server
@@ -599,12 +613,13 @@ public class ImportCommand extends ToolCommand
         bb.flip();
 
         sendMessage( bb );
-        
+
         if ( isDebugEnabled() )
         {
             System.out.println( "Unbinding of user " + user + " was successful" );
         }
     }
+
 
     /**
      * Execute the command
@@ -648,31 +663,31 @@ public class ImportCommand extends ToolCommand
 
             while ( entries.hasNext() )
             {
-            	LdifEntry entry = entries.next();
+                LdifEntry entry = entries.next();
 
                 // Check if we have had some error, has next() does not throw any exception
                 if ( ldifReader.hasError() )
                 {
-                    System.err.println( "Found an error while persing an entry : " + ldifReader.getError().getMessage() );
-                    
+                    System.err
+                        .println( "Found an error while persing an entry : " + ldifReader.getError().getMessage() );
+
                     if ( ignoreErrors == false )
                     {
-                        unbind(  messageId );
-                        
+                        unbind( messageId );
+
                         System.err.println( "Import failed..." );
                         System.exit( 1 );
                     }
                 }
-                
-                if ( ( addEntry( entry, messageId++ ) == IMPORT_ERROR ) && 
-                        ( ignoreErrors == false ) )
+
+                if ( ( addEntry( entry, messageId++ ) == IMPORT_ERROR ) && ( ignoreErrors == false ) )
                 {
-                    unbind(  messageId );
-                    
+                    unbind( messageId );
+
                     System.err.println( "Import failed..." );
                     System.exit( 1 );
                 }
-                
+
                 nbAdd++;
 
                 if ( nbAdd % 10 == 0 )
@@ -701,26 +716,26 @@ public class ImportCommand extends ToolCommand
             while ( entries.hasNext() )
             {
                 LdifEntry entry = entries.next();
-                
+
                 // Check if we have had some error, has next() does not throw any exception
                 if ( ldifReader.hasError() )
                 {
-                    System.err.println( "Found an error while persing an entry : " + ldifReader.getError().getMessage() );
-                    
+                    System.err
+                        .println( "Found an error while persing an entry : " + ldifReader.getError().getMessage() );
+
                     if ( ignoreErrors == false )
                     {
-                        unbind(  messageId );
-                        
+                        unbind( messageId );
+
                         System.err.println( "Import failed..." );
                         System.exit( 1 );
                     }
                 }
 
-                if ( ( changeEntry( entry, messageId++ ) == IMPORT_ERROR ) && 
-                        ( ignoreErrors == false ) )
+                if ( ( changeEntry( entry, messageId++ ) == IMPORT_ERROR ) && ( ignoreErrors == false ) )
                 {
-                    unbind(  messageId );
-                    
+                    unbind( messageId );
+
                     System.err.println( "Import failed..." );
                     System.exit( 1 );
                 }
@@ -748,6 +763,7 @@ public class ImportCommand extends ToolCommand
         unbind( messageId++ );
 
     }
+
 
     /**
      * Read the command line and get the options : 'h' : host 'p' : port 'u' :
@@ -787,7 +803,7 @@ public class ImportCommand extends ToolCommand
         // -------------------------------------------------------------------
 
         if ( cmd.hasOption( 'p' ) ) // - user provided port w/ -p takes
-                                    // precedence
+        // precedence
         {
             String val = cmd.getOptionValue( 'p' );
 
@@ -795,7 +811,7 @@ public class ImportCommand extends ToolCommand
             {
                 port = Integer.parseInt( val );
             }
-            catch (NumberFormatException e)
+            catch ( NumberFormatException e )
             {
                 System.err.println( "port value of '" + val + "' is not a number" );
                 System.exit( 1 );
@@ -804,13 +820,13 @@ public class ImportCommand extends ToolCommand
             if ( port > AvailablePortFinder.MAX_PORT_NUMBER )
             {
                 System.err.println( "port value of '" + val + "' is larger than max port number: "
-                        + AvailablePortFinder.MAX_PORT_NUMBER );
+                    + AvailablePortFinder.MAX_PORT_NUMBER );
                 System.exit( 1 );
             }
             else if ( port < AvailablePortFinder.MIN_PORT_NUMBER )
             {
                 System.err.println( "port value of '" + val + "' is smaller than the minimum port number: "
-                        + AvailablePortFinder.MIN_PORT_NUMBER );
+                    + AvailablePortFinder.MIN_PORT_NUMBER );
                 System.exit( 1 );
             }
 
@@ -933,7 +949,7 @@ public class ImportCommand extends ToolCommand
                 {
                     System.out.println( "ldif file to import: " + ldifFile.getCanonicalPath() );
                 }
-                catch (IOException ioe)
+                catch ( IOException ioe )
                 {
                     System.out.println( "ldif file to import: " + ldifFileName );
                 }
@@ -945,6 +961,7 @@ public class ImportCommand extends ToolCommand
             System.exit( 1 );
         }
     }
+
 
     public Options getOptions()
     {

@@ -68,7 +68,7 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
     }
 
 
-    public void notificationReceived( UnsolicitedNotificationEvent evt ) 
+    public void notificationReceived( UnsolicitedNotificationEvent evt )
     {
         notification = evt.getNotification();
 
@@ -82,17 +82,17 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
         {
             System.out.println( "Recieved GracefulDisconnect: " + GracefulDisconnect.EXTENSION_OID );
             GracefulDisconnect gd = null;
-            
+
             try
             {
                 gd = new GracefulDisconnect( notification.getEncodedValue() );
             }
-            catch ( DecoderException de ) 
+            catch ( DecoderException de )
             {
-				// TODO Auto-generated catch block
-				de.printStackTrace();
-			}
-            
+                // TODO Auto-generated catch block
+                de.printStackTrace();
+            }
+
             System.out.println( "LDAP server will shutdown in " + gd.getDelay() + " seconds." );
             System.out.println( "LDAP server will be back online in " + gd.getTimeOffline() + " minutes." );
 
@@ -122,7 +122,7 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
         int delay;
 
 
-        Counter(int delay)
+        Counter( int delay )
         {
             this.delay = delay;
         }

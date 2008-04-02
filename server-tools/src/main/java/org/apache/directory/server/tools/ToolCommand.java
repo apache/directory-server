@@ -45,7 +45,7 @@ public abstract class ToolCommand
     private ApacheDS apacheDS;
 
 
-    protected ToolCommand(String name)
+    protected ToolCommand( String name )
     {
         this.name = name;
     }

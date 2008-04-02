@@ -85,8 +85,8 @@ import org.apache.directory.shared.ldap.util.Base64;
  */
 public class DumpCommand extends ToolCommand
 {
-	private Registries bootstrapRegistries = new DefaultRegistries( "bootstrap", 
-	        new BootstrapSchemaLoader(), new DefaultOidRegistry() );
+    private Registries bootstrapRegistries = new DefaultRegistries( "bootstrap", new BootstrapSchemaLoader(),
+        new DefaultOidRegistry() );
     private Set exclusions = new HashSet();
     private boolean includeOperational = false;
 
@@ -95,8 +95,8 @@ public class DumpCommand extends ToolCommand
     {
         super( "dump" );
     }
-    
-    
+
+
     private Registries loadRegistries() throws Exception
     {
         // --------------------------------------------------------------------
@@ -107,7 +107,7 @@ public class DumpCommand extends ToolCommand
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         OidRegistry oidRegistry = new DefaultOidRegistry();
         final Registries registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
-        
+
         // load essential bootstrap schemas 
         Set<Schema> bootstrapSchemas = new HashSet<Schema>();
         bootstrapSchemas.add( new ApachemetaSchema() );
@@ -118,56 +118,55 @@ public class DumpCommand extends ToolCommand
 
         // run referential integrity tests
         List<Throwable> errors = registries.checkRefInteg();
-        
+
         if ( !errors.isEmpty() )
         {
             NamingException e = new NamingException();
             e.setRootCause( ( Throwable ) errors.get( 0 ) );
             throw e;
         }
-        
+
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
-        
+
         // --------------------------------------------------------------------
         // Initialize schema partition or bomb out if we cannot find it on disk
         // --------------------------------------------------------------------
-        
+
         // If not present then we need to abort 
         File schemaDirectory = new File( getLayout().getPartitionsDirectory(), "schema" );
-        if ( ! schemaDirectory.exists() )
+        if ( !schemaDirectory.exists() )
         {
-            throw new LdapConfigurationException( "The following schema directory from " +
-                    "the installation layout could not be found:\n\t" + schemaDirectory );
+            throw new LdapConfigurationException( "The following schema directory from "
+                + "the installation layout could not be found:\n\t" + schemaDirectory );
         }
-        
+
         JdbmPartition schemaPartition = new JdbmPartition();
         schemaPartition.setId( "schema" );
         schemaPartition.setCacheSize( 1000 );
-        
+
         DbFileListing listing;
-        try 
+        try
         {
             listing = new DbFileListing();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-            throw new LdapNamingException( "Got IOException while trying to read DBFileListing: " + e.getMessage(), 
+            throw new LdapNamingException( "Got IOException while trying to read DBFileListing: " + e.getMessage(),
                 ResultCodeEnum.OTHER );
         }
 
         Set<Index> indexedAttributes = new HashSet<Index>();
-        
+
         for ( String attributeId : listing.getIndexedAttributes() )
         {
             indexedAttributes.add( new JdbmIndex( attributeId ) );
         }
-        
+
         schemaPartition.setIndexedAttributes( indexedAttributes );
         schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
-        
+
         ServerEntry systemEntry = new DefaultServerEntry( registries, new LdapDN( "ou=schema" ) );
-        systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
-            SchemaConstants.TOP_OC,
+        systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
             SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         systemEntry.put( SchemaConstants.OU_AT, "schema" );
         schemaPartition.setContextEntry( systemEntry );
@@ -178,11 +177,11 @@ public class DumpCommand extends ToolCommand
         // --------------------------------------------------------------------
         // Initialize schema subsystem and reset registries
         // --------------------------------------------------------------------
-        
+
         PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
         Registries globalRegistries = new DefaultRegistries( "global", schemaLoader, oidRegistry );
         schemaLoader.loadEnabled( globalRegistries );
-        SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );        
+        SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );
         return globalRegistries;
     }
 
@@ -268,7 +267,7 @@ public class DumpCommand extends ToolCommand
             buf.append( "# Entry: " ).append( id ).append( "\n#---------------------\n\n" );
             if ( !LdifUtils.isLDIFSafe( dn ) )
             {
-            	// If the DN isn't LdifSafe, it needs to be Base64 encoded.
+                // If the DN isn't LdifSafe, it needs to be Base64 encoded.
 
                 buf.append( "dn:: " ).append( new String( Base64.encode( dn.getBytes() ) ) );
             }

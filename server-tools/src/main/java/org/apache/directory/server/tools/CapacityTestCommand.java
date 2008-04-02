@@ -39,7 +39,6 @@ import org.apache.directory.daemon.AvailablePortFinder;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
-
 /**
  * A capacity testing tool.  This command will generate bogus user
  * entries and add them under a base DN.  It will output a table 
@@ -58,8 +57,8 @@ public class CapacityTestCommand extends ToolCommand
     private String host = "localhost";
     private String password = "secret";
     private String baseDn = "ou=users,dc=example,dc=com";
-    
-    
+
+
     public CapacityTestCommand()
     {
         super( "capacity" );
@@ -81,7 +80,7 @@ public class CapacityTestCommand extends ToolCommand
         {
             out = new PrintWriter( new FileWriter( outputFile ) );
         }
-        
+
         if ( isDebugEnabled() )
         {
             out.println( "Parameters for capacity extended request:" );
@@ -101,7 +100,7 @@ public class CapacityTestCommand extends ToolCommand
 
         // create the base dn if it does not exist
         createBase( ctx );
-        
+
         StringBuffer dnBuf = new StringBuffer();
         StringBuffer outBuf = new StringBuffer();
         int counter = 0;
@@ -114,36 +113,36 @@ public class CapacityTestCommand extends ToolCommand
         {
             end = Integer.parseInt( cmdline.getOptionValue( 'e' ) );
         }
-        
+
         while ( counter < end )
         {
             counter++;
             Attributes attrs = generateLdif( counter );
             dnBuf.setLength( 0 );
             dnBuf.append( "uid=user." ).append( counter ).append( "," ).append( baseDn );
-            
+
             long startTime = System.currentTimeMillis();
             ctx.createSubcontext( dnBuf.toString(), attrs );
-            
+
             outBuf.setLength( 0 );
             outBuf.append( counter ).append( " " ).append( System.currentTimeMillis() - startTime );
             out.println( outBuf.toString() );
             out.flush();
         }
     }
-    
-    
+
+
     private boolean createBase( LdapContext ctx ) throws NamingException
     {
         Attributes attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "users" );
-        
+
         try
         {
             ctx.createSubcontext( "ou=users,dc=example,dc=com", attrs );
             return true;
         }
-        catch( NameAlreadyBoundException e )
+        catch ( NameAlreadyBoundException e )
         {
             return false;
         }
@@ -157,7 +156,7 @@ public class CapacityTestCommand extends ToolCommand
         oc.add( "person" );
         oc.add( "organizationalPerson" );
         oc.add( "inetOrgPerson" );
-        
+
         attrs.put( "givenName", RandomStringUtils.randomAlphabetic( 6 ) );
         attrs.put( "sn", RandomStringUtils.randomAlphabetic( 9 ) );
         attrs.put( "cn", RandomStringUtils.randomAlphabetic( 15 ) );
@@ -177,7 +176,7 @@ public class CapacityTestCommand extends ToolCommand
         attrs.put( "description", RandomStringUtils.randomAlphabetic( 20 ) );
         return attrs;
     }
-    
+
 
     private void processOptions( CommandLine cmd )
     {
@@ -292,7 +291,6 @@ public class CapacityTestCommand extends ToolCommand
         op.setRequired( false );
         opts.addOption( op );
 
-        
         op = new Option( "s", "start", true, "start on id: number to start on (user.start)" );
         op.setRequired( false );
         opts.addOption( op );
