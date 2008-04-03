@@ -359,7 +359,7 @@
     <module>interceptor-kerberos</module>
     <module>mitosis</module>
     <module>server-replication</module>
-    <module>apacheds-xbean-spring</module>
+    <module>xbean-spring</module>
   </modules>
 
   <build>
