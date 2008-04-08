@@ -236,6 +236,7 @@
 
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/directory/shared/branches/bigbang</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/shared/branches/bigbang</developerConnection>
   </scm>
 
   <repositories>
