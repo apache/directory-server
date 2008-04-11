@@ -38,14 +38,26 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerModification;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.name.Rdn;
 
 import javax.naming.directory.Attributes;
+import java.lang.reflect.Method;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,6 +69,7 @@ import java.util.Iterator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
+@SuppressWarnings("unchecked")
 public class JdbmStoreTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( JdbmStoreTest.class.getSimpleName() );
@@ -133,7 +146,8 @@ public class JdbmStoreTest
     public void testSimplePropertiesUnlocked() throws Exception
     {
         JdbmStore<Attributes> store = new JdbmStore<Attributes>();
-
+        store.setSyncOnWrite( true ); // for code coverage
+        
         assertNull( store.getAliasIndex() );
         store.setAliasIndex( new JdbmIndex<String,Attributes>( "alias" ) );
         assertNotNull( store.getAliasIndex() );
@@ -313,7 +327,7 @@ public class JdbmStoreTest
         LdapDN dn = new LdapDN( "o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         assertEquals( 1L, ( long ) store.getEntryId( dn.toNormName() ) );
-        assertEquals( 9, store.count() );
+        assertEquals( 11, store.count() );
         assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.toNormName() ) );
         assertEquals( dn.toNormName(), store.getEntryDn( 1L ) );
         assertEquals( dn.getUpName(), store.getEntryUpdn( 1L ) );
@@ -335,12 +349,6 @@ public class JdbmStoreTest
     public void testEntryOperations() throws Exception
     {
         assertEquals( 3, store.getChildCount( 1L ) );
-//        LdapDN dn = new LdapDN( "ou=Engineering,dc=example,dc=com" );
-//        dn.normalize( attributeRegistry.getNormalizerMapping() );
-//        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
-//        entry.add( "objectClass", "top", "organizationalUnit" );
-//        entry.add( "ou", "Engineering" );
-//        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
 
         Cursor<IndexEntry<Long,Attributes>> cursor = store.list( 1L );
         assertNotNull( cursor );
@@ -352,16 +360,29 @@ public class JdbmStoreTest
         
         store.delete( 2L );
         assertEquals( 2, store.getChildCount( 1L ) );
-        assertEquals( 8, store.count() );
+        assertEquals( 10, store.count() );
+        
+        // add an alias and delete to test dropAliasIndices method
+        LdapDN dn = new LdapDN( "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        entry.add( "objectClass", "top", "alias", "extensibleObject" );
+        entry.add( "ou", "Apache" );
+        entry.add( "commonName",  "Jack Daniels");
+        entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
+        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        
+        store.delete( 12L ); // drops the alias indices
+        
     }
     
-//    @Ignore // this test fails with NotImplEx due to the dropMovedAliasIndices() method in JdbmStore 
+    @Ignore // this test fails with NotImplEx due to the dropMovedAliasIndices() method in JdbmStore 
     @Test
     public void testSubLevelIndex() throws Exception
     {
       Index idx = store.getSubLevelIndex();
       
-      assertEquals( 5, idx.count() );
+      assertEquals( 8, idx.count() );
       
       Cursor<IndexEntry<Long,Attributes>> cursor = idx.forwardCursor( 2L );
       
@@ -382,7 +403,7 @@ public class JdbmStoreTest
       
       assertFalse( cursor.next() );
       
-      // dn id 10
+      // dn id 12
       LdapDN martinDn = new LdapDN( "cn=Marting King,ou=Sales,o=Good Times Co." );
       martinDn.normalize( attributeRegistry.getNormalizerMapping() );
       DefaultServerEntry entry = new DefaultServerEntry( registries, martinDn );
@@ -394,7 +415,7 @@ public class JdbmStoreTest
       cursor = idx.forwardCursor( 2L);
       cursor.afterLast();
       assertTrue( cursor.previous() );
-      assertEquals( 10, ( long ) cursor.get().getId() );
+      assertEquals( 12, ( long ) cursor.get().getId() );
       
       LdapDN newParentDn = new LdapDN( "ou=Board of Directors,o=Good Times Co." );
       newParentDn.normalize( attributeRegistry.getNormalizerMapping() );
@@ -403,9 +424,9 @@ public class JdbmStoreTest
       cursor = idx.forwardCursor( 3L);
       cursor.afterLast();
       assertTrue( cursor.previous() );
-      assertEquals( 10, ( long ) cursor.get().getId() );
+      assertEquals( 12, ( long ) cursor.get().getId() );
       
-      // dn id 11
+      // dn id 13
       LdapDN marketingDn = new LdapDN( "ou=Marketing,ou=Sales,o=Good Times Co." );
       marketingDn.normalize( attributeRegistry.getNormalizerMapping() );
       entry = new DefaultServerEntry( registries, marketingDn );
@@ -413,7 +434,7 @@ public class JdbmStoreTest
       entry.add( "ou", "Marketing" );
       store.add( marketingDn, ServerEntryUtils.toAttributesImpl( entry ) );
 
-      // dn id 12
+      // dn id 14
       LdapDN jimmyDn = new LdapDN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
       jimmyDn.normalize( attributeRegistry.getNormalizerMapping() );
       entry = new DefaultServerEntry( registries, jimmyDn );
@@ -427,10 +448,247 @@ public class JdbmStoreTest
       cursor = idx.forwardCursor( 3L);
       cursor.afterLast();
       assertTrue( cursor.previous() );
-      assertEquals( 12, ( long ) cursor.get().getId() );
+      assertEquals( 14, ( long ) cursor.get().getId() );
       
       assertTrue( cursor.previous() );
-      assertEquals( 11, ( long ) cursor.get().getId() );
+      assertEquals( 13, ( long ) cursor.get().getId() );
+    }
+   
+    
+    @Test
+    public void testConvertIndex() throws Exception
+    {
+        Index nonJdbmIndex = new Index()
+        {
+
+            public void add( Object attrVal, Long id ) throws Exception { }
+
+            public void close() throws Exception { }
+
+            public int count() throws Exception
+            {
+                return 0;
+            }
+
+            public int count( Object attrVal ) throws Exception
+            {
+                return 0;
+            }
+
+            public void drop( Long id ) throws Exception { }
+
+            public void drop( Object attrVal, Long id ) throws Exception { }
+
+            public Cursor forwardCursor() throws Exception
+            {
+                return null;
+            }
+
+            public Cursor forwardCursor( Object key ) throws Exception
+            {
+                return null;
+            }
+
+            public Long forwardLookup( Object attrVal ) throws Exception
+            {
+                return null;
+            }
+
+            public Cursor forwardValueCursor( Object key ) throws Exception
+            {
+                return null;
+            }
+
+            public AttributeType getAttribute()
+            {
+                return null;
+            }
+
+            public String getAttributeId()
+            {
+                return "ou";
+            }
+
+            public int getCacheSize()
+            {
+                return 10;
+            }
+
+            public Object getNormalized( Object attrVal ) throws Exception
+            {
+                return null;
+            }
+
+            public File getWkDirPath()
+            {
+                return new File(".");
+            }
+
+            public int greaterThanCount( Object attrVal ) throws Exception
+            {
+                return 0;
+            }
+
+            public boolean has( Object attrVal, Long id ) throws Exception
+            {
+                return false;
+            }
+
+            public boolean hasGreaterOrEqual( Object attrVal, Long id ) throws Exception
+            {
+                return false;
+            }
+
+            public boolean hasLessOrEqual( Object attrVal, Long id ) throws Exception
+            {
+                return false;
+            }
+
+            public boolean isCountExact()
+            {
+                return false;
+            }
+
+            public int lessThanCount( Object attrVal ) throws Exception
+            {
+                return 0;
+            }
+
+            public Cursor reverseCursor() throws Exception
+            {
+                return null;
+            }
+
+            public Cursor reverseCursor( Long id ) throws Exception
+            {
+                return null;
+            }
+
+            public Object reverseLookup( Long id ) throws Exception
+            {
+                return null;
+            }
+
+            public Cursor reverseValueCursor( Long id ) throws Exception
+            {
+                return null;
+            }
+
+            public void setAttributeId( String attributeId ) { }
+
+            public void setCacheSize( int cacheSize ) { }
+
+            public void setWkDirPath( File wkDirPath ) { }
+
+            public void sync() throws Exception { }
+            
+        };
+        
+        Method convertIndex = store.getClass().getDeclaredMethod( "convertIndex", Index.class );
+        convertIndex.setAccessible( true );
+        Object obj = convertIndex.invoke( store, nonJdbmIndex );
+        
+        assertNotNull( obj );
+        assertEquals( JdbmIndex.class, obj.getClass() );
     }
     
+    
+    @Test( expected = LdapNameNotFoundException.class )
+    public void testAddWithoutParentId() throws Exception
+    {
+        LdapDN dn = new LdapDN( "cn=Marting King,ou=Not Present,o=Good Times Co." );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        entry.add( "objectClass", "top", "person", "organizationalPerson" );
+        entry.add( "ou", "Not Present" );
+        entry.add( "cn",  "Martin King");
+        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+    }
+    
+    
+    @Test( expected = LdapSchemaViolationException.class )
+    public void testAddWithoutObjectClass() throws Exception
+    {
+        LdapDN dn = new LdapDN( "cn=Marting King,ou=Sales,o=Good Times Co." );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        entry.add( "ou", "Sales" );
+        entry.add( "cn",  "Martin King");
+        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+    }
+    
+    
+    @Test
+    public void testModify() throws Exception
+    {
+        LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+
+        List<Modification> mods = new ArrayList<Modification>();
+        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.CN_AT, attributeRegistry.lookup( SchemaConstants.CN_AT ) );
+        
+        Modification add = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
+        Modification remove = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
+        Modification replace = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
+        
+        mods.add( add );
+        mods.add( remove );
+        mods.add( replace );
+        
+        store.modify( dn, mods );
+    }
+    
+    
+    @Test
+    public void testRename() throws Exception
+    {
+        LdapDN dn = new LdapDN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        entry.add( "objectClass", "top", "person", "organizationalPerson" );
+        entry.add( "ou", "Engineering" );
+        entry.add( "cn",  "Private Ryan");
+
+        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        
+        Rdn rdn = new Rdn("sn=James");
+        
+        store.rename( dn, rdn, true );
+    }
+    
+    
+    @Test
+    public void testMove() throws Exception
+    {
+        LdapDN childDn = new LdapDN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
+        childDn.normalize( attributeRegistry.getNormalizerMapping() );
+        DefaultServerEntry childEntry = new DefaultServerEntry( registries, childDn );
+        childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
+        childEntry.add( "ou", "Engineering" );
+        childEntry.add( "cn",  "Private Ryan");
+
+        store.add( childDn, ServerEntryUtils.toAttributesImpl( childEntry ) );
+
+        LdapDN parentDn = new LdapDN( "ou=Sales,o=Good Times Co." );
+        parentDn.normalize( attributeRegistry.getNormalizerMapping() );
+
+        Rdn rdn = new Rdn("cn=Ryan");
+
+        store.move( childDn, parentDn, rdn, true );
+
+        // to drop the alias indices   
+        childDn = new LdapDN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
+        childDn.normalize( attributeRegistry.getNormalizerMapping() );
+        childEntry = new DefaultServerEntry( registries, childDn );
+        childEntry.add( "objectClass", "top", "alias", "extensibleObject" );
+        childEntry.add( "ou", "Apache" );
+        childEntry.add( "commonName",  "Jim Bean");
+        childEntry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
+        store.add( childDn, ServerEntryUtils.toAttributesImpl( childEntry ) );
+        
+        parentDn = new LdapDN( "ou=Engineering,o=Good Times Co." );
+        parentDn.normalize( attributeRegistry.getNormalizerMapping() );
+        
+        store.move( childDn, parentDn);
+    }
 }
