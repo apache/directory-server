@@ -517,6 +517,9 @@
     <connection>
       scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang
     </connection>
+    <developerConnection>
+      scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang
+    </developerConnection>
   </scm>
 
   <repositories>
