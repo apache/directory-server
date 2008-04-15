@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.directory.server.configuration.ApacheDS;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.apache.xbean.spring.context.FileSystemXmlApplicationContext;
 
 
 /**
