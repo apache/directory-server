@@ -18,6 +18,12 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.perhost;
+
+
+import org.apache.directory.server.dhcp.options.ByteOption;
+
+
 /**
  * This option specifies whether the client should configure its IP
  * layer to allow forwarding of datagrams with non-local source routes.
@@ -25,38 +31,17 @@
  * of 1 means allow forwarding.
  * 
  * The code for this option is 20, and its length is 1.
- */
-package org.apache.directory.server.dhcp.options.perhost;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NonLocalSourceRouting extends DhcpOption
+public class NonLocalSourceRouting extends ByteOption
 {
-    private byte[] nonLocalSourceRouting;
-
-
-    /**
-     * Creates a new instance of NonLocalSourceRouting.
-     *
-     * @param nonLocalSourceRouting
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public NonLocalSourceRouting( byte[] nonLocalSourceRouting )
+    public byte getTag()
     {
-        super( 20, 1 );
-        this.nonLocalSourceRouting = nonLocalSourceRouting;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( nonLocalSourceRouting );
+        return 20;
     }
 }

@@ -22,10 +22,11 @@ package org.apache.directory.server.core.unit;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
@@ -35,7 +36,12 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.io.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -88,13 +94,13 @@ public abstract class AbstractTestCase extends TestCase
     protected boolean doDelete = true;
 
     /** A testEntries of entries as Attributes to add to the DIT for testing */
-    protected List<Entry> testEntries = new ArrayList<Entry>();
+    protected List<LdifEntry> testEntries = new ArrayList<LdifEntry>();
 
     /** An optional LDIF file path if set and present is read to add more test entries */
     private String ldifPath;
 
     /** Load resources relative to this class */
-    private Class loadClass;
+    private Class<?> loadClass;
 
     private Hashtable<String,Object> overrides = new Hashtable<String,Object>();
 
@@ -103,7 +109,7 @@ public abstract class AbstractTestCase extends TestCase
     protected DirectoryService service;
 
 
-    protected AbstractTestCase( String username, String password )
+    protected AbstractTestCase( String username, String password ) throws NamingException
     {
         if ( username == null || password == null )
         {
@@ -123,7 +129,7 @@ public abstract class AbstractTestCase extends TestCase
      * @param ldifPath the relative resource path to the LDIF file
      * @param loadClass the class used to load the LDIF as a resource stream
      */
-    protected void setLdifPath( String ldifPath, Class loadClass )
+    protected void setLdifPath( String ldifPath, Class<?> loadClass )
     {
         this.loadClass = loadClass;
         this.ldifPath = ldifPath;
@@ -173,8 +179,8 @@ public abstract class AbstractTestCase extends TestCase
         // -------------------------------------------------------------------
 
         LdifReader reader = new LdifReader();
-    	List entries = reader.parseLdif( LDIF );
-        Entry entry = ( Entry ) entries.get(0);
+    	List<LdifEntry> entries = reader.parseLdif( LDIF );
+        LdifEntry entry = entries.get(0);
         testEntries.add( entry );
 
         // -------------------------------------------------------------------
@@ -208,7 +214,7 @@ public abstract class AbstractTestCase extends TestCase
 
         if ( in != null )
         {
-            Iterator<Entry> list = new LdifReader( in );
+            Iterator<LdifEntry> list = new LdifReader( in );
             
             while ( list.hasNext() )
             {
@@ -308,7 +314,7 @@ public abstract class AbstractTestCase extends TestCase
         Hashtable<String,Object> envFinal = new Hashtable<String,Object>( env );
         if ( !envFinal.containsKey( Context.PROVIDER_URL ) )
         {
-            envFinal.put( Context.PROVIDER_URL, "ou=system" );
+            envFinal.put( Context.PROVIDER_URL, ServerDNConstants.SYSTEM_DN );
         }
 
         envFinal.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
@@ -316,7 +322,7 @@ public abstract class AbstractTestCase extends TestCase
 
         // We have to initiate the first run as an admin at least.
         Hashtable<String,Object> adminEnv = new Hashtable<String,Object>( envFinal );
-        adminEnv.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        adminEnv.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         adminEnv.put( Context.SECURITY_CREDENTIALS, "secret" );
         adminEnv.put( Context.SECURITY_AUTHENTICATION, "simple" );
         adminEnv.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
@@ -326,7 +332,7 @@ public abstract class AbstractTestCase extends TestCase
         // OK, now let's get an appropriate context.
         sysRoot = new InitialLdapContext( envFinal, null );
 
-        envFinal.put( Context.PROVIDER_URL, "ou=schema" );
+        envFinal.put( Context.PROVIDER_URL, ServerDNConstants.OU_SCHEMA_DN );
         schemaRoot = new InitialLdapContext( envFinal, null );
         
         envFinal.put( Context.PROVIDER_URL, "" );
@@ -404,7 +410,7 @@ public abstract class AbstractTestCase extends TestCase
     }
 
 
-    protected void setLoadClass( Class loadClass )
+    protected void setLoadClass( Class<?> loadClass )
     {
         this.loadClass = loadClass;
     }
@@ -420,9 +426,9 @@ public abstract class AbstractTestCase extends TestCase
     protected void injectEntries( String ldif ) throws NamingException
     {
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
-        for ( Entry entry : entries )
+        for ( LdifEntry entry : entries )
         {
             rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
         }

@@ -21,9 +21,26 @@ package org.apache.directory.server.core.normalization;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -38,8 +55,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 import java.util.Map;
 
 
@@ -63,6 +78,9 @@ public class NormalizationInterceptor extends BaseInterceptor
 
     /** The association between attributeTypes and their normalizers */
     private Map<String, OidNormalizer> attrNormalizers; 
+    
+    /** The globa attributeType registry */
+    private AttributeTypeRegistry attributeRegistry;
 
     /**
      * Initialize the registries, normalizers. 
@@ -70,7 +88,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws NamingException
     {
         OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
-        AttributeTypeRegistry attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
+        attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
         normVisitor = new NormalizingVisitor( ncn, oidRegistry );
         //expVisitor = new ExpandingVisitor( attributeRegistry );
@@ -143,7 +161,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         ExprNode filter = opContext.getFilter();
         opContext.getDn().normalize( attrNormalizers );
@@ -152,11 +170,13 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( result == null )
         {
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new EmptyEnumeration<SearchResult>();
+            return new EmptyEnumeration<ServerSearchResult>();
         }
         else
         {
             opContext.setFilter( result );
+            
+            // TODO Normalize the returned Attributes, storing the UP attributes to format the returned values.
             return nextInterceptor.search( opContext );
         }
     }
@@ -169,16 +189,42 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
         opContext.getDn().normalize( attrNormalizers );
         return nextInterceptor.list( opContext );
     }
 
+    
+    private String[] normalizeAttrsId( String[] attrIds ) throws NamingException
+    {
+        if ( attrIds == null )
+        {
+            return attrIds;
+        }
+        
+        String[] normalizedAttrIds = new String[attrIds.length];
+        int pos = 0;
+        
+        for ( String id:attrIds )
+        {
+            String oid = attributeRegistry.lookup( id ).getOid();
+            normalizedAttrIds[pos++] = oid;
+        }
+        
+        return normalizedAttrIds;
+    }
 
-    public Attributes lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
     {
         opContext.getDn().normalize( attrNormalizers );
+        
+        if ( opContext.getAttrsId() != null )
+        {
+            // We have to normalize the requested IDs
+            opContext.setAttrsId( normalizeAttrsId( opContext.getAttrsIdArray() ) );
+        }
+        
         return nextInterceptor.lookup( opContext );
     }
 

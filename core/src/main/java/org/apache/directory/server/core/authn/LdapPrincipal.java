@@ -23,8 +23,6 @@ package org.apache.directory.server.core.authn;
 import java.io.Serializable;
 import java.security.Principal;
 
-import javax.naming.Name;
-
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -106,9 +104,9 @@ public final class LdapPrincipal implements Principal, Serializable
 
     /**
      * Gets a cloned copy of the normalized distinguished name of this
-     * principal as a JNDI {@link Name}.
+     * principal as a JNDI {@link LdapDN}.
      *
-     * @return the normalized distinguished name of the principal as a JNDI {@link Name}
+     * @return the normalized distinguished name of the principal as a JNDI {@link LdapDN}
      */
     public LdapDN getJndiName()
     {

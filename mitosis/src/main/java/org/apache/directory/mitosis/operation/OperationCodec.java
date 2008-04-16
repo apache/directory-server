@@ -69,6 +69,7 @@ public class OperationCodec
     public Operation decode( byte[] data )
     {
         ObjectInputStream in;
+        
         try
         {
             in = new ObjectInputStream( new ByteArrayInputStream( data ) );

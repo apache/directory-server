@@ -173,7 +173,7 @@ public class ExpressionEnumerator implements Enumerator
     private NamingEnumeration<IndexRecord> enumDisj( OrNode node ) throws NamingException
     {
         List<ExprNode> children = node.getChildren();
-        NamingEnumeration[] childEnumerations = new NamingEnumeration[children.size()];
+        NamingEnumeration<IndexRecord>[] childEnumerations = new NamingEnumeration[children.size()];
 
         // Recursively create NamingEnumerations for each child expression node
         for ( int ii = 0; ii < childEnumerations.length; ii++ )

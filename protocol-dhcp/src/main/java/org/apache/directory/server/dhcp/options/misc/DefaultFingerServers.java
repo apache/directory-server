@@ -37,13 +37,11 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class DefaultFingerServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of DefaultFingerServers.
-     *
-     * @param defaultFingerServer
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public DefaultFingerServers( byte[] defaultFingerServer )
+    public byte getTag()
     {
-        super( 73, defaultFingerServer );
+        return 73;
     }
 }

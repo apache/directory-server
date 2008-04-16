@@ -25,6 +25,7 @@ import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -33,7 +34,12 @@ import org.junit.runner.RunWith;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.Hashtable;
 
@@ -100,9 +106,9 @@ public class DIRSERVER169IT
         SearchControls ctls = new SearchControls();
         String searchBase = "ou=people";
 
-        NamingEnumeration results = ctx.search( searchBase, "(uid=bob)", ctls );
+        NamingEnumeration<SearchResult> results = ctx.search( searchBase, "(uid=bob)", ctls );
         assertTrue( results.hasMore() );
-        SearchResult searchResult = ( SearchResult ) results.next();
+        SearchResult searchResult = results.next();
 
         StringBuffer userDn = new StringBuffer();
         userDn.append( searchResult.getName() );
@@ -147,8 +153,8 @@ public class DIRSERVER169IT
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         String filter = "(userPassword={0})";
-        NamingEnumeration results = ctx.search( "uid=bob,ou=people", filter, new Object[]
-            { "bobspassword" }, ctls );
+        NamingEnumeration<SearchResult> results = 
+            ctx.search( "uid=bob,ou=people", filter, new Object[] { "bobspassword" }, ctls );
 
         // We should have a match
         assertTrue( results.hasMore() );

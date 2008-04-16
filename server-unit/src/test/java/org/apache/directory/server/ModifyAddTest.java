@@ -34,6 +34,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
@@ -70,6 +71,8 @@ public class ModifyAddTest extends AbstractServerTest
         Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
+        attribute.add( "organizationalperson" );
+        attribute.add( "inetorgperson" );
         attributes.put( attribute );
         attributes.put( "cn", cn );
         attributes.put( "sn", sn );
@@ -241,20 +244,20 @@ public class ModifyAddTest extends AbstractServerTest
     {
         // Change description attribute
         Attributes attrs = new AttributesImpl( true );
-        attrs.put( new AttributeImpl( "attr1", "attr 1" ) );
-        attrs.put( new AttributeImpl( "attr2", "attr 2" ) );
-        attrs.put( new AttributeImpl( "attr3", "attr 3" ) );
-        attrs.put( new AttributeImpl( "attr4", "attr 4" ) );
-        attrs.put( new AttributeImpl( "attr5", "attr 5" ) );
-        attrs.put( new AttributeImpl( "attr6", "attr 6" ) );
-        attrs.put( new AttributeImpl( "attr7", "attr 7" ) );
-        attrs.put( new AttributeImpl( "attr8", "attr 8" ) );
-        attrs.put( new AttributeImpl( "attr9", "attr 9" ) );
-        attrs.put( new AttributeImpl( "attr10", "attr 10" ) );
-        attrs.put( new AttributeImpl( "attr11", "attr 11" ) );
-        attrs.put( new AttributeImpl( "attr12", "attr 12" ) );
-        attrs.put( new AttributeImpl( "attr13", "attr 13" ) );
-        attrs.put( new AttributeImpl( "attr14", "attr 14" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 1" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 2" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 3" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 4" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 5" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 6" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 7" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 8" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 9" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 10" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 11" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 12" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 13" ) );
+        attrs.put( new AttributeImpl( "telephoneNumber", "attr 14" ) );
         
         Attribute attr = new AttributeImpl( "description", PERSON_DESCRIPTION );
 
@@ -330,7 +333,7 @@ public class ModifyAddTest extends AbstractServerTest
         // Check, whether attribute objectClass is unchanged
         Attributes attrs = ctx.getAttributes( RDN_TORI_AMOS );
         ocls = attrs.get( "objectClass" );
-        assertEquals( ocls.size(), 2 );
+        assertEquals( ocls.size(), 4 );
         assertTrue( ocls.contains( "top" ) );
         assertTrue( ocls.contains( "person" ) );
     }
@@ -401,7 +404,7 @@ public class ModifyAddTest extends AbstractServerTest
 
 
     /**
-     * Modu=ify the entry with a bad attribute : this should fail 
+     * Modify the entry with a bad attribute : this should fail 
      * 
      * @throws NamingException
      */
@@ -415,7 +418,7 @@ public class ModifyAddTest extends AbstractServerTest
         {
             ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
         }
-        catch ( InvalidAttributeIdentifierException iaie )
+        catch ( NoSuchAttributeException nsae )
         {
             // We have a failure : the attribute is unknown in the schema
             assertTrue( true );
@@ -439,7 +442,7 @@ public class ModifyAddTest extends AbstractServerTest
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext(rdn, attrs);
 
-        // Add a decsription with two values
+        // Add a description with two values
         String[] descriptions = {
                 "Kate Bush is a British singer-songwriter.",
                 "She has become one of the most influential female artists of the twentieth century." };
@@ -464,11 +467,11 @@ public class ModifyAddTest extends AbstractServerTest
         String base = "";
 
         // Check entry
-        NamingEnumeration enm = ctx.search(base, filter, sctls);
+        NamingEnumeration<SearchResult> enm = ctx.search(base, filter, sctls);
         assertTrue(enm.hasMore());
         
         while (enm.hasMore()) {
-            SearchResult sr = (SearchResult) enm.next();
+            SearchResult sr = enm.next();
             attrs = sr.getAttributes();
             Attribute desc = sr.getAttributes().get("description");
             assertNotNull(desc);
@@ -581,5 +584,26 @@ public class ModifyAddTest extends AbstractServerTest
         {
             
         }
+    }
+
+
+    /**
+     * Add a new attribute to a person entry.
+     * 
+     * @throws NamingException
+     */
+    public void testAddNewBinaryAttributeValue() throws NamingException
+    {
+        // Add a binary attribute
+        byte[] newValue = new byte[]{0x00, 0x01, 0x02, 0x03};
+        Attributes attrs = new AttributesImpl( "userCertificate;binary", newValue );
+        ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
+
+        // Verify, that attribute value is added
+        attrs = ctx.getAttributes( RDN_TORI_AMOS );
+        Attribute attr = attrs.get( "userCertificate" );
+        assertNotNull( attr );
+        assertTrue( attr.contains( newValue ) );
+        assertEquals( 1, attr.size() );
     }
 }

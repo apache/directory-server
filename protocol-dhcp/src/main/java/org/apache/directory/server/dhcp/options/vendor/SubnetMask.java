@@ -18,6 +18,14 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.vendor;
+
+
+import java.net.InetAddress;
+
+import org.apache.directory.server.dhcp.options.AddressOption;
+
+
 /**
  * The subnet mask option specifies the client's subnet mask as per RFC
  * 950.
@@ -26,26 +34,30 @@
  * reply, the subnet mask option MUST be first.
  * 
  * The code for the subnet mask option is 1, and its length is 4 octets.
- */
-package org.apache.directory.server.dhcp.options.vendor;
-
-
-import org.apache.directory.server.dhcp.options.AddressOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class SubnetMask extends AddressOption
 {
-    /**
-     * Creates a new instance of SubnetMask.
-     *
-     * @param subnetMask
-     */
-    public SubnetMask( byte[] subnetMask )
+    public SubnetMask()
     {
-        super( 1, subnetMask );
+    }
+    
+    /**
+     * @param netmask
+     */
+    public SubnetMask(InetAddress netmask)
+    {
+        setAddress( netmask );
+    }
+
+
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
+     */
+    public byte getTag()
+    {
+        return 1;
     }
 }

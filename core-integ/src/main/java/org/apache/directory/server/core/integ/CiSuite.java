@@ -19,7 +19,9 @@
 package org.apache.directory.server.core.integ;
 
 
-import static org.apache.directory.server.core.integ.state.TestServiceContext.*;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.cleanup;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.destroy;
 import org.junit.internal.requests.IgnoredClassRunner;
 import org.junit.internal.runners.InitializationError;
 import org.junit.runner.Runner;

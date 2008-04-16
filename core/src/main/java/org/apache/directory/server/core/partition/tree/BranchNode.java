@@ -23,8 +23,12 @@ package org.apache.directory.server.core.partition.tree;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,6 +42,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class BranchNode implements Node
 {
+    private static final Logger LOG = LoggerFactory.getLogger( BranchNode.class );
+
     /** Stores the list of all the descendant partitions and containers */
     private Map<String, Node> children;
     
@@ -71,7 +77,7 @@ public class BranchNode implements Node
      * @param partition The associated partition to add as a tree node
      * @return The modified tree structure.
      */
-    public BranchNode recursivelyAddPartition( BranchNode current, LdapDN dn, int index, Partition partition )
+    public BranchNode recursivelyAddPartition( BranchNode current, LdapDN dn, int index, Partition partition ) throws NamingException
     {
         String rdnAtIndex = dn.getRdn( index ).toString();
         
@@ -81,7 +87,21 @@ public class BranchNode implements Node
         }
         else
         {
-            Node child = recursivelyAddPartition( new BranchNode(), dn, index + 1, partition );
+            Node newNode = current.getChild( rdnAtIndex );
+            
+            if ( newNode instanceof LeafNode )
+            {
+                String message = "Overlapping partitions are not allowed";
+                LOG.error( message );
+                throw new NamingException( message );
+            }
+        
+            if ( newNode == null )
+            {
+                newNode = new BranchNode();
+            }
+
+            Node child = recursivelyAddPartition( (BranchNode)newNode, dn, index + 1, partition );
             return current.addNode( rdnAtIndex, child );
         }
     }
@@ -117,7 +137,7 @@ public class BranchNode implements Node
     /**
      * Get's a child using an rdn string.
      * 
-     * @param the rdn to use as the node key
+     * @param rdn the rdn to use as the node key
      * @return the child node corresponding to the rdn.
      */
     public Node getChild( String rdn )
@@ -137,7 +157,7 @@ public class BranchNode implements Node
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append( " { " );
+        sb.append( "{" );
         boolean isFirst = true;
         
         for ( Node child:children.values() )
@@ -153,7 +173,7 @@ public class BranchNode implements Node
 
             if ( child instanceof BranchNode )
             {
-                sb.append( "Branch:").append( child.toString() );
+                sb.append( "Branch: ").append( child.toString() );
             }
             else
             {
@@ -161,7 +181,7 @@ public class BranchNode implements Node
             }
         }
 
-        sb.append( " } " );
+        sb.append( "}" );
         return sb.toString();
     }
 }

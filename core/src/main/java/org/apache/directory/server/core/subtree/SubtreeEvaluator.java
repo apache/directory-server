@@ -24,8 +24,8 @@ import java.util.Iterator;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -56,7 +56,7 @@ public class SubtreeEvaluator
      * @param attrRegistry registry to be looked up
      * @throws NamingException 
      */
-    public SubtreeEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attrRegistry)
+    public SubtreeEvaluator( OidRegistry oidRegistry, AttributeTypeRegistry attrRegistry )
     {
         evaluator = new ExpressionEvaluator(oidRegistry, attrRegistry );
     }
@@ -71,7 +71,7 @@ public class SubtreeEvaluator
      * @return true if the entry is selected by the specification, false if it is not
      * @throws javax.naming.NamingException if errors are encountered while evaluating selection
      */
-    public boolean evaluate( SubtreeSpecification subtree, Name apDn, Name entryDn, Attributes entry )
+    public boolean evaluate( SubtreeSpecification subtree, Name apDn, Name entryDn, ServerEntry entry )
         throws NamingException
     {
         // TODO: Try to make this cast unnecessary.
@@ -94,6 +94,7 @@ public class SubtreeEvaluator
          * distinguished name relative to the administrative point.
          */
         Name apRelativeRdn;
+        
         if ( !NamespaceTools.isDescendant( apDn, entryDn ) )
         {
             return false;
@@ -114,6 +115,7 @@ public class SubtreeEvaluator
          * baseRelativeRdn we can later make comparisons with specific exclusions.
          */
         Name baseRelativeRdn;
+        
         if ( subtree.getBase() != null && subtree.getBase().size() == 0 )
         {
             baseRelativeRdn = apRelativeRdn;
@@ -163,9 +165,11 @@ public class SubtreeEvaluator
          * as well and reject if the relative names are equal.
          */
         Iterator list = subtree.getChopBeforeExclusions().iterator();
+        
         while ( list.hasNext() )
         {
             Name chopBefore = ( Name ) list.next();
+            
             if ( NamespaceTools.isDescendant( chopBefore, baseRelativeRdn ) )
             {
                 return false;
@@ -173,9 +177,11 @@ public class SubtreeEvaluator
         }
 
         list = subtree.getChopAfterExclusions().iterator();
+        
         while ( list.hasNext() )
         {
             Name chopAfter = ( Name ) list.next();
+            
             if ( NamespaceTools.isDescendant( chopAfter, baseRelativeRdn ) && !chopAfter.equals( baseRelativeRdn ) )
             {
                 return false;

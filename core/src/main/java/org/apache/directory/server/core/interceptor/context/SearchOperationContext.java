@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -42,15 +43,16 @@ public class SearchOperationContext extends AbstractOperationContext
     /** The controls */
     private SearchControls searchControls;
 
+    /** The mode of alias handling */
     private AliasDerefMode aliasDerefMode;
 
 
     /**
      * Creates a new instance of SearchOperationContext.
      */
-    public SearchOperationContext()
+    public SearchOperationContext( Registries registries )
     {
-    	super();
+    	super( registries );
     }
 
 
@@ -61,34 +63,50 @@ public class SearchOperationContext extends AbstractOperationContext
      * @param filter the filter AST to use for the search
      * @param searchControls the search controls
      */
-    public SearchOperationContext( LdapDN dn, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public SearchOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode, ExprNode filter,
                                    SearchControls searchControls )
     {
-        super( dn );
+        super( registries, dn );
         this.filter = filter;
         this.aliasDerefMode = aliasDerefMode;
         this.searchControls = searchControls;
     }
 
 
+    /**
+     * @return The filter
+     */
     public ExprNode getFilter()
     {
         return filter;
     }
 
 
+    /**
+     * Set the filter into the context.
+     *
+     * @param filter The filter to set
+     */
     public void setFilter( ExprNode filter )
     {
         this.filter = filter;
     }
 
 
+    /**
+     *  @return The search controls
+     */
     public SearchControls getSearchControls()
     {
         return searchControls;
     }
 
 
+    /**
+     * Set the search controls
+     *
+     * @param searchControls The search controls
+     */
     public void setSearchControls( SearchControls searchControls )
     {
         this.searchControls = searchControls;
@@ -105,12 +123,19 @@ public class SearchOperationContext extends AbstractOperationContext
     }
 
 
+    /**
+     *  @return The alias handling mode
+     */
     public AliasDerefMode getAliasDerefMode()
     {
         return aliasDerefMode;
     }
 
 
+    /**
+     * Set the alias handling mode
+     *  @param aliasDerefMode The alias handling mode
+     */
     public void setAliasDerefMode( AliasDerefMode aliasDerefMode )
     {
         this.aliasDerefMode = aliasDerefMode;

@@ -24,9 +24,9 @@ import java.util.Iterator;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -69,7 +69,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#getRootDSE( NextInterceptor, GetRootDSEOperationContext )}.
      */
-    Attributes getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException;
+    ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException;
 
 
     /**
@@ -91,13 +91,13 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link PartitionNexus#addContextPartition( nextInterceptor, AddContextPartitionOperationContext )}.
+     * Calls the next interceptor's {@link PartitionNexus#addContextPartition( AddContextPartitionOperationContext )}.
      */
     void addContextPartition( AddContextPartitionOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link PartitionNexus#removeContextPartition( NextInterceptor, RemoveContextPartitionOperationContext )}.
+     * Calls the next interceptor's {@link PartitionNexus#removeContextPartition( RemoveContextPartitionOperationContext )}.
      */
     void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws NamingException;
 
@@ -122,20 +122,20 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#list( NextInterceptor, ListOperationContext )}.
      */
-    NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException;
+    NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#search( NextInterceptor, SearchOperationContext opContext )}.
      */
-    NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+    NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
         throws NamingException;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#lookup( NextInterceptor, LookupOperationContext )}.
      */
-    Attributes lookup( LookupOperationContext opContext ) throws NamingException;
+    ServerEntry lookup( LookupOperationContext opContext ) throws NamingException;
 
 
     /**

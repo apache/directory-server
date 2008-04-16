@@ -22,6 +22,12 @@ package org.apache.directory.server.core.partition;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -49,22 +55,22 @@ import org.apache.directory.server.core.partition.tree.LeafNode;
 import org.apache.directory.server.core.partition.tree.Node;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.CascadeControl;
 import org.apache.directory.shared.ldap.message.EntryChangeControl;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
-import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -82,10 +88,8 @@ import javax.naming.ConfigurationException;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -118,15 +122,6 @@ public class DefaultPartitionNexus extends PartitionNexus
     /** the vendorName string proudly set to: Apache Software Foundation*/
     private static final String ASF = "Apache Software Foundation";
 
-    /** the vendorName DSE operational attribute */
-    private static final String VENDORNAME_ATTR = "vendorName";
-
-    /** the vendorVersion DSE operational attribute */
-    private static final String VENDORVERSION_ATTR = "vendorVersion";
-
-    /** the namingContexts DSE operational attribute */
-    private static final String NAMINGCTXS_ATTR = "namingContexts";
-
     /** the closed state of this partition */
     private boolean initialized;
 
@@ -142,11 +137,16 @@ public class DefaultPartitionNexus extends PartitionNexus
     private BranchNode partitionLookupTree = new BranchNode();
     
     /** the read only rootDSE attributes */
-    private final Attributes rootDSE;
+    private final ServerEntry rootDSE;
 
-    private AttributeTypeRegistry attrRegistry;
+    /** The global registries */
+    private Registries registries;
+    
+    /** The attributeType registry */
+    private AttributeTypeRegistry atRegistry;
+    
+    /** The OID registry */
     private OidRegistry oidRegistry;
-    private Object partitionLookupTreeLock = new Object();
 
 
     /**
@@ -158,54 +158,41 @@ public class DefaultPartitionNexus extends PartitionNexus
      * @see <a href="http://www.faqs.org/rfcs/rfc3045.html">Vendor Information</a>
      * @param rootDSE the root entry for the DSA
      */
-    public DefaultPartitionNexus( Attributes rootDSE )
+    public DefaultPartitionNexus( ServerEntry rootDSE ) throws NamingException
     {
         // setup that root DSE
         this.rootDSE = rootDSE;
-        Attribute attr = new AttributeImpl( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
-        attr.add( ServerDNConstants.SCHEMA_DN );
-        rootDSE.put( attr );
-
-        attr = new AttributeImpl( "supportedLDAPVersion" );
-        rootDSE.put( attr );
-        attr.add( "3" );
-
-        attr = new AttributeImpl( "supportedFeatures" );
-        rootDSE.put( attr );
-        attr.add( "1.3.6.1.4.1.4203.1.5.1" );
-
-        attr = new AttributeImpl( "supportedExtension" );
-        rootDSE.put( attr );
-        attr.add( NoticeOfDisconnect.EXTENSION_OID );
+        
+        // Add the basic informations
+        rootDSE.put( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, ServerDNConstants.CN_SCHEMA_DN );
+        rootDSE.put( SchemaConstants.SUPPORTED_LDAP_VERSION_AT, "3" );
+        rootDSE.put( SchemaConstants.SUPPORTED_FEATURES_AT, SchemaConstants.FEATURE_ALL_OPERATIONAL_ATTRIBUTES );
+        rootDSE.put( SchemaConstants.SUPPORTED_EXTENSION_AT, NoticeOfDisconnect.EXTENSION_OID );
 
         // Add the supportedSASLMechanisms attribute to rootDSE
-        attr = new AttributeImpl( SupportedSASLMechanisms.ATTRIBUTE );
-        rootDSE.put( attr );
-        attr.add( SupportedSASLMechanisms.GSSAPI );
-        attr.add( SupportedSASLMechanisms.DIGEST_MD5 );
-        attr.add( SupportedSASLMechanisms.CRAM_MD5 );
+        rootDSE.put( SupportedSASLMechanisms.ATTRIBUTE, 
+            SupportedSASLMechanisms.GSSAPI, 
+            SupportedSASLMechanisms.DIGEST_MD5, 
+            SupportedSASLMechanisms.CRAM_MD5 );
 
-        attr = new AttributeImpl( "supportedControl" );
-        rootDSE.put( attr );
-        attr.add( PersistentSearchControl.CONTROL_OID );
-        attr.add( EntryChangeControl.CONTROL_OID );
-        attr.add( SubentriesControl.CONTROL_OID );
-        attr.add( ManageDsaITControl.CONTROL_OID );
-        attr.add( CascadeControl.CONTROL_OID );
+        // Add the supported controls
+        rootDSE.put( SchemaConstants.SUPPORTED_CONTROL_AT, 
+            PersistentSearchControl.CONTROL_OID,
+            EntryChangeControl.CONTROL_OID,
+            SubentriesControl.CONTROL_OID,
+            ManageDsaITControl.CONTROL_OID,
+            CascadeControl.CONTROL_OID );
 
-        attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        rootDSE.put( attr );
-        attr.add( SchemaConstants.TOP_OC );
-        attr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
+        // Add the objectClasses
+        rootDSE.put( SchemaConstants.OBJECT_CLASS_AT,
+            SchemaConstants.TOP_OC,
+            SchemaConstants.EXTENSIBLE_OBJECT_OC );
 
-        attr = new AttributeImpl( NAMINGCTXS_ATTR );
-        rootDSE.put( attr );
-
-        attr = new AttributeImpl( VENDORNAME_ATTR );
-        attr.add( ASF );
-        rootDSE.put( attr );
+        // Add the 'vendor' name and version infos
+        rootDSE.put( SchemaConstants.VENDOR_NAME_AT, ASF );
 
         Properties props = new Properties();
+        
         try
         {
             props.load( getClass().getResourceAsStream( "version.properties" ) );
@@ -215,9 +202,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             LOG.error( "failed to LOG version properties" );
         }
 
-        attr = new AttributeImpl( VENDORVERSION_ATTR );
-        attr.add( props.getProperty( "apacheds.version", "UNKNOWN" ) );
-        rootDSE.put( attr );
+        rootDSE.put( SchemaConstants.VENDOR_VERSION_AT, props.getProperty( "apacheds.version", "UNKNOWN" ) );
     }
 
     
@@ -253,9 +238,20 @@ public class DefaultPartitionNexus extends PartitionNexus
      *
      * @return the root entry for the DSA
      */
-    public Attributes getContextEntry()
+    public ServerEntry getContextEntry()
     {
         return rootDSE;
+    }
+
+
+    /**
+     * Returns root the rootDSE.
+     *
+     * @return the root entry for the DSA
+     */
+    public Attributes getContextEntryAttr()
+    {
+        return null;
     }
 
 
@@ -264,7 +260,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      *
      * @throws UnsupportedOperationException everytime
      */
-    public void setContextEntry( Attributes rootEntry )
+    public void setContextEntry( ServerEntry rootEntry )
     {
         throw new UnsupportedOperationException( "Setting the RootDSE is not allowed." );
     }
@@ -321,8 +317,9 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         this.directoryService = directoryService;
-        this.attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
-        this.oidRegistry = directoryService.getRegistries().getOidRegistry();
+        registries = directoryService.getRegistries();
+        atRegistry = registries.getAttributeTypeRegistry();
+        oidRegistry = registries.getOidRegistry();
         
         initializeSystemPartition();
         List<Partition> initializedPartitions = new ArrayList<Partition>();
@@ -334,8 +331,9 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             while ( partitions.hasNext() )
             {
-                Partition p = partitions.next();
-                AddContextPartitionOperationContext opCtx = new AddContextPartitionOperationContext( p );
+                Partition partition = partitions.next();
+                AddContextPartitionOperationContext opCtx = 
+                    new AddContextPartitionOperationContext( registries, partition );
                 addContextPartition( opCtx );
                 initializedPartitions.add( opCtx.getPartition() );
             }
@@ -372,22 +370,32 @@ public class DefaultPartitionNexus extends PartitionNexus
     {
         // initialize system partition first
         Partition override = directoryService.getSystemPartition();
+        
         if ( override != null )
         {
-            Attributes systemEntry = override.getContextEntry();
-            Attribute objectClassAttr = systemEntry.get( SchemaConstants.OBJECT_CLASS_AT );
+            ServerEntry systemEntry = override.getContextEntry();
+            EntryAttribute objectClassAttr = systemEntry.get( SchemaConstants.OBJECT_CLASS_AT );
+            
             if ( objectClassAttr == null )
             {
-                objectClassAttr = new AttributeImpl(  SchemaConstants.OBJECT_CLASS_AT );
-                systemEntry.put( objectClassAttr );
+                systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
+                    SchemaConstants.TOP_OC,
+                    SchemaConstants.ORGANIZATIONAL_UNIT_OC,
+                    SchemaConstants.EXTENSIBLE_OBJECT_OC );
             }
-            objectClassAttr.add( SchemaConstants.TOP_OC );
-            objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
+            else
+            {
+                objectClassAttr.add( 
+                    SchemaConstants.TOP_OC,
+                    SchemaConstants.ORGANIZATIONAL_UNIT_OC,
+                    SchemaConstants.EXTENSIBLE_OBJECT_OC );
+            }
+            
             systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
             systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
             systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
                 NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
+            
             override.setContextEntry( systemEntry );
             
             // ---------------------------------------------------------------
@@ -405,7 +413,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             {
                 Set<Index> indices = ( ( JdbmPartition ) override ).getIndexedAttributes();
                 Set<String> indexOids = new HashSet<String>();
-                OidRegistry registry = directoryService.getRegistries().getOidRegistry();
+                OidRegistry registry = registries.getOidRegistry();
 
                 for ( Index index : indices )
                 {
@@ -440,16 +448,21 @@ public class DefaultPartitionNexus extends PartitionNexus
             ( ( JdbmPartition ) system ).setIndexedAttributes( indexedAttrs );
     
             // Add context entry for system partition
-            Attributes systemEntry = new AttributesImpl();
-            Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClassAttr.add( SchemaConstants.TOP_OC );
-            objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
-            systemEntry.put( objectClassAttr );
+            ServerEntry systemEntry = new DefaultServerEntry( registries, new LdapDN( ServerDNConstants.SYSTEM_DN ) );
+
+            // Add the ObjectClasses
+            systemEntry.put( SchemaConstants.OBJECT_CLASS_AT,
+                SchemaConstants.TOP_OC,
+                SchemaConstants.ORGANIZATIONAL_UNIT_OC,
+                SchemaConstants.EXTENSIBLE_OBJECT_OC
+                );
+            
+            // Add some operational attributes
             systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
             systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
             systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
                 NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
+
             system.setContextEntry( systemEntry );
         }
 
@@ -465,8 +478,19 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             partitions.put( key, system );
             partitionLookupTree.recursivelyAddPartition( partitionLookupTree, system.getSuffixDn(), 0, system );
-            Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-            namingContexts.add( system.getUpSuffixDn().getUpName() );
+            EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+            
+            if ( namingContexts == null )
+            {
+                namingContexts = new DefaultServerAttribute( 
+                    registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), 
+                    system.getUpSuffixDn().getUpName() );
+                rootDSE.put( namingContexts );
+            }
+            else
+            {
+                namingContexts.add( system.getUpSuffixDn().getUpName() );
+            }
         }
 
         return system;
@@ -492,7 +516,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             try
             {
-                removeContextPartition( new RemoveContextPartitionOperationContext( new LdapDN( suffix ) ) );
+                removeContextPartition( new RemoveContextPartitionOperationContext( registries, new LdapDN( suffix ) ) );
             }
             catch ( NamingException e )
             {
@@ -548,7 +572,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     public boolean compare( CompareOperationContext compareContext ) throws NamingException
     {
         Partition partition = getPartition( compareContext.getDn() );
-        AttributeTypeRegistry registry = directoryService.getRegistries().getAttributeTypeRegistry();
+        AttributeTypeRegistry registry = registries.getAttributeTypeRegistry();
         
         // complain if we do not recognize the attribute being compared
         if ( !registry.hasAttributeType( compareContext.getOid() ) )
@@ -558,7 +582,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         AttributeType attrType = registry.lookup( compareContext.getOid() );
         
-        Attribute attr = partition.lookup( new LookupOperationContext( compareContext.getDn() ) ).get( attrType.getName() );
+        EntryAttribute attr = partition.lookup( new LookupOperationContext( registries, compareContext.getDn() ) ).get( attrType.getName() );
 
         // complain if the attribute being compared does not exist in the entry
         if ( attr == null )
@@ -567,8 +591,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         // see first if simple match without normalization succeeds
-        // TODO Fix DIRSERVER-832
-        if ( attr.contains( compareContext.getValue() ) )
+        if ( attr.contains( (Value<?>)compareContext.getValue()  ) )
         {
             return true;
         }
@@ -581,11 +604,11 @@ public class DefaultPartitionNexus extends PartitionNexus
          * through all values looking for a match.
          */
         Normalizer normalizer = attrType.getEquality().getNormalizer();
-        Object reqVal = normalizer.normalize( compareContext.getValue() );
+        Object reqVal = normalizer.normalize( ((Value<?>)compareContext.getValue()).get() );
 
-        for ( int ii = 0; ii < attr.size(); ii++ )
+        for ( Value<?> value:attr )
         {
-            Object attrValObj = normalizer.normalize( attr.get( ii ) );
+            Object attrValObj = normalizer.normalize( value.get() );
             
             if ( attrValObj instanceof String )
             {
@@ -627,6 +650,15 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         if ( ! partition.isInitialized() )
         {
+            if ( partition.getContextEntry() != null )
+            {
+                partition.setContextEntry( partition.getContextEntry() );
+            }
+            else
+            {
+                partition.setContextEntry( ServerEntryUtils.toServerEntry( partition.getContextEntryAttr(), new LdapDN( partition.getSuffix() ) , registries ) );
+            }
+            
             partition.init( directoryService );
         }
         
@@ -642,15 +674,25 @@ public class DefaultPartitionNexus extends PartitionNexus
             partitions.put( partitionSuffix.toString(), partition );
             partitionLookupTree.recursivelyAddPartition( partitionLookupTree, partition.getSuffixDn(), 0, partition );
 
-            Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
+            EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
         	LdapDN partitionUpSuffix = partition.getUpSuffixDn();
+        	
         	if ( partitionUpSuffix == null )
         	{
         		throw new ConfigurationException( "The current partition does not have any user provided suffix: " + partition.getId() );
         	}
         	
-            namingContexts.add( partitionUpSuffix.getUpName() );
+        	if ( namingContexts == null )
+        	{
+        	    namingContexts = new DefaultServerAttribute( 
+        	        registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), partitionUpSuffix.getUpName() );
+        	    rootDSE.put( namingContexts );
+        	}
+        	else
+        	{
+        	    namingContexts.add( partitionUpSuffix.getUpName() );
+        	}
         }
     }
 
@@ -665,12 +707,16 @@ public class DefaultPartitionNexus extends PartitionNexus
             throw new NameNotFoundException( "No partition with suffix: " + key );
         }
 
-        Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.remove( partition.getUpSuffixDn().getUpName() );
+        EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        
+        if ( namingContexts != null )
+        {
+            namingContexts.remove( partition.getUpSuffixDn().getUpName() );
+        }
 
         // Create a new partition list. 
         // This is easier to create a new structure from scratch than to reorganize
-        // the current structure. As this strcuture is not modified often
+        // the current structure. As this structure is not modified often
         // this is an acceptable solution.
         synchronized ( partitionLookupTree )
         {
@@ -712,7 +758,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         
         while ( dn.size() > 0 )
         {
-            if ( hasEntry( new EntryOperationContext( dn ) ) )
+            if ( hasEntry( new EntryOperationContext( registries, dn ) ) )
             {
                 return dn;
             }
@@ -754,7 +800,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public Attributes getRootDSE( GetRootDSEOperationContext getRootDSEContext )
+    public ServerEntry getRootDSE( GetRootDSEOperationContext getRootDSEContext )
     {
         return rootDSE;
     }
@@ -775,8 +821,13 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     private void unregister( Partition partition ) throws NamingException
     {
-        Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.remove( partition.getSuffixDn().getUpName() );
+        EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        
+        if ( namingContexts != null )
+        {
+            namingContexts.remove( partition.getSuffixDn().getUpName() );
+        }
+        
         partitions.remove( partition.getSuffixDn().toString() );
     }
 
@@ -833,14 +884,14 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#list(ListOperationContext)
      */
-    public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException
     {
         Partition backend = getPartition( opContext.getDn() );
         return backend.list( opContext );
     }
 
 
-    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
         throws NamingException
     {
         LdapDN base = opContext.getDn();
@@ -866,10 +917,11 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // If nothing is asked for then we just return the entry asis.
                 // We let other mechanisms filter out operational attributes.
                 // -----------------------------------------------------------
-                if ( ids == null || ids.length == 0 )
+                if ( ( ids == null ) || ( ids.length == 0 ) )
                 {
-                    SearchResult result = new ServerSearchResult( "", null, ( Attributes ) getRootDSE( null ).clone(), false );
-                    return new SingletonEnumeration<SearchResult>( result );
+                	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
+                    ServerSearchResult result = new ServerSearchResult( LdapDN.EMPTY_LDAPDN, null, rootDSE, false );
+                    return new SingletonEnumeration<ServerSearchResult>( result );
                 }
                 
                 // -----------------------------------------------------------
@@ -914,70 +966,43 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // return nothing
                 if ( containsOneDotOne )
                 {
-                    SearchResult result = new ServerSearchResult( "", null, new AttributesImpl(), false );
-                    return new SingletonEnumeration<SearchResult>( result );
+                	ServerEntry serverEntry = new DefaultServerEntry( registries, base );
+                    ServerSearchResult result = new ServerSearchResult( LdapDN.EMPTY_LDAPDN, null, serverEntry, false );
+                    return new SingletonEnumeration<ServerSearchResult>( result );
                 }
                 
                 // return everything
                 if ( containsAsterisk && containsPlus )
                 {
-                    SearchResult result = new ServerSearchResult( "", null, ( Attributes ) getRootDSE( null ).clone(), false );
-                    return new SingletonEnumeration<SearchResult>( result );
+                	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
+                    ServerSearchResult result = new ServerSearchResult( LdapDN.EMPTY_LDAPDN, null, rootDSE, false );
+                    return new SingletonEnumeration<ServerSearchResult>( result );
                 }
                 
-                Attributes attrs = new AttributesImpl();
-                if ( containsAsterisk )
+                ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
+                
+                ServerEntry rootDSE = getRootDSE( new GetRootDSEOperationContext( registries ) );
+                
+                for ( EntryAttribute attribute:rootDSE )
                 {
-                    for ( NamingEnumeration<? extends Attribute> ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
+                    AttributeType type = atRegistry.lookup( attribute.getUpId() );
+                    
+                    if ( realIds.contains( type.getOid() ) )
                     {
-                        // add all user attribute
-                        Attribute attr = ii.next();
-                        AttributeType type = attrRegistry.lookup( attr.getID() );
-                        if ( type.getUsage() == UsageEnum.USER_APPLICATIONS )
-                        {
-                            attrs.put( attr );
-                        }
-                        // add attributes specifically asked for
-                        else if ( realIds.contains( type.getOid() ) )
-                        {
-                            attrs.put( attr );
-                        }
+                        serverEntry.put( attribute );
                     }
-                }
-                else if ( containsPlus )
-                {
-                    for ( NamingEnumeration<? extends Attribute> ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
+                    else if ( containsAsterisk && ( type.getUsage() == UsageEnum.USER_APPLICATIONS ) )
                     {
-                        // add all operational attributes
-                        Attribute attr = ii.next();
-                        AttributeType type = attrRegistry.lookup( attr.getID() );
-                        if ( type.getUsage() != UsageEnum.USER_APPLICATIONS )
-                        {
-                            attrs.put( attr );
-                        }
-                        // add user attributes specifically asked for
-                        else if ( realIds.contains( type.getOid() ) )
-                        {
-                            attrs.put( attr );
-                        }
+                        serverEntry.put( attribute );
                     }
-                }
-                else
-                {
-                    for ( NamingEnumeration<? extends Attribute> ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
+                    else if ( containsPlus && ( type.getUsage() != UsageEnum.USER_APPLICATIONS ) )
                     {
-                      // add user attributes specifically asked for
-                        Attribute attr = ii.next();
-                        AttributeType type = attrRegistry.lookup( attr.getID() );
-                        if ( realIds.contains( type.getOid() ) )
-                        {
-                            attrs.put( attr );
-                        }
+                        serverEntry.put( attribute );
                     }
                 }
 
-                SearchResult result = new ServerSearchResult( "", null, attrs, false );
-                return new SingletonEnumeration<SearchResult>( result );
+                ServerSearchResult result = new ServerSearchResult( LdapDN.EMPTY_LDAPDN, null, serverEntry, false );
+                return new SingletonEnumeration<ServerSearchResult>( result );
             }
 
             throw new LdapNameNotFoundException();
@@ -988,35 +1013,37 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public Attributes lookup( LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
     {
         LdapDN dn = opContext.getDn();
         
         if ( dn.size() == 0 )
         {
-            Attributes retval = new AttributesImpl();
-            NamingEnumeration<String> list = rootDSE.getIDs();
+            ServerEntry retval = new DefaultServerEntry( registries, opContext.getDn() );
+            Set<AttributeType> attributeTypes = rootDSE.getAttributeTypes();
      
             if ( opContext.getAttrsId() != null )
             {
-                while ( list.hasMore() )
+                for ( AttributeType attributeType:attributeTypes )
                 {
-                    String id = list.next();
+                    String oid = attributeType.getOid();
                     
-                    if ( opContext.getAttrsId().contains( id ) )
+                    if ( opContext.getAttrsId().contains( oid ) )
                     {
-                        Attribute attr = rootDSE.get( id );
-                        retval.put( ( Attribute ) attr.clone() );
+                        EntryAttribute attr = rootDSE.get( oid );
+                        retval.put( (ServerAttribute)attr.clone() );
                     }
+                    
                 }
             }
             else
             {
-                while ( list.hasMore() )
+                for ( AttributeType attributeType:attributeTypes )
                 {
-                    String id = list.next();
-                    Attribute attr = rootDSE.get( id );
-                    retval.put( ( Attribute ) attr.clone() );
+                    String id = attributeType.getName();
+                    
+                    EntryAttribute attr = rootDSE.get( id );
+                    retval.put( (ServerAttribute)attr.clone() );
                 }
             }
             
@@ -1087,12 +1114,13 @@ public class DefaultPartitionNexus extends PartitionNexus
     public Partition getPartition( LdapDN dn ) throws NamingException
     {
         Enumeration<String> rdns = dn.getAll();
-        Node currentNode = partitionLookupTree;
         
         // This is synchronized so that we can't read the
         // partitionList when it is modified.
-        synchronized ( partitionLookupTreeLock )
+        synchronized ( partitionLookupTree )
         {
+            Node currentNode = partitionLookupTree;
+
             // Iterate through all the RDN until we find the associated partition
             while ( rdns.hasMoreElements() )
             {
@@ -1109,6 +1137,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 }
 
                 BranchNode currentBranch = ( BranchNode ) currentNode;
+                
                 if ( currentBranch.contains( rdn ) )
                 {
                     currentNode = currentBranch.getChild( rdn );
@@ -1130,13 +1159,13 @@ public class DefaultPartitionNexus extends PartitionNexus
     // ------------------------------------------------------------------------
 
 
-    public void registerSupportedExtensions( Set<String> extensionOids )
+    public void registerSupportedExtensions( Set<String> extensionOids ) throws NamingException
     {
-        Attribute supportedExtension = rootDSE.get( "supportedExtension" );
+        EntryAttribute supportedExtension = rootDSE.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
+        
         if ( supportedExtension == null )
         {
-            supportedExtension = new AttributeImpl( "supportedExtension" );
-            rootDSE.put( supportedExtension );
+            rootDSE.set( SchemaConstants.SUPPORTED_EXTENSION_AT );
         }
         
         for ( String extensionOid : extensionOids )

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<spring:beans xmlns:spring="http://xbean.apache.org/schemas/spring/1.0" xmlns="http://apacheds.org/config/1.0">
+<spring:beans xmlns:spring="http://xbean.apache.org/schemas/spring/1.0" 
+			  xmlns:s="http://www.springframework.org/schema/beans"
+			  xmlns="http://apacheds.org/config/1.0">
 
   <defaultDirectoryService id="directoryService" instanceId="default"
                            workingDirectory="example.com"
@@ -24,14 +26,15 @@
           <jdbmIndex attributeId="uid" cacheSize="100"/>
           <jdbmIndex attributeId="objectClass" cacheSize="100"/>
         </indexedAttributes>
-        <contextEntry>
-          <value xmlns="http://www.springframework.org/schema/beans">
+        <contextEntry>#systemContextEntry</contextEntry>
+        <!-- contextEntry>
+          <s:value>
             objectClass: top
             objectClass: organizationalUnit
             objectClass: extensibleObject
             ou: system
-          </value>
-        </contextEntry>
+          </s:value>
+        </contextEntry -->
       </jdbmPartition>
     </systemPartition>
 
@@ -55,14 +58,15 @@
           <jdbmIndex attributeId="uid" cacheSize="100"/>
           <jdbmIndex attributeId="objectClass" cacheSize="100"/>
         </indexedAttributes>
-        <contextEntry>
-          <value xmlns="http://www.springframework.org/schema/beans">
+        <contextEntry>#exampleContextEntry</contextEntry>
+        <!-- contextEntry>
+          <s:value>
             objectClass: top
             objectClass: domain
             objectClass: extensibleObject
             dc: example
-          </value>
-        </contextEntry>
+          </s:value>
+        </contextEntry -->
       </jdbmPartition>
     </partitions>
 
@@ -130,10 +134,9 @@
   </dnsServer>
 -->
 
-<!-- no certificate  -->
   <ldapServer id="ldapsServer"
-          enabled="false"
-              ipPort="60636"
+              enabled="true"
+              ipPort="10636"
               enableLdaps="true">
     <directoryService>#directoryService</directoryService>
     <socketAcceptor>#socketAcceptor</socketAcceptor>
@@ -152,28 +155,28 @@
     <socketAcceptor>#socketAcceptor</socketAcceptor>
     <!-- The list of supported authentication mechanisms.                   -->
     <supportedMechanisms>
-      <value xmlns="http://www.springframework.org/schema/beans">SIMPLE</value>
-      <value xmlns="http://www.springframework.org/schema/beans">CRAM-MD5</value>
-      <value xmlns="http://www.springframework.org/schema/beans">DIGEST-MD5</value>
-      <!--<value xmlns="http://www.springframework.org/schema/beans">GSSAPI</value>-->
+      <s:value>SIMPLE</s:value>
+      <s:value>CRAM-MD5</s:value>
+      <s:value>DIGEST-MD5</s:value>
+      <!--<s:value>GSSAPI</s:value>-->
     </supportedMechanisms>
 
     <!-- The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.  -->
     <saslQop>
-      <value xmlns="http://www.springframework.org/schema/beans">auth</value>
-      <value xmlns="http://www.springframework.org/schema/beans">auth-int</value>
-      <value xmlns="http://www.springframework.org/schema/beans">auth-conf</value>
+      <s:value>auth</s:value>
+      <s:value>auth-int</s:value>
+      <s:value>auth-conf</s:value>
     </saslQop>
 
     <!-- The realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI. -->
     <saslRealms>
-      <value xmlns="http://www.springframework.org/schema/beans">example.com</value>
-      <value xmlns="http://www.springframework.org/schema/beans">apache.org</value>
+      <s:value>example.com</s:value>
+      <s:value>apache.org</s:value>
     </saslRealms>
 
     <!-- the collection of extended operation handlers to install           -->
     <extendedOperationHandlers>
-      <!--startTlsHandler/-->
+      <startTlsHandler/>
       <gracefulShutdownHandler/>
       <launchDiagnosticUiHandler/>
       <!-- The Stored Procedure Extended Operation is not stable yet and it may cause security risks.-->
@@ -190,6 +193,40 @@
     <ldapServer>#ldapServer</ldapServer>
     <ldapsServer>#ldapsServer</ldapsServer>
   </apacheDS>
+
+  <spring:bean id="systemContextEntry" 
+	class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <spring:property name="targetObject"><spring:ref local='directoryService'/></spring:property>
+    <spring:property name="targetMethod"><spring:value>newEntry</spring:value></spring:property>
+    <spring:property name="arguments">
+      <spring:list>
+        <spring:value xmlns="http://www.springframework.org/schema/beans">
+          objectClass: top
+          objectClass: organizationalUnit
+          objectClass: extensibleObject
+          ou: system
+        </spring:value>
+        <spring:value>ou=system</spring:value>
+      </spring:list>
+    </spring:property>
+  </spring:bean>
+  
+  <spring:bean id="exampleContextEntry" 
+	class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <spring:property name="targetObject"><spring:ref local='directoryService'/></spring:property>
+    <spring:property name="targetMethod"><spring:value>newEntry</spring:value></spring:property>
+    <spring:property name="arguments">
+      <spring:list>
+        <spring:value xmlns="http://www.springframework.org/schema/beans">
+          objectClass: top
+          objectClass: domain
+          objectClass: extensibleObject
+          dc: example
+        </spring:value>
+        <spring:value>dc=example,dc=com</spring:value>
+      </spring:list>
+    </spring:property>
+  </spring:bean>
 
   <!-- another bean I didn't convert -->
   <spring:bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">

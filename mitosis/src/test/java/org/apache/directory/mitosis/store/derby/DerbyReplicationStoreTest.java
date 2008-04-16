@@ -23,9 +23,11 @@ package org.apache.directory.mitosis.store.derby;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Name;
@@ -36,9 +38,12 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.CSNVector;
@@ -71,6 +76,7 @@ public class DerbyReplicationStoreTest extends TestCase
     private DerbyReplicationStore store;
     private int testCount;
     private long startTime;
+    private DefaultDirectoryService service;
 
 
     public void setUp() throws Exception
@@ -90,7 +96,7 @@ public class DerbyReplicationStoreTest extends TestCase
         // Open store
         store = new DerbyReplicationStore();
         store.setTablePrefix( "TEST_" );
-        DefaultDirectoryService service = new DefaultDirectoryService();
+        service = new DefaultDirectoryService();
         service.setWorkingDirectory( DB_PATH );
         store.open( service, cfg );
     }
@@ -181,22 +187,45 @@ public class DerbyReplicationStoreTest extends TestCase
 
     private void subTestWriteLog() throws Exception
     {
+        Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
+
+        oids.put( "ou", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+
+        AttributeTypeRegistry atRegistry = service.getRegistries().getAttributeTypeRegistry();
+
         CSN csn = csnFactory.newInstance( REPLICA_ID );
         CompositeOperation op1 = new CompositeOperation( csn );
-        op1.add( new AddEntryOperation( csn, new LdapDN( "ou=a" ), new AttributesImpl( true ) ) );
-        op1.add( new AddAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
-        op1.add( new ReplaceAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
-        op1.add( new DeleteAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
+        LdapDN ouA =  new LdapDN( "ou=a" ).normalize( oids );
+        op1.add( new AddEntryOperation( csn, ouA, 
+            new DefaultServerEntry( service.getRegistries(), ouA ) ) );
+        
+        op1.add( new AddAttributeOperation( csn, ouA, 
+            new DefaultServerAttribute( "ou", atRegistry.lookup( "ou" ), "valie" ) ) );
+        
+        op1.add( new ReplaceAttributeOperation( csn, ouA, 
+            new DefaultServerAttribute( "ou", atRegistry.lookup( "ou" ), "valie" ) ) );
+        
+        op1.add( new DeleteAttributeOperation( csn, ouA, 
+            new DefaultServerAttribute( "ou", atRegistry.lookup( "ou" ), "valie" ) ) );
 
         store.putLog( op1 );
         testGetLogs( csn, op1 );
 
         csn = csnFactory.newInstance( OTHER_REPLICA_ID );
         CompositeOperation op2 = new CompositeOperation( csn );
-        op2.add( new AddEntryOperation( csn, new LdapDN( "ou=a" ), new AttributesImpl( true ) ) );
-        op2.add( new AddAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
-        op2.add( new ReplaceAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
-        op2.add( new DeleteAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
+        op2.add( new AddEntryOperation( csn, ouA, 
+            new DefaultServerEntry( service.getRegistries(), ouA ) ) );
+        
+        op2.add( new AddAttributeOperation( csn, ouA, 
+            new DefaultServerAttribute( "ou", atRegistry.lookup( "ou" ), "valie" ) ) );
+        
+        op2.add( new ReplaceAttributeOperation( csn, ouA, 
+            new DefaultServerAttribute( "ou", atRegistry.lookup( "ou" ), "valie" ) ) );
+        
+        op2.add( new DeleteAttributeOperation( csn, ouA, 
+            new DefaultServerAttribute( "ou", atRegistry.lookup( "ou" ), "valie" ) ) );
 
         store.putLog( op2 );
         testGetLogs( csn, op2 );

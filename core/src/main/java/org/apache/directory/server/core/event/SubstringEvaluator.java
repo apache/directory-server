@@ -23,13 +23,13 @@ package org.apache.directory.server.core.event;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -65,9 +65,9 @@ public class SubstringEvaluator implements Evaluator
 
 
     /**
-     * @see Evaluator#evaluate(ExprNode, String, Attributes)
+     * @see Evaluator#evaluate( ExprNode, String, ServerEntry )
      */
-    public boolean evaluate( ExprNode node, String dn, Attributes entry ) throws NamingException
+    public boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws NamingException
     {
         Pattern regex = null;
         SubstringNode snode = (SubstringNode)node;
@@ -84,7 +84,7 @@ public class SubstringEvaluator implements Evaluator
         
 
         // get the attribute
-        Attribute attr = entry.get( snode.getAttribute() );
+        EntryAttribute attr = entry.get( snode.getAttribute() );
 
         // if the attribute does not exist just return false
         if ( null == attr )
@@ -110,17 +110,15 @@ public class SubstringEvaluator implements Evaluator
          * The test uses the comparator obtained from the appropriate 
          * substring matching rule.
          */
-        NamingEnumeration list = attr.getAll();
 
-        while ( list.hasMore() )
+        for ( Value<?> value: attr )
         {
-            String value = ( String ) normalizer.normalize( list.next() );
+            String normValue = ( String ) normalizer.normalize( value );
 
             // Once match is found cleanup and return true
 
-            if ( regex.matcher( value ).matches() )
+            if ( regex.matcher( normValue ).matches() )
             {
-                list.close();
                 return true;
             }
         }

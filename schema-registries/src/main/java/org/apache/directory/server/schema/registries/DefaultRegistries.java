@@ -500,6 +500,7 @@ public class DefaultRegistries implements Registries
     public void load( String schemaName, Properties schemaProperties ) throws NamingException
     {
         Schema schema = schemaLoader.getSchema( schemaName, schemaProperties );
+        
         if ( schema.isDisabled() )
         {
             throw new NamingException( "Disabled schemas cannot be loaded into registries." );

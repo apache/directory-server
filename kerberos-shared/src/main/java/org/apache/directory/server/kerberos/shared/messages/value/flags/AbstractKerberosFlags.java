@@ -33,6 +33,11 @@ import org.apache.directory.shared.asn1.primitives.BitString;
  */
 public abstract class AbstractKerberosFlags extends BitString implements KerberosFlags
 {
+    /**
+     * The maximum size of the BitString as specified for Kerberos flags.
+     */
+    public static final int MAX_SIZE = 32;
+
     /** The associated value */
     protected int value;
     
@@ -42,7 +47,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
      */
     public AbstractKerberosFlags()
     {
-        super( 32 );
+        super( MAX_SIZE );
     }
 
     
@@ -114,7 +119,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
     
     /**
      * Check if a flag is set
-     * @param flags The flags to test
+     * @param flag The flags to test
      * @return True if the flag is set in the list of flags
      */
     public boolean isFlagSet( int flag )
@@ -149,8 +154,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
     
     /**
      * Modify a byte array to an integer value
-     * @param value The 4 bytes byte array to transform.
-     * @return The int which contains the bytes value.
+     * @param bytes The 4 bytes byte array to transform.
      */
     public void setFlags( byte[] bytes )
     {

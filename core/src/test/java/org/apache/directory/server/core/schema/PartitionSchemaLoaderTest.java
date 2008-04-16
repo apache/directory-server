@@ -20,25 +20,40 @@
 package org.apache.directory.server.core.schema;
 
 
-import junit.framework.TestCase;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.*;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -47,24 +62,24 @@ import java.util.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PartitionSchemaLoaderTest extends TestCase
+public class PartitionSchemaLoaderTest
 {
-    private Registries registries;
-    private DirectoryService directoryService;
-    private JdbmPartition schemaPartition;
+    private static Registries registries;
+    private static DirectoryService directoryService;
+    private static JdbmPartition schemaPartition;
 
 
-    public void setUp() throws Exception
+    @BeforeClass public static void setUp() throws Exception
     {
-        super.setUp();
-
         // setup working directory
         directoryService = new DefaultDirectoryService();
         File workingDirectory = new File( System.getProperty( "workingDirectory", System.getProperty( "user.dir" ) ) );
+        
         if ( ! workingDirectory.exists() )
         {
             workingDirectory.mkdirs();
         }
+        
         directoryService.setWorkingDirectory( workingDirectory );
         
         // --------------------------------------------------------------------
@@ -85,11 +100,12 @@ public class PartitionSchemaLoaderTest extends TestCase
         loader.loadWithDependencies( bootstrapSchemas, registries );
         
         // run referential integrity tests
-        java.util.List errors = registries.checkRefInteg();
+        List<Throwable> errors = registries.checkRefInteg();
+        
         if ( !errors.isEmpty() )
         {
             NamingException e = new NamingException();
-            e.setRootCause( ( Throwable ) errors.get( 0 ) );
+            e.setRootCause( errors.get( 0 ) );
             throw e;
         }
 
@@ -129,16 +145,15 @@ public class PartitionSchemaLoaderTest extends TestCase
         schemaPartition.setIndexedAttributes( indexedAttributes );
         schemaPartition.setSuffix( "ou=schema" );
         
-        Attributes entry = new AttributesImpl();
-        entry.put( "objectClass", "top" );
-        entry.get( "objectClass" ).add( "organizationalUnit" );
+        ServerEntry entry = new DefaultServerEntry( registries, new LdapDN( "ou=schema" ) );
+        entry.put( "objectClass", "top", "organizationalUnit" );
         entry.put( "ou", "schema" );
         schemaPartition.setContextEntry( entry );
         schemaPartition.init( directoryService );
     }
     
     
-    public void testGetSchemas() throws NamingException
+    @Test public void testGetSchemas() throws NamingException
     {
         PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, registries );
         Map<String,Schema> schemas = loader.getSchemas();
@@ -257,7 +272,7 @@ public class PartitionSchemaLoaderTest extends TestCase
     }
     
     
-    public void testGetSchemaNames() throws NamingException
+    @Test public void testGetSchemaNames() throws NamingException
     {
         PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, registries );
         Set<String> schemaNames = loader.getSchemaNames();

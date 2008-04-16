@@ -181,19 +181,19 @@ public interface Index
     IndexEnumeration listReverseIndices( Object id ) throws NamingException;
 
 
-    IndexEnumeration listIndices() throws NamingException;
+    IndexEnumeration<IndexRecord> listIndices() throws NamingException;
 
 
-    IndexEnumeration listIndices( Object attrVal ) throws NamingException;
+    IndexEnumeration<IndexRecord> listIndices( Object attrVal ) throws NamingException;
 
 
-    IndexEnumeration listIndices( Object attrVal, boolean isGreaterThan ) throws NamingException;
+    IndexEnumeration<Tuple> listIndices( Object attrVal, boolean isGreaterThan ) throws NamingException;
 
 
-    IndexEnumeration listIndices( Pattern regex ) throws NamingException;
+    IndexEnumeration<Tuple> listIndices( Pattern regex ) throws NamingException;
 
 
-    IndexEnumeration listIndices( Pattern regex, String prefix ) throws NamingException;
+    IndexEnumeration<Tuple> listIndices( Pattern regex, String prefix ) throws NamingException;
 
 
     boolean hasValue( Object attrVal, Object id ) throws NamingException;

@@ -87,7 +87,7 @@ public class EncryptedData extends AbstractAsn1Object
     /**
      * Creates a new instance of EncryptedData.
      *
-     * @param etype The encription algorithm
+     * @param eType The encription algorithm
      * @param kvno The key version
      * @param cipher the encrypted text
      */
@@ -103,7 +103,7 @@ public class EncryptedData extends AbstractAsn1Object
     /**
      * Creates a new instance of EncryptedData.
      *
-     * @param etype The encription algorithm
+     * @param eType The encription algorithm
      * @param cipher the encrypted text
      */
     public EncryptedData( EncryptionType eType, byte[] cipher )

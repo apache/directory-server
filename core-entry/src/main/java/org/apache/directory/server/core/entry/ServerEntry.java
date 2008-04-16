@@ -20,10 +20,13 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.ObjectClass;
 
 import javax.naming.NamingException;
+
+import java.util.List;
 import java.util.Set;
 
 
@@ -33,120 +36,221 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttribute>
+public interface ServerEntry extends Entry, Cloneable
 {
+    /**
+     * <p>
+     * Add an attribute (represented by its AttributeType and some binary values) into an 
+     * entry.
+     * </p>
+     * <p> 
+     * If we already have an attribute with the same values, the duplicated values 
+     * are not added (duplicated values are not allowed)
+     * </p>
+     * <p>
+     * If the value cannot be added, or if the AttributeType is null or invalid, 
+     * a NamingException is thrown.
+     * </p>
+     *
+     * @param attributeType The attribute Type.
+     * @param values The list of binary values to inject. It can be empty.
+     * @throws NamingException If the attribute does not exist
+     */
+    void add( AttributeType attributeType, byte[]... values ) throws NamingException;
+
+    
+    /**
+     * <p>
+     * Add an attribute (represented by its AttributeType and some String values) into an 
+     * entry.
+     * </p>
+     * <p> 
+     * If we already have an attribute with the same values, the duplicated values 
+     * are not added (duplicated values are not allowed)
+     * </p>
+     * <p> 
+     * If the value cannot be added, or if the AttributeType is null or invalid, 
+     * a NamingException is thrown.
+     * </p>
+     * 
+     * @param attributeType The attribute Type
+     * @param values The list of binary values to inject. It can be empty
+     * @throws NamingException If the attribute does not exist
+     */
+    void add( AttributeType attributeType, String... values ) throws NamingException;
+
+    
+    /**
+     * <p>
+     * Add an attribute (represented by its AttributeType and some values) into an 
+     * entry.
+     * </p>
+     * <p> 
+     * If we already have an attribute with the same values, the duplicated values 
+     * are not added (duplicated values are not allowed)
+     * </p>
+     * <p>
+     * If the value cannot be added, or if the AttributeType is null or invalid, 
+     * a NamingException is thrown.
+     * </p>
+     *
+     * @param attributeType The attribute Type
+     * @param values The list of binary values to inject. It can be empty
+     * @throws NamingException If the attribute does not exist
+     */
+    void add( AttributeType attributeType, Value<?>... values ) throws NamingException;
+
+    
+    /**
+     * <p>
+     * Add an attribute (represented by its AttributeType and some binary values) into an 
+     * entry. Set the User Provider ID at the same time
+     * </p>
+     * <p> 
+     * If we already have an attribute with the same values, the duplicated values 
+     * are not added (duplicated values are not allowed)
+     * </p>
+     * <p>
+     * If the value cannot be added, or if the AttributeType is null or invalid, 
+     * a NamingException is thrown.
+     * </p>
+     *
+     * @param upId The user provided ID for the added AttributeType
+     * @param attributeType The attribute Type.
+     * @param values The list of binary values to add. It can be empty.
+     * @throws NamingException If the attribute does not exist
+     */
+    void add( String upId, AttributeType attributeType, byte[]... values ) throws NamingException;
+
+    
+    /**
+     * <p>
+     * Add an attribute (represented by its AttributeType and some String values) into an 
+     * entry. Set the User Provider ID at the same time
+     * </p>
+     * <p> 
+     * If we already have an attribute with the same values, the duplicated values 
+     * are not added (duplicated values are not allowed)
+     * </p>
+     * <p>
+     * If the value cannot be added, or if the AttributeType is null or invalid, 
+     * a NamingException is thrown.
+     * </p>
+     *
+     * @param upId The user provided ID for the added AttributeType
+     * @param attributeType The attribute Type.
+     * @param values The list of binary values to add. It can be empty.
+     * @throws NamingException If the attribute does not exist
+     */
+    void add( String upId, AttributeType attributeType, String... values ) throws NamingException;
+
+    
+    /**
+     * <p>
+     * Add an attribute (represented by its AttributeType and some values) into an 
+     * entry. Set the User Provider ID at the same time
+     * </p>
+     * <p> 
+     * If we already have an attribute with the same values, nothing is done 
+     * (duplicated values are not allowed)
+     * </p>
+     * <p>
+     * If the value cannot be added, or if the AttributeType is null or invalid, 
+     * a NamingException is thrown.
+     * </p>
+     *
+     * @param upId The user provided ID for the added AttributeType
+     * @param attributeType The attribute Type.
+     * @param values The list of values to add. It can be empty.
+     * @throws NamingException If the attribute does not exist
+     */
+    void add( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException;
+
+
     // -----------------------------------------------------------------------
-    // Schema Related Methods
+    // Container (get/put/remove) Methods
     // -----------------------------------------------------------------------
+    /**
+     * Checks if an entry contains an attribute with some given binary values.
+     *
+     * @param attributeType The Attribute we are looking for.
+     * @param values The searched values.
+     * @return <code>true</code> if all the values are found within the attribute,
+     * <code>false</code> otherwise, or if the attributes does not exist.
+     * @throws NamingException If the attribute does not exists
+     */
+    boolean contains( AttributeType attributeType, byte[]... values );
 
 
     /**
-     * Adds an objectClass to the objectClass attribute of this ServerEntry using
-     * a specific alias name with the case provided by the user.
+     * Checks if an entry contains an attribute with some given String values.
      *
-     * @param objectClass the objectClass to add to this ServerEntry
-     * @param alias the optional user provided alias to use
-     * @return true if the objectClass is added, false otherwise
-     * @throws NamingException if there are problems resolving entities while
-     * adding the objectClass and its ancestors
+     * @param attributeType The Attribute we are looking for.
+     * @param values The searched values.
+     * @return <code>true</code> if all the values are found within the attribute,
+     * <code>false</code> otherwise, or if the attributes does not exist.
+     * @throws NamingException If the attribute does not exists
      */
-    boolean addObjectClass( ObjectClass objectClass, String alias ) throws NamingException;
+    boolean contains( AttributeType attributeType, String... values );
 
 
     /**
-     * Adds an objectClass to the objectClass attribute of this ServerEntry using
-     * the first alias it can find.  If no alias name exists the numeric OID of the
-     * objectClass is added as a value to the objectClass attribute.
+     * Checks if an entry contains an attribute with some given binary values.
      *
-     * @param objectClass the objectClass to add to this ServerEntry
-     * @return true if the objectClass is added, false otherwise
-     * @throws NamingException if there are problems resolving entities while
-     * adding the objectClass and its ancestors
+     * @param attributeType The Attribute we are looking for.
+     * @param values The searched values.
+     * @return <code>true</code> if all the values are found within the attribute,
+     * <code>false</code> otherwise, or if the attributes does not exist.
+     * @throws NamingException If the attribute does not exists
      */
-    boolean addObjectClass( ObjectClass objectClass ) throws NamingException;
+    boolean contains( AttributeType attributeType, Value<?>... values );
 
 
     /**
-     * Checks to see if this entry is of the objectClass.
+     * Checks if an entry contains a specific AttributeType.
      *
-     * @param objectClass the objectClass to check for in this ServerEntry
-     * @return true if this entry is of the objectClass, false otherwise
+     * @param attributeType The AttributeType to look for.
+     * @return <code>true</code> if the attribute is found within the entry.
      */
-    boolean hasObjectClass( ObjectClass objectClass );
+    boolean containsAttribute( AttributeType attributeType );
+
+    
+    /**
+     * <p>
+     * Returns the attribute with the specified AttributeType. The return value
+     * is <code>null</code> if no match is found.  
+     * </p>
+     *
+     * @param attributeType The attributeType we are looking for.
+     * @return the attribute associated with the AttributeType.
+     */
+    /**
+     * Returns the attribute associated with an AttributeType
+     * 
+     * @param the AttributeType we are looking for
+     * @return the associated attribute
+     */
+    EntryAttribute get( AttributeType attributeType );
 
 
     /**
-     * Gets the first structural objectClass that it can find within the entry.
-     * If the entry is inconsistent and contains no objectClass attribute then
-     * null is returned.  If the entry is inconsistent and contains more than
-     * one structural objectClass which is illegal, then the first to be found
-     * will be returned.
+     * Gets all the attributes type
      *
-     * @return the first structural objectClass found in this entry
+     * @return The combined set of all the attributes.
      */
-    ObjectClass getStructuralObjectClass();
-
-
+    Set<AttributeType> getAttributeTypes();
+    
+    
     /**
-     * Gets all the structural objectClasses that are found within the entry
-     * even though such a condition is considered invalid.  Only one structural
-     * objectClass can be present within a valid entry.  The entry can also be
-     * inconsistent by having no structural objectClasses then an empty set is
-     * returned.
-     *
-     * @return all the structural objectClasses found in this entry
+     * Tells if an entry has a specific ObjectClass Attribute
+     * 
+     * @param objectClass The ObjectClass we want to check
+     * @return <code>true</code> if the ObjectClass value is present 
+     * in the ObjectClass attribute
      */
-    Set<ObjectClass> getStructuralObjectClasses();
+    boolean hasObjectClass( EntryAttribute objectClass );
 
-
-    /**
-     * Gets all the auxiliary objectClasses that it can find within the entry.
-     * If the entry is inconsistent and contains no objectClass attribute then
-     * the empty set is returned.
-     *
-     * @return the set of auxiliary objectClasses found in this entry
-     */
-    Set<ObjectClass> getAuxiliaryObjectClasses();
-
-
-    /**
-     * Gets all the abstract objectClasses that it can find within the entry.
-     * If the entry is inconsistent and contains no objectClass attribute then
-     * the empty set is returned.
-     *
-     * @return the set of abstract objectClasses found in this entry
-     */
-    Set<ObjectClass> getAbstractObjectClasses();
-
-
-    /**
-     * Gets the objectClasses associated with this entry. If there is no
-     * objectClass attribute contained within this entry then an empty set
-     * is returned.
-     *
-     * @return the objectClasses which govern the structure of this entry
-     */
-    Set<ObjectClass> getAllObjectClasses();
-
-
-    /**
-     * Gets the combinded set of all required attributes for this entry across
-     * all objectClasses.
-     *
-     * @return the combinded set of all required attributes
-     */
-    Set<AttributeType> getMustList();
-
-
-    /**
-     * Gets the combined set of all optional attributes for this entry across
-     * all objectClasses.
-     *
-     * @return the combined set of all optional attributes
-     */
-    Set<AttributeType> getMayList();
-
-
+    
     /**
      * Fail fast check performed to determine entry consistency according to schema
      * characteristics.
@@ -167,137 +271,284 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      * @return true if the entry, it's attributes and their values are consistent
      * with the objectClass
      */
-    boolean isValid( ObjectClass objectClass );
+    boolean isValid( String objectClass );
 
-
-    // -----------------------------------------------------------------------
-    // Container (get/put/remove) Methods
-    // -----------------------------------------------------------------------
-
-
+    
     /**
-     * Returns the attribute with the specified attributeType. The return
-     * value is <code>null</code> if no match is found.
+     * Check performed to determine entry consistency according to the schema
+     * requirements of a particular objectClass.  The entry must be of that objectClass
+     * to return true: meaning if the entry's objectClass attribute does not contain
+     * the objectClass argument, then false should be returned.
      *
-     * @param attributeType the type of the attribute
-     * @return the attribute of the specified type
+     * @param objectClass the objectClass to use while checking for validity
+     * @return true if the entry, it's attributes and their values are consistent
+     * with the objectClass
      */
-    ServerAttribute get( AttributeType attributeType );
+    boolean isValid( EntryAttribute objectClass );
 
 
     /**
-     * Places a non-null attribute into this ServerEntry. If there an attribute
-     * of the same exists, the existing one is removed from the set and is
-     * returned by this method. If there was no attribute of the same type the
-     * return value is <code>null</code>.
+     * <p>
+     * Places a new attribute with the supplied AttributeType and binary values 
+     * into the attribute collection. 
+     * </p>
+     * <p>
+     * If there is already an attribute with the same AttributeType, the old
+     * one is removed from the collection and is returned by this method. 
+     * </p>
+     * <p>
+     * This method provides a mechanism to put an attribute with a
+     * <code>null</code> value: the value may be <code>null</code>.
      *
-     * @param attribute the attribute to be put into this ServerEntry
-     * @return the existing attribute of the same type if it exists; otherwise
+     * @param attributeType the type of the new attribute to be put
+     * @param values the binary values of the new attribute to be put
+     * @return the old attribute with the same identifier, if exists; otherwise
      * <code>null</code>
-     */
-    ServerAttribute put( ServerAttribute attribute ) throws NamingException;
-
-    // no value put'ters
-
-    ServerAttribute put( String upId, AttributeType attributeType ) throws NamingException;
-
-    ServerAttribute put( AttributeType attributeType ) throws NamingException;
-
-
-    /**
-     * Places a new attribute of the supplied type and value into the attribute
-     * collection. The identifier used for the attribute is the first alias found
-     * from the attributeType and if no aliases are available then the
-     * attributeType's numric OID is used instead.  If there is already an attribute
-     * of the same type, the old attribute is removed from the collection and is
-     * returned by this method.  The user provided identifier of the existing
-     * attribute will be used for the new one.  If there was no attribute with the same
-     * type the return value is <code>null</code>.
-     *
-     * This method provides a mechanism to put an attribute with a <code>null</code>
-     * value: the value of <code>val</code> may be <code>null</code>.
-     *
-     * @param attributeType the type of the new attribute to be put
-     * @param val the value of the new attribute to be put
-     * @return the old attribute of the same type, if exists; otherwise
-     *         <code>null</code>
-     * @throws NamingException if there are resolution issues
-     */
-    ServerAttribute put( AttributeType attributeType, ServerValue<?> val ) throws NamingException;
-
-    /**
-     * Places a new attribute with the supplied attributeType and value into this
-     * ServerEntry. If there already exists attribute of the same type, the existing
-     * one is removed from this ServerEntry and is returned. If there was no existing
-     * attribute the <code>null</code> is returned instead.
-     *
-     * This method provides a mechanism to put an attribute with a <code>null</code>
-     * value: the value of <code>obj</code> may be <code>null</code>.
-     *
-     * @param upId the user provided identifier for the new attribute
-     * @param attributeType the type of the new attribute to be put
-     * @param val the value of the new attribute to be put
-     * @return the old attribute of the same type, if exists; otherwise
-     *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute put( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException;
+    EntryAttribute put( AttributeType attributeType, byte[]... values ) throws NamingException;
 
 
     /**
-     * Places a new attribute with the supplied OID and value into the attribute
-     * collection. If there is already an attribute with the same OID, the old
-     * one is removed from the collection and is returned by this method. If
-     * there was no attribute with the same OID the return value is
-     * <code>null</code>.
-     *
+     * <p>
+     * Places a new attribute with the supplied AttributeType and String values 
+     * into the attribute collection. 
+     * </p>
+     * <p>
+     * If there is already an attribute with the same AttributeType, the old
+     * one is removed from the collection and is returned by this method. 
+     * </p>
+     * <p>
      * This method provides a mechanism to put an attribute with a
-     * <code>null</code> value: the value of <code>obj</code> may be
-     * <code>null</code>.
+     * <code>null</code> value: the value may be <code>null</code>.
      *
      * @param attributeType the type of the new attribute to be put
-     * @param val the value of the new attribute to be put
+     * @param values the String values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
-     *         <code>null</code>
+     * <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute put( AttributeType attributeType, String val ) throws NamingException;
-
-
-    ServerAttribute put( String upId, AttributeType attributeType, String val ) throws NamingException;
+    EntryAttribute put( AttributeType attributeType, String... values ) throws NamingException;
 
 
     /**
-     * Places a new attribute with the supplied OID and value into the attribute
-     * collection. If there is already an attribute with the same OID, the old
-     * one is removed from the collection and is returned by this method. If
-     * there was no attribute with the same OID the return value is
-     * <code>null</code>.
-     *
+     * <p>
+     * Places a new attribute with the supplied AttributeType and some values 
+     * into the attribute collection. 
+     * </p>
+     * <p>
+     * If there is already an attribute with the same AttributeType, the old
+     * one is removed from the collection and is returned by this method. 
+     * </p>
+     * <p>
      * This method provides a mechanism to put an attribute with a
-     * <code>null</code> value: the value of <code>obj</code> may be
-     * <code>null</code>.
+     * <code>null</code> value: the value may be <code>null</code>.
      *
      * @param attributeType the type of the new attribute to be put
-     * @param val the value of the new attribute to be put
+     * @param values the values of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
-     *         <code>null</code>
+     * <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute put( AttributeType attributeType, byte[] val ) throws NamingException;
-
-
-    ServerAttribute put( String upId, AttributeType attributeType, byte[] val ) throws NamingException;
+    EntryAttribute put( AttributeType attributeType, Value<?>... values ) throws NamingException;
 
 
     /**
-     * Removes the attribute with the specified alias. The removed attribute is
-     * returned by this method. If there is no attribute with the specified OID,
-     * the return value is <code>null</code>.
+     * <p>
+     * Places a new attribute with the supplied AttributeType and some binary values 
+     * into the attribute collection. 
+     * </p>
+     * <p>
+     * The given User provided ID will be used for this new AttributeEntry.
+     * </p>
+     * <p>
+     * If there is already an attribute with the same AttributeType, the old
+     * one is removed from the collection and is returned by this method. 
+     * </p>
+     * <p>
+     * This method provides a mechanism to put an attribute with a
+     * <code>null</code> value: the value may be <code>null</code>.
      *
-     * @param attributeType the type of the attribute to be removed
+     * @param upId The User Provided ID to be stored into the AttributeEntry
+     * @param values the binary values of the new attribute to be put
+     * @return the old attribute with the same identifier, if exists; otherwise
+     * <code>null</code>
+     * @throws NamingException if there are failures.
+     */
+    EntryAttribute put( String upId, AttributeType attributeType, byte[]... values ) throws NamingException;
+
+
+    /**
+     * <p>
+     * Places a new attribute with the supplied AttributeType and some String values 
+     * into the attribute collection. 
+     * </p>
+     * <p>
+     * The given User provided ID will be used for this new AttributeEntry.
+     * </p>
+     * <p>
+     * If there is already an attribute with the same AttributeType, the old
+     * one is removed from the collection and is returned by this method. 
+     * </p>
+     * <p>
+     * This method provides a mechanism to put an attribute with a
+     * <code>null</code> value: the value may be <code>null</code>.
+     *
+     * @param upId The User Provided ID to be stored into the AttributeEntry
+     * @param attributeType the type of the new attribute to be put
+     * @param values the String values of the new attribute to be put
+     * @return the old attribute with the same identifier, if exists; otherwise
+     * <code>null</code>
+     * @throws NamingException if there are failures.
+     */
+    EntryAttribute put( String upId, AttributeType attributeType, String... values ) throws NamingException;
+
+
+    /**
+     * <p>
+     * Places a new attribute with the supplied AttributeType and some values 
+     * into the attribute collection. 
+     * </p>
+     * <p>
+     * The given User provided ID will be used for this new AttributeEntry.
+     * </p>
+     * <p>
+     * If there is already an attribute with the same AttributeType, the old
+     * one is removed from the collection and is returned by this method. 
+     * </p>
+     * <p>
+     * This method provides a mechanism to put an attribute with a
+     * <code>null</code> value: the value may be <code>null</code>.
+     *
+     * @param upId The User Provided ID to be stored into the AttributeEntry
+     * @param attributeType the type of the new attribute to be put
+     * @param values the values of the new attribute to be put
+     * @return the old attribute with the same identifier, if exists; otherwise
+     * <code>null</code>
+     * @throws NamingException if there are failures.
+     */
+    EntryAttribute put( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException;
+
+
+    /**
+     * <p>
+     * Removes the specified binary values from an attribute.
+     * </p>
+     * <p>
+     * If at least one value is removed, this method returns <code>true</code>.
+     * </p>
+     * <p>
+     * If there is no more value after having removed the values, the attribute
+     * will be removed too.
+     * </p>
+     * <p>
+     * If the attribute does not exist, nothing is done and the method returns 
+     * <code>false</code>
+     * </p> 
+     *
+     * @param attributeType The attribute type  
+     * @param values the values to be removed
+     * @return <code>true</code> if at least a value is removed, <code>false</code>
+     * if not all the values have been removed or if the attribute does not exist. 
+     */
+    boolean remove( AttributeType attributeType, byte[]... values ) throws NamingException;
+
+    
+    /**
+     * <p>
+     * Removes the specified String values from an attribute.
+     * </p>
+     * <p>
+     * If at least one value is removed, this method returns <code>true</code>.
+     * </p>
+     * <p>
+     * If there is no more value after having removed the values, the attribute
+     * will be removed too.
+     * </p>
+     * <p>
+     * If the attribute does not exist, nothing is done and the method returns 
+     * <code>false</code>
+     * </p> 
+     *
+     * @param attributeType The attribute type  
+     * @param values the values to be removed
+     * @return <code>true</code> if at least a value is removed, <code>false</code>
+     * if not all the values have been removed or if the attribute does not exist. 
+     */
+    boolean remove( AttributeType attributeType, String... values ) throws NamingException;
+
+    
+    /**
+     * <p>
+     * Removes the specified values from an attribute.
+     * </p>
+     * <p>
+     * If at least one value is removed, this method returns <code>true</code>.
+     * </p>
+     * <p>
+     * If there is no more value after having removed the values, the attribute
+     * will be removed too.
+     * </p>
+     * <p>
+     * If the attribute does not exist, nothing is done and the method returns 
+     * <code>false</code>
+     * </p> 
+     *
+     * @param attributeType The attribute type  
+     * @param values the values to be removed
+     * @return <code>true</code> if at least a value is removed, <code>false</code>
+     * if not all the values have been removed or if the attribute does not exist. 
+     */
+    boolean remove( AttributeType attributeType, Value<?>... values ) throws NamingException;
+
+    
+    /**
+     * Removes the specified attributes. The removed attributes are
+     * returned by this method. If there were no attribute the return value
+     * is <code>null</code>.
+     *
+     * @param attributes the attributes to be removed
      * @return the removed attribute, if exists; otherwise <code>null</code>
-     * @throws NamingException if there are failures
      */
-    ServerAttribute remove( AttributeType attributeType ) throws NamingException;
+    List<EntryAttribute> remove( EntryAttribute... attributes ) throws NamingException;
+    
+
+    /**
+     * <p>
+     * Removes the attribute with the specified AttributeTypes. 
+     * </p>
+     * <p>
+     * The removed attribute are returned by this method. 
+     * </p>
+     * <p>
+     * If there is no attribute with the specified AttributeTypes,
+     * the return value is <code>null</code>.
+     * </p>
+     *
+     * @param attributes the AttributeTypes to be removed
+     * @return the removed attributes, if any, as a list; otherwise <code>null</code>
+     */
+    List<EntryAttribute> removeAttributes( AttributeType... attributes );
+
+
+    /**
+     * <p>
+     * Put some new attributes using the attributeTypes. 
+     * No value is inserted. 
+     * </p>
+     * <p>
+     * If an existing Attribute is found, it will be replaced by an
+     * empty attribute, and returned to the caller.
+     * </p>
+     * 
+     * @param attributeTypes The AttributeTypes to add.
+     * @return A list of replaced Attributes, of <code>null</code> if no attribute are removed.
+     */
+    List<EntryAttribute> set( AttributeType... attributeTypes );
+
+
+    /**
+     * A clone method to produce a clone of the current object
+     */
+    public Entry clone();
 }

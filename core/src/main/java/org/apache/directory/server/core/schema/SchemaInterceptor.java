@@ -20,12 +20,28 @@
 package org.apache.directory.server.core.schema;
 
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerBinaryValue;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
+import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -34,12 +50,31 @@ import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.*;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.filter.ApproximateNode;
+import org.apache.directory.shared.ldap.filter.AssertionNode;
+import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.ExtensibleNode;
+import org.apache.directory.shared.ldap.filter.GreaterEqNode;
+import org.apache.directory.shared.ldap.filter.LessEqNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.message.*;
+import org.apache.directory.shared.ldap.filter.SubstringNode;
+import org.apache.directory.shared.ldap.message.CascadeControl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -48,7 +83,6 @@ import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -58,9 +92,17 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
-import javax.naming.directory.*;
+import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.SearchControls;
+
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -76,17 +118,15 @@ import java.util.*;
 public class SchemaInterceptor extends BaseInterceptor
 {
     /** The LoggerFactory used by this Interceptor */
-    private static Logger log = LoggerFactory.getLogger( SchemaInterceptor.class );
+    private static Logger LOG = LoggerFactory.getLogger( SchemaInterceptor.class );
 
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String[] SCHEMA_SUBENTRY_RETURN_ATTRIBUTES =
-            new String[] { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES };
-
-
-
+            new String[] { 
+                SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, 
+                SchemaConstants.ALL_USER_ATTRIBUTES };
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /**
      * the root nexus to all database partitions
@@ -106,6 +146,13 @@ public class SchemaInterceptor extends BaseInterceptor
      * the global schema object registries
      */
     private Registries registries;
+
+    /** A global reference to the ObjectClass attributeType */
+    private AttributeType OBJECT_CLASS;
+    /**
+     * the global attributeType registry
+     */
+    private AttributeTypeRegistry atRegistry;
 
     /** A normalized form for the SubschemaSubentry DN */
     private String subschemaSubentryDnNorm;
@@ -145,35 +192,37 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Initializing SchemaInterceptor..." );
+            LOG.debug( "Initializing SchemaInterceptor..." );
         }
 
         nexus = directoryService.getPartitionNexus();
         registries = directoryService.getRegistries();
+        atRegistry = registries.getAttributeTypeRegistry();
+        OBJECT_CLASS = atRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
         binaryAttributeFilter = new BinaryAttributeFilter();
         topFilter = new TopFilter();
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
-        schemaBaseDN = new LdapDN( "ou=schema" );
-        schemaBaseDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        schemaBaseDN = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
+        schemaBaseDN.normalize( atRegistry.getNormalizerMapping() );
         schemaService = directoryService.getSchemaService();
         schemaManager = directoryService.getSchemaService().getSchemaControl();
 
         // stuff for dealing with subentries (garbage for now)
-        String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        LdapDN subschemaSubentryDn = new LdapDN( subschemaSubentry );
-        subschemaSubentryDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        LdapDN subschemaSubentryDn = new LdapDN( (String)(subschemaSubentry.get()) );
+        subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
         schemaModificationAttributesDN = new LdapDN( "cn=schemaModifications,ou=schema" );
-        schemaModificationAttributesDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        schemaModificationAttributesDN.normalize( atRegistry.getNormalizerMapping() );
 
         computeSuperiors();
 
         if ( IS_DEBUG )
         {
-            log.debug( "SchemaInterceptor Initialized !" );
+            LOG.debug( "SchemaInterceptor Initialized !" );
         }
     }
 
@@ -335,9 +384,9 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      *
      */
-    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> result = nextInterceptor.list( opContext );
+        NamingEnumeration<ServerSearchResult> result = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, binaryAttributeFilter, "List Schema Filter" );
     }
@@ -400,7 +449,7 @@ public class SchemaInterceptor extends BaseInterceptor
 	                String oid = registries.getOidRegistry().getOid( attribute );
 
             		// The attribute must be an AttributeType
-	                if ( registries.getAttributeTypeRegistry().hasAttributeType( oid ) )
+	                if ( atRegistry.hasAttributeType( oid ) )
 	                {
 		                if ( !filteredAttrs.containsKey( oid ) )
 		                {
@@ -451,12 +500,167 @@ public class SchemaInterceptor extends BaseInterceptor
 
         searchCtls.setReturningAttributes( newAttributesList );
     }
+    
+    
+    private Object convert( String id, Object value ) throws NamingException
+    {
+        AttributeType at = atRegistry.lookup( id );
+
+        if ( at.getSyntax().isHumanReadable() )
+        {
+            if ( value instanceof byte[] )
+            {
+                try
+                {
+                    String valStr = new String( (byte[])value, "UTF-8" );
+                    return valStr;
+                }
+                catch ( UnsupportedEncodingException uee )
+                {
+                    String message = "The value stored in an Human Readable attribute as a byte[] should be convertible to a String";
+                    LOG.error( message );
+                    throw new NamingException( message );
+                }
+            }
+        }
+        else
+        {
+            if ( value instanceof String )
+            {
+                try
+                {
+                    byte[] valBytes = ((String)value).getBytes( "UTF-8" );
+                    return valBytes;
+                }
+                catch ( UnsupportedEncodingException uee )
+                {
+                    String message = "The value stored in a non Human Readable attribute as a String should be convertible to a byte[]";
+                    LOG.error( message );
+                    throw new NamingException( message );
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Check that the filter values are compatible with the AttributeType. Typically,
+     * a HumanReadible filter should have a String value. The substring filter should
+     * not be used with binary attributes.
+     */
+    private void checkFilter( ExprNode filter ) throws NamingException
+    {
+        if ( filter == null )
+        {
+            String message = "A filter should not be null";
+            LOG.error( message );
+            throw new NamingException( message );
+        }
+        
+        if ( filter.isLeaf() )
+        {
+            if ( filter instanceof EqualityNode )
+            {
+                EqualityNode node = ((EqualityNode)filter);
+                Object value = node.getValue();
+                
+                Object newValue = convert( node.getAttribute(), value );
+                
+                if ( newValue != null )
+                {
+                    node.setValue( newValue );
+                }
+            }
+            else if ( filter instanceof SubstringNode )
+            {
+                SubstringNode node = ((SubstringNode)filter);
+
+                if ( ! atRegistry.lookup( node.getAttribute() ).getSyntax().isHumanReadable() )
+                {
+                    String message = "A Substring filter should be used only on Human Readable attributes";
+                    LOG.error(  message  );
+                    throw new NamingException( message );
+                }
+            }
+            else if ( filter instanceof PresenceNode )
+            {
+                // Nothing to do
+            }
+            else if ( filter instanceof GreaterEqNode )
+            {
+                GreaterEqNode node = ((GreaterEqNode)filter);
+                Object value = node.getValue();
+                
+                Object newValue = convert( node.getAttribute(), value );
+                
+                if ( newValue != null )
+                {
+                    node.setValue( newValue );
+                }
+                
+            }
+            else if ( filter instanceof LessEqNode )
+            {
+                LessEqNode node = ((LessEqNode)filter);
+                Object value = node.getValue();
+                
+                Object newValue = convert( node.getAttribute(), value );
+                
+                if ( newValue != null )
+                {
+                    node.setValue( newValue );
+                }
+            }
+            else if ( filter instanceof ExtensibleNode )
+            {
+                ExtensibleNode node = ((ExtensibleNode)filter);
+                
+                if ( ! atRegistry.lookup( node.getAttribute() ).getSyntax().isHumanReadable() )
+                {
+                    String message = "A Extensible filter should be used only on Human Readable attributes";
+                    LOG.error(  message  );
+                    throw new NamingException( message );
+                }
+            }
+            else if ( filter instanceof ApproximateNode )
+            {
+                ApproximateNode node = ((ApproximateNode)filter);
+                Object value = node.getValue();
+                
+                Object newValue = convert( node.getAttribute(), value );
+                
+                if ( newValue != null )
+                {
+                    node.setValue( newValue );
+                }
+            }
+            else if ( filter instanceof AssertionNode )
+            {
+                // Nothing to do
+                return;
+            }
+            else if ( filter instanceof ScopeNode )
+            {
+                // Nothing to do
+                return;
+            }
+        }
+        else
+        {
+            // Recursively iterate through all the children.
+            for ( ExprNode child:((BranchNode)filter).getChildren() )
+            {
+                checkFilter( child );
+            }
+        }
+    }
 
 
     /**
      *
      */
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         LdapDN base = opContext.getDn();
         SearchControls searchCtls = opContext.getSearchControls();
@@ -466,13 +670,16 @@ public class SchemaInterceptor extends BaseInterceptor
         // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
         // from the list
         filterAttributesToReturn( searchCtls );
+        
+        // We also have to check the H/R flag for the filter attributes
+        checkFilter( filter );
 
         String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.toNormName() );
 
-        // Deal with the normal case : searching for a normal value (not subSchemaSubEntry
+        // Deal with the normal case : searching for a normal value (not subSchemaSubEntry)
         if ( !subschemaSubentryDnNorm.equals( baseNormForm ) )
         {
-            NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
+            NamingEnumeration<ServerSearchResult> result = nextInterceptor.search( opContext );
 
             Invocation invocation = InvocationStack.getInstance().peek();
 
@@ -514,7 +721,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 else
                 {
-                    return new EmptyEnumeration<SearchResult>();
+                    return new EmptyEnumeration<ServerSearchResult>();
                 }
 
                 String nodeOid = registries.getOidRegistry().getOid( node.getAttribute() );
@@ -526,13 +733,13 @@ public class SchemaInterceptor extends BaseInterceptor
                     && ( node instanceof EqualityNode ) )
                 {
                     // call.setBypass( true );
-                    Attributes attrs = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
-                    SearchResult result = new ServerSearchResult( base.toString(), null, attrs );
-                    return new SingletonEnumeration<SearchResult>( result );
+                    ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
+                    ServerSearchResult result = new ServerSearchResult( base, null, serverEntry );
+                    return new SingletonEnumeration<ServerSearchResult>( result );
                 }
                 else
                 {
-                    return new EmptyEnumeration<SearchResult>();
+                    return new EmptyEnumeration<ServerSearchResult>();
                 }
             }
             else if ( filter instanceof PresenceNode )
@@ -543,24 +750,24 @@ public class SchemaInterceptor extends BaseInterceptor
                 if ( node.getAttribute().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
                 {
                     // call.setBypass( true );
-                    Attributes attrs = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
-                    SearchResult result = new ServerSearchResult( base.toString(), null, attrs, false );
-                    return new SingletonEnumeration<SearchResult>( result );
+                    ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
+                    ServerSearchResult result = new ServerSearchResult( base, null, serverEntry, false );
+                    return new SingletonEnumeration<ServerSearchResult>( result );
                 }
             }
         }
 
         // In any case not handled previously, just return an empty result
-        return new EmptyEnumeration<SearchResult>();
+        return new EmptyEnumeration<ServerSearchResult>();
     }
 
 
     /**
      * Search for an entry, using its DN. Binary attributes and ObjectClass attribute are removed.
      */
-    public Attributes lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( opContext );
+        ServerEntry result = nextInterceptor.lookup( opContext );
         
         if ( result == null )
         {
@@ -604,7 +811,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @return true if the objectClass values require the attribute, false otherwise
      * @throws NamingException if the attribute is not recognized
      */
-    private boolean isRequired( String attrId, Attribute objectClass ) throws NamingException
+    private boolean isRequired( String attrId, EntryAttribute objectClasses ) throws NamingException
     {
         OidRegistry oidRegistry = registries.getOidRegistry();
         ObjectClassRegistry registry = registries.getObjectClassRegistry();
@@ -616,9 +823,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
         String attrOid = oidRegistry.getOid( attrId );
         
-        for ( int ii = 0; ii < objectClass.size(); ii++ )
+        for ( Value<?> objectClass:objectClasses )
         {
-            ObjectClass ocSpec = registry.lookup( ( String ) objectClass.get( ii ) );
+            ObjectClass ocSpec = registry.lookup( ( String ) objectClass.get() );
             
             for ( AttributeType must:ocSpec.getMustList() )
             {
@@ -642,7 +849,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @return
      * @throws NamingException
      */
-    private boolean isCompleteRemoval( Attribute change, Attributes entry ) throws NamingException
+    private boolean isCompleteRemoval( ServerAttribute change, ServerEntry entry ) throws NamingException
     {
         // if change size is 0 then all values are deleted then we're in trouble
         if ( change.size() == 0 )
@@ -654,11 +861,11 @@ public class SchemaInterceptor extends BaseInterceptor
         // values in the modify request may not be in the entry.  we need to
         // remove the values from a cloned version of the attribute and see
         // if nothing is left.
-        Attribute changedEntryAttr = ( Attribute ) entry.get( change.getID() ).clone();
+        ServerAttribute changedEntryAttr = ( ServerAttribute ) entry.get( change.getUpId() ).clone();
         
-        for ( int jj = 0; jj < change.size(); jj++ )
+        for ( Value<?> value:change )
         {
-            changedEntryAttr.remove( change.get( jj ) );
+            changedEntryAttr.remove( value );
         }
 
         return changedEntryAttr.size() == 0;
@@ -673,11 +880,12 @@ public class SchemaInterceptor extends BaseInterceptor
      * @return
      * @throws NamingException
      */
-    private Attribute getResultantObjectClasses( int modOp, Attribute changes, Attribute existing ) throws NamingException
+    private EntryAttribute getResultantObjectClasses( ModificationOperation modOp, EntryAttribute changes, EntryAttribute existing ) throws NamingException
     {
         if ( ( changes == null ) && ( existing == null ) )
         {
-            return new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+            return new DefaultServerAttribute( SchemaConstants.OBJECT_CLASS_AT,
+                OBJECT_CLASS );
         }
 
         if ( changes == null )
@@ -685,25 +893,35 @@ public class SchemaInterceptor extends BaseInterceptor
             return existing;
         }
 
-        if ( (existing == null ) && ( modOp == DirContext.ADD_ATTRIBUTE ) )
+        if ( ( existing == null ) && ( modOp == ModificationOperation.ADD_ATTRIBUTE ) )
         {
             return changes;
         }
         else if ( existing == null )
         {
-            return new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+            return new DefaultServerAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
         }
 
         switch ( modOp )
         {
-            case ( DirContext.ADD_ATTRIBUTE  ):
-                return AttributeUtils.getUnion( existing, changes );
+            case ADD_ATTRIBUTE :
+                for ( Value<?> value:changes )
+                {
+                    existing.add( value );
+                }
             
-            case ( DirContext.REPLACE_ATTRIBUTE  ):
-                return ( Attribute ) changes.clone();
+                return existing;
             
-            case ( DirContext.REMOVE_ATTRIBUTE  ):
-                return AttributeUtils.getDifference( existing, changes );
+            case REPLACE_ATTRIBUTE :
+                return ( ServerAttribute ) changes.clone();
+            
+            case REMOVE_ATTRIBUTE :
+                for ( Value<?> value:changes )
+                {
+                    existing.remove( value );
+                }
+            
+                return existing;
             
             default:
                 throw new InternalError( "" );
@@ -711,20 +929,18 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private boolean getObjectClasses( Attribute objectClasses, List<ObjectClass> result ) throws NamingException
+    private boolean getObjectClasses( EntryAttribute objectClasses, List<ObjectClass> result ) throws NamingException
     {
         Set<String> ocSeen = new HashSet<String>();
         ObjectClassRegistry registry = registries.getObjectClassRegistry();
 
         // We must select all the ObjectClasses, except 'top',
         // but including all the inherited ObjectClasses
-        NamingEnumeration<String> ocs = (NamingEnumeration<String>)objectClasses.getAll();
         boolean hasExtensibleObject = false;
 
-
-        while ( ocs.hasMoreElements() )
+        for ( Value<?> objectClass:objectClasses )
         {
-            String objectClassName = ocs.nextElement();
+            String objectClassName = (String)objectClass.get();
 
             if ( SchemaConstants.TOP_OC.equals( objectClassName ) )
             {
@@ -738,7 +954,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             ObjectClass oc = registry.lookup( objectClassName );
 
-            // Add all unseen objectclasses to the list, except 'top'
+            // Add all unseen objectClasses to the list, except 'top'
             if ( !ocSeen.contains( oc.getOid() ) )
             {
                 ocSeen.add( oc.getOid() );
@@ -752,14 +968,15 @@ public class SchemaInterceptor extends BaseInterceptor
         return hasExtensibleObject;
     }
 
-    private Set<String> getAllMust( NamingEnumeration<String> objectClasses ) throws NamingException
+    
+    private Set<String> getAllMust( EntryAttribute objectClasses ) throws NamingException
     {
         Set<String> must = new HashSet<String>();
 
         // Loop on all objectclasses
-        while ( objectClasses.hasMoreElements() )
+        for ( Value<?> value:objectClasses )
         {
-            String ocName = objectClasses.nextElement();
+            String ocName = (String)value.get();
             ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
 
             AttributeType[] types = oc.getMustList();
@@ -777,7 +994,7 @@ public class SchemaInterceptor extends BaseInterceptor
         return must;
     }
 
-    private Set<String> getAllAllowed( NamingEnumeration<String> objectClasses, Set<String> must ) throws NamingException
+    private Set<String> getAllAllowed( EntryAttribute objectClasses, Set<String> must ) throws NamingException
     {
         Set<String> allowed = new HashSet<String>( must );
 
@@ -785,9 +1002,9 @@ public class SchemaInterceptor extends BaseInterceptor
         allowed.add( registries.getOidRegistry().getOid( SchemaConstants.OBJECT_CLASS_AT ) );
 
         // Loop on all objectclasses
-        while ( objectClasses.hasMoreElements() )
+        for ( Value<?> objectClass:objectClasses )
         {
-            String ocName = objectClasses.nextElement();
+            String ocName = (String)objectClass.get();
             ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
 
             AttributeType[] types = oc.getMayList();
@@ -816,7 +1033,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * @param objectClassAttr the objectClass attribute to modify
      * @throws NamingException if there are problems 
      */
-    private void alterObjectClasses( Attribute objectClassAttr ) throws NamingException
+    private void alterObjectClasses( EntryAttribute objectClassAttr ) throws NamingException
     {
         Set<String> objectClasses = new HashSet<String>();
         Set<String> objectClassesUP = new HashSet<String>();
@@ -826,11 +1043,9 @@ public class SchemaInterceptor extends BaseInterceptor
         objectClassesUP.add( SchemaConstants.TOP_OC );
         
         // Construct the new list of ObjectClasses
-        NamingEnumeration<String> ocList = (NamingEnumeration<String>)objectClassAttr.getAll();
-
-        while ( ocList.hasMoreElements() )
+        for ( Value<?> ocValue:objectClassAttr )
         {
-            String ocName = ocList.nextElement();
+            String ocName = (String)ocValue.get();
 
             if ( !ocName.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
             {
@@ -874,7 +1089,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
 
-        Attributes entry = nexus.lookup( new LookupOperationContext( oriChildName ) );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
@@ -893,7 +1108,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
         
-        Attributes entry = nexus.lookup( new LookupOperationContext( oriChildName ) );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
@@ -911,7 +1126,7 @@ public class SchemaInterceptor extends BaseInterceptor
         Rdn newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
         
-        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
 
         if ( name.startsWith( schemaBaseDN ) )
         {
@@ -925,9 +1140,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
-        Attributes entry;
+        ServerEntry entry;
         LdapDN name = opContext.getDn();
-        List<ModificationItemImpl> mods = opContext.getModItems();
+        List<Modification> mods = opContext.getModItems();
 
         // handle operations against the schema subentry in the schema service
         // and never try to look it up in the nexus below
@@ -937,33 +1152,38 @@ public class SchemaInterceptor extends BaseInterceptor
         }
         else
         {
-            entry = nexus.lookup( new LookupOperationContext( name ) );
+            entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         }
         
         // First, we get the entry from the backend. If it does not exist, then we throw an exception
-        Attributes targetEntry = SchemaUtils.getTargetEntry( mods, entry );
+        ServerEntry targetEntry = ServerEntryUtils.toServerEntry( 
+            SchemaUtils.getTargetEntry( 
+                ServerEntryUtils.toModificationItemImpl( mods ), 
+                ServerEntryUtils.toAttributesImpl( entry ) ),
+            name,
+            registries );
 
         if ( entry == null )
         {
-            log.error( "No entry with this name :{}", name );
+            LOG.error( "No entry with this name :{}", name );
             throw new LdapNameNotFoundException( "The entry which name is " + name + " is not found." );
         }
         
         // We will use this temporary entry to check that the modifications
         // can be applied as atomic operations
-        Attributes tmpEntry = ( Attributes ) entry.clone();
+        ServerEntry tmpEntry = ( ServerEntry ) entry.clone();
         
         Set<String> modset = new HashSet<String>();
-        ModificationItem objectClassMod = null;
+        Modification objectClassMod = null;
         
         // Check that we don't have two times the same modification.
         // This is somehow useless, as modification operations are supposed to
         // be atomic, so we may have a sucession of Add, DEL, ADD operations
         // for the same attribute, and this will be legal.
         // @TODO : check if we can remove this test.
-        for ( ModificationItem mod:mods )
+        for ( Modification mod:mods )
         {
-            if ( mod.getAttribute().getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
+            if ( mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
             {
                 objectClassMod = mod;
             }
@@ -972,7 +1192,7 @@ public class SchemaInterceptor extends BaseInterceptor
             if ( mod.getAttribute().size() == 0 )
             {
                 // not ok for add but ok for replace and delete
-                if ( mod.getModificationOp() == DirContext.ADD_ATTRIBUTE )
+                if ( mod.getOperation() == ModificationOperation.ADD_ATTRIBUTE )
                 {
                     throw new LdapInvalidAttributeValueException( "No value is not a valid value for an attribute.", 
                         ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
@@ -980,15 +1200,15 @@ public class SchemaInterceptor extends BaseInterceptor
             }
 
             StringBuffer keybuf = new StringBuffer();
-            keybuf.append( mod.getModificationOp() );
-            keybuf.append( mod.getAttribute().getID() );
+            keybuf.append( mod.getOperation() );
+            keybuf.append( mod.getAttribute().getId() );
 
-            for ( int jj = 0; jj < mod.getAttribute().size(); jj++ )
+            for ( Value<?> value:(ServerAttribute)mod.getAttribute() )
             {
-                keybuf.append( mod.getAttribute().get( jj ) );
+                keybuf.append( value.get() );
             }
             
-            if ( !modset.add( keybuf.toString() ) && ( mod.getModificationOp() == DirContext.ADD_ATTRIBUTE ) )
+            if ( !modset.add( keybuf.toString() ) && ( mod.getOperation() == ModificationOperation.ADD_ATTRIBUTE ) )
             {
                 throw new LdapAttributeInUseException( "found two copies of the following modification item: " +
                  mod );
@@ -996,7 +1216,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
         
         // Get the objectClass attribute.
-        Attribute objectClass;
+        EntryAttribute objectClass;
 
         if ( objectClassMod == null )
         {
@@ -1004,39 +1224,28 @@ public class SchemaInterceptor extends BaseInterceptor
 
             if ( objectClass == null )
             {
-                objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+                objectClass = new DefaultServerAttribute( SchemaConstants.OBJECT_CLASS_AT,
+                    OBJECT_CLASS );
             }
         }
         else
         {
-            objectClass = getResultantObjectClasses( objectClassMod.getModificationOp(), objectClassMod.getAttribute(),
+            objectClass = getResultantObjectClasses( 
+                objectClassMod.getOperation(), 
+                objectClassMod.getAttribute(),
                 entry.get( SchemaConstants.OBJECT_CLASS_AT ) );
         }
 
         ObjectClassRegistry ocRegistry = this.registries.getObjectClassRegistry();
-        AttributeTypeRegistry atRegistry = this.registries.getAttributeTypeRegistry();
 
-        // -------------------------------------------------------------------
-        // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
-        // (deletion) causes an error
-        // -------------------------------------------------------------------
-        
-        if ( ( mods.size() == 1 ) && 
-             ( mods.get( 0 ).getAttribute().size() == 0 ) && 
-             ( mods.get( 0 ).getModificationOp() == DirContext.REPLACE_ATTRIBUTE ) &&
-             ! atRegistry.hasAttributeType( mods.get( 0 ).getAttribute().getID() ) )
-        {
-            return;
-        }
-        
         // Now, apply the modifications on the cloned entry before applying it on the
         // real object.
-        for ( ModificationItem mod:mods )
+        for ( Modification mod:mods )
         {
-            int modOp = mod.getModificationOp();
-            Attribute change = mod.getAttribute();
+            ModificationOperation modOp = mod.getOperation();
+            ServerAttribute change = (ServerAttribute)mod.getAttribute();
 
-            if ( !atRegistry.hasAttributeType( change.getID() ) && 
+            if ( !atRegistry.hasAttributeType( change.getUpId() ) && 
                 !objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
             {
                 throw new LdapInvalidAttributeIdentifierException();
@@ -1044,35 +1253,32 @@ public class SchemaInterceptor extends BaseInterceptor
 
             // We will forbid modification of operational attributes which are not
             // user modifiable.
-            AttributeType attributeType = atRegistry.lookup( change.getID() );
+            AttributeType attributeType = atRegistry.lookup( change.getUpId() );
             
             if ( !attributeType.isCanUserModify() )
             {
-                throw new NoPermissionException( "Cannot modify the attribute '" + change.getID() + "'" );
+                throw new NoPermissionException( "Cannot modify the attribute '" + change.getUpId() + "'" );
             }
             
             switch ( modOp )
             {
-                case DirContext.ADD_ATTRIBUTE :
-                    Attribute attr = tmpEntry.get( change.getID() );
+                case ADD_ATTRIBUTE :
+                    EntryAttribute attr = tmpEntry.get( change.getUpId() );
                     
                     if ( attr != null ) 
                     {
-                        NamingEnumeration values = change.getAll();
-                        
-                        while ( values.hasMoreElements() )
+                        for ( Value<?> value:change )
                         {
-                            attr.add( values.nextElement() );
+                            attr.add( value );
                         }
                     }
                     else
                     {
-                        attr = new AttributeImpl( change.getID() );
-                        NamingEnumeration values = change.getAll();
+                        attr = new DefaultServerAttribute( change.getUpId(), attributeType );
                         
-                        while ( values.hasMoreElements() )
+                        for ( Value<?> value:change )
                         {
-                            attr.add( values.nextElement() );
+                            attr.add( value );
                         }
                         
                         tmpEntry.put( attr );
@@ -1080,10 +1286,10 @@ public class SchemaInterceptor extends BaseInterceptor
                     
                     break;
 
-                case DirContext.REMOVE_ATTRIBUTE :
-                    if ( tmpEntry.get( change.getID() ) == null )
+                case REMOVE_ATTRIBUTE :
+                    if ( tmpEntry.get( change.getUpId() ) == null )
                     {
-                        log.error( "Trying to remove an non-existant attribute: " + change.getID() );
+                        LOG.error( "Trying to remove an non-existant attribute: " + change.getUpId() );
                         throw new LdapNoSuchAttributeException();
                     }
 
@@ -1092,9 +1298,9 @@ public class SchemaInterceptor extends BaseInterceptor
                     {
                         // No value : we have to remove the entire attribute
                         // Check that we aren't removing a MUST attribute
-                        if ( isRequired( change.getID(), objectClass ) )
+                        if ( isRequired( change.getUpId(), objectClass ) )
                         {
-                            log.error( "Trying to remove a required attribute: " + change.getID() );
+                            LOG.error( "Trying to remove a required attribute: " + change.getUpId() );
                             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                         }
                     }
@@ -1102,28 +1308,26 @@ public class SchemaInterceptor extends BaseInterceptor
                     {
                         // for required attributes we need to check if all values are removed
                         // if so then we have a schema violation that must be thrown
-                        if ( isRequired( change.getID(), objectClass ) && isCompleteRemoval( change, entry ) )
+                        if ( isRequired( change.getUpId(), objectClass ) && isCompleteRemoval( change, entry ) )
                         {
-                            log.error( "Trying to remove a required attribute: " + change.getID() );
+                            LOG.error( "Trying to remove a required attribute: " + change.getUpId() );
                             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                         }
 
                         // Now remove the attribute and all its values
-                        Attribute modified = tmpEntry.remove( change.getID() );
+                        EntryAttribute modified = tmpEntry.removeAttributes( change.getUpId() ).get(0);
                         
                         // And inject back the values except the ones to remove
-                        NamingEnumeration values = change.getAll();
-                        
-                        while ( values.hasMoreElements() )
+                        for ( Value<?> value:change )
                         {
-                            modified.remove( values.next() );
+                            modified.remove( value );
                         }
                         
                         // ok, done. Last check : if the attribute does not content any more value;
                         // and if it's a MUST one, we should thow an exception
-                        if ( ( modified.size() == 0 ) && isRequired( change.getID(), objectClass ) )
+                        if ( ( modified.size() == 0 ) && isRequired( change.getUpId(), objectClass ) )
                         {
-                            log.error( "Trying to remove a required attribute: " + change.getID() );
+                            LOG.error( "Trying to remove a required attribute: " + change.getUpId() );
                             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                         }
 
@@ -1140,27 +1344,25 @@ public class SchemaInterceptor extends BaseInterceptor
                         .preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change, objectClass );
                     break;
                         
-                case DirContext.REPLACE_ATTRIBUTE :
+                case REPLACE_ATTRIBUTE :
                     SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, change, 
                         registries.getOidRegistry() );
                     SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, change );
                     
-                    attr = tmpEntry.get( change.getID() );
+                    attr = tmpEntry.get( change.getUpId() );
                     
                     if ( attr != null )
                     {
-                        tmpEntry.remove( change.getID() );
+                        tmpEntry.removeAttributes( change.getUpId() );
                     }
                     
-                    attr = new AttributeImpl( change.getID() );
+                    attr = new DefaultServerAttribute( change.getUpId(), attributeType );
                     
-                    NamingEnumeration values = change.getAll();
-                    
-                    if ( values.hasMoreElements() ) 
+                    if ( change.size() != 0 ) 
                     {
-                        while ( values.hasMoreElements() )
+                        for ( Value<?> value:change )
                         {
-                            attr.add( values.nextElement() );
+                            attr.add( value );
                         }
 
                         tmpEntry.put( attr );
@@ -1176,48 +1378,48 @@ public class SchemaInterceptor extends BaseInterceptor
         // the objectClass attribute with it's hierarchy of ancestors 
         if ( objectClassMod != null )
         {
-            Attribute alteredObjectClass = ( Attribute ) objectClass.clone();
+            ServerAttribute alteredObjectClass = ( ServerAttribute ) objectClass.clone();
             alterObjectClasses( alteredObjectClass );
 
             if ( !alteredObjectClass.equals( objectClass ) )
             {
-                Attribute ocMods = objectClassMod.getAttribute();
+                ServerAttribute ocMods = (ServerAttribute)objectClassMod.getAttribute();
                 
-                switch ( objectClassMod.getModificationOp() )
+                switch ( objectClassMod.getOperation() )
                 {
-                    case ( DirContext.ADD_ATTRIBUTE  ):
+                    case ADD_ATTRIBUTE :
                         if ( ocMods.contains( SchemaConstants.TOP_OC ) )
                         {
                             ocMods.remove( SchemaConstants.TOP_OC );
                         }
                     
-                        for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
+                        for ( Value<?> value:alteredObjectClass ) 
                         {
-                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !objectClass.contains( value ) )
                             {
-                                ocMods.add( alteredObjectClass.get( ii ) );
+                                ocMods.add( value );
                             }
                         }
                         
                         break;
                         
-                    case ( DirContext.REMOVE_ATTRIBUTE  ):
-                        for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
+                    case REMOVE_ATTRIBUTE :
+                        for ( Value<?> value:alteredObjectClass ) 
                         {
-                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !objectClass.contains( value ) )
                             {
-                                ocMods.remove( alteredObjectClass.get( ii ) );
+                                ocMods.remove( value );
                             }
                         }
                     
                         break;
                         
-                    case ( DirContext.REPLACE_ATTRIBUTE  ):
-                        for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
+                    case REPLACE_ATTRIBUTE :
+                        for ( Value<?> value:alteredObjectClass ) 
                         {
-                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
+                            if ( !objectClass.contains( value ) )
                             {
-                                ocMods.add( alteredObjectClass.get( ii ) );
+                                ocMods.add( value );
                             }
                         }
                     
@@ -1230,16 +1432,24 @@ public class SchemaInterceptor extends BaseInterceptor
         
         if ( name.startsWith( schemaBaseDN ) )
         {
-            log.debug( "Modification attempt on schema partition {}: \n{}", name, opContext );
+            LOG.debug( "Modification attempt on schema partition {}: \n{}", name, opContext );
         
-            schemaManager.modify( name, mods, entry, targetEntry,
+            schemaManager.modify( 
+                name, 
+                mods, 
+                entry,
+                targetEntry,
                 opContext.hasRequestControl( CascadeControl.CONTROL_OID ));
         }
         else if ( subschemaSubentryDnNorm.equals( name.getNormName() ) )
         {
-            log.debug( "Modification attempt on schema subentry {}: \n{}", name, opContext );
+            LOG.debug( "Modification attempt on schema subentry {}: \n{}", name, opContext );
 
-            schemaManager.modifySchemaSubentry( name, mods, entry, targetEntry,
+            schemaManager.modifySchemaSubentry( 
+                name, 
+                mods, 
+                entry,
+                targetEntry,
                 opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
             return;
         }
@@ -1248,29 +1458,22 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private void filterObjectClass( Attributes entry ) throws NamingException
+    private void filterObjectClass( ServerEntry entry ) throws NamingException
     {
         List<ObjectClass> objectClasses = new ArrayList<ObjectClass>();
-        Attribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         
         if ( oc != null )
         {
             getObjectClasses( oc, objectClasses );
 
-            entry.remove( SchemaConstants.OBJECT_CLASS_AT );
+            entry.removeAttributes( SchemaConstants.OBJECT_CLASS_AT );
 
-            Attribute newOc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+            ServerAttribute newOc = new DefaultServerAttribute( ((ServerAttribute)oc).getAttributeType() );
 
-            for ( Object currentOC:objectClasses )
+            for ( ObjectClass currentOC:objectClasses )
             {
-                if ( currentOC instanceof String )
-                {
-                    newOc.add( currentOC );
-                }
-                else
-                {
-                    newOc.add( ( (ObjectClass)currentOC ).getName() );
-                }
+                newOc.add( currentOC.getName() );
             }
 
             newOc.add( SchemaConstants.TOP_OC );
@@ -1279,49 +1482,36 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    private void filterBinaryAttributes( Attributes entry ) throws NamingException
+    private void filterBinaryAttributes( ServerEntry entry ) throws NamingException
     {
         /*
          * start converting values of attributes to byte[]s which are not
          * human readable and those that are in the binaries set
          */
-        NamingEnumeration list = entry.getIDs();
-
-        while ( list.hasMore() )
+        for ( EntryAttribute attribute:entry )
         {
-            String id = ( String ) list.next();
-            AttributeType type = null;
-
-            if ( registries.getAttributeTypeRegistry().hasAttributeType( id ) )
+            if ( !((ServerAttribute)attribute).getAttributeType().getSyntax().isHumanReadable() )
             {
-                type = registries.getAttributeTypeRegistry().lookup( id );
-            }
-            else
-            {
-                continue;
-            }
-
-            if ( !type.getSyntax().isHumanReadable() )
-            {
-                Attribute attribute = entry.get( id );
-                Attribute binary = new AttributeImpl( id );
-
-                for ( int i = 0; i < attribute.size(); i++ )
-                {
-                    Object value = attribute.get( i );
+                List<Value<?>> binaries = new ArrayList<Value<?>>();
                 
-                    if ( value instanceof String )
+                for ( Value<?> value:attribute )
+                {
+                    Object attrValue = value.get();
+                
+                    if ( attrValue instanceof String )
                     {
-                        binary.add( i, StringTools.getBytesUtf8( ( String ) value ) );
+                        binaries.add( new ServerBinaryValue( ((ServerAttribute)attribute).getAttributeType(), 
+                            StringTools.getBytesUtf8( ( String ) attrValue ) ) );
                     }
                     else
                     {
-                        binary.add( i, value );
+                        binaries.add( new ServerBinaryValue( ((ServerAttribute)attribute).getAttributeType(),
+                            (byte[])attrValue ) );
                     }
                 }
-
-                entry.remove( id );
-                entry.put( binary );
+                
+                attribute.clear();
+                attribute.put( binaries );
             }
         }
     }
@@ -1337,23 +1527,25 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private class BinaryAttributeFilter implements SearchResultFilter
     {
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
             throws NamingException
         {
-            filterBinaryAttributes( result.getAttributes() );
+            filterBinaryAttributes( result.getServerEntry() );
             return true;
         }
     }
 
+    
     /**
      * Filters objectClass attribute to inject top when not present.
      */
     private class TopFilter implements SearchResultFilter
     {
-        public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
             throws NamingException
         {
-            filterObjectClass( result.getAttributes() );
+            filterObjectClass( result.getServerEntry() );
+            
             return true;
         }
     }
@@ -1364,21 +1556,17 @@ public class SchemaInterceptor extends BaseInterceptor
      * 
      * We also check the syntaxes
      */
-    private void check( LdapDN dn, Attributes entry ) throws NamingException
+    private void check( LdapDN dn, ServerEntry entry ) throws NamingException
     {
-        NamingEnumeration attrEnum = entry.getIDs();
-
         // ---------------------------------------------------------------
         // First, make sure all attributes are valid schema defined attributes
         // ---------------------------------------------------------------
 
-        while ( attrEnum.hasMoreElements() )
+        for ( AttributeType attributeType:entry.getAttributeTypes() )
         {
-            String name = ( String ) attrEnum.nextElement();
-            
-            if ( !registries.getAttributeTypeRegistry().hasAttributeType( name ) )
+            if ( !atRegistry.hasAttributeType( attributeType.getName() ) )
             {
-                throw new LdapInvalidAttributeIdentifierException( name + " not found in attribute registry!" );
+                throw new LdapInvalidAttributeIdentifierException( attributeType.getName() + " not found in attribute registry!" );
             }
         }
 
@@ -1389,14 +1577,14 @@ public class SchemaInterceptor extends BaseInterceptor
         // 3-1) Except if the extensibleObject ObjectClass is used
         // 3-2) or if the AttributeType is COLLECTIVE
         // 4) We also check that for H-R attributes, we have a valid String in the values
-        Attribute objectClassAttr = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClassAttr = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         
         // Protect the server against a null objectClassAttr
         // It can be the case if the user forgot to add it to the entry ...
         // In this case, we create an new one, empty
         if ( objectClassAttr == null )
         {
-            objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+            objectClassAttr = new DefaultServerAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
         }
         
         List<ObjectClass> ocs = new ArrayList<ObjectClass>();
@@ -1404,8 +1592,8 @@ public class SchemaInterceptor extends BaseInterceptor
         alterObjectClasses( objectClassAttr );
         
         // Now we can process the MUST and MAY attributes
-        Set<String> must = getAllMust( (NamingEnumeration<String>)objectClassAttr.getAll() );
-        Set<String> allowed = getAllAllowed( (NamingEnumeration<String>)objectClassAttr.getAll(), must );
+        Set<String> must = getAllMust( objectClassAttr );
+        Set<String> allowed = getAllAllowed( objectClassAttr, must );
 
         boolean hasExtensibleObject = getObjectClasses( objectClassAttr, ocs );
 
@@ -1431,19 +1619,19 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Check that all the attributes exist in the schema for this entry.
      */
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
     {
-    	LdapDN name = opContext.getDn();
-        Attributes attrs = opContext.getEntry();
+    	LdapDN name = addContext.getDn();
+        ServerEntry entry = addContext.getEntry();
         
-    	check( name, attrs );
+    	check( name, entry );
 
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.add( name, attrs );
+            schemaManager.add( name, entry );
         }
 
-        next.add( opContext );
+        next.add( addContext );
     }
     
 
@@ -1454,33 +1642,29 @@ public class SchemaInterceptor extends BaseInterceptor
      * @return true if the objectClass values require the attribute, false otherwise
      * @throws NamingException if the attribute is not recognized
      */
-    private void assertAllAttributesAllowed( LdapDN dn, Attributes attributes, Set<String> allowed ) throws NamingException
+    private void assertAllAttributesAllowed( LdapDN dn, ServerEntry entry, Set<String> allowed ) throws NamingException
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
-        Attribute objectClass = attributes.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClass, SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
+        if ( objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
         {
             return;
         }
 
-        NamingEnumeration attrs = attributes.getAll();
-
-        while ( attrs.hasMoreElements() )
+        for ( EntryAttribute attribute:entry )
         {
-            Attribute attribute = (Attribute)attrs.nextElement();
-            String attrId = attribute.getID();
-            String attrOid = registries.getOidRegistry().getOid( attrId );
+            String attrOid = ((ServerAttribute)attribute).getAttributeType().getOid();
 
-            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attrOid );
+            AttributeType attributeType = ((ServerAttribute)attribute).getAttributeType();
 
             if ( !attributeType.isCollective() && ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) )
             {
                 if ( !allowed.contains( attrOid ) )
                 {
                     throw new LdapSchemaViolationException( "Attribute " +
-                        attribute.getID() + " not declared in objectClasses of entry " + dn.getUpName(),
+                        attribute.getUpId() + " not declared in objectClasses of entry " + dn.getUpName(),
                         ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                 }
             }
@@ -1491,10 +1675,10 @@ public class SchemaInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
-        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
         
         if ( name.startsWith( schemaBaseDN ) )
         {
+            ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
             schemaManager.delete( name, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
         
@@ -1505,13 +1689,10 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Checks to see number of values of an attribute conforms to the schema
      */
-    private void assertNumberOfAttributeValuesValid( Attributes attributes ) throws InvalidAttributeValueException, NamingException
+    private void assertNumberOfAttributeValuesValid( Entry entry ) throws InvalidAttributeValueException, NamingException
     {
-        NamingEnumeration list = attributes.getAll();
-        
-        while ( list.hasMore() )
+        for ( EntryAttribute attribute:entry )
         {
-            Attribute attribute = ( Attribute ) list.next();
             assertNumberOfAttributeValuesValid( attribute );
         }
     }
@@ -1519,32 +1700,24 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Checks to see numbers of values of attributes conforms to the schema
      */
-    private void assertNumberOfAttributeValuesValid( Attribute attribute ) throws InvalidAttributeValueException, NamingException
+    private void assertNumberOfAttributeValuesValid( EntryAttribute attribute ) throws InvalidAttributeValueException, NamingException
     {
-        AttributeTypeRegistry registry = this.registries.getAttributeTypeRegistry();
-
-        if ( attribute.size() > 1 && registry.lookup( attribute.getID() ).isSingleValue() )
+        if ( attribute.size() > 1 && ((ServerAttribute)attribute).getAttributeType().isSingleValue() )
         {                
             throw new LdapInvalidAttributeValueException( "More than one value has been provided " +
-                "for the single-valued attribute: " + attribute.getID(), ResultCodeEnum.CONSTRAINT_VIOLATION );
+                "for the single-valued attribute: " + attribute.getUpId(), ResultCodeEnum.CONSTRAINT_VIOLATION );
         }
     }
 
     /**
      * Checks to see the presence of all required attributes within an entry.
      */
-    private void assertRequiredAttributesPresent( LdapDN dn, Attributes entry, Set<String> must )
+    private void assertRequiredAttributesPresent( LdapDN dn, Entry entry, Set<String> must )
         throws NamingException
     {
-        NamingEnumeration attributes = entry.getAll();
-
-        while ( attributes.hasMoreElements() && ( must.size() > 0 ) )
+        for ( EntryAttribute attribute:entry )
         {
-            Attribute attribute = (Attribute)attributes.nextElement();
-            
-            String oid = registries.getOidRegistry().getOid( attribute.getID() );
-
-            must.remove( oid );
+            must.remove( ((ServerAttribute)attribute).getAttributeType().getOid() );
         }
 
         if ( must.size() != 0 )
@@ -1592,7 +1765,7 @@ public class SchemaInterceptor extends BaseInterceptor
     	if ( structuralObjectClasses.isEmpty() )
     	{
     		String message = "Entry " + dn + " does not contain a STRUCTURAL ObjectClass";
-    		log.error( message );
+    		LOG.error( message );
     		throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
     	}
     	
@@ -1623,7 +1796,7 @@ public class SchemaInterceptor extends BaseInterceptor
     	if ( remaining.size() > 1 )
     	{
             String message = "Entry " + dn + " contains more than one STRUCTURAL ObjectClass: " + remaining;
-            log.error( message );
+            LOG.error( message );
             throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
     	}
     }
@@ -1631,146 +1804,174 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Check the entry attributes syntax, using the syntaxCheckers
      */
-    private void assertSyntaxes( Attributes entry ) throws NamingException
+    private void assertSyntaxes( Entry entry ) throws NamingException
     {
-        NamingEnumeration attributes = entry.getAll();
-
         // First, loop on all attributes
-        while ( attributes.hasMoreElements() )
+        for ( EntryAttribute attribute:entry )
         {
-            Attribute attribute = ( Attribute ) attributes.nextElement();
-
-            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute.getID() );
-            SyntaxChecker syntaxChecker =  registries.getSyntaxCheckerRegistry().lookup( attributeType.getSyntax().getOid() );
+            AttributeType attributeType = ((ServerAttribute)attribute).getAttributeType();
+            SyntaxChecker syntaxChecker =  attributeType.getSyntax().getSyntaxChecker();
             
             if ( syntaxChecker instanceof AcceptAllSyntaxChecker )
             {
                 // This is a speedup : no need to check the syntax of any value
-                // if all the sytanxes are accepted...
+                // if all the syntaxes are accepted...
                 continue;
             }
             
-            NamingEnumeration<?> values = attribute.getAll();
-
             // Then loop on all values
-            while ( values.hasMoreElements() )
+            for ( Value<?> value:attribute )
             {
-                Object value = values.nextElement();
-                
                 try
                 {
-                    syntaxChecker.assertSyntax( value );
+                    syntaxChecker.assertSyntax( value.get() );
                 }
                 catch ( NamingException ne )
                 {
                     String message = "Attribute value '" + 
-                        (value instanceof String ? value : StringTools.dumpBytes( (byte[])value ) ) + 
-                        "' for attribute '" + attribute.getID() + "' is syntactically incorrect";
-                    log.info( message );
+                        (value instanceof ServerStringValue ? value.get() : StringTools.dumpBytes( (byte[])value.get() ) ) + 
+                        "' for attribute '" + attribute.getUpId() + "' is syntactically incorrect";
+                    LOG.info( message );
                     
                     throw new LdapInvalidAttributeValueException( message, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-
                 }
             }
         }
     }
     
     /**
-     * Check that all the attribute's values which are Human Readable can be transformed
-     * to valid String if they are stored as byte[].
+     * Check a String attribute to see if there is some byte[] value in it.
+     * 
+     * If this is the case, try to change it to a String value.
      */
-    private void assertHumanReadable( Attributes entry ) throws NamingException
+    private boolean checkHumanReadable( EntryAttribute attribute ) throws NamingException
     {
-        NamingEnumeration attributes = entry.getAll();
-        boolean isEntryModified = false;
-        Attributes cloneEntry = null;
+        boolean isModified = false;
 
-        // First, loop on all attributes
-        while ( attributes.hasMoreElements() )
+        // Loop on each values
+        for ( Value<?> value:attribute )
         {
-            Attribute attribute = ( Attribute ) attributes.nextElement();
+            if ( value instanceof ServerStringValue )
+            {
+                continue;
+            }
+            else if ( value instanceof ServerBinaryValue )
+            {
+                // we have a byte[] value. It should be a String UTF-8 encoded
+                // Let's transform it
+                try
+                {
+                    String valStr = new String( (byte[])value.get(), "UTF-8" );
+                    attribute.remove( value );
+                    attribute.add( valStr );
+                    isModified = true;
+                }
+                catch ( UnsupportedEncodingException uee )
+                {
+                    throw new NamingException( "The value is not a valid String" );
+                }
+            }
+            else
+            {
+                throw new NamingException( "The value stored in an Human Readable attribute is not a String" );
+            }
+        }
+        
+        return isModified;
+    }
+    
+    /**
+     * Check a binary attribute to see if there is some String value in it.
+     * 
+     * If this is the case, try to change it to a binary value.
+     */
+    private boolean checkNotHumanReadable( EntryAttribute attribute ) throws NamingException
+    {
+        boolean isModified = false;
 
-            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute.getID() );
+        // Loop on each values
+        for ( Value<?> value:attribute )
+        {
+            if ( value instanceof ServerBinaryValue )
+            {
+                continue;
+            }
+            else if ( value instanceof ServerStringValue )
+            {
+                // We have a String value. It should be a byte[]
+                // Let's transform it
+                try
+                {
+                    byte[] valBytes = ( (String)value.get() ).getBytes( "UTF-8" );
+                    
+                    attribute.remove( value );
+                    attribute.add( valBytes );
+                    isModified = true;
+                }
+                catch ( UnsupportedEncodingException uee )
+                {
+                    String message = "The value stored in a not Human Readable attribute as a String should be convertible to a byte[]";
+                    LOG.error( message );
+                    throw new NamingException( message );
+                }
+            }
+            else
+            {
+                String message = "The value is not valid. It should be a String or a byte[]"; 
+                LOG.error( message );
+                throw new NamingException( message );
+            }
+        }
+
+        return isModified;
+    }
+    
+    
+    /**
+     * Check that all the attribute's values which are Human Readable can be transformed
+     * to valid String if they are stored as byte[], and that non Human Readable attributes
+     * stored as String can be transformed to byte[]
+     */
+    private void assertHumanReadable( ServerEntry entry ) throws NamingException
+    {
+        boolean isModified = false;
+        
+        ServerEntry clonedEntry = null;
+
+        // Loops on all attributes
+        for ( EntryAttribute attribute:entry )
+        {
+            AttributeType attributeType = ((ServerAttribute)attribute).getAttributeType();
 
             // If the attributeType is H-R, check all of its values
             if ( attributeType.getSyntax().isHumanReadable() )
             {
-                Enumeration values = attribute.getAll();
-                Attribute clone = null;
-                boolean isModified = false;
-
-                // Loop on each values
-                while ( values.hasMoreElements() )
+                isModified = checkHumanReadable( attribute );
+            }
+            else
+            {
+                isModified = checkNotHumanReadable( attribute );
+            }
+            
+            // If we have a returned attribute, then we need to store it
+            // into a new entry
+            if ( isModified )
+            {
+                if ( clonedEntry == null )
                 {
-                    Object value = values.nextElement();
-
-                    if ( value instanceof String )
-                    {
-                        continue;
-                    }
-                    else if ( value instanceof byte[] )
-                    {
-                        // Ve have a byte[] value. It should be a String UTF-8 encoded
-                        // Let's transform it
-                        try
-                        {
-                            String valStr = new String( (byte[])value, "UTF-8" );
-
-                            if ( !isModified )
-                            {
-                                // Don't create useless clones. We only clone
-                                // if we have at least one value which is a byte[]
-                                isModified = true;
-                                clone = (Attribute)attribute.clone();
-                            }
-
-                            // Swap the value into the clone
-                            clone.remove( value );
-                            clone.add( valStr );
-                        }
-                        catch ( UnsupportedEncodingException uee )
-                        {
-                            throw new NamingException( "The value is not a valid String" );
-                        }
-                    }
-                    else
-                    {
-                        throw new NamingException( "The value stored in an Human Readable attribute is not a String" );
-                    }
+                    clonedEntry = (ServerEntry)entry.clone();
                 }
+                
+                // Switch the attributes
+                clonedEntry.put( attribute );
 
-                // The attribute has been checked. If one of its value has been modified,
-                // we have to modify the cloned Attributes/
-                if ( isModified )
-                {
-                    if ( !isEntryModified )
-                    {
-                        // Again, let's avoid useless cloning. If no attribute is H-R
-                        // or if no H-R value is stored as a byte[], we don't have to create a clone
-                        // of the entry
-                        cloneEntry = (Attributes)entry.clone();
-                        isEntryModified = true;
-                    }
-
-                    // Swap the attribute into the cloned entry
-                    cloneEntry.remove( attribute.getID() );
-                    cloneEntry.put( clone );
-                }
+                isModified = false;
             }
         }
-
-        // At the end, we now have to switch the entries, if it has been modified
-        if ( isEntryModified )
+        
+        if ( clonedEntry != null )
         {
-            attributes = cloneEntry.getAll();
-
-            // We llop on all the attributes and modify them in the initial entry.
-            while ( attributes.hasMoreElements() )
-            {
-                Attribute attribute = (Attribute)attributes.nextElement();
-                entry.remove( attribute.getID() );
-                entry.put( attribute );
-            }
+            entry = clonedEntry;
         }
     }
 }

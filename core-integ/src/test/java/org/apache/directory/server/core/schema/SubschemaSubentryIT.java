@@ -22,8 +22,12 @@ package org.apache.directory.server.core.schema;
 
 import jdbm.helper.IntegerComparator;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.*;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -33,11 +37,30 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
-import org.apache.directory.shared.ldap.schema.syntax.*;
-import org.apache.directory.shared.ldap.schema.syntax.parser.*;
+import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntax.LdapSyntaxDescription;
+import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleDescription;
+import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.ComparatorDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.LdapSyntaxDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.MatchingRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.NormalizerDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.parser.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.DateUtils;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,12 +68,22 @@ import org.junit.runner.RunWith;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.TimeZone;
 
 
 /**
@@ -234,7 +267,10 @@ public class SubschemaSubentryIT
             attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
             assertNotNull( attrs );
             SchemaEntityFactory factory = new SchemaEntityFactory( service.getRegistries() );
-            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( attrs, service.getRegistries() );
+            
+            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
+
+            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( serverEntry, service.getRegistries() );
             assertEquals( oid, syntaxChecker.getSyntaxOid() );
         }
         else
@@ -1363,10 +1399,12 @@ public class SubschemaSubentryIT
         
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeTypeDescription attributeTypeDescription = null; 
+        AttributeTypeDescription attributeTypeDescription = null;
+        
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
+            
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
                 attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
@@ -1379,7 +1417,10 @@ public class SubschemaSubentryIT
         attrs = getSchemaContext( service ).getAttributes( "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory( service.getRegistries() );
-        AttributeType at = factory.getAttributeType( attrs, service.getRegistries(), "nis" );
+        
+        ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
+        
+        AttributeType at = factory.getAttributeType( serverEntry, service.getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );
@@ -1413,6 +1454,7 @@ public class SubschemaSubentryIT
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
         AttributeTypeDescription attributeTypeDescription = null; 
+        
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
@@ -1437,7 +1479,10 @@ public class SubschemaSubentryIT
                 "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory( service.getRegistries() );
-        AttributeType at = factory.getAttributeType( attrs, service.getRegistries(), "nis" );
+        
+        ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
+
+        AttributeType at = factory.getAttributeType( serverEntry, service.getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );

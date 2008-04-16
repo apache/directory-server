@@ -45,8 +45,13 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
 {
     /** static class logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultNormalizerRegistry.class );
+    
+    /** A speedup for debug */
+    private static final boolean DEBUG = LOG.isDebugEnabled();
+    
     /** a map of Normalizers looked up by OID */
     private final Map<String,Normalizer> byOid;
+    
     /** maps an OID to a normalizerDescription */
     private final Map<String,NormalizerDescription> oidToDescription;
 
@@ -81,7 +86,8 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
 
         oidToDescription.put( oid, description );
         byOid.put( oid, normalizer );
-        if ( LOG.isDebugEnabled() )
+        
+        if ( DEBUG )
         {
             LOG.debug( "registered normalizer with oid: " + oid );
         }
@@ -96,10 +102,12 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
         }
 
         Normalizer normalizer = byOid.get( oid );
-        if ( LOG.isDebugEnabled() )
+        
+        if ( DEBUG )
         {
             LOG.debug( "registered normalizer with oid: " + oid );
         }
+        
         return normalizer;
     }
 

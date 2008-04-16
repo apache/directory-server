@@ -18,14 +18,6 @@
  *  
  */
 
-/**
- * The router option specifies a list of IP addresses for routers on the
- * client's subnet.  Routers SHOULD be listed in order of preference.
- * 
- * The code for the router option is 3.  The minimum length for the
- * router option is 4 octets, and the length MUST always be a multiple
- * of 4.
- */
 package org.apache.directory.server.dhcp.options.vendor;
 
 
@@ -33,18 +25,23 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
 
 
 /**
+ * The router option specifies a list of IP addresses for routers on the
+ * client's subnet.  Routers SHOULD be listed in order of preference.
+ * 
+ * The code for the router option is 3.  The minimum length for the
+ * router option is 4 octets, and the length MUST always be a multiple
+ * of 4.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class Routers extends AddressListOption
 {
-    /**
-     * Creates a new instance of Routers.
-     *
-     * @param routers
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public Routers( byte[] routers )
+    public byte getTag()
     {
-        super( 3, routers );
+        return 3;
     }
 }

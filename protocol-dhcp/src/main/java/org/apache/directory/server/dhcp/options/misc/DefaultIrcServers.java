@@ -37,13 +37,11 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class DefaultIrcServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of DefaultIrcServers.
-     *
-     * @param defaultIrcServer
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public DefaultIrcServers( byte[] defaultIrcServer )
+    public byte getTag()
     {
-        super( 74, defaultIrcServer );
+        return 74;
     }
 }

@@ -20,11 +20,13 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -40,17 +42,25 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.ldif.Entry;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.junit.Test;
+import org.junit.BeforeClass;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -59,7 +69,7 @@ import java.util.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MaxImmSubFilterTest extends TestCase
+public class MaxImmSubFilterTest
 {
     private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
     private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
@@ -68,26 +78,25 @@ public class MaxImmSubFilterTest extends TestCase
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
     private static final LdapDN ROOTDSE_NAME = new LdapDN();
-    private static final LdapDN ENTRY_NAME;
-    private static final Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
-    private static final Attributes ENTRY = new AttributesImpl();
+    private static LdapDN ENTRY_NAME;
+    private static Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
+    private static ServerEntry ENTRY;
+    
+    /** A reference to the directory service */
+    private static DirectoryService service;
 
-    static
+    
+    @BeforeClass public static void setup() throws NamingException
     {
-        try
-        {
-            ENTRY_NAME = new LdapDN( "ou=test, ou=system" );
-        }
-        catch ( NamingException e )
-        {
-            throw new Error();
-        }
+        service = new DefaultDirectoryService();
 
+        ENTRY_NAME = new LdapDN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
+        ENTRY = new DefaultServerEntry( service.getRegistries(), ENTRY_NAME );
     }
 
 
-    public void testWrongScope() throws Exception
+    @Test public void testWrongScope() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
@@ -96,15 +105,15 @@ public class MaxImmSubFilterTest extends TestCase
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null,
+        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null,
             null, ENTRY_NAME, null, null, ENTRY, null, null ) );
 
-        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
+        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
             null, null, ENTRY_NAME, null, null, ENTRY, null, null ) );
     }
 
 
-    public void testRootDSE() throws Exception
+    @Test public void testRootDSE() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
 
@@ -114,21 +123,21 @@ public class MaxImmSubFilterTest extends TestCase
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null,
+        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null,
             ROOTDSE_NAME, null, null, ENTRY, null, null ) );
     }
 
 
-    public void testZeroTuple() throws Exception
+    @Test public void testZeroTuple() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
 
-        Assert.assertEquals( 0, filter.filter( EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ENTRY, null, null, null, null, null,
+        assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ENTRY, null, null, null, null, null,
             ENTRY_NAME, null, null, ENTRY, null, null ).size() );
     }
 
 
-    public void testDenialTuple() throws Exception
+    @Test public void testDenialTuple() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
@@ -137,22 +146,22 @@ public class MaxImmSubFilterTest extends TestCase
 
         tuples = Collections.unmodifiableCollection( tuples );
 
-        Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null,
+        assertEquals( tuples, filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null,
             ENTRY_NAME, null, null, ENTRY, null, null ) );
     }
 
 
-    public void testGrantTuple() throws Exception
+    @Test public void testGrantTuple() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, 
             PROTECTED_ITEMS, EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
-        Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, new MockProxy( 1 ), null, null, null,
+        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, new MockProxy( 1 ), null, null, null,
             null, ENTRY_NAME, null, null, ENTRY, null, null ).size() );
 
-        Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, new MockProxy( 3 ), null, null, null,
+        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, new MockProxy( 3 ), null, null, null,
             null, ENTRY_NAME, null, null, ENTRY, null, null ).size() );
     }
 
@@ -168,7 +177,7 @@ public class MaxImmSubFilterTest extends TestCase
         }
 
 
-        public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+        public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
             throws NamingException
         {
             //noinspection unchecked
@@ -176,7 +185,7 @@ public class MaxImmSubFilterTest extends TestCase
         }
 
 
-        public NamingEnumeration<SearchResult> search( SearchOperationContext opContext, Collection bypass ) throws NamingException
+        public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext, Collection bypass ) throws NamingException
         {
             //noinspection unchecked
             return new BogusEnumeration( count );
@@ -380,13 +389,13 @@ public class MaxImmSubFilterTest extends TestCase
         }
 
 
-        public List<Entry> getTestEntries()
+        public List<LdifEntry> getTestEntries()
         {
             return null;
         }
 
 
-        public void setTestEntries( List<? extends Entry> testEntries )
+        public void setTestEntries( List<? extends LdifEntry> testEntries )
         {
         }
 
@@ -484,6 +493,17 @@ public class MaxImmSubFilterTest extends TestCase
         }
         
         public ChangeLog getChangeLog()
+        {
+            return null;
+        }
+
+
+        public ServerEntry newEntry( LdapDN dn ) throws NamingException
+        {
+            return null;
+        }
+        
+        public ServerEntry newEntry( String ldif, String dn )
         {
             return null;
         }

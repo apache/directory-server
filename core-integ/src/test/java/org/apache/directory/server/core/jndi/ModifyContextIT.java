@@ -26,10 +26,15 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getRootCon
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,7 +65,7 @@ public class ModifyContextIT
      */
     protected void createData() throws NamingException
     {
-        Entry akarasulu = getUserAddLdif();
+        LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
         LdapContext sysRoot = getSystemContext( service );
 
@@ -206,6 +211,34 @@ public class ModifyContextIT
         DirContext ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
         attributes = ctx.getAttributes( "" );
         assertTrue( attributes.get( "ou" ).contains( "testCases" ) );
+
+        Attribute attribute = attributes.get( "creatorsName" );
+        assertNull( attribute );
+
+        attribute = attributes.get( "createTimestamp" );
+        assertNull( attribute );
+
+        attribute = attributes.get( "modifiersName" );
+        assertNull( attribute );
+
+        attributes.get( "modifyTimestamp" );
+        assertNull( attribute );
+    }
+
+
+    @Test
+    public void testRemoveNonExistingValue() throws NamingException
+    {
+        createData();
+
+        LdapContext sysRoot = getSystemContext( service );
+        Attributes attributes = new AttributesImpl( true );
+        attributes.put( "ou", "testCases" );
+        sysRoot.modifyAttributes( "ou=testing00", DirContext.REMOVE_ATTRIBUTE, attributes );
+
+        DirContext ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
+        attributes = ctx.getAttributes( "" );
+        assertFalse( attributes.get( "ou" ).contains( "testCases" ) );
 
         Attribute attribute = attributes.get( "creatorsName" );
         assertNull( attribute );

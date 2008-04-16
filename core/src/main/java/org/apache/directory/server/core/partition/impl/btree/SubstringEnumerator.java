@@ -45,8 +45,10 @@ public class SubstringEnumerator implements Enumerator
 {
     /** Database used */
     private final BTreePartition db;
+    
     /** Evaluator used is an Avalon dependent object */
     private final SubstringEvaluator evaluator;
+    
     /** the attribute type registry */
     private final AttributeTypeRegistry attributeTypeRegistry;
 

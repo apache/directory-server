@@ -22,9 +22,13 @@ package org.apache.directory.mitosis.operation;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.InvalidAttributeIdentifierException;
 
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
@@ -40,32 +44,45 @@ public abstract class AttributeOperation extends Operation
 {
     private final LdapDN name;
     private final Attribute attribute;
+    private transient ServerAttribute serverAttribute;
 
 
     /**
      * Create a new operation that affects an entry with the specified name.
      * 
+     * @param csn
      * @param name the normalized name of an entry 
-     * @param attribute an attribute to modify
+     * @param serverAttribute an attribute to modify
      */
-    public AttributeOperation( CSN csn, LdapDN name, Attribute attribute )
+    public AttributeOperation( CSN csn, LdapDN name, ServerAttribute serverAttribute )
     {
         super( csn );
 
         assert name != null;
-        assert attribute != null;
+        assert serverAttribute != null;
 
         this.name = name;
-        this.attribute = ( Attribute ) attribute.clone();
+        this.serverAttribute = (ServerAttribute)serverAttribute.clone();
+        this.attribute = ServerEntryUtils.toAttributeImpl( this.serverAttribute );
     }
 
 
     /**
      * Returns the attribute to modify.
      */
-    public Attribute getAttribute()
+    public ServerAttribute getAttribute( AttributeTypeRegistry atRegistry ) throws InvalidAttributeIdentifierException, NamingException
     {
-        return ( Attribute ) attribute.clone();
+        if ( serverAttribute != null )
+        {
+            return ( ServerAttribute ) serverAttribute.clone();
+        }
+        else
+        {
+            Attribute attr = (Attribute)attribute.clone();
+            
+            serverAttribute = ServerEntryUtils.toServerAttribute( attr, atRegistry.lookup( attr.getID() ) );
+            return (ServerAttribute)serverAttribute.clone();
+        }
     }
 
 
@@ -78,21 +95,29 @@ public abstract class AttributeOperation extends Operation
     }
 
 
-    protected final void execute0( PartitionNexus nexus, ReplicationStore store, AttributeTypeRegistry registry ) 
+    protected final void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries ) 
         throws NamingException
     {
-        if ( !EntryUtil.isEntryUpdatable( nexus, name, getCSN() ) )
+        if ( !EntryUtil.isEntryUpdatable( registries, nexus, name, getCSN() ) )
         {
             return;
         }
-        EntryUtil.createGlueEntries( nexus, name, true );
+        EntryUtil.createGlueEntries( registries, nexus, name, true );
 
-        execute1( nexus );
+        execute1( nexus, registries );
     }
 
 
-    protected abstract void execute1( PartitionNexus nexus ) throws NamingException;
+    protected abstract void execute1( PartitionNexus nexus, Registries registries ) throws NamingException;
 
+
+    /**
+     * Returns the attribute to modify.
+     */
+    public String getAttributeString()
+    {
+        return attribute.toString();
+    }
 
     /**
      * Returns string representation of this operation.

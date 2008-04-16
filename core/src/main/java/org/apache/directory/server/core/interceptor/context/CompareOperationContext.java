@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -29,7 +30,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class CompareOperationContext  extends AbstractOperationContext
+public class CompareOperationContext extends AbstractOperationContext
 {
     /** The entry OID */
     private String oid;
@@ -37,14 +38,15 @@ public class CompareOperationContext  extends AbstractOperationContext
     /** The value to be compared */
     private Object value;
     
+    
     /**
      * 
      * Creates a new instance of CompareOperationContext.
      *
      */
-    public CompareOperationContext()
+    public CompareOperationContext( Registries registries )
     {
-    	super();
+    	super( registries );
     }
 
     /**
@@ -52,9 +54,9 @@ public class CompareOperationContext  extends AbstractOperationContext
      * Creates a new instance of CompareOperationContext.
      *
      */
-    public CompareOperationContext( LdapDN dn )
+    public CompareOperationContext( Registries registries, LdapDN dn )
     {
-        super( dn );
+        super( registries, dn );
     }
 
     /**
@@ -62,9 +64,9 @@ public class CompareOperationContext  extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareOperationContext( String oid )
+    public CompareOperationContext( Registries registries, String oid )
     {
-    	super();
+    	super( registries );
         this.oid = oid;
     }
 
@@ -73,9 +75,9 @@ public class CompareOperationContext  extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareOperationContext( LdapDN dn, String oid )
+    public CompareOperationContext( Registries registries, LdapDN dn, String oid )
     {
-    	super( dn );
+    	super( registries, dn );
         this.oid = oid;
     }
 
@@ -84,9 +86,9 @@ public class CompareOperationContext  extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareOperationContext( LdapDN dn, String oid, Object value )
+    public CompareOperationContext( Registries registries, LdapDN dn, String oid, Object value )
     {
-    	super( dn );
+    	super( registries, dn );
         this.oid = oid;
         this.value = value;
     }

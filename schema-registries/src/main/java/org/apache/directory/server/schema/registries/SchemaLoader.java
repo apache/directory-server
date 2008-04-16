@@ -40,7 +40,7 @@ public interface SchemaLoader
      * Sets listener used to notify of newly loaded schemas.
      * 
      * @param listener the listener to notify (only one is enough for us)
-     * @NOTE probably should have used the observer pattern here 
+     * @note probably should have used the observer pattern here 
      */
     public void setListener( SchemaLoaderListener listener );
     
@@ -76,7 +76,7 @@ public interface SchemaLoader
     /**
      * Loads a single schema at least and possibly it's dependencies.  
      * 
-     * @param schema the schema to load
+     * @param schemas the schema to load
      * @param registries the registries to populate with these schemas
      * @throws NamingException if any kind of problems are encountered during the load
      */

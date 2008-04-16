@@ -18,43 +18,29 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.vendor;
+
+
+import org.apache.directory.server.dhcp.options.StringOption;
+
+
 /**
  * This option specifies the domain name that client should use when
  * resolving hostnames via the Domain Name System.
  * 
  * The code for this option is 15.  Its minimum length is 1.
- */
-package org.apache.directory.server.dhcp.options.vendor;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DomainName extends DhcpOption
+public class DomainName extends StringOption
 {
-    private byte[] domainName;
-
-
-    /**
-     * Creates a new instance of DomainName.
-     *
-     * @param domainName
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public DomainName( byte[] domainName )
+    public byte getTag()
     {
-        super( 15, 1 );
-        this.domainName = domainName;
+        return 15;
     }
 
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( domainName );
-    }
 }

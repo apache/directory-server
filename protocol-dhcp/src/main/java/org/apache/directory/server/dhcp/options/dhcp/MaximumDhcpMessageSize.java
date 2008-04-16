@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.ShortOption;
 
 
 /**
@@ -39,25 +37,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MaximumDhcpMessageSize extends DhcpOption
+public class MaximumDhcpMessageSize extends ShortOption
 {
-    private byte[] maximumDhcpMessageSize;
-
-
-    /**
-     * Creates a new instance of MaximumDhcpMessageSize.
-     *
-     * @param maximumDhcpMessageSize
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public MaximumDhcpMessageSize( byte[] maximumDhcpMessageSize )
+    public byte getTag()
     {
-        super( 57, 2 );
-        this.maximumDhcpMessageSize = maximumDhcpMessageSize;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( maximumDhcpMessageSize );
+        return 57;
     }
 }

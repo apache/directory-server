@@ -21,13 +21,31 @@ package org.apache.directory.server.core.interceptor;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 import java.util.Iterator;
 
 
@@ -66,7 +84,7 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public Attributes getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException
+    public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException
     {
         test.interceptors.add( this );
         return next.getRootDSE( opContext );
@@ -145,14 +163,14 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
     {
         test.interceptors.add( this );
         return next.search( opContext );
     }
 
 
-    public Attributes lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
     {
         test.interceptors.add( this );
         return next.lookup( opContext );

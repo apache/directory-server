@@ -22,8 +22,8 @@ package org.apache.directory.server.core.event;
 
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -43,9 +43,9 @@ public class ScopeEvaluator implements Evaluator
 
 
     /**
-     * @see Evaluator#evaluate(ExprNode, String, Attributes)
+     * @see Evaluator#evaluate(ExprNode , String, ServerEntry)
      */
-    public boolean evaluate( ExprNode node, String dn, Attributes record ) throws NamingException
+    public boolean evaluate( ExprNode node, String dn, ServerEntry record ) throws NamingException
     {
         ScopeNode snode = ( ScopeNode ) node;
 
@@ -53,6 +53,7 @@ public class ScopeEvaluator implements Evaluator
         {
             case ( SearchControls.OBJECT_SCOPE  ):
                 return dn.equals( snode.getBaseDn() );
+            
             case ( SearchControls.ONELEVEL_SCOPE  ):
                 if ( dn.endsWith( snode.getBaseDn() ) )
                 {
@@ -60,8 +61,10 @@ public class ScopeEvaluator implements Evaluator
                     LdapDN scopeDn = new LdapDN( snode.getBaseDn() );
                     return ( scopeDn.size() + 1 ) == candidateDn.size();
                 }
+            
             case ( SearchControls.SUBTREE_SCOPE  ):
                 return dn.endsWith( snode.getBaseDn() );
+            
             default:
                 throw new NamingException( "Unrecognized search scope!" );
         }

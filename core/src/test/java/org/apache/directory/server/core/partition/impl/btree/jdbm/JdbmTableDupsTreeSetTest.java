@@ -460,7 +460,7 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         // test the listValues(Object) method
         // -------------------------------------------------------------------
 
-        NamingEnumeration values = table.listValues( 0L );
+        NamingEnumeration<Object> values = table.listValues( 0L );
         assertFalse( values.hasMore() );
 
         values = table.listValues( 2L );

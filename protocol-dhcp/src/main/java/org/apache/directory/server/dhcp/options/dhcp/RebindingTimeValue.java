@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.IntOption;
 
 
 /**
@@ -38,25 +36,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RebindingTimeValue extends DhcpOption
+public class RebindingTimeValue extends IntOption
 {
-    private int rebindingTimeValue;
-
-
-    /**
-     * Creates a new instance of RebindingTimeValue.
-     *
-     * @param rebindingTimeValue
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public RebindingTimeValue( int rebindingTimeValue )
+    public byte getTag()
     {
-        super( 59, 4 );
-        this.rebindingTimeValue = rebindingTimeValue;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.putInt( rebindingTimeValue );
+        return 59;
     }
 }

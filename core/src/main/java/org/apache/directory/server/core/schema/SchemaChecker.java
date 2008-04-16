@@ -20,11 +20,18 @@
 package org.apache.directory.server.core.schema;
 
 
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
@@ -34,10 +41,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.Name;
-import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attribute;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -68,15 +77,15 @@ public class SchemaChecker
      * @throws NamingException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
      */
-    public static void preventStructuralClassRemovalOnModifyReplace( ObjectClassRegistry registry, Name name, int mod,
-        Attribute attribute ) throws NamingException
+    public static void preventStructuralClassRemovalOnModifyReplace( ObjectClassRegistry registry, LdapDN name, ModificationOperation mod,
+        ServerAttribute attribute ) throws NamingException
     {
-        if ( mod != DirContext.REPLACE_ATTRIBUTE )
+        if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
             return;
         }
 
-        if ( !SchemaConstants.OBJECT_CLASS_AT.equalsIgnoreCase( attribute.getID() ) )
+        if ( !SchemaConstants.OBJECT_CLASS_AT.equalsIgnoreCase( attribute.getUpId() ) )
         {
             return;
         }
@@ -86,17 +95,20 @@ public class SchemaChecker
         if ( attribute.size() == 0 )
         {
             String msg = "Modify operation leaves no structural objectClass for entry " + name;
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( msg + ".  Raising LdapSchemaViolationException." );
             }
+            
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
 
         // check that there is at least one structural objectClass in the replacement set
-        for ( int ii = 0; ii < attribute.size(); ii++ )
+        for ( Value<?> value:attribute )
         {
-            ObjectClass ocType = registry.lookup( ( String ) attribute.get( ii ) );
+            ObjectClass ocType = registry.lookup( ( String ) value.get() );
+
             if ( ocType.getType() == ObjectClassTypeEnum.STRUCTURAL )
             {
                 return;
@@ -188,28 +200,36 @@ public class SchemaChecker
      * @throws NamingException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
      */
-    public static void preventStructuralClassRemovalOnModifyRemove( ObjectClassRegistry registry, Name name, int mod,
-        Attribute attribute, Attribute entryObjectClasses ) throws NamingException
+    public static void preventStructuralClassRemovalOnModifyRemove( ObjectClassRegistry registry, LdapDN name, ModificationOperation mod,
+        EntryAttribute attribute, EntryAttribute entryObjectClasses ) throws NamingException
     {
-        if ( mod != DirContext.REMOVE_ATTRIBUTE )
+        if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
         {
             return;
         }
 
-        if ( !SchemaConstants.OBJECT_CLASS_AT.equalsIgnoreCase( attribute.getID() ) )
+        if ( !((ServerAttribute)attribute).instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             return;
         }
         
         // check if there is any attribute value as "".
         // if there is remove it so that it will be considered as not even provided.
-        for( int ii = 0; ii < attribute.size(); ii++ )
+        List<Value<?>> removed = new ArrayList<Value<?>>();
+        
+        // Fist gather the value to remove
+        for ( Value<?> value:attribute )
         {
-            Object value = attribute.get( ii );
-            if ( "".equals( value ) )
+            if ( ((String)value.get()).length() == 0 )
             {
-                attribute.remove( ii );
+                removed.add( value );
             }
+        }
+        
+        // Now remove the values from the attribute
+        for ( Value<?> value:removed )
+        {
+            attribute.remove( value );
         }
 
         // whoever issued the modify operation is insane they want to delete
@@ -217,10 +237,12 @@ public class SchemaChecker
         if ( attribute.size() == 0 )
         {
             String msg = "Modify operation leaves no structural objectClass for entry " + name;
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( msg + ".  Raising LdapSchemaViolationException." );
             }
+            
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         }
 
@@ -228,17 +250,19 @@ public class SchemaChecker
         // we can analyze what remains in this attribute to make sure a structural
         // objectClass is present for the entry
 
-        Attribute cloned = ( Attribute ) entryObjectClasses.clone();
-        for ( int ii = 0; ii < attribute.size(); ii++ )
+        ServerAttribute cloned = ( ServerAttribute ) entryObjectClasses.clone();
+        
+        for ( Value<?> value:attribute )
         {
-            cloned.remove( attribute.get( ii ) );
+            cloned.remove( value );
         }
 
         // check resultant set of objectClass values for a structural objectClass
-        for ( int ii = 0; ii < cloned.size(); ii++ )
+        for ( Value<?> objectClass:cloned )
         {
-            ObjectClass ocType = registry.lookup( ( String ) cloned.get( ii ) );
-            if ( ocType.getType() == ObjectClassTypeEnum.STRUCTURAL )
+            ObjectClass oc = registry.lookup( (String)objectClass.get() );
+            
+            if ( oc.getType() == ObjectClassTypeEnum.STRUCTURAL )
             {
                 return;
             }
@@ -247,10 +271,12 @@ public class SchemaChecker
         // no structural object classes exist for the entry after the modifications
         // to the objectClass attribute so we need to complain about that
         String msg = "Modify operation leaves no structural objectClass for entry " + name;
+
         if ( log.isInfoEnabled() )
         {
             log.info( msg + ".  Raising LdapSchemaViolationException." );
         }
+        
         throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
     }
 
@@ -268,7 +294,7 @@ public class SchemaChecker
      * @param entryObjectClasses the entry being modified
      * @throws NamingException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
-     */
+     *
     public static void preventStructuralClassRemovalOnModifyRemove( ObjectClassRegistry registry, Name name, int mod,
         Attributes attributes, Attribute entryObjectClasses ) throws NamingException
     {
@@ -335,7 +361,7 @@ public class SchemaChecker
         }
         throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
     }
-
+    */
 
     /**
      * Makes sure a modify operation does not replace RDN attributes or their value.
@@ -354,18 +380,19 @@ public class SchemaChecker
      * @param name the distinguished name of the attribute being modified
      * @param mod the modification operation being performed (should be REPLACE_ATTRIBUTE )
      * @param attribute the attribute being modified
+     * @param oidRegistry
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyReplace( Name name, int mod, Attribute attribute, OidRegistry oidRegistry )
+    public static void preventRdnChangeOnModifyReplace( LdapDN name, ModificationOperation mod, ServerAttribute attribute, OidRegistry oidRegistry )
         throws NamingException
     {
-        if ( mod != DirContext.REPLACE_ATTRIBUTE )
+        if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
             return;
         }
 
-        Set rdnAttributes = getRdnAttributes( name );
-        String id = oidRegistry.getOid( attribute.getID() );
+        Set<String> rdnAttributes = getRdnAttributes( name );
+        String id = oidRegistry.getOid( attribute.getUpId() );
 
         if ( !rdnAttributes.contains( id ) )
         {
@@ -426,10 +453,11 @@ public class SchemaChecker
      *
      * @param name the distinguished name of the attribute being modified
      * @param mod the modification operation being performed (should be REPLACE_ATTRIBUTE )
-     * @param attributes the attributes being modified
+     * @param entry
+     * @param oidRegistry
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyReplace( Name name, int mod, Attributes attributes, OidRegistry oidRegistry )
+    public static void preventRdnChangeOnModifyReplace( LdapDN name, int mod, ServerEntry entry, OidRegistry oidRegistry )
         throws NamingException
     {
         if ( mod != DirContext.REPLACE_ATTRIBUTE )
@@ -437,18 +465,20 @@ public class SchemaChecker
             return;
         }
 
-        Set rdnAttributes = getRdnAttributes( name );
-        NamingEnumeration list = attributes.getIDs();
-        while ( list.hasMore() )
+        Set<String> rdnAttributes = getRdnAttributes( name );
+        
+        for ( AttributeType attributeType:entry.getAttributeTypes() )
         {
-            String id = ( String ) list.next();
+            String id = attributeType.getName();
 
             if ( rdnAttributes.contains( id ) )
             {
+                EntryAttribute rdnAttr = entry.get( id );
+
                 // if the attribute values to delete are not specified then all values
                 // for the attribute are to be deleted in which case we must just throw
                 // a schema violation exception with the notAllowedOnRdn result code
-                if ( attributes.get( id ).size() == 0 )
+                if ( rdnAttr.size() == 0 )
                 {
                     String msg = "Modify operation attempts to delete RDN attribute ";
                     msg += id + " on entry " + name + " violates schema constraints";
@@ -457,6 +487,7 @@ public class SchemaChecker
                     {
                         log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                     }
+                    
                     throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
                 }
 
@@ -464,22 +495,20 @@ public class SchemaChecker
                 // of the Rdn attribute so we must check to make sure all the old
                 // rdn attribute values are present in the replacement set
                 String rdnValue = getRdnValue( id, name, oidRegistry );
-                Attribute rdnAttr = attributes.get( id );
-                for ( int ii = 0; ii < rdnAttr.size(); ii++ )
-                {
-                    // if the old rdn value is not in the rdn attribute then
-                    // we must complain with a schema violation
-                    if ( !rdnAttr.contains( rdnValue ) )
-                    {
-                        String msg = "Modify operation attempts to delete RDN attribute values in use for ";
-                        msg += id + " on entry " + name + " and violates schema constraints";
 
-                        if ( log.isInfoEnabled() )
-                        {
-                            log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
-                        }
-                        throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
+                // if the old rdn value is not in the rdn attribute then
+                // we must complain with a schema violation
+                if ( !rdnAttr.contains( rdnValue ) )
+                {
+                    String msg = "Modify operation attempts to delete RDN attribute values in use for ";
+                    msg += id + " on entry " + name + " and violates schema constraints";
+
+                    if ( log.isInfoEnabled() )
+                    {
+                        log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                     }
+                    
+                    throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
                 }
             }
         }
@@ -505,16 +534,16 @@ public class SchemaChecker
      * @param attribute the attribute being modified
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyRemove( Name name, int mod, Attribute attribute, 
+    public static void preventRdnChangeOnModifyRemove( LdapDN name, ModificationOperation mod, ServerAttribute attribute, 
         OidRegistry oidRegistry ) throws NamingException
     {
-        if ( mod != DirContext.REMOVE_ATTRIBUTE )
+        if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
         {
             return;
         }
 
-        Set rdnAttributes = getRdnAttributes( name );
-        String id = attribute.getID();
+        Set<String> rdnAttributes = getRdnAttributes( name );
+        String id = attribute.getUpId();
 
         if ( !rdnAttributes.contains( oidRegistry.getOid( id ) ) )
         {
@@ -533,6 +562,7 @@ public class SchemaChecker
             {
                 log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
             }
+            
             throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
         }
 
@@ -540,9 +570,10 @@ public class SchemaChecker
         // of the Rdn attribute so we must check if one of those values
         // are used by the Rdn attribute value pair for the name of the entry
         String rdnValue = getRdnValue( id, name, oidRegistry );
-        for ( int ii = 0; ii < attribute.size(); ii++ )
+        
+        for ( Value<?> value:attribute )
         {
-            if ( rdnValue.equals( attribute.get( ii ) ) )
+            if ( rdnValue.equals( (String)value.get() ) )
             {
                 String msg = "Modify operation attempts to delete RDN attribute values in use for ";
                 msg += id + " on entry " + name + " and violates schema constraints";
@@ -551,6 +582,7 @@ public class SchemaChecker
                 {
                     log.info( msg + ". SchemaChecker is throwing a schema violation exception." );
                 }
+                
                 throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
         }
@@ -573,10 +605,11 @@ public class SchemaChecker
      *
      * @param name the distinguished name of the attribute being modified
      * @param mod the modification operation being performed (should be REMOVE_ATTRIBUTE )
-     * @param attributes the attributes being modified
+     * @param entry
+     * @param oidRegistry
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyRemove( Name name, int mod, Attributes attributes, OidRegistry oidRegistry )
+    public static void preventRdnChangeOnModifyRemove( LdapDN name, int mod, ServerEntry entry, OidRegistry oidRegistry )
         throws NamingException
     {
         if ( mod != DirContext.REMOVE_ATTRIBUTE )
@@ -584,18 +617,18 @@ public class SchemaChecker
             return;
         }
 
-        Set rdnAttributes = getRdnAttributes( name );
-        NamingEnumeration list = attributes.getIDs();
-        while ( list.hasMore() )
+        Set<String> rdnAttributes = getRdnAttributes( name );
+        
+        for ( AttributeType attributeType:entry.getAttributeTypes() )
         {
-            String id = ( String ) list.next();
+            String id = attributeType.getName();
 
             if ( rdnAttributes.contains( id ) )
             {
                 // if the attribute values to delete are not specified then all values
                 // for the attribute are to be deleted in which case we must just throw
                 // a schema violation exception with the notAllowedOnRdn result code
-                if ( attributes.get( id ).size() == 0 )
+                if ( entry.get( id ).size() == 0 )
                 {
                     String msg = "Modify operation attempts to delete RDN attribute ";
                     msg += id + " on entry " + name + " violates schema constraints";
@@ -611,10 +644,11 @@ public class SchemaChecker
                 // of the Rdn attribute so we must check if one of those values
                 // are used by the Rdn attribute value pair for the name of the entry
                 String rdnValue = getRdnValue( id, name, oidRegistry );
-                Attribute rdnAttr = attributes.get( id );
-                for ( int ii = 0; ii < rdnAttr.size(); ii++ )
+                EntryAttribute rdnAttr = entry.get( id );
+                
+                for ( Value<?> value:rdnAttr )
                 {
-                    if ( rdnValue.equals( rdnAttr.get( ii ) ) )
+                    if ( rdnValue.equals( (String)value.get() ) )
                     {
                         String msg = "Modify operation attempts to delete RDN attribute values in use for ";
                         msg += id + " on entry " + name + " and violates schema constraints";
@@ -686,11 +720,10 @@ public class SchemaChecker
      * @return the set of attributes composing the Rdn for the name
      * @throws NamingException if the syntax of the Rdn is incorrect
      */
-    @SuppressWarnings("unchecked")
-    private static Set getRdnAttributes( Name name ) throws NamingException
+    private static Set<String> getRdnAttributes( LdapDN name ) throws NamingException
     {
         String[] comps = NamespaceTools.getCompositeComponents( name.get( name.size() - 1 ) );
-        Set attributes = new HashSet();
+        Set<String> attributes = new HashSet<String>();
 
         for ( int ii = 0; ii < comps.length; ii++ )
         {

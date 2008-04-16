@@ -84,7 +84,7 @@ public class TransitedEncoding extends AbstractAsn1Object
     /**
      * Creates a new instance of TransitedEncoding.
      *
-     * @param type
+     * @param trType
      * @param contents
      */
     public TransitedEncoding( TransitedEncodingType trType, byte[] contents )

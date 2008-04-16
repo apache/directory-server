@@ -21,8 +21,6 @@
 package org.apache.directory.server.dhcp.options.misc;
 
 
-import java.nio.ByteBuffer;
-
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
 
@@ -65,23 +63,11 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class VendorSpecificInformation extends DhcpOption
 {
-    private byte[] vendorSpecificInformation;
-
-
-    /**
-     * Creates a new instance of VendorSpecificInformation.
-     *
-     * @param vendorSpecificInformation
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public VendorSpecificInformation( byte[] vendorSpecificInformation )
+    public byte getTag()
     {
-        super( 43, 1 );
-        this.vendorSpecificInformation = vendorSpecificInformation;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( vendorSpecificInformation );
+        return 43;
     }
 }

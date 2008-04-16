@@ -21,8 +21,7 @@
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
-import java.nio.ByteBuffer;
-
+import org.apache.directory.server.dhcp.messages.MessageType;
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
 
@@ -47,23 +46,44 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class DhcpMessageType extends DhcpOption
 {
-    private byte[] messageType;
+    private MessageType type;
 
 
-    /**
-     * Creates a new instance of DhcpMessageType.
-     *
-     * @param messageType
-     */
-    public DhcpMessageType( byte[] messageType )
+    public DhcpMessageType()
     {
-        super( 53, 1 );
-        this.messageType = messageType;
     }
 
 
-    protected void valueToByteBuffer( ByteBuffer out )
+    public DhcpMessageType(MessageType type)
     {
-        out.put( messageType );
+        this.type = type;
+    }
+
+
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
+     */
+    public byte getTag()
+    {
+        return 53;
+    }
+
+
+    public void setData( byte[] messageType )
+    {
+        type = MessageType.getTypeByCode( messageType[0] );
+    }
+
+
+    public byte[] getData()
+    {
+        return new byte[]
+            { type.getCode() };
+    }
+
+
+    public MessageType getType()
+    {
+        return type;
     }
 }

@@ -22,8 +22,9 @@
 package org.apache.directory.server.core.sp;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
+
+import org.apache.directory.server.core.entry.ServerEntry;
 
 
 /**
@@ -48,7 +49,7 @@ public interface StoredProcEngine
      * <p>
      * This method should be called before an attempt to invoke a stored procedure via this Engine.
      */
-    public void setSPUnitEntry( final Attributes spUnit );
+    public void setSPUnitEntry( final ServerEntry spUnit );
     
     
     /**

@@ -20,14 +20,9 @@
 package org.apache.directory.server.ldap.support.ssl;
 
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.security.cert.CertificateException;
 
 import javax.naming.NamingException;
 import javax.net.ssl.KeyManagerFactory;
@@ -49,26 +44,8 @@ import org.apache.mina.filter.SSLFilter;
  */
 public class LdapsInitializer
 {
-    public static IoFilterChainBuilder init( char[] certPasswordChars, String storePath ) throws NamingException
+    public static IoFilterChainBuilder init( KeyStore ks ) throws NamingException
     {
-        KeyStore ks = null;
-        try
-        {
-            ks = loadKeyStore( storePath, "PKCS12" );
-        }
-        catch ( Exception e )
-        {
-            try
-            {
-                ks = loadKeyStore( storePath, "JKS" );
-            }
-            catch ( Exception e2 )
-            {
-                throw ( NamingException ) new NamingException( "Failed to load a certificate: " + storePath )
-                    .initCause( e );
-            }
-        }
-
         SSLContext sslCtx;
         try
         {
@@ -79,7 +56,7 @@ public class LdapsInitializer
                 algorithm = "SunX509";
             }
             KeyManagerFactory kmf = KeyManagerFactory.getInstance( algorithm );
-            kmf.init( ks, certPasswordChars );
+            kmf.init( ks, null );
 
             // Initialize the SSLContext to work with our key managers.
             sslCtx = SSLContext.getInstance( "TLS" );
@@ -94,33 +71,5 @@ public class LdapsInitializer
         DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();
         chain.addLast( "SSL", new SSLFilter( sslCtx ) );
         return chain;
-    }
-
-
-    private static KeyStore loadKeyStore( String storePath, String storeType ) throws KeyStoreException, IOException,
-        CertificateException, NoSuchAlgorithmException
-    {
-        FileInputStream in = null;
-        // Create keystore
-        KeyStore ks = KeyStore.getInstance( storeType );
-        try
-        {
-            in = new FileInputStream( storePath );
-            ks.load( in, null );
-            return ks;
-        }
-        finally
-        {
-            if ( in != null )
-            {
-                try
-                {
-                    in.close();
-                }
-                catch ( IOException ignored )
-                {
-                }
-            }
-        }
     }
 }

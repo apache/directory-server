@@ -84,7 +84,7 @@ public interface SearchEngine
      * @return enumeration over SearchResults
      * @throws NamingException if the search fails
      */
-    NamingEnumeration search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    NamingEnumeration<IndexRecord> search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter,
                               SearchControls searchCtls ) throws NamingException;
 
 

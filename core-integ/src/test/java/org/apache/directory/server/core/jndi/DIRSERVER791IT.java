@@ -35,7 +35,14 @@ import org.junit.runner.RunWith;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.InvalidAttributeIdentifierException;
+import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.SchemaViolationException;
+
 import java.util.Hashtable;
 
 
@@ -216,7 +223,7 @@ public class DIRSERVER791IT
         DirContext ctx = new InitialDirContext( env );
 
 
-        Attribute attr = new AttributeImpl("bootParameter", "test");
+        Attribute attr = new AttributeImpl("javaDoc", "test");
         ModificationItemImpl modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, attr);
     
         try 

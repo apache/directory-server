@@ -18,6 +18,12 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.vendor;
+
+
+import org.apache.directory.server.dhcp.options.AddressListOption;
+
+
 /**
  * The name server option specifies a list of IEN 116 name servers
  * available to the client.  Servers SHOULD be listed in order of
@@ -26,26 +32,17 @@
  * The code for the name server option is 5.  The minimum length for
  * this option is 4 octets, and the length MUST always be a multiple of
  * 4.
- */
-package org.apache.directory.server.dhcp.options.vendor;
-
-
-import org.apache.directory.server.dhcp.options.AddressListOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class NameServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of NameServers.
-     *
-     * @param nameServers
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public NameServers( byte[] nameServers )
+    public byte getTag()
     {
-        super( 5, nameServers );
+        return 5;
     }
 }

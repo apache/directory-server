@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.IntOption;
 
 
 /**
@@ -38,25 +36,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RenewalTimeValue extends DhcpOption
+public class RenewalTimeValue extends IntOption
 {
-    private int renewalTimeValue;
-
-
-    /**
-     * Creates a new instance of RenewalTimeValue.
-     *
-     * @param renewalTimeValue
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public RenewalTimeValue( int renewalTimeValue )
+    public byte getTag()
     {
-        super( 58, 4 );
-        this.renewalTimeValue = renewalTimeValue;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.putInt( renewalTimeValue );
+        return 58;
     }
 }

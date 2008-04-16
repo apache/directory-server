@@ -163,9 +163,8 @@ public class EncryptionKey extends AbstractAsn1Object
 
     
     /**
-     * Returns the key version.
-     *
-     * @return The key version.
+     * Set the key value
+     * @param keyVersion The key version
      */
     public void setKeyVersion( int keyVersion)
     {

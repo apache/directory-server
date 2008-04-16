@@ -25,16 +25,23 @@ import org.apache.directory.server.ldap.support.extended.StoredProcedureExtended
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
+
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -46,13 +53,13 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
 {
     private LdapContext ctx;
     private LdapContext spCtx;
+    private Map<String, OidNormalizer> oids;
 
     
-    public void setUp() throws Exception
+    @Before public void setUp() throws Exception
     {
-
         super.setUp();
-
+        
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
@@ -65,6 +72,14 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
         spContainer.get( "objectClass" ).add( "organizationalUnit" );
         spContainer.put( "ou", "Stored Procedures" );
         spCtx = ( LdapContext ) ctx.createSubcontext( "ou=Stored Procedures", spContainer );
+        assertNotNull( spCtx );
+        
+        // Initialize OIDs maps for normalization
+        oids = new HashMap<String, OidNormalizer>();
+
+        oids.put( "ou", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
     }
 
 
@@ -112,7 +127,7 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
     }
     
     
-    public void testSPDeleteSubtree() throws NamingException
+    @Test public void testSPDeleteSubtree() throws NamingException
     {
         String ldif =
             "version: 1\n" +
@@ -138,9 +153,13 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
         
         JavaStoredProcUtils.loadStoredProcedureClass( spCtx, DITUtilitiesSP.class );
         
+        LdapDN people = new LdapDN( "ou=People" );
+        people = LdapDN.normalize(  people, oids );
+        
         String spName = DITUtilitiesSP.class.getName() + ":deleteSubtree";
         Object[] params = new Object[] { new LdapContextParameter( "ou=system" ),
-                                         new LdapDN( "ou=People" ) };
+                                         people };
+        
         
         JavaStoredProcUtils.callStoredProcedure( ctx, spName, params );
         

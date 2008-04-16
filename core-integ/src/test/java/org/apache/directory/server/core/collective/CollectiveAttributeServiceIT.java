@@ -28,13 +28,22 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemC
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -126,10 +135,11 @@ public class CollectiveAttributeServiceIT
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
             { "+", "*" } );
-        NamingEnumeration results = getSystemContext( service ).search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getSystemContext( service ).search( "", "(objectClass=*)", controls );
+        
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             resultMap.put( result.getName(), result.getAttributes() );
         }
         return resultMap;
@@ -161,10 +171,10 @@ public class CollectiveAttributeServiceIT
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
             { "cn" } );
-        NamingEnumeration results = getSystemContext( service ).search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getSystemContext( service ).search( "", "(objectClass=*)", controls );
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             resultMap.put( result.getName(), result.getAttributes() );
         }
         return resultMap;
@@ -178,10 +188,11 @@ public class CollectiveAttributeServiceIT
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
                                                     { "c-ou", "c-st" } );
-        NamingEnumeration results = getSystemContext( service ).search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getSystemContext( service ).search( "", "(objectClass=*)", controls );
+        
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             resultMap.put( result.getName(), result.getAttributes() );
         }
         return resultMap;

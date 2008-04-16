@@ -20,24 +20,24 @@
 package org.apache.directory.server.core.kerberos;
 
 
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerBinaryValue;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,48 +70,36 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
     {
         LdapDN normName = addContext.getDn();
 
-        Attributes entry = addContext.getEntry();
+        ServerEntry entry = addContext.getEntry();
 
-        log.debug( "Adding the entry '{}' for DN '{}'.", AttributeUtils.toString( entry ), normName.getUpName() );
-
-        Object attr = null;
+        log.debug( "Adding the entry '{}' for DN '{}'.", entry, normName.getUpName() );
 
         if ( entry.get( SchemaConstants.USER_PASSWORD_AT ) != null )
         {
-            String userPassword = "";
-            String username = "";
+            String username = null;
 
-            attr = entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
+            ServerBinaryValue userPassword = (ServerBinaryValue)entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
 
-            if ( attr instanceof String )
+            // The password is stored in a non H/R attribute, but it's a String
+            String strUserPassword = StringTools.utf8ToString( userPassword.get() );
+
+            if ( log.isDebugEnabled() )
             {
-                log.debug( "Adding Attribute id : 'userPassword',  Values : [ '{}' ]", attr );
-                userPassword = ( String ) attr;
-            }
-            else if ( attr instanceof byte[] )
-            {
-                String string = StringTools.utf8ToString( ( byte[] ) attr );
-
-                if ( log.isDebugEnabled() )
-                {
-                    StringBuffer sb = new StringBuffer();
-                    sb.append( "'" + string + "' ( " );
-                    sb.append( StringTools.dumpBytes( ( byte[] ) attr ).trim() );
-                    sb.append( " )" );
-                    log.debug( "Adding Attribute id : 'userPassword',  Values : [ {} ]", sb.toString() );
-                }
-
-                userPassword = string;
+                StringBuffer sb = new StringBuffer();
+                sb.append( "'" + strUserPassword + "' ( " );
+                sb.append( userPassword );
+                sb.append( " )" );
+                log.debug( "Adding Attribute id : 'userPassword',  Values : [ {} ]", sb.toString() );
             }
 
             if ( entry.get( SchemaConstants.CN_AT ) != null )
             {
-                attr = entry.get( SchemaConstants.CN_AT ).get();
-                username = ( String ) attr;
+                ServerStringValue attr = (ServerStringValue)entry.get( SchemaConstants.CN_AT ).get();
+                username = attr.get();
             }
 
             // If userPassword fails checks, throw new NamingException.
-            check( username, userPassword );
+            check( username, strUserPassword );
         }
 
         next.add( addContext );
@@ -126,61 +114,69 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
     {
         LdapDN name = modContext.getDn();
 
-        List<ModificationItemImpl> mods = modContext.getModItems();
+        List<Modification> mods = modContext.getModItems();
 
         String operation = null;
 
-        for ( ModificationItem mod:mods )
+        for ( Modification mod:mods )
         {
             if ( log.isDebugEnabled() )
             {
-            	switch ( mod.getModificationOp() )
+            	switch ( mod.getOperation() )
 	            {
-	                case DirContext.ADD_ATTRIBUTE:
+	                case ADD_ATTRIBUTE:
 	                    operation = "Adding";
 	                    break;
 	                    
-	                case DirContext.REMOVE_ATTRIBUTE:
+	                case REMOVE_ATTRIBUTE:
 	                    operation = "Removing";
 	                    break;
 	                    
-	                case DirContext.REPLACE_ATTRIBUTE:
+	                case REPLACE_ATTRIBUTE:
 	                    operation = "Replacing";
 	                    break;
 	            }
             }
 
-            Attribute attr = mod.getAttribute();
-            String id = attr.getID();
+            ServerAttribute attr = (ServerAttribute)mod.getAttribute();
 
-            if ( id.equalsIgnoreCase( SchemaConstants.USER_PASSWORD_AT ) )
+            if ( attr.instanceOf( SchemaConstants.USER_PASSWORD_AT ) )
             {
-                Object userPassword = attr.get();
+                Value<?> userPassword = attr.get();
+                String pwd = "";
 
                 if ( userPassword != null )
                 {
-                    if ( userPassword instanceof String )
+                    if ( userPassword instanceof ServerStringValue )
                     {
                         log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, attr );
+                        pwd = ((ServerStringValue)userPassword).get();
                     }
-                    else if ( userPassword instanceof byte[] )
+                    else if ( userPassword instanceof ServerBinaryValue )
                     {
-                        String string = StringTools.utf8ToString( ( byte[] ) userPassword );
+                        ServerBinaryValue password = (ServerBinaryValue)userPassword.get();
+                        
+                        String string = "";
+                        
+                        if ( password != null )
+                        {
+                            string = StringTools.utf8ToString( password.get() );
+                        }
 
                         if ( log.isDebugEnabled() )
                         {
                             StringBuffer sb = new StringBuffer();
                             sb.append( "'" + string + "' ( " );
-                            sb.append( StringTools.dumpBytes( ( byte[] ) userPassword ).trim() );
+                            sb.append( StringTools.dumpBytes( password.get() ).trim() );
                             sb.append( " )" );
                             log.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
                         }
 
-                        userPassword = string;
+                        pwd = string;
                     }
 
                     // if userPassword fails checks, throw new NamingException.
-                    check( name.getUpName(), ( String ) userPassword );
+                    check( name.getUpName(), pwd );
                 }
             }
 

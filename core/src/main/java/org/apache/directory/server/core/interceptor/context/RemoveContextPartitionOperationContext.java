@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -28,23 +29,25 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RemoveContextPartitionOperationContext  extends AbstractOperationContext
+public class RemoveContextPartitionOperationContext extends AbstractOperationContext
 {
     /**
      * Creates a new instance of RemoveContextPartitionOperationContext.
      */
-    public RemoveContextPartitionOperationContext()
+    public RemoveContextPartitionOperationContext( Registries registries )
     {
+        super( registries );
     }
     
     /**
      * Creates a new instance of RemoveContextPartitionOperationContext.
      *
-     * @param entryDn The Entry DN from which the partition should be removed
+     * @param registries
+     * @param dn The Entry DN from which the partition should be removed
      */
-    public RemoveContextPartitionOperationContext( LdapDN dn )
+    public RemoveContextPartitionOperationContext( Registries registries, LdapDN dn )
     {
-        super( dn );
+        super( registries, dn );
     }
     
     /**

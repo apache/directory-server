@@ -86,7 +86,7 @@ public class HostAddress extends AbstractAsn1Object
      * Creates a new instance of HostAddress.
      *
      * @param addrType
-     * @param addr
+     * @param address
      */
     public HostAddress( HostAddrType addrType, byte[] address )
     {
@@ -280,9 +280,9 @@ public class HostAddress extends AbstractAsn1Object
 
 
     /**
-     * Returns the {@link HostaddrType} of this {@link HostAddress}.
+     * Returns the {@link HostAddrType} of this {@link HostAddress}.
      *
-     * @return The {@link HostaddrType}.
+     * @return The {@link HostAddrType}.
      */
     public HostAddrType getAddrType()
     {

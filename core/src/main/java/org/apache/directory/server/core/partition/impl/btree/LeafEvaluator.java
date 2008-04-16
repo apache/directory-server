@@ -28,8 +28,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -70,10 +69,7 @@ public class LeafEvaluator implements Evaluator
     private BTreePartition db;
 
     /** Oid Registry used to translate attributeIds to OIDs */
-    private OidRegistry oidRegistry;
-
-    /** AttributeType registry needed for normalizing and comparing values */
-    private AttributeTypeRegistry attributeTypeRegistry;
+    private Registries registries;
 
     /** Substring node evaluator we depend on */
     private SubstringEvaluator substringEvaluator;
@@ -89,12 +85,11 @@ public class LeafEvaluator implements Evaluator
      * @param scopeEvaluator
      * @param substringEvaluator
      */
-    public LeafEvaluator( BTreePartition db, OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry,
+    public LeafEvaluator( BTreePartition db, Registries registries,
         ScopeEvaluator scopeEvaluator, SubstringEvaluator substringEvaluator )
     {
         this.db = db;
-        this.oidRegistry = oidRegistry;
-        this.attributeTypeRegistry = attributeTypeRegistry;
+        this.registries = registries;
         this.scopeEvaluator = scopeEvaluator;
         this.substringEvaluator = substringEvaluator;
     }
@@ -124,7 +119,7 @@ public class LeafEvaluator implements Evaluator
      * @throws NamingException
      */
     private boolean matchValue( SimpleNode node, Attribute attr, AttributeType type, Normalizer normalizer,
-        Comparator<Object> comparator ) throws NamingException
+        Comparator comparator ) throws NamingException
     {
         // get the normalized AVA filter value
         Object filterValue = node.getValue();
@@ -272,8 +267,8 @@ public class LeafEvaluator implements Evaluator
         }
 
         // get the attribute associated with the node
-        Attribute attr = AttributeUtils.getAttribute( record.getAttributes(), attributeTypeRegistry.lookup( node
-            .getAttribute() ) );
+        Attribute attr = AttributeUtils.getAttribute( record.getAttributes(), 
+        		registries.getAttributeTypeRegistry().lookup( node.getAttribute() ) );
 
         // If we do not have the attribute just return false
         if ( null == attr )
@@ -286,7 +281,7 @@ public class LeafEvaluator implements Evaluator
          * and use the comparator to determine if a match exists.
          */
         Normalizer normalizer = getNormalizer( attrId, ORDERING_MATCH );
-        Comparator<Object> comparator = getComparator( attrId, ORDERING_MATCH );
+        Comparator comparator = getComparator( attrId, ORDERING_MATCH );
         Object filterValue = node.getValue();
         NamingEnumeration list = attr.getAll();
 
@@ -366,7 +361,8 @@ public class LeafEvaluator implements Evaluator
         }
 
         // Now, get the AttributeType associated with the Attribute id
-        AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( attrId ) );
+        AttributeType type = registries.getAttributeTypeRegistry().lookup( 
+        		registries.getOidRegistry().getOid( attrId ) );
 
         // here, we may have some descendants if the attribute is not found
         if ( AttributeUtils.getAttribute( entry, type ) != null )
@@ -378,11 +374,11 @@ public class LeafEvaluator implements Evaluator
         {
             // The attribute was not found in the entry, but it may have
             // some descendant. Let's chack that
-            if ( attributeTypeRegistry.hasDescendants( attrId ) )
+            if ( registries.getAttributeTypeRegistry().hasDescendants( attrId ) )
             {
                 // Ok, we have to check for each descendant if pone of 
                 // them is present into the entry
-                Iterator<AttributeType> descendants = attributeTypeRegistry.descendants( attrId );
+                Iterator<AttributeType> descendants = registries.getAttributeTypeRegistry().descendants( attrId );
 
                 while ( descendants.hasNext() )
                 {
@@ -438,7 +434,7 @@ public class LeafEvaluator implements Evaluator
 
         // Get the normalizer and comparator for this attributeType
         Normalizer normalizer = getNormalizer( filterAttr, EQUALITY_MATCH );
-        Comparator<Object> comparator = getComparator( filterAttr, EQUALITY_MATCH );
+        Comparator<?> comparator = getComparator( filterAttr, EQUALITY_MATCH );
 
         /*
          * Get the attribute and if it is not set in rec then resusitate it
@@ -459,7 +455,7 @@ public class LeafEvaluator implements Evaluator
         }
 
         // get the attribute associated with the node 
-        AttributeType type = attributeTypeRegistry.lookup( filterAttr );
+        AttributeType type = registries.getAttributeTypeRegistry().lookup( filterAttr );
         Attribute attr = AttributeUtils.getAttribute( entry, type );
 
         if ( attr != null )
@@ -488,9 +484,9 @@ public class LeafEvaluator implements Evaluator
 
         // If we do not have the attribute, loop through the descendant
         // May be the node Attribute has descendant ?
-        if ( attributeTypeRegistry.hasDescendants( filterAttr ) )
+        if ( registries.getAttributeTypeRegistry().hasDescendants( filterAttr ) )
         {
-            Iterator<AttributeType> descendants = attributeTypeRegistry.descendants( filterAttr );
+            Iterator<AttributeType> descendants = registries.getAttributeTypeRegistry().descendants( filterAttr );
 
             while ( descendants.hasNext() )
             {
@@ -530,7 +526,7 @@ public class LeafEvaluator implements Evaluator
      * @throws NamingException if there is a failure
      */
     @SuppressWarnings("unchecked")
-    private Comparator<Object> getComparator( String attrId, int matchType ) throws NamingException
+    private Comparator<?> getComparator( String attrId, int matchType ) throws NamingException
     {
         MatchingRule mrule = getMatchingRule( attrId, matchType );
 
@@ -573,8 +569,8 @@ public class LeafEvaluator implements Evaluator
     private MatchingRule getMatchingRule( String attrId, int matchType ) throws NamingException
     {
         MatchingRule mrule = null;
-        String oid = oidRegistry.getOid( attrId );
-        AttributeType type = attributeTypeRegistry.lookup( oid );
+        String oid = registries.getOidRegistry().getOid( attrId );
+        AttributeType type = registries.getAttributeTypeRegistry().lookup( oid );
 
         switch ( matchType )
         {

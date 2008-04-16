@@ -20,9 +20,8 @@ package org.apache.directory.server.core.unit;
 
 
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
@@ -72,14 +71,14 @@ public class IntegrationUtils
     }
 
 
-    public static Entry getUserAddLdif() throws InvalidNameException
+    public static LdifEntry getUserAddLdif() throws InvalidNameException
     {
         return getUserAddLdif( "uid=akarasulu,ou=users,ou=system", "test".getBytes(), "Alex Karasulu", "Karasulu" );
     }
 
 
 
-    public static void apply( LdapContext root, Entry entry ) throws NamingException
+    public static void apply( LdapContext root, LdifEntry entry ) throws NamingException
     {
         LdapDN dn = new LdapDN( entry.getDn() );
 
@@ -139,11 +138,11 @@ public class IntegrationUtils
     }
 
 
-    public static Entry getUserAddLdif( String dnstr, byte[] password, String cn, String sn )
+    public static LdifEntry getUserAddLdif( String dnstr, byte[] password, String cn, String sn )
             throws InvalidNameException
     {
         LdapDN dn = new LdapDN( dnstr );
-        Entry ldif = new Entry();
+        LdifEntry ldif = new LdifEntry();
         ldif.setDn( dnstr );
         ldif.setChangeType( ChangeType.Add );
 

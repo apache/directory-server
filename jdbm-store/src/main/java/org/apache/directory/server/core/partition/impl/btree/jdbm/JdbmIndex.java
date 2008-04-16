@@ -417,7 +417,7 @@ public class JdbmIndex implements Index
     public synchronized void add( Attribute attr, Object id ) throws NamingException
     {
         // Can efficiently batch add to the reverse table 
-        NamingEnumeration values = attr.getAll();
+        NamingEnumeration<?> values = attr.getAll();
         reverse.put( id, values );
 
         // Have no choice but to add each value individually to forward table
@@ -453,7 +453,7 @@ public class JdbmIndex implements Index
      */
     public void drop( Object entryId ) throws NamingException
     {
-        NamingEnumeration values = reverse.listValues( entryId );
+        NamingEnumeration<Object> values = reverse.listValues( entryId );
 
         while ( values.hasMore() )
         {
@@ -470,7 +470,7 @@ public class JdbmIndex implements Index
     public void drop( Attribute attr, Object id ) throws NamingException
     {
         // Can efficiently batch remove from the reverse table 
-        NamingEnumeration values = attr.getAll();
+        NamingEnumeration<?> values = attr.getAll();
 
         // If their are no values in attr this is a request to drop all
         if ( !values.hasMore() )

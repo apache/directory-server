@@ -35,13 +35,11 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class NbddServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of NbddServers.
-     *
-     * @param netbiosDatagramDistributionServer
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public NbddServers( byte[] netbiosDatagramDistributionServer )
+    public byte getTag()
     {
-        super( 45, netbiosDatagramDistributionServer );
+        return 45;
     }
 }

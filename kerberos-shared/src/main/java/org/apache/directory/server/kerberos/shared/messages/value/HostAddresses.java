@@ -66,8 +66,6 @@ public class HostAddresses extends AbstractAsn1Object
 
     /**
      * Creates a new instance of HostAddresses.
-     *
-     * @param addresses
      */
     public HostAddresses()
     {

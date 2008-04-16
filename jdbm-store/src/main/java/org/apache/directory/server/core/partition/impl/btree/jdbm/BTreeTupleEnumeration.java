@@ -180,7 +180,6 @@ public class BTreeTupleEnumeration implements NamingEnumeration
         }
         catch ( NamingException e )
         {
-            e.printStackTrace();
             throw new NoSuchElementException( "Got IO Failure on btree: " + e.getCause().getMessage() );
         }
     }

@@ -22,6 +22,8 @@ package org.apache.directory.server.core.authz;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -40,24 +42,21 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.HashSet;
 import java.util.Map;
@@ -140,26 +139,26 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         
         uniqueMemberAT = attrRegistry.lookup( SchemaConstants.UNIQUE_MEMBER_AT_OID );
         
-        loadAdministrators();
+        loadAdministrators( directoryService.getRegistries() );
     }
     
     
-    private void loadAdministrators() throws NamingException
+    private void loadAdministrators( Registries registries ) throws NamingException
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
-        Attributes adminGroup = nexus.lookup( new LookupOperationContext( ADMIN_GROUP_DN ) );
+        ServerEntry adminGroup = nexus.lookup( new LookupOperationContext( registries, ADMIN_GROUP_DN ) );
         
         if ( adminGroup == null )
         {
             return;
         }
         
-        Attribute uniqueMember = AttributeUtils.getAttribute( adminGroup, uniqueMemberAT );
+        EntryAttribute uniqueMember = adminGroup.get( uniqueMemberAT );
         
-        for ( int ii = 0; ii < uniqueMember.size(); ii++ )
+        for ( Value<?> value:uniqueMember )
         {
-            LdapDN memberDn = new LdapDN( ( String ) uniqueMember.get( ii ) );
+            LdapDN memberDn = new LdapDN( ( String ) value.get() );
             memberDn.normalize( normalizerMapping );
             newAdministrators.add( memberDn.getNormName() );
         }
@@ -271,7 +270,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             // update administrators if we change administrators group
             if ( dn.getNormName().equals( ADMIN_GROUP_DN.getNormName() ) )
             {
-                loadAdministrators();
+                loadAdministrators( opContext.getRegistries() );
             }
         }
         else
@@ -426,17 +425,17 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
     {
-        Attributes attributes = nextInterceptor.lookup( opContext );
+        ServerEntry serverEntry = nextInterceptor.lookup( opContext );
         
-        if ( !enabled || ( attributes == null ) )
+        if ( !enabled || ( serverEntry == null ) )
         {
-            return attributes;
+            return serverEntry;
         }
 
         protectLookUp( opContext.getDn() );
-        return attributes;
+        return serverEntry;
     }
 
 
@@ -498,9 +497,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> e = nextInterceptor.search( opContext );
+        NamingEnumeration<ServerSearchResult> e = nextInterceptor.search( opContext );
 
         if ( !enabled )
         {
@@ -512,7 +511,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         return new SearchResultFilteringEnumeration( e, opContext.getSearchControls(), invocation, 
             new SearchResultFilter()
         {
-            public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+            public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
                 throws NamingException
             {
                 return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
@@ -521,9 +520,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> result = nextInterceptor.list( opContext );
+        NamingEnumeration<ServerSearchResult> result = nextInterceptor.list( opContext );
         
         if ( !enabled )
         {
@@ -534,7 +533,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         
         return new SearchResultFilteringEnumeration( result, null, invocation, new SearchResultFilter()
         {
-            public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+            public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
                 throws NamingException
             {
                 return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
@@ -543,10 +542,10 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean isSearchable( Invocation invocation, SearchResult result ) throws NamingException
+    private boolean isSearchable( Invocation invocation, ServerSearchResult result ) throws NamingException
     {
         LdapDN principalDn = ( ( ServerContext ) invocation.getCaller() ).getPrincipal().getJndiName();
-        LdapDN dn = ((ServerSearchResult)result).getDn();
+        LdapDN dn = result.getDn();
         
         if ( !dn.isNormalized() )
         {

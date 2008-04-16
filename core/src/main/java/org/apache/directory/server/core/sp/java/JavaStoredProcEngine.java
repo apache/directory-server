@@ -28,12 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.sp.StoredProcEngine;
 import org.apache.directory.server.core.sp.StoredProcUtils;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
 
 
@@ -48,7 +49,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
 
     public static final String STORED_PROC_LANG_ID = "Java";
 
-    private Attributes spUnit;
+    private ServerEntry spUnit;
 
 
     /* (non-Javadoc)
@@ -56,12 +57,13 @@ public class JavaStoredProcEngine implements StoredProcEngine
      */
     public Object invokeProcedure( LdapContext rootCtx, String fullSPName, Object[] spArgs ) throws NamingException
     {
-        Attribute javaByteCode = spUnit.get( "javaByteCode" );
+        EntryAttribute javaByteCode = spUnit.get( "javaByteCode" );
         String spName = StoredProcUtils.extractStoredProcName( fullSPName );
         String className = StoredProcUtils.extractStoredProcUnitName( fullSPName );
 
         ClassLoader loader = new LdapJavaStoredProcClassLoader( javaByteCode );
-        Class clazz;
+        Class<?> clazz;
+        
         try
         {
             clazz = loader.loadClass( className );
@@ -73,7 +75,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
             throw ne;
         }
 
-        Class[] types = getTypesFromValues( spArgs );
+        Class<?>[] types = getTypesFromValues( spArgs );
 
         Method proc;
         try
@@ -123,15 +125,15 @@ public class JavaStoredProcEngine implements StoredProcEngine
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.sp.StoredProcEngine#setSPUnitEntry(javax.naming.directory.Attributes)
      */
-    public void setSPUnitEntry( Attributes spUnit )
+    public void setSPUnitEntry( ServerEntry spUnit )
     {
         this.spUnit = spUnit;
     }
 
 
-    private Class[] getTypesFromValues( Object[] values )
+    private Class<?>[] getTypesFromValues( Object[] values )
     {
-        List<Class> types = new ArrayList<Class>();
+        List<Class<?>> types = new ArrayList<Class<?>>();
 
         for ( Object obj : values )
         {
@@ -141,6 +143,6 @@ public class JavaStoredProcEngine implements StoredProcEngine
         return types.toArray( EMPTY_CLASS_ARRAY );
     }
 
-    private static Class[] EMPTY_CLASS_ARRAY = new Class[ 0 ];
+    private static Class<?>[] EMPTY_CLASS_ARRAY = new Class[ 0 ];
 
 }

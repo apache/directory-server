@@ -27,10 +27,10 @@ import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
@@ -42,6 +42,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -56,10 +57,11 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 public abstract class PartitionNexus implements Partition
 {
     /** the admin super user uid */
-    public final static String ADMIN_UID = "admin";
+    public static final String ADMIN_UID = "admin";
     
     /** the initial admin passwd set on startup */
-    public static final String ADMIN_PASSWORD = "secret";
+    public static final String ADMIN_PASSWORD_STRING = "secret";
+    public static final byte[] ADMIN_PASSWORD_BYTES = StringTools.getBytesUtf8( ADMIN_PASSWORD_STRING );
     
    
     /**
@@ -165,7 +167,7 @@ public abstract class PartitionNexus implements Partition
      *
      * @return the attributes of the RootDSE
      */
-    public abstract Attributes getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException;
+    public abstract ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException;
 
 
     /**
@@ -244,5 +246,5 @@ public abstract class PartitionNexus implements Partition
      * @param extensionOids a set of OID strings to add to the supportedExtension 
      * attribute in the RootDSE
      */
-    public abstract void registerSupportedExtensions( Set<String> extensionOids );
+    public abstract void registerSupportedExtensions( Set<String> extensionOids ) throws NamingException;
 }

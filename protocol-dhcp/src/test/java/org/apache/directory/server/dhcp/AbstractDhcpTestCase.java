@@ -57,17 +57,14 @@ public abstract class AbstractDhcpTestCase extends TestCase
     protected void print( DhcpMessage message )
     {
         log.debug( String.valueOf( message.getMessageType() ) );
-        log.debug( String.valueOf( message.getHardwareAddressType() ) );
-        log.debug( String.valueOf( message.getHardwareAddressLength() ) );
-        log.debug( String.valueOf( message.getHardwareOptions() ) );
+        log.debug( String.valueOf( message.getHardwareAddress() ) );
         log.debug( String.valueOf( message.getTransactionId() ) );
         log.debug( String.valueOf( message.getSeconds() ) );
         log.debug( String.valueOf( message.getFlags() ) );
-        log.debug( String.valueOf( message.getActualClientAddress() ) );
+        log.debug( String.valueOf( message.getCurrentClientAddress() ) );
         log.debug( String.valueOf( message.getAssignedClientAddress() ) );
         log.debug( String.valueOf( message.getNextServerAddress() ) );
         log.debug( String.valueOf( message.getRelayAgentAddress() ) );
-        log.debug( String.valueOf( message.getClientHardwareAddress() ) );
         log.debug( String.valueOf( message.getServerHostname() ) );
         log.debug( String.valueOf( message.getBootFileName() ) );
     }

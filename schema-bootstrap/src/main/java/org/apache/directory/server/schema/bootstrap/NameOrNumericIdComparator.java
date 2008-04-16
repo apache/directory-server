@@ -123,7 +123,6 @@ public class NameOrNumericIdComparator implements Comparator, Serializable
             }
             catch ( NamingException e )
             {
-                e.printStackTrace();
                 throw new RuntimeException( "Failed to lookup OID for " + strValue, e );
             }
         }

@@ -42,9 +42,38 @@ public class IndexComparator implements TupleComparator
         {
         	try
         	{
-	        	long thisVal = (Long)o1;
-	        	long anotherVal = (Long)o2;
-	        	return ( thisVal < anotherVal ? -1 : ( thisVal == anotherVal ? 0 : 1 ) );
+	            long thisVal = ( Long ) o1;
+	            long anotherVal = ( Long ) o2;
+	            
+	            if ( thisVal == anotherVal )
+	            {
+	                return 0;
+	            }
+	            
+	            if ( thisVal == anotherVal )
+	            {
+	                return 0;
+	            }
+	            
+	            if ( thisVal >= 0 )
+	            {
+	                if ( anotherVal >= 0 )
+	                {
+	                    return ( thisVal > anotherVal ) ? 1 : -1;
+	                }
+	                else
+	                {
+	                    return -1;
+	                }
+	            }
+	            else if ( anotherVal >= 0 )
+	            {
+	                return 1;
+	            }
+	            else
+	            {
+	                return ( thisVal < anotherVal ) ? -1 : 1;
+	            }
         	}
         	catch ( NullPointerException npe )
         	{

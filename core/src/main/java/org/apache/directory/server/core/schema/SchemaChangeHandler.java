@@ -20,12 +20,13 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import java.util.List;
 
 
@@ -38,20 +39,20 @@ import java.util.List;
  */
 public interface SchemaChangeHandler
 {
-    void add( LdapDN name, Attributes entry ) throws NamingException;
+    void add( LdapDN name, ServerEntry entry ) throws NamingException;
     
-    void delete( LdapDN name, Attributes entry, boolean cascaded ) throws NamingException;
+    void delete( LdapDN name, ServerEntry entry, boolean cascaded ) throws NamingException;
     
-    void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascaded ) throws NamingException;
+    void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascaded ) throws NamingException;
     
-    void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry, boolean cascaded ) 
+    void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded ) 
         throws NamingException;
     
-    void modify( LdapDN name, List<ModificationItemImpl> mods, Attributes entry, Attributes targetEntry, boolean cascaded )
+    void modify( LdapDN name, List<Modification> mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded )
         throws NamingException;
     
-    void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn, Attributes entry,
+    void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn, ServerEntry entry,
         boolean cascaded ) throws NamingException;
     
-    void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, boolean cascaded ) throws NamingException;
+    void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascaded ) throws NamingException;
 }

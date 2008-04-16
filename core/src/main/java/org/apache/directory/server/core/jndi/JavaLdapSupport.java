@@ -20,8 +20,12 @@
 package org.apache.directory.server.core.jndi;
 
 
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,8 +34,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.Attribute;
 
 
 /**
@@ -77,14 +79,14 @@ class JavaLdapSupport
      * @return the deserialized object
      * @throws NamingException if the object cannot be serialized
      */
-    static Object deserialize( Attributes attributes ) throws NamingException
+    static Object deserialize( ServerEntry serverEntry ) throws NamingException
     {
         ObjectInputStream in = null;
-        String className = ( String ) attributes.get( JCLASSNAME_ATTR ).get();
+        String className = ( String ) serverEntry.get( JCLASSNAME_ATTR ).getString();
 
         try
         {
-            byte[] data = ( byte[] ) attributes.get( JSERIALDATA_ATTR ).get();
+            byte[] data = ( byte[] ) serverEntry.get( JSERIALDATA_ATTR ).getBytes();
             in = new ObjectInputStream( new ByteArrayInputStream( data ) );
             return in.readObject();
         }
@@ -162,7 +164,7 @@ class JavaLdapSupport
      * @param obj the object to serialize
      * @throws NamingException if the object cannot be serialized
      */
-    static void serialize( Attributes entry, Object obj ) throws NamingException
+    static void serialize( ServerEntry entry, Object obj, Registries registries ) throws NamingException
     {
         /* Let's add the object classes first:
          * objectClass: top
@@ -170,20 +172,20 @@ class JavaLdapSupport
          * objectClass: javaContainer
          * objectClass: javaSerializedObject
          */
-        Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        objectClass.add( SchemaConstants.TOP_OC );
-        objectClass.add( JOBJECT_ATTR );
-        objectClass.add( JCONTAINER_ATTR );
-        objectClass.add( JSERIALIZEDOBJ_ATTR );
-        entry.put( objectClass );
+        entry.put( SchemaConstants.OBJECT_CLASS_AT,
+        		SchemaConstants.TOP_OC,
+        		JOBJECT_ATTR,
+        		JCONTAINER_ATTR,
+        		JSERIALIZEDOBJ_ATTR );
 
         // Add the javaClassName and javaSerializedData attributes
         entry.put( JCLASSNAME_ATTR, obj.getClass().getName() );
         entry.put( JSERIALDATA_ATTR, serialize( obj ) );
 
         // Add all the class names this object can be cast to:
-        Class[] classes = obj.getClass().getClasses();
-        Attribute javaClassNames = new AttributeImpl( JCLASSNAMES_ATTR );
+        Class<?>[] classes = obj.getClass().getClasses();
+        AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( JCLASSNAMES_ATTR );
+        ServerAttribute javaClassNames = new DefaultServerAttribute( attributeType, JCLASSNAMES_ATTR );
 
         for ( int ii = 0; ii < classes.length; ii++ )
         {

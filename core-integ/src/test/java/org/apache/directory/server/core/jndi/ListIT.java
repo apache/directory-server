@@ -22,8 +22,11 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.*;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -54,16 +57,16 @@ public class ListIT
     @Test
     public void testListSystemAsNonAdmin() throws NamingException
     {
-        Entry akarasulu = getUserAddLdif();
+        LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
 
         LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
         HashSet<String> set = new HashSet<String>();
-        NamingEnumeration list = sysRoot.list( "" );
+        NamingEnumeration<NameClassPair> list = sysRoot.list( "" );
 
         while ( list.hasMore() )
         {
-            NameClassPair ncp = ( NameClassPair ) list.next();
+            NameClassPair ncp = list.next();
             set.add( ncp.getName() );
         }
 
@@ -76,16 +79,16 @@ public class ListIT
     @Test
     public void testListUsersAsNonAdmin() throws NamingException
     {
-        Entry akarasulu = getUserAddLdif();
+        LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
 
         LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
         HashSet<String> set = new HashSet<String>();
-        NamingEnumeration list = sysRoot.list( "ou=users" );
+        NamingEnumeration<NameClassPair> list = sysRoot.list( "ou=users" );
 
         while ( list.hasMore() )
         {
-            NameClassPair ncp = ( NameClassPair ) list.next();
+            NameClassPair ncp = list.next();
             set.add( ncp.getName() );
         }
 
@@ -99,11 +102,11 @@ public class ListIT
     {
         LdapContext sysRoot = getSystemContext( service );
         HashSet<String> set = new HashSet<String>();
-        NamingEnumeration list = sysRoot.list( "" );
+        NamingEnumeration<NameClassPair> list = sysRoot.list( "" );
 
         while ( list.hasMore() )
         {
-            NameClassPair ncp = ( NameClassPair ) list.next();
+            NameClassPair ncp = list.next();
             set.add( ncp.getName() );
         }
 
@@ -118,13 +121,14 @@ public class ListIT
     {
         LdapContext sysRoot = getSystemContext( service );
         HashSet<String> set = new HashSet<String>();
-        Entry akarasulu = getUserAddLdif();
+        LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
 
-        NamingEnumeration list = sysRoot.list( "ou=users" );
+        NamingEnumeration<NameClassPair> list = sysRoot.list( "ou=users" );
+        
         while ( list.hasMore() )
         {
-            NameClassPair ncp = ( NameClassPair ) list.next();
+            NameClassPair ncp = list.next();
             set.add( ncp.getName() );
         }
 

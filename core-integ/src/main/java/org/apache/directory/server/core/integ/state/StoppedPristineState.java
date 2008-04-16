@@ -23,7 +23,6 @@ import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.InheritableSettings;
 import org.apache.directory.server.core.integ.SetupMode;
 import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
-import org.apache.directory.shared.ldap.NotImplementedException;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
 import org.junit.runner.notification.RunNotifier;

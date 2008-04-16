@@ -19,6 +19,10 @@
  */
 package org.apache.directory.server.core.unit;
 
+import javax.naming.NamingException;
+
+import org.apache.directory.server.constants.ServerDNConstants;
+
 
 /**
  * A simple testcase for testing JNDI provider functionality.
@@ -28,8 +32,8 @@ package org.apache.directory.server.core.unit;
  */
 public abstract class AbstractAdminTestCase extends AbstractTestCase
 {
-    protected AbstractAdminTestCase()
+    protected AbstractAdminTestCase() throws NamingException
     {
-        super( "uid=admin,ou=system", "secret" );
+        super( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
 }

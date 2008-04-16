@@ -38,7 +38,10 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -121,7 +124,7 @@ public class MetaSyntaxCheckerHandlerIT
         
         assertTrue( getSyntaxCheckerRegistry().hasSyntaxChecker( OID ) );
         assertEquals( getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
-        Class clazz = getSyntaxCheckerRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getSyntaxCheckerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, AcceptAllSyntaxChecker.class );
     }
     
@@ -152,7 +155,7 @@ public class MetaSyntaxCheckerHandlerIT
         
         assertTrue( getSyntaxCheckerRegistry().hasSyntaxChecker( OID ) );
         assertEquals( getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
-        Class clazz = getSyntaxCheckerRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getSyntaxCheckerRegistry().lookup( OID ).getClass();
         assertEquals( clazz.getName(), "DummySyntaxChecker" );
     }
     
@@ -206,7 +209,7 @@ public class MetaSyntaxCheckerHandlerIT
         }
 
         assertTrue( getSyntaxCheckerRegistry().hasSyntaxChecker( NEW_OID ) );
-        Class clazz = getSyntaxCheckerRegistry().lookup( NEW_OID ).getClass();
+        Class<?> clazz = getSyntaxCheckerRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, AcceptAllSyntaxChecker.class );
     }
 
@@ -230,7 +233,7 @@ public class MetaSyntaxCheckerHandlerIT
         assertEquals( "syntaxChecker schema should be set to apache not apachemeta", 
             getSyntaxCheckerRegistry().getSchemaName( OID ), "apache" );
 
-        Class clazz = getSyntaxCheckerRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getSyntaxCheckerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, AcceptAllSyntaxChecker.class );
     }
 
@@ -257,7 +260,7 @@ public class MetaSyntaxCheckerHandlerIT
         assertEquals( "syntaxChecker with new oid should have schema set to apache NOT apachemeta", 
             getSyntaxCheckerRegistry().getSchemaName( NEW_OID ), "apache" );
 
-        Class clazz = getSyntaxCheckerRegistry().lookup( NEW_OID ).getClass();
+        Class<?> clazz = getSyntaxCheckerRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, AcceptAllSyntaxChecker.class );
     }
 
@@ -281,7 +284,7 @@ public class MetaSyntaxCheckerHandlerIT
         assertEquals( "syntaxChecker schema should be set to apachemeta", 
             getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
 
-        Class clazz = getSyntaxCheckerRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getSyntaxCheckerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, BogusSyntaxChecker.class );
     }
 
@@ -304,7 +307,7 @@ public class MetaSyntaxCheckerHandlerIT
         assertEquals( "syntaxChecker schema should be set to apachemeta", 
             getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
 
-        Class clazz = getSyntaxCheckerRegistry().lookup( OID ).getClass();
+        Class<?> clazz = getSyntaxCheckerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, BogusSyntaxChecker.class );
     }
     

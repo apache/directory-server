@@ -70,11 +70,11 @@ public class GetAllPrincipals implements ContextOperation
         {
             Attributes attrs = null;
 
-            NamingEnumeration answer = ctx.search( searchBaseDn, filter, controls );
+            NamingEnumeration<SearchResult> answer = ctx.search( searchBaseDn, filter, controls );
 
             while ( answer.hasMore() )
             {
-                SearchResult result = ( SearchResult ) answer.next();
+                SearchResult result = answer.next();
                 attrs = result.getAttributes();
                 PrincipalStoreEntry entry = getEntry( attrs );
                 answers.add( entry );
@@ -106,21 +106,21 @@ public class GetAllPrincipals implements ContextOperation
     {
         PrincipalStoreEntryModifier modifier = new PrincipalStoreEntryModifier();
 
-        String principal = ( String ) attrs.get( KerberosAttribute.PRINCIPAL ).get();
-        String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.VERSION ).get();
+        String principal = ( String ) attrs.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get();
+        String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get();
 
         String commonName = ( String ) attrs.get( SchemaConstants.CN_AT ).get();
 
-        if ( attrs.get( "apacheSamType" ) != null )
+        if ( attrs.get( KerberosAttribute.APACHE_SAM_TYPE_AT ) != null )
         {
-            String samType = ( String ) attrs.get( "apacheSamType" ).get();
+            String samType = ( String ) attrs.get( KerberosAttribute.APACHE_SAM_TYPE_AT ).get();
 
             modifier.setSamType( SamType.getTypeByOrdinal( Integer.parseInt( samType ) ) );
         }
 
-        if ( attrs.get( KerberosAttribute.KEY ) != null )
+        if ( attrs.get( KerberosAttribute.KRB5_KEY_AT ) != null )
         {
-            Attribute krb5key = attrs.get( KerberosAttribute.KEY );
+            Attribute krb5key = attrs.get( KerberosAttribute.KRB5_KEY_AT );
             try
             {
                 Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );
@@ -128,7 +128,7 @@ public class GetAllPrincipals implements ContextOperation
             }
             catch ( IOException ioe )
             {
-                throw new InvalidAttributeValueException( "Account Kerberos key attribute '" + KerberosAttribute.KEY
+                throw new InvalidAttributeValueException( "Account Kerberos key attribute '" + KerberosAttribute.KRB5_KEY_AT
                     + "' contained an invalid value for krb5key." );
             }
         }

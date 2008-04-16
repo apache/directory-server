@@ -40,7 +40,7 @@ package org.apache.directory.server.kerberos.shared.messages.value.types;
  * The other address types are simply ignored. They are part of a Unix
  * include file. 
  * 
- * @TODO find the original include where those ignored values come from 
+ * @todo find the original include where those ignored values come from 
  * 
  * To be realistic, we may encounter IPv4, IPv6 and NetBios addresses in the real world...
  * 

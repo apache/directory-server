@@ -21,7 +21,8 @@ package org.apache.directory.server.core.enumeration;
 
 
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.SearchResult;
+
+import org.apache.directory.server.core.entry.ServerSearchResult;
 
 
 /**
@@ -30,6 +31,6 @@ import javax.naming.directory.SearchResult;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SearchResultEnumeration extends NamingEnumeration<SearchResult>
+public interface SearchResultEnumeration extends NamingEnumeration<ServerSearchResult>
 {
 }

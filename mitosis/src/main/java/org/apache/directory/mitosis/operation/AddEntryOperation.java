@@ -23,17 +23,19 @@ package org.apache.directory.mitosis.operation;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -55,7 +57,7 @@ public class AddEntryOperation extends Operation
      * 
      * @param entry an entry
      */
-    public AddEntryOperation( CSN csn, LdapDN normalizedName, Attributes entry )
+    public AddEntryOperation( CSN csn, LdapDN normalizedName, ServerEntry entry )
     {
         super( csn );
 
@@ -63,7 +65,7 @@ public class AddEntryOperation extends Operation
         assert entry != null;
 
         this.normalizedName = normalizedName;
-        this.entry = ( Attributes ) entry.clone();
+        this.entry = ServerEntryUtils.toAttributesImpl( entry );
     }
 
 
@@ -73,47 +75,46 @@ public class AddEntryOperation extends Operation
     }
 
 
-    protected void execute0( PartitionNexus nexus, ReplicationStore store, AttributeTypeRegistry registry )
+    protected void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries )
         throws NamingException
     {
-        if ( !EntryUtil.isEntryUpdatable( nexus, normalizedName, getCSN() ) )
+        if ( !EntryUtil.isEntryUpdatable( registries, nexus, normalizedName, getCSN() ) )
         {
             return;
         }
         
-        EntryUtil.createGlueEntries( nexus, normalizedName, false );
+        EntryUtil.createGlueEntries( registries, nexus, normalizedName, false );
 
         // Replace the entry if an entry with the same name exists.
-        Attributes oldEntry = nexus.lookup( new LookupOperationContext( normalizedName ) );
-        
-        if ( oldEntry != null )
+        if ( nexus.lookup( new LookupOperationContext( registries, normalizedName ) ) != null )
         {
-            recursiveDelete( nexus, normalizedName, registry );
+            recursiveDelete( nexus, normalizedName, registries );
         }
 
-        nexus.add( new AddOperationContext( normalizedName, entry ) );
+        nexus.add( new AddOperationContext( registries, normalizedName, ServerEntryUtils.toServerEntry( entry, normalizedName, registries ) ) );
     }
 
 
     @SuppressWarnings("unchecked")
-    private void recursiveDelete( PartitionNexus nexus, LdapDN normalizedName, AttributeTypeRegistry registry )
+    private void recursiveDelete( PartitionNexus nexus, LdapDN normalizedName, Registries registries )
         throws NamingException
     {
-        NamingEnumeration<SearchResult> ne = nexus.list( new ListOperationContext( normalizedName ) );
+        NamingEnumeration<ServerSearchResult> ne = nexus.list( new ListOperationContext( registries, normalizedName ) );
+        
         if ( !ne.hasMore() )
         {
-            nexus.delete( new DeleteOperationContext( normalizedName ) );
+            nexus.delete( new DeleteOperationContext( registries, normalizedName ) );
             return;
         }
 
         while ( ne.hasMore() )
         {
-            SearchResult sr = ne.next();
-            LdapDN dn = new LdapDN( sr.getName() );
-            dn.normalize( registry.getNormalizerMapping() );
-            recursiveDelete( nexus, dn, registry );
+        	ServerSearchResult sr = ne.next();
+            LdapDN dn = sr.getDn();
+            dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+            recursiveDelete( nexus, dn, registries );
         }
         
-        nexus.delete( new DeleteOperationContext( normalizedName ) );
+        nexus.delete( new DeleteOperationContext( registries, normalizedName ) );
     }
 }

@@ -18,44 +18,43 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.vendor;
+
+
+import org.apache.directory.server.dhcp.options.StringOption;
+
+
 /**
  * This option specifies the path-name that contains the client's root
  * disk.  The path is formatted as a character string consisting of
  * characters from the NVT ASCII character set.
  * 
  * The code for this option is 17.  Its minimum length is 1.
- */
-package org.apache.directory.server.dhcp.options.vendor;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RootPath extends DhcpOption
+public class RootPath extends StringOption
 {
-    private byte[] rootPath;
-
-
-    /**
-     * Creates a new instance of RootPath.
-     *
-     * @param rootPath
-     */
-    public RootPath( byte[] rootPath )
+    public RootPath()
     {
-        super( 17, 1 );
-        this.rootPath = rootPath;
     }
 
 
-    protected void valueToByteBuffer( ByteBuffer out )
+    /**
+     * @param path
+     */
+    public RootPath(String path)
     {
-        out.put( rootPath );
+        setString( path );
+    }
+
+
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
+     */
+    public byte getTag()
+    {
+        return 17;
     }
 }

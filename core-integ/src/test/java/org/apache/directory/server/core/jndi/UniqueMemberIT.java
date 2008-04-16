@@ -27,7 +27,11 @@ import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -89,11 +93,11 @@ public class UniqueMemberIT
         
         Attributes returned = sysRoot.getAttributes( "cn=kevin Spacey" );
       
-        NamingEnumeration attrList = returned.getAll();
+        NamingEnumeration<? extends Attribute> attrList = returned.getAll();
         
         while ( attrList.hasMore() )
         {
-            Attribute attr = ( Attribute ) attrList.next();
+            Attribute attr = attrList.next();
           
             if ( attr.getID().equalsIgnoreCase( "cn" ) )
             {
@@ -103,7 +107,7 @@ public class UniqueMemberIT
           
             if ( attr.getID().equalsIgnoreCase( "objectClass" ) )
             {
-                NamingEnumeration values = attr.getAll();
+                NamingEnumeration<?> values = attr.getAll();
                 Set<String> expectedValues = new HashSet<String>();
                 
                 expectedValues.add( "top" );
@@ -161,11 +165,11 @@ public class UniqueMemberIT
         
         Attributes returned = sysRoot.getAttributes( "cn=kevin Spacey 2" );
       
-        NamingEnumeration attrList = returned.getAll();
+        NamingEnumeration<? extends Attribute> attrList = returned.getAll();
         
         while ( attrList.hasMore() )
         {
-            Attribute attr = ( Attribute ) attrList.next();
+            Attribute attr = attrList.next();
           
             if ( attr.getID().equalsIgnoreCase( "cn" ) )
             {
@@ -175,7 +179,7 @@ public class UniqueMemberIT
           
             if ( attr.getID().equalsIgnoreCase( "objectClass" ) )
             {
-                NamingEnumeration values = attr.getAll();
+                NamingEnumeration<?> values = attr.getAll();
                 Set<String> expectedValues = new HashSet<String>();
                 
                 expectedValues.add( "top" );
@@ -302,11 +306,11 @@ public class UniqueMemberIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(uniqueMember=cn = kevin spacey, dc=example, dc=org)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(uniqueMember=cn = kevin spacey, dc=example, dc=org)", controls );
         
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName().toLowerCase(), result.getAttributes() );
         }
 
@@ -354,11 +358,11 @@ public class UniqueMemberIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(uniqueMember=cn = Kevin  Spacey , dc = example , dc = ORG)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(uniqueMember=cn = Kevin  Spacey , dc = example , dc = ORG)", controls );
         
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName().toLowerCase(), result.getAttributes() );
         }
 
@@ -405,7 +409,7 @@ public class UniqueMemberIT
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
-        NamingEnumeration list = sysRoot.search( "", "(uniqueMember=cn=cevin spacey,dc=example,dc=org)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(uniqueMember=cn=cevin spacey,dc=example,dc=org)", controls );
         
         assertFalse( list.hasMore() );
     }
@@ -445,11 +449,11 @@ public class UniqueMemberIT
                 AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(uniqueMember=cn= Kevin Spacey, dc=example, dc=org #'010101'B)", controls );
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(uniqueMember=cn= Kevin Spacey, dc=example, dc=org #'010101'B)", controls );
         
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             map.put( result.getName().toLowerCase(), result.getAttributes() );
         }
 

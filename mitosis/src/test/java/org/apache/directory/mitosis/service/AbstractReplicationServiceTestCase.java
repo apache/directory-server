@@ -20,16 +20,18 @@
 
 package org.apache.directory.mitosis.service;
 
-import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.mina.util.AvailablePortFinder;
+import org.junit.After;
+import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +40,12 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 
 /**
@@ -47,7 +54,7 @@ import java.util.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractReplicationServiceTestCase extends TestCase
+public abstract class AbstractReplicationServiceTestCase
 {
     private static final Logger LOG = LoggerFactory.getLogger( AbstractReplicationServiceTestCase.class );
     protected Map<String, LdapContext> contexts = new HashMap<String, LdapContext>();
@@ -55,13 +62,13 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
     protected Map<String, ReplicationInterceptor> replicationServices = new HashMap<String, ReplicationInterceptor>();
 
 
-    protected void setUp() throws Exception
+    @Before public void setUp() throws Exception
     {
         createReplicas( new String[] { "A", "B", "C" } );
     }
 
 
-    protected void tearDown() throws Exception
+    @After public void tearDown() throws Exception
     {
         destroyAllReplicas();
     }
@@ -72,6 +79,7 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
         int lastAvailablePort = 1024;
 
         Replica[] replicas = new Replica[ names.length ];
+        
         for( int i = 0; i < names.length; i++ )
         {
             int replicationPort = AvailablePortFinder.getNextAvailable( lastAvailablePort );
@@ -126,7 +134,7 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
             
             Hashtable<String,Object> env = new Hashtable<String,Object>();
             env.put( DirectoryService.JNDI_KEY, service );
-            env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+            env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
             env.put( Context.SECURITY_CREDENTIALS, "secret" );
             env.put( Context.SECURITY_AUTHENTICATION, "simple" );
             env.put( Context.PROVIDER_URL, "" );

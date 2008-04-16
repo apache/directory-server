@@ -25,15 +25,15 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 
 
@@ -76,7 +75,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
     
-    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, boolean cascade ) throws NamingException
+    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws NamingException
     {
         String oid = getOid( entry );
         Comparator comparator = factory.getComparator( targetEntry, targetRegistries );
@@ -91,25 +90,27 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
     
-    private ComparatorDescription getComparatorDescription( String schemaName, Attributes entry ) throws NamingException
+    private ComparatorDescription getComparatorDescription( String schemaName, ServerEntry entry ) throws NamingException
     {
         ComparatorDescription description = new ComparatorDescription();
         description.setNumericOid( getOid( entry ) );
         List<String> values = new ArrayList<String>();
         values.add( schemaName );
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
-        description.setFqcn( ( String ) AttributeUtils.getAttribute( entry, fqcnAT ).get() );
+        description.setFqcn( entry.get( fqcnAT ).getString() );
         
-        Attribute desc = AttributeUtils.getAttribute( entry, descAT );
+        EntryAttribute desc = entry.get( descAT );
+        
         if ( desc != null && desc.size() > 0 )
         {
-            description.setDescription( ( String ) desc.get() );
+            description.setDescription( desc.getString() );
         }
         
-        Attribute bytecode = AttributeUtils.getAttribute( entry, byteCodeAT );
+        EntryAttribute bytecode = entry.get( byteCodeAT );
+
         if ( bytecode != null && bytecode.size() > 0 )
         {
-            byte[] bytes = ( byte[] ) bytecode.get();
+            byte[] bytes = bytecode.getBytes();
             description.setBytecode( new String( Base64.encode( bytes ) ) );
         }
 
@@ -117,7 +118,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
     
 
-    public void add( LdapDN name, Attributes entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws NamingException
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
@@ -154,7 +155,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, Attributes entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
     {
         String oid = getOid( entry );
         delete( oid, cascade );
@@ -178,7 +179,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
     
-    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         String oldOid = getOid( entry );
 
@@ -206,7 +207,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
-        Attributes entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws NamingException
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
@@ -241,7 +242,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, boolean cascade ) 
+    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
         throws NamingException
     {
         checkNewParent( newParentName );
@@ -283,7 +284,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
 
-    private void checkOidIsUniqueForComparator( Attributes entry ) throws NamingException
+    private void checkOidIsUniqueForComparator( ServerEntry entry ) throws NamingException
     {
         String oid = getOid( entry );
         

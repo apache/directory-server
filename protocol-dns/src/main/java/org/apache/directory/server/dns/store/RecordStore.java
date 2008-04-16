@@ -37,10 +37,10 @@ public interface RecordStore
 {
     /**
      * Returns a set of {@link ResourceRecord}s, given a DNS {@link QuestionRecord}.
-     * If something bad happens throw the accurate {@link DNSException} 
+     * If something bad happens throw the accurate {@link DnsException} 
      * @param question
      * @return The set of {@link ResourceRecord}s.
-     * @throws DNSException
+     * @throws DnsException
      */
     public Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException;
 }

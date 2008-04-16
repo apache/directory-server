@@ -23,6 +23,8 @@ package org.apache.directory.server.core.authz.support;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
@@ -30,22 +32,21 @@ import org.apache.directory.server.core.operational.OperationalAttributeIntercep
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -54,7 +55,7 @@ import java.util.Iterator;
 
 /**
  * An {@link ACITupleFilter} that discards all tuples that doesn't satisfy
- * {@link ProtectedItem.MaxImmSub} constraint if available. (18.8.3.3, X.501)
+ * {@link org.apache.directory.shared.ldap.aci.ProtectedItem.MaxImmSub} constraint if available. (18.8.3.3, X.501)
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -74,19 +75,20 @@ public class MaxImmSubFilter implements ACITupleFilter
 
 
     public Collection<ACITuple> filter( 
+            Registries registries, 
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             PartitionNexusProxy proxy,
-            Collection<Name> userGroupNames, 
+            Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
-            Attributes userEntry, 
+            ServerEntry userEntry, 
             AuthenticationLevel authenticationLevel,
             LdapDN entryName, 
             String attrId, 
-            Object attrValue, 
-            Attributes entry, 
+            Value<?> attrValue, 
+            ServerEntry entry, 
             Collection<MicroOperation> microOperations,
-            Attributes entryView )
+            ServerEntry entryView )
         throws NamingException
     {
         if ( entryName.size() == 0 )
@@ -120,7 +122,7 @@ public class MaxImmSubFilter implements ACITupleFilter
                 {
                     if ( immSubCount < 0 )
                     {
-                        immSubCount = getImmSubCount( proxy, entryName );
+                        immSubCount = getImmSubCount( registries, proxy, entryName );
                     }
 
                     ProtectedItem.MaxImmSub mis = ( ProtectedItem.MaxImmSub ) item;
@@ -156,14 +158,14 @@ public class MaxImmSubFilter implements ACITupleFilter
     }
 
 
-    private int getImmSubCount( PartitionNexusProxy proxy, LdapDN entryName ) throws NamingException
+    private int getImmSubCount( Registries registries, PartitionNexusProxy proxy, LdapDN entryName ) throws NamingException
     {
         int cnt = 0;
-        NamingEnumeration<SearchResult> e = null;
+        NamingEnumeration<ServerSearchResult> e = null;
         
         try
         {
-            e = proxy.search( new SearchOperationContext( ( LdapDN ) entryName.getPrefix( 1 ),
+            e = proxy.search( new SearchOperationContext( registries, ( LdapDN ) entryName.getPrefix( 1 ),
                     AliasDerefMode.DEREF_ALWAYS, childrenFilter, childrenSearchControls ), SEARCH_BYPASS );
 
             while ( e.hasMore() )

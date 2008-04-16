@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.misc;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.ByteOption;
 
 
 /**
@@ -40,33 +38,16 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  *    0x8           H-node
  * 
  * In the above chart, the notation '0x' indicates a number in base-16
- * (hexadecimal).
- * 
- * The code for this option is 46.  The length of this option is always
- * 1.
- * 
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
+ * (hexadecimal). The code for this option is 46. The length of this option is
+ * always 1.
  */
-public class NetbiosNodeType extends DhcpOption
+public class NetbiosNodeType extends ByteOption
 {
-    private byte[] netbiosNodeType;
-
-
-    /**
-     * Creates a new instance of NetbiosNodeType.
-     *
-     * @param netbiosNodeType
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public NetbiosNodeType( byte[] netbiosNodeType )
+    public byte getTag()
     {
-        super( 46, 1 );
-        this.netbiosNodeType = netbiosNodeType;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( netbiosNodeType );
+        return 46;
     }
 }

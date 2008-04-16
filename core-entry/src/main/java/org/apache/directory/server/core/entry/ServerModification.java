@@ -19,14 +19,11 @@
  */
 package org.apache.directory.server.core.entry;
 
-import java.io.Serializable;
-
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Value;
 
 /**
  * An internal implementation for a ModificationItem. The name has been
@@ -35,7 +32,7 @@ import org.apache.directory.shared.ldap.entry.Value;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerModification implements Modification, Serializable
+public class ServerModification implements Modification
 {
     public static final long serialVersionUID = 1L;
     
@@ -43,8 +40,22 @@ public class ServerModification implements Modification, Serializable
     private ModificationOperation operation;
     
     /** The attribute which contains the modification */
-    private EntryAttribute<? extends Value<?>> attribute;
+    private EntryAttribute attribute;
  
+    
+    public ServerModification( ModificationOperation operation, EntryAttribute attribute )
+    {
+        this.operation = operation;
+        this.attribute = attribute;
+    }
+    
+    
+    public ServerModification( int operation, EntryAttribute attribute )
+    {
+        setOperation( operation );
+        this.attribute = attribute;
+    }
+    
     
     /**
      *  @return the operation
@@ -66,12 +77,15 @@ public class ServerModification implements Modification, Serializable
         {
             case DirContext.ADD_ATTRIBUTE :
                 this.operation = ModificationOperation.ADD_ATTRIBUTE;
+                break;
 
             case DirContext.REPLACE_ATTRIBUTE :
                 this.operation = ModificationOperation.REPLACE_ATTRIBUTE;
+                break;
             
             case DirContext.REMOVE_ATTRIBUTE :
                 this.operation = ModificationOperation.REMOVE_ATTRIBUTE;
+                break;
         }
     }
 
@@ -90,7 +104,7 @@ public class ServerModification implements Modification, Serializable
     /**
      * @return the attribute containing the modifications
      */
-    public EntryAttribute<? extends Value<?>> getAttribute()
+    public EntryAttribute getAttribute()
     {
         return attribute;
     }
@@ -101,9 +115,9 @@ public class ServerModification implements Modification, Serializable
      *
      * @param attribute The modified attribute 
      */
-    public void setAttribute( EntryAttribute<? extends Value<?>> attribute )
+    public void setAttribute( EntryAttribute attribute )
     {
-        this.attribute = attribute;
+        this.attribute = (ServerAttribute)attribute;
     }
     
     
@@ -120,6 +134,21 @@ public class ServerModification implements Modification, Serializable
         return h;
     }
     
+    
+    public ServerModification clone()
+    {
+        try
+        {
+            ServerModification clone = (ServerModification)super.clone();
+            
+            clone.attribute = (ServerAttribute)this.attribute.clone();
+            return clone;
+        }
+        catch ( CloneNotSupportedException cnse )
+        {
+            return null;
+        }
+    }
     
     /**
      * @see Object#toString()

@@ -22,8 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -64,18 +63,16 @@ public class ExpressionEvaluator implements Evaluator
      * evaluator which will be created.
      *
      * @param db the database this evaluator operates upon
-     * @param oidRegistry the oid reg used for attrID to oid resolution
-     * @param attributeTypeRegistry the attribtype reg used for value comparison
+     * @param registries the oid reg used for attrID to oid resolution
      */
-    public ExpressionEvaluator(BTreePartition db, OidRegistry oidRegistry,
-        AttributeTypeRegistry attributeTypeRegistry)
+    public ExpressionEvaluator(BTreePartition db, Registries registries )
     {
         ScopeEvaluator scopeEvaluator = null;
         SubstringEvaluator substringEvaluator = null;
 
         scopeEvaluator = new ScopeEvaluator( db );
-        substringEvaluator = new SubstringEvaluator( db, oidRegistry, attributeTypeRegistry );
-        leafEvaluator = new LeafEvaluator( db, oidRegistry, attributeTypeRegistry, scopeEvaluator, substringEvaluator );
+        substringEvaluator = new SubstringEvaluator( db, registries );
+        leafEvaluator = new LeafEvaluator( db, registries, scopeEvaluator, substringEvaluator );
     }
 
 

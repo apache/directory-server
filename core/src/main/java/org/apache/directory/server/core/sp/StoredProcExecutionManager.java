@@ -22,11 +22,14 @@
 package org.apache.directory.server.core.sp;
 
 
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -68,7 +71,7 @@ public class StoredProcExecutionManager
      * @return The entry associated with the SP Unit.
      * @throws NamingException If the unit cannot be located or any other error occurs.
      */
-    public Attributes findStoredProcUnit( LdapContext rootDSE, String fullSPName ) throws NamingException
+    public ServerEntry findStoredProcUnit( LdapContext rootDSE, String fullSPName, Registries registries ) throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
@@ -76,7 +79,7 @@ public class StoredProcExecutionManager
         String spUnitName = StoredProcUtils.extractStoredProcUnitName( fullSPName );
         String filter = "(storedProcUnitName=" + spUnitName + ")";
         NamingEnumeration<SearchResult> results = rootDSE.search( storedProcContainer, filter, controls );
-        return results.nextElement().getAttributes();
+        return ServerEntryUtils.toServerEntry( results.nextElement().getAttributes(), LdapDN.EMPTY_LDAPDN, registries );
     }
 
 
@@ -88,9 +91,9 @@ public class StoredProcExecutionManager
      * @return A {@link StoredProcEngine} associated with spUnitEntry.
      * @throws NamingException If no {@link StoredProcEngine} that can be associated with the language identifier in spUnitEntry can be found.
      */
-    public StoredProcEngine getStoredProcEngineInstance( Attributes spUnitEntry ) throws NamingException
+    public StoredProcEngine getStoredProcEngineInstance( ServerEntry spUnitEntry ) throws NamingException
     {
-        String spLangId = ( String ) spUnitEntry.get( "storedProcLangId" ).get();
+        String spLangId = ( String ) spUnitEntry.get( "storedProcLangId" ).getString();
 
         for ( StoredProcEngineConfig engineConfig : storedProcEngineConfigs )
         {
@@ -98,6 +101,7 @@ public class StoredProcExecutionManager
             {
                 Class<? extends StoredProcEngine> engineType = engineConfig.getStoredProcEngineType();
                 StoredProcEngine engine;
+                
                 try
                 {
                     engine = engineType.newInstance();
@@ -114,6 +118,7 @@ public class StoredProcExecutionManager
                     ne.setRootCause( e );
                     throw ne;
                 }
+                
                 engine.setSPUnitEntry( spUnitEntry );
                 return engine;
             }

@@ -22,6 +22,8 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
@@ -35,6 +37,8 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -42,7 +46,11 @@ import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.HashSet;
 import java.util.Set;
@@ -111,7 +119,7 @@ public class SearchWithIndicesITest
     
     public static class MyFactory implements DirectoryServiceFactory
     {
-        public DirectoryService newInstance()
+        public DirectoryService newInstance() 
         {
             DirectoryService service = new DefaultDirectoryService();
             service.getChangeLog().setEnabled( true );
@@ -122,11 +130,20 @@ public class SearchWithIndicesITest
 
             JdbmPartition partition = new JdbmPartition();
             partition.setId( "system" );
-            Attributes attrs = new AttributesImpl( "objectClass", "top", true );
-            attrs.get( "objectClass" ).add( "organizationalUnit" );
-            attrs.put( "ou", "system" );
-            partition.setContextEntry( attrs );
-            partition.setSuffix( "ou=system" );
+            
+            try
+            {
+                ServerEntry serverEntry = new DefaultServerEntry( service.getRegistries(), new LdapDN( "ou=system" ) );
+                serverEntry.put( "objectClass", "top", "organizationalUnit" );
+                serverEntry.put( "ou", "system" );
+                partition.setContextEntry( serverEntry );
+                partition.setSuffix( "ou=system" );
+
+            }
+            catch ( NamingException ne )
+            {
+                // Do nothing
+            }
 
             Set<Index> indices = new HashSet<Index>();
             indices.addAll( partition.getIndexedAttributes() );
@@ -156,11 +173,11 @@ public class SearchWithIndicesITest
         }
 
         Set<String> results = new HashSet<String>();
-        NamingEnumeration list = getSystemContext( service ).search( "ou=groups", filter, controls );
+        NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "ou=groups", filter, controls );
 
         while( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             results.add( result.getName() );
         }
 
@@ -186,7 +203,7 @@ public class SearchWithIndicesITest
     public void testLessThanSearchWithIndices() throws Exception
     {
         createData();
-        Set results = searchGroups( "(gidNumber<=5)" );
+        Set<String> results = searchGroups( "(gidNumber<=5)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -232,7 +249,7 @@ public class SearchWithIndicesITest
     public void testGreaterThanSearchWithIndices() throws Exception
     {
         createData();
-        Set results = searchGroups( "(gidNumber>=0)" );
+        Set<String> results = searchGroups( "(gidNumber>=0)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );

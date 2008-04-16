@@ -63,9 +63,9 @@ public class KerberosMessage
 
 
     /**
-     * Returns the {@link MessageType}.
+     * Returns the {@link org.apache.directory.server.kerberos.shared.KerberosMessageType}.
      *
-     * @return The {@link MessageType}.
+     * @return The {@link org.apache.directory.server.kerberos.shared.KerberosMessageType}.
      */
     public KerberosMessageType getMessageType()
     {
@@ -74,7 +74,7 @@ public class KerberosMessage
 
 
     /**
-     * Sets the {@link MessageType}.
+     * Sets the {@link org.apache.directory.server.kerberos.shared.KerberosMessageType}.
      *
      * @param type
      */

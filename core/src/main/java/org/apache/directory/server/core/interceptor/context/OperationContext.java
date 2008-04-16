@@ -22,6 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import javax.naming.ldap.Control;
 
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -57,6 +58,11 @@ public interface OperationContext
      */
     LdapDN getDn();
     
+    
+    /**
+     *  @return The global registries 
+     */
+    Registries getRegistries();
     
     /**
      * Set the context DN

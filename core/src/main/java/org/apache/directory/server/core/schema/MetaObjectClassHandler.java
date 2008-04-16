@@ -23,17 +23,16 @@ package org.apache.directory.server.core.schema;
 import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -63,7 +62,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, 
+    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
         boolean cascade ) throws NamingException
     {
         String oid = getOid( entry );
@@ -78,7 +77,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( LdapDN name, Attributes entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws NamingException
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
@@ -91,11 +90,12 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, Attributes entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
     {
         String schemaName = getSchemaName( name );
         ObjectClass oc = factory.getObjectClass( entry, targetRegistries, schemaName );
-        Set<SearchResult> dependees = dao.listObjectClassDependents( oc );
+        Set<ServerSearchResult> dependees = dao.listObjectClassDependents( oc );
+        
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The objectClass with OID " + oc.getOid() 
@@ -122,11 +122,12 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         Schema schema = getSchema( name );
         ObjectClass oldOc = factory.getObjectClass( entry, targetRegistries, schema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listObjectClassDependents( oldOc );
+        Set<ServerSearchResult> dependees = dao.listObjectClassDependents( oldOc );
+        
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The objectClass with OID " + oldOc.getOid()
@@ -136,9 +137,9 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        Attributes targetEntry = ( Attributes ) entry.clone();
+        ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRdn.getValue();
-        targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
+        targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         checkOidIsUnique( newOid );
         ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries, schema.getSchemaName() );
 
@@ -157,12 +158,13 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
-        Attributes entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws NamingException
     {
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         ObjectClass oldOc = factory.getObjectClass( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listObjectClassDependents( oldOc );
+        Set<ServerSearchResult> dependees = dao.listObjectClassDependents( oldOc );
+        
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The objectClass with OID " + oldOc.getOid()
@@ -173,10 +175,10 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         }
 
         Schema newSchema = getSchema( newParentName );
-        Attributes targetEntry = ( Attributes ) entry.clone();
+        ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRdn.getValue();
         checkOidIsUnique( newOid );
-        targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
+        targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries, newSchema.getSchemaName() );
 
         if ( ! oldSchema.isDisabled() )
@@ -196,13 +198,14 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, boolean cascade ) 
+    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
         throws NamingException
     {
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         ObjectClass oldAt = factory.getObjectClass( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<SearchResult> dependees = dao.listObjectClassDependents( oldAt );
+        Set<ServerSearchResult> dependees = dao.listObjectClassDependents( oldAt );
+        
         if ( dependees != null && dependees.size() > 0 )
         {
             throw new LdapOperationNotSupportedException( "The objectClass with OID " + oldAt.getOid() 

@@ -35,9 +35,18 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import org.junit.Test;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.*;
+
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteUser;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAsAdmin;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteAccessControlSubentry;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.removeUserFromGroup;
 
 
 /**

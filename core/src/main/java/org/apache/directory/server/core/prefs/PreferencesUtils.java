@@ -23,6 +23,7 @@ package org.apache.directory.server.core.prefs;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -34,10 +35,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 class PreferencesUtils
 {
-    /** the dn base of the system preference hierarchy */
-    static final String SYSPREF_BASE = "prefNodeName=sysPrefRoot,ou=system";
-
-
     /**
      * Translates an absolute system preferences node name into the distinguished
      * name of the entry corresponding to the preferences node.
@@ -48,7 +45,7 @@ class PreferencesUtils
      */
     public static Name toSysDn( String absPrefPath ) throws NamingException
     {
-        LdapDN dn = new LdapDN( SYSPREF_BASE );
+        LdapDN dn = new LdapDN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
 
         String[] comps = absPrefPath.split( "/" );
 

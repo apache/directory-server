@@ -23,14 +23,15 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;  
 import java.util.Iterator;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -45,19 +46,20 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class MicroOperationFilter implements ACITupleFilter
 {
     public Collection<ACITuple> filter( 
-                Collection<ACITuple> tuples, 
-                OperationScope scope, 
-                PartitionNexusProxy proxy,
-                Collection<Name> userGroupNames, 
-                LdapDN userName, 
-                Attributes userEntry, 
-                AuthenticationLevel authenticationLevel,
-                LdapDN entryName, 
-                String attrId, 
-                Object attrValue, 
-                Attributes entry, 
-                Collection<MicroOperation> microOperations,
-                Attributes entryView )
+            Registries registries, 
+            Collection<ACITuple> tuples, 
+            OperationScope scope, 
+            PartitionNexusProxy proxy,
+            Collection<LdapDN> userGroupNames, 
+            LdapDN userName, 
+            ServerEntry userEntry, 
+            AuthenticationLevel authenticationLevel,
+            LdapDN entryName, 
+            String attrId, 
+            Value<?> attrValue, 
+            ServerEntry entry, 
+            Collection<MicroOperation> microOperations,
+            ServerEntry entryView )
         throws NamingException
     {
         if ( tuples.size() == 0 )

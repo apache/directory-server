@@ -28,13 +28,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.naming.Context;
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ServiceUnavailableException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamingListener;
 import javax.naming.ldap.LdapContext;
@@ -43,6 +41,8 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.event.EventInterceptor;
@@ -121,12 +121,12 @@ public class PartitionNexusProxy extends PartitionNexus
     /**
      * A static object to store the rootDSE entry with all the attributes
      */
-    private static Attributes ROOT_DSE_ALL;
+    private static ServerEntry ROOT_DSE_ALL;
 
     /**
      * A static object to store the rootDSE entry without operationnal attributes
      */
-    private static Attributes ROOT_DSE_NO_OPERATIONNAL;
+    private static ServerEntry ROOT_DSE_NO_OPERATIONNAL;
 
     /**
      * A mutex to protect the rootDSE construction
@@ -221,13 +221,19 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Attributes getContextEntry()
+    public ServerEntry getContextEntry()
     {
         throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
     }
 
 
-    public void setContextEntry( Attributes contextEntry )
+    public Attributes getContextEntryAttr()
+    {
+        throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
+    }
+
+
+    public void setContextEntry( ServerEntry contextEntry )
     {
         throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
     }
@@ -471,13 +477,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException
     {
         return list( opContext, null );
     }
 
 
-    public NamingEnumeration<SearchResult> list( ListOperationContext opContext, Collection<String> bypass )
+    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext, Collection<String> bypass )
             throws NamingException
     {
         ensureStarted();
@@ -495,10 +501,10 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
             throws NamingException
     {
-        NamingEnumeration<SearchResult> ne = search( opContext, null );
+        NamingEnumeration<ServerSearchResult> ne = search( opContext, null );
 
         if ( ne instanceof SearchResultFilteringEnumeration )
         {
@@ -516,7 +522,7 @@ public class PartitionNexusProxy extends PartitionNexus
                     int count = 1; // with prefetch we've missed one which is ok since 1 is the minimum
 
 
-                    public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
+                    public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
                             throws NamingException
                     {
                         if ( controls.getTimeLimit() > 0 )
@@ -547,7 +553,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext, Collection<String> bypass )
+    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext, Collection<String> bypass )
             throws NamingException
     {
         ensureStarted();
@@ -565,7 +571,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Attributes lookup( LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
     {
         if ( opContext.getDn().size() == 0 )
         {
@@ -582,7 +588,8 @@ public class PartitionNexusProxy extends PartitionNexus
                 }
 
                 return ROOT_DSE_NO_OPERATIONNAL;
-            } else if ( ( attrs.size() == 1 ) && ( attrs.contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) ) )
+            } 
+            else if ( ( attrs.size() == 1 ) && ( attrs.contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) ) )
             {
                 synchronized ( ROOT_DSE_ALL_MUTEX )
                 {
@@ -601,7 +608,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Attributes lookup( LookupOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -768,7 +775,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Attributes getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
+    public ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
     {
         if ( opContext.getDn().size() == 0 )
         {
@@ -787,7 +794,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Attributes getRootDSE( GetRootDSEOperationContext opContext, Collection<String> bypass )
+    public ServerEntry getRootDSE( GetRootDSEOperationContext opContext, Collection<String> bypass )
             throws NamingException
     {
         ensureStarted();
@@ -861,7 +868,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void registerSupportedExtensions( Set<String> extensionOids )
+    public void registerSupportedExtensions( Set<String> extensionOids ) throws NamingException
     {
         service.getPartitionNexus().registerSupportedExtensions( extensionOids );
     }
@@ -877,7 +884,7 @@ public class PartitionNexusProxy extends PartitionNexus
      * interceptor.
      */
 
-    public void addNamingListener( EventContext ctx, Name name, ExprNode filter, SearchControls searchControls,
+    public void addNamingListener( EventContext ctx, LdapDN name, ExprNode filter, SearchControls searchControls,
             NamingListener namingListener ) throws NamingException
     {
         InterceptorChain chain = service.getInterceptorChain();

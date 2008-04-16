@@ -27,17 +27,18 @@ import java.util.NoSuchElementException;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.referral.ReferralLut;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -52,32 +53,41 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResult>
+public class ReferralHandlingEnumeration implements NamingEnumeration<ServerSearchResult>
 {
     private final Logger log = LoggerFactory.getLogger( ReferralHandlingEnumeration.class );
-    private final List<SearchResult> referrals = new ArrayList<SearchResult>();
-    private final NamingEnumeration<SearchResult> underlying;
+    private final List<ServerSearchResult> referrals = new ArrayList<ServerSearchResult>();
+    private final NamingEnumeration<ServerSearchResult> underlying;
     private final ReferralLut lut;
     private final PartitionNexus nexus;
     private final boolean doThrow;
     private final int scope;
-    private SearchResult prefetched;
+    private ServerSearchResult prefetched;
     private int refIndex = -1;
 
     /**
      * The OIDs normalizer map
      */
     private Map<String, OidNormalizer> normalizerMap;
+    
+    /** The global registries */
+    private Registries registries;
 
-    public ReferralHandlingEnumeration( NamingEnumeration<SearchResult> underlying, ReferralLut lut, 
-        AttributeTypeRegistry registry, PartitionNexus nexus, int scope, boolean doThrow ) throws NamingException
+    public ReferralHandlingEnumeration( 
+            NamingEnumeration<ServerSearchResult> underlying, 
+            ReferralLut lut, 
+            Registries registries, 
+            PartitionNexus nexus, 
+            int scope, 
+            boolean doThrow ) throws NamingException
     {
-    	normalizerMap = registry.getNormalizerMapping();
+    	normalizerMap = registries.getAttributeTypeRegistry().getNormalizerMapping();
         this.underlying = underlying;
         this.doThrow = doThrow;
         this.lut = lut;
         this.scope = scope;
         this.nexus = nexus;
+        this.registries = registries;
         prefetch();
     }
 
@@ -86,8 +96,8 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
     {
         while ( underlying.hasMore() )
         {
-            SearchResult result = underlying.next();
-            LdapDN dn = new LdapDN( result.getName() );
+        	ServerSearchResult result = underlying.next();
+            LdapDN dn = new LdapDN( result.getDn() );
             dn.normalize( normalizerMap );
             
             if ( lut.isReferral( dn ) )
@@ -104,14 +114,14 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
         prefetched = referrals.get( refIndex );
         if ( doThrow )
         {
-            doReferralExceptionOnSearchBase();
+            doReferralExceptionOnSearchBase( registries );
         }
     }
 
 
-    public SearchResult next() throws NamingException
+    public ServerSearchResult next() throws NamingException
     {
-        SearchResult retval = prefetched;
+    	ServerSearchResult retval = prefetched;
         prefetch();
         return retval;
     }
@@ -155,7 +165,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
     }
 
 
-    public SearchResult nextElement()
+    public ServerSearchResult nextElement()
     {
         try
         {
@@ -170,29 +180,29 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
     }
 
 
-    public void doReferralExceptionOnSearchBase() throws NamingException
+    public void doReferralExceptionOnSearchBase( Registries registries ) throws NamingException
     {
         // the refs attribute may be filtered out so we might need to lookup the entry
-        Attribute refs = prefetched.getAttributes().get( SchemaConstants.REF_AT );
+        EntryAttribute refs = prefetched.getServerEntry().get( SchemaConstants.REF_AT );
         
         if ( refs == null )
         {
-            LdapDN prefetchedDn = new LdapDN( prefetched.getName() );
+            LdapDN prefetchedDn = new LdapDN( prefetched.getDn() );
             prefetchedDn.normalize( normalizerMap );
-            refs = nexus.lookup( new LookupOperationContext( prefetchedDn ) ).get( SchemaConstants.REF_AT );
+            refs = nexus.lookup( new LookupOperationContext( registries, prefetchedDn ) ).get( SchemaConstants.REF_AT );
         }
 
         if ( refs == null )
         {
-            throw new IllegalStateException( prefetched.getName()
+            throw new IllegalStateException( prefetched.getDn()
                 + " does not seem like a referral but we're trying to handle it as one." );
         }
 
         List<String> list = new ArrayList<String>( refs.size() );
         
-        for ( int ii = 0; ii < refs.size(); ii++ )
+        for ( Value<?> value:refs )
         {
-            String val = ( String ) refs.get( ii );
+            String val = (String)value.get();
 
             // need to add non-ldap URLs as-is
             if ( !val.startsWith( "ldap" ) )
@@ -210,7 +220,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
             catch ( LdapURLEncodingException e )
             {
                 log
-                    .error( "Bad URL (" + val + ") for ref in " + prefetched.getName()
+                    .error( "Bad URL (" + val + ") for ref in " + prefetched.getDn()
                         + ".  Reference will be ignored." );
             }
 

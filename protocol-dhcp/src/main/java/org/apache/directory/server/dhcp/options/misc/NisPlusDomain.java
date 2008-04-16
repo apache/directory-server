@@ -21,8 +21,6 @@
 package org.apache.directory.server.dhcp.options.misc;
 
 
-import java.nio.ByteBuffer;
-
 import org.apache.directory.server.dhcp.options.DhcpOption;
 
 
@@ -38,23 +36,11 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class NisPlusDomain extends DhcpOption
 {
-    private byte[] nisPlusDomain;
-
-
-    /**
-     * Creates a new instance of NisPlusDomain.
-     *
-     * @param nisPlusDomain
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public NisPlusDomain( byte[] nisPlusDomain )
+    public byte getTag()
     {
-        super( 64, 1 );
-        this.nisPlusDomain = nisPlusDomain;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( nisPlusDomain );
+        return 64;
     }
 }

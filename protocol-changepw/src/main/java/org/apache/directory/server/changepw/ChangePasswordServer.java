@@ -28,6 +28,7 @@ import java.util.List;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.protocol.ChangePasswordProtocolHandler;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
@@ -50,9 +51,6 @@ public class ChangePasswordServer extends DirectoryBackedService
 
     /** The default change password principal name. */
     private static final String SERVICE_PRINCIPAL_DEFAULT = "kadmin/changepw@EXAMPLE.COM";
-
-    /** The default change password base DN. */
-    public static final String SEARCH_BASEDN_DEFAULT = "ou=users,dc=example,dc=com";
 
     /** The default change password realm. */
     private static final String REALM_DEFAULT = "EXAMPLE.COM";
@@ -118,7 +116,7 @@ public class ChangePasswordServer extends DirectoryBackedService
         super.setServiceName( SERVICE_NAME_DEFAULT );
         super.setIpPort( IP_PORT_DEFAULT );
         super.setServiceId( SERVICE_PID_DEFAULT );
-        super.setSearchBaseDn( SEARCH_BASEDN_DEFAULT );
+        super.setSearchBaseDn( ServerDNConstants.USER_EXAMPLE_COM_DN );
 
         prepareEncryptionTypes();
     }

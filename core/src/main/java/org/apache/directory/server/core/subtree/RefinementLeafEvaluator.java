@@ -20,14 +20,15 @@
 package org.apache.directory.server.core.subtree;
 
 
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import java.util.Iterator;
 
 
@@ -66,16 +67,18 @@ public class RefinementLeafEvaluator
      * if it rejects the entry
      * @throws NamingException
      */
-    public boolean evaluate( SimpleNode node, Attribute objectClasses ) throws NamingException
+    public boolean evaluate( SimpleNode node, EntryAttribute objectClasses ) throws NamingException
     {
         if ( node == null )
         {
             throw new IllegalArgumentException( "node cannot be null" );
         }
+        
         if ( !( node instanceof EqualityNode ) )
         {
             throw new NamingException( "Unrecognized assertion type for refinement node: " + node );
         }
+        
         if ( !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             throw new NamingException( "Refinement leaf node attribute was " + node.getAttribute() );
@@ -85,13 +88,21 @@ public class RefinementLeafEvaluator
         {
             throw new IllegalArgumentException( "objectClasses argument cannot be null" );
         }
-        if ( !objectClasses.getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
+        
+        if ( !((ServerAttribute)objectClasses).instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             throw new IllegalArgumentException( "objectClasses attribute must be for ID 'objectClass'" );
         }
 
         // check if AVA value exists in attribute
-        if ( objectClasses.contains( node.getValue() ) )
+        if ( node.getValue() instanceof String )
+        {
+            if ( objectClasses.contains( (String)node.getValue() ) )
+            {
+                return true;
+            }
+        }
+        else if ( objectClasses.contains( (byte[])node.getValue() ) )
         {
             return true;
         }
@@ -113,7 +124,8 @@ public class RefinementLeafEvaluator
         
         if ( Character.isDigit( value.charAt( 0 ) ) )
         {
-            Iterator list = registry.getNameSet( value ).iterator();
+            Iterator<String> list = registry.getNameSet( value ).iterator();
+            
             while ( list.hasNext() )
             {
                 String objectClass = ( String ) list.next();

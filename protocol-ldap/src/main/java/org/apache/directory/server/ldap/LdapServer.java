@@ -20,9 +20,11 @@
 package org.apache.directory.server.ldap;
 
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.KeyStore;
+import java.security.Provider;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -38,6 +40,7 @@ import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.security.CoreKeyStoreSpi;
 import org.apache.directory.server.ldap.support.AbandonHandler;
 import org.apache.directory.server.ldap.support.AddHandler;
 import org.apache.directory.server.ldap.support.BindHandler;
@@ -60,7 +63,6 @@ import org.apache.directory.server.ldap.support.SearchHandler;
 import org.apache.directory.server.ldap.support.UnbindHandler;
 import org.apache.directory.server.ldap.support.ssl.LdapsInitializer;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
-import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.asn1.codec.Asn1CodecDecoder;
 import org.apache.directory.shared.asn1.codec.Asn1CodecEncoder;
@@ -165,13 +167,6 @@ public class LdapServer extends DirectoryBackedService
 
     /** Whether to allow anonymous access. */
     private boolean allowAnonymousAccess = true; // allow by default
-
-    /** The path to the certificate file. */
-    private File ldapsCertificateFile = new File( "server-work" + File.separator + "certificates" + File.separator
-        + "server.cert" );
-
-    /** The certificate password. */
-    private String ldapsCertificatePassword = "changeit";
 
     /** The extended operation handlers. */
     private final Collection<ExtendedOperationHandler> extendedOperationHandlers = new ArrayList<ExtendedOperationHandler>();
@@ -321,9 +316,19 @@ public class LdapServer extends DirectoryBackedService
         
         if ( isEnableLdaps() )
         {
-            char[] certPasswordChars = getLdapsCertificatePassword().toCharArray();
-            String storePath = getLdapsCertificateFile().getPath();
-            chain = LdapsInitializer.init( certPasswordChars, storePath );
+            Provider provider = Security.getProvider( "SUN" );
+            LOG.debug( "provider = {}", provider );
+            CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( getDirectoryService() );
+            KeyStore keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" ) {};
+            try
+            {
+                keyStore.load( null, null );
+            }
+            catch ( Exception e )
+            {
+                // nothing really happens with this keystore
+            }
+            chain = LdapsInitializer.init( keyStore );
         }
         else
         {
@@ -402,7 +407,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     private void startLDAP0( int port, IoFilterChainBuilder chainBuilder )
-        throws LdapNamingException, LdapConfigurationException
+        throws LdapNamingException, LdapConfigurationException, NamingException
     {
         for ( ExtendedOperationHandler h : getExtendedOperationHandlers() )
         {
@@ -475,6 +480,10 @@ public class LdapServer extends DirectoryBackedService
      */
     public void addExtendedOperationHandler( ExtendedOperationHandler eoh )
     {
+        if ( extendedHandler == null )
+        {
+            setExtendedHandler( new DefaultExtendedHandler() );
+        }
         extendedHandler.addHandler( eoh );
     }
 
@@ -537,64 +546,6 @@ public class LdapServer extends DirectoryBackedService
     public void setEnableLdaps( boolean enableLdaps )
     {
         this.enableLdaps = enableLdaps;
-    }
-
-
-    /**
-     * Returns the path of the X509 (or JKS) certificate file for LDAPS.
-     * The default value is <tt>"&lt;WORKDIR&gt;/certificates/server.cert"</tt>.
-     *
-     * @return The LDAPS certificate file.
-     */
-    public File getLdapsCertificateFile()
-    {
-        return ldapsCertificateFile;
-    }
-
-
-    /**
-     * Sets the path of the SunX509 certificate file (either PKCS12 or JKS format)
-     * for LDAPS.
-     *
-     * @param ldapsCertificateFile The path to the SunX509 certificate.
-     */
-    public void setLdapsCertificateFile( File ldapsCertificateFile )
-    {
-        if ( ldapsCertificateFile == null )
-        {
-            throw new ServiceConfigurationException( "LdapsCertificateFile cannot be null." );
-        }
-        this.ldapsCertificateFile = ldapsCertificateFile;
-    }
-
-
-    /**
-     * Returns the password which is used to load the the SunX509 certificate file
-     * (either PKCS12 or JKS format).
-     * The default value is <tt>"changeit"</tt>.  This is the same value with what
-     * <a href="http://jakarta.apache.org/tomcat/">Apache Jakarta Tomcat</a> uses by
-     * default.
-     *
-     * @return The LDAPS certificate password.
-     */
-    public String getLdapsCertificatePassword()
-    {
-        return ldapsCertificatePassword;
-    }
-
-
-    /**
-     * Sets the password which is used to load the LDAPS certificate file.
-     *
-     * @param ldapsCertificatePassword The certificate password.
-     */
-    public void setLdapsCertificatePassword( String ldapsCertificatePassword )
-    {
-        if ( ldapsCertificatePassword == null )
-        {
-            throw new ServiceConfigurationException( "LdapsCertificatePassword cannot be null." );
-        }
-        this.ldapsCertificatePassword = ldapsCertificatePassword;
     }
 
 

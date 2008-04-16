@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.IntOption;
 
 
 /**
@@ -40,25 +38,24 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class IpAddressLeaseTime extends DhcpOption
+public class IpAddressLeaseTime extends IntOption
 {
-    private byte[] ipAddressLeaseTime;
-
-
-    /**
-     * Creates a new instance of IpAddressLeaseTime.
-     *
-     * @param ipAddressLeaseTime
-     */
-    public IpAddressLeaseTime( byte[] ipAddressLeaseTime )
+    public IpAddressLeaseTime()
     {
-        super( 51, 4 );
-        this.ipAddressLeaseTime = ipAddressLeaseTime;
     }
 
 
-    protected void valueToByteBuffer( ByteBuffer out )
+    public IpAddressLeaseTime(long leaseTime)
     {
-        out.put( ipAddressLeaseTime );
+        setIntValue( leaseTime );
+    }
+
+
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
+     */
+    public byte getTag()
+    {
+        return 51;
     }
 }

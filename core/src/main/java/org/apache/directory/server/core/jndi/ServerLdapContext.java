@@ -31,11 +31,16 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.ServerBinaryValue;
+import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -167,8 +172,44 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
     {
+        Value<?> val = null;
+        
+        AttributeType attributeType = getService().getRegistries().getAttributeTypeRegistry().lookup( oid );
+        
         // make sure we add the request controls to operation
-        CompareOperationContext opCtx = new CompareOperationContext( name, oid, value );
+        if ( attributeType.getSyntax().isHumanReadable() )
+        {
+            if ( value instanceof String )
+            {
+                val = new ServerStringValue( attributeType, (String)value );
+            }
+            else if ( value instanceof byte[] )
+            {
+                val = new ServerStringValue( attributeType, StringTools.utf8ToString( (byte[])value ) );
+            }
+            else
+            {
+                throw new NamingException( "Bad value for the OID " + oid );
+            }
+        }
+        else
+        {
+            if ( value instanceof String )
+            {
+                val = new ServerBinaryValue( attributeType, StringTools.getBytesUtf8( (String)value ) );
+            }
+            else if ( value instanceof byte[] )
+            {
+                val = new ServerBinaryValue( attributeType, (byte[])value );
+            }
+            else
+            {
+                throw new NamingException( "Bad value for the OID " + oid );
+            }
+        }
+        
+        
+        CompareOperationContext opCtx = new CompareOperationContext( registries, name, oid, val );
         opCtx.addRequestControls( requestControls );
 
         // execute operation
@@ -191,20 +232,8 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public void ldapUnbind() throws NamingException
     {
-        LdapDN principalDn;
-        Object principalDnValue = getEnvironment().get( Context.SECURITY_PRINCIPAL );
-        
-        if ( principalDnValue instanceof LdapDN )
-        {
-            principalDn = ( LdapDN ) principalDnValue;
-        }
-        else
-        {
-            String bindDn = ( String ) principalDnValue;
-            principalDn = new LdapDN( bindDn );
-        }
-
-        UnbindOperationContext opCtx = new UnbindOperationContext( principalDn );
+        LdapDN principalDn = super.getPrincipal().getJndiName();
+        UnbindOperationContext opCtx = new UnbindOperationContext( registries, principalDn );
         opCtx.addRequestControls( requestControls );
         super.getNexusProxy().unbind( opCtx );
         responseControls = opCtx.getResponseControls();

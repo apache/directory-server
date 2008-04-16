@@ -52,7 +52,7 @@ import javax.naming.Binding;
  * JNDI provider returns this context when you perform JNDI operations against the
  * core directory service that has been shutdown or not started.  By returning a
  * non-null Context we prevent an unnecessary exception being thrown by
- * {@link InitialContext} and any one of its subclasses.
+ * {@link javax.naming.InitialContext} and any one of its subclasses.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

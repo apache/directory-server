@@ -34,9 +34,14 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import org.junit.Test;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.*;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAsAdmin;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
 
 
 /**
@@ -172,11 +177,32 @@ public class CompareAuthorizationIT
         assertFalse( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
 
         // now add a subentry that enables user billyd to compare an entry below ou=system
-        createAccessControlSubentry( "billydAdd", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
-            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " + "userPermissions { { "
-            + "protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "grantsAndDenials { grantCompare, grantRead, grantBrowse } } } } }" );
+        createAccessControlSubentry( "billydAdd", 
+            "{ " +
+            "  identificationTag \"addAci\", precedence 14, authenticationLevel none, itemOrUserFirst userFirst: " + 
+            "  { " +
+            "    userClasses " +
+            "    { " +
+            "      name " +
+            "      { " +
+            "        \"uid=billyd,ou=users,ou=system\" " +
+            "      } " +
+            "    }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems " +
+            "        {" +
+            "          entry, allUserAttributeTypesAndValues" +
+            "        }, " +
+            "        grantsAndDenials " +
+            "        { " +
+            "          grantCompare, grantRead, grantBrowse " +
+            "        } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanCompareTelephoneNumberAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
@@ -240,7 +266,7 @@ public class CompareAuthorizationIT
     {
         DirContext adminCtx = getContextAsAdmin();
         Attributes user = new AttributesImpl( "uid", "bob", true );
-        user.put( "userPassword", "bobspassword".getBytes() );
+        user.put( "userPassword", "bobspassword" );
         Attribute objectClass = new AttributeImpl( "objectClass" );
         user.put( objectClass );
         objectClass.add( "top" );

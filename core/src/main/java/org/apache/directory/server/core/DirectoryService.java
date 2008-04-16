@@ -22,6 +22,8 @@ package org.apache.directory.server.core;
 
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryFactory;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
@@ -29,7 +31,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
@@ -47,7 +49,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface DirectoryService
+public interface DirectoryService extends ServerEntryFactory
 {
     String JNDI_KEY = DirectoryService.class.getName();
 
@@ -277,12 +279,12 @@ public interface DirectoryService
 
 
     /**
-     * Returns test directory entries({@link Entry}) to be loaded while
+     * Returns test directory entries({@link LdifEntry}) to be loaded while
      * bootstrapping.
      *
      * @return test entries to load during bootstrapping
      */
-    List<Entry> getTestEntries();
+    List<LdifEntry> getTestEntries();
 
 
     /**
@@ -291,7 +293,7 @@ public interface DirectoryService
      *
      * @param testEntries the test entries to load while bootstrapping
      */
-    void setTestEntries( List<? extends Entry> testEntries );
+    void setTestEntries( List<? extends LdifEntry> testEntries );
 
 
     /**
@@ -379,4 +381,13 @@ public interface DirectoryService
      * @param changeLog the change log service to set
      */
     void setChangeLog( ChangeLog changeLog );
+    
+
+    /**
+     * Create a new ServerEntry
+     * 
+     * @param ldif The String representing the attributes, as a LDIF file
+     * @param dn The DN for this new entry
+     */
+    ServerEntry newEntry( String ldif, String dn );
 }

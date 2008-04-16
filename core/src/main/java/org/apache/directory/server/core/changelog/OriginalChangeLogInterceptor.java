@@ -19,6 +19,8 @@
 package org.apache.directory.server.core.changelog;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -30,18 +32,17 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -73,7 +74,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
     private final Queue<StringBuilder> queue = new LinkedList<StringBuilder>();
     
     /** a handle on the attributeType registry to determine the binary nature of attributes */
-    private AttributeTypeRegistry registry;
+    private AttributeTypeRegistry atRegistry;
     
     /** determines if this service has been activated */
     private boolean isActive;
@@ -92,7 +93,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
         super.init( directoryService );
 
         // Get a handle on the attribute registry to check if attributes are binary
-        registry = directoryService.getRegistries().getAttributeTypeRegistry();
+        atRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
 
         // Open a print stream to use for flushing LDIFs into
         File changes = new File( directoryService.getWorkingDirectory(), "changes.LOG" );
@@ -232,7 +233,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
         buf.append( DateUtils.getGeneralizedTime() );
         
         // Append the LDIF entry now
-        buf.append( LdifUtils.convertToLdif( opContext.getEntry() ) );
+        buf.append( LdifUtils.convertToLdif( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) ) );
 
         // Enqueue the buffer onto a queue that is emptied by another thread asynchronously. 
         synchronized ( queue )
@@ -262,7 +263,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
         buf.append( "\n#! deleteTimestamp: " );
         buf.append( DateUtils.getGeneralizedTime() );
         
-        Entry entry = new Entry();
+        LdifEntry entry = new LdifEntry();
         entry.setDn( opContext.getDn().getUpName() );
         entry.setChangeType( ChangeType.Delete );
         buf.append( LdifUtils.convertToLdif( entry ) );
@@ -299,11 +300,11 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
         buf.append( opContext.getDn() );
         buf.append( "\nchangetype: modify" );
 
-        List<ModificationItemImpl> mods = opContext.getModItems();
+        List<Modification> mods = opContext.getModItems();
         
-        for ( ModificationItemImpl mod :mods )
+        for ( Modification mod :mods )
         {
-            append( buf, mod.getAttribute(), getModOpStr( mod.getModificationOp() ) );
+            append( buf, (ServerAttribute)mod.getAttribute(), mod.getOperation().toString() + ": ");
         }
         
         buf.append( "\n" );
@@ -445,25 +446,23 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
      * @return the buffer argument to allow for call chaining.
      * @throws NamingException if the attribute is not identified by the registry
      */
-    private StringBuilder append( StringBuilder buf, Attribute attr ) throws NamingException
+    private StringBuilder append( StringBuilder buf, ServerAttribute attr ) throws NamingException
     {
-        String id = attr.getID();
-        int sz = attr.size();
-        boolean isBinary = ! registry.lookup( id ).getSyntax().isHumanReadable();
+        String id = attr.getId();
+        boolean isBinary = ! atRegistry.lookup( id ).getSyntax().isHumanReadable();
         
         if ( isBinary )
         {
-            for ( int ii = 0; ii < sz; ii++  )
+            for ( Value<?> value:attr )
             {
                 buf.append( "\n" );
                 buf.append( id );
                 buf.append( ":: " );
-                Object value = attr.get( ii );
                 String encoded;
                 
-                if ( value instanceof String )
+                if ( value.get() instanceof String )
                 {
-                    encoded = ( String ) value;
+                    encoded = ( String ) value.get();
                     
                     try
                     {
@@ -476,19 +475,19 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
                 }
                 else
                 {
-                    encoded = new String( Base64.encode( ( byte[] ) attr.get( ii ) ) );
+                    encoded = new String( Base64.encode( ( byte[] ) value.get() ) );
                 }
                 buf.append( encoded );
             }
         }
         else
         {
-            for ( int ii = 0; ii < sz; ii++  )
+            for ( Value<?> value:attr )
             {
                 buf.append( "\n" );
                 buf.append( id );
                 buf.append( ": " );
-                buf.append( attr.get( ii ) );
+                buf.append( value.get() );
             }
         }
         
@@ -511,46 +510,6 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
 
 
     /**
-     * Gets a String representation of the JNDI attribute modificaion flag.  Here are the mappings:
-     * <table>
-     *   <tr><th>JNDI Constant</th><th>Returned String</th></tr>
-     *   <tr><td>DirContext.ADD_ATTRIBUTE</td><td>'add: '</td></tr>
-     *   <tr><td>DirContext.REMOVE_ATTRIBUTE</td><td>'delete: '</td></tr>
-     *   <tr><td>DirContext.REPLACE_ATTRIBUTE</td><td>'replace: '</td></tr>
-     * </table>
-     * <ul><li>
-     * Note that the String in right hand column is quoted to show trailing space.
-     * </li></ul>
-     * 
-     * @param modOp the int value of the JNDI modification operation
-     * @return the string representation of the JNDI Modification operation
-     */
-    private String getModOpStr( int modOp ) 
-    {
-        String opStr;
-        
-        switch( modOp )
-        {
-            case( DirContext.ADD_ATTRIBUTE ):
-                opStr = "add: ";
-                break;
-                
-            case( DirContext.REMOVE_ATTRIBUTE ):
-                opStr = "delete: ";
-                break;
-                
-            case( DirContext.REPLACE_ATTRIBUTE ):
-                opStr = "replace: ";
-                break;
-                
-            default:
-                throw new IllegalArgumentException( "Undefined attribute modify operation: " + modOp );
-        }
-        return opStr;
-    }
-    
-
-    /**
      * Appends a modification delta instruction to an LDIF: i.e. 
      * <pre>
      * add: telephoneNumber
@@ -565,11 +524,11 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
      * @return the buffer argument provided for chaining
      * @throws NamingException if the modification attribute id is undefined
      */
-    private StringBuilder append( StringBuilder buf, Attribute mod, String modOp ) throws NamingException
+    private StringBuilder append( StringBuilder buf, ServerAttribute mod, String modOp ) throws NamingException
     {
         buf.append( "\n" );
         buf.append( modOp );
-        buf.append( mod.getID() );
+        buf.append( mod.getId() );
         append( buf, mod );
         buf.append( "\n-" );
         return buf;

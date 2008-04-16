@@ -22,7 +22,8 @@ package org.apache.directory.server.core.sp.java;
 
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
+
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 
 
 /**
@@ -33,10 +34,10 @@ import javax.naming.directory.Attribute;
  */
 public class LdapJavaStoredProcClassLoader extends ClassLoader
 {
-    private Attribute javaByteCodeAttr;
+    private EntryAttribute javaByteCodeAttr;
 
 
-    public LdapJavaStoredProcClassLoader( Attribute javaByteCodeAttr )
+    public LdapJavaStoredProcClassLoader( EntryAttribute javaByteCodeAttr )
     {
         // Critical call to super class constructor. Required for true plumbing of class loaders.
         super( LdapJavaStoredProcClassLoader.class.getClassLoader() );
@@ -48,9 +49,10 @@ public class LdapJavaStoredProcClassLoader extends ClassLoader
     public Class<?> findClass( String name ) throws ClassNotFoundException
     {
         byte[] classBytes;
+        
         try
         {
-            classBytes = ( byte[] ) javaByteCodeAttr.get();
+            classBytes = javaByteCodeAttr.getBytes();
         }
         catch ( NamingException e )
         {

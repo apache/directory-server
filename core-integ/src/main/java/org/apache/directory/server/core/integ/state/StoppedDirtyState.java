@@ -23,7 +23,6 @@ import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.InheritableSettings;
 import org.apache.directory.server.core.integ.SetupMode;
 import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
-import org.apache.directory.shared.ldap.NotImplementedException;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
 import org.junit.runner.notification.RunNotifier;
@@ -91,7 +90,7 @@ public class StoppedDirtyState implements TestServiceState
 
 
     /**
-     * @TODO you're not figuring in changes in the factory and not reinstantiating the service
+     * @todo you're not figuring in changes in the factory and not reinstantiating the service
      *
      * @param testClass
      * @param testMethod

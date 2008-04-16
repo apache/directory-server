@@ -35,13 +35,11 @@ import org.apache.directory.server.dhcp.options.AddressOption;
  */
 public class RequestedIpAddress extends AddressOption
 {
-    /**
-     * Creates a new instance of RequestedIpAddress.
-     *
-     * @param requestedIpAddress
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public RequestedIpAddress( byte[] requestedIpAddress )
+    public byte getTag()
     {
-        super( 50, requestedIpAddress );
+        return 50;
     }
 }

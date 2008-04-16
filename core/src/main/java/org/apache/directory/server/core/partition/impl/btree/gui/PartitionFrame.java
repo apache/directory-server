@@ -61,6 +61,8 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
@@ -68,7 +70,7 @@ import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -447,7 +449,7 @@ public class PartitionFrame extends JFrame
 
             while ( list.hasNext() )
             {
-                Entry entry = ( Entry ) list.next();
+                LdifEntry entry = ( LdifEntry ) list.next();
                 String updn = entry.getDn();
                 Attributes attrs = entry.getAttributes();
                 
@@ -455,7 +457,8 @@ public class PartitionFrame extends JFrame
 
                 if ( null == partition.getEntryId( ndn.toString() ) )
                 {
-                    partition.add( new AddOperationContext( ndn, attrs ) );
+                    ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, ndn, null );
+                    partition.add( new AddOperationContext( null, ndn, serverEntry ) );
                     load();
                 }
             }

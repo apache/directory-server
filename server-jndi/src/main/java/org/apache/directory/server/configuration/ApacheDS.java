@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -59,25 +60,49 @@ import java.util.List;
  */
 public class ApacheDS
 {
-    private static final String WINDOWSFILE_ATTR = "windowsFilePath";
-    private static final String UNIXFILE_ATTR = "unixFilePath";
     private static final Logger LOG = LoggerFactory.getLogger( ApacheDS.class.getName() );
-    private static final String LDIF_FILES_DN = "ou=loadedLdifFiles,ou=configuration,ou=system";
+    
+    /** Default delay between two flushes to the backend */
     private static final long DEFAULT_SYNC_PERIOD_MILLIS = 20000;
 
+    /** Wainting period between two flushes to the backend */
     private long synchPeriodMillis = DEFAULT_SYNC_PERIOD_MILLIS;
 
+    /** Directory where are stored the LDIF files to be loaded at startup */
     private File ldifDirectory;
+    
     private final List<LdifLoadFilter> ldifFilters = new ArrayList<LdifLoadFilter>();
 
+    /** The LDAP server protocol handler */
     private final LdapServer ldapServer;
+    
+    /** The LDAPS server protocol handler */
     private final LdapServer ldapsServer;
+    
+    /** The directory service */
     private final DirectoryService directoryService;
 
 
+    /**
+     * Creates a new instance of the ApacheDS server
+     *  
+     * @param directoryService 
+     * @param ldapServer
+     * @param ldapsServer
+     */
     public ApacheDS( DirectoryService directoryService, LdapServer ldapServer, LdapServer ldapsServer )
     {
-        this.directoryService = directoryService == null? new DefaultDirectoryService(): directoryService;
+        LOG.info(  "Starting the Apache Directory Server" );
+
+        if ( directoryService == null )
+        {
+            this.directoryService = new DefaultDirectoryService();
+        }
+		else
+		{        
+        	this.directoryService = directoryService;
+        }
+        
         this.ldapServer = ldapServer;
         this.ldapsServer = ldapsServer;
         ByteBuffer.setAllocator( new SimpleByteBufferAllocator() );
@@ -85,25 +110,44 @@ public class ApacheDS
     }
 
 
+    /**
+     * Start the server :
+     *  <li>initialize the DirectoryService</li>
+     *  <li>start the LDAP server</li>
+     *  <li>start the LDAPS server</li>
+     *  
+     * @throws NamingException If the server cannot be started
+     * @throws IOException If an IO error occured while reading some file
+     */
     public void startup() throws NamingException, IOException
     {
-
+        LOG.debug( "Starting the server" );
+        
+        // Start the directory service if not started yet
         if ( ! directoryService.isStarted() )
         {
+            LOG.debug( "1. Starting the DirectoryService" );
             directoryService.startup();
         }
 
+        // Load the LDIF files - if any - into the server
         loadLdifs();
 
+        // Start the LDAP server
         if ( ldapServer != null && ! ldapServer.isStarted() )
         {
+            LOG.debug( "3. Starting the LDAP server" );
             ldapServer.start();
         }
 
+        // Start the LDAPS  server
         if ( ldapsServer != null && ! ldapsServer.isStarted() )
         {
+            LOG.debug(  "4. Starting the LDAPS server" );
             ldapsServer.start();
         }
+        
+        LOG.debug( "Server successfully started" );
     }
 
 
@@ -161,60 +205,46 @@ public class ApacheDS
 
     public void setSynchPeriodMillis( long synchPeriodMillis )
     {
+        LOG.info( "Set the synchPeriodMillis to {}", synchPeriodMillis );
         this.synchPeriodMillis = synchPeriodMillis;
     }
 
-
+    
+    /**
+     * Get the directory where 
+     * @return
+     */
     public File getLdifDirectory()
     {
-        if ( ldifDirectory == null )
-        {
-            return null;
-        }
-        else if ( ldifDirectory.isAbsolute() )
-        {
-            return this.ldifDirectory;
-        }
-        else
-        {
-            return new File( directoryService.getWorkingDirectory().getParent() , ldifDirectory.toString() );
-        }
+        return ldifDirectory;
     }
 
 
     public void setAllowAnonymousAccess( boolean allowAnonymousAccess )
     {
-        this.directoryService.setAllowAnonymousAccess( allowAnonymousAccess );
+        LOG.info( "Set the allowAnonymousAccess flag to {}", allowAnonymousAccess );
+        
+        directoryService.setAllowAnonymousAccess( allowAnonymousAccess );
+        
         if ( ldapServer != null )
         {
-            this.ldapServer.setAllowAnonymousAccess( allowAnonymousAccess );
+            ldapServer.setAllowAnonymousAccess( allowAnonymousAccess );
         }
+        
         if ( ldapsServer != null )
         {
-            this.ldapsServer.setAllowAnonymousAccess( allowAnonymousAccess );
+            ldapsServer.setAllowAnonymousAccess( allowAnonymousAccess );
         }
     }
 
 
     public void setLdifDirectory( File ldifDirectory )
     {
+        LOG.info( "The LDIF directory file is {}", ldifDirectory.getAbsolutePath() );
         this.ldifDirectory = ldifDirectory;
     }
-
-
-    public List<LdifLoadFilter> getLdifFilters()
-    {
-        return new ArrayList<LdifLoadFilter>( ldifFilters );
-    }
-
-
-    public void setLdifFilters( List<LdifLoadFilter> filters )
-    {
-        this.ldifFilters.clear();
-        this.ldifFilters.addAll( filters );
-    }
-
-
+    
+    
     // ----------------------------------------------------------------------
     // From CoreContextFactory: presently in intermediate step but these
     // methods will be moved to the appropriate protocol service eventually.
@@ -223,6 +253,13 @@ public class ApacheDS
     // ----------------------------------------------------------------------
 
 
+    /**
+     * Check that the entry where are stored the loaded Ldif files is created.
+     * 
+     * If not, create it.
+     * 
+     * The files are stored in ou=loadedLdifFiles,ou=configuration,ou=system
+     */
     private void ensureLdifFileBase( DirContext root )
     {
         Attributes entry = new AttributesImpl( SchemaConstants.OU_AT, "loadedLdifFiles", true );
@@ -231,35 +268,40 @@ public class ApacheDS
 
         try
         {
-            root.createSubcontext( LDIF_FILES_DN, entry );
-            LOG.info( "Creating " + LDIF_FILES_DN );
+            root.createSubcontext( ServerDNConstants.LDIF_FILES_DN, entry );
+            LOG.info( "Creating " + ServerDNConstants.LDIF_FILES_DN );
         }
         catch ( NamingException e )
         {
-            LOG.info( LDIF_FILES_DN + " exists" );
+            LOG.info( ServerDNConstants.LDIF_FILES_DN + " exists" );
         }
     }
 
 
+    /**
+     * Create a string containing a hex dump of the loaded ldif file name.
+     * 
+     * It is associated with the attributeType wrt to the underlying system.
+     */
     private String buildProtectedFileEntry( File ldif )
     {
-        StringBuffer buf = new StringBuffer();
+        String fileSep = File.separatorChar == '\\' ? 
+                ApacheSchemaConstants.WINDOWS_FILE_AT : 
+                ApacheSchemaConstants.UNIX_FILE_AT;
 
-        buf.append( File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR );
-        buf.append( "=" );
-
-        buf.append( StringTools.dumpHexPairs( StringTools.getBytesUtf8( getCanonical( ldif ) ) ) );
-
-        buf.append( "," );
-        buf.append( LDIF_FILES_DN );
-
-        return buf.toString();
+        return  fileSep + 
+                "=" + 
+                StringTools.dumpHexPairs( StringTools.getBytesUtf8( getCanonical( ldif ) ) ) +
+                "," + 
+                ServerDNConstants.LDIF_FILES_DN; 
     }
 
     
     private void addFileEntry( DirContext root, File ldif ) throws NamingException
     {
-		String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
+        String rdnAttr = File.separatorChar == '\\' ? 
+            ApacheSchemaConstants.WINDOWS_FILE_AT : 
+            ApacheSchemaConstants.UNIX_FILE_AT;
         String oc = File.separatorChar == '\\' ? ApacheSchemaConstants.WINDOWS_FILE_OC : ApacheSchemaConstants.UNIX_FILE_OC;
 
         Attributes entry = new AttributesImpl( rdnAttr, getCanonical( ldif ), true );
@@ -269,6 +311,12 @@ public class ApacheDS
     }
 
 
+    /**
+     * 
+     * @param root
+     * @param ldif
+     * @return
+     */
     private Attributes getLdifFileEntry( DirContext root, File ldif )
     {
         try
@@ -301,7 +349,37 @@ public class ApacheDS
     }
 
 
-    private void loadLdifs() throws NamingException
+    /**
+     * Load a ldif into the directory.
+     *  
+     * @param root The context in which we will inject the entries
+     * @param ldifFile The ldif file to read
+     * @throws NamingException If something went wrong while loading the entries
+     */
+    private void loadLdif( DirContext root, File ldifFile ) throws NamingException
+    {
+        Attributes fileEntry = getLdifFileEntry( root, ldifFile );
+
+        if ( fileEntry != null )
+        {
+            String time = ( String ) fileEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).get();
+            LOG.info( "Load of LDIF file '" + getCanonical( ldifFile )
+                    + "' skipped.  It has already been loaded on " + time + "." );
+        }
+        else
+        {
+            LdifFileLoader loader = new LdifFileLoader( root, ldifFile, ldifFilters );
+            int count = loader.execute();
+            LOG.info( "Loaded " + count + " entries from LDIF file '" + getCanonical( ldifFile ) + "'" );
+            addFileEntry( root, ldifFile );
+        }
+    }
+    
+    
+    /**
+     * Load the ldif files if there are some
+     */
+    public void loadLdifs() throws NamingException
     {
         // LOG and bail if property not set
         if ( ldifDirectory == null )
@@ -313,18 +391,18 @@ public class ApacheDS
         // LOG and bail if LDIF directory does not exists
         if ( ! ldifDirectory.exists() )
         {
-            LOG.warn( "LDIF load directory '" + getCanonical( ldifDirectory )
-                + "' does not exist.  No LDIF files will be loaded." );
+            LOG.warn( "LDIF load directory '{}' does not exist.  No LDIF files will be loaded.",
+                getCanonical( ldifDirectory ) );
             return;
         }
 
 
         LdapDN dn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
-    
+        
         // Must normalize the dn or - IllegalStateException!
         AttributeTypeRegistry reg = directoryService.getRegistries().getAttributeTypeRegistry();
         dn.normalize( reg.getNormalizerMapping() );
-    
+        
         LdapPrincipal admin = new LdapPrincipal( dn, AuthenticationLevel.STRONG );
         
         
@@ -332,71 +410,66 @@ public class ApacheDS
         ensureLdifFileBase( root );
 
         // if ldif directory is a file try to load it
-        if ( ! ldifDirectory.isDirectory() )
+        if ( ldifDirectory.isFile() )
         {
             if ( LOG.isInfoEnabled() )
             {
-                LOG.info( "LDIF load directory '" + getCanonical( ldifDirectory )
-                    + "' is a file.  Will attempt to load as LDIF." );
+                LOG.info( "LDIF load directory '{}' is a file. Will attempt to load as LDIF.",
+                    getCanonical( ldifDirectory ) );
             }
 
-            Attributes fileEntry = getLdifFileEntry( root, ldifDirectory );
-
-            if ( fileEntry != null )
+            try
             {
-                String time = ( String ) fileEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).get();
-
-                if ( LOG.isInfoEnabled() )
+                loadLdif( root, ldifDirectory );
+            }
+            catch ( NamingException ne )
+            {
+                // If the file can't be read, log the error, and stop
+                // loading LDIFs.
+                LOG.error( "Cannot load the ldif file '{}', error : ",
+                    ldifDirectory.getAbsolutePath(), 
+                    ne.getMessage() );
+                throw ne;
+            }
+        }
+        else
+        {
+            // get all the ldif files within the directory (should be sorted alphabetically)
+            File[] ldifFiles = ldifDirectory.listFiles( new FileFilter()
+            {
+                public boolean accept( File pathname )
                 {
-                    LOG.info( "Load of LDIF file '" + getCanonical( ldifDirectory )
-                        + "' skipped.  It has already been loaded on " + time + "." );
+                    boolean isLdif = pathname.getName().toLowerCase().endsWith( ".ldif" );
+                    return pathname.isFile() && pathname.canRead() && isLdif;
                 }
-
+            } );
+    
+            // LOG and bail if we could not find any LDIF files
+            if ( ( ldifFiles == null ) || ( ldifFiles.length == 0 ) )
+            {
+                LOG.warn( "LDIF load directory '{}' does not contain any LDIF files. No LDIF files will be loaded.", 
+                    getCanonical( ldifDirectory ) );
                 return;
             }
-
-            LdifFileLoader loader = new LdifFileLoader( root, ldifDirectory, ldifFilters );
-            loader.execute();
-
-            addFileEntry( root, ldifDirectory );
-            return;
-        }
-
-        // get all the ldif files within the directory (should be sorted alphabetically)
-        File[] ldifFiles = ldifDirectory.listFiles( new FileFilter()
-        {
-            public boolean accept( File pathname )
+    
+            // load all the ldif files and load each one that is loaded
+            for ( File ldifFile : ldifFiles )
             {
-                boolean isLdif = pathname.getName().toLowerCase().endsWith( ".ldif" );
-                return pathname.isFile() && pathname.canRead() && isLdif;
+                try
+                {
+                    LOG.info(  "Loading LDIF file '{}'", ldifFile.getName() );
+                    loadLdif( root, ldifFile );
+                }
+                catch ( NamingException ne )
+                {
+                    // If the file can't be read, log the error, and stop
+                    // loading LDIFs.
+                    LOG.error( "Cannot load the ldif file '{}', error : {}", 
+                        ldifFile.getAbsolutePath(), 
+                        ne.getMessage() );
+                    throw ne;
+                }
             }
-        } );
-
-        // LOG and bail if we could not find any LDIF files
-        if ( ldifFiles == null || ldifFiles.length == 0 )
-        {
-            LOG.warn( "LDIF load directory '" + getCanonical( ldifDirectory )
-                + "' does not contain any LDIF files.  No LDIF files will be loaded." );
-            return;
-        }
-
-        // load all the ldif files and load each one that is loaded
-        for ( File ldifFile : ldifFiles )
-        {
-            Attributes fileEntry = getLdifFileEntry( root, ldifFile );
-
-            if ( fileEntry != null )
-            {
-                String time = ( String ) fileEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).get();
-                LOG.info( "Load of LDIF file '" + getCanonical( ldifFile )
-                        + "' skipped.  It has already been loaded on " + time + "." );
-                continue;
-            }
-
-            LdifFileLoader loader = new LdifFileLoader( root, ldifFile, ldifFilters );
-            int count = loader.execute();
-            LOG.info( "Loaded " + count + " entries from LDIF file '" + getCanonical( ldifFile ) + "'" );
-            addFileEntry( root, ldifFile );
         }
     }
 }

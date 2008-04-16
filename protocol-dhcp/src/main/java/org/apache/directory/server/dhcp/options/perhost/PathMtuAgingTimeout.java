@@ -18,44 +18,29 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.perhost;
+
+
+import org.apache.directory.server.dhcp.options.IntOption;
+
+
 /**
  * This option specifies the timeout (in seconds) to use when aging Path
  * MTU values discovered by the mechanism defined in RFC 1191.  The
  * timeout is specified as a 32-bit unsigned integer.
  * 
  * The code for this option is 24, and its length is 4.
- */
-package org.apache.directory.server.dhcp.options.perhost;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class PathMtuAgingTimeout extends DhcpOption
+public class PathMtuAgingTimeout extends IntOption
 {
-    private byte[] pathMtuAgingTimeout;
-
-
-    /**
-     * Creates a new instance of PathMtuAgingTimeout.
-     *
-     * @param pathMtuAgingTimeout
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public PathMtuAgingTimeout( byte[] pathMtuAgingTimeout )
+    public byte getTag()
     {
-        super( 24, 4 );
-        this.pathMtuAgingTimeout = pathMtuAgingTimeout;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( pathMtuAgingTimeout );
+        return 24;
     }
 }

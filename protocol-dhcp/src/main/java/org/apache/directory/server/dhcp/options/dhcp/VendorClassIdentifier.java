@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.dhcp;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.StringOption;
 
 
 /**
@@ -44,25 +42,14 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class VendorClassIdentifier extends DhcpOption
+public class VendorClassIdentifier extends StringOption
 {
-    private byte[] vendorClassIdentifier;
-
-
-    /**
-     * Creates a new instance of VendorClassIdentifier.
-     *
-     * @param vendorClassIdentifier
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public VendorClassIdentifier( byte[] vendorClassIdentifier )
+    public byte getTag()
     {
-        super( 60, 1 );
-        this.vendorClassIdentifier = vendorClassIdentifier;
+        return 60;
     }
 
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( vendorClassIdentifier );
-    }
 }

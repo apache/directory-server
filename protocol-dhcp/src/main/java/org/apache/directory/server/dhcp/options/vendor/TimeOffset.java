@@ -18,6 +18,12 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.vendor;
+
+
+import org.apache.directory.server.dhcp.options.AddressOption;
+
+
 /**
  * The time offset field specifies the offset of the client's subnet in
  * seconds from Coordinated Universal Time (UTC).  The offset is
@@ -26,38 +32,17 @@
  * indicates a location west of the zero meridian.
  * 
  * The code for the time offset option is 2, and its length is 4 octets.
- */
-package org.apache.directory.server.dhcp.options.vendor;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class TimeOffset extends DhcpOption
+public class TimeOffset extends AddressOption
 {
-    private byte[] timeOffset;
-
-
-    /**
-     * Creates a new instance of TimeOffset.
-     *
-     * @param timeOffset
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public TimeOffset( byte[] timeOffset )
+    public byte getTag()
     {
-        super( 2, 4 );
-        this.timeOffset = timeOffset;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( timeOffset );
+        return 2;
     }
 }

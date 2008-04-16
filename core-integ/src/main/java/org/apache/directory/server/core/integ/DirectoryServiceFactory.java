@@ -19,6 +19,8 @@
 package org.apache.directory.server.core.integ;
 
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 
@@ -53,5 +55,5 @@ public interface DirectoryServiceFactory
         }
     };
 
-    DirectoryService newInstance();
+    DirectoryService newInstance() throws NamingException;
 }

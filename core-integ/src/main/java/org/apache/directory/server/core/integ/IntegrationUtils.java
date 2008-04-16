@@ -20,11 +20,12 @@ package org.apache.directory.server.core.integ;
 
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -88,16 +89,16 @@ public class IntegrationUtils
     {
         LdapContext rootDSE = getRootContext( service );
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
-        for ( Entry entry : entries )
+        for ( LdifEntry entry : entries )
         {
             rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
         }
     }
 
 
-    public static Entry getUserAddLdif() throws InvalidNameException
+    public static LdifEntry getUserAddLdif() throws InvalidNameException
     {
         return getUserAddLdif( "uid=akarasulu,ou=users,ou=system", "test".getBytes(), "Alex Karasulu", "Karasulu" );
     }
@@ -126,23 +127,23 @@ public class IntegrationUtils
 
     public static LdapContext getSystemContext( DirectoryService service ) throws NamingException
     {
-        return getContext( "uid=admin,ou=system", service, "ou=system" );
+        return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, ServerDNConstants.SYSTEM_DN );
     }
 
 
     public static LdapContext getSchemaContext( DirectoryService service ) throws NamingException
     {
-        return getContext( "uid=admin,ou=system", service, "ou=schema" );
+        return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, ServerDNConstants.OU_SCHEMA_DN );
     }
 
 
     public static LdapContext getRootContext( DirectoryService service ) throws NamingException
     {
-        return getContext( "uid=admin,ou=system", service, "" );
+        return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "" );
     }
 
 
-    public static void apply( LdapContext root, Entry entry ) throws NamingException
+    public static void apply( LdapContext root, LdifEntry entry ) throws NamingException
     {
         LdapDN dn = new LdapDN( entry.getDn() );
 
@@ -202,11 +203,11 @@ public class IntegrationUtils
     }
 
 
-    public static Entry getUserAddLdif( String dnstr, byte[] password, String cn, String sn )
+    public static LdifEntry getUserAddLdif( String dnstr, byte[] password, String cn, String sn )
             throws InvalidNameException
     {
         LdapDN dn = new LdapDN( dnstr );
-        Entry ldif = new Entry();
+        LdifEntry ldif = new LdifEntry();
         ldif.setDn( dnstr );
         ldif.setChangeType( ChangeType.Add );
 

@@ -28,9 +28,11 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.support.extended.StartTlsHandler;
+import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
@@ -47,7 +49,11 @@ import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -59,7 +65,7 @@ import java.util.*;
 public abstract class AbstractServerTest extends TestCase
 {
     private static final Logger LOG = LoggerFactory.getLogger( AbstractServerTest.class );
-    private static final List<Entry> EMPTY_LIST = Collections.unmodifiableList( new ArrayList<Entry>( 0 ) );
+    private static final List<LdifEntry> EMPTY_LIST = Collections.unmodifiableList( new ArrayList<LdifEntry>( 0 ) );
     private static final String CTX_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
 
     /** the context root for the system partition */
@@ -97,19 +103,35 @@ public abstract class AbstractServerTest extends TestCase
      * @return a list of entries added to the server in the order they were added
      * @throws NamingException of the load fails
      */
-    protected List<Entry> loadTestLdif( boolean verifyEntries ) throws NamingException
+    protected List<LdifEntry> loadTestLdif( boolean verifyEntries ) throws NamingException
     {
-        InputStream in = getClass().getResourceAsStream( getClass().getSimpleName() + ".ldif" );
+        return loadLdif( getClass().getResourceAsStream( getClass().getSimpleName() + ".ldif" ), verifyEntries );
+    }
+
+
+    /**
+     * Loads an LDIF from an input stream and adds the entries it contains to 
+     * the server.  It appears as though the administrator added these entries
+     * to the server.
+     *
+     * @param in the input stream containing the LDIF entries to load
+     * @param verifyEntries whether or not all entry additions are checked
+     * to see if they were in fact correctly added to the server
+     * @return a list of entries added to the server in the order they were added
+     * @throws NamingException of the load fails
+     */
+    protected List<LdifEntry> loadLdif( InputStream in, boolean verifyEntries ) throws NamingException
+    {
         if ( in == null )
         {
             return EMPTY_LIST;
         }
         
         LdifReader ldifReader = new LdifReader( in );
-        List<Entry> entries = new ArrayList<Entry>();
+        List<LdifEntry> entries = new ArrayList<LdifEntry>();
         while ( ldifReader.hasNext() )
         {
-            Entry entry = ldifReader.next();
+            LdifEntry entry = ldifReader.next();
             rootDSE.createSubcontext( entry.getDn(), entry.getAttributes() );
             
             if ( verifyEntries )
@@ -136,7 +158,7 @@ public abstract class AbstractServerTest extends TestCase
      * @param entry the entry to verify
      * @throws NamingException if there are problems accessing the entry
      */
-    protected void verify( Entry entry ) throws NamingException
+    protected void verify( LdifEntry entry ) throws NamingException
     {
         Attributes readAttributes = rootDSE.getAttributes( entry.getDn() );
         NamingEnumeration<String> readIds = entry.getAttributes().getIDs();
@@ -231,11 +253,13 @@ public abstract class AbstractServerTest extends TestCase
         directoryService.startup();
 
         configureLdapServer();
+        ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
+        ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
         ldapServer.start();
-        setContexts( "uid=admin,ou=system", "secret" );
+        setContexts( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
 
-    protected void configureDirectoryService()
+    protected void configureDirectoryService() throws NamingException
     {
     }
 
@@ -308,7 +332,7 @@ public abstract class AbstractServerTest extends TestCase
         envFinal.put( Context.PROVIDER_URL, "" );
         rootDSE = new InitialLdapContext( envFinal, null );
 
-        envFinal.put( Context.PROVIDER_URL, "ou=schema" );
+        envFinal.put( Context.PROVIDER_URL, ServerDNConstants.OU_SCHEMA_DN );
         schemaRoot = new InitialLdapContext( envFinal, null );
     }
 
@@ -355,11 +379,11 @@ public abstract class AbstractServerTest extends TestCase
     {
         try
         {
-            Iterator<Entry> iterator = new LdifReader( in );
+            Iterator<LdifEntry> iterator = new LdifReader( in );
 
             while ( iterator.hasNext() )
             {
-                Entry entry = iterator.next();
+                LdifEntry entry = iterator.next();
                 LdapDN dn = new LdapDN( entry.getDn() );
                 rootDSE.createSubcontext( dn, entry.getAttributes() );
             }
@@ -382,9 +406,9 @@ public abstract class AbstractServerTest extends TestCase
     protected void injectEntries( String ldif ) throws NamingException
     {
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
-        for ( Entry entry : entries )
+        for ( LdifEntry entry : entries )
         {
             rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
         }

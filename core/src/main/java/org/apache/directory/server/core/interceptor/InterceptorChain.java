@@ -20,8 +20,34 @@
 package org.apache.directory.server.core.interceptor;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerSearchResult;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -33,9 +59,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.ConfigurationException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
-import java.util.*;
 
 
 /**
@@ -79,7 +102,7 @@ public class InterceptorChain
         }
 
 
-        public Attributes getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException
+        public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException
         {
             return nexus.getRootDSE( opContext );
         }
@@ -121,21 +144,21 @@ public class InterceptorChain
         }
 
 
-        public NamingEnumeration<SearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+        public NamingEnumeration<ServerSearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
         {
             return nexus.list( opContext );
         }
 
 
-        public NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
+        public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
         {
             return nexus.search( opContext );
         }
 
 
-        public Attributes lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
+        public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
         {
-            return ( Attributes ) nexus.lookup( opContext ).clone();
+            return ( ServerEntry ) nexus.lookup( opContext ).clone();
         }
 
 
@@ -196,7 +219,6 @@ public class InterceptorChain
 
     private Entry head;
 
-    @SuppressWarnings ( { "UnusedDeclaration" } )
     private DirectoryService directoryService;
 
 
@@ -514,7 +536,7 @@ public class InterceptorChain
     }
 
 
-    public Attributes getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
+    public ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -773,28 +795,7 @@ public class InterceptorChain
     }
 
 
-    /*public void modify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
-    {
-        Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
-        NextInterceptor next = entry.nextInterceptor;
-
-        try
-        {
-            head.modify( next, name, mods );
-        }
-        catch ( NamingException ne )
-        {
-            throw ne;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-        }
-    }*/
-
-
-    public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -816,7 +817,7 @@ public class InterceptorChain
     }
 
 
-    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
         throws NamingException
     {
         Entry entry = getStartingEntry();
@@ -839,7 +840,7 @@ public class InterceptorChain
     }
 
 
-    public Attributes lookup( LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -1040,7 +1041,7 @@ public class InterceptorChain
                 }
 
 
-                public Attributes getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
+                public ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1184,7 +1185,7 @@ public class InterceptorChain
                 }
 
                 
-                public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
+                public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1205,7 +1206,7 @@ public class InterceptorChain
                 }
 
 
-                public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
+                public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
                     throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1227,7 +1228,7 @@ public class InterceptorChain
                 }
 
 
-                public Attributes lookup( LookupOperationContext opContext ) throws NamingException
+                public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;

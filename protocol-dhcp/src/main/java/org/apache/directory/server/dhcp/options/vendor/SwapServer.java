@@ -18,11 +18,6 @@
  *  
  */
 
-/**
- * This specifies the IP address of the client's swap server.
- * 
- * The code for this option is 16 and its length is 4.
- */
 package org.apache.directory.server.dhcp.options.vendor;
 
 
@@ -30,18 +25,20 @@ import org.apache.directory.server.dhcp.options.AddressOption;
 
 
 /**
+ * This specifies the IP address of the client's swap server.
+ * 
+ * The code for this option is 16 and its length is 4.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class SwapServer extends AddressOption
 {
-    /**
-     * Creates a new instance of SwapServer.
-     *
-     * @param swapServer
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public SwapServer( byte[] swapServer )
+    public byte getTag()
     {
-        super( 16, swapServer );
+        return 16;
     }
 }

@@ -21,12 +21,12 @@ package org.apache.directory.server.core.partition;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
 
 /**
@@ -152,7 +152,7 @@ public abstract class AbstractPartition implements Partition
     {
         try
         {
-            return lookup( new LookupOperationContext( entryContext.getDn() ) ) != null;
+            return lookup( new LookupOperationContext( entryContext.getRegistries(), entryContext.getDn() ) ) != null;
         }
         catch ( NameNotFoundException e )
         {
@@ -166,7 +166,7 @@ public abstract class AbstractPartition implements Partition
      * with null <tt>attributeIds</tt> by default.  Please override
      * this method if there is more effective way for your implementation.
      */
-    public Attributes lookup( LookupOperationContext lookupContext ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext lookupContext ) throws NamingException
     {
         return null;
     }

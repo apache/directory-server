@@ -18,14 +18,6 @@
  *  
  */
 
-/**
- * This option specifies a list of RFC 887 Resource Location
- * servers available to the client.  Servers SHOULD be listed in order
- * of preference.
- * 
- * The code for this option is 11.  The minimum length for this option
- * is 4 octets, and the length MUST always be a multiple of 4.
- */
 package org.apache.directory.server.dhcp.options.vendor;
 
 
@@ -33,18 +25,23 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
 
 
 /**
+ * This option specifies a list of RFC 887 Resource Location
+ * servers available to the client.  Servers SHOULD be listed in order
+ * of preference.
+ * 
+ * The code for this option is 11.  The minimum length for this option
+ * is 4 octets, and the length MUST always be a multiple of 4.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class ResourceLocationServers extends AddressListOption
 {
-    /**
-     * Creates a new instance of ResourceLocationServers.
-     *
-     * @param resourceLocationServers
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public ResourceLocationServers( byte[] resourceLocationServers )
+    public byte getTag()
     {
-        super( 11, resourceLocationServers );
+        return 11;
     }
 }

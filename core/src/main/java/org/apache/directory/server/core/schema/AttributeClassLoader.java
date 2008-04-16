@@ -23,7 +23,12 @@ package org.apache.directory.server.core.schema;
 
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
+import javax.naming.directory.InvalidAttributeValueException;
+
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerBinaryValue;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 
 
 /**
@@ -34,7 +39,7 @@ import javax.naming.directory.Attribute;
  */
 public class AttributeClassLoader extends ClassLoader
 {
-    public Attribute attribute;
+    public ServerAttribute attribute;
     
 
     public AttributeClassLoader()
@@ -43,26 +48,32 @@ public class AttributeClassLoader extends ClassLoader
     }
     
     
-    public void setAttribute( Attribute attribute )
+    public void setAttribute( EntryAttribute attribute ) throws NamingException
     {
-        this.attribute = attribute;
+        if ( ((ServerAttribute)attribute).getAttributeType().getSyntax().isHumanReadable() )
+        {
+            throw new InvalidAttributeValueException( "The attribute must be binary" );
+        }
+        
+        this.attribute = (ServerAttribute)attribute;
     }
 
     
-    @SuppressWarnings("unchecked")
-    public Class findClass( String name ) throws ClassNotFoundException
+    public Class<?> findClass( String name ) throws ClassNotFoundException
     {
         byte[] classBytes = null;
         
-        try
-        {
-            classBytes = ( byte[] ) attribute.get();
-        }
-        catch ( NamingException e )
-        {
-            throw new ClassNotFoundException( "Failed to access attribute bytes.", e );
-        }
+        Value<?> value = attribute.get();
         
-        return defineClass( name, classBytes, 0, classBytes.length );
+        if ( value instanceof ServerBinaryValue )
+        {
+            classBytes = ((ServerBinaryValue)value).get();
+
+            return defineClass( name, classBytes, 0, classBytes.length );
+        }
+        else
+        {
+            throw new ClassNotFoundException( "Failed to access attribute bytes." );
+        }
     }
 }

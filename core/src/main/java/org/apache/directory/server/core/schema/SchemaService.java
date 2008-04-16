@@ -21,12 +21,15 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
@@ -40,12 +43,8 @@ import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
-import org.apache.directory.shared.ldap.util.ImmutableAttributesWrapper;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -59,15 +58,12 @@ import java.util.Set;
  */
 public class SchemaService
 {
-    public static final String SCHEMA_AREA_DN = "ou=schema";
-    public static final String SCHEMA_AREA_DN_NORMALIZED = "2.5.4.11=schema";
-
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String SCHEMA_TIMESTAMP_ENTRY_DN = "cn=schemaModifications,ou=schema";
 
 
     /** cached version of the schema subentry with all attributes in it */
-    private Attributes schemaSubentry;
+    private ServerEntry schemaSubentry;
     private final Object lock = new Object();
 
     /** a handle on the registries */
@@ -99,14 +95,14 @@ public class SchemaService
 
     public boolean isSchemaSubentry( String dnString ) throws NamingException
     {
-        if ( dnString.equalsIgnoreCase( ServerDNConstants.SCHEMA_DN ) ||
-             dnString.equalsIgnoreCase( ServerDNConstants.SCHEMA_DN_NORMALIZED ) )
+        if ( dnString.equalsIgnoreCase( ServerDNConstants.CN_SCHEMA_DN ) ||
+             dnString.equalsIgnoreCase( ServerDNConstants.CN_SCHEMA_DN_NORMALIZED ) )
         {
             return true;
         }
 
         LdapDN dn = new LdapDN( dnString ).normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        return dn.getNormName().equals( ServerDNConstants.SCHEMA_DN_NORMALIZED );
+        return dn.getNormName().equals( ServerDNConstants.CN_SCHEMA_DN_NORMALIZED );
     }
 
 
@@ -116,10 +112,13 @@ public class SchemaService
     }
 
 
-    private Attribute generateComparators()
+    private ServerAttribute generateComparators() throws NamingException
     {
-        Attribute attr = new AttributeImpl( SchemaConstants.COMPARATORS_AT );
+        ServerAttribute attr = new DefaultServerAttribute( 
+            registries.getAttributeTypeRegistry().lookup( SchemaConstants.COMPARATORS_AT ) );
+
         Iterator<ComparatorDescription> list = registries.getComparatorRegistry().comparatorDescriptionIterator();
+        
         while ( list.hasNext() )
         {
             ComparatorDescription description = list.next();
@@ -130,24 +129,28 @@ public class SchemaService
     }
 
 
-    private Attribute generateNormalizers()
+    private ServerAttribute generateNormalizers() throws NamingException
     {
-        Attribute attr;
-        attr = new AttributeImpl( SchemaConstants.NORMALIZERS_AT );
+        ServerAttribute attr = new DefaultServerAttribute( 
+            registries.getAttributeTypeRegistry().lookup( SchemaConstants.NORMALIZERS_AT ) );
+
         Iterator<NormalizerDescription> list = registries.getNormalizerRegistry().normalizerDescriptionIterator();
+
         while ( list.hasNext() )
         {
             NormalizerDescription normalizer = list.next();
             attr.add( SchemaUtils.render( normalizer ).toString() );
         }
+        
         return attr;
     }
 
 
-    private Attribute generateSyntaxCheckers()
+    private ServerAttribute generateSyntaxCheckers() throws NamingException
     {
-        Attribute attr;
-        attr = new AttributeImpl( SchemaConstants.SYNTAX_CHECKERS_AT );
+        ServerAttribute attr = new DefaultServerAttribute( 
+            registries.getAttributeTypeRegistry().lookup( SchemaConstants.SYNTAX_CHECKERS_AT ) );
+
         Iterator<SyntaxCheckerDescription> list =
             registries.getSyntaxCheckerRegistry().syntaxCheckerDescriptionIterator();
 
@@ -156,14 +159,16 @@ public class SchemaService
             SyntaxCheckerDescription syntaxCheckerDescription = list.next();
             attr.add( SchemaUtils.render( syntaxCheckerDescription ).toString() );
         }
+        
         return attr;
     }
 
 
-    private Attribute generateObjectClasses() throws NamingException
+    private ServerAttribute generateObjectClasses() throws NamingException
     {
-        Attribute attr;
-        attr = new AttributeImpl( SchemaConstants.OBJECT_CLASSES_AT );
+        ServerAttribute attr = new DefaultServerAttribute( 
+            registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASSES_AT ) );
+
         Iterator<ObjectClass> list = registries.getObjectClassRegistry().iterator();
 
         while ( list.hasNext() )
@@ -171,14 +176,16 @@ public class SchemaService
             ObjectClass oc = list.next();
             attr.add( SchemaUtils.render( oc ).toString() );
         }
+        
         return attr;
     }
 
 
-    private Attribute generateAttributeTypes() throws NamingException
+    private ServerAttribute generateAttributeTypes() throws NamingException
     {
-        Attribute attr;
-        attr = new AttributeImpl( SchemaConstants.ATTRIBUTE_TYPES_AT );
+        ServerAttribute attr = new DefaultServerAttribute( 
+            registries.getAttributeTypeRegistry().lookup( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
+
         Iterator<AttributeType> list = registries.getAttributeTypeRegistry().iterator();
 
         while ( list.hasNext() )
@@ -186,14 +193,16 @@ public class SchemaService
             AttributeType at = list.next();
             attr.add( SchemaUtils.render( at ).toString() );
         }
+
         return attr;
     }
 
 
-    private Attribute generateMatchingRules() throws NamingException
+    private ServerAttribute generateMatchingRules() throws NamingException
     {
-        Attribute attr;
-        attr = new AttributeImpl( SchemaConstants.MATCHING_RULES_AT );
+        ServerAttribute attr = new DefaultServerAttribute( 
+            registries.getAttributeTypeRegistry().lookup( SchemaConstants.MATCHING_RULES_AT ) );
+
         Iterator<MatchingRule> list = registries.getMatchingRuleRegistry().iterator();
 
         while ( list.hasNext() )
@@ -201,14 +210,16 @@ public class SchemaService
             MatchingRule mr = list.next();
             attr.add( SchemaUtils.render( mr ).toString() );
         }
+
         return attr;
     }
 
 
-    private Attribute generateMatchingRuleUses()
+    private ServerAttribute generateMatchingRuleUses() throws NamingException
     {
-        Attribute attr;
-        attr = new AttributeImpl( SchemaConstants.MATCHING_RULE_USE_AT );
+        ServerAttribute attr = new DefaultServerAttribute( 
+            registries.getAttributeTypeRegistry().lookup( SchemaConstants.MATCHING_RULE_USE_AT ) );
+
         Iterator<MatchingRuleUse> list = registries.getMatchingRuleUseRegistry().iterator();
 
         while ( list.hasNext() )
@@ -216,14 +227,16 @@ public class SchemaService
             MatchingRuleUse mru = list.next();
             attr.add( SchemaUtils.render( mru ).toString() );
         }
+
         return attr;
     }
 
 
-    private Attribute generateSyntaxes()
+    private ServerAttribute generateSyntaxes() throws NamingException
     {
-        Attribute attr;
-        attr = new AttributeImpl( SchemaConstants.LDAP_SYNTAXES_AT );
+        ServerAttribute attr = new DefaultServerAttribute( 
+            registries.getAttributeTypeRegistry().lookup( SchemaConstants.LDAP_SYNTAXES_AT ) );
+
         Iterator<Syntax> list = registries.getSyntaxRegistry().iterator();
 
         while ( list.hasNext() )
@@ -231,14 +244,16 @@ public class SchemaService
             Syntax syntax = list.next();
             attr.add( SchemaUtils.render( syntax ).toString() );
         }
+
         return attr;
     }
 
 
-    private Attribute generateDitContextRules()
+    private ServerAttribute generateDitContextRules() throws NamingException
     {
-        Attribute attr;
-        attr = new AttributeImpl( SchemaConstants.DIT_CONTENT_RULES_AT );
+        ServerAttribute attr = new DefaultServerAttribute( 
+            registries.getAttributeTypeRegistry().lookup( SchemaConstants.DIT_CONTENT_RULES_AT ) );
+
         Iterator<DITContentRule> list = registries.getDitContentRuleRegistry().iterator();
 
         while ( list.hasNext() )
@@ -246,29 +261,33 @@ public class SchemaService
             DITContentRule dcr = list.next();
             attr.add( SchemaUtils.render( dcr ).toString() );
         }
+        
         return attr;
     }
 
 
-    private Attribute generateDitStructureRules()
+    private ServerAttribute generateDitStructureRules() throws NamingException
     {
-        Attribute attr;
-        attr = new AttributeImpl( SchemaConstants.DIT_STRUCTURE_RULES_AT );
+        ServerAttribute attr = new DefaultServerAttribute( 
+            registries.getAttributeTypeRegistry().lookup( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
+
         Iterator<DITStructureRule> list = registries.getDitStructureRuleRegistry().iterator();
 
         while ( list.hasNext() )
         {
-            DITStructureRule dsr =list.next();
+            DITStructureRule dsr = list.next();
             attr.add( SchemaUtils.render( dsr ).toString() );
         }
+        
         return attr;
     }
 
 
-    private Attribute generateNameForms()
+    private ServerAttribute generateNameForms() throws NamingException
     {
-        Attribute attr;
-        attr = new AttributeImpl( SchemaConstants.NAME_FORMS_AT );
+        ServerAttribute attr = new DefaultServerAttribute( 
+            registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAME_FORMS_AT ) );
+
         Iterator<NameForm> list = registries.getNameFormRegistry().iterator();
 
         while ( list.hasNext() )
@@ -276,21 +295,22 @@ public class SchemaService
             NameForm nf = list.next();
             attr.add( SchemaUtils.render( nf ).toString() );
         }
+        
         return attr;
     }
 
 
-    private void generateSchemaSubentry( Attributes mods ) throws NamingException
+    private void generateSchemaSubentry( ServerEntry mods ) throws NamingException
     {
-        Attributes attrs = new AttributesImpl( true );
+        ServerEntry attrs = new DefaultServerEntry( registries, mods.getDn() );
 
         // add the objectClass attribute
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        oc.add( SchemaConstants.TOP_OC );
-        oc.add( "subschema" );
-        oc.add( SchemaConstants.SUBENTRY_OC );
-        oc.add( ApacheSchemaConstants.APACHE_SUBSCHEMA_OC );
-        attrs.put( oc );
+        attrs.put( SchemaConstants.OBJECT_CLASS_AT, 
+            SchemaConstants.TOP_OC,
+            SchemaConstants.SUBSCHEMA_OC,
+            SchemaConstants.SUBENTRY_OC,
+            ApacheSchemaConstants.APACHE_SUBSCHEMA_OC
+            );
 
         // add the cn attribute as required for the RDN
         attrs.put( SchemaConstants.CN_AT, "schema" );
@@ -307,43 +327,32 @@ public class SchemaService
         attrs.put( generateDitContextRules() );
         attrs.put( generateDitStructureRules() );
         attrs.put( generateNameForms() );
-        attrs.put( new AttributeImpl( SchemaConstants.SUBTREE_SPECIFICATION_AT, "{}" ) );
-
+        attrs.put( SchemaConstants.SUBTREE_SPECIFICATION_AT, "{}" );
 
         // -------------------------------------------------------------------
         // set standard operational attributes for the subentry
         // -------------------------------------------------------------------
 
         // Add the createTimestamp
-        Attribute attr = new AttributeImpl( SchemaConstants.CREATE_TIMESTAMP_AT );
         AttributeType createTimestampAT = registries.
             getAttributeTypeRegistry().lookup( SchemaConstants.CREATE_TIMESTAMP_AT );
-        Attribute createTimestamp = AttributeUtils.getAttribute( mods, createTimestampAT );
-        attr.add( createTimestamp.get() );
-        attrs.put( attr );
+        EntryAttribute createTimestamp = mods.get( createTimestampAT );
+        attrs.put( SchemaConstants.CREATE_TIMESTAMP_AT, createTimestamp.get() );
 
         // Add the creatorsName
-        attr = new AttributeImpl( SchemaConstants.CREATORS_NAME_AT );
-        attr.add( ServerDNConstants.ADMIN_SYSTEM_DN );
-        attrs.put( attr );
+        attrs.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
 
         // Add the modifyTimestamp
-        attr = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         AttributeType schemaModifyTimestampAT = registries.
             getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT );
-        Attribute schemaModifyTimestamp =
-            AttributeUtils.getAttribute( mods, schemaModifyTimestampAT );
-        attr.add( schemaModifyTimestamp.get() );
-        attrs.put( attr );
+        EntryAttribute schemaModifyTimestamp = mods.get( schemaModifyTimestampAT );
+        attrs.put( SchemaConstants.MODIFY_TIMESTAMP_AT, schemaModifyTimestamp.get() );
 
         // Add the modifiersName
-        attr = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         AttributeType schemaModifiersNameAT = registries.
             getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
-        Attribute schemaModifiersName =
-            AttributeUtils.getAttribute( mods, schemaModifiersNameAT );
-        attr.add( schemaModifiersName.get() );
-        attrs.put( attr );
+        EntryAttribute schemaModifiersName = mods.get( schemaModifiersNameAT );
+        attrs.put( SchemaConstants.MODIFIERS_NAME_AT, schemaModifiersName.get() );
 
         // don't swap out if a request for the subentry is in progress or we
         // can give back an inconsistent schema back to the client so we block
@@ -354,9 +363,9 @@ public class SchemaService
     }
 
 
-    private void addAttribute( Attributes attrs, String id ) throws NamingException
+    private void addAttribute( ServerEntry attrs, String id ) throws NamingException
     {
-        Attribute attr = schemaSubentry.get( id );
+        EntryAttribute attr = schemaSubentry.get( id );
 
         if ( attr != null )
         {
@@ -371,15 +380,15 @@ public class SchemaService
      * @return the schemaSubentry
      * @throws NamingException if there is a failure to access schema timestamps
      */
-    public Attributes getSubschemaEntryImmutable() throws NamingException
+    public ServerEntry getSubschemaEntryImmutable() throws NamingException
     {
         if ( schemaSubentry == null )
         {
             generateSchemaSubentry( schemaPartition.lookup(
-                    new LookupOperationContext( schemaModificationAttributesDN ) ) );
+                    new LookupOperationContext( registries, schemaModificationAttributesDN ) ) );
         }
 
-        return new ImmutableAttributesWrapper( schemaSubentry );
+        return (ServerEntry)schemaSubentry.clone();
     }
 
 
@@ -389,15 +398,15 @@ public class SchemaService
      * @return the schemaSubentry
      * @throws NamingException if there is a failure to access schema timestamps
      */
-    public Attributes getSubschemaEntryCloned() throws NamingException
+    public ServerEntry getSubschemaEntryCloned() throws NamingException
     {
         if ( schemaSubentry == null )
         {
             generateSchemaSubentry( schemaPartition.lookup(
-                    new LookupOperationContext( schemaModificationAttributesDN ) ) );
+                    new LookupOperationContext( registries, schemaModificationAttributesDN ) ) );
         }
 
-        return ( Attributes ) schemaSubentry.clone();
+        return ( ServerEntry ) schemaSubentry.clone();
     }
 
 
@@ -409,7 +418,7 @@ public class SchemaService
      * @return the subschema entry with the ids provided
      * @throws NamingException if there are failures during schema info access
      */
-    public Attributes getSubschemaEntry( String[] ids ) throws NamingException
+    public ServerEntry getSubschemaEntry( String[] ids ) throws NamingException
     {
         if ( ids == null )
         {
@@ -417,7 +426,7 @@ public class SchemaService
         }
 
         Set<String> setOids = new HashSet<String>();
-        AttributesImpl attrs = new AttributesImpl();
+        ServerEntry attrs = new DefaultServerEntry( registries, LdapDN.EMPTY_LDAPDN );
         boolean returnAllOperationalAttributes = false;
 
         synchronized( lock )
@@ -426,14 +435,13 @@ public class SchemaService
             // Check if we need an update by looking at timestamps on disk
             // ---------------------------------------------------------------
 
-            Attributes mods = schemaPartition.lookup( new LookupOperationContext( schemaModificationAttributesDN ) );
-            Attribute modifyTimeDisk = mods.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
-
-            Attribute modifyTimeMemory = null;
-
-            // @todo enable this optimization at some point but for now it
-            // is causing some problems so I will just turn it off
-
+            ServerEntry mods = schemaPartition.lookup( new LookupOperationContext( registries, schemaModificationAttributesDN ) );
+// @todo enable this optimization at some point but for now it
+// is causing some problems so I will just turn it off
+//          Attribute modifyTimeDisk = mods.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
+//
+//          Attribute modifyTimeMemory = null;
+//
 //            if ( schemaSubentry != null )
 //            {
 //                modifyTimeMemory = schemaSubentry.get( SchemaConstants.MODIFY_TIMESTAMP_AT );

@@ -18,6 +18,12 @@
  *  
  */
 
+package org.apache.directory.server.dhcp.options.perhost;
+
+
+import org.apache.directory.server.dhcp.options.DhcpOption;
+
+
 /**
  * This option specifies a table of MTU sizes to use when performing
  * Path MTU Discovery as defined in RFC 1191.  The table is formatted as
@@ -26,38 +32,17 @@
  * 
  * The code for this option is 25.  Its minimum length is 2, and the
  * length MUST be a multiple of 2.
- */
-package org.apache.directory.server.dhcp.options.perhost;
-
-
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
-
-
-/**
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class PathMtuPlateauTable extends DhcpOption
 {
-    private byte[] pathMtuPlateauTable;
-
-
-    /**
-     * Creates a new instance of PathMtuPlateauTable.
-     *
-     * @param pathMtuPlateauTable
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public PathMtuPlateauTable( byte[] pathMtuPlateauTable )
+    public byte getTag()
     {
-        super( 25, 2 );
-        this.pathMtuPlateauTable = pathMtuPlateauTable;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( pathMtuPlateauTable );
+        return 25;
     }
 }

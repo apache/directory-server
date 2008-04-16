@@ -20,6 +20,8 @@
 package org.apache.directory.server;
 
 
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.core.partition.Partition;
@@ -34,6 +36,7 @@ import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.crypto.spec.DESKeySpec;
 import javax.naming.Context;
@@ -44,7 +47,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -69,14 +78,8 @@ public class KeyDerivationServiceITest extends AbstractServerTest
     public void setUp() throws Exception
     {
         super.setUp();
-//        setAllowAnonymousAccess( false );
 
         Attributes attrs;
-
-//        doDelete( directoryService.getWorkingDirectory() );
-//        port = AvailablePortFinder.getNextAvailable( 1024 );
-//        ldapServer.setIpPort( port );
-//        directoryService.setShutdownHookEnabled( false );
 
 
         setContexts( "uid=admin,ou=system", "secret" );
@@ -88,6 +91,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         // check if krb5kdc is disabled
         Attributes krb5kdcAttrs = schemaRoot.getAttributes( "cn=Krb5kdc" );
         boolean isKrb5KdcDisabled = false;
+        
         if ( krb5kdcAttrs.get( "m-disabled" ) != null )
         {
             isKrb5KdcDisabled = ( ( String ) krb5kdcAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
@@ -102,16 +106,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
         }
 
-/*
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-*/
         ctx =   directoryService.getJndiContext( "dc=example,dc=com" );
-//                new InitialDirContext( env );
 
         attrs = getOrgUnitAttributes( "users" );
         DirContext users = ctx.createSubcontext( "ou=users", attrs );
@@ -120,9 +115,9 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         users.createSubcontext( "uid=hnelson", attrs );
     }
 
-    protected void configureDirectoryService()
+    protected void configureDirectoryService() throws NamingException
     {
-        Attributes attrs;
+        ServerEntry serverEntry;
         Set<Partition> partitions = new HashSet<Partition>();
 
         JdbmPartition partition;
@@ -138,15 +133,11 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         indexedAttrs.add( new JdbmIndex( "objectClass" ) );
         partition.setIndexedAttributes( indexedAttrs );
 
-        attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "objectClass" );
-        attr.add( "top" );
-        attr.add( "domain" );
-        attrs.put( attr );
-        attr = new AttributeImpl( "dc" );
-        attr.add( "example" );
-        attrs.put( attr );
-        partition.setContextEntry( attrs );
+        LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );
+        serverEntry = new DefaultServerEntry( directoryService.getRegistries(), exampleDn );
+        serverEntry.put( "objectClass", "top", "domain" );
+        serverEntry.put( "dc", "example" );
+        partition.setContextEntry( serverEntry );
 
         partitions.add( partition );
         directoryService.setPartitions( partitions );
@@ -178,7 +169,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         DirContext ctx = new InitialDirContext( env );
 
         String[] attrIDs =
-            { "uid", "userPassword", KerberosAttribute.KEY, KerberosAttribute.VERSION };
+            { "uid", "userPassword", KerberosAttribute.KRB5_KEY_AT, KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT };
 
         Attributes attributes = ctx.getAttributes( RDN, attrIDs );
 
@@ -205,7 +196,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
             { ( byte ) 0x73, ( byte ) 0x65, ( byte ) 0x63, ( byte ) 0x72, ( byte ) 0x65, ( byte ) 0x74 };
         assertTrue( Arrays.equals( userPassword, testPasswordBytes ) );
 
-        Attribute krb5key = attributes.get( KerberosAttribute.KEY );
+        Attribute krb5key = attributes.get( KerberosAttribute.KRB5_KEY_AT );
         Map<EncryptionType, EncryptionKey> map = reconstituteKeyMap( krb5key );
         EncryptionKey encryptionKey = map.get( EncryptionType.DES_CBC_MD5 );
 
@@ -218,9 +209,9 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         int keyVersionNumber = -1;
 
-        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 0, keyVersionNumber );
@@ -254,7 +245,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         Attributes attributes = new AttributesImpl( true );
         Attribute attr = new AttributeImpl( "userPassword", newUserPassword );
         attributes.put( attr );
-        attr = new AttributeImpl( KerberosAttribute.PRINCIPAL, newPrincipalName );
+        attr = new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, newPrincipalName );
         attributes.put( attr );
 
         DirContext person = ( DirContext ) ctx.lookup( RDN );
@@ -292,9 +283,9 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         int keyVersionNumber = -1;
 
-        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 1, keyVersionNumber );
@@ -305,7 +296,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         attributes = new AttributesImpl( true );
         attr = new AttributeImpl( "userPassword", newUserPassword );
         attributes.put( attr );
-        attr = new AttributeImpl( KerberosAttribute.PRINCIPAL, newPrincipalName );
+        attr = new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, newPrincipalName );
         attributes.put( attr );
 
         person = ( DirContext ) ctx.lookup( RDN );
@@ -323,9 +314,9 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         assertEquals( "password length", 18, userPassword.length );
 
-        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 2, keyVersionNumber );
@@ -336,7 +327,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         attributes = new AttributesImpl( true );
         attr = new AttributeImpl( "userPassword", newUserPassword );
         attributes.put( attr );
-        attr = new AttributeImpl( KerberosAttribute.PRINCIPAL, newPrincipalName );
+        attr = new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, newPrincipalName );
         attributes.put( attr );
 
         person = ( DirContext ) ctx.lookup( RDN );
@@ -354,9 +345,9 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         assertEquals( "password length", 24, userPassword.length );
 
-        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 3, keyVersionNumber );
@@ -426,9 +417,9 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         int keyVersionNumber = -1;
 
-        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 1, keyVersionNumber );
@@ -455,9 +446,9 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         assertEquals( "password length", 18, userPassword.length );
 
-        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 2, keyVersionNumber );
@@ -484,9 +475,9 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         assertEquals( "password length", 24, userPassword.length );
 
-        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 3, keyVersionNumber );
@@ -633,8 +624,8 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         attrs.put( "sn", sn );
         attrs.put( "uid", uid );
         attrs.put( "userPassword", userPassword );
-        attrs.put( KerberosAttribute.PRINCIPAL, principal );
-        attrs.put( KerberosAttribute.VERSION, "0" );
+        attrs.put( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal );
+        attrs.put( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, "0" );
 
         return attrs;
     }

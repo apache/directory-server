@@ -22,14 +22,14 @@ package org.apache.directory.server.core.event;
 
 import java.util.Comparator;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -43,7 +43,6 @@ import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -103,9 +102,9 @@ public class LeafEvaluator implements Evaluator
 
 
     /**
-     * @see Evaluator#evaluate(ExprNode, String, Attributes)
+     * @see Evaluator#evaluate(ExprNode, String, ServerEntry)
      */
-    public boolean evaluate( ExprNode node, String dn, Attributes entry ) throws NamingException
+    public boolean evaluate( ExprNode node, String dn, ServerEntry entry ) throws NamingException
     {
         if ( node instanceof ScopeNode )
         {
@@ -155,13 +154,13 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws javax.naming.NamingException if there is a database access failure
      */
-    private boolean evalGreaterOrLesser( SimpleNode node, Attributes entry, boolean isGreaterOrLesser ) throws NamingException
+    private boolean evalGreaterOrLesser( SimpleNode node, ServerEntry entry, boolean isGreaterOrLesser ) throws NamingException
     {
         String attrId = node.getAttribute();
 
         // get the attribute associated with the node
         AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( attrId ) );
-        Attribute attr = AttributeUtils.getAttribute( entry, type );
+        EntryAttribute attr = entry.get( type );
 
         // If we do not have the attribute just return false
         if ( null == attr )
@@ -176,7 +175,6 @@ public class LeafEvaluator implements Evaluator
         Normalizer normalizer = getNormalizer( attrId );
         Comparator comparator = getComparator( attrId );
         Object filterValue = normalizer.normalize( node.getValue() );
-        NamingEnumeration list = attr.getAll();
 
         /*
          * Cheaper to not check isGreater in one loop - better to separate
@@ -184,12 +182,12 @@ public class LeafEvaluator implements Evaluator
          */
         if ( isGreaterOrLesser == COMPARE_GREATER )
         {
-            while ( list.hasMore() )
+            for ( Value<?> value:attr )
             {
-                Object value = normalizer.normalize( list.next() );
+                Object normValue = normalizer.normalize( value );
 
                 // Found a value that is greater than or equal to the ava value
-                if ( 0 >= comparator.compare( value, filterValue ) )
+                if ( 0 >= comparator.compare( normValue, filterValue ) )
                 {
                     return true;
                 }
@@ -197,12 +195,12 @@ public class LeafEvaluator implements Evaluator
         }
         else
         {
-            while ( list.hasMore() )
+            for ( Value<?> value:attr )
             {
-                Object value = normalizer.normalize( list.next() );
+                Object normValue = normalizer.normalize( value );
 
                 // Found a value that is less than or equal to the ava value
-                if ( 0 <= comparator.compare( value, filterValue ) )
+                if ( 0 <= comparator.compare( normValue, filterValue ) )
                 {
                     return true;
                 }
@@ -222,15 +220,14 @@ public class LeafEvaluator implements Evaluator
      * @param entry the perspective candidate
      * @return the ava evaluation on the perspective candidate
      */
-    private boolean evalPresence( String attrId, Attributes entry ) throws NamingException
+    private boolean evalPresence( String attrId, ServerEntry entry ) throws NamingException
     {
         if ( entry == null )
         {
             return false;
         }
 
-        AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( attrId ) );
-        return null != AttributeUtils.getAttribute( entry, type );
+        return null != entry.get( attrId );
     }
 
 
@@ -243,14 +240,13 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws javax.naming.NamingException if there is a database access failure
      */
-    private boolean evalEquality( EqualityNode node, Attributes entry ) throws NamingException
+    private boolean evalEquality( EqualityNode node, ServerEntry entry ) throws NamingException
     {
         Normalizer normalizer = getNormalizer( node.getAttribute() );
         Comparator comparator = getComparator( node.getAttribute() );
 
         // get the attribute associated with the node
-        AttributeType type = attributeTypeRegistry.lookup( node.getAttribute() );
-        Attribute attr = AttributeUtils.getAttribute( entry, type );
+        EntryAttribute attr = entry.get( node.getAttribute() );
 
         // If we do not have the attribute just return false
         if ( null == attr )
@@ -259,7 +255,14 @@ public class LeafEvaluator implements Evaluator
         }
 
         // check if AVA value exists in attribute
-        if ( AttributeUtils.containsValue( attr, node.getValue(), type ) )
+        if ( node.getValue() instanceof String )
+        {
+            if ( attr.contains( (String)node.getValue() ) )
+            {
+                return true;
+            }
+        }
+        else if ( attr.contains( (byte[])node.getValue() ) )
         {
             return true;
         }
@@ -268,23 +271,30 @@ public class LeafEvaluator implements Evaluator
         Object filterValue = normalizer.normalize( node.getValue() );
 
         // check if the normalized value is present
-        if ( AttributeUtils.containsValue( attr, filterValue, type ) )
+        if ( filterValue instanceof String)
+        {
+            if ( attr.contains( (String)filterValue ) )
+            {
+                return true;
+            }
+        }
+        else if ( attr.contains( (byte[])filterValue ) )
         {
             return true;
         }
+
+                
 
         /*
          * We need to now iterate through all values because we could not get
          * a lookup to work.  For each value we normalize and use the comparator
          * to determine if a match exists.
          */
-        NamingEnumeration list = attr.getAll();
-        
-        while ( list.hasMore() )
+        for( Value<?> value:attr )
         {
-            Object value = normalizer.normalize( list.next() );
+            Object normValue = normalizer.normalize( value.get() );
 
-            if ( 0 == comparator.compare( value, filterValue ) )
+            if ( 0 == comparator.compare( normValue, filterValue ) )
             {
                 return true;
             }

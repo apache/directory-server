@@ -21,10 +21,24 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.*;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.DefaultOptimizer;
+import org.apache.directory.server.core.partition.impl.btree.DefaultSearchEngine;
+import org.apache.directory.server.core.partition.impl.btree.ExpressionEnumerator;
+import org.apache.directory.server.core.partition.impl.btree.ExpressionEvaluator;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
+import org.apache.directory.server.core.partition.impl.btree.NoOpOptimizer;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -33,6 +47,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -136,10 +151,9 @@ public class JdbmPartition extends BTreePartition
 
     protected void initRegistries( Registries registries )
     {
-        attributeTypeRegistry = registries.getAttributeTypeRegistry();
-        oidRegistry = registries.getOidRegistry();
-        ExpressionEvaluator evaluator = new ExpressionEvaluator( this, oidRegistry, attributeTypeRegistry );
-        ExpressionEnumerator enumerator = new ExpressionEnumerator( this, attributeTypeRegistry, evaluator );
+        this.registries = registries;
+        ExpressionEvaluator evaluator = new ExpressionEvaluator( this, registries );
+        ExpressionEnumerator enumerator = new ExpressionEnumerator( this, registries.getAttributeTypeRegistry(), evaluator );
         this.searchEngine = new DefaultSearchEngine( this, evaluator, enumerator, optimizer );
         store.initRegistries( registries );
     }
@@ -183,8 +197,8 @@ public class JdbmPartition extends BTreePartition
                 index.setWkDirPath( obj.getWkDirPath() );
             }
 
-            String oid = oidRegistry.getOid( index.getAttributeId() );
-            if ( SYS_INDEX_OIDS.contains( oidRegistry.getOid( index.getAttributeId() ) ) )
+            String oid = registries.getOidRegistry().getOid( index.getAttributeId() );
+            if ( SYS_INDEX_OIDS.contains( registries.getOidRegistry().getOid( index.getAttributeId() ) ) )
             {
                 if ( oid.equals( Oid.ALIAS ) )
                 {
@@ -227,7 +241,7 @@ public class JdbmPartition extends BTreePartition
             store.setEnableOptimizer( isOptimizerEnabled() );
         }
 
-        store.init( oidRegistry, attributeTypeRegistry );
+        store.init( registries.getOidRegistry(), registries.getAttributeTypeRegistry() );
     }
 
 
@@ -368,13 +382,13 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final Iterator getUserIndices()
+    public final Iterator<String> getUserIndices()
     {
         return store.userIndices();
     }
 
 
-    public final Iterator getSystemIndices()
+    public final Iterator<String> getSystemIndices()
     {
         return store.systemIndices();
     }
@@ -454,7 +468,7 @@ public class JdbmPartition extends BTreePartition
     
     public final void add( AddOperationContext addContext ) throws NamingException
     {
-        store.add( addContext.getDn(), addContext.getEntry() );
+        store.add( addContext.getDn(), ServerEntryUtils.toAttributesImpl( addContext.getEntry() ) );
     }
 
 
@@ -541,12 +555,13 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
+    public final void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException
     {
         if ( bindDn == null || credentials == null || mechanisms == null ||  saslAuthId == null )
         {
             // do nothing just using variables to prevent yellow lights : bad :)
         }
+        
         // does nothing
         throw new LdapAuthenticationNotSupportedException(
                 "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n"

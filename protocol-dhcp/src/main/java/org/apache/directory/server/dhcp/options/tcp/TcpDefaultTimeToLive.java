@@ -21,9 +21,7 @@
 package org.apache.directory.server.dhcp.options.tcp;
 
 
-import java.nio.ByteBuffer;
-
-import org.apache.directory.server.dhcp.options.DhcpOption;
+import org.apache.directory.server.dhcp.options.ByteOption;
 
 
 /**
@@ -36,25 +34,13 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class TcpDefaultTimeToLive extends DhcpOption
+public class TcpDefaultTimeToLive extends ByteOption
 {
-    private byte[] tcpDefaultTimeToLive;
-
-
-    /**
-     * Creates a new instance of TcpDefaultTimeToLive.
-     *
-     * @param tcpDefaultTimeToLive
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
      */
-    public TcpDefaultTimeToLive( byte[] tcpDefaultTimeToLive )
+    public byte getTag()
     {
-        super( 37, 1 );
-        this.tcpDefaultTimeToLive = tcpDefaultTimeToLive;
-    }
-
-
-    protected void valueToByteBuffer( ByteBuffer out )
-    {
-        out.put( tcpDefaultTimeToLive );
+        return 37;
     }
 }
