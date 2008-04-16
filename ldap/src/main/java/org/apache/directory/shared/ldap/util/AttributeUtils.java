@@ -20,14 +20,9 @@
 package org.apache.directory.shared.ldap.util;
 
 
-import org.apache.directory.shared.ldap.common.ServerAttribute;
-import org.apache.directory.shared.ldap.common.ServerAttributeImpl;
-import org.apache.directory.shared.ldap.common.ServerEntry;
-import org.apache.directory.shared.ldap.common.ServerEntryImpl;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
@@ -98,6 +93,11 @@ public class AttributeUtils
         if ( value1 == value2 )
         {
             return true;
+        }
+        
+        if ( value1 == null )
+        {
+            return ( value2 == null );
         }
         
         if ( value1 instanceof byte[] )
@@ -274,52 +274,6 @@ public class AttributeUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the modification item on the attributeType specified
      */
-    public static final ModificationItem getModificationItem( ModificationItem[] mods, AttributeType type )
-    {
-        // optimization bypass to avoid cost of the loop below
-        if ( type.getNames().length == 1 )
-        {
-            for ( int jj = 0; jj < mods.length; jj++ )
-            {
-                if ( mods[jj].getAttribute().getID().equalsIgnoreCase( type.getNames()[0] ) )
-                {
-                    return mods[jj];
-                }
-            }
-        }
-        
-        // check if the attribute's OID is used
-        for ( int jj = 0; jj < mods.length; jj++ )
-        {
-            if ( mods[jj].getAttribute().getID().equals( type.getOid() ) )
-            {
-                return mods[jj];
-            }
-        }
-        
-        // iterate through aliases
-        for ( int ii = 0; ii < type.getNames().length; ii++ )
-        {
-            for ( int jj = 0; jj < mods.length; jj++ )
-            {
-                if ( mods[jj].getAttribute().getID().equalsIgnoreCase( type.getNames()[ii] ) )
-                {
-                    return mods[jj];
-                }
-            }
-        }
-        
-        return null;
-    }
-    
-    
-    /**
-     * Utility method to extract a modification item from an array of modifications.
-     * 
-     * @param mods the array of ModificationItems to extract the Attribute from.
-     * @param type the attributeType spec of the Attribute to extract
-     * @return the modification item on the attributeType specified
-     */
     public static final ModificationItem getModificationItem( List<ModificationItemImpl> mods, AttributeType type )
     {
         // optimization bypass to avoid cost of the loop below
@@ -359,46 +313,6 @@ public class AttributeUtils
     }
 
     
-    /**
-     * Utility method to extract an attribute from an array of modifications.
-     * 
-     * @param mods the array of ModificationItems to extract the Attribute from.
-     * @param type the attributeType spec of the Attribute to extract
-     * @return the extract Attribute or null if no such attribute exists
-     */
-    public static final Attribute getAttribute( ModificationItem[] mods, AttributeType type )
-    {
-        ModificationItem mod = getModificationItem( mods, type );
-        
-        if ( mod != null )
-        {
-            return mod.getAttribute();
-        }
-        
-        return null;
-    }
-    
-
-    /**
-     * Utility method to extract an attribute from a list of modifications.
-     * 
-     * @param mods the list of ModificationItems to extract the Attribute from.
-     * @param type the attributeType spec of the Attribute to extract
-     * @return the extract Attribute or null if no such attribute exists
-     */
-    public static Attribute getAttribute( List<ModificationItemImpl> mods, AttributeType type )
-    {
-        ModificationItem mod = getModificationItem( mods, type );
-        
-        if ( mod != null )
-        {
-            return mod.getAttribute();
-        }
-        
-        return null;
-    }
-    
-
     /**
      * Check if an attribute contains a specific value, using the associated matchingRule for that
      *
@@ -1122,68 +1036,6 @@ public class AttributeUtils
     {
         return toString( "", attributes );
     }
-    
-    
-    /**
-     * Convert a BasicAttribute or an AttributeImpl instance to a
-     * ServerAttribute instance
-     *
-     * @param attribute The attribute to convert
-     * @return A ServerAttributeImpl instance 
-     */
-    public static ServerAttribute convertAttribute( Attribute attribute ) throws NamingException
-    {
-        assert( attribute != null );
-        
-        ServerAttribute serverAttribute = new ServerAttributeImpl( attribute.getID() );
-        NamingEnumeration<?> values = attribute.getAll();
-        
-        while ( values.hasMoreElements() )
-        {
-            Object value = values.nextElement();
-            
-            if ( value instanceof String )
-            {
-                serverAttribute.add( (String)value );
-            }
-            else if ( value instanceof byte[] )
-            {
-                serverAttribute.add( (byte[])value );
-            }
-            else
-            {
-                serverAttribute.add( (String)null );
-            }
-        }
-        
-        return serverAttribute;
-    }
-    
-    
-    /**
-     * Convert an instance of Attributes to an instance of ServerEntry
-     *
-     * @param attributes The instance to convert
-     * @return An instance of ServerEntryImpl
-     */
-    public static ServerEntry convertEntry( LdapDN dn, Attributes attributes ) throws NamingException
-    {
-        assert( dn != null );
-        assert( attributes != null );
-        
-        ServerEntry serverEntry = new ServerEntryImpl( dn );
-        
-        NamingEnumeration<? extends Attribute> attrs = attributes.getAll();
-        
-        while ( attrs.hasMoreElements() )
-        {
-            Attribute attribute = attrs.nextElement();
-            serverEntry.put( convertAttribute( attribute ) );
-        }
-        
-        return serverEntry;
-    }
-
 
 
     /**

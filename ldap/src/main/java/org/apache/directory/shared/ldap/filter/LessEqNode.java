@@ -36,7 +36,7 @@ public class LessEqNode extends SimpleNode
      */
     public LessEqNode( String attribute, byte[] value )
     {
-        super( attribute, value );
+        super( attribute, value, AssertionType.LESSEQ );
     }
 
 
@@ -48,10 +48,19 @@ public class LessEqNode extends SimpleNode
      */
     public LessEqNode( String attribute, String value )
     {
-        super( attribute, value );
+        super( attribute, value, AssertionType.LESSEQ );
     }
 
+    
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        return super.hashCode();
+    }
 
+    
     /**
      * @see Object#toString()
      */

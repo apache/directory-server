@@ -50,8 +50,7 @@ public class ItemPermission extends Permission
      * @param userClasses
      *            the collection of {@link UserClass}es
      */
-    public ItemPermission( int precedence, Collection<GrantAndDenial> grantsAndDenials,
-        Collection<UserClass> userClasses )
+    public ItemPermission( int precedence, Collection<GrantAndDenial> grantsAndDenials, Collection<UserClass> userClasses )
     {
         super( precedence, grantsAndDenials );
 
@@ -71,7 +70,7 @@ public class ItemPermission extends Permission
     public String toString()
     {
         StringBuilder buffer = new StringBuilder();
-
+        
         buffer.append( "{ " );
 
         if ( getPrecedence() >= 0 && getPrecedence() <= 255 )
@@ -80,14 +79,14 @@ public class ItemPermission extends Permission
             buffer.append( getPrecedence() );
             buffer.append( ", " );
         }
-
+        
         buffer.append( "userClasses { " );
-
+        
         boolean isFirst = true;
-
-        for ( UserClass userClass : userClasses )
+        
+        for ( UserClass userClass:userClasses )
         {
-            if ( isFirst )
+            if ( isFirst ) 
             {
                 isFirst = false;
             }
@@ -98,12 +97,12 @@ public class ItemPermission extends Permission
 
             buffer.append( userClass.toString() );
         }
-
+        
         buffer.append( " }, grantsAndDenials { " );
-
+        
         isFirst = true;
-
-        for ( GrantAndDenial grantAndDenial : getGrantsAndDenials() )
+        
+        for ( GrantAndDenial grantAndDenial:getGrantsAndDenials() )
         {
             if ( isFirst )
             {
@@ -116,9 +115,9 @@ public class ItemPermission extends Permission
 
             buffer.append( grantAndDenial.toString() );
         }
-
+        
         buffer.append( " } }" );
-
+        
         return buffer.toString();
     }
 }

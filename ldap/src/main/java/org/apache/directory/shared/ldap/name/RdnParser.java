@@ -379,7 +379,7 @@ public class RdnParser
             // This is an empty value
             return "";
         }
-
+        
         //StringBuffer sb = new StringBuffer();
         byte c = bytes[pos.start];
         byte[] buffer = new byte[bytes.length];
@@ -907,6 +907,11 @@ public class RdnParser
      */
     public static int parse( byte[] dn, Position pos, Rdn rdn ) throws InvalidNameException
     {
+    	if ( rdn == null )
+    	{
+    		throw new InvalidNameException( "Cannot feed a null RDN structure" );
+    	}
+    	
         String type = null;
         Object value = null;
         int start = pos.start;
@@ -921,10 +926,7 @@ public class RdnParser
             return DNUtils.PARSING_ERROR;
         }
 
-        if ( rdn != null )
-        {
-            pos.start = pos.end;
-        }
+        pos.start = pos.end;
 
         StringTools.trimLeft( dn, pos );
 
@@ -946,14 +948,11 @@ public class RdnParser
             return DNUtils.PARSING_ERROR;
         }
 
-        if ( rdn != null )
-        {
-            rdn.addAttributeTypeAndValue( type, type, value, value );
-            rdn.normalize();
+        rdn.addAttributeTypeAndValue( type, type, value, value );
+        rdn.normalize();
 
-            pos.start = pos.end;
-            pos.length = 0;
-        }
+        pos.start = pos.end;
+        pos.length = 0;
 
         if ( parseNameComponents( dn, pos, rdn ) == DNUtils.PARSING_ERROR )
         {

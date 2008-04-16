@@ -152,13 +152,13 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdifReader implements Iterator<Entry>
+public class LdifReader implements Iterator<LdifEntry>
 {
     /** A logger */
     private static final Logger LOG = LoggerFactory.getLogger( LdifReader.class );
 
     /** A private class to track the current position in a line */
-    private class Position
+    protected class Position
     {
         public int pos;
 
@@ -179,54 +179,54 @@ public class LdifReader implements Iterator<Entry>
     }
 
     /** A list of read lines */
-    private List<String> lines;
+    protected List<String> lines;
 
     /** The current position */
-    private Position position;
+    protected Position position;
 
     /** The ldif file version default value */
-    private static final int DEFAULT_VERSION = 1;
+    protected static final int DEFAULT_VERSION = 1;
 
     /** The ldif version */
-    private int version;
+    protected int version;
 
     /** Type of element read */
-    private static final int ENTRY = 0;
+    protected static final int ENTRY = 0;
 
-    private static final int CHANGE = 1;
+    protected static final int CHANGE = 1;
 
-    private static final int UNKNOWN = 2;
+    protected static final int UNKNOWN = 2;
 
     /** Size limit for file contained values */
-    private long sizeLimit = SIZE_LIMIT_DEFAULT;
+    protected long sizeLimit = SIZE_LIMIT_DEFAULT;
 
     /** The default size limit : 1Mo */
-    private static final long SIZE_LIMIT_DEFAULT = 1024000;
+    protected static final long SIZE_LIMIT_DEFAULT = 1024000;
 
     /** State values for the modify operation */
-    private static final int MOD_SPEC = 0;
+    protected static final int MOD_SPEC = 0;
 
-    private static final int ATTRVAL_SPEC = 1;
+    protected static final int ATTRVAL_SPEC = 1;
 
-    private static final int ATTRVAL_SPEC_OR_SEP = 2;
+    protected static final int ATTRVAL_SPEC_OR_SEP = 2;
 
     /** Iterator prefetched entry */
-    private Entry prefetched;
+    protected LdifEntry prefetched;
 
     /** The ldif Reader */
-    private Reader in;
+    protected Reader in;
 
     /** A flag set if the ldif contains entries */
-    private boolean containsEntries;
+    protected boolean containsEntries;
 
     /** A flag set if the ldif contains changes */
-    private boolean containsChanges;
+    protected boolean containsChanges;
 
     /**
      * An Exception to handle error message, has Iterator.next() can't throw
      * exceptions
      */
-    private Exception error;
+    protected Exception error;
 
     /**
      * Constructors
@@ -551,7 +551,7 @@ public class LdifReader implements Iterator<Entry>
      *            The starting position in the line
      * @return A String or a byte[], depending of the kind of value we get
      */
-    private static Object parseSimpleValue( String line, int pos )
+    protected static Object parseSimpleValue( String line, int pos )
     {
         if ( line.length() > pos + 1 )
         {
@@ -585,7 +585,7 @@ public class LdifReader implements Iterator<Entry>
      * @throws NamingException
      *             If something went wrong
      */
-    private Object parseValue( String line, int pos ) throws NamingException
+    protected Object parseValue( String line, int pos ) throws NamingException
     {
         if ( line.length() > pos + 1 )
         {
@@ -855,7 +855,7 @@ public class LdifReader implements Iterator<Entry>
      * @throws NamingException
      *             If anything goes wrong
      */
-    public void parseAttributeValue( Entry entry, String line, String lowerLine ) throws NamingException
+    public void parseAttributeValue( LdifEntry entry, String line, String lowerLine ) throws NamingException
     {
         int colonIndex = line.indexOf( ':' );
 
@@ -884,7 +884,7 @@ public class LdifReader implements Iterator<Entry>
      * @throws NamingException
      *             If anything goes wrong
      */
-    private void parseModRdn( Entry entry, Iterator<String> iter ) throws NamingException
+    private void parseModRdn( LdifEntry entry, Iterator<String> iter ) throws NamingException
     {
         // We must have two lines : one starting with "newrdn:" or "newrdn::",
         // and the second starting with "deleteoldrdn:"
@@ -955,7 +955,7 @@ public class LdifReader implements Iterator<Entry>
      * @param iter
      *            The lines
      */
-    private void parseModify( Entry entry, Iterator<String> iter ) throws NamingException
+    private void parseModify( LdifEntry entry, Iterator<String> iter ) throws NamingException
     {
         int state = MOD_SPEC;
         String modified = null;
@@ -1105,7 +1105,7 @@ public class LdifReader implements Iterator<Entry>
      *            The associated control, if any
      * @return A modification entry
      */
-    private void parseChange( Entry entry, Iterator<String> iter, ChangeType operation, Control control ) throws NamingException
+    private void parseChange( LdifEntry entry, Iterator<String> iter, ChangeType operation, Control control ) throws NamingException
     {
         // The changetype and operation has already been parsed.
         entry.setChangeType( operation );
@@ -1187,7 +1187,7 @@ public class LdifReader implements Iterator<Entry>
      * &lt;distinguishedName&gt; | "dn::" &lt;fill&gt; &lt;base64-distinguishedName&gt;
      * &lt;changerecord&gt; ::= "changetype:" &lt;fill&gt; &lt;change-op&gt;
      */
-    private Entry parseEntry() throws NamingException
+    private LdifEntry parseEntry() throws NamingException
     {
         if ( ( lines == null ) || ( lines.size() == 0 ) )
         {
@@ -1201,7 +1201,7 @@ public class LdifReader implements Iterator<Entry>
         String dn = parseDn( line );
 
         // Ok, we have found a DN
-        Entry entry = new Entry();
+        LdifEntry entry = new LdifEntry();
         entry.setDn( dn );
 
         // We remove this dn from the lines
@@ -1408,7 +1408,7 @@ public class LdifReader implements Iterator<Entry>
      * 
      * @throws NamingException If something went wrong
      */
-    private void readLines() throws NamingException
+    protected void readLines() throws NamingException
     {
         String line = null;
         boolean insideComment = true;
@@ -1501,7 +1501,7 @@ public class LdifReader implements Iterator<Entry>
      * @throws NamingException
      *             If the parsing fails
      */
-    public List<Entry> parseLdifFile( String fileName ) throws NamingException
+    public List<LdifEntry> parseLdifFile( String fileName ) throws NamingException
     {
         return parseLdifFile( fileName, Charset.forName( StringTools.getDefaultCharsetName() ).toString() );
     }
@@ -1517,7 +1517,7 @@ public class LdifReader implements Iterator<Entry>
      * @throws NamingException
      *             If the parsing fails
      */
-    public List<Entry> parseLdifFile( String fileName, String encoding ) throws NamingException
+    public List<LdifEntry> parseLdifFile( String fileName, String encoding ) throws NamingException
     {
         if ( StringTools.isEmpty( fileName ) )
         {
@@ -1558,13 +1558,13 @@ public class LdifReader implements Iterator<Entry>
      * @throws NamingException
      *             If something went wrong
      */
-    public List<Entry> parseLdif( String ldif ) throws NamingException
+    public List<LdifEntry> parseLdif( String ldif ) throws NamingException
     {
         LOG.debug( "Starts parsing ldif buffer" );
 
         if ( StringTools.isEmpty( ldif ) )
         {
-            return new ArrayList<Entry>();
+            return new ArrayList<LdifEntry>();
         }
 
         StringReader strIn = new StringReader( ldif );
@@ -1572,7 +1572,7 @@ public class LdifReader implements Iterator<Entry>
 
         try
         {
-            List<Entry> entries = parseLdif( inf );
+            List<LdifEntry> entries = parseLdif( inf );
 
             if ( LOG.isDebugEnabled() )
             {
@@ -1597,13 +1597,13 @@ public class LdifReader implements Iterator<Entry>
      * 
      * @return the next LDIF as a String.
      */
-    public Entry next() throws NoSuchElementException
+    public LdifEntry next() throws NoSuchElementException
     {
         try
         {
             LOG.debug( "next(): -- called" );
 
-            Entry entry = prefetched;
+            LdifEntry entry = prefetched;
             readLines();
 
             try
@@ -1652,7 +1652,7 @@ public class LdifReader implements Iterator<Entry>
     /**
      * @return An iterator on the file
      */
-    public Iterator<Entry> iterator()
+    public Iterator<LdifEntry> iterator()
     {
         return this;
     }
@@ -1683,10 +1683,10 @@ public class LdifReader implements Iterator<Entry>
      * @throws NamingException
      *             If something went wrong
      */
-    public List<Entry> parseLdif( BufferedReader inf ) throws NamingException
+    public List<LdifEntry> parseLdif( BufferedReader inf ) throws NamingException
     {
         // Create a list that will contain the read entries
-        List<Entry> entries = new ArrayList<Entry>();
+        List<LdifEntry> entries = new ArrayList<LdifEntry>();
 
         this.in = inf;
 
@@ -1697,7 +1697,7 @@ public class LdifReader implements Iterator<Entry>
         // When done, get the entries one by one.
         while ( hasNext() )
         {
-            Entry entry = next();
+            LdifEntry entry = next();
 
             if ( error != null )
             {

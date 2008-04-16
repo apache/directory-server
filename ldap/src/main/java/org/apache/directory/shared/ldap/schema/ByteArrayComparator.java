@@ -29,14 +29,14 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ByteArrayComparator implements Comparator
+public class ByteArrayComparator implements Comparator<byte[]>
 {
-    public static final ByteArrayComparator INSTANCE = new ByteArrayComparator();
+    public static final Comparator<byte[]> INSTANCE = new ByteArrayComparator();
 
     /* (non-Javadoc)
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
-    public int compare( Object o1, Object o2 )
+    public int compare( byte[] o1, byte[] o2 )
     {
         byte[] b1 = ( byte[] ) o1;
         byte[] b2 = ( byte[] ) o2;
@@ -73,6 +73,7 @@ public class ByteArrayComparator implements Comparator
         }
         
         int minLength = Math.min( b1.length, b2.length );
+        
         for ( int ii = 0; ii < minLength; ii++ )
         {
             if ( b1[ii] > b2[ii] )

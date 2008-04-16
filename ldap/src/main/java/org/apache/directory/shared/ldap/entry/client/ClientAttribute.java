@@ -19,18 +19,27 @@
 package org.apache.directory.shared.ldap.entry.client;
 
 
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+
+import javax.naming.NamingException;
+
+
 /**
- * Document me!
+ * The server specific interface extending the EntryAttribute interface. It adds
+ * three more methods which are Server side.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ClientAttribute
+public interface ClientAttribute extends EntryAttribute
 {
     /**
-     * Gets the identifier for this client side entry attribute.
+     * Checks to see if this attribute is valid along with the values it contains.
      *
-     * @return the identifier for an entry
+     * @param checker The syntax checker
+     * @return true if the attribute and it's values are valid, false otherwise
+     * @throws NamingException if there is a failure to check syntaxes of values
      */
-    String getId();
+    boolean isValid( SyntaxChecker checker) throws NamingException;
 }

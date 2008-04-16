@@ -632,6 +632,17 @@ public class FilterParserTest
         assertNull( node.getFinal() );
     }
     
+    
+    @Test
+    public void testEqualsFilterNullValue() throws ParseException
+    {
+        SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou=)" );
+        assertEquals( "ou", node.getAttribute() );
+        assertEquals( "", node.getValue() );
+        assertTrue( node instanceof EqualityNode );
+    }
+
+    
     /*
     @Test
     public void testPerf() throws ParseException

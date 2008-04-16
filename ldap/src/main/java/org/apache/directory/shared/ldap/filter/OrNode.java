@@ -38,7 +38,7 @@ public class OrNode extends BranchNode
      */
     public OrNode( List<ExprNode> children)
     {
-        super( children );
+        super( children, AssertionType.OR );
     }
 
 
@@ -58,9 +58,9 @@ public class OrNode extends BranchNode
      * 
      * @return the operator constant.
      */
-    public AssertionEnum getOperator()
+    public AssertionType getOperator()
     {
-        return AssertionEnum.OR;
+        return AssertionType.OR;
     }
 
 
@@ -153,9 +153,9 @@ public class OrNode extends BranchNode
      */
     public int hashCode()
     {
-        int hash = 7;
-        hash = hash*31 + AssertionEnum.OR.hashCode();
-        hash = hash*31 + ( annotations == null ? 0 : annotations.hashCode() );
+        int hash = 37;
+        hash = hash*17 + AssertionType.OR.hashCode();
+        hash = hash*17 + ( annotations == null ? 0 : annotations.hashCode() );
         return hash;
     }
 

@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
-import org.apache.directory.shared.asn1.ber.IAsn1Container;
 
 
 /**
@@ -29,7 +28,7 @@ import org.apache.directory.shared.asn1.ber.IAsn1Container;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GracefulShutdownContainer extends AbstractContainer implements IAsn1Container
+public class GracefulShutdownContainer extends AbstractContainer
 {
     /** GracefulShutdown */
     private GracefulShutdown gracefulShutdown;

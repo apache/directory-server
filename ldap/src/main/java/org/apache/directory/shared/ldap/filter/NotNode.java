@@ -38,9 +38,9 @@ public class NotNode extends BranchNode
      * 
      * @param childList the child nodes under this branch node.
      */
-    public NotNode( List<ExprNode> children)
+    public NotNode( List<ExprNode> children )
     {
-        super();
+        super( AssertionType.NOT );
         
     	if ( this.children.size() > 1 )
     	{
@@ -110,9 +110,9 @@ public class NotNode extends BranchNode
      * 
      * @return the operator constant.
      */
-    public AssertionEnum getOperator()
+    public AssertionType getOperator()
     {
-        return AssertionEnum.NOT;
+        return AssertionType.NOT;
     }
 
 
@@ -201,9 +201,9 @@ public class NotNode extends BranchNode
      */
     public int hashCode()
     {
-        int hash = 7;
-        hash = hash*31 + AssertionEnum.NOT.hashCode();
-        hash = hash*31 + ( annotations == null ? 0 : annotations.hashCode() );
+        int hash = 37;
+        hash = hash*17 + AssertionType.NOT.hashCode();
+        hash = hash*17 + ( annotations == null ? 0 : annotations.hashCode() );
         return hash;
     }
 }

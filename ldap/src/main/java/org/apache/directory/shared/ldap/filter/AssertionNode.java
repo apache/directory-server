@@ -32,9 +32,6 @@ package org.apache.directory.shared.ldap.filter;
  */
 public class AssertionNode extends AbstractExprNode
 {
-    /** Setting scan count to max */
-    private static final Long MAX = Long.MAX_VALUE;
-
     /** The assertion or predicate to apply */
     private final Assertion assertion;
 
@@ -51,7 +48,7 @@ public class AssertionNode extends AbstractExprNode
      * 
      * @param assertion the arbitrary selection logic.
      */
-    public AssertionNode(Assertion assertion)
+    public AssertionNode( Assertion assertion )
     {
         this( assertion, "ASSERTION" );
     }
@@ -66,7 +63,7 @@ public class AssertionNode extends AbstractExprNode
      */
     public AssertionNode( Assertion assertion, String desc )
     {
-        super();
+        super( AssertionType.ASSERTION );
         this.desc = desc;
         this.assertion = assertion;
 
@@ -75,7 +72,7 @@ public class AssertionNode extends AbstractExprNode
          * candidate for use in an enumeration so we set the scan count to the
          * maximum value.
          */
-        set( "count", MAX );
+        set( "count", Long.MAX_VALUE );
     }
 
 
@@ -111,6 +108,21 @@ public class AssertionNode extends AbstractExprNode
     public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException( "AssertionNode can't be part of a refinement" );
+    }
+
+
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int h = 37;
+        
+        h = h*17 + super.hashCode();
+        h = h*17 + ( assertion != null ? assertion.hashCode() : 0 );
+        h = h*17 + ( desc != null ? desc.hashCode() : 0 );
+        
+        return h;
     }
 
 

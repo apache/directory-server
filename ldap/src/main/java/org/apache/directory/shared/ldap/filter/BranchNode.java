@@ -42,9 +42,9 @@ public abstract class BranchNode extends AbstractExprNode
      * 
      * @param childList the child nodes under this branch node.
      */
-    public BranchNode( List<ExprNode> children)
+    public BranchNode( List<ExprNode> children, AssertionType assertionType )
     {
-        super();
+        super( assertionType );
 
         if ( null == children )
         {
@@ -60,9 +60,9 @@ public abstract class BranchNode extends AbstractExprNode
     /**
      * Creates a BranchNode using a logical operator.
      */
-    public BranchNode()
+    public BranchNode( AssertionType assertionType )
     {
-        this( null );
+        this( null, assertionType );
     }
 
     /**
@@ -173,6 +173,29 @@ public abstract class BranchNode extends AbstractExprNode
             	return null;
             }
         }
+    }
+    
+    
+    /**
+     * (non-Javadoc)
+     * 
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int h = 37;
+        
+        h = h*17 + super.hashCode();
+        
+        if ( children != null )
+        {
+            for ( ExprNode child:children )
+            {
+                h = h*17 + child.hashCode();
+            }
+        }
+        
+        return h;
     }
     
     /*

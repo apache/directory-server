@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
@@ -58,6 +59,7 @@ public abstract class UserClass implements Serializable
     protected UserClass()
     {
     }
+    
 
     /**
      * Every directory user (with possible requirements for
@@ -105,7 +107,7 @@ public abstract class UserClass implements Serializable
      */
     private static abstract class NamedUserClass extends UserClass
     {
-        protected final Set<javax.naming.Name> names;
+        protected final Set<LdapDN> names;
 
 
         /**
@@ -113,16 +115,16 @@ public abstract class UserClass implements Serializable
          * 
          * @param names a set of names
          */
-        protected NamedUserClass( Set<javax.naming.Name> names )
+        protected NamedUserClass( Set<LdapDN> names )
         {
-            this.names = Collections.unmodifiableSet( new HashSet<javax.naming.Name>( names ) );
+            this.names = Collections.unmodifiableSet( new HashSet<LdapDN>( names ) );
         }
 
 
         /**
          * Returns the set of all names.
          */
-        public Set<javax.naming.Name> getNames()
+        public Set<LdapDN> getNames()
         {
             return names;
         }
@@ -153,11 +155,11 @@ public abstract class UserClass implements Serializable
         public String toString()
         {
             StringBuilder buffer = new StringBuilder();
-
+            
             boolean isFirst = true;
             buffer.append( "{ " );
-
-            for ( javax.naming.Name name : names )
+            
+            for ( javax.naming.Name name:names )
             {
                 if ( isFirst )
                 {
@@ -167,14 +169,14 @@ public abstract class UserClass implements Serializable
                 {
                     buffer.append( ", " );
                 }
-
+                
                 buffer.append( '"' );
                 buffer.append( name.toString() );
                 buffer.append( '"' );
             }
-
+            
             buffer.append( " }" );
-
+            
             return buffer.toString();
         }
     }
@@ -193,7 +195,7 @@ public abstract class UserClass implements Serializable
          * @param usernames
          *            the set of user DNs.
          */
-        public Name( Set<javax.naming.Name> usernames )
+        public Name( Set<LdapDN> usernames )
         {
             super( usernames );
         }
@@ -222,7 +224,7 @@ public abstract class UserClass implements Serializable
          * @param groupNames
          *            the set of group DNs.
          */
-        public UserGroup( Set<javax.naming.Name> groupNames )
+        public UserGroup( Set<LdapDN> groupNames )
         {
             super( groupNames );
         }
@@ -253,8 +255,7 @@ public abstract class UserClass implements Serializable
          */
         public Subtree( Collection<SubtreeSpecification> subtreeSpecs )
         {
-            this.subtreeSpecifications = Collections.unmodifiableCollection( new ArrayList<SubtreeSpecification>(
-                subtreeSpecs ) );
+            this.subtreeSpecifications = Collections.unmodifiableCollection( new ArrayList<SubtreeSpecification>( subtreeSpecs ) );
         }
 
 
@@ -287,11 +288,11 @@ public abstract class UserClass implements Serializable
         public String toString()
         {
             StringBuilder buffer = new StringBuilder();
-
+            
             boolean isFirst = true;
             buffer.append( "subtree { " );
-
-            for ( SubtreeSpecification ss : subtreeSpecifications )
+            
+            for ( SubtreeSpecification ss:subtreeSpecifications )
             {
                 if ( isFirst )
                 {
@@ -301,12 +302,12 @@ public abstract class UserClass implements Serializable
                 {
                     buffer.append( ", " );
                 }
-
+                
                 ss.printToBuffer( buffer );
             }
-
+            
             buffer.append( " }" );
-
+            
             return buffer.toString();
         }
     }

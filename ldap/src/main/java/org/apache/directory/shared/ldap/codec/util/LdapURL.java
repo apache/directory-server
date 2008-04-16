@@ -330,13 +330,8 @@ public class LdapURL
 
         string = StringTools.utf8ToString( bytes );
 
-        if ( bytes != null )
-        {
-            this.bytes = new byte[ bytes.length ];
-            System.arraycopy( bytes, 0, this.bytes, 0, bytes.length );
-        } else {
-            this.bytes = null;
-        }
+        this.bytes = new byte[ bytes.length ];
+        System.arraycopy( bytes, 0, this.bytes, 0, bytes.length );
 
         parse( string.toCharArray() );
     }
@@ -676,7 +671,7 @@ public class LdapURL
     {
         if ( bytes == null )
         {
-            return null;
+            return StringTools.EMPTY_BYTES;
         }
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -1415,11 +1410,28 @@ public class LdapURL
     }
     
     /**
-     * @return the bytes representing this LdapURL
+     * @return a reference on the interned bytes representing this LdapURL
      */
-    public byte[] getBytes()
+    public byte[] getBytesReference()
     {
         return bytes;
+    }
+    
+    /**
+     * @return a copy of the bytes representing this LdapURL
+     */
+    public byte[] getBytesCopy()
+    {
+        if ( bytes != null )
+        {
+            byte[] copy = new byte[bytes.length];
+            System.arraycopy( bytes, 0, copy, 0, bytes.length );
+            return copy;
+        }
+        else
+        {
+            return null;
+        }
     }
     
     /**

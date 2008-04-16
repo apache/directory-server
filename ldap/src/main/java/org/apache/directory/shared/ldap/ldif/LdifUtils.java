@@ -144,6 +144,19 @@ public class LdifUtils
     
     
     /**
+     * Convert a LDIF String to an attributes.
+     * 
+     * @param ldif The LDIF string containing an attribute value
+     * @return An Attributes instance
+     */
+    public static Attributes convertAttributesFromLdif( String ldif ) throws NamingException
+    {
+        LdifAttributesReader reader = new  LdifAttributesReader();
+        
+        return reader.parseAttributes( ldif );
+    }
+    
+    /**
      * Convert an Attributes as LDIF
      * @param attrs the Attributes to convert
      * @param length the expected line length
@@ -175,7 +188,7 @@ public class LdifUtils
      * @return the corresponding LDIF as a String
      * @throws NamingException If a naming exception is encountered.
      */
-    public static String convertToLdif( Entry entry ) throws NamingException
+    public static String convertToLdif( LdifEntry entry ) throws NamingException
     {
         return convertToLdif( entry, DEFAULT_LINE_LENGTH );
     }
@@ -186,7 +199,7 @@ public class LdifUtils
      * @return the corresponding LDIF as a String
      * @throws NamingException If a naming exception is encountered.
      */
-    public static String convertToLdif( Entry entry, int length ) throws NamingException
+    public static String convertToLdif( LdifEntry entry, int length ) throws NamingException
     {
         StringBuilder sb = new StringBuilder();
         
@@ -458,9 +471,9 @@ public class LdifUtils
      * @return a reverse LDIF
      * @throws NamingException If something went wrong
      */
-    public static Entry reverseAdd( LdapDN dn ) throws NamingException
+    public static LdifEntry reverseAdd( LdapDN dn ) throws NamingException
     {
-        Entry entry = new Entry();
+        LdifEntry entry = new LdifEntry();
         entry.setChangeType( ChangeType.Delete );
         entry.setDn( dn.getUpName() );
         return entry;
@@ -476,9 +489,9 @@ public class LdifUtils
      * @return A reverse LDIF
      * @throws NamingException If something went wrong
      */
-    public static Entry reverseDel( LdapDN dn, Attributes deletedEntry ) throws NamingException
+    public static LdifEntry reverseDel( LdapDN dn, Attributes deletedEntry ) throws NamingException
     {
-        Entry entry = new Entry();
+        LdifEntry entry = new LdifEntry();
         
         entry.setDn( dn.getUpName() );
         entry.setChangeType( ChangeType.Add );
@@ -503,9 +516,9 @@ public class LdifUtils
      * @return a reverse LDIF
      * @throws NamingException if something went wrong
      */
-    public static Entry reverseModifyDn( LdapDN newSuperiorDn, LdapDN modifiedDn ) throws NamingException
+    public static LdifEntry reverseModifyDn( LdapDN newSuperiorDn, LdapDN modifiedDn ) throws NamingException
     {
-        Entry entry = new Entry();
+        LdifEntry entry = new LdifEntry();
         LdapDN currentParent;
         LdapDN newDn;
 
@@ -538,9 +551,9 @@ public class LdifUtils
     }
 
 
-    public static Entry reverseRename( Attributes t0, LdapDN t0_dn, Rdn t1_rdn ) throws NamingException
+    public static LdifEntry reverseRename( Attributes t0, LdapDN t0_dn, Rdn t1_rdn ) throws NamingException
     {
-        Entry entry = new Entry();
+        LdifEntry entry = new LdifEntry();
         LdapDN parent;
         LdapDN newDn;
 
@@ -585,7 +598,7 @@ public class LdifUtils
      * @return A reverse LDIF
      * @throws NamingException If something went wrong
      */
-    public static Entry reverseModifyRdn( Attributes t0, LdapDN t1_parentDn, LdapDN t0_dn, Rdn t1_rdn )
+    public static LdifEntry reverseModifyRdn( Attributes t0, LdapDN t1_parentDn, LdapDN t0_dn, Rdn t1_rdn )
             throws NamingException
     {
         if ( t0_dn == null )
@@ -617,7 +630,7 @@ public class LdifUtils
         // -------------------------------------------------------------------
 
         // the reverse LDIF we will create
-        Entry reverse = new Entry();
+        LdifEntry reverse = new LdifEntry();
 
         // take the dn before the forward change was applied, and get it's
         // parent, this parent will be the newSuperiorDn to be used for the
@@ -696,13 +709,13 @@ public class LdifUtils
      * @return A reversed LDIF
      * @throws NamingException If something went wrong
      */
-    public static Entry reverseModify( LdapDN dn, List<ModificationItemImpl> forwardModifications,
+    public static LdifEntry reverseModify( LdapDN dn, List<ModificationItemImpl> forwardModifications,
                                        Attributes modifiedEntry ) throws NamingException
     {
         // First, protect the original entry by cloning it : we will modify it
         Attributes clonedEntry = ( Attributes ) modifiedEntry.clone();
 
-        Entry entry = new Entry();
+        LdifEntry entry = new LdifEntry();
         entry.setChangeType( ChangeType.Modify );
 
         entry.setDn( dn.getUpName() );

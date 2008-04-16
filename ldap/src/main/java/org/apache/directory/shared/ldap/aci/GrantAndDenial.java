@@ -123,7 +123,7 @@ public class GrantAndDenial
     private final boolean grant;
 
 
-    private GrantAndDenial( MicroOperation microOperation, int code, boolean grant )
+    private GrantAndDenial(MicroOperation microOperation, int code, boolean grant)
     {
         this.microOperation = microOperation;
         this.code = code;

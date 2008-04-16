@@ -21,13 +21,12 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
-import org.apache.directory.shared.asn1.ber.IAsn1Container;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PSearchControlContainer extends AbstractContainer implements IAsn1Container
+public class PSearchControlContainer extends AbstractContainer
 {
     /** PSearchControl */
     private PSearchControlCodec control;

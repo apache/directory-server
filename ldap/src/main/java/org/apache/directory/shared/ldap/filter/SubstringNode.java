@@ -39,13 +39,13 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class SubstringNode extends LeafNode
 {
-    /** The initial fragment before any wildcards */
+    /** The initial fragment before any wildcard */
     private String initialPattern;
 
-    /** The end fragment after wildcards */
+    /** The end fragment after wildcard */
     private String finalPattern;
 
-    /** List of fragments between wildcards */
+    /** List of fragments between wildcard */
     private List<String> anyPattern;
 
     /**
@@ -58,7 +58,7 @@ public class SubstringNode extends LeafNode
      */
     public SubstringNode( String attribute, String initialPattern, String finalPattern )
     {
-        super( attribute );
+        super( attribute, AssertionType.SUBSTRING );
 
         anyPattern = new ArrayList<String>( 2 );
         this.finalPattern = finalPattern;
@@ -75,7 +75,7 @@ public class SubstringNode extends LeafNode
      */
     public SubstringNode( String attribute )
     {
-        super( attribute );
+        super( attribute, AssertionType.SUBSTRING );
 
         anyPattern = new ArrayList<String>( 2 );
         this.finalPattern = null;
@@ -94,7 +94,7 @@ public class SubstringNode extends LeafNode
      */
     public SubstringNode( List<String> anyPattern, String attribute, String initialPattern, String finalPattern )
     {
-        super( attribute );
+        super( attribute, AssertionType.SUBSTRING );
 
         this.anyPattern = anyPattern;
         this.finalPattern = finalPattern;
@@ -227,6 +227,30 @@ public class SubstringNode extends LeafNode
         }
 
         return StringTools.getRegex( initialStr, null, finalStr );
+    }
+
+
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int h = 37;
+        
+        h = h*17 + super.hashCode();
+        h = h*17 + ( initialPattern != null ? initialPattern.hashCode() : 0 );
+        
+        if ( anyPattern != null )
+        {
+            for ( String pattern:anyPattern )
+            {
+                h = h*17 + pattern.hashCode();
+            }
+        }
+        
+        h = h*17 + ( finalPattern != null ? finalPattern.hashCode() : 0 );
+        
+        return h;
     }
 
 

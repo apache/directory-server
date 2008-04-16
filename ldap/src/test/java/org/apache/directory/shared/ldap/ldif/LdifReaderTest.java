@@ -46,14 +46,14 @@ public class LdifReaderTest extends TestCase
 {
     private byte[] data;
     
-    private static File HJENSEN_JPEG_FILE = null;
-    private static File FIONA_JPEG_FILE = null;
+    private File HJENSEN_JPEG_FILE = null;
+    private File FIONA_JPEG_FILE = null;
     
     private File createFile( String name, byte[] data ) throws IOException
     {
         File jpeg = File.createTempFile( name, "jpg" );
         
-	jpeg.createNewFile();
+        jpeg.createNewFile();
 
         DataOutputStream os = new DataOutputStream( new FileOutputStream( jpeg ) );
 
@@ -90,7 +90,7 @@ public class LdifReaderTest extends TestCase
         String ldif = null;
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertEquals( 0, entries.size() );
     }
@@ -100,7 +100,7 @@ public class LdifReaderTest extends TestCase
         String ldif = "";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertEquals( 0, entries.size() );
     }
@@ -110,7 +110,7 @@ public class LdifReaderTest extends TestCase
         String ldif = "\n\n\r\r\n";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertEquals( 0, entries.size() );
     }
@@ -125,7 +125,7 @@ public class LdifReaderTest extends TestCase
             "\n";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertEquals( 0, entries.size() );
     }
@@ -143,7 +143,7 @@ public class LdifReaderTest extends TestCase
             "# end";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertEquals( 0, entries.size() );
         assertEquals( 1, reader.getVersion() );
@@ -165,12 +165,12 @@ public class LdifReaderTest extends TestCase
 
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertEquals( 1, reader.getVersion() );
         assertNotNull( entries );
 
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
 
         assertTrue( entry.isChangeAdd() );
 
@@ -195,7 +195,7 @@ public class LdifReaderTest extends TestCase
             "# end";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertEquals( 0, entries.size() );
         assertEquals( 1, reader.getVersion() );
@@ -220,10 +220,10 @@ public class LdifReaderTest extends TestCase
 
         LdifReader reader = new LdifReader();
 
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
         assertNotNull( entries );
 
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
 
         assertTrue( entry.isChangeAdd() );
 
@@ -264,10 +264,10 @@ public class LdifReaderTest extends TestCase
     {
         LdifReader reader = new LdifReader();
 
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
         assertNotNull( entries );
 
-        Entry entry = ( Entry ) entries.get( 0 );
+        LdifEntry entry = ( LdifEntry ) entries.get( 0 );
 
         assertTrue( entry.isChangeModify() );
 
@@ -443,11 +443,11 @@ public class LdifReaderTest extends TestCase
             "envVars:";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertNotNull( entries );
 
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
         assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
@@ -486,11 +486,11 @@ public class LdifReaderTest extends TestCase
             "envVars:";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertNotNull( entries );
 
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
         assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
@@ -529,11 +529,11 @@ public class LdifReaderTest extends TestCase
             "envVars:";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertNotNull( entries );
 
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
         assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
@@ -571,11 +571,11 @@ public class LdifReaderTest extends TestCase
             "envVars:";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertNotNull( entries );
 
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
         assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
@@ -614,11 +614,11 @@ public class LdifReaderTest extends TestCase
             "envVars:";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertNotNull( entries );
 
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
         assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
@@ -665,12 +665,12 @@ public class LdifReaderTest extends TestCase
             "telephonenumber: +1 408 555 1212";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertEquals( 2, entries.size() );
 
         // Entry 1
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
         assertEquals( "cn=Barbara Jensen, ou=Product Development, dc=airius, dc=com", entry.getDn() );
@@ -698,7 +698,7 @@ public class LdifReaderTest extends TestCase
         assertTrue( attr.contains( "A big sailing fan." ) );
 
         // Entry 2
-        entry = (Entry) entries.get( 1 );
+        entry = (LdifEntry) entries.get( 1 );
         assertTrue( entry.isChangeAdd() );
 
         attr = entry.get( "dn" );
@@ -738,12 +738,12 @@ public class LdifReaderTest extends TestCase
             "title:Product Manager, Rod and Reel Division";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertEquals( 1, entries.size() );
 
         // Entry 1
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
         assertEquals( "cn=Barbara Jensen, ou=Product Development, dc=airius, dc=com", entry.getDn() );
@@ -795,12 +795,12 @@ public class LdifReaderTest extends TestCase
             " b3V0IG1vcmUu";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertEquals( 1, entries.size() );
 
         // Entry 1
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
         assertEquals( "cn=Gern Jensen, ou=Product Testing, dc=airius, dc=com", entry.getDn() );
@@ -848,12 +848,12 @@ public class LdifReaderTest extends TestCase
             " b3V0IG1vcmUu  ";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         assertEquals( 1, entries.size() );
 
         // Entry 1
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
         assertEquals( "cn=Gern Jensen, ou=Product Testing, dc=airius, dc=com", entry.getDn() );
@@ -940,7 +940,7 @@ public class LdifReaderTest extends TestCase
             "title;lang-en: Sales, Director\n";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         String[][][] values =
             {
@@ -988,7 +988,7 @@ public class LdifReaderTest extends TestCase
         // Entry 1
         for ( int i = 0; i < entries.size(); i++ )
         {
-            Entry entry = (Entry) entries.get( i );
+            LdifEntry entry = (LdifEntry) entries.get( i );
             assertTrue( entry.isChangeAdd() );
 
             for ( int j = 0; j < values[i].length; j++ )
@@ -1030,7 +1030,7 @@ public class LdifReaderTest extends TestCase
             "jpegphoto:< file:" + HJENSEN_JPEG_FILE.getAbsolutePath() + "\n";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         String[][] values =
             {
@@ -1049,7 +1049,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( 1, entries.size() );
 
         // Entry 1
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
         for ( int i = 0; i < values.length; i++ )
@@ -1180,7 +1180,7 @@ public class LdifReaderTest extends TestCase
             "-\n";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
         String[][][] values =
             {
@@ -1233,7 +1233,7 @@ public class LdifReaderTest extends TestCase
                 } 
             };
 
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
         for ( int i = 0; i < values.length; i++ )
@@ -1263,19 +1263,19 @@ public class LdifReaderTest extends TestCase
         }
 
         // Second entry
-        entry = (Entry) entries.get( 1 );
+        entry = (LdifEntry) entries.get( 1 );
         assertTrue( entry.isChangeDelete() );
         assertEquals( values[1][0][1], entry.getDn() );
 
         // Third entry
-        entry = (Entry) entries.get( 2 );
+        entry = (LdifEntry) entries.get( 2 );
         assertTrue( entry.isChangeModRdn() );
         assertEquals( values[2][0][1], entry.getDn() );
         assertEquals( values[2][1][0], entry.getNewRdn() );
         assertTrue( entry.isDeleteOldRdn() );
 
         // Forth entry
-        entry = (Entry) entries.get( 3 );
+        entry = (LdifEntry) entries.get( 3 );
         assertTrue( entry.isChangeModDn() );
         assertEquals( values[3][0][1], entry.getDn() );
         assertEquals( values[3][1][0], entry.getNewRdn() );
@@ -1283,7 +1283,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( values[3][2][0], entry.getNewSuperior() );
 
         // Fifth entry
-        entry = (Entry) entries.get( 4 );
+        entry = (LdifEntry) entries.get( 4 );
         List<ModificationItemImpl> modifs = entry.getModificationItems();
 
         assertTrue( entry.isChangeModify() );
@@ -1318,7 +1318,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( values[4][4][1], item.getAttribute().get( 0 ) );
 
         // Sixth entry
-        entry = (Entry) entries.get( 5 );
+        entry = (LdifEntry) entries.get( 5 );
         modifs = entry.getModificationItems();
 
         assertTrue( entry.isChangeModify() );
@@ -1348,9 +1348,9 @@ public class LdifReaderTest extends TestCase
             "changetype: delete\n";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
 
         assertEquals( "ou=Product Development, dc=airius, dc=com", entry.getDn() );
         assertTrue( entry.isChangeDelete() );
@@ -1375,9 +1375,9 @@ public class LdifReaderTest extends TestCase
             "changetype: delete\n";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
 
         assertEquals( "ou=Product Development, dc=airius, dc=com", entry.getDn() );
         assertTrue( entry.isChangeDelete() );
@@ -1402,9 +1402,9 @@ public class LdifReaderTest extends TestCase
             "changetype: delete\n";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
 
         assertEquals( "ou=Product Development, dc=airius, dc=com", entry.getDn() );
         assertTrue( entry.isChangeDelete() );
@@ -1504,8 +1504,8 @@ public class LdifReaderTest extends TestCase
             
         LdifReader reader = new LdifReader();
 
-        List<Entry> entries = reader.parseLdif( ldif );
-        Entry entry = (Entry) entries.get( 0 );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
 
         assertEquals( "ou=Users, dc=example, dc=com", entry.getDn() );
 
@@ -1561,9 +1561,9 @@ public class LdifReaderTest extends TestCase
             "prescriptiveACI: { identificationTag \"browseRoot\", precedence 100, authenticationLevel none, itemOrUserFirst userFirst: { userClasses { allUsers }, userPermissions { { protectedItems {entry}, grantsAndDenials { grantReturnDN, grantBrowse } } } } }\n";
 
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( ldif );
+        List<LdifEntry> entries = reader.parseLdif( ldif );
 
-        Entry entry = (Entry) entries.get( 0 );
+        LdifEntry entry = (LdifEntry) entries.get( 0 );
 
         assertEquals( "cn=browseRootAci,dc=example,dc=com", entry.getDn() );
         Attribute attr = entry.get( "objectClass" );

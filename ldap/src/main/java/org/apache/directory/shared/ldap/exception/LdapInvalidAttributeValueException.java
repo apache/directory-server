@@ -60,8 +60,6 @@ public class LdapInvalidAttributeValueException extends InvalidAttributeValueExc
         switch ( resultCode )
         {
             case CONSTRAINT_VIOLATION :
-                break;
-                
             case INVALID_ATTRIBUTE_SYNTAX :
                 break;
                 

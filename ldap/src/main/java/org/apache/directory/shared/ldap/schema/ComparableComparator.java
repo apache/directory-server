@@ -48,14 +48,37 @@ public class ComparableComparator implements Comparator, Serializable
      */
     public int compare( Object o1, Object o2 )
     {
+        if ( ( o1 == null ) && ( o2 == null ) )
+        {
+            return 0;
+        }
+        
         if ( o1 instanceof Comparable )
         {
-            return ( ( Comparable ) o1 ).compareTo( o2 );
+            if ( o2 == null )
+            {
+                return -1;
+            }
+            else
+            {
+                return ( ( Comparable ) o1 ).compareTo( o2 );
+            }
         }
 
-        if ( o2 instanceof Comparable )
+        if ( o2 == null )
         {
-            return -( ( Comparable ) o2 ).compareTo( o1 );
+            return 1;
+        }
+        else if ( o2 instanceof Comparable )
+        {
+            if ( o1 == null )
+            {
+                return -1;
+            }
+            else
+            {
+                return -( ( Comparable ) o2 ).compareTo( o1 );
+            }
         }
 
         // before https://issues.apache.org/jira/browse/DIRSERVER-928 it was

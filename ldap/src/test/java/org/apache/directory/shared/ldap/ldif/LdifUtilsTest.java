@@ -25,12 +25,22 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -321,10 +331,10 @@ public class LdifUtilsTest
     
     
     /**
-     * Test a conversion of an entry to a LDIF file
+     * Test a conversion of an entry from a LDIF file
      */
     @Test
-    public void testConvertEntryToLdif() throws NamingException
+    public void testConvertToLdif() throws NamingException
     {
         String expected = 
             "dn:: Y249U2Fhcm\n" +
@@ -338,7 +348,7 @@ public class LdifUtilsTest
             "objectClass: pe\n rson\n" +
             "objectClass: in\n etorgPerson\n\n";
         
-        Entry entry = new Entry();
+        LdifEntry entry = new LdifEntry();
         entry.setDn( "cn=Saarbr\u00FCcken, dc=example, dc=com" );
         entry.setChangeType( ChangeType.Add );
         
@@ -353,9 +363,41 @@ public class LdifUtilsTest
         entry.addAttribute( "sn", "test" );
 
         String ldif = LdifUtils.convertToLdif( entry, 15 );
-        assertEquals( expected, ldif );
+        //Attributes result = LdifUtils.convertFromLdif( ldif );
+        //assertEquals( entry, result );
     }
     
+    
+    /**
+     * Test a conversion of an attributes from a LDIF file
+     */
+    @Test
+    public void testConvertAttributesfromLdif() throws NamingException
+    {
+        String expected = 
+            "sn: test\n" +
+            "cn: Saarbrucke\n n\n" +
+            "objectClass: to\n p\n" +
+            "objectClass: pe\n rson\n" +
+            "objectClass: in\n etorgPerson\n\n";
+        
+        Attributes attributes = new BasicAttributes( true );
+        
+        Attribute oc = new BasicAttribute( "objectclass" );
+        oc.add( "top" );
+        oc.add( "person" );
+        oc.add( "inetorgPerson" );
+        
+        attributes.put( oc );
+        
+        attributes.put( "cn", "Saarbrucken" );
+        attributes.put( "sn", "test" );
+
+        String ldif = LdifUtils.convertToLdif( attributes, 15 );
+        Attributes result = LdifUtils.convertAttributesFromLdif( ldif );
+        assertEquals( attributes, result );
+    }
+
     
     /**
      * Test a AddRequest reverse
@@ -366,7 +408,7 @@ public class LdifUtilsTest
     public void testReverseAdd() throws NamingException
     {
         LdapDN dn = new LdapDN( "dc=apache, dc=com" );
-        Entry reversed = LdifUtils.reverseAdd( dn );
+        LdifEntry reversed = LdifUtils.reverseAdd( dn );
         
         assertNotNull( reversed );
         assertEquals( dn.getUpName(), reversed.getDn() );
@@ -384,7 +426,7 @@ public class LdifUtilsTest
     public void testReverseAddBase64DN() throws NamingException
     {
         LdapDN dn = new LdapDN( "dc=Emmanuel L\u00c9charny" );
-        Entry reversed = LdifUtils.reverseAdd( dn );
+        LdifEntry reversed = LdifUtils.reverseAdd( dn );
         assertNotNull( reversed );
         assertEquals( dn.getUpName(), reversed.getDn() );
         assertEquals( ChangeType.Delete, reversed.getChangeType() );
@@ -414,7 +456,7 @@ public class LdifUtilsTest
         deletedEntry.put( "sn", "apache" );
         deletedEntry.put( "dc", "apache" );
         
-        Entry reversed = LdifUtils.reverseDel( dn, deletedEntry );
+        LdifEntry reversed = LdifUtils.reverseDel( dn, deletedEntry );
         
         assertNotNull( reversed );
         assertEquals( dn.getUpName(), reversed.getDn() );
@@ -442,7 +484,7 @@ public class LdifUtilsTest
         attrs.put( "sn", "doe" );
         attrs.put( "uid", "jdoe" );
 
-        Entry reversed = LdifUtils.reverseModifyRdn( attrs, null, dn, new Rdn( "cn=jack doe" ) );
+        LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, null, dn, new Rdn( "cn=jack doe" ) );
 
         assertNotNull( reversed );
         assertEquals( "cn=jack doe, dc=example, dc=com", reversed.getDn() );
@@ -473,7 +515,7 @@ public class LdifUtilsTest
         attrs.put( "sn", "doe" );
         attrs.put( "uid", "jdoe" );
 
-        Entry reversed = LdifUtils.reverseModifyRdn( attrs, null, dn, new Rdn( "cn=jack doe" ) );
+        LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, null, dn, new Rdn( "cn=jack doe" ) );
 
         assertNotNull( reversed );
         assertEquals( "cn=jack doe, dc=example, dc=com", reversed.getDn() );
@@ -505,7 +547,7 @@ public class LdifUtilsTest
         attrs.put( "sn", "doe" );
         attrs.put( "uid", "jdoe" );
 
-        Entry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, new Rdn( "cn=jack doe" ) );
+        LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, new Rdn( "cn=jack doe" ) );
 
         assertNotNull( reversed );
         assertEquals( "cn=jack doe,ou=system", reversed.getDn() );
@@ -535,7 +577,7 @@ public class LdifUtilsTest
         attrs.put( "sn", "doe" );
         attrs.put( "uid", "jdoe" );
 
-        Entry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, null );
+        LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, null );
 
         assertNotNull( reversed );
         assertEquals( "cn=john doe,ou=system", reversed.getDn() );
@@ -564,7 +606,7 @@ public class LdifUtilsTest
         attrs.put( "sn", "doe" );
         attrs.put( "uid", "jdoe" );
 
-        Entry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, new Rdn( "cn=jack doe" ) );
+        LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, new Rdn( "cn=jack doe" ) );
 
         assertNotNull( reversed );
         assertEquals( "cn=jack doe,ou=system", reversed.getDn() );
@@ -595,7 +637,7 @@ public class LdifUtilsTest
             DirContext.ADD_ATTRIBUTE, 
             new AttributeImpl( "ou", "BigCompany inc." ) );
 
-        Entry reversed = LdifUtils.reverseModify( dn,
+        LdifEntry reversed = LdifUtils.reverseModify( dn,
                 Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
 
         assertNotNull( reversed );
@@ -632,7 +674,7 @@ public class LdifUtilsTest
             DirContext.ADD_ATTRIBUTE, 
             new AttributeImpl( "ou", "BigCompany inc." ) );
 
-        Entry reversed = LdifUtils.reverseModify( dn,
+        LdifEntry reversed = LdifUtils.reverseModify( dn,
                 Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
 
         assertNotNull( reversed );
@@ -670,7 +712,7 @@ public class LdifUtilsTest
             DirContext.ADD_ATTRIBUTE,
             new AttributeImpl( "cn", "test" ) );
 
-        Entry reversed = LdifUtils.reverseModify( dn,
+        LdifEntry reversed = LdifUtils.reverseModify( dn,
                 Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
 
         assertNull( reversed );
@@ -696,7 +738,7 @@ public class LdifUtilsTest
             DirContext.REMOVE_ATTRIBUTE, 
             new AttributeImpl( "ou", "acme corp" ) );
 
-        Entry reversed = LdifUtils.reverseModify( dn,
+        LdifEntry reversed = LdifUtils.reverseModify( dn,
                 Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
 
         assertNotNull( reversed );
@@ -741,7 +783,7 @@ public class LdifUtilsTest
             DirContext.REMOVE_ATTRIBUTE, 
             new AttributeImpl( "ou" ) );
 
-        Entry reversed = LdifUtils.reverseModify( dn,
+        LdifEntry reversed = LdifUtils.reverseModify( dn,
                 Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
 
 
@@ -786,7 +828,7 @@ public class LdifUtilsTest
         ModificationItemImpl mod = new ModificationItemImpl(
             DirContext.REMOVE_ATTRIBUTE, ou );
 
-        Entry reversed = LdifUtils.reverseModify( dn, 
+        LdifEntry reversed = LdifUtils.reverseModify( dn, 
                 Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
 
 
@@ -835,7 +877,7 @@ public class LdifUtilsTest
         ModificationItemImpl mod = new ModificationItemImpl(
             DirContext.REPLACE_ATTRIBUTE, ouModified );
 
-        Entry reversed = LdifUtils.reverseModify( dn,
+        LdifEntry reversed = LdifUtils.reverseModify( dn,
                 Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
 
 
@@ -879,7 +921,7 @@ public class LdifUtilsTest
         ModificationItemImpl mod = new ModificationItemImpl(
             DirContext.REPLACE_ATTRIBUTE, newOu );
 
-        Entry reversed = LdifUtils.reverseModify( dn,
+        LdifEntry reversed = LdifUtils.reverseModify( dn,
                 Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
 
         assertNotNull( reversed );
@@ -923,7 +965,7 @@ public class LdifUtilsTest
         ModificationItemImpl mod = new ModificationItemImpl( 
             DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "ou" ) );
 
-        Entry reversed = LdifUtils.reverseModify( dn,
+        LdifEntry reversed = LdifUtils.reverseModify( dn,
                 Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
 
         assertNotNull( reversed );
@@ -1033,9 +1075,9 @@ public class LdifUtilsTest
         		"ou: acme corp\n"; 
         
         LdifReader reader = new LdifReader();
-        List<Entry> entries = reader.parseLdif( initialEntryLdif );
+        List<LdifEntry> entries = reader.parseLdif( initialEntryLdif );
         
-        Entry initialEntry = entries.get( 0 );
+        LdifEntry initialEntry = entries.get( 0 );
  
         // We will :
         //   - add an 'ou' value 'BigCompany inc.'
@@ -1073,7 +1115,7 @@ public class LdifUtilsTest
             DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "ou", "apache" ) );
         modifications.add( mod );
         
-        Entry reversedEntry = LdifUtils.reverseModify( dn, modifications, initialEntry.getAttributes() );
+        LdifEntry reversedEntry = LdifUtils.reverseModify( dn, modifications, initialEntry.getAttributes() );
 
         String expectedEntryLdif = 
             "dn: cn=test, ou=system\n" +
@@ -1098,7 +1140,7 @@ public class LdifUtilsTest
         reader = new LdifReader();
         entries = reader.parseLdif( expectedEntryLdif );
     
-        Entry expectedEntry = entries.get( 0 );
+        LdifEntry expectedEntry = entries.get( 0 );
         
         assertEquals( expectedEntry, reversedEntry );
     }

@@ -19,6 +19,13 @@
  */
 package org.apache.directory.shared.ldap.entry;
 
+import java.io.Externalizable;
+
+import javax.naming.NamingException;
+
+import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+
 
 /**
  * A interface for wrapping attribute values stored into an EntryAttribute. These
@@ -27,22 +34,11 @@ package org.apache.directory.shared.ldap.entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Value<T>
+public interface Value<T> extends Cloneable, Externalizable, Comparable<Value<T>>
 {
-//    /**
-//     * Get the wrapped value.
-//     *
-//     * @return the wrapped value, as its original type (String,byte[],URI)
-//     */
-//    T get();
-
-
-    /**
-     * Sets the wrapped value.
-     *
-     * @param wrapped the value to set. Should be either a String, URI, or a byte[]
-     */
-    void set( T wrapped );
+    
+    Value<T> clone();
+    
     
     /**
      * Check if the contained value is null or not
@@ -51,4 +47,128 @@ public interface Value<T>
      */
     boolean isNull();
     
+    
+    /**
+     * Sets the wrapped value.
+     *
+     * @param wrapped the value to set. Should be either a String, URI, or a byte[]
+     */
+    void set( T wrapped );
+    
+
+    /**
+     * Get the stored value.
+     *
+     * @return The stored value
+     */
+    T get();
+    
+    
+    /**
+     * Get a reference on the stored value.
+     *
+     * @return A reference on the stored value.
+     */
+    T getReference();
+    
+    
+    /**
+     * Get a copy of the stored value.
+     *
+     * @return A copy of the stored value.
+     */
+    T getCopy();
+    
+    
+    /**
+     * Reset the value
+     */
+    void clear();
+    
+    
+    /**
+     * Tells if the value has already be normalized or not.
+     *
+     * @return <code>true</code> if the value has already been normalized.
+     */
+    boolean isNormalized();
+    
+    
+    /**
+     * Tells if the value is valid. The value must have already been
+     * validated at least once through a call to isValid( SyntaxChecker ).  
+     * 
+     * @return <code>true</code> if the value is valid
+     */
+    boolean isValid();
+
+    
+    /**
+     * Tells if the value is valid wrt a Syntax checker
+     * 
+     * @param SyntaxChecker the Syntax checker to use to validate the value
+     * @return <code>true</code> if the value is valid
+     * @exception NamingException if the value cannot be validated
+     */
+    boolean isValid( SyntaxChecker checker ) throws NamingException;
+
+    
+    /**
+     * Set the normalized flag.
+     * 
+     * @param the value : true or false
+     */
+    void setNormalized( boolean normalized );
+
+    
+    /**
+     * Gets the normalized (canonical) representation for the wrapped string.
+     * If the wrapped String is null, null is returned, otherwise the normalized
+     * form is returned.  If the normalizedValue is null, then this method
+     * will attempt to generate it from the wrapped value: repeated calls to
+     * this method do not unnecessarily normalize the wrapped value.  Only changes
+     * to the wrapped value result in attempts to normalize the wrapped value.
+     *
+     * @return gets the normalized value
+     */
+    T getNormalizedValue();
+    
+    
+    /**
+     * Gets a reference to the the normalized (canonical) representation 
+     * for the wrapped value.
+     *
+     * @return gets a reference to the normalized value
+     */
+    T getNormalizedValueReference();
+
+    
+    /**
+     * Gets a copy of the the normalized (canonical) representation 
+     * for the wrapped value.
+     *
+     * @return gets a copy of the normalized value
+     */
+    T getNormalizedValueCopy();
+
+    
+    /**
+     * Normalize the value. In order to use this method, the Value
+     * must be schema aware.
+     * 
+     * @exception NamingException If the value cannot be normalized
+     */
+    void normalize() throws NamingException;
+
+    
+    /**
+     * Normalize the value. For a client String value, applies the given normalizer.
+     * 
+     * It supposes that the client has access to the schema in order to select the
+     * appropriate normalizer.
+     * 
+     * @param Normalizer The normalizer to apply to the value
+     * @exception NamingException If the value cannot be normalized
+     */
+    void normalize( Normalizer normalizer ) throws NamingException;
 }

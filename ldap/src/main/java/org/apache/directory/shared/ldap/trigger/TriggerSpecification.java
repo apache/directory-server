@@ -101,12 +101,12 @@ public class TriggerSpecification
 
 		@Override
 		public int hashCode() {
-			final int PRIME = 31;
-			int result = 1;
-			result = PRIME * result + ((name == null) ? 0 : name.hashCode());
-			result = PRIME * result + ((options == null) ? 0 : options.hashCode());
-			result = PRIME * result + ((parameters == null) ? 0 : parameters.hashCode());
-			return result;
+			int h = 37;
+			
+			h = h*17 + ((name == null) ? 0 : name.hashCode());
+			h = h*17 + ((options == null) ? 0 : options.hashCode());
+			h = h*17 + ((parameters == null) ? 0 : parameters.hashCode());
+			return h;
 		}
 
 		@Override

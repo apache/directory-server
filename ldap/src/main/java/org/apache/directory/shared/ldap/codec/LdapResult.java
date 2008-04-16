@@ -345,7 +345,7 @@ public class LdapResult extends AbstractAsn1Object
                 LdapURL referral = referralIterator.next();
 
                 // Ecode the current referral
-                Value.encode( buffer, referral.getBytes() );
+                Value.encode( buffer, referral.getBytesReference() );
             }
         }
 

@@ -35,13 +35,47 @@ public abstract class AbstractExprNode implements ExprNode
     /** The map of annotations */
     protected Map<String, Object> annotations;
 
+    protected final AssertionType assertionType;
+    
+    
     /**
      * Creates a node by setting abstract node type.
      */
-    protected AbstractExprNode()
+    protected AbstractExprNode( AssertionType assertionType )
     {
+        this.assertionType = assertionType;
+    }
+    
+    
+    /**
+     * @see ExprNode#getAssertionType()
+     */
+    public AssertionType getAssertionType()
+    {
+        return assertionType;
     }
 
+    
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int h = 37;
+        
+        if ( annotations != null )
+        {
+            for ( String key:annotations.keySet() )
+            {
+                Object value = annotations.get( key );
+                
+                h = h*17 + key.hashCode();
+                h = h*17 + ( value == null ? 0 : value.hashCode() );
+            }
+        }
+        
+        return h;
+    }
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#get(java.lang.Object)
@@ -71,7 +105,7 @@ public abstract class AbstractExprNode implements ExprNode
         annotations.put( key, value );
     }
 
-
+    
     /**
      * Gets the annotations as a Map.
      * 

@@ -38,9 +38,9 @@ public abstract class LeafNode extends AbstractExprNode
      * @param attribute the attribute this node is based on
      * @param type the type of this leaf node
      */
-    protected LeafNode( String attribute )
+    protected LeafNode( String attribute, AssertionType assertionType )
     {
-        super();
+        super( assertionType );
         this.attribute = attribute;
     }
 
@@ -75,6 +75,20 @@ public abstract class LeafNode extends AbstractExprNode
     public void setAttribute( String attribute )
     {
         this.attribute = attribute;
+    }
+
+    
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int h = 37;
+        
+        h = h*17 + super.hashCode();
+        h = h*17 + attribute.hashCode();
+        
+        return h;
     }
 
 

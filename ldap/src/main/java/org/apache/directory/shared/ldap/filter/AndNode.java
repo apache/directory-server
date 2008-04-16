@@ -36,9 +36,9 @@ public class AndNode extends BranchNode
      * 
      * @param childList the child nodes under this branch node.
      */
-    public AndNode( List<ExprNode> children)
+    public AndNode( List<ExprNode> children )
     {
-        super( children );
+        super( children, AssertionType.AND );
     }
 
 
@@ -56,9 +56,9 @@ public class AndNode extends BranchNode
      * 
      * @return the operator constant.
      */
-    public AssertionEnum getOperator()
+    public AssertionType getOperator()
     {
-        return AssertionEnum.AND;
+        return AssertionType.AND;
     }
 
 
@@ -151,9 +151,9 @@ public class AndNode extends BranchNode
      */
     public int hashCode()
     {
-        int hash = 7;
-        hash = hash*31 + AssertionEnum.AND.hashCode();
-        hash = hash*31 + ( annotations == null ? 0 : annotations.hashCode() );
+        int hash = 37;
+        hash = hash*17 + AssertionType.AND.hashCode();
+        hash = hash*17 + ( annotations == null ? 0 : annotations.hashCode() );
         return hash;
     }
 

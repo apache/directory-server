@@ -80,12 +80,14 @@ public class ACIItemParserTest extends TestCase
 
         ACIItem item = parser.parse( spec );
         checkItemToString( spec, item );
-
+        
+        
         spec = " { identificationTag \"id8\", precedence 0, authenticationLevel simple "
             + ", itemOrUserFirst userFirst: { userClasses { allUsers }, userPermissions { "
             + " { protectedItems { rangeOfValues (&(cn=test)(sn=test)) }, grantsAndDenials { grantAdd } }, "
-            + "{ protectedItems { rangeOfValues (|(!(cn=aaa))(sn=bbb)) }, grantsAndDenials { grantAdd } } " + " } } }";
-
+            + "{ protectedItems { rangeOfValues (|(!(cn=aaa))(sn=bbb)) }, grantsAndDenials { grantAdd } } "
+            + " } } }";
+        
         item = parser.parse( spec );
         checkItemToString( spec, item );
     }
@@ -400,7 +402,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
-    public void testRestrictedValueComponentsOrderDoesNotMatter() throws Exception
+    public void testMaxValueCountComponentsOrderDoesNotMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
             + "itemOrUserFirst userFirst:  { userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
@@ -414,7 +416,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
-    public void testMaxValueCountComponentsOrderDoesNotMatter() throws Exception
+    public void testRestrictedValueComponentsOrderDoesNotMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
             + "itemOrUserFirst userFirst:  { userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
@@ -435,12 +437,12 @@ public class ACIItemParserTest extends TestCase
             + "subtree {{ base \"ou=system\" }, { base \"ou=ORGANIZATIONUNIT\"," + "minimum  1, maximum   2 } } }  , "
             + "userPermissions { { protectedItems{ entry  , maxImmSub 5 "
             + " }  , grantsAndDenials { grantBrowse } } } }  }   ";
-
+        
         ACIItem item = parser.parse( spec );
         checkItemToString( spec, item );
     }
-
-
+    
+    
     public void testSubtreeSpecificationComponentsOrderDoesNotMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -452,15 +454,15 @@ public class ACIItemParserTest extends TestCase
         ACIItem item = parser.parse( spec );
         checkItemToString( spec, item );
     }
-
-
+    
+    
     /**
      * Test case for DIRSERVER-891
      */
     public void testInvalidAttributeValue()
     {
         String spec;
-
+        
         // no name-value-pair
         spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
             + "itemOrUserFirst userFirst:  { userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue { must_be_a_name_value_pair } , "
@@ -470,13 +472,13 @@ public class ACIItemParserTest extends TestCase
         try
         {
             parser.parse( spec );
-            fail( "Expected ParseException, invalid protected item 'attributeValue { must_be_a_name_value_pair }'" );
+            fail("Expected ParseException, invalid protected item 'attributeValue { must_be_a_name_value_pair }'");
         }
         catch ( ParseException e )
         {
             // Expected
         }
-
+        
         // no name-value-pair
         spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
             + "itemOrUserFirst userFirst:  { userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue { x=y,m=n,k=l,x } , "
@@ -486,60 +488,60 @@ public class ACIItemParserTest extends TestCase
         try
         {
             parser.parse( spec );
-            fail( "Expected ParseException, invalid protected item 'attributeValue { x=y,m=n,k=l,x }'" );
+            fail("Expected ParseException, invalid protected item 'attributeValue { x=y,m=n,k=l,x }'");
         }
         catch ( ParseException e )
         {
             // Expected
         }
     }
-
-
+    
+    
     /**
      * Test case for DIRSERVER-891
      */
     public void testIncomplete()
     {
         String spec;
-
+        
         spec = "{ }";
         try
         {
             parser.parse( spec );
-            fail( "Expected ParseException, ACIItem is incomplete'" );
+            fail("Expected ParseException, ACIItem is incomplete'");
         }
         catch ( ParseException e )
         {
             // Expected
         }
-
+        
         spec = "{ identificationTag \"id2\" }";
         try
         {
             parser.parse( spec );
-            fail( "Expected ParseException, ACIItem is incomplete'" );
+            fail("Expected ParseException, ACIItem is incomplete'");
         }
         catch ( ParseException e )
         {
             // Expected
         }
-
+        
         spec = "{ identificationTag \"id2\", precedence 14 } ";
         try
         {
             parser.parse( spec );
-            fail( "Expected ParseException, ACIItem is incomplete'" );
+            fail("Expected ParseException, ACIItem is incomplete'");
         }
         catch ( ParseException e )
         {
             // Expected
         }
-
+        
         spec = "{ identificationTag \"id2\", precedence 14, authenticationLevel none } ";
         try
         {
             parser.parse( spec );
-            fail( "Expected ParseException, ACIItem is incomplete'" );
+            fail("Expected ParseException, ACIItem is incomplete'");
         }
         catch ( ParseException e )
         {

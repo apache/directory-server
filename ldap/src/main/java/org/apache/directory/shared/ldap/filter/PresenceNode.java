@@ -36,7 +36,7 @@ public final class PresenceNode extends LeafNode
      */
     public PresenceNode( String attribute )
     {
-        super( attribute );
+        super( attribute, AssertionType.PRESENCE );
     }
 
 
