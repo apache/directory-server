@@ -22,9 +22,9 @@ Class-Path: ../lib/logger.jar ../lib/daemon.jar ../lib/bootstrapper.jar
  ../lib/apacheds-schema-bootstrap-1.5.2.jar 
  ../lib/apacheds-bootstrap-partition-1.5.2.jar 
  ../lib/apacheds-bootstrap-extract-1.5.2.jar 
- ../lib/shared-asn1-codec-0.9.10-SNAPSHOT.jar 
- ../lib/shared-asn1-0.9.10-SNAPSHOT.jar 
- ../lib/shared-ldap-0.9.10-SNAPSHOT.jar 
+ ../lib/shared-asn1-codec-0.9.10.jar 
+ ../lib/shared-asn1-0.9.10.jar 
+ ../lib/shared-ldap-0.9.10.jar 
  ../lib/mina-core-1.1.6.jar 
  ../lib/mina-filter-ssl-1.1.6.jar 
  ../lib/commons-collections-3.2.jar 
