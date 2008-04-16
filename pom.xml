@@ -30,7 +30,7 @@
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
-  <version>1.5.2-SNAPSHOT</version>
+  <version>1.5.2</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
@@ -526,12 +526,9 @@
   </reporting>
 
   <scm>
-    <connection>
-      scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang
-    </connection>
-    <developerConnection>
-      scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang
-    </developerConnection>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/tags/1.5.2</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/tags/1.5.2</developerConnection>
+    <url>http://svn.apache.org/viewvc/directory/project/tags/1.5.2</url>
   </scm>
 
   <repositories>
