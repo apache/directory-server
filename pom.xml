@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.directory.server</groupId>
   <version>1.0</version>
-  <artifactId>1.5-2-with-dependencies</artifactId>
+  <artifactId>1.5.2-with-dependencies</artifactId>
   <name>ApacheDS 1.5.2 Build With Dependencies</name>
   <inceptionYear>2004</inceptionYear>
   <packaging>pom</packaging>
@@ -16,7 +16,7 @@
   </modules>
   <scm>
     <connection>
-      scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang-with-dependencies
+      scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/tags/1.5.2-with-dependencies
     </connection> 
   </scm>
 </project>
