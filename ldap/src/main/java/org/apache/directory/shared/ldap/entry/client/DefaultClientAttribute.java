@@ -108,15 +108,9 @@ public class DefaultClientAttribute implements ClientAttribute
         {
             for ( Value<?> val:vals )
             {
-                if ( val instanceof ClientStringValue )
+                if ( ( val instanceof ClientStringValue ) || ( val instanceof ClientBinaryValue ) )
                 {
-                    ClientStringValue serverString = ( ClientStringValue ) val;
-                    add( new ClientStringValue( serverString.get() ) );
-                }
-                else if ( val instanceof ClientBinaryValue )
-                {
-                    ClientBinaryValue serverBinary = ( ClientBinaryValue ) val;
-                    add( new ClientBinaryValue( serverBinary.getCopy() ) );
+                    add( val );
                 }
                 else
                 {
@@ -415,6 +409,7 @@ public class DefaultClientAttribute implements ClientAttribute
                     values.add( nullBinaryValue );
                     values.add( nullStringValue );
                     nullValueAdded = true;
+                    nbAdded++;
                 }
                 else if ( !isHR )
                 {
@@ -425,6 +420,7 @@ public class DefaultClientAttribute implements ClientAttribute
                     if ( !values.contains( nullBinaryValue ) )
                     {
                         values.add( nullBinaryValue );
+                        nbAdded++;
                     }
                     
                 }
@@ -451,6 +447,7 @@ public class DefaultClientAttribute implements ClientAttribute
                         // The attribute type will be set to HR
                         isHR = true;
                         values.add( val );
+                        nbAdded++;
                     }
                     else if ( !isHR )
                     {
@@ -459,12 +456,20 @@ public class DefaultClientAttribute implements ClientAttribute
                         ClientBinaryValue cbv = new ClientBinaryValue();
                         cbv.set( StringTools.getBytesUtf8( (String)val.get() ) );
                         
-                        values.add( cbv );
+                        if ( !contains( cbv ) )
+                        {
+                            values.add( cbv );
+                            nbAdded++;
+                        }
                     }
                     else
                     {
                         // The attributeType is HR, simply add the value
-                        values.add( val );
+                        if ( !contains( val ) )
+                        {
+                            values.add( val );
+                            nbAdded++;
+                        }
                     }
                 }
                 else
@@ -475,11 +480,16 @@ public class DefaultClientAttribute implements ClientAttribute
                         // The attribute type will be set to binary
                         isHR = false;
                         values.add( val );
+                        nbAdded++;
                     }
                     else if ( !isHR )
                     {
-                        // The attributeType is not HR, simply add the value
-                        values.add( val );
+                        // The attributeType is not HR, simply add the value if it does not already exist
+                        if ( !contains( val ) )
+                        {
+                            values.add( val );
+                            nbAdded++;
+                        }
                     }
                     else
                     {
@@ -488,12 +498,14 @@ public class DefaultClientAttribute implements ClientAttribute
                         ClientStringValue csv = new ClientStringValue();
                         csv.set( StringTools.utf8ToString( (byte[])val.get() ) );
                         
-                        values.add( csv );
+                        if ( !contains( csv ) )
+                        {
+                            values.add( csv );
+                            nbAdded++;
+                        }
                     }
                 }
             }
-
-            nbAdded++;
         }
 
         // Last, not least, if a nullValue has been added, and if other 
@@ -536,9 +548,13 @@ public class DefaultClientAttribute implements ClientAttribute
         {
             for ( String val:vals )
             {
-                if ( add( new ClientStringValue( val ) ) == 1 )
+                // Call the add(Value) method, if not already present
+                if ( !contains( val ) )
                 {
-                    nbAdded++;
+                    if ( add( new ClientStringValue( val ) ) == 1 )
+                    {
+                        nbAdded++;
+                    }
                 }
             }
         }
@@ -618,10 +634,13 @@ public class DefaultClientAttribute implements ClientAttribute
                     valString = StringTools.utf8ToString( val );
                 }
                 
-                // Now call the add(Value) method
-                if ( add( new ClientStringValue( valString ) ) == 1 )
+                // Now call the add(Value) method, if not already present
+                if ( !contains( val ) )
                 {
-                    nbAdded++;
+                    if ( add( new ClientStringValue( valString ) ) == 1 )
+                    {
+                        nbAdded++;
+                    }
                 }
             }
         }
@@ -1321,7 +1340,18 @@ public class DefaultClientAttribute implements ClientAttribute
         {
             for ( Value<?> value:values )
             {
-                sb.append( "    " ).append( upId ).append( ": " ).append( value ).append( '\n' );
+                sb.append( "    " ).append( upId ).append( ": " );
+                
+                if ( value.isNull() )
+                {
+                    sb.append( "''" );
+                }
+                else
+                {
+                    sb.append( value );
+                }
+                
+                sb.append( '\n' );
             }
         }
         else

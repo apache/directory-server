@@ -19,6 +19,11 @@
 package org.apache.directory.shared.ldap.entry.client;
 
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.AbstractValue;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -286,6 +291,25 @@ public class ClientStringValue extends AbstractValue<String>
         
         // Test the normalized values
         return this.getNormalizedValue().equals( other.getNormalizedValue() );
+    }
+    
+    
+    /**
+     * @see Externalizable#readExternal(ObjectInput)
+     */
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        // TODO implement this method
+        return;
+    }
+
+    
+    /**
+     * @see Externalizable#writeExternal(ObjectOutput)
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        // TODO Implement this method
     }
     
     
