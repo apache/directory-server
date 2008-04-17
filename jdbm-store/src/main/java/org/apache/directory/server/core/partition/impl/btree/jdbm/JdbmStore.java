@@ -1243,7 +1243,7 @@ public class JdbmStore<E> implements Store<E>
      * @param mods the attribute and values to add 
      * @throws Exception if index alteration or attribute addition fails
      */
-    private void add( Long id, Attributes entry, ServerAttribute mods ) throws Exception
+    private void add( Long id, Attributes entry, EntryAttribute mods ) throws Exception
     {
         String modsOid = oidRegistry.getOid( mods.getId() );
         
@@ -1295,7 +1295,7 @@ public class JdbmStore<E> implements Store<E>
      * @param mods the attribute and its values to delete
      * @throws Exception if index alteration or attribute modification fails.
      */
-    private void remove( Long id, Attributes entry, ServerAttribute mods ) throws Exception
+    private void remove( Long id, Attributes entry, EntryAttribute mods ) throws Exception
     {
         String modsOid = oidRegistry.getOid( mods.getId() );
         
@@ -1361,7 +1361,7 @@ public class JdbmStore<E> implements Store<E>
      * @throws NamingException if index alteration or attribute modification 
      * fails.
      */
-    private void replace( Long id, Attributes entry, ServerAttribute mods ) throws Exception
+    private void replace( Long id, Attributes entry, EntryAttribute mods ) throws Exception
     {
         String modsOid = oidRegistry.getOid( mods.getId() );
         
@@ -1855,7 +1855,7 @@ public class JdbmStore<E> implements Store<E>
             dropAliasIndices( movedBaseId, movedBase );
         }
 
-        throw new NotImplementedException( "Fix the code below this line" );
+//        throw new NotImplementedException( "Fix the code below this line" );
 
 //        NamingEnumeration<ForwardIndexEntry> aliases =
 //                new IndexAssertionEnumeration( aliasIdx.listIndices( movedBase.toString(), true ), isBaseDescendant );
