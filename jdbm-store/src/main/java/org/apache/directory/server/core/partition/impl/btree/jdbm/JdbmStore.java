@@ -36,6 +36,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.*;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -1414,7 +1415,7 @@ public class JdbmStore<E> implements Store<E>
 
         for ( AttributeType attributeType:mods.getAttributeTypes() )
         {
-            ServerAttribute attr = mods.get( attributeType );
+            EntryAttribute attr = mods.get( attributeType );
 
             switch ( modOp )
             {

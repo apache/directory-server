@@ -23,6 +23,7 @@ package org.apache.directory.server.core.subtree;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -66,7 +67,7 @@ public class RefinementLeafEvaluator
      * if it rejects the entry
      * @throws NamingException
      */
-    public boolean evaluate( SimpleNode node, ServerAttribute objectClasses ) throws NamingException
+    public boolean evaluate( SimpleNode node, EntryAttribute objectClasses ) throws NamingException
     {
         if ( node == null )
         {
@@ -88,7 +89,7 @@ public class RefinementLeafEvaluator
             throw new IllegalArgumentException( "objectClasses argument cannot be null" );
         }
         
-        if ( !objectClasses.instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
+        if ( !((ServerAttribute)objectClasses).instanceOf( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             throw new IllegalArgumentException( "objectClasses attribute must be for ID 'objectClass'" );
         }
@@ -123,7 +124,8 @@ public class RefinementLeafEvaluator
         
         if ( Character.isDigit( value.charAt( 0 ) ) )
         {
-            Iterator list = registry.getNameSet( value ).iterator();
+            Iterator<String> list = registry.getNameSet( value ).iterator();
+            
             while ( list.hasNext() )
             {
                 String objectClass = ( String ) list.next();

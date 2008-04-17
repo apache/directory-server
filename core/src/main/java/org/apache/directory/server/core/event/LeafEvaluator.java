@@ -24,11 +24,11 @@ import java.util.Comparator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -160,7 +160,7 @@ public class LeafEvaluator implements Evaluator
 
         // get the attribute associated with the node
         AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( attrId ) );
-        ServerAttribute attr = entry.get( type );
+        EntryAttribute attr = entry.get( type );
 
         // If we do not have the attribute just return false
         if ( null == attr )
@@ -246,7 +246,7 @@ public class LeafEvaluator implements Evaluator
         Comparator comparator = getComparator( node.getAttribute() );
 
         // get the attribute associated with the node
-        ServerAttribute attr = entry.get( node.getAttribute() );
+        EntryAttribute attr = entry.get( node.getAttribute() );
 
         // If we do not have the attribute just return false
         if ( null == attr )

@@ -31,6 +31,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
@@ -38,6 +39,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -75,7 +77,7 @@ public class ServerEntryUtils
 
         for ( AttributeType attributeType:entry.getAttributeTypes() )
         {
-            ServerAttribute attr = entry.get( attributeType );
+            EntryAttribute attr = entry.get( attributeType );
             
             // Deal with a special case : an entry without any ObjectClass
             if ( attributeType.getOid() == SchemaConstants.OBJECT_CLASS_AT_OID )
@@ -233,11 +235,10 @@ public class ServerEntryUtils
         {
             Attribute attribute = new BasicAttribute( attributeType.getName(), true );
             
-            ServerAttribute attr = entry.get( attributeType );
+            EntryAttribute attr = entry.get( attributeType );
             
-            for ( Iterator<Value<?>> iter = attr.iterator(); iter.hasNext();)
+            for ( Value<?> value:attr )
             {
-                Value<?> value = iter.next();
                 attribute.add( value );
             }
             
@@ -271,7 +272,7 @@ public class ServerEntryUtils
      *
      * @return An instance of a BasicAttribute() object
      */
-    public static Attribute toAttributeImpl( ServerAttribute attr )
+    public static Attribute toAttributeImpl( EntryAttribute attr )
     {
         Attribute attribute = new AttributeImpl( attr.getUpId() );
 
@@ -311,11 +312,11 @@ public class ServerEntryUtils
 
                 if ( toBeRemoved.size() == 0 )
                 {
-                    targetEntry.remove( id );
+                    targetEntry.removeAttributes( id );
                 }
                 else
                 {
-                    ServerAttribute existing = targetEntry.get( id );
+                    EntryAttribute existing = targetEntry.get( id );
 
                     if ( existing != null )
                     {
@@ -330,7 +331,7 @@ public class ServerEntryUtils
             case ADD_ATTRIBUTE :
                 ServerAttribute combined = new DefaultServerAttribute( id, attributeType );
                 ServerAttribute toBeAdded = (ServerAttribute)mod.getAttribute();
-                ServerAttribute existing = entry.get( id );
+                EntryAttribute existing = entry.get( id );
 
                 if ( existing != null )
                 {
@@ -466,8 +467,8 @@ public class ServerEntryUtils
     }
     
     
-    public static List<Modification> toServerModification( ModificationItem[] modifications, AttributeTypeRegistry atRegistry )
-    throws NamingException
+    public static List<Modification> toServerModification( ModificationItem[] modifications, 
+        AttributeTypeRegistry atRegistry ) throws NamingException
     {
 	    if ( modifications != null )
 	    {
@@ -478,6 +479,27 @@ public class ServerEntryUtils
 	            String attributeId = modification.getAttribute().getID();
                 String id = stripOptions( attributeId );
 	            Set<String> options = getOptions( attributeId );
+
+	            // -------------------------------------------------------------------
+	            // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
+	            // (deletion) causes an error
+	            // -------------------------------------------------------------------
+	            
+                // TODO - after removing JNDI we need to make the server handle 
+	            // this in the codec
+                
+	            if ( ! atRegistry.hasAttributeType( id ) 
+	                 && modification.getAttribute().size() == 0 
+	                 && modification.getModificationOp() == DirContext.REPLACE_ATTRIBUTE )
+	            {
+	                continue;
+	            }
+
+	            // -------------------------------------------------------------------
+	            // END DIRSERVER-646 Fix
+	            // -------------------------------------------------------------------
+	            
+	            
 	            // TODO : handle options
 	            AttributeType attributeType = atRegistry.lookup( id );
 	            modificationsList.add( toModification( (ModificationItemImpl)modification, attributeType ) );

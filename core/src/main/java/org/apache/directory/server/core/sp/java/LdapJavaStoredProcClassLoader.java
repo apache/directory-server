@@ -23,7 +23,7 @@ package org.apache.directory.server.core.sp.java;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 
 
 /**
@@ -34,10 +34,10 @@ import org.apache.directory.server.core.entry.ServerAttribute;
  */
 public class LdapJavaStoredProcClassLoader extends ClassLoader
 {
-    private ServerAttribute javaByteCodeAttr;
+    private EntryAttribute javaByteCodeAttr;
 
 
-    public LdapJavaStoredProcClassLoader( ServerAttribute javaByteCodeAttr )
+    public LdapJavaStoredProcClassLoader( EntryAttribute javaByteCodeAttr )
     {
         // Critical call to super class constructor. Required for true plumbing of class loaders.
         super( LdapJavaStoredProcClassLoader.class.getClassLoader() );

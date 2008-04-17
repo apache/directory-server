@@ -42,11 +42,11 @@ public class UnbindOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of UnbindOperationContext.
      *
-     * @param unbindDn The principal DN to unbind
+     * @param principalDn The principal DN to unbind
      */
-    public UnbindOperationContext( Registries registries, LdapDN unbindDn )
+    public UnbindOperationContext( Registries registries, LdapDN principalDn )
     {
-        super( registries, unbindDn );
+        super( registries, principalDn );
     }
     
     /**

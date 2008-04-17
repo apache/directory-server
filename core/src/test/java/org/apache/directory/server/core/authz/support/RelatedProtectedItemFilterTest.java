@@ -342,7 +342,7 @@ public class RelatedProtectedItemFilterTest
         assertEquals( 1, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
             null, null, null, "cn", null, entry, null, null ).size() );
 
-        entry.remove( "cn" );
+        entry.removeAttributes( "cn" );
         assertEquals( 0, filterA.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME,
             null, null, null, "cn", null, entry, null, null ).size() );
 

@@ -42,11 +42,11 @@ import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -350,7 +350,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     {
         ServerEntry rootDSE = ctx.getDirectoryService().getPartitionNexus().getRootDSE( null );
 
-        ServerAttribute namingContextsAttr = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        EntryAttribute namingContextsAttr = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
         
         if ( namingContextsAttr == null || namingContextsAttr.size() == 0 )
         {
@@ -395,7 +395,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 ServerEntry attrs = sr.getServerEntry(); 
 
                 // Skip entries without entryCSN attribute.
-                ServerAttribute entryCSNAttr = attrs.get( org.apache.directory.mitosis.common.Constants.ENTRY_CSN );
+                EntryAttribute entryCSNAttr = attrs.get( org.apache.directory.mitosis.common.Constants.ENTRY_CSN );
                 
                 if ( entryCSNAttr == null )
                 {

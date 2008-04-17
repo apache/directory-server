@@ -26,9 +26,9 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -133,7 +133,7 @@ public class DescriptionParsers
     }
 
     
-    public SyntaxCheckerDescription[] parseSyntaxCheckers( ServerAttribute attr ) throws NamingException
+    public SyntaxCheckerDescription[] parseSyntaxCheckers( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -165,7 +165,7 @@ public class DescriptionParsers
     }
     
     
-    public NormalizerDescription[] parseNormalizers( ServerAttribute attr ) throws NamingException
+    public NormalizerDescription[] parseNormalizers( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -196,7 +196,7 @@ public class DescriptionParsers
     }
     
 
-    public ComparatorDescription[] parseComparators( ServerAttribute attr ) throws NamingException
+    public ComparatorDescription[] parseComparators( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -235,7 +235,7 @@ public class DescriptionParsers
      * @return the set of attributeType objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public AttributeType[] parseAttributeTypes( ServerAttribute attr ) throws NamingException
+    public AttributeType[] parseAttributeTypes( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -370,7 +370,7 @@ public class DescriptionParsers
      * @return the set of objectClass objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public ObjectClass[] parseObjectClasses( ServerAttribute attr ) throws NamingException
+    public ObjectClass[] parseObjectClasses( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -471,7 +471,7 @@ public class DescriptionParsers
      * @return the set of matchingRuleUse objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public MatchingRuleUse[] parseMatchingRuleUses( ServerAttribute attr ) throws NamingException
+    public MatchingRuleUse[] parseMatchingRuleUses( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -518,7 +518,7 @@ public class DescriptionParsers
      * @return the set of Syntax objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public Syntax[] parseSyntaxes( ServerAttribute attr ) throws NamingException
+    public Syntax[] parseSyntaxes( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -572,7 +572,7 @@ public class DescriptionParsers
      * @return the set of matchingRule objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public MatchingRule[] parseMatchingRules( ServerAttribute attr ) throws NamingException
+    public MatchingRule[] parseMatchingRules( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -625,7 +625,7 @@ public class DescriptionParsers
      * @return the set of DITStructureRule objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public DITStructureRule[] parseDitStructureRules( ServerAttribute attr ) throws NamingException
+    public DITStructureRule[] parseDitStructureRules( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -674,7 +674,7 @@ public class DescriptionParsers
      * @return the set of DITContentRule objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public DITContentRule[] parseDitContentRules( ServerAttribute attr ) throws NamingException
+    public DITContentRule[] parseDitContentRules( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -725,7 +725,7 @@ public class DescriptionParsers
      * @return the set of NameFormRule objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public NameForm[] parseNameForms( ServerAttribute attr ) throws NamingException
+    public NameForm[] parseNameForms( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {

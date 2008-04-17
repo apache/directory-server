@@ -37,7 +37,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
@@ -50,6 +49,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -203,7 +203,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         {
             ServerEntry entry = ne.next().getServerEntry();
             String oid = entry.get( mOidAT ).getString();
-            ServerAttribute names = entry.get( mNameAT );
+            EntryAttribute names = entry.get( mNameAT );
             targetRegistries.getOidRegistry().register( oid, oid );
             
             for ( Value<?> value:names )
@@ -255,7 +255,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         for ( ServerSearchResult sr: results )
         {
-            ServerAttribute cn = sr.getServerEntry().get( cnAT );
+            EntryAttribute cn = sr.getServerEntry().get( cnAT );
             dependees.add( cn.getString() );
         }
         
@@ -283,7 +283,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         for ( ServerSearchResult sr: results )
         {
-            ServerAttribute cn = sr.getServerEntry().get( cnAT );
+            EntryAttribute cn = sr.getServerEntry().get( cnAT );
             dependees.add( cn.getString() );
         }
         
@@ -740,7 +740,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
     private String getOid( ServerEntry entry ) throws NamingException
     {
-        ServerAttribute oid = entry.get( mOidAT );
+        EntryAttribute oid = entry.get( mOidAT );
         
         if ( oid == null )
         {
@@ -760,13 +760,13 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
         description.setFqcn( entry.get( fqcnAT ).getString() );
         
-        ServerAttribute desc = entry.get( descAT );
+        EntryAttribute desc = entry.get( descAT );
         if ( desc != null && desc.size() > 0 )
         {
             description.setDescription( desc.getString() );
         }
         
-        ServerAttribute bytecode = entry.get( byteCodeAT );
+        EntryAttribute bytecode = entry.get( byteCodeAT );
         
         if ( bytecode != null && bytecode.size() > 0 )
         {
@@ -825,14 +825,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
         description.setFqcn( entry.get( fqcnAT ).getString() );
         
-        ServerAttribute desc = entry.get( descAT );
+        EntryAttribute desc = entry.get( descAT );
         
         if ( desc != null && desc.size() > 0 )
         {
             description.setDescription( desc.getString() );
         }
         
-        ServerAttribute bytecode = entry.get( byteCodeAT );
+        EntryAttribute bytecode = entry.get( byteCodeAT );
         
         if ( bytecode != null && bytecode.size() > 0 )
         {
@@ -854,14 +854,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
         description.setFqcn( entry.get( fqcnAT ).getString() );
         
-        ServerAttribute desc = entry.get( descAT );
+        EntryAttribute desc = entry.get( descAT );
         
         if ( desc != null && desc.size() > 0 )
         {
             description.setDescription( desc.getString() );
         }
         
-        ServerAttribute bytecode = entry.get( byteCodeAT );
+        EntryAttribute bytecode = entry.get( byteCodeAT );
         
         if ( bytecode != null && bytecode.size() > 0 )
         {

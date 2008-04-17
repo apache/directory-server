@@ -22,7 +22,6 @@ package org.apache.directory.server.core.trigger;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
@@ -46,6 +45,7 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -140,7 +140,7 @@ public class TriggerInterceptor extends BaseInterceptor
             entry = proxy.lookup( new LookupOperationContext( registries, parentDn ), PartitionNexusProxy.LOOKUP_BYPASS );
         }
 
-        ServerAttribute subentries = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+        EntryAttribute subentries = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         
         if ( subentries == null )
         {
@@ -165,7 +165,7 @@ public class TriggerInterceptor extends BaseInterceptor
      */
     private void addEntryTriggerSpecs( List<TriggerSpecification> triggerSpecs, ServerEntry entry ) throws NamingException
     {
-        ServerAttribute entryTrigger = entry.get( ENTRY_TRIGGER_ATTR );
+        EntryAttribute entryTrigger = entry.get( ENTRY_TRIGGER_ATTR );
         
         if ( entryTrigger == null )
         {
@@ -462,7 +462,7 @@ public class TriggerInterceptor extends BaseInterceptor
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
         ServerEntry fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
         
-        for ( ServerAttribute attribute:importedEntry )
+        for ( EntryAttribute attribute:importedEntry )
         {
             fakeImportedEntry.put( attribute );
         }
@@ -538,7 +538,7 @@ public class TriggerInterceptor extends BaseInterceptor
         SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
         ServerEntry fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
         
-        for ( ServerAttribute attribute:importedEntry )
+        for ( EntryAttribute attribute:importedEntry )
         {
             fakeImportedEntry.put( attribute );
         }

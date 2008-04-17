@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>1.5.2-SNAPSHOT</version>
+    <version>1.5.3-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-core</artifactId>
   <name>ApacheDS Core</name>
@@ -105,9 +105,16 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-bouncycastle-reduced</artifactId>
+    </dependency>
+
+<!--
+    <dependency>
       <groupId>bouncycastle</groupId>
       <artifactId>bcprov-jdk15</artifactId>
     </dependency>
+-->
 
   </dependencies>
 

@@ -21,11 +21,11 @@ package org.apache.directory.server.core.schema;
 
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -132,7 +132,7 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     
     protected String getOid( ServerEntry entry ) throws NamingException
     {
-        ServerAttribute oid = entry.get( m_oidAT );
+        EntryAttribute oid = entry.get( m_oidAT );
         
         if ( oid == null )
         {

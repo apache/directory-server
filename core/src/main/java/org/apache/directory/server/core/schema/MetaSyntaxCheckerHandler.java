@@ -26,13 +26,13 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -84,14 +84,14 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
         description.setFqcn( entry.get( fqcnAT ).getString() );
         
-        ServerAttribute desc = entry.get( descAT );
+        EntryAttribute desc = entry.get( descAT );
         
         if ( desc != null && desc.size() > 0 )
         {
             description.setDescription( desc.getString() );
         }
         
-        ServerAttribute bytecode = entry.get( byteCodeAT );
+        EntryAttribute bytecode = entry.get( byteCodeAT );
         
         if ( bytecode != null && bytecode.size() > 0 )
         {

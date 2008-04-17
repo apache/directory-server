@@ -22,7 +22,6 @@ package org.apache.directory.server.core.authz;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -45,6 +44,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -154,7 +154,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             return;
         }
         
-        ServerAttribute uniqueMember = adminGroup.get( uniqueMemberAT );
+        EntryAttribute uniqueMember = adminGroup.get( uniqueMemberAT );
         
         for ( Value<?> value:uniqueMember )
         {

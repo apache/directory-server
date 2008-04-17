@@ -232,19 +232,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public void ldapUnbind() throws NamingException
     {
-        LdapDN principalDn;
-        Object principalDnValue = getEnvironment().get( Context.SECURITY_PRINCIPAL );
-        
-        if ( principalDnValue instanceof LdapDN )
-        {
-            principalDn = ( LdapDN ) principalDnValue;
-        }
-        else
-        {
-            String bindDn = ( String ) principalDnValue;
-            principalDn = new LdapDN( bindDn );
-        }
-
+        LdapDN principalDn = super.getPrincipal().getJndiName();
         UnbindOperationContext opCtx = new UnbindOperationContext( registries, principalDn );
         opCtx.addRequestControls( requestControls );
         super.getNexusProxy().unbind( opCtx );

@@ -43,9 +43,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.slf4j.Logger;
@@ -73,7 +73,22 @@ public class TlsKeyGenerator
     public static final String CERTIFICATE_PRINCIPAL_DN =
         "CN=ApacheDS, OU=Directory, O=ASF, C=US";
     private static final String ALGORITHM = "RSA";
-    private static final int KEY_SIZE = 1024;
+    
+    /* 
+     * Eventually we have to make several of these parameters configurable,
+     * however note to pass export restrictions we must use a key size of
+     * 512 or less here as the default.  Users can configure this setting
+     * later based on their own legal situations.  This is required to 
+     * classify ApacheDS in the ECCN 5D002 category.  Please see the following
+     * page for more information:
+     * 
+     *    http://www.apache.org/dev/crypto.html
+     * 
+     * Also ApacheDS must be classified on the following page:
+     * 
+     *    http://www.apache.org/licenses/exports
+     */ 
+    private static final int KEY_SIZE = 512;
     private static final long YEAR_MILLIS = 365*24*3600*1000;
     
 
@@ -193,7 +208,8 @@ public class TlsKeyGenerator
      */
     public static void addKeyPair( ServerEntry entry ) throws NamingException
     {
-        ServerAttribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        
         if ( objectClass == null )
         {
             entry.put( SchemaConstants.OBJECT_CLASS_AT, TLS_KEY_INFO_OC, SchemaConstants.INET_ORG_PERSON_OC );

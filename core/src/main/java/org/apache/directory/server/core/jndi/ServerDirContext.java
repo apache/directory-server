@@ -22,12 +22,12 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -289,7 +289,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         	if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-        		for ( ServerAttribute attribute:outServerEntry )
+        		for ( EntryAttribute attribute:outServerEntry )
         		{
         			clone.put( attribute );
         		}
@@ -318,7 +318,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             
             if ( outServerEntry != null && outServerEntry.size() > 0 )
             {
-        		for ( ServerAttribute attribute:outServerEntry )
+        		for ( EntryAttribute attribute:outServerEntry )
         		{
         			clone.put( attribute );
         		}
@@ -335,7 +335,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-        		for ( ServerAttribute attribute:outServerEntry )
+        		for ( EntryAttribute attribute:outServerEntry )
         		{
         			entry.put( attribute );
         		}

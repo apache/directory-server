@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>1.5.1-SNAPSHOT</version>
+    <version>1.5.2-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-server-sar</artifactId>
   <name>ApacheDS Server Sar (JBoss 3.x)</name>

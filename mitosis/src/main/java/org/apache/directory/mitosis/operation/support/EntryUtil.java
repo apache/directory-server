@@ -24,7 +24,6 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
@@ -32,6 +31,7 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -52,7 +52,7 @@ public class EntryUtil
             return true;
         }
 
-        ServerAttribute entryCSNAttr = entry.get( Constants.ENTRY_CSN );
+        EntryAttribute entryCSNAttr = entry.get( Constants.ENTRY_CSN );
 
         if ( entryCSNAttr == null )
         {

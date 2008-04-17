@@ -26,7 +26,6 @@ import java.util.Iterator;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
@@ -41,6 +40,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -265,7 +265,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     String svItem = j.next();
                     if ( oid.equals( oidRegistry.getOid( svItem ) ) )
                     {
-                        ServerAttribute attr = entry.get( oid );
+                        EntryAttribute attr = entry.get( oid );
                         
                         if ( ( attr != null ) && 
                              ( ( attr.contains( userName.toNormName() ) || 

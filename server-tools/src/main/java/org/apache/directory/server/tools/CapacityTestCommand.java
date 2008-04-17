@@ -24,6 +24,8 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Hashtable;
 
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
@@ -34,11 +36,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.directory.daemon.AvailablePortFinder;
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-
 
 
 /**
@@ -50,27 +48,27 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CapacityTestCommand extends BaseToolCommand
+public class CapacityTestCommand extends ToolCommand
 {
     public static final String PORT_RANGE = "(" + AvailablePortFinder.MIN_PORT_NUMBER + ", "
         + AvailablePortFinder.MAX_PORT_NUMBER + ")";
 
-    private static final String baseDn = ServerDNConstants.USER_EXAMPLE_COM_DN;
-    
-    
+    private int port = 10389;
+    private String host = "localhost";
+    private String password = "secret";
+    private String baseDn = "ou=users,dc=example,dc=com";
+
+
     public CapacityTestCommand()
     {
         super( "capacity" );
-        port = DEFAULT_PORT;
-        host = DEFAULT_HOST;
-        password = DEFAULT_PASSWORD;
     }
 
 
     public void execute( CommandLine cmdline ) throws Exception
     {
         processOptions( cmdline );
-//        getLayout().verifyInstallation();
+        getLayout().verifyInstallation();
         String outputFile = cmdline.getOptionValue( 'f' );
         PrintWriter out = null;
 
@@ -82,7 +80,7 @@ public class CapacityTestCommand extends BaseToolCommand
         {
             out = new PrintWriter( new FileWriter( outputFile ) );
         }
-        
+
         if ( isDebugEnabled() )
         {
             out.println( "Parameters for capacity extended request:" );
@@ -91,14 +89,17 @@ public class CapacityTestCommand extends BaseToolCommand
             out.println( "password = " + password );
         }
 
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( JndiPropertyConstants.JNDI_FACTORY_INITIAL, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( JndiPropertyConstants.JNDI_PROVIDER_URL, "ldap://" + host + ":" + port );
-        env.put( "java.naming.security.principal", ServerDNConstants.ADMIN_SYSTEM_DN );
-        env.put( JndiPropertyConstants.JNDI_SECURITY_CREDENTIALS, password );
-        env.put( JndiPropertyConstants.JNDI_SECURITY_AUTHENTICATION, "simple" );
+        Hashtable env = new Hashtable();
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://" + host + ":" + port );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", password );
+        env.put( "java.naming.security.authentication", "simple" );
 
         LdapContext ctx = new InitialLdapContext( env, null );
+
+        // create the base dn if it does not exist
+        createBase( ctx );
 
         StringBuffer dnBuf = new StringBuffer();
         StringBuffer outBuf = new StringBuffer();
@@ -112,25 +113,42 @@ public class CapacityTestCommand extends BaseToolCommand
         {
             end = Integer.parseInt( cmdline.getOptionValue( 'e' ) );
         }
-        
+
         while ( counter < end )
         {
             counter++;
             Attributes attrs = generateLdif( counter );
             dnBuf.setLength( 0 );
             dnBuf.append( "uid=user." ).append( counter ).append( "," ).append( baseDn );
-            
+
             long startTime = System.currentTimeMillis();
             ctx.createSubcontext( dnBuf.toString(), attrs );
-            
+
             outBuf.setLength( 0 );
             outBuf.append( counter ).append( " " ).append( System.currentTimeMillis() - startTime );
             out.println( outBuf.toString() );
             out.flush();
         }
     }
-    
-    
+
+
+    private boolean createBase( LdapContext ctx ) throws NamingException
+    {
+        Attributes attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        attrs.put( "ou", "users" );
+
+        try
+        {
+            ctx.createSubcontext( "ou=users,dc=example,dc=com", attrs );
+            return true;
+        }
+        catch ( NameAlreadyBoundException e )
+        {
+            return false;
+        }
+    }
+
+
     private Attributes generateLdif( int counter )
     {
         Attributes attrs = new AttributesImpl( "objectClass", "top", true );
@@ -138,13 +156,13 @@ public class CapacityTestCommand extends BaseToolCommand
         oc.add( "person" );
         oc.add( "organizationalPerson" );
         oc.add( "inetOrgPerson" );
-        
+
         attrs.put( "givenName", RandomStringUtils.randomAlphabetic( 6 ) );
         attrs.put( "sn", RandomStringUtils.randomAlphabetic( 9 ) );
         attrs.put( "cn", RandomStringUtils.randomAlphabetic( 15 ) );
         attrs.put( "initials", RandomStringUtils.randomAlphabetic( 2 ) );
         attrs.put( "mail", RandomStringUtils.randomAlphabetic( 15 ) );
-        attrs.put( SchemaConstants.USER_PASSWORD_AT, "password" );
+        attrs.put( "userPassword", "password" );
         attrs.put( "telephoneNumber", RandomStringUtils.randomNumeric( 10 ) );
         attrs.put( "homePhone", RandomStringUtils.randomNumeric( 10 ) );
         attrs.put( "pager", RandomStringUtils.randomNumeric( 10 ) );
@@ -158,7 +176,7 @@ public class CapacityTestCommand extends BaseToolCommand
         attrs.put( "description", RandomStringUtils.randomAlphabetic( 20 ) );
         return attrs;
     }
-    
+
 
     private void processOptions( CommandLine cmd )
     {
@@ -202,15 +220,15 @@ public class CapacityTestCommand extends BaseToolCommand
                 System.out.println( "port overriden by -p option: " + port );
             }
         }
-//        else if ( getConfiguration() != null )
-//        {
-//            port = getConfiguration().getLdapPort();
-//
-//            if ( isDebugEnabled() )
-//            {
-//                System.out.println( "port overriden by server.xml configuration: " + port );
-//            }
-//        }
+        else if ( getApacheDS() != null )
+        {
+            port = getApacheDS().getLdapServer().getIpPort();
+
+            if ( isDebugEnabled() )
+            {
+                System.out.println( "port overriden by server.xml configuration: " + port );
+            }
+        }
         else if ( isDebugEnabled() )
         {
             System.out.println( "port set to default: " + port );
@@ -273,7 +291,6 @@ public class CapacityTestCommand extends BaseToolCommand
         op.setRequired( false );
         opts.addOption( op );
 
-        
         op = new Option( "s", "start", true, "start on id: number to start on (user.start)" );
         op.setRequired( false );
         opts.addOption( op );

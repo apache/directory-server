@@ -51,6 +51,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -349,7 +350,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // Now remove the attributes which are not USERs
         for ( AttributeType attributeType:removedAttributes )
         {
-            attributes.remove( attributeType );
+            attributes.removeAttributes( attributeType );
         }
         
         return true;
@@ -376,7 +377,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 if ( !ids.contains( attributeType.getOid() ) )
                 {
-                    entry.remove( attributeType );
+                    entry.removeAttributes( attributeType );
                 }
             }
         }
@@ -393,7 +394,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         if ( service.isDenormalizeOpAttrsEnabled() )
         {
-            ServerAttribute attr = entry.get( SchemaConstants.CREATORS_NAME_AT );
+            EntryAttribute attr = entry.get( SchemaConstants.CREATORS_NAME_AT );
 
             if ( attr != null )
             {

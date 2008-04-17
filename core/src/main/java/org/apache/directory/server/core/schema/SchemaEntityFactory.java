@@ -36,6 +36,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -124,7 +125,7 @@ public class SchemaEntityFactory
         if ( entry.get( MetaSchemaConstants.M_DEPENDENCIES_AT ) != null )
         {
             Set<String> depsSet = new HashSet<String>();
-            ServerAttribute depsAttr = entry.get( MetaSchemaConstants.M_DEPENDENCIES_AT );
+            EntryAttribute depsAttr = entry.get( MetaSchemaConstants.M_DEPENDENCIES_AT );
             
             for ( Value<?> value:depsAttr )
             {
@@ -138,7 +139,7 @@ public class SchemaEntityFactory
     }
     
     
-    private SyntaxChecker getSyntaxChecker( String syntaxOid, String className, ServerAttribute bytecode, Registries targetRegistries )
+    private SyntaxChecker getSyntaxChecker( String syntaxOid, String className, EntryAttribute bytecode, Registries targetRegistries )
         throws NamingException
     {
         Class<?> clazz = null;
@@ -235,7 +236,7 @@ public class SchemaEntityFactory
     }
     
     
-    private Comparator getComparator( String className, ServerAttribute bytecode, Registries targetRegistries ) 
+    private Comparator getComparator( String className, EntryAttribute bytecode, Registries targetRegistries ) 
         throws NamingException
     {
         Comparator comparator = null;
@@ -337,7 +338,7 @@ public class SchemaEntityFactory
     }
     
     
-    private Normalizer getNormalizer( String className, ServerAttribute bytecode, Registries targetRegistries ) 
+    private Normalizer getNormalizer( String className, EntryAttribute bytecode, Registries targetRegistries ) 
         throws NamingException
     {
         Class<?> clazz = null;
@@ -578,7 +579,7 @@ public class SchemaEntityFactory
     }
     
     
-    private String[] getStrings( ServerAttribute attr ) throws NamingException
+    private String[] getStrings( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null )
         {
@@ -707,7 +708,7 @@ public class SchemaEntityFactory
             mso.setDescription( entry.get( MetaSchemaConstants.M_DESCRIPTION_AT ).getString() ); 
         }
 
-        ServerAttribute names = entry.get( MetaSchemaConstants.M_NAME_AT );
+        EntryAttribute names = entry.get( MetaSchemaConstants.M_NAME_AT );
         
         if ( names != null )
         {

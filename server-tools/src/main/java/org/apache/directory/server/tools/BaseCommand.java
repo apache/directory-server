@@ -37,14 +37,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.UnrecognizedOptionException;
-import org.apache.directory.server.tools.commands.diagnosticcmd.DiagnosticCommandCL;
-import org.apache.directory.server.tools.commands.disconnectnotificationcmd.DisconnectNotificationCommandCL;
-import org.apache.directory.server.tools.commands.dumpcmd.DumpCommandCL;
-import org.apache.directory.server.tools.commands.exportcmd.ExportCommandCL;
-import org.apache.directory.server.tools.commands.gracefulshutdowncmd.GracefulShutdownCommandCL;
-import org.apache.directory.server.tools.commands.importcmd.ImportCommandCL;
-import org.apache.directory.server.tools.commands.storedprocedurecmd.StoredProcedureCommandCL;
-import org.apache.directory.server.tools.request.BaseToolCommandCL;
 
 
 /**
@@ -55,9 +47,9 @@ import org.apache.directory.server.tools.request.BaseToolCommandCL;
  */
 public class BaseCommand
 {
-    private Map<String, ToolCommand> commands = new HashMap<String, ToolCommand>();
+    private Map commands = new HashMap();
 
-    private List<String> commandsOrdered = new ArrayList<String>();
+    private List commandsOrdered = new ArrayList();
 
     private Options global = new Options();
 
@@ -80,37 +72,33 @@ public class BaseCommand
 
     protected void init()
     {
-        BaseToolCommandCL command;
- 
-        command = new DiagnosticCommandCL();
+        ToolCommand command;
+
+        command = new DiagnosticCommand();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
-        command = new DumpCommandCL();
+        command = new DisconnectNotificationCommand();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
-        command = new GracefulShutdownCommandCL();
+        command = new DumpCommand();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
-        command = new ImportCommandCL();
+        command = new CapacityTestCommand();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
-        command = new DisconnectNotificationCommandCL();
+        command = new GracefulShutdownCommand();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
-        command = new ExportCommandCL();
-        commands.put( command.getName(), command );
-        commandsOrdered.add( command.getName() );
-        
-        command = new StoredProcedureCommandCL();
+        command = new ImportCommand();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
-//        command = new CapacityTestCommand();
+        command = new IndexCommand();
         commands.put( command.getName(), command );
         commandsOrdered.add( command.getName() );
 
@@ -195,7 +183,7 @@ public class BaseCommand
         }
 
         Options all = new Options();
-        BaseToolCommandCL cmd = ( BaseToolCommandCL ) getCommands().get( command );
+        ToolCommand cmd = ( ToolCommand ) getCommands().get( command );
 
         for ( Iterator ii = getGlobal().getOptions().iterator(); ii.hasNext(); )
         {
@@ -240,7 +228,7 @@ public class BaseCommand
 
         if ( getCommands().containsKey( command ) )
         {
-            BaseToolCommandCL cmd = ( BaseToolCommandCL ) getCommands().get( command );
+            ToolCommand cmd = ( ToolCommand ) getCommands().get( command );
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp( getProductCommand() + " " + cmd + " [options]", cmd.getOptions() );
         }
@@ -345,7 +333,7 @@ public class BaseCommand
     }
 
 
-    public void setCommands( Map<String, ToolCommand> commands )
+    public void setCommands( Map commands )
     {
         this.commands = commands;
     }

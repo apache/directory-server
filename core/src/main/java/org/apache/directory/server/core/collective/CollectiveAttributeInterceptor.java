@@ -22,7 +22,6 @@ package org.apache.directory.server.core.collective;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -40,6 +39,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -122,7 +122,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      */
     private void addCollectiveAttributes( LdapDN normName, ServerEntry entry, String[] retAttrs ) throws NamingException
     {
-        ServerAttribute caSubentries;
+        EntryAttribute caSubentries;
 
         //noinspection StringEquality
         if ( ( retAttrs == null ) || ( retAttrs.length != 1 ) || ( retAttrs[0] != SchemaConstants.ALL_USER_ATTRIBUTES ) )
@@ -151,7 +151,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          * OID values in the exclusions set instead of regular names that
          * may have case variance.
          */
-        ServerAttribute collectiveExclusions = entry.get( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
+        EntryAttribute collectiveExclusions = entry.get( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
         Set<String> exclusions = new HashSet<String>();
         
         if ( collectiveExclusions != null )
@@ -260,8 +260,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                     continue;
                 }
                 
-                ServerAttribute subentryColAttr = subentry.get( attrId );
-                ServerAttribute entryColAttr = entry.get( attrId );
+                EntryAttribute subentryColAttr = subentry.get( attrId );
+                EntryAttribute entryColAttr = entry.get( attrId );
 
                 /*
                  * If entry does not have attribute for collective attribute then create it.

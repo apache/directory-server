@@ -17,39 +17,76 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.tools.commands.disconnectnotificationcmd;
+package org.apache.directory.server.tools;
 
+
+import java.util.Hashtable;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.directory.daemon.AvailablePortFinder;
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.tools.execution.ToolCommandExecutorStub;
-import org.apache.directory.server.tools.request.BaseToolCommandCL;
-import org.apache.directory.server.tools.util.Parameter;
+import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiRequest;
 
 
 /**
- * Responds to unsolicited notifications by launching an external process.  Also 
- * reconnects to the server an launches another process to notify that the server
- * is back up.
+ * A command to send an extened request which launches a diagnostic UI 
+ * on the server's console.  This may not work unless the display is set 
+ * and access is granted to the display (via xhost +).  This is especially
+ * the case when running the server in daemon mode.  Usually when running
+ * the server in debug mode is when you want the diagnostics turned on.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 379013 $
+ * @version $Rev: 434420 $
  */
-public class DisconnectNotificationCommandCL extends BaseToolCommandCL
+public class DiagnosticCommand extends ToolCommand
 {
-    private String bindDN = ServerDNConstants.ADMIN_SYSTEM_DN;
+    public static final String PORT_RANGE = "(" + AvailablePortFinder.MIN_PORT_NUMBER + ", "
+        + AvailablePortFinder.MAX_PORT_NUMBER + ")";
+
+    private int port = 10389;
+    private String host = "localhost";
+    private String password = "secret";
 
 
-    public DisconnectNotificationCommandCL()
+    protected DiagnosticCommand()
     {
-        super( "notifications" );
+        super( "diagnostic" );
     }
 
 
-    public void processOptions( CommandLine cmd )
+    public void execute( CommandLine cmd ) throws Exception
+    {
+        processOptions( cmd );
+
+        if ( isDebugEnabled() )
+        {
+            System.out.println( "Parameters for LaunchDiagnosticUI extended request:" );
+            System.out.println( "port = " + port );
+            System.out.println( "host = " + host );
+            System.out.println( "password = " + password );
+        }
+
+        Hashtable env = new Hashtable();
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://" + host + ":" + port );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", password );
+        env.put( "java.naming.security.authentication", "simple" );
+
+        LdapContext ctx = new InitialLdapContext( env, null );
+        if ( isDebugEnabled() )
+        {
+            System.out.println( "Connection to the server established.\n" + "Sending extended request ... " );
+        }
+        ctx.extendedOperation( new LaunchDiagnosticUiRequest( 3 ) );
+        ctx.close();
+    }
+
+
+    private void processOptions( CommandLine cmd )
     {
         if ( isDebugEnabled() )
         {
@@ -59,6 +96,7 @@ public class DisconnectNotificationCommandCL extends BaseToolCommandCL
         // -------------------------------------------------------------------
         // figure out and error check the port value
         // -------------------------------------------------------------------
+
         if ( cmd.hasOption( 'p' ) ) // - user provided port w/ -p takes precedence
         {
             String val = cmd.getOptionValue( 'p' );
@@ -89,13 +127,25 @@ public class DisconnectNotificationCommandCL extends BaseToolCommandCL
             {
                 System.out.println( "port overriden by -p option: " + port );
             }
+        }
+        else if ( getApacheDS() != null )
+        {
+            port = getApacheDS().getLdapServer().getIpPort();
 
-            parameters.add( new Parameter( DisconnectNotificationCommandExecutor.PORT_PARAMETER, new Integer( port ) ) );
+            if ( isDebugEnabled() )
+            {
+                System.out.println( "port overriden by server.xml configuration: " + port );
+            }
+        }
+        else if ( isDebugEnabled() )
+        {
+            System.out.println( "port set to default: " + port );
         }
 
         // -------------------------------------------------------------------
         // figure out the host value
         // -------------------------------------------------------------------
+
         if ( cmd.hasOption( 'h' ) )
         {
             host = cmd.getOptionValue( 'h' );
@@ -104,13 +154,16 @@ public class DisconnectNotificationCommandCL extends BaseToolCommandCL
             {
                 System.out.println( "host overriden by -h option: " + host );
             }
-
-            parameters.add( new Parameter( DisconnectNotificationCommandExecutor.HOST_PARAMETER, host ) );
+        }
+        else if ( isDebugEnabled() )
+        {
+            System.out.println( "host set to default: " + host );
         }
 
         // -------------------------------------------------------------------
         // figure out the password value
         // -------------------------------------------------------------------
+
         if ( cmd.hasOption( 'w' ) )
         {
             password = cmd.getOptionValue( 'w' );
@@ -119,58 +172,11 @@ public class DisconnectNotificationCommandCL extends BaseToolCommandCL
             {
                 System.out.println( "password overriden by -w option: " + password );
             }
-
-            parameters.add( new Parameter( DisconnectNotificationCommandExecutor.PASSWORD_PARAMETER, password ) );
         }
-
-        // -------------------------------------------------------------------
-        // figure out the binddn value
-        // -------------------------------------------------------------------
-        if ( cmd.hasOption( 'u' ) )
+        else if ( isDebugEnabled() )
         {
-            bindDN = cmd.getOptionValue( 'u' );
-
-            if ( isDebugEnabled() )
-            {
-                System.out.println( "binddn overriden by -u option: " + bindDN );
-            }
-
-            parameters.add( new Parameter( DisconnectNotificationCommandExecutor.BINDDN_PARAMETER, bindDN ) );
+            System.out.println( "password set to default: " + password );
         }
-
-        // -------------------------------------------------------------------
-        // figure out the 'install-path'
-        // and verify if the -i option is present when the -c option is used
-        // -------------------------------------------------------------------
-        if ( cmd.hasOption( 'i' ) )
-        {
-            parameters.add( new Parameter( DisconnectNotificationCommandExecutor.INSTALLPATH_PARAMETER, cmd
-                .getOptionValue( 'i' ) ) );
-        }
-        else if ( cmd.hasOption( 'c' ) )
-        {
-            System.err.println( "forced configuration load (-c) requires the -i option" );
-            System.exit( 1 );
-        }
-
-        // -------------------------------------------------------------------
-        // figure out the 'configuration' flag
-        // -------------------------------------------------------------------
-        if ( cmd.hasOption( 'c' ) )
-        {
-            parameters.add( new Parameter( DisconnectNotificationCommandExecutor.CONFIGURATION_PARAMETER, new Boolean(
-                true ) ) );
-        }
-
-        // -------------------------------------------------------------------
-        // Transform other options into params
-        // -------------------------------------------------------------------
-        parameters.add( new Parameter( DisconnectNotificationCommandExecutor.DEBUG_PARAMETER, new Boolean(
-            isDebugEnabled() ) ) );
-        parameters.add( new Parameter( DisconnectNotificationCommandExecutor.QUIET_PARAMETER, new Boolean(
-            isQuietEnabled() ) ) );
-        parameters.add( new Parameter( DisconnectNotificationCommandExecutor.VERBOSE_PARAMETER, new Boolean(
-            isVerboseEnabled() ) ) );
     }
 
 
@@ -186,18 +192,9 @@ public class DisconnectNotificationCommandCL extends BaseToolCommandCL
         op = new Option( "w", "password", true, "the apacheds administrator's password: defaults to secret" );
         op.setRequired( false );
         opts.addOption( op );
-        op = new Option( "u", "binddn", true, "an apacheds user's dn: defaults to " + bindDN );
-        op.setRequired( false );
-        opts.addOption( op );
         op = new Option( "i", "install-path", true, "path to apacheds installation directory" );
         op.setRequired( false );
         opts.addOption( op );
         return opts;
-    }
-
-
-    public ToolCommandExecutorStub getStub()
-    {
-        return new DisconnectNotificationCommandExecutorStub();
     }
 }

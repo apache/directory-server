@@ -28,6 +28,7 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SchemaObjectRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -89,7 +90,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     public void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, 
         ServerEntry targetEntry, boolean cascade ) throws NamingException
     {
-        ServerAttribute disabledInMods = mods.get( disabledAT );
+        EntryAttribute disabledInMods = mods.get( disabledAT );
         
         if ( disabledInMods != null )
         {
@@ -98,7 +99,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         
         // check if the new schema is enabled or disabled
         boolean isEnabled = false;
-        ServerAttribute disabled = targetEntry.get( this.disabledAT );
+        EntryAttribute disabled = targetEntry.get( this.disabledAT );
         
         if ( disabled == null )
         {
@@ -109,7 +110,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
             isEnabled = true;
         }
 
-        ServerAttribute dependencies = mods.get( dependenciesAT );
+        EntryAttribute dependencies = mods.get( dependenciesAT );
         
         if ( dependencies != null )
         {
@@ -130,7 +131,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     public void modify( LdapDN name, List<Modification> mods, ServerEntry entry,
         ServerEntry targetEntry, boolean cascade ) throws NamingException
     {
-        ServerAttribute disabledInEntry = entry.get( disabledAT );
+        EntryAttribute disabledInEntry = entry.get( disabledAT );
         Modification disabledModification = ServerEntryUtils.getModificationItem( mods, disabledAT );
         
         if ( disabledModification != null )
@@ -143,7 +144,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
 
         // check if the new schema is enabled or disabled
         boolean isEnabled = false;
-        ServerAttribute disabled = targetEntry.get( disabledAT );
+        EntryAttribute disabled = targetEntry.get( disabledAT );
         
         if ( disabled == null )
         {
@@ -188,7 +189,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
 
         // check if the new schema is enabled or disabled
         boolean isEnabled = false;
-        ServerAttribute disabled = entry.get( disabledAT );
+        EntryAttribute disabled = entry.get( disabledAT );
         
         if ( disabled == null )
         {
@@ -244,7 +245,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      */
     public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
     {
-        ServerAttribute cn = entry.get( cnAT );
+        EntryAttribute cn = entry.get( cnAT );
         String schemaName = cn.getString();
 
         // Before allowing a schema object to be deleted we must check
@@ -314,7 +315,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
 
         // check if the new schema is enabled or disabled
         boolean isEnabled = false;
-        ServerAttribute disabled = entry.get( disabledAT );
+        EntryAttribute disabled = entry.get( disabledAT );
         
         if ( disabled == null )
         {
@@ -379,7 +380,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     // -----------------------------------------------------------------------
 
     
-    private void disable( LdapDN name, ModificationOperation modOp, ServerAttribute disabledInMods, ServerAttribute disabledInEntry )
+    private void disable( LdapDN name, ModificationOperation modOp, EntryAttribute disabledInMods, EntryAttribute disabledInEntry )
         throws NamingException
     {
         switch ( modOp )
@@ -487,7 +488,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      */
     private void checkForDependencies( boolean isEnabled, ServerEntry entry ) throws NamingException
     {
-        ServerAttribute dependencies = entry.get( this.dependenciesAT );
+        EntryAttribute dependencies = entry.get( this.dependenciesAT );
 
         if ( dependencies == null )
         {

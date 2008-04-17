@@ -69,6 +69,7 @@ import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -311,7 +312,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             throw new LdapAuthenticationException( "Failed to authenticate user '" + principalDn + "'." );
         }
 
-        ServerAttribute objectClass = userEntry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClass = userEntry.get( SchemaConstants.OBJECT_CLASS_AT );
         
         if ( !objectClass.contains( SchemaConstants.KRB5_PRINCIPAL_OC ) )
         {
@@ -325,13 +326,13 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         if ( subContext.getPrincipalName() == null )
         {
-            ServerAttribute principalAttribute = userEntry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
+            EntryAttribute principalAttribute = userEntry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
             String principalName = principalAttribute.getString();
             subContext.setPrincipalName( principalName );
             log.debug( "Found principal '{}' from lookup.", principalName );
         }
 
-        ServerAttribute keyVersionNumberAttr = userEntry.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
+        EntryAttribute keyVersionNumberAttr = userEntry.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
 
         if ( keyVersionNumberAttr == null )
         {

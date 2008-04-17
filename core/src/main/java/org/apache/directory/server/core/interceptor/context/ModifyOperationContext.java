@@ -24,7 +24,7 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.schema.registries.Registries;
@@ -108,7 +108,7 @@ public class ModifyOperationContext extends AbstractOperationContext
     {
         List<Modification> items = new ArrayList<Modification>( serverEntry.size() );
         
-        for ( ServerAttribute attribute:serverEntry )
+        for ( EntryAttribute attribute:serverEntry )
         {
             items.add( new ServerModification( modOp, attribute ) );
         }

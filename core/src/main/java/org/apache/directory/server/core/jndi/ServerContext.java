@@ -24,7 +24,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerSearchResult;
@@ -349,7 +349,7 @@ public abstract class ServerContext implements EventContext
             if ( ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null ) && 
                  (serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) )
             {
-            	serverEntry.remove( SchemaConstants.OBJECT_CLASS_AT );
+            	serverEntry.removeAttributes( SchemaConstants.OBJECT_CLASS_AT );
             }
         }
         
@@ -738,7 +738,7 @@ public abstract class ServerContext implements EventContext
             
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-            	for ( ServerAttribute serverAttribute:outServerEntry )
+            	for ( EntryAttribute serverAttribute:outServerEntry )
             	{
             		serverEntry.put( serverAttribute );
             	}
@@ -758,7 +758,7 @@ public abstract class ServerContext implements EventContext
             
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-            	for ( ServerAttribute serverAttribute:outServerEntry )
+            	for ( EntryAttribute serverAttribute:outServerEntry )
             	{
             		serverEntry.put( serverAttribute );
             	}

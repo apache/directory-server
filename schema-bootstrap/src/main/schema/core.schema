@@ -378,7 +378,7 @@ objectclass ( 2.5.6.10 NAME 'residentialPerson'
 		teletexTerminalIdentifier $ telephoneNumber $ internationaliSDNNumber $
 		facsimileTelephoneNumber $ preferredDeliveryMethod $ street $
 		postOfficeBox $ postalCode $ postalAddress $
-		physicalDeliveryOfficeName $ st $ l ) )
+		physicalDeliveryOfficeName $ st ) )
 
 objectclass ( 2.5.6.11 NAME 'applicationProcess'
 	DESC 'RFC2256: an application process'

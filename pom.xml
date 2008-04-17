@@ -25,14 +25,19 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>10-SNAPSHOT</version>
+    <version>10</version>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
-  <version>1.5.2-SNAPSHOT</version>
+  <version>1.5.3-SNAPSHOT</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
+
+  <properties>
+    <projectName>Apache Directory Server</projectName>
+    <!--<siteId>apacheds</siteId>-->
+  </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
 
@@ -42,25 +47,31 @@
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-asn1-codec</artifactId>
-        <version>0.9.9-SNAPSHOT</version>
+        <version>0.9.11-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-ldap</artifactId>
-        <version>0.9.9-SNAPSHOT</version>
+        <version>0.9.11-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-ldap-constants</artifactId>
-        <version>0.9.9-SNAPSHOT</version>
+        <version>0.9.11-SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-bouncycastle-reduced</artifactId>
+        <version>0.9.11-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.daemon</groupId>
         <artifactId>daemon-bootstrappers</artifactId>
-        <version>1.1.2-SNAPSHOT</version>
+        <version>1.1.4-SNAPSHOT</version>
       </dependency>
 
       <dependency>
@@ -187,6 +198,12 @@
         <groupId>org.apache.derby</groupId>
         <artifactId>derby</artifactId>
         <version>10.3.1.4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-spring</artifactId>
+        <version>3.3</version>
       </dependency>
 
       <dependency>
@@ -327,7 +344,6 @@
     <module>xdbm-search</module>
     <module>xdbm-tools</module>
     <module>core</module>
-    <!-- module>core-jndi</module -->
     <module>core-constants</module>
     <module>core-shared</module>
     <module>core-plugin</module>
@@ -359,7 +375,7 @@
     <module>interceptor-kerberos</module>
     <module>mitosis</module>
     <module>server-replication</module>
-    <module>apacheds-xbean-spring</module>
+    <module>xbean-spring</module>
   </modules>
 
   <build>
@@ -401,28 +417,6 @@
       </plugins>
     </pluginManagement>
 
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <tagBase>https://svn.apache.org/repos/asf/directory/apacheds/releases</tagBase>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-    </plugins>
   </build>
 
   <reporting>
@@ -535,95 +529,10 @@
     </plugins>
   </reporting>
 
-  <profiles>
-    <profile>
-      <id>release</id>
-      <modules>
-        <module>bootstrap-extract</module>
-        <module>bootstrap-partition</module>
-        <module>bootstrap-plugin</module>
-        <module>schema-extras</module>
-        <module>schema-bootstrap</module>
-        <module>utils</module>
-        <module>schema-registries</module>
-        <module>jdbm-store</module>
-        <module>constants</module>
-        <module>btree-base</module>
-        <module>xdbm-search</module>
-        <module>xdbm-tools</module>
-        <module>core</module>
-        <module>core-shared</module>
-        <module>core-plugin</module>
-        <module>core-unit</module>
-        <module>core-entry</module>
-        <module>core-splay</module>
-        <module>core-avl</module>
-        <module>protocol-shared</module>
-        <module>protocol-ntp</module>
-        <module>protocol-ldap</module>
-        <module>protocol-kerberos</module>
-        <module>protocol-dhcp</module>
-        <module>protocol-dns</module>
-        <module>protocol-changepw</module>
-        <module>server-tools</module>
-
-        <!-- breaks the build on first try
-        <module>sar-plugin</module>
-        <module>server-sar</module>
-        -->
-
-        <module>server-xml</module>
-        <module>server-unit</module>
-        <module>server-jndi</module>
-        <module>kerberos-shared</module>
-        <module>mitosis</module>
-        <module>server-replication</module>
-      </modules>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
   <scm>
-    <connection>
-      scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang
-    </connection>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang</developerConnection>
+    <url>http://svn.apache.org/viewvc/directory/project/tags/10/apacheds-parent</url>
   </scm>
 
   <repositories>

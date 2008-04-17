@@ -25,12 +25,14 @@ import java.util.Hashtable;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -148,4 +150,48 @@ public class SchemaSearchITest extends AbstractServerTest
         result.close();
     }
 
+    
+    /**
+     * Test case for DIRSERVER-1083: Search on an custom attribute added to 
+     * the dynamic schema fails when no result is found. 
+     */
+    public void testSearchingNewSchemaElements() throws Exception
+    {
+        // load the bogus active directory schema from the issue
+        super.loadLdif( getClass().getResourceAsStream( "active-directory.ldif" ), false );
+        
+        // create an entry with the schema objectClass personActiveDirectory
+        AttributesImpl person = new AttributesImpl( "objectClass", "top", true );
+        person.get( "objectClass" ).add( "person" );
+        person.get( "objectClass" ).add( "personActiveDirectory" );
+        person.put( "cn", "foobar" );
+        person.put( "sn", "bar" );
+        person.put( "pwdLastSet", "3" );
+        person.put( "SourceAD", "blah" );
+        person.put( "useraccountcontrol", "7" );
+        person.put( "sAMAccountName", "foobar" );
+        ctx.createSubcontext( "cn=foobar,ou=system", person );
+        
+        // Confirm creation with a lookup
+        Attributes read = ctx.getAttributes( "cn=foobar,ou=system" );
+        assertNotNull( read );
+        assertEquals( "3", read.get( "pwdLastSet" ).get() );
+        
+        // Now search for foobar with pwdLastSet value of 3
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        NamingEnumeration results = ctx.search( "ou=system", "(pwdLastSet=3)", searchControls );
+        assertTrue( results.hasMore() );
+        SearchResult result = ( SearchResult ) results.next();
+        assertNotNull( result );
+        assertEquals( "cn=foobar", result.getName() );
+        Attributes attributes = result.getAttributes();
+        assertEquals( "3", attributes.get( "pwdLastSet" ).get() );
+        results.close();
+        
+        // Now search with bogus value for pwdLastSet
+        results = ctx.search( "ou=system", "(pwdLastSet=300)", searchControls );
+        assertFalse( results.hasMore() );
+        results.close();
+    }
 }

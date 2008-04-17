@@ -29,6 +29,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
@@ -140,6 +141,49 @@ public class ModifyRemoveTest extends AbstractServerTest
         assertNotNull( ctx );
         DirContext tori = ( DirContext ) ctx.lookup( RDN );
         assertNotNull( tori );
+    }
+
+
+    /**
+     * Remove an attribute which does not exist in an attribute making sure 
+     * it does not remove other values in that attribute.  Tests if the 
+     * following JIRA issue is still valid:
+     * 
+     *    https://issues.apache.org/jira/browse/DIRSERVER-1149
+     * 
+     * @throws NamingException
+     */
+    public void testRemoveAttemptWithoutChange() throws NamingException
+    {
+        // Get the attributes and check the contents
+        Attributes tori = ctx.getAttributes( RDN );
+        assertNotNull( tori.get( "objectClass" ) );
+        assertNotNull( tori.get( "cn" ) );
+        assertEquals( 1, tori.get( "cn" ).size() );
+        assertEquals( "Tori Amos", tori.get( "cn" ).get() );
+        assertNotNull( tori.get( "sn" ) );
+        
+        // Test an add operation first
+        ModificationItem mod = new ModificationItem( DirContext.ADD_ATTRIBUTE, new AttributeImpl( "cn", "foo" ) );
+        ctx.modifyAttributes( RDN, new ModificationItem[] { mod } );
+        tori = ctx.getAttributes( RDN );
+        assertNotNull( tori.get( "objectClass" ) );
+        assertNotNull( tori.get( "cn" ) );
+        assertEquals( 2, tori.get( "cn" ).size() );
+        assertEquals( "Tori Amos", tori.get( "cn" ).get( 0 ) );
+        assertEquals( "foo", tori.get( "cn" ).get( 1 ) );
+        assertNotNull( tori.get( "sn" ) );
+        
+        // Now test remove of value ( bar ) that does not exist in cn
+        mod = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, new AttributeImpl( "cn", "bar" ) );
+        ctx.modifyAttributes( RDN, new ModificationItem[] { mod } );
+        tori = ctx.getAttributes( RDN );
+        assertNotNull( tori.get( "objectClass" ) );
+        assertNotNull( tori.get( "cn" ) );
+        assertEquals( 2, tori.get( "cn" ).size() );
+        assertEquals( "Tori Amos", tori.get( "cn" ).get( 0 ) );
+        assertEquals( "foo", tori.get( "cn" ).get( 1 ) );
+        assertNotNull( tori.get( "sn" ) );
     }
 
 

@@ -29,6 +29,7 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
@@ -335,7 +336,7 @@ public class SchemaService
         // Add the createTimestamp
         AttributeType createTimestampAT = registries.
             getAttributeTypeRegistry().lookup( SchemaConstants.CREATE_TIMESTAMP_AT );
-        ServerAttribute createTimestamp = mods.get( createTimestampAT );
+        EntryAttribute createTimestamp = mods.get( createTimestampAT );
         attrs.put( SchemaConstants.CREATE_TIMESTAMP_AT, createTimestamp.get() );
 
         // Add the creatorsName
@@ -344,13 +345,13 @@ public class SchemaService
         // Add the modifyTimestamp
         AttributeType schemaModifyTimestampAT = registries.
             getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT );
-        ServerAttribute schemaModifyTimestamp = mods.get( schemaModifyTimestampAT );
+        EntryAttribute schemaModifyTimestamp = mods.get( schemaModifyTimestampAT );
         attrs.put( SchemaConstants.MODIFY_TIMESTAMP_AT, schemaModifyTimestamp.get() );
 
         // Add the modifiersName
         AttributeType schemaModifiersNameAT = registries.
             getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
-        ServerAttribute schemaModifiersName = mods.get( schemaModifiersNameAT );
+        EntryAttribute schemaModifiersName = mods.get( schemaModifiersNameAT );
         attrs.put( SchemaConstants.MODIFIERS_NAME_AT, schemaModifiersName.get() );
 
         // don't swap out if a request for the subentry is in progress or we
@@ -364,7 +365,7 @@ public class SchemaService
 
     private void addAttribute( ServerEntry attrs, String id ) throws NamingException
     {
-        ServerAttribute attr = schemaSubentry.get( id );
+        EntryAttribute attr = schemaSubentry.get( id );
 
         if ( attr != null )
         {

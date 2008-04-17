@@ -60,6 +60,7 @@ import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
@@ -146,7 +147,6 @@ public class DefaultPartitionNexus extends PartitionNexus
     
     /** The OID registry */
     private OidRegistry oidRegistry;
-    private Object partitionLookupTreeLock = new Object();
 
 
     /**
@@ -374,7 +374,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         if ( override != null )
         {
             ServerEntry systemEntry = override.getContextEntry();
-            ServerAttribute objectClassAttr = systemEntry.get( SchemaConstants.OBJECT_CLASS_AT );
+            EntryAttribute objectClassAttr = systemEntry.get( SchemaConstants.OBJECT_CLASS_AT );
             
             if ( objectClassAttr == null )
             {
@@ -478,7 +478,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             partitions.put( key, system );
             partitionLookupTree.recursivelyAddPartition( partitionLookupTree, system.getSuffixDn(), 0, system );
-            ServerAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+            EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
             
             if ( namingContexts == null )
             {
@@ -582,7 +582,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         AttributeType attrType = registry.lookup( compareContext.getOid() );
         
-        ServerAttribute attr = partition.lookup( new LookupOperationContext( registries, compareContext.getDn() ) ).get( attrType.getName() );
+        EntryAttribute attr = partition.lookup( new LookupOperationContext( registries, compareContext.getDn() ) ).get( attrType.getName() );
 
         // complain if the attribute being compared does not exist in the entry
         if ( attr == null )
@@ -674,7 +674,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             partitions.put( partitionSuffix.toString(), partition );
             partitionLookupTree.recursivelyAddPartition( partitionLookupTree, partition.getSuffixDn(), 0, partition );
 
-            ServerAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+            EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
         	LdapDN partitionUpSuffix = partition.getUpSuffixDn();
         	
@@ -707,7 +707,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             throw new NameNotFoundException( "No partition with suffix: " + key );
         }
 
-        ServerAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
         
         if ( namingContexts != null )
         {
@@ -821,7 +821,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     private void unregister( Partition partition ) throws NamingException
     {
-        ServerAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
+        EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
         
         if ( namingContexts != null )
         {
@@ -983,7 +983,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 
                 ServerEntry rootDSE = getRootDSE( new GetRootDSEOperationContext( registries ) );
                 
-                for ( ServerAttribute attribute:rootDSE )
+                for ( EntryAttribute attribute:rootDSE )
                 {
                     AttributeType type = atRegistry.lookup( attribute.getUpId() );
                     
@@ -1030,7 +1030,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     
                     if ( opContext.getAttrsId().contains( oid ) )
                     {
-                        ServerAttribute attr = rootDSE.get( oid );
+                        EntryAttribute attr = rootDSE.get( oid );
                         retval.put( (ServerAttribute)attr.clone() );
                     }
                     
@@ -1042,7 +1042,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 {
                     String id = attributeType.getName();
                     
-                    ServerAttribute attr = rootDSE.get( id );
+                    EntryAttribute attr = rootDSE.get( id );
                     retval.put( (ServerAttribute)attr.clone() );
                 }
             }
@@ -1114,12 +1114,13 @@ public class DefaultPartitionNexus extends PartitionNexus
     public Partition getPartition( LdapDN dn ) throws NamingException
     {
         Enumeration<String> rdns = dn.getAll();
-        Node currentNode = partitionLookupTree;
         
         // This is synchronized so that we can't read the
         // partitionList when it is modified.
-        synchronized ( partitionLookupTreeLock )
+        synchronized ( partitionLookupTree )
         {
+            Node currentNode = partitionLookupTree;
+
             // Iterate through all the RDN until we find the associated partition
             while ( rdns.hasMoreElements() )
             {
@@ -1136,6 +1137,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 }
 
                 BranchNode currentBranch = ( BranchNode ) currentNode;
+                
                 if ( currentBranch.contains( rdn ) )
                 {
                     currentNode = currentBranch.getChild( rdn );
@@ -1159,7 +1161,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
     public void registerSupportedExtensions( Set<String> extensionOids ) throws NamingException
     {
-        ServerAttribute supportedExtension = rootDSE.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
+        EntryAttribute supportedExtension = rootDSE.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
         
         if ( supportedExtension == null )
         {
