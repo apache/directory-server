@@ -36,7 +36,7 @@ import javax.naming.directory.Attributes;
  * A Cursor traversing candidates matching a Substring assertion expression.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
+ * @version $Rev$
  */
 public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 {
