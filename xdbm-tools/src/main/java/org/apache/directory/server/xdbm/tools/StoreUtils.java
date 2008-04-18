@@ -66,12 +66,14 @@ public class StoreUtils
         
         DefaultServerEntry contextEntry = new DefaultServerEntry( registries, new LdapDN( "o=Good Times Co." ) );
         contextEntry.add( "objectClass", "organization" );
+        contextEntry.add( "o", "Good Times Co." );
         store.setContextEntry( contextEntry );
         
         AttributeTypeRegistry attributeRegistry = registries.getAttributeTypeRegistry();
         
         store.init( registries.getOidRegistry(), attributeRegistry );
-        
+
+        // Entry #2
         LdapDN dn = new LdapDN( "ou=Sales,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -79,6 +81,7 @@ public class StoreUtils
         entry.add( "ou", "Sales" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
 
+        // Entry #3
         dn = new LdapDN( "ou=Board of Directors,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         entry = new DefaultServerEntry( registries, dn );
@@ -86,6 +89,7 @@ public class StoreUtils
         entry.add( "ou", "Board of Directors" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
         
+        // Entry #4
         dn = new LdapDN( "ou=Engineering,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         entry = new DefaultServerEntry( registries, dn );
@@ -93,23 +97,27 @@ public class StoreUtils
         entry.add( "ou", "Engineering" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
         
+        // Entry #5
         dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         entry = new DefaultServerEntry( registries, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
-        entry.add( "cn",  "JOhnny WAlkeR");
+        entry.add( "cn", "JOhnny WAlkeR");
+        entry.add( "sn", "WAlkeR");
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
         
+        // Entry #6
         dn = new LdapDN( "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         entry = new DefaultServerEntry( registries, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Sales" );
         entry.add( "cn",  "JIM BEAN");
+        entry.add( "surName", "BEAN");
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
-        
-        
+
+        // Entry #7
         dn = new LdapDN( "ou=Apache,ou=Board of Directors,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         entry = new DefaultServerEntry( registries, dn );
@@ -117,15 +125,19 @@ public class StoreUtils
         entry.add( "ou", "Apache" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
         
+        // Entry #8
         dn = new LdapDN( "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         entry = new DefaultServerEntry( registries, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
         entry.add( "cn",  "Jack Daniels");
+        entry.add( "SN",  "Daniels");
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
 
-        // aliases
+        // aliases -------------
+
+        // Entry #9
         dn = new LdapDN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         entry = new DefaultServerEntry( registries, dn );
@@ -135,6 +147,7 @@ public class StoreUtils
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
 
+        // Entry #10
         dn = new LdapDN( "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         entry = new DefaultServerEntry( registries, dn );
@@ -143,6 +156,7 @@ public class StoreUtils
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
 
+        // Entry #11
         dn = new LdapDN( "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
         entry = new DefaultServerEntry( registries, dn );

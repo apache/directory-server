@@ -135,7 +135,13 @@ public class PresenceCursorTest
         assertTrue( cursor.next() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
+        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 11, ( long ) cursor.get().getId() );
         assertFalse( cursor.next() );
 
         node = new PresenceNode( SchemaConstants.OU_AT_OID );
@@ -155,6 +161,12 @@ public class PresenceCursorTest
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
         assertEquals( 7, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 11, ( long ) cursor.get().getId() );
         assertFalse( cursor.next() );
     }
 
@@ -168,11 +180,11 @@ public class PresenceCursorTest
 
         cursor.beforeFirst();
         assertTrue( cursor.next() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( 8, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
         assertFalse( cursor.next() );
 
         node = new PresenceNode( SchemaConstants.O_AT_OID );
