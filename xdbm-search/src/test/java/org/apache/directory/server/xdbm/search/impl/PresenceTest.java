@@ -28,7 +28,6 @@ import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
-import org.apache.directory.server.xdbm.tools.IndexUtils;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
@@ -47,14 +46,14 @@ import java.util.HashSet;
 
 
 /**
- * TODO doc me!
+ * Tests PresenceCursor and PresenceEvaluator functionality.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class PresenceCursorTest
+public class PresenceTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( PresenceCursorTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( PresenceTest.class.getSimpleName() );
 
     File wkdir;
     Store<Attributes> store;
@@ -62,7 +61,7 @@ public class PresenceCursorTest
     AttributeTypeRegistry attributeRegistry;
 
 
-    public PresenceCursorTest() throws Exception
+    public PresenceTest() throws Exception
     {
         // setup the standard registries
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
@@ -76,6 +75,7 @@ public class PresenceCursorTest
         bootstrapSchemas.add( new ApacheSchema() );
         bootstrapSchemas.add( new CoreSchema() );
         bootstrapSchemas.add( new SystemSchema() );
+        bootstrapSchemas.add( new CollectiveSchema() );
         loader.loadWithDependencies( bootstrapSchemas, registries );
         attributeRegistry = registries.getAttributeTypeRegistry();
     }
@@ -279,7 +279,6 @@ public class PresenceCursorTest
         assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
 
         // test afterLast()
-        IndexUtils.printContents( store.getNdnIndex() );
         cursor.afterLast();
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
@@ -322,6 +321,62 @@ public class PresenceCursorTest
     }
 
 
+    @Test
+    public void testEvaluatorIndexed() throws Exception
+    {
+        PresenceNode node = new PresenceNode( SchemaConstants.CN_AT_OID );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        ForwardIndexEntry<String,Attributes> entry = new ForwardIndexEntry<String,Attributes>();
+        entry.setValue( SchemaConstants.CN_AT_OID );
+        entry.setId( ( long ) 3 );
+        assertFalse( evaluator.evaluate( entry ) );
+        entry = new ForwardIndexEntry<String,Attributes>();
+        entry.setValue( SchemaConstants.CN_AT_OID );
+        entry.setId( ( long ) 5 );
+        assertTrue( evaluator.evaluate( entry ) );
+    }
+
+
+    @Test
+    public void testEvaluatorNotIndexed() throws Exception
+    {
+        PresenceNode node = new PresenceNode( SchemaConstants.NAME_AT_OID );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        ForwardIndexEntry<String,Attributes> entry = new ForwardIndexEntry<String,Attributes>();
+        entry.setValue( SchemaConstants.NAME_AT_OID );
+        entry.setId( ( long ) 3 );
+        assertTrue( evaluator.evaluate( entry ) );
+        entry = new ForwardIndexEntry<String,Attributes>();
+        entry.setValue( SchemaConstants.NAME_AT_OID );
+        entry.setId( ( long ) 5 );
+        assertTrue( evaluator.evaluate( entry ) );
+
+        node = new PresenceNode( SchemaConstants.SEARCHGUIDE_AT_OID );
+        evaluator = new PresenceEvaluator( node, store, registries );
+        entry = new ForwardIndexEntry<String,Attributes>();
+        entry.setValue( SchemaConstants.SEARCHGUIDE_AT_OID );
+        entry.setId( ( long ) 3 );
+        assertFalse( evaluator.evaluate( entry ) );
+        entry = new ForwardIndexEntry<String,Attributes>();
+        entry.setValue( SchemaConstants.SEARCHGUIDE_AT_OID );
+        entry.setId( ( long ) 5 );
+        entry.setObject( store.lookup( ( long ) 5 ));
+        assertFalse( evaluator.evaluate( entry ) );
+
+        node = new PresenceNode( SchemaConstants.ST_AT_OID );
+        evaluator = new PresenceEvaluator( node, store, registries );
+        entry = new ForwardIndexEntry<String,Attributes>();
+        entry.setValue( SchemaConstants.ST_AT_OID );
+        entry.setId( ( long ) 3 );
+        assertFalse( evaluator.evaluate( entry ) );
+        entry = new ForwardIndexEntry<String,Attributes>();
+        entry.setValue( SchemaConstants.ST_AT_OID );
+        entry.setId( ( long ) 5 );
+        entry.setObject( store.lookup( ( long ) 5 ));
+        assertFalse( evaluator.evaluate( entry ) );
+    }
+
+
     @Test ( expected = InvalidCursorPositionException.class )
     public void testInvalidCursorPositionException() throws Exception
     {
@@ -330,8 +385,6 @@ public class PresenceCursorTest
         PresenceCursor cursor = new PresenceCursor( store, evaluator );
         cursor.get();
     }
-
-
 
 
     @Test ( expected = InvalidCursorPositionException.class )

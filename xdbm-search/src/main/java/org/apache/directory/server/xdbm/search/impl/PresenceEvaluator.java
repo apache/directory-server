@@ -116,7 +116,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, Attributes>
             Iterator<AttributeType> descendants =
                 registries.getAttributeTypeRegistry().descendants( node.getAttribute() );
 
-            while ( descendants.hasNext() )
+            do
             {
                 AttributeType descendant = descendants.next();
 
@@ -127,6 +127,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, Attributes>
                     return true;
                 }
             }
+            while ( descendants.hasNext() );
         }
 
         // we fell through so a match was not found - assertion was false.
