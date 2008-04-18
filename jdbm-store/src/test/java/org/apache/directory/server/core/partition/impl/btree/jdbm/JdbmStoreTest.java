@@ -626,7 +626,8 @@ public class JdbmStoreTest
         dn.normalize( attributeRegistry.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
-        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.OU_AT, attributeRegistry.lookup( SchemaConstants.OU_AT_OID ) );
+        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.OU_AT,
+            attributeRegistry.lookup( SchemaConstants.OU_AT_OID ) );
         attrib.add( "Engineering" );
         
         Modification add = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
@@ -648,7 +649,7 @@ public class JdbmStoreTest
 
         store.modify( dn, ModificationOperation.REPLACE_ATTRIBUTE, entry );
 
-        entry.remove( "telephoneNumber" );
+        entry.removeAttributes( "telephoneNumber" );
         store.modify( dn, ModificationOperation.REMOVE_ATTRIBUTE, entry );
     }
     

@@ -28,6 +28,7 @@ import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
+import org.apache.directory.server.xdbm.tools.IndexUtils;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
@@ -278,11 +279,29 @@ public class PresenceCursorTest
         assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
 
         // test afterLast()
+        IndexUtils.printContents( store.getNdnIndex() );
         cursor.afterLast();
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
+        assertEquals( 5, (long) cursor.get().getId() );
+
+        // keep testing previous
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
+        assertEquals( 6, (long) cursor.get().getId() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
+        assertEquals( 8, (long) cursor.get().getId() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
+        // ----------- organizationName attribute
 
         node = new PresenceNode( SchemaConstants.O_AT_OID );
         evaluator = new PresenceEvaluator( node, store, registries );
