@@ -128,7 +128,11 @@ public interface SchemaConstants
     // AliasedObjectName
     String ALIASED_OBJECT_NAME_AT = "aliasedObjectName";
     String ALIASED_OBJECT_NAME_AT_OID = "2.5.4.1";
-    
+
+    // Name
+    String NAME_AT = "name";
+    String NAME_AT_OID = "2.5.4.41";
+
     // Cn
     String CN_AT = "cn";
     String COMMON_NAME_AT = "commonName";
@@ -138,7 +142,21 @@ public interface SchemaConstants
     String SN_AT = "sn";
     String SURNAME_AT = "surname";
     String SN_AT_OID = "2.5.4.4";
-    
+
+    // St
+    String ST_AT = "st";
+    String STATEORPROVINCE_NAME_AT = "stateOrProvinceName";
+    String ST_AT_OID = "2.5.4.8";
+
+    // Street
+    String STREET_AT = "street";
+    String STREET_ADDRESS_AT = "streetAddress";
+    String STREET_AT_OID = "2.5.4.9";
+
+    // SearchGuide
+    String SEARCHGUIDE_AT = "searchguide";
+    String SEARCHGUIDE_AT_OID = "2.5.4.14";
+
     // Ou
     String O_AT = "o";
     String ORGANIZATION_NAME_AT = "organizationName";
