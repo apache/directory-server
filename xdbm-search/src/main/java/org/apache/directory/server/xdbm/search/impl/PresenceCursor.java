@@ -81,6 +81,7 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         {
             //noinspection unchecked
             presenceCursor.before( ( IndexEntry<String,Attributes> ) element );
+            return;
         }
 
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
@@ -93,6 +94,7 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         {
             //noinspection unchecked
             presenceCursor.after( ( IndexEntry<String,Attributes> ) element );
+            return;
         }
 
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
@@ -203,7 +205,14 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
         if ( available )
         {
-            return ndnCursor.get();
+            /*
+             * The value of NDN indices is the normalized dn and we want the
+             * value to be the value of the attribute in question.  So we will
+             * set that accordingly here.
+             */
+            IndexEntry<String, Attributes> indexEntry = ndnCursor.get();
+            indexEntry.setValue( presenceEvaluator.getAttributeType().getOid() );
+            return indexEntry;
         }
 
         throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );

@@ -26,10 +26,11 @@ import org.apache.directory.server.schema.registries.*;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
-import org.apache.directory.server.xdbm.tools.IndexUtils;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
+import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.commons.io.FileUtils;
@@ -129,45 +130,110 @@ public class PresenceCursorTest
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
         PresenceCursor cursor = new PresenceCursor( store, evaluator );
 
+        assertEquals( node, evaluator.getExpression() );
+        assertTrue( cursor.isElementReused() );
+
         cursor.beforeFirst();
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 11, ( long ) cursor.get().getId() );
         assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        // test first()
+        cursor.first();
+        assertTrue( cursor.available() );
+        assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getValue() );
+
+        // test last()
+        cursor.last();
+        assertTrue( cursor.available() );
+        assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getValue() );
+
+        // test beforeFirst()
+        cursor.beforeFirst();
+        assertFalse( cursor.available() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getValue() );
+
+        // test afterLast()
+        cursor.afterLast();
+        assertFalse( cursor.available() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getValue() );
+
+        // test before()
+        ForwardIndexEntry<String,Attributes> entry = new ForwardIndexEntry<String,Attributes>();
+        entry.setValue( SchemaConstants.CN_AT_OID );
+        cursor.before( entry );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getValue() );
+
+        // test after()
+        entry = new ForwardIndexEntry<String,Attributes>();
+        cursor.after( entry );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getValue() );
 
         node = new PresenceNode( SchemaConstants.OU_AT_OID );
         evaluator = new PresenceEvaluator( node, store, registries );
         cursor = new PresenceCursor( store, evaluator );
 
+        assertTrue( cursor.isElementReused() );
+
         cursor.beforeFirst();
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 2, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 3, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 4, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 7, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 11, ( long ) cursor.get().getId() );
         assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        assertFalse( cursor.isClosed() );
+        cursor.close();
+        assertTrue( cursor.isClosed() );
     }
 
 
@@ -178,22 +244,111 @@ public class PresenceCursorTest
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
         PresenceCursor cursor = new PresenceCursor( store, evaluator );
 
+        assertEquals( node, evaluator.getExpression() );
+        assertTrue( cursor.isElementReused() );
+
         cursor.beforeFirst();
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
         assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        // test first()
+        cursor.first();
+        assertTrue( cursor.available() );
+        assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
+
+        // test last()
+        cursor.last();
+        assertTrue( cursor.available() );
+        assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
+
+        // test beforeFirst()
+        cursor.beforeFirst();
+        assertFalse( cursor.available() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
+
+        // test afterLast()
+        cursor.afterLast();
+        assertFalse( cursor.available() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( SchemaConstants.SN_AT_OID, cursor.get().getValue() );
 
         node = new PresenceNode( SchemaConstants.O_AT_OID );
         evaluator = new PresenceEvaluator( node, store, registries );
         cursor = new PresenceCursor( store, evaluator );
 
+        assertTrue( cursor.isElementReused() );
+
         cursor.beforeFirst();
         assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
         assertEquals( 1, ( long ) cursor.get().getId() );
         assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        assertFalse( cursor.isClosed() );
+        cursor.close();
+        assertTrue( cursor.isClosed() );
+    }
+
+
+    @Test ( expected = InvalidCursorPositionException.class )
+    public void testInvalidCursorPositionException() throws Exception
+    {
+        PresenceNode node = new PresenceNode( SchemaConstants.SN_AT_OID );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+        cursor.get();
+    }
+
+
+
+
+    @Test ( expected = InvalidCursorPositionException.class )
+    public void testInvalidCursorPositionException2() throws Exception
+    {
+        PresenceNode node = new PresenceNode( SchemaConstants.CN_AT_OID );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+        cursor.get();
+    }
+
+
+    @Test ( expected = UnsupportedOperationException.class )
+    public void testUnsupportBeforeWithoutIndex() throws Exception
+    {
+        PresenceNode node = new PresenceNode( SchemaConstants.SN_AT_OID );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+
+        // test before()
+        ForwardIndexEntry<String,Attributes> entry = new ForwardIndexEntry<String,Attributes>();
+        entry.setValue( SchemaConstants.SN_AT_OID );
+        cursor.before( entry );
+    }
+
+
+    @Test ( expected = UnsupportedOperationException.class )
+    public void testUnsupportAfterWithoutIndex() throws Exception
+    {
+        PresenceNode node = new PresenceNode( SchemaConstants.SN_AT_OID );
+        PresenceEvaluator evaluator = new PresenceEvaluator( node, store, registries );
+        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+
+        // test before()
+        ForwardIndexEntry<String,Attributes> entry = new ForwardIndexEntry<String,Attributes>();
+        entry.setValue( SchemaConstants.SN_AT_OID );
+        cursor.after( entry );
     }
 }

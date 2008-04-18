@@ -48,6 +48,13 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
     public void after( K element ) throws Exception 
     {
         checkClosed( "after" );
+
+        if ( element == null )
+        {
+            afterLast();
+            return;
+        }
+
         LinkedAvlNode<K> found = tree.findGreater( element );
         
         if ( found == null )
@@ -85,6 +92,13 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
     public void before( K element ) throws Exception 
     {
         checkClosed( "before" );
+
+        if ( element == null )
+        {
+            beforeFirst();
+            return;
+        }
+
         LinkedAvlNode<K> found = tree.findLess( element );
         if ( found == null )
         {

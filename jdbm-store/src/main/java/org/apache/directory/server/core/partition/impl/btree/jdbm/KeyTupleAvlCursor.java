@@ -102,6 +102,7 @@ public class KeyTupleAvlCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     public void afterLast() throws Exception
     {
         wrapped.afterLast();
+        clearValue();
     }
 
 
