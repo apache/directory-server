@@ -1314,6 +1314,7 @@ public class DefaultDirectoryService implements DirectoryService
         schemaPartition.setCacheSize( 1000 );
 
         DbFileListing listing;
+        
         try 
         {
             listing = new DbFileListing();
@@ -1325,6 +1326,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         Set<Index> indexedAttributes = new HashSet<Index>();
+        
         for ( String attributeId : listing.getIndexedAttributes() )
         {
             indexedAttributes.add( new JdbmIndex( attributeId ) );
