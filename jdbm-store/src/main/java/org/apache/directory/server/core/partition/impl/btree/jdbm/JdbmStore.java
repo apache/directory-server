@@ -972,7 +972,10 @@ public class JdbmStore<E> implements Store<E>
         ancestorDn.remove( aliasDn.size() - 1 );
         ancestorId = getEntryId( ancestorDn.toNormName() );
 
-        if ( !NamespaceTools.isSibling( normalizedAliasTargetDn, aliasDn ) )
+        // check if alias parent and aliased entry are the same
+        LdapDN normalizedAliasTargetParentDn = ( LdapDN ) normalizedAliasTargetDn.clone();
+        normalizedAliasTargetParentDn.remove( normalizedAliasTargetDn.size() - 1 );
+        if ( ! aliasDn.startsWith( normalizedAliasTargetParentDn ) )
         {
             oneAliasIdx.add( ancestorId, targetId );
         }
