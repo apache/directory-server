@@ -617,10 +617,11 @@ public class JdbmStoreTest
         entry.add( "cn",  "Martin King");
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
     }
+        
     
     @Ignore // this is failing with a ClassCast ex at line 60 of DeepTrimToLowerNormalizer
     @Test
-    public void testModify() throws Exception
+    public void testModifyAddOUAttrib() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
@@ -631,26 +632,10 @@ public class JdbmStoreTest
         attrib.add( "Engineering" );
         
         Modification add = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
-        Modification remove = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
-        Modification replace = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
         
         mods.add( add );
-        mods.add( remove );
-        mods.add( replace );
         
         store.modify( dn, mods );
-        
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
-        entry.add( "telephoneNumber", "+1974045779" );
-        
-        store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
-
-        entry.put( "telephoneNumber", "+3974045779" );
-
-        store.modify( dn, ModificationOperation.REPLACE_ATTRIBUTE, entry );
-
-        entry.removeAttributes( "telephoneNumber" );
-        store.modify( dn, ModificationOperation.REMOVE_ATTRIBUTE, entry );
     }
     
     
@@ -704,4 +689,102 @@ public class JdbmStoreTest
         
         assertEquals( 4, store.getSubAliasIndex().count() );
     }
+    
+    
+    @Test
+    public void testModifyAdd() throws Exception
+    {
+        LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+
+        List<Modification> mods = new ArrayList<Modification>();
+        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SURNAME_AT,
+            attributeRegistry.lookup( SchemaConstants.SURNAME_AT ) );
+        
+        String attribVal = "Walker";
+        attrib.add( attribVal );
+        
+        Modification add = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
+        mods.add( add );
+        
+        Attributes attributes = store.lookup( store.getEntryId( dn.toNormName() ) );
+
+        store.modify( dn, mods );
+        assertTrue( attributes.get( "sn" ).contains( attribVal ) );
+        
+        // testing the store.modify( dn, mod, entry ) API
+        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        attribVal = "+1974045779";
+        entry.add( "telephoneNumber", attribVal );
+        
+        store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
+        assertTrue( attributes.get( "telephoneNumber" ).contains( attribVal ) );
+    }
+    
+    
+    @Test
+    public void testModifyReplace() throws Exception
+    {
+        LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+
+        List<Modification> mods = new ArrayList<Modification>();
+        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SN_AT,
+            attributeRegistry.lookup( SchemaConstants.SN_AT_OID ) );
+        
+        String attribVal = "Johnny";
+        attrib.add( attribVal );
+        
+        Modification add = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
+        mods.add( add );
+        
+        Attributes attributes = store.lookup( store.getEntryId( dn.toNormName() ) );
+        
+        assertEquals( "WAlkeR", attributes.get( "sn" ).get() ); // before replacing
+        
+        store.modify( dn, mods );
+        assertEquals( attribVal, attributes.get( "sn" ).get() );
+        
+        // testing the store.modify( dn, mod, entry ) API
+        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        attribVal = "JWalker";
+        entry.add( "sn", attribVal );
+        
+        store.modify( dn, ModificationOperation.REPLACE_ATTRIBUTE, entry );
+        assertEquals( attribVal, attributes.get( "sn" ).get() );
+    }
+    
+    
+    @Test
+    public void testModifyRemove() throws Exception
+    {
+        LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+
+        List<Modification> mods = new ArrayList<Modification>();
+        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SN_AT,
+            attributeRegistry.lookup( SchemaConstants.SN_AT_OID ) );
+        
+        Modification add = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
+        mods.add( add );
+        
+        Attributes attributes = store.lookup( store.getEntryId( dn.toNormName() ) );
+        
+        assertNotNull( attributes.get( "sn" ) );
+        
+        store.modify( dn, mods );
+        assertNull( attributes.get( "sn" ) );
+        
+        // testing the store.modify( dn, mod, entry ) API
+        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        
+        // add an entry for the sake of testing the remove operation
+        entry.add( "sn", "JWalker" );
+        store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
+        assertNotNull( attributes.get( "sn" ) );
+        
+        store.modify( dn, ModificationOperation.REMOVE_ATTRIBUTE, entry );
+        assertNull( attributes.get( "sn" ) );
+    }
+
 }
