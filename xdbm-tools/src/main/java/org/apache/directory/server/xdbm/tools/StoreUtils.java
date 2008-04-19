@@ -172,6 +172,7 @@ public class StoreUtils
      * This is primarily a convenience method used to extract all the attributes
      * associated with an entry.
      *
+     * @param store the store to get the attributes from
      * @param id the id of the entry to get index information for
      * @return the index names and values as an Attributes object
      * @throws Exception if there are failures accessing the underlying store
