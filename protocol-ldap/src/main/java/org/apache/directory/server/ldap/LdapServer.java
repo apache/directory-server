@@ -1055,7 +1055,7 @@ public class LdapServer extends DirectoryBackedService
             // 
             // The RFC specifies the payload should be empty, but we use
             // it to notify the TLS state changes.  This hack should be
-            // OK from the viewpoint of security because StartTLS
+            // OK from the viewpointd of security because StartTLS
             // handler should react to only SESSION_UNSECURED message
             // and degrade authentication level to 'anonymous' as specified
             // in the RFC, and this is no threat.
