@@ -37,7 +37,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
-import org.junit.Ignore;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -128,8 +127,7 @@ public class SubstringTest
 
 
     @Test
-    @Ignore ( "Broken Test" )
-    public void testIndexedAttributes() throws Exception
+    public void testIndexedCnStartsWithJ() throws Exception
     {
         SubstringNode node = new SubstringNode( SchemaConstants.CN_AT_OID, "j", null );
         SubstringEvaluator evaluator = new SubstringEvaluator( node, store, registries );
@@ -139,16 +137,455 @@ public class SubstringTest
         assertTrue( cursor.isElementReused() );
 
         cursor.beforeFirst();
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertEquals( "jack daniels", cursor.get().getValue() );
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 11, ( long ) cursor.get().getId() );
+        assertEquals( "johnny walker", cursor.get().getValue() );
+
         assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        assertFalse( cursor.isClosed() );
+        cursor.close();
+        assertTrue( cursor.isClosed() );
+
+        // ---------- test first ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.first();
+
+        assertTrue( cursor.available() );
+        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertEquals( "jack daniels", cursor.get().getValue() );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 11, ( long ) cursor.get().getId() );
+        assertEquals( "johnny walker", cursor.get().getValue() );
+
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+
+        // ---------- test afterLast ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.afterLast();
+        assertFalse( cursor.available() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 11, ( long ) cursor.get().getId() );
+        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( "johnny walker", cursor.get().getValue() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertEquals( "jack daniels", cursor.get().getValue() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
+        // ---------- test last ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.last();
+        assertTrue( cursor.available() );
+
+        assertEquals( 11, ( long ) cursor.get().getId() );
+        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( "johnny walker", cursor.get().getValue() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertEquals( "jack daniels", cursor.get().getValue() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+    }
+
+
+    @Test
+    public void testIndexedCnStartsWithJim() throws Exception
+    {
+        SubstringNode node = new SubstringNode( SchemaConstants.CN_AT_OID, "jim", null );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, registries );
+        SubstringCursor cursor = new SubstringCursor( store, evaluator );
+
+        assertEquals( node, evaluator.getExpression() );
+        assertTrue( cursor.isElementReused() );
+
+        cursor.beforeFirst();
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        // ---------- test first ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.first();
+
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+
+        // ---------- test afterLast ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.afterLast();
+        assertFalse( cursor.available() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
+        // ---------- test last ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.last();
+        assertTrue( cursor.available() );
+
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+    }
+
+
+    @Test
+    public void testIndexedCnEndsWithBean() throws Exception
+    {
+        SubstringNode node = new SubstringNode( SchemaConstants.CN_AT_OID, null, "bean" );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, registries );
+        SubstringCursor cursor = new SubstringCursor( store, evaluator );
+
+        assertEquals( node, evaluator.getExpression() );
+        assertTrue( cursor.isElementReused() );
+
+        cursor.beforeFirst();
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        // ---------- test first ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.first();
+
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+
+        // ---------- test afterLast ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.afterLast();
+        assertFalse( cursor.available() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
+        // ---------- test last ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.last();
+        assertTrue( cursor.available() );
+
+        assertEquals( 10, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "jim bean", cursor.get().getValue() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+    }
+
+
+    @Test
+    public void testNonIndexedSnStartsWithB() throws Exception
+    {
+        SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "b", null );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, registries );
+        SubstringCursor cursor = new SubstringCursor( store, evaluator );
+
+        assertEquals( node, evaluator.getExpression() );
+        assertTrue( cursor.isElementReused() );
+
+        cursor.beforeFirst();
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "bean", cursor.get().getValue() );
+
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+        cursor.close();
+
+        // ---------- test first ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.first();
+
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "bean", cursor.get().getValue() );
+
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+
+        // ---------- test afterLast ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.afterLast();
+        assertFalse( cursor.available() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "bean", cursor.get().getValue() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
+        // ---------- test last ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.last();
+        assertTrue( cursor.available() );
+
+        assertTrue( cursor.available() );
+        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( "bean", cursor.get().getValue() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+    }
+
+
+    @Test
+    public void testIndexedSnEndsWithEr() throws Exception
+    {
+        SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, null, "er" );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, registries );
+        SubstringCursor cursor = new SubstringCursor( store, evaluator );
+
+        assertEquals( node, evaluator.getExpression() );
+        assertTrue( cursor.isElementReused() );
+
+        cursor.beforeFirst();
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( "walker", cursor.get().getValue() );
+
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        // ---------- test first ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.first();
+
+        assertTrue( cursor.available() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( "walker", cursor.get().getValue() );
+
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+
+        // ---------- test afterLast ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.afterLast();
+        assertFalse( cursor.available() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( "walker", cursor.get().getValue() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
+        // ---------- test last ----------
+
+        cursor = new SubstringCursor( store, evaluator );
+        cursor.last();
+        assertTrue( cursor.available() );
+
+        assertTrue( cursor.available() );
+        assertEquals( 5L, ( long ) cursor.get().getId() );
+        assertEquals( "walker", cursor.get().getValue() );
+
+        assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
     }
 
@@ -156,12 +593,80 @@ public class SubstringTest
     @Test
     public void testNonIndexedAttributes() throws Exception
     {
+        SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "walk", null );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, registries );
+        ForwardIndexEntry<String,Attributes> indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry.setId( 5L );
+        assertTrue( evaluator.evaluate( indexEntry ) );
+        indexEntry.setId( 3L );
+        indexEntry.setObject( null );
+        assertFalse( evaluator.evaluate( indexEntry ) );
+        indexEntry.setId( 6L );
+        indexEntry.setObject( null );
+        assertFalse( evaluator.evaluate( indexEntry ) );
+
+        node = new SubstringNode( SchemaConstants.SN_AT_OID, "wa", null );
+        evaluator = new SubstringEvaluator( node, store, registries );
+        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry.setId( 5L );
+        indexEntry.setObject( store.lookup( 5L ) );
+        assertTrue( evaluator.evaluate( indexEntry ) );
+
+        node = new SubstringNode( SchemaConstants.SEARCHGUIDE_AT_OID, "j", null );
+        evaluator = new SubstringEvaluator( node, store, registries );
+        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry.setId( 6L );
+        indexEntry.setObject( store.lookup( 6L ) );
+        assertFalse( evaluator.evaluate( indexEntry ) );
+
+        node = new SubstringNode( SchemaConstants.ST_AT_OID, "j", null );
+        evaluator = new SubstringEvaluator( node, store, registries );
+        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry.setId( 6L );
+        indexEntry.setObject( store.lookup( 6L ) );
+        assertFalse( evaluator.evaluate( indexEntry ) );
+
+        node = new SubstringNode( SchemaConstants.NAME_AT_OID, "j", null );
+        evaluator = new SubstringEvaluator( node, store, registries );
+        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry.setId( 6L );
+        indexEntry.setObject( store.lookup( 6L ) );
+        assertTrue( evaluator.evaluate( indexEntry ) );
+
+        node = new SubstringNode( SchemaConstants.NAME_AT_OID, "s", null );
+        evaluator = new SubstringEvaluator( node, store, registries );
+        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry.setId( 6L );
+        indexEntry.setObject( store.lookup( 6L ) );
+        assertTrue( evaluator.evaluate( indexEntry ) );
     }
 
 
     @Test
     public void testEvaluatorIndexed() throws Exception
     {
+        SubstringNode node = new SubstringNode( SchemaConstants.CN_AT_OID, "jim", null );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, registries );
+        ForwardIndexEntry<String,Attributes> indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry.setId( 6L );
+        assertTrue( evaluator.evaluate( indexEntry ) );
+        indexEntry.setId( 3L );
+        indexEntry.setObject( null );
+        assertFalse( evaluator.evaluate( indexEntry ) );
+
+        node = new SubstringNode( SchemaConstants.CN_AT_OID, "j", null );
+        evaluator = new SubstringEvaluator( node, store, registries );
+        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry.setId( 6L );
+        indexEntry.setObject( store.lookup( 6L ) );
+        assertTrue( evaluator.evaluate( indexEntry ) );
+
+        node = new SubstringNode( SchemaConstants.CN_AT_OID, "s", null );
+        evaluator = new SubstringEvaluator( node, store, registries );
+        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry.setId( 6L );
+        indexEntry.setObject( store.lookup( 6L ) );
+        assertFalse( evaluator.evaluate( indexEntry ) );
     }
 
 
@@ -174,7 +679,7 @@ public class SubstringTest
     @Test ( expected = InvalidCursorPositionException.class )
     public void testInvalidCursorPositionException() throws Exception
     {
-        SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "j", null );
+        SubstringNode node = new SubstringNode( SchemaConstants.SN_AT_OID, "b", null );
         SubstringEvaluator evaluator = new SubstringEvaluator( node, store, registries );
         SubstringCursor cursor = new SubstringCursor( store, evaluator );
         cursor.get();

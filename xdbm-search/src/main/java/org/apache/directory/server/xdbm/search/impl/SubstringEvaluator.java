@@ -36,6 +36,7 @@ import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
@@ -90,7 +91,15 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
             rule = type.getEquality();
         }
 
-        normalizer = rule.getNormalizer();
+        if ( rule != null )
+        {
+            normalizer = rule.getNormalizer();
+        }
+        else
+        {
+            normalizer = new NoOpNormalizer();
+        }
+        
         // compile the regular expression to search for a matching attribute
         regex = node.getRegex( normalizer );
 
@@ -114,7 +123,8 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
 
         if ( idx == null )
         {
-            return evaluateWithoutIndex( indexEntry );
+            //noinspection unchecked
+            return evaluateWithoutIndex( ( IndexEntry<String,Attributes> ) indexEntry );
         }
         else
         {
@@ -163,7 +173,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
     }
 
 
-    private boolean evaluateWithoutIndex( IndexEntry<?,Attributes> indexEntry ) throws Exception
+    private boolean evaluateWithoutIndex( IndexEntry<String,Attributes> indexEntry ) throws Exception
     {
         Attributes entry = indexEntry.getObject();
 
@@ -174,19 +184,11 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
             indexEntry.setObject( entry );
         }
 
-        // Of course, if the entry does not contains any attributes
-        // (very unlikely !!!), get out of here
-        // TODO Can this simply happens ??? Full test coverage will show it
-        if ( entry == null )
-        {
-            return false;
-        }
-
         // get the attribute
         Attribute attr = AttributeUtils.getAttribute( entry, type );
 
         // if the attribute does not exist just return false
-        if ( attr != null)
+        if ( attr != null )
         {
 
             /*
@@ -204,6 +206,9 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
                 // Once match is found cleanup and return true
                 if ( regex.matcher( value ).matches() )
                 {
+                    // before returning we set the normalized value
+                    indexEntry.setValue( value );
+                    
                     values.close();
                     return true;
                 }

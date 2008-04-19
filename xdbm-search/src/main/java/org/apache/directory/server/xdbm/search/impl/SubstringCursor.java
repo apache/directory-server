@@ -23,11 +23,9 @@ package org.apache.directory.server.xdbm.search.impl;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
-import org.apache.directory.server.core.partition.impl.btree.IndexAssertion;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.shared.ldap.filter.SubstringNode;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
 
 import javax.naming.directory.Attributes;
 
@@ -42,52 +40,24 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 {
     private static final String UNSUPPORTED_MSG =
         "SubstringCursors may not be ordered and do not support positioning by element.";
-    private Cursor<IndexEntry<String,Attributes>> wrapped;
-    private IndexAssertion<String,Attributes> indexAssertion;
+    private final boolean hasIndex;
+    private final Cursor<IndexEntry<String,Attributes>> wrapped;
+    private final SubstringEvaluator evaluator;
+    private final ForwardIndexEntry<String,Attributes> indexEntry =
+        new ForwardIndexEntry<String,Attributes>();
     private boolean available = false;
 
 
     public SubstringCursor( Store<Attributes> db,
                             final SubstringEvaluator substringEvaluator ) throws Exception
     {
-        SubstringNode node = substringEvaluator.getExpression();
+        evaluator = substringEvaluator;
+        hasIndex = db.hasUserIndexOn( evaluator.getExpression().getAttribute() );
 
-        if ( db.hasUserIndexOn( node.getAttribute() ) )
+        if ( hasIndex )
         {
-            /*
-             * Get the user index and return an index enumeration using the the
-             * compiled regular expression.  Try to constrain even further if
-             * an initial term is available in the substring expression.
-             */
             //noinspection unchecked
-            Index<String,Attributes> idx = db.getUserIndex( node.getAttribute() );
-
-            if ( null == node.getInitial() )
-            {
-                wrapped = idx.forwardCursor();
-            }
-            else
-            {
-                wrapped = idx.forwardCursor( node.getInitial() );
-            }
-
-            /*
-             * The Cursor used is over the index for this attribute so the
-             * values are already normalized.  The value of the IndexEntry is
-             * the value of the attribute (not the ndn as below when we do not
-             * have an Index for the attribute).  All we have to do is see if
-             * the value of the IndexEntry is matched by the filter and
-             * return the result.  We reuse the regex Pattern already compiled
-             * for the substringEvaluator instead of recompiling for this
-             * Cursor.
-             */
-            indexAssertion = new IndexAssertion<String,Attributes>()
-            {
-                public boolean assertCandidate( final IndexEntry<String,Attributes> entry ) throws Exception
-                {
-                    return substringEvaluator.getPattern().matcher( entry.getValue() ).matches();
-                }
-            };
+            wrapped = db.getUserIndex( evaluator.getExpression().getAttribute() ).forwardCursor();
         }
         else
         {
@@ -103,21 +73,13 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
              * the node's attribute.
              */
             wrapped = db.getNdnIndex().forwardCursor();
-
-            indexAssertion = new IndexAssertion<String,Attributes>()
-            {
-                public boolean assertCandidate( final IndexEntry<String,Attributes> entry ) throws Exception
-                {
-                    return substringEvaluator.evaluate( entry );
-                }
-            };
         }
     }
 
 
     public boolean available()
     {
-        return false;
+        return available;
     }
 
 
@@ -135,15 +97,55 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public void beforeFirst() throws Exception
     {
-        wrapped.beforeFirst();
+        if ( evaluator.getExpression().getInitial() != null && hasIndex )
+        {
+            ForwardIndexEntry<String,Attributes> indexEntry = new ForwardIndexEntry<String,Attributes>();
+            indexEntry.setValue( evaluator.getExpression().getInitial() );
+            wrapped.before( indexEntry );
+        }
+        else
+        {
+            wrapped.beforeFirst();
+        }
+
+        clear();
+    }
+
+
+    private void clear()
+    {
         available = false;
+        indexEntry.setObject( null );
+        indexEntry.setId( null );
+        indexEntry.setValue( null );
     }
 
 
     public void afterLast() throws Exception
     {
-        wrapped.afterLast();
-        available = false;
+        if ( evaluator.getExpression().getInitial() != null && hasIndex )
+        {
+            ForwardIndexEntry<String,Attributes> indexEntry = new ForwardIndexEntry<String,Attributes>();
+            indexEntry.setValue( evaluator.getExpression().getInitial() );
+            wrapped.after( indexEntry );
+
+            /*
+             * The above operation advances us past the first index entry
+             * matching the initial value.  Lexographically there may still be
+             * entries with values ahead that match and are greater than the
+             * initial string. So we advance until we cannot match anymore.
+             */
+            while ( evaluateCandidate( indexEntry ) && wrapped.next() )
+            {
+                // do nothing but advance
+            }
+        }
+        else
+        {
+            wrapped.afterLast();
+        }
+
+        clear();
     }
 
 
@@ -151,6 +153,19 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         beforeFirst();
         return next();
+    }
+
+
+    private boolean evaluateCandidate( IndexEntry<String,Attributes> indexEntry ) throws Exception
+    {
+        if ( hasIndex )
+        {
+            return evaluator.getPattern().matcher( indexEntry.getValue() ).matches();
+        }
+        else
+        {
+            return evaluator.evaluate( indexEntry );
+        }
     }
 
 
@@ -166,13 +181,18 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         while ( wrapped.previous() )
         {
             IndexEntry<String,Attributes> entry = wrapped.get();
-            if ( indexAssertion.assertCandidate( entry ) )
+            if ( evaluateCandidate( entry ) )
             {
-                return available = true;
+                available = true;
+                this.indexEntry.setId( entry.getId() );
+                this.indexEntry.setValue( entry.getValue() );
+                this.indexEntry.setObject( entry.getObject() );
+                return true;
             }
         }
 
-        return available = false;
+        clear();
+        return false;
     }
 
 
@@ -181,13 +201,18 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         while ( wrapped.next() )
         {
             IndexEntry<String,Attributes> entry = wrapped.get();
-            if ( indexAssertion.assertCandidate( entry ) )
+            if ( evaluateCandidate( entry ) )
             {
-                return available = true;
+                available = true;
+                this.indexEntry.setId( entry.getId() );
+                this.indexEntry.setValue( entry.getValue() );
+                this.indexEntry.setObject( entry.getObject() );
+                return true;
             }
         }
 
-        return available = false;
+        clear();
+        return false;
     }
 
 
@@ -195,7 +220,7 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( available )
         {
-            return wrapped.get();
+            return indexEntry;
         }
 
         throw new InvalidCursorPositionException( "Cursor has yet to be positioned." );
@@ -212,5 +237,6 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         super.close();
         wrapped.close();
+        clear();
     }
 }
