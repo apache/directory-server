@@ -41,6 +41,9 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>
     private static final String UNSUPPORTED_MSG =
         "Scope Cursors are not ordered and do not support positioning by element.";
 
+    /** The Entry database/store */
+    private final Store<Attributes> db;
+
     /** A ScopeNode Evaluator */
     private final SubtreeScopeEvaluator evaluator;
 
@@ -66,6 +69,7 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>
      */
     public SubtreeScopeCursor( Store<Attributes> db, SubtreeScopeEvaluator evaluator ) throws Exception
     {
+        this.db = db;
         this.evaluator = evaluator;
         scopeCursor = db.getSubLevelIndex().forwardCursor( evaluator.getBaseId() );
 
@@ -144,11 +148,29 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>
             afterLast();
         }
 
-        available = cursor.previous();
-
         // if we're using the scopeCursor (1st Cursor) then return result as is
         if ( cursor == scopeCursor )
         {
+            /*
+             * If dereferencing is enabled then we must ignore alias entries, not
+             * returning them as part of the results.
+             */
+            if ( evaluator.isDereferencing() )
+            {
+                // advance until nothing is available or until we find a non-alias
+                while ( available = cursor.previous() )
+                {
+                    if ( db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                available = cursor.previous();
+            }
+
             return available;
         }
 
@@ -158,11 +180,21 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>
          * scopeCursor and try a previous call after positioning past it's
          * last element.
          */
-        if ( ! available )
+        if ( ! ( available = cursor.previous() ) )
         {
             cursor = scopeCursor;
             cursor.afterLast();
-            return available = cursor.previous();
+
+            // advance until nothing is available or until we find a non-alias
+            while ( available = cursor.previous() )
+            {
+                if ( db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                {
+                    break;
+                }
+            }
+
+            return available;
         }
 
         return true;
@@ -175,10 +207,27 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>
         if ( cursor == null )
         {
             beforeFirst();
-            return scopeCursor.next();
         }
 
-        available = cursor.next();
+        /*
+         * If dereferencing is enabled then we must ignore alias entries, not
+         * returning them as part of the results.
+         */
+        if ( evaluator.isDereferencing() )
+        {
+            // advance until nothing is available or until we find a non-alias
+            while ( available = cursor.next() )
+            {
+                if ( db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                {
+                    break;
+                }
+            }
+        }
+        else
+        {
+            available = cursor.next();
+        }
 
         // if we're using dereferencedCursor (2nd) then we return the result
         if ( cursor == dereferencedCursor )
