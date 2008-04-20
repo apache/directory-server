@@ -406,8 +406,101 @@ public class SubtreeScopeTest
     }
 
 
+
+
     @Test
     public void testCursorWithDereferencing2() throws Exception
+    {
+        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING,
+            SchemaConstants.OU_AT_OID + "=apache," +
+            SchemaConstants.OU_AT_OID + "=board of directors," +
+            SchemaConstants.O_AT_OID  + "=good times co.", SearchControls.SUBTREE_SCOPE );
+        SubtreeScopeEvaluator<Attributes> evaluator = new SubtreeScopeEvaluator<Attributes>( store, node );
+        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
+
+        assertTrue( cursor.isElementReused() );
+
+
+        // --------- Test beforeFirst() ---------
+
+        cursor.beforeFirst();
+        assertFalse( cursor.available() );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        IndexEntry<Long,Attributes> indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 6L, ( long ) indexEntry.getId() );
+        assertEquals( 7L, ( long ) indexEntry.getValue() );
+
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        // --------- Test first() ---------
+
+        cursor = new SubtreeScopeCursor( store, evaluator );
+        assertFalse( cursor.available() );
+        cursor.first();
+
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 6L, ( long ) indexEntry.getId() );
+        assertEquals( 7L, ( long ) indexEntry.getValue() );
+
+        assertFalse( cursor.next() );
+        assertFalse( cursor.available() );
+
+        // --------- Test afterLast() ---------
+
+        cursor = new SubtreeScopeCursor( store, evaluator );
+        cursor.afterLast();
+        assertFalse( cursor.available() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 6L, ( long ) indexEntry.getId() );
+        assertEquals( 7L, ( long ) indexEntry.getValue() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
+        // --------- Test last() ---------
+
+        cursor = new SubtreeScopeCursor( store, evaluator );
+        assertFalse( cursor.available() );
+        cursor.last();
+
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 6L, ( long ) indexEntry.getId() );
+        assertEquals( 7L, ( long ) indexEntry.getValue() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+
+        // --------- Test previous() before positioning ---------
+
+        cursor = new SubtreeScopeCursor( store, evaluator );
+        assertFalse( cursor.available() );
+        cursor.previous();
+
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 6L, ( long ) indexEntry.getId() );
+        assertEquals( 7L, ( long ) indexEntry.getValue() );
+
+        assertFalse( cursor.previous() );
+        assertFalse( cursor.available() );
+    }
+
+
+    @Test
+    public void testCursorWithDereferencing3() throws Exception
     {
         LdapDN dn = new LdapDN(
             SchemaConstants.CN_AT_OID + "=jd," +

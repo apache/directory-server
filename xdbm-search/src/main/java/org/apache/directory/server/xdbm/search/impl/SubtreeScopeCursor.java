@@ -158,13 +158,15 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>
             if ( evaluator.isDereferencing() )
             {
                 // advance until nothing is available or until we find a non-alias
-                while ( available = cursor.previous() )
+                do
                 {
-                    if ( db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                    available = cursor.previous();
+                    if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
                     {
                         break;
                     }
                 }
+                while ( available );
             }
             else
             {
@@ -180,19 +182,23 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>
          * scopeCursor and try a previous call after positioning past it's
          * last element.
          */
-        if ( ! ( available = cursor.previous() ) )
+        available = cursor.previous();
+        if ( ! available )
         {
             cursor = scopeCursor;
             cursor.afterLast();
 
             // advance until nothing is available or until we find a non-alias
-            while ( available = cursor.previous() )
+            do
             {
-                if ( db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                available = cursor.previous();
+
+                if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
                 {
                     break;
                 }
             }
+            while ( available );
 
             return available;
         }
@@ -216,13 +222,16 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>
         if ( evaluator.isDereferencing() )
         {
             // advance until nothing is available or until we find a non-alias
-            while ( available = cursor.next() )
+            do
             {
-                if ( db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
+                available = cursor.next();
+
+                if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
                 {
                     break;
                 }
             }
+            while ( available );
         }
         else
         {
