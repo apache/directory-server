@@ -25,7 +25,6 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.Index;
 
 
 /**
@@ -45,11 +44,8 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
     /** True if the scope requires alias dereferencing while searching */
     private final boolean dereferencing;
 
-    /** The one level alias index used for scope expansion */
-    private final Index<Long,E> aliasIndex;
-
-    /** The one level scope index for parent-child mappings */
-    private final Index<Long,E> scopeIndex;
+    /** the entry db storing entries */
+    private final Store<E> db;
 
 
     /**
@@ -68,11 +64,10 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
             throw new IllegalStateException( "ScopeNode is not of onelevel scope." );
         }
 
+        this.db = db;
         baseId = db.getEntryId( node.getBaseDn() );
-        scopeIndex = db.getOneLevelIndex();
         dereferencing = node.getDerefAliases().isDerefInSearching() ||
             node.getDerefAliases().isDerefAlways();
-        aliasIndex = db.getOneAliasIndex();
     }
 
 
@@ -87,7 +82,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
      */
     public boolean evaluate( IndexEntry<?,E> candidate ) throws Exception
     {
-        boolean isChild = scopeIndex.has( baseId, candidate.getId() );
+        boolean isChild = db.getOneLevelIndex().has( baseId, candidate.getId() );
 
         /*
          * The candidate id could be any entry in the db.  If search
@@ -104,7 +99,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
          * candidate id is an alias, if so we reject it since aliases should
          * not be returned.
          */
-        if ( null != aliasIndex.reverseLookup( candidate.getId() ) )
+        if ( null != db.getAliasIndex().reverseLookup( candidate.getId() ) )
         {
             return false;
         }
@@ -128,7 +123,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
          * the lookup returns true accepting the candidate.  Otherwise the
          * candidate is rejected with a false return because it is not in scope.
          */
-        return aliasIndex.has( baseId, candidate.getId() );
+        return db.getOneAliasIndex().has( baseId, candidate.getId() );
     }
 
 
@@ -138,12 +133,22 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
     }
 
 
+    /**
+     * Gets the id of the search base associated with the ScopeNode expression.
+     *
+     * @return identifier of the search base
+     */
     public Long getBaseId()
     {
         return baseId;
     }
 
 
+    /**
+     * Gets whether or not dereferencing is enabled for this evaluator.
+     *
+     * @return true if dereferencing is enabled, false otherwise
+     */
     public boolean isDereferencing()
     {
         return dereferencing;
