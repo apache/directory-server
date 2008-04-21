@@ -153,6 +153,14 @@ public interface SchemaConstants
     String STREET_ADDRESS_AT = "streetAddress";
     String STREET_AT_OID = "2.5.4.9";
 
+    // PostalCode
+    String POSTALCODE_AT = "postalCode";
+    String POSTALCODE_AT_OID = "2.5.4.17";
+
+    // PostOfficeBox
+    String POSTOFFICEBOX_AT = "postOfficeBox";
+    String POSTOFFICEBOX_AT_OID = "2.5.4.18";
+
     // SearchGuide
     String SEARCHGUIDE_AT = "searchguide";
     String SEARCHGUIDE_AT_OID = "2.5.4.14";
