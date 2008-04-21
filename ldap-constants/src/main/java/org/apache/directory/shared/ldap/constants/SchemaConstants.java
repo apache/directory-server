@@ -157,6 +157,10 @@ public interface SchemaConstants
     String POSTALCODE_AT = "postalCode";
     String POSTALCODE_AT_OID = "2.5.4.17";
 
+    // PostalCode
+    String C_POSTALCODE_AT = "c-postalCode";
+    String C_POSTALCODE_AT_OID = "2.5.4.17.1";
+
     // PostOfficeBox
     String POSTOFFICEBOX_AT = "postOfficeBox";
     String POSTOFFICEBOX_AT_OID = "2.5.4.18";
