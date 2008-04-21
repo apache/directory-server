@@ -52,7 +52,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, Attributes>
     private final AttributeType type;
     private final Normalizer normalizer;
     private final Comparator comparator;
-    private final Index<Number,Attributes> idx;
+    private final Index<Object,Attributes> idx;
 
 
     public LessEqEvaluator( LessEqNode node, Store<Attributes> db, Registries registries )
@@ -125,7 +125,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, Attributes>
     {
         if ( idx != null )
         {
-            return idx.hasLessOrEqual( ( Number ) indexEntry.getValue(), indexEntry.getId() );
+            return idx.reverseLessOrEq( indexEntry.getId(), node.getValue() );
         }
 
         Attributes entry = indexEntry.getObject();

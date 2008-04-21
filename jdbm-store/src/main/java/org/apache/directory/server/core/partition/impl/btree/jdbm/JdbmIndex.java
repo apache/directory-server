@@ -508,29 +508,110 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
     
     /**
-     * @see Index#has(Object,Long)
+     * @see Index#forward(Object)
      */
-    public boolean has( K attrVal, Long id ) throws Exception
+    public boolean forward( K attrVal ) throws Exception
+    {
+        return forward.has( getNormalized( attrVal ) );
+    }
+
+
+    /**
+     * @see Index#forward(Object,Long)
+     */
+    public boolean forward( K attrVal, Long id ) throws Exception
     {
         return forward.has( getNormalized( attrVal ), id );
     }
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#hasGreaterOrEqual(Object, Long)
+     * @see Index#reverse(Long)
      */
-    public boolean hasGreaterOrEqual( K attrVal, Long id ) throws Exception
+    public boolean reverse( Long id ) throws Exception
+    {
+        return reverse.has( id );
+    }
+
+
+    /**
+     * @see Index#reverse(Long,Object)
+     */
+    public boolean reverse( Long id, K attrVal ) throws Exception
+    {
+        return forward.has( getNormalized( attrVal ), id );
+    }
+
+
+    /**
+     * @see org.apache.directory.server.xdbm.Index#forwardGreaterOrEq(Object)
+     */
+    public boolean forwardGreaterOrEq( K attrVal ) throws Exception
+    {
+        return forward.hasGreaterOrEqual( getNormalized( attrVal ) );
+    }
+
+
+    /**
+     * @see org.apache.directory.server.xdbm.Index#forwardGreaterOrEq(Object, Long)
+     */
+    public boolean forwardGreaterOrEq( K attrVal, Long id ) throws Exception
     {
         return forward.hasGreaterOrEqual( getNormalized( attrVal ), id );
     }
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#hasLessOrEqual(Object, Long)
+     * @see org.apache.directory.server.xdbm.Index#forwardLessOrEq(Object)
      */
-    public boolean hasLessOrEqual( K attrVal, Long id ) throws Exception
+    public boolean forwardLessOrEq( K attrVal ) throws Exception
+    {
+        return forward.hasLessOrEqual( getNormalized( attrVal ) );
+    }
+
+
+    /**
+     * @see org.apache.directory.server.xdbm.Index#forwardLessOrEq(Object, Long)
+     */
+    public boolean forwardLessOrEq( K attrVal, Long id ) throws Exception
     {
         return forward.hasLessOrEqual( getNormalized( attrVal ), id );
+    }
+
+
+    /**
+     * @see org.apache.directory.server.xdbm.Index#reverseGreaterOrEq(Long)
+     */
+    public boolean reverseGreaterOrEq( Long id ) throws Exception
+    {
+        return reverse.hasGreaterOrEqual( id );
+    }
+
+
+    /**
+     * @see org.apache.directory.server.xdbm.Index#reverseGreaterOrEq(Long,Object)
+     */
+    public boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception
+    {
+        return reverse.hasGreaterOrEqual( id, getNormalized( attrVal ) );
+    }
+
+
+    /**
+     * @see org.apache.directory.server.xdbm.Index#reverseLessOrEq(Long)
+     */
+    public boolean reverseLessOrEq( Long id ) throws Exception
+    {
+        return reverse.hasLessOrEqual( id );
+    }
+
+
+    /**
+     * @see org.apache.directory.server.xdbm.Index#reverseLessOrEq(Long,Object)
+     */
+    public boolean reverseLessOrEq( Long id, K attrVal ) throws Exception
+    {
+        return reverse.hasLessOrEqual( id, getNormalized( attrVal ) );
     }
 
 

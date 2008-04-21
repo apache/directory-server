@@ -67,6 +67,8 @@ public class StoreUtils
         DefaultServerEntry contextEntry = new DefaultServerEntry( registries, new LdapDN( "o=Good Times Co." ) );
         contextEntry.add( "objectClass", "organization" );
         contextEntry.add( "o", "Good Times Co." );
+        contextEntry.add( "postalCode", "1" );
+        contextEntry.add( "postOfficeBox", "1" );
         store.setContextEntry( contextEntry );
         
         AttributeTypeRegistry attributeRegistry = registries.getAttributeTypeRegistry();
@@ -79,6 +81,8 @@ public class StoreUtils
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Sales" );
+        entry.add( "postalCode", "1" );
+        entry.add( "postOfficeBox", "1" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
 
         // Entry #3
@@ -87,6 +91,8 @@ public class StoreUtils
         entry = new DefaultServerEntry( registries, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Board of Directors" );
+        entry.add( "postalCode", "1" );
+        entry.add( "postOfficeBox", "1" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
         
         // Entry #4
@@ -95,6 +101,8 @@ public class StoreUtils
         entry = new DefaultServerEntry( registries, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Engineering" );
+        entry.add( "postalCode", "2" );
+        entry.add( "postOfficeBox", "2" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
         
         // Entry #5
@@ -105,6 +113,8 @@ public class StoreUtils
         entry.add( "ou", "Sales" );
         entry.add( "cn", "JOhnny WAlkeR");
         entry.add( "sn", "WAlkeR");
+        entry.add( "postalCode", "3" );
+        entry.add( "postOfficeBox", "3" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
         
         // Entry #6
@@ -115,6 +125,8 @@ public class StoreUtils
         entry.add( "ou", "Sales" );
         entry.add( "cn",  "JIM BEAN");
         entry.add( "surName", "BEAN");
+        entry.add( "postalCode", "4" );
+        entry.add( "postOfficeBox", "4" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
 
         // Entry #7
@@ -123,6 +135,8 @@ public class StoreUtils
         entry = new DefaultServerEntry( registries, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Apache" );
+        entry.add( "postalCode", "5" );
+        entry.add( "postOfficeBox", "5" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
         
         // Entry #8
@@ -133,6 +147,8 @@ public class StoreUtils
         entry.add( "ou", "Engineering" );
         entry.add( "cn",  "Jack Daniels");
         entry.add( "SN",  "Daniels");
+        entry.add( "postalCode", "6" );
+        entry.add( "postOfficeBox", "6" );
         store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
 
         // aliases -------------

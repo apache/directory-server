@@ -99,7 +99,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, Attribut
     {
         if ( idx != null )
         {
-            return idx.has( ( Number ) indexEntry.getValue(), indexEntry.getId() );
+            return idx.forward( ( Number ) indexEntry.getValue(), indexEntry.getId() );
         }
 
         Attributes entry = indexEntry.getObject();

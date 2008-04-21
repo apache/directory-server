@@ -99,7 +99,7 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, Attributes>
     {
         if ( idx != null )
         {
-            return idx.has( ( Number ) indexEntry.getValue(), indexEntry.getId() );
+            return idx.forward( ( Number ) indexEntry.getValue(), indexEntry.getId() );
         }
 
         Attributes entry = indexEntry.getObject();

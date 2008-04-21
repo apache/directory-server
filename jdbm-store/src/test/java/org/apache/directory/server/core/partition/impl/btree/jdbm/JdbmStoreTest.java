@@ -500,6 +500,79 @@ public class JdbmStoreTest
                 return null;
             }
 
+
+            public boolean forward( Object attrVal ) throws Exception
+            {
+                return false;
+            }
+
+
+            public boolean forward( Object attrVal, Long id ) throws Exception
+            {
+                return false;
+            }
+
+
+            public boolean reverse( Long id ) throws Exception
+            {
+                return false;
+            }
+
+
+            public boolean reverse( Long id, Object attrVal ) throws Exception
+            {
+                return false;
+            }
+
+
+            public boolean forwardGreaterOrEq( Object attrVal ) throws Exception
+            {
+                return false;
+            }
+
+
+            public boolean forwardGreaterOrEq( Object attrVal, Long id ) throws Exception
+            {
+                return false;
+            }
+
+
+            public boolean reverseGreaterOrEq( Long id ) throws Exception
+            {
+                return false;
+            }
+
+
+            public boolean reverseGreaterOrEq( Long id, Object attrVal ) throws Exception
+            {
+                return false;
+            }
+
+
+            public boolean forwardLessOrEq( Object attrVal ) throws Exception
+            {
+                return false;
+            }
+
+
+            public boolean forwardLessOrEq( Object attrVal, Long id ) throws Exception
+            {
+                return false;
+            }
+
+
+            public boolean reverseLessOrEq( Long id ) throws Exception
+            {
+                return false;
+            }
+
+
+            public boolean reverseLessOrEq( Long id, Object attrVal ) throws Exception
+            {
+                return false;
+            }
+
+
             public AttributeType getAttribute()
             {
                 return null;
@@ -528,21 +601,6 @@ public class JdbmStoreTest
             public int greaterThanCount( Object attrVal ) throws Exception
             {
                 return 0;
-            }
-
-            public boolean has( Object attrVal, Long id ) throws Exception
-            {
-                return false;
-            }
-
-            public boolean hasGreaterOrEqual( Object attrVal, Long id ) throws Exception
-            {
-                return false;
-            }
-
-            public boolean hasLessOrEqual( Object attrVal, Long id ) throws Exception
-            {
-                return false;
             }
 
             public boolean isCountExact()

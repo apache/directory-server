@@ -192,13 +192,40 @@ public interface Index<K, O>
     Cursor<Long> forwardValueCursor( K key ) throws Exception;
 
 
-    boolean has( K attrVal, Long id ) throws Exception;
+    boolean forward( K attrVal ) throws Exception;
 
 
-    boolean hasGreaterOrEqual( K attrVal, Long id ) throws Exception;
+    boolean forward( K attrVal, Long id ) throws Exception;
 
 
-    boolean hasLessOrEqual( K attrVal, Long id ) throws Exception;
+    boolean reverse( Long id ) throws Exception;
+
+
+    boolean reverse( Long id, K attrVal ) throws Exception;
+
+
+    boolean forwardGreaterOrEq( K attrVal ) throws Exception;
+
+
+    boolean forwardGreaterOrEq( K attrVal, Long id ) throws Exception;
+
+
+    boolean reverseGreaterOrEq( Long id ) throws Exception;
+
+
+    boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception;
+
+
+    boolean forwardLessOrEq( K attrVal ) throws Exception;
+
+
+    boolean forwardLessOrEq( K attrVal, Long id ) throws Exception;
+
+
+    boolean reverseLessOrEq( Long id ) throws Exception;
+
+
+    boolean reverseLessOrEq( Long id, K attrVal ) throws Exception;
 
 
     void close() throws Exception;

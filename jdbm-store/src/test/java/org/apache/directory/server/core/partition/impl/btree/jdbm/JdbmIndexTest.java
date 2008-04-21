@@ -329,57 +329,57 @@ public class JdbmIndexTest
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
         assertNull( idx.reverseLookup( 0L ) );
-        assertFalse( idx.hasGreaterOrEqual( "foo", 0L ) );
-        assertFalse( idx.hasGreaterOrEqual( "foo", -24L ) );
-        assertFalse( idx.hasGreaterOrEqual( "foo", 24L ) );
-        assertFalse( idx.hasLessOrEqual( "foo", 0L ) );
-        assertFalse( idx.hasLessOrEqual( "foo", 24L ) );
-        assertFalse( idx.hasLessOrEqual( "foo", -24L ) );
+        assertFalse( idx.forwardGreaterOrEq( "foo", 0L ) );
+        assertFalse( idx.forwardGreaterOrEq( "foo", -24L ) );
+        assertFalse( idx.forwardGreaterOrEq( "foo", 24L ) );
+        assertFalse( idx.forwardLessOrEq( "foo", 0L ) );
+        assertFalse( idx.forwardLessOrEq( "foo", 24L ) );
+        assertFalse( idx.forwardLessOrEq( "foo", -24L ) );
 
         idx.add( "foo", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( "foo", idx.reverseLookup( 0L ) );
-        assertTrue( idx.has( "foo", 0L ) );
-        assertTrue( idx.hasGreaterOrEqual( "foo", 0L ) );
-        assertTrue( idx.hasGreaterOrEqual( "foo", -1L ) );
-        assertFalse( idx.hasGreaterOrEqual( "foo", 1L ) );
-        assertTrue( idx.hasLessOrEqual( "foo", 0L ) );
-        assertTrue( idx.hasLessOrEqual( "foo", 1L ) );
-        assertFalse( idx.hasLessOrEqual( "foo", -1L ) );
+        assertTrue( idx.forward( "foo", 0L ) );
+        assertTrue( idx.forwardGreaterOrEq( "foo", 0L ) );
+        assertTrue( idx.forwardGreaterOrEq( "foo", -1L ) );
+        assertFalse( idx.forwardGreaterOrEq( "foo", 1L ) );
+        assertTrue( idx.forwardLessOrEq( "foo", 0L ) );
+        assertTrue( idx.forwardLessOrEq( "foo", 1L ) );
+        assertFalse( idx.forwardLessOrEq( "foo", -1L ) );
 
         idx.add( "foo", 1L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( "foo", idx.reverseLookup( 0L ) );
         assertEquals( "foo", idx.reverseLookup( 1L ) );
-        assertTrue( idx.has( "foo", 0L ) );
-        assertTrue( idx.has( "foo", 1L ) );
-        assertTrue( idx.hasGreaterOrEqual( "foo", 0L ) );
-        assertTrue( idx.hasGreaterOrEqual( "foo", 1L ) );
-        assertTrue( idx.hasGreaterOrEqual( "foo", -1L ) );
-        assertFalse( idx.hasGreaterOrEqual( "foo", 2L ) );
-        assertTrue( idx.hasLessOrEqual( "foo", 0L ) );
-        assertTrue( idx.hasLessOrEqual( "foo", 1L ) );
-        assertTrue( idx.hasLessOrEqual( "foo", 2L ) );
-        assertFalse( idx.hasLessOrEqual( "foo", -1L ) );
+        assertTrue( idx.forward( "foo", 0L ) );
+        assertTrue( idx.forward( "foo", 1L ) );
+        assertTrue( idx.forwardGreaterOrEq( "foo", 0L ) );
+        assertTrue( idx.forwardGreaterOrEq( "foo", 1L ) );
+        assertTrue( idx.forwardGreaterOrEq( "foo", -1L ) );
+        assertFalse( idx.forwardGreaterOrEq( "foo", 2L ) );
+        assertTrue( idx.forwardLessOrEq( "foo", 0L ) );
+        assertTrue( idx.forwardLessOrEq( "foo", 1L ) );
+        assertTrue( idx.forwardLessOrEq( "foo", 2L ) );
+        assertFalse( idx.forwardLessOrEq( "foo", -1L ) );
 
         idx.add( "bar", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "bar" ) );
         assertEquals( "bar", idx.reverseLookup( 0L ) );  // reverse lookup returns first val
-        assertTrue( idx.has( "bar", 0L ) ); 
-        assertTrue( idx.has( "foo", 0L ) );
-        assertTrue( idx.has( "foo", 1L ) );
-        assertTrue( idx.hasGreaterOrEqual( "bar", 0L ) );
-        assertTrue( idx.hasGreaterOrEqual( "foo", 0L ) );
-        assertTrue( idx.hasGreaterOrEqual( "foo", 1L ) );
-        assertTrue( idx.hasGreaterOrEqual( "foo", -1L ) );
-        assertFalse( idx.hasGreaterOrEqual( "foo", 2L ) );
-        assertFalse( idx.hasGreaterOrEqual( "bar", 1L ) );
-        assertTrue( idx.hasLessOrEqual( "bar", 0L ) );
-        assertTrue( idx.hasLessOrEqual( "foo", 0L ) );
-        assertTrue( idx.hasLessOrEqual( "foo", 1L ) );
-        assertTrue( idx.hasLessOrEqual( "foo", 2L ) );
-        assertFalse( idx.hasLessOrEqual( "foo", -1L ) );
-        assertFalse( idx.hasLessOrEqual( "bar", -1L ) );
+        assertTrue( idx.forward( "bar", 0L ) );
+        assertTrue( idx.forward( "foo", 0L ) );
+        assertTrue( idx.forward( "foo", 1L ) );
+        assertTrue( idx.forwardGreaterOrEq( "bar", 0L ) );
+        assertTrue( idx.forwardGreaterOrEq( "foo", 0L ) );
+        assertTrue( idx.forwardGreaterOrEq( "foo", 1L ) );
+        assertTrue( idx.forwardGreaterOrEq( "foo", -1L ) );
+        assertFalse( idx.forwardGreaterOrEq( "foo", 2L ) );
+        assertFalse( idx.forwardGreaterOrEq( "bar", 1L ) );
+        assertTrue( idx.forwardLessOrEq( "bar", 0L ) );
+        assertTrue( idx.forwardLessOrEq( "foo", 0L ) );
+        assertTrue( idx.forwardLessOrEq( "foo", 1L ) );
+        assertTrue( idx.forwardLessOrEq( "foo", 2L ) );
+        assertFalse( idx.forwardLessOrEq( "foo", -1L ) );
+        assertFalse( idx.forwardLessOrEq( "bar", -1L ) );
     }
 
 
@@ -412,8 +412,8 @@ public class JdbmIndexTest
 
         idx.drop( 0L );
         assertEquals( "foo", idx.reverseLookup( 1L ) );
-        assertFalse( idx.has( "bar", 0L ) );
-        assertFalse( idx.has( "foo", 0L ) );
+        assertFalse( idx.forward( "bar", 0L ) );
+        assertFalse( idx.forward( "foo", 0L ) );
 
         idx.drop( 1L );
         assertNull( idx.forwardLookup( "foo" ) );
@@ -455,12 +455,12 @@ public class JdbmIndexTest
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( "foo", idx.reverseLookup( 0L ) );
         assertEquals( "foo", idx.reverseLookup( 1L ) );
-        assertFalse( idx.has( "bar", 0L ) );
+        assertFalse( idx.forward( "bar", 0L ) );
 
         idx.drop( "foo", 0L );
         assertEquals( 1L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( "foo", idx.reverseLookup( 1L ) );
-        assertFalse( idx.has( "foo", 0L ) );
+        assertFalse( idx.forward( "foo", 0L ) );
 
         idx.drop( "foo", 1L );
         assertNull( idx.forwardLookup( "foo" ) );

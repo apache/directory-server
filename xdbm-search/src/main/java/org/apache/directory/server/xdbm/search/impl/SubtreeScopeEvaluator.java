@@ -84,7 +84,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
      */
     public boolean evaluate( IndexEntry<?,E> candidate ) throws Exception
     {
-        boolean isDescendant = db.getSubLevelIndex().has( baseId, candidate.getId() );
+        boolean isDescendant = db.getSubLevelIndex().forward( baseId, candidate.getId() );
 
         /*
          * The candidate id could be any entry in the db.  If search
@@ -128,7 +128,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
          * the lookup returns true accepting the candidate.  Otherwise the
          * candidate is rejected with a false return because it is not in scope.
          */
-        return db.getSubAliasIndex().has( baseId, candidate.getId() );
+        return db.getSubAliasIndex().forward( baseId, candidate.getId() );
     }
 
 

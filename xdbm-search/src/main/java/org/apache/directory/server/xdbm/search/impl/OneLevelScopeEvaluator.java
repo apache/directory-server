@@ -82,7 +82,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
      */
     public boolean evaluate( IndexEntry<?,E> candidate ) throws Exception
     {
-        boolean isChild = db.getOneLevelIndex().has( baseId, candidate.getId() );
+        boolean isChild = db.getOneLevelIndex().forward( baseId, candidate.getId() );
 
         /*
          * The candidate id could be any entry in the db.  If search
@@ -123,7 +123,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
          * the lookup returns true accepting the candidate.  Otherwise the
          * candidate is rejected with a false return because it is not in scope.
          */
-        return db.getOneAliasIndex().has( baseId, candidate.getId() );
+        return db.getOneAliasIndex().forward( baseId, candidate.getId() );
     }
 
 

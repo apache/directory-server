@@ -125,7 +125,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
     {
         if ( idx != null )
         {
-            return idx.hasGreaterOrEqual( ( Number ) indexEntry.getValue(), indexEntry.getId() );
+            return idx.forwardGreaterOrEq( ( Number ) indexEntry.getValue(), indexEntry.getId() );
         }
 
         Attributes entry = indexEntry.getObject();

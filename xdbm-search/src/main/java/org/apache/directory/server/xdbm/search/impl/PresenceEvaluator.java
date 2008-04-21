@@ -84,7 +84,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, Attributes>
     {
         if ( idx != null )
         {
-            return idx.has( type.getOid(), indexEntry.getId() );
+            return idx.forward( type.getOid(), indexEntry.getId() );
         }
 
         Attributes entry = indexEntry.getObject();

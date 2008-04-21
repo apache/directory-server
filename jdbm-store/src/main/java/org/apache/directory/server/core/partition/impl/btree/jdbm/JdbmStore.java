@@ -1256,7 +1256,7 @@ public class JdbmStore<E> implements Store<E>
             idx.add( ServerEntryUtils.toAttributeImpl( mods ), id );
 
             // If the attr didn't exist for this id add it to existance index
-            if ( !existanceIdx.has( modsOid, id ) )
+            if ( !existanceIdx.forward( modsOid, id ) )
             {
                 existanceIdx.add( modsOid, id );
             }
@@ -1541,7 +1541,7 @@ public class JdbmStore<E> implements Store<E>
             idx.add( newRdnValue, id );
 
             // Make sure the altered entry shows the existance of the new attrib
-            if ( !existanceIdx.has( newRdn.getNormType(), id ) )
+            if ( !existanceIdx.forward( newRdn.getNormType(), id ) )
             {
                 existanceIdx.add( newRdn.getNormType(), id );
             }
