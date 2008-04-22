@@ -141,7 +141,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, Attributes>
         Attribute attr = AttributeUtils.getAttribute( entry, type );
 
         // if the attribute does not exist just return false
-        if ( attr != null && evaluate( attr ) )
+        if ( attr != null && evaluate( ( IndexEntry<Object,Attributes> ) indexEntry, attr ) )
         {
             return true;
         }
@@ -163,7 +163,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, Attributes>
 
                 attr = AttributeUtils.getAttribute( entry, descendant );
 
-                if ( attr != null && evaluate( attr ) )
+                if ( attr != null && evaluate( ( IndexEntry<Object,Attributes> ) indexEntry, attr ) )
                 {
                     return true;
                 }
@@ -175,7 +175,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, Attributes>
     }
 
 
-    private boolean evaluate( Attribute attribute ) throws Exception
+    private boolean evaluate( IndexEntry<Object,Attributes> indexEntry, Attribute attribute ) throws Exception
     {
         /*
          * Cycle through the attribute values testing normalized version
@@ -193,6 +193,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, Attributes>
             //noinspection unchecked
             if ( comparator.compare( value, node.getValue() ) <= 0 )
             {
+                indexEntry.setValue( value );
                 values.close();
                 return true;
             }
