@@ -43,6 +43,7 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
     private Tuple<K,DupsContainer<V>> returnedTuple = new Tuple<K,DupsContainer<V>>();
     private TupleBrowser browser;
     private boolean valueAvailable;
+    private Boolean forwardDirection;
 
 
     /**
@@ -113,6 +114,12 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
             if ( nextCompared > 0 )
             {
                 browser.getPrevious( jdbmTuple );
+
+                // switch in direction bug workaround: when a JDBM browser
+                // switches direction with next then previous as is occuring
+                // here then two previous moves are needed.
+                browser.getPrevious( jdbmTuple );
+                forwardDirection = false;
                 clearValue();
                 return;
             }
@@ -157,7 +164,20 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
             afterLast();
         }
 
-        if ( browser.getPrevious( jdbmTuple ) )
+        boolean advanceSuccess = browser.getPrevious( jdbmTuple );
+
+        if ( forwardDirection == null )
+        {
+            forwardDirection = false;
+        }
+
+        if ( forwardDirection )
+        {
+            advanceSuccess = browser.getPrevious( jdbmTuple );
+            forwardDirection = false;
+        }
+
+        if ( advanceSuccess )
         {
             //noinspection unchecked
             returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
@@ -179,7 +199,20 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
             beforeFirst();
         }
 
-        if ( browser.getNext( jdbmTuple ) )
+        boolean advanceSuccess = browser.getNext( jdbmTuple );
+
+        if ( forwardDirection == null )
+        {
+            forwardDirection = true;
+        }
+
+        if ( ! forwardDirection )
+        {
+            advanceSuccess = browser.getNext( jdbmTuple );
+            forwardDirection = true;
+        }
+
+        if ( advanceSuccess )
         {
             //noinspection unchecked
             returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
