@@ -89,6 +89,7 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
     public void before( Tuple<K,DupsContainer<V>> element ) throws IOException
     {
         browser = table.getBTree().browse( element.getKey() );
+        forwardDirection = null;
         clearValue();
     }
 
@@ -96,6 +97,7 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
     public void after( Tuple<K,DupsContainer<V>> element ) throws IOException
     {
         browser = table.getBTree().browse( element.getKey() );
+        forwardDirection = null;
 
         /*
          * While the next value is less than or equal to the element keep
@@ -132,6 +134,7 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
     public void beforeFirst() throws IOException
     {
         browser = table.getBTree().browse();
+        forwardDirection = null;
         clearValue();
     }
 
@@ -139,6 +142,7 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
     public void afterLast() throws IOException
     {
         browser = table.getBTree().browse( null );
+        forwardDirection = null;
         clearValue();
     }
 
@@ -166,12 +170,14 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
 
         boolean advanceSuccess = browser.getPrevious( jdbmTuple );
 
-        if ( forwardDirection == null )
+        // only want to set this if the advance is a success which means we
+        // are not at front
+        if ( forwardDirection == null && advanceSuccess )
         {
             forwardDirection = false;
         }
 
-        if ( forwardDirection )
+        if ( forwardDirection != null && forwardDirection )
         {
             advanceSuccess = browser.getPrevious( jdbmTuple );
             forwardDirection = false;
@@ -201,12 +207,14 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
 
         boolean advanceSuccess = browser.getNext( jdbmTuple );
 
-        if ( forwardDirection == null )
+        // only want to set this if the advance is a success which means
+        // we are not at end
+        if ( forwardDirection == null && advanceSuccess )
         {
             forwardDirection = true;
         }
 
-        if ( ! forwardDirection )
+        if ( forwardDirection != null && ! forwardDirection )
         {
             advanceSuccess = browser.getNext( jdbmTuple );
             forwardDirection = true;

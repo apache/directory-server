@@ -54,6 +54,13 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final Cursor<IndexEntry<String,Attributes>> ndnIdxCursor;
 
+    /**
+     * Used to store indexEntry from ndnCandidate so it can be saved after
+     * call to evaluate() which changes the value so it's not referring to
+     * the NDN but to the value of the attribute instead.
+     */
+    IndexEntry<String, Attributes> ndnCandidate;
+
     /** used in both modes */
     private boolean available = false;
 
@@ -163,6 +170,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         else
         {
             ndnIdxCursor.beforeFirst();
+            ndnCandidate = null;
         }
 
         available = false;
@@ -178,6 +186,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
         else
         {
             ndnIdxCursor.afterLast();
+            ndnCandidate = null;
         }
 
         available = false;
@@ -221,8 +230,8 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
         while( ndnIdxCursor.previous() )
         {
-            IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
-            if ( greaterEqEvaluator.evaluate( candidate ) )
+            ndnCandidate = ndnIdxCursor.get();
+            if ( greaterEqEvaluator.evaluate( ndnCandidate ) )
             {
                  return available = true;
             }
@@ -245,8 +254,8 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
         while( ndnIdxCursor.next() )
         {
-            IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
-            if ( greaterEqEvaluator.evaluate( candidate ) )
+            ndnCandidate = ndnIdxCursor.get();
+            if ( greaterEqEvaluator.evaluate( ndnCandidate ) )
             {
                  return available = true;
             }
@@ -270,7 +279,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
         if ( available )
         {
-            return ndnIdxCursor.get();
+            return ndnCandidate;
         }
 
         throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );

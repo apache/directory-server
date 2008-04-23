@@ -52,7 +52,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
     private final AttributeType type;
     private final Normalizer normalizer;
     private final Comparator comparator;
-    private final Index<Number,Attributes> idx;
+    private final Index<Object,Attributes> idx;
 
 
     public GreaterEqEvaluator( GreaterEqNode node, Store<Attributes> db, Registries registries )
@@ -125,7 +125,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
     {
         if ( idx != null )
         {
-            return idx.forwardGreaterOrEq( ( Number ) indexEntry.getValue(), indexEntry.getId() );
+            return idx.reverseGreaterOrEq( indexEntry.getId(), node.getValue() );
         }
 
         Attributes entry = indexEntry.getObject();
@@ -141,7 +141,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
         Attribute attr = AttributeUtils.getAttribute( entry, type );
 
         // if the attribute does not exist just return false
-        if ( attr != null && evaluate( attr ) )
+        if ( attr != null && evaluate( ( IndexEntry<Object,Attributes> ) indexEntry, attr ) )
         {
             return true;
         }
@@ -163,7 +163,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
 
                 attr = AttributeUtils.getAttribute( entry, descendant );
 
-                if ( attr != null && evaluate( attr ) )
+                if ( attr != null && evaluate( ( IndexEntry<Object,Attributes> ) indexEntry, attr ) )
                 {
                     return true;
                 }
@@ -175,7 +175,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
     }
 
 
-    private boolean evaluate( Attribute attribute ) throws Exception
+    private boolean evaluate( IndexEntry<Object,Attributes> indexEntry, Attribute attribute ) throws Exception
     {
         /*
          * Cycle through the attribute values testing normalized version
@@ -193,6 +193,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
             //noinspection unchecked
             if ( comparator.compare( value, node.getValue() ) >= 0 )
             {
+                indexEntry.setValue( value );
                 values.close();
                 return true;
             }
