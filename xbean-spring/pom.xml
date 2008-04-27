@@ -104,13 +104,7 @@
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-jdbm-store</artifactId>
-      <version>${pom.version}</version>
-      <classifier>sources</classifier>
-      <scope>provided</scope>
-    </dependency>
+
     <!-- replication interceptor xbean config metadata -->
     <dependency>
       <groupId>org.apache.directory.server</groupId>
