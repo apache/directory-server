@@ -123,28 +123,10 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
     public void afterLast() throws Exception
     {
-        if ( evaluator.getExpression().getInitial() != null && hasIndex )
-        {
-            ForwardIndexEntry<String,Attributes> indexEntry = new ForwardIndexEntry<String,Attributes>();
-            indexEntry.setValue( evaluator.getExpression().getInitial() );
-            wrapped.after( indexEntry );
-
-            /*
-             * The above operation advances us past the first index entry
-             * matching the initial value.  Lexographically there may still be
-             * entries with values ahead that match and are greater than the
-             * initial string. So we advance until we cannot match anymore.
-             */
-            while ( evaluateCandidate( indexEntry ) && wrapped.next() )
-            {
-                // do nothing but advance
-            }
-        }
-        else
-        {
-            wrapped.afterLast();
-        }
-
+        // to keep the cursor always *after* the last matched tuple
+        // This fixes an issue if the last matched tuple is also the last record present in the 
+        // index. In this case the wrapped cursor is positioning on the last tuple instead of positioning after that
+        wrapped.afterLast();
         clear();
     }
 
