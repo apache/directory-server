@@ -443,58 +443,26 @@ public class TwixTransformer implements TransformerSpi
                     switch ( ( ( AttributeValueAssertionFilter ) twixFilter ).getFilterType() )
                     {
                         case LdapConstants.EQUALITY_MATCH_FILTER:
-                            if ( ava.getAssertionValue() instanceof String )
-                            {
-                                branch = new EqualityNode( ava.getAttributeDesc(), 
-                                    (String)ava.getAssertionValue() );
-                            }
-                            else
-                            {
-                                branch = new EqualityNode( ava.getAttributeDesc(), 
-                                    (byte[])ava.getAssertionValue() );
-                            }
+                            branch = new EqualityNode( ava.getAttributeDesc(), 
+                                ava.getAssertionValue() );
                             
                             break;
 
                         case LdapConstants.GREATER_OR_EQUAL_FILTER:
-                            if ( ava.getAssertionValue() instanceof String )
-                            {
-                                branch = new GreaterEqNode( ava.getAttributeDesc(),
-                                    (String)ava.getAssertionValue() );
-                            }
-                            else
-                            {
-                                branch = new GreaterEqNode( ava.getAttributeDesc(),
-                                    (byte[])ava.getAssertionValue() );
-                            }
+                            branch = new GreaterEqNode( ava.getAttributeDesc(),
+                                ava.getAssertionValue() );
 
                             break;
 
                         case LdapConstants.LESS_OR_EQUAL_FILTER:
-                            if ( ava.getAssertionValue() instanceof String )
-                            {
-                                branch = new LessEqNode( ava.getAttributeDesc(), 
-                                    (String)ava.getAssertionValue() );
-                            }
-                            else
-                            {
-                                branch = new LessEqNode( ava.getAttributeDesc(), 
-                                    (byte[])ava.getAssertionValue() );
-                            }
+                            branch = new LessEqNode( ava.getAttributeDesc(), 
+                                ava.getAssertionValue() );
 
                             break;
 
                         case LdapConstants.APPROX_MATCH_FILTER:
-                            if ( ava.getAssertionValue() instanceof String )
-                            {
-                                branch = new ApproximateNode( ava.getAttributeDesc(), 
-                                    (String)ava.getAssertionValue() );
-                            }
-                            else
-                            {
-                                branch = new ApproximateNode( ava.getAttributeDesc(), 
-                                    (byte[])ava.getAssertionValue() );
-                            }
+                            branch = new ApproximateNode( ava.getAttributeDesc(), 
+                                ava.getAssertionValue() );
 
                             break;
                     }

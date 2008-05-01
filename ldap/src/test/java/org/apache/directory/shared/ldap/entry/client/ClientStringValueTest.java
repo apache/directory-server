@@ -449,15 +449,15 @@ public class ClientStringValueTest
     {
         ClientStringValue csv = new ClientStringValue();
         
-        assertEquals( "'null'", csv.toString() );
+        assertEquals( "null", csv.toString() );
 
         csv.set( "" );
-        assertEquals( "''", csv.toString() );
+        assertEquals( "", csv.toString() );
 
         csv.set( "Test" );
-        assertEquals( "'Test'", csv.toString() );
+        assertEquals( "Test", csv.toString() );
         
         csv.clear();
-        assertEquals( "'null'", csv.toString() );
+        assertEquals( "null", csv.toString() );
     }
 }

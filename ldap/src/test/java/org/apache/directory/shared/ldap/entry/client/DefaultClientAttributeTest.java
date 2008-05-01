@@ -1299,10 +1299,10 @@ public class DefaultClientAttributeTest
         assertEquals( "    test: (null)\n", attr1.toString() );
         
         attr1.add( "a" );
-        assertEquals( "    test: 'a'\n", attr1.toString() );
+        assertEquals( "    test: a\n", attr1.toString() );
         
         attr1.add( "b" );
-        assertEquals( "    test: 'a'\n    test: 'b'\n", attr1.toString() );
+        assertEquals( "    test: a\n    test: b\n", attr1.toString() );
 
         EntryAttribute attr2 = new DefaultClientAttribute( "test" );
 

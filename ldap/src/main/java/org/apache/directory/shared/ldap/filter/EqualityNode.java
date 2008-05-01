@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.filter;
 
+import org.apache.directory.shared.ldap.entry.Value;
+
 
 /**
  * A assertion value node for Equality.
@@ -34,7 +36,7 @@ public class EqualityNode extends SimpleNode
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    public EqualityNode( String attribute, byte[] value )
+    public EqualityNode( String attribute, Value<?> value )
     {
         super( attribute, value, AssertionType.EQUALITY );
     }
@@ -46,31 +48,7 @@ public class EqualityNode extends SimpleNode
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    public EqualityNode( String attribute, String value )
-    {
-        super( attribute, value, AssertionType.EQUALITY );
-    }
-
-
-    /**
-     * Creates a new Equality object.
-     * 
-     * @param attribute the attribute name
-     * @param value the value to test for
-     */
-    protected EqualityNode( String attribute, byte[] value, AssertionType assertionType )
-    {
-        super( attribute, value, assertionType );
-    }
-
-
-    /**
-     * Creates a new Equality object.
-     * 
-     * @param attribute the attribute name
-     * @param value the value to test for
-     */
-    protected EqualityNode( String attribute, String value, AssertionType assertionType )
+    protected EqualityNode( String attribute, Value<?> value, AssertionType assertionType )
     {
         super( attribute, value, assertionType );
     }
@@ -90,14 +68,14 @@ public class EqualityNode extends SimpleNode
      */
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
+        StringBuilder buf = new StringBuilder();
+    
         buf.append( '(' ).append( getAttribute() ).append( "=" ).append( value );
 
         buf.append( super.toString() );
         
         buf.append( ')' );
         
-    	return buf.toString();
+        return buf.toString();
     }
 }
