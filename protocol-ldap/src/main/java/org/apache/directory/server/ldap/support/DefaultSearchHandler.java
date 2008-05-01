@@ -21,7 +21,6 @@ package org.apache.directory.server.ldap.support;
 
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
@@ -30,7 +29,6 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AbandonListener;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
@@ -126,6 +124,13 @@ public class DefaultSearchHandler extends SearchHandler
 
     /**
      * Determines if a search request is on the RootDSE of the server.
+     * 
+     * It is a RootDSE search if :
+     * - the base DN is empty
+     * - and the scope is BASE OBJECT
+     * - and the filter is (ObjectClass = *)
+     * 
+     * (RFC 4511, 5.1, par. 1 & 2)
      *
      * @param req the request issued
      * @return true if the search is on the RootDSE false otherwise
@@ -138,12 +143,75 @@ public class DefaultSearchHandler extends SearchHandler
         
         if ( req.getFilter() instanceof PresenceNode )
         {
-            isRootDSEFilter = ( ( PresenceNode ) req.getFilter() ).getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT );
+            String attribute = ( ( PresenceNode ) req.getFilter() ).getAttribute();
+            isRootDSEFilter = attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) ||
+                                attribute.equals( SchemaConstants.OBJECT_CLASS_AT_OID );
         }
         
         return isBaseIsRoot && isBaseScope && isRootDSEFilter;
     }
 
+    
+    private void handlePersistentSearch( IoSession session, SearchRequest req, ServerLdapContext ctx, 
+        SearchControls controls, PersistentSearchControl psearchControl, 
+        NamingEnumeration<SearchResult> list ) throws NamingException 
+    {
+        // there are no limits for psearch processing
+        controls.setCountLimit( 0 );
+        controls.setTimeLimit( 0 );
+
+        if ( !psearchControl.isChangesOnly() )
+        {
+            list = ctx.search( req.getBase(), req.getFilter(),
+                controls );
+            
+            if ( list instanceof AbandonListener )
+            {
+                req.addAbandonListener( ( AbandonListener ) list );
+            }
+            
+            if ( list.hasMore() )
+            {
+                Iterator<Response> it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(),
+                        session, getSessionRegistry() );
+                
+                while ( it.hasNext() )
+                {
+                    Response resp = it.next();
+                    
+                    if ( resp instanceof SearchResponseDone )
+                    {
+                        // ok if normal search beforehand failed somehow quickly abandon psearch
+                        ResultCodeEnum rcode = ( ( SearchResponseDone ) resp ).getLdapResult().getResultCode();
+
+                        if ( rcode != ResultCodeEnum.SUCCESS )
+                        {
+                            session.write( resp );
+                            return;
+                        }
+                        // if search was fine then we returned all entries so now
+                        // instead of returning the DONE response we break from the
+                        // loop and user the notification listener to send back
+                        // notificationss to the client in never ending search
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        session.write( resp );
+                    }
+                }
+            }
+        }
+
+        // now we process entries for ever as they change
+        PersistentSearchListener handler = new PersistentSearchListener( getSessionRegistry(),
+                ctx, session, req );
+        ctx.addNamingListener( req.getBase(), req.getFilter().toString(), controls, handler );
+        return;
+    }
 
     /**
      * Main message handing method for search requests.
@@ -230,7 +298,7 @@ public class DefaultSearchHandler extends SearchHandler
             }
 
             // ===============================================================
-            // Handle annonymous binds
+            // Handle anonymous binds
             // ===============================================================
 
             boolean allowAnonymousBinds = ldapServer.isAllowAnonymousAccess();
@@ -280,60 +348,7 @@ public class DefaultSearchHandler extends SearchHandler
             
             if ( psearchControl != null )
             {
-                // there are no limits for psearch processing
-                controls.setCountLimit( 0 );
-                controls.setTimeLimit( 0 );
-
-                if ( !psearchControl.isChangesOnly() )
-                {
-                    list = ctx.search( req.getBase(), req.getFilter(),
-                        controls );
-                    
-                    if ( list instanceof AbandonListener )
-                    {
-                        req.addAbandonListener( ( AbandonListener ) list );
-                    }
-                    
-                    if ( list.hasMore() )
-                    {
-                        Iterator<Response> it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(),
-                                session, getSessionRegistry() );
-                        
-                        while ( it.hasNext() )
-                        {
-                            Response resp = it.next();
-                            
-                            if ( resp instanceof SearchResponseDone )
-                            {
-                                // ok if normal search beforehand failed somehow quickly abandon psearch
-                                ResultCodeEnum rcode = ( ( SearchResponseDone ) resp ).getLdapResult().getResultCode();
-
-                                if ( rcode != ResultCodeEnum.SUCCESS )
-                                {
-                                    session.write( resp );
-                                    return;
-                                }
-                                // if search was fine then we returned all entries so now
-                                // instead of returning the DONE response we break from the
-                                // loop and user the notification listener to send back
-                                // notificationss to the client in never ending search
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                session.write( resp );
-                            }
-                        }
-                    }
-                }
-
-                // now we process entries for ever as they change
-                PersistentSearchListener handler = new PersistentSearchListener( getSessionRegistry(),
-                        ctx, session, req );
-                ctx.addNamingListener( req.getBase(), req.getFilter().toString(), controls, handler );
+                handlePersistentSearch( session, req, ctx, controls, psearchControl, list );
                 return;
             }
 
