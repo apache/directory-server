@@ -21,11 +21,12 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
+
+import org.apache.directory.server.core.entry.ServerEntry;
 
 
 /**
- * The master table used to store the Attributes of entries.
+ * The master table used to store the ServerEntry of entries.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -40,36 +41,36 @@ public interface MasterTable extends Table
 
 
     /**
-     * Gets the Attributes of an entry from this MasterTable.
+     * Gets the ServerEntry from this MasterTable.
      *
-     * @param id the BigInteger id of the entry to retrieve.
-     * @return the Attributes of the entry with operational attributes and all.
+     * @param id the Long id of the entry to retrieve.
+     * @return the ServerEntry with operational attributes and all.
      * @throws NamingException if there is a read error on the underlying Db.
      */
-    Attributes get( Object id ) throws NamingException;
+    ServerEntry get( Object id ) throws NamingException;
 
 
     /**
-     * Puts the Attributes of an entry into this master table at an index 
+     * Puts the ServerEntry into this master table at an index 
      * specified by id.  Used both to create new entries and update existing 
      * ones.
      *
-     * @param entry the Attributes of entry w/ operational attributes
-     * @param id the BigInteger id of the entry to put
-     * @return the newly created entry's Attributes
+     * @param entry the ServerEntry w/ operational attributes
+     * @param id the Long id of the entry to put
+     * @return the newly created ServerEntry
      * @throws NamingException if there is a write error on the underlying Db.
      */
-    Attributes put( Attributes entry, Object id ) throws NamingException;
+    ServerEntry put( ServerEntry entry, Object id ) throws NamingException;
 
 
     /**
-     * Deletes a entry from the master table at an index specified by id.
+     * Deletes a ServerEntry from the master table at an index specified by id.
      *
-     * @param id the BigInteger id of the entry to delete
-     * @return the Attributes of the deleted entry
+     * @param id the Long id of the entry to delete
+     * @return the deleted ServerEntry
      * @throws NamingException if there is a write error on the underlying Db
      */
-    Attributes delete( Object id ) throws NamingException;
+    ServerEntry delete( Object id ) throws NamingException;
 
 
     /**
@@ -85,7 +86,7 @@ public interface MasterTable extends Table
 
     /**
      * Get's the next value from this SequenceBDb.  This has the side-effect of
-     * changing the current sequence values perminantly in memory and on disk.
+     * changing the current sequence values permanently in memory and on disk.
      *
      * @return the current value incremented by one.
      * @throws NamingException if the admin table storing sequences cannot be
@@ -95,7 +96,7 @@ public interface MasterTable extends Table
 
 
     /**
-     * Gets a persistant property stored in the admin table of this MasterTable.
+     * Gets a persistent property stored in the admin table of this MasterTable.
      *
      * @param property the key of the property to get the value of
      * @return the value of the property
@@ -105,7 +106,7 @@ public interface MasterTable extends Table
 
 
     /**
-     * Sets a persistant property stored in the admin table of this MasterTable.
+     * Sets a persistent property stored in the admin table of this MasterTable.
      *
      * @param property the key of the property to set the value of
      * @param value the value of the property

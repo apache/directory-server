@@ -68,7 +68,7 @@ public class LeafEvaluator implements Evaluator
     private SubstringEvaluator substringEvaluator;
     /** ScopeNode evaluator we depend on */
     private ScopeEvaluator scopeEvaluator;
-    
+
     /** Constants used for comparisons */
     private static final boolean COMPARE_GREATER = true;
     private static final boolean COMPARE_LESSER = false;
@@ -113,32 +113,32 @@ public class LeafEvaluator implements Evaluator
 
         if ( node instanceof PresenceNode )
         {
-            String attrId = ((PresenceNode)node).getAttribute();
+            String attrId = ( ( PresenceNode ) node ).getAttribute();
             return evalPresence( attrId, entry );
         }
         else if ( ( node instanceof EqualityNode ) || ( node instanceof ApproximateNode ) )
         {
-        	return evalEquality( ( EqualityNode ) node, entry );
+            return evalEquality( ( EqualityNode ) node, entry );
         }
         else if ( node instanceof GreaterEqNode )
         {
-        	return evalGreaterOrLesser( ( GreaterEqNode ) node, entry, COMPARE_GREATER );
+            return evalGreaterOrLesser( ( GreaterEqNode ) node, entry, COMPARE_GREATER );
         }
         else if ( node instanceof LessEqNode )
         {
-        	return evalGreaterOrLesser( ( LessEqNode ) node, entry, COMPARE_LESSER );
+            return evalGreaterOrLesser( ( LessEqNode ) node, entry, COMPARE_LESSER );
         }
         else if ( node instanceof SubstringNode )
         {
-        	return substringEvaluator.evaluate( node, dn, entry );
+            return substringEvaluator.evaluate( node, dn, entry );
         }
         else if ( node instanceof ExtensibleNode )
         {
-        	throw new NotImplementedException();
+            throw new NotImplementedException();
         }
         else
         {
-        	throw new NamingException( "Unrecognized leaf node type: " + node );
+            throw new NamingException( "Unrecognized leaf node type: " + node );
         }
     }
 
@@ -154,7 +154,8 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws javax.naming.NamingException if there is a database access failure
      */
-    private boolean evalGreaterOrLesser( SimpleNode node, ServerEntry entry, boolean isGreaterOrLesser ) throws NamingException
+    private boolean evalGreaterOrLesser( SimpleNode node, ServerEntry entry, boolean isGreaterOrLesser )
+        throws NamingException
     {
         String attrId = node.getAttribute();
 
@@ -182,7 +183,7 @@ public class LeafEvaluator implements Evaluator
          */
         if ( isGreaterOrLesser == COMPARE_GREATER )
         {
-            for ( Value<?> value:attr )
+            for ( Value<?> value : attr )
             {
                 Object normValue = normalizer.normalize( value );
 
@@ -195,7 +196,7 @@ public class LeafEvaluator implements Evaluator
         }
         else
         {
-            for ( Value<?> value:attr )
+            for ( Value<?> value : attr )
             {
                 Object normValue = normalizer.normalize( value );
 
@@ -255,42 +256,33 @@ public class LeafEvaluator implements Evaluator
         }
 
         // check if AVA value exists in attribute
-        if ( node.getValue() instanceof String )
-        {
-            if ( attr.contains( (String)node.getValue() ) )
-            {
-                return true;
-            }
-        }
-        else if ( attr.contains( (byte[])node.getValue() ) )
+        if ( attr.contains( node.getValue() ) )
         {
             return true;
         }
 
         // get the normalized AVA filter value
-        Object filterValue = normalizer.normalize( node.getValue() );
+        Object filterValue = normalizer.normalize( node.getValue().get() );
 
         // check if the normalized value is present
-        if ( filterValue instanceof String)
+        if ( filterValue instanceof String )
         {
-            if ( attr.contains( (String)filterValue ) )
+            if ( attr.contains( ( String ) filterValue ) )
             {
                 return true;
             }
         }
-        else if ( attr.contains( (byte[])filterValue ) )
+        else if ( attr.contains( ( byte[] ) filterValue ) )
         {
             return true;
         }
-
-                
 
         /*
          * We need to now iterate through all values because we could not get
          * a lookup to work.  For each value we normalize and use the comparator
          * to determine if a match exists.
          */
-        for( Value<?> value:attr )
+        for ( Value<?> value : attr )
         {
             Object normValue = normalizer.normalize( value.get() );
 
@@ -351,15 +343,15 @@ public class LeafEvaluator implements Evaluator
             case ( EQUALITY_MATCH ):
                 mrule = type.getEquality();
                 break;
-                
+
             case ( SUBSTRING_MATCH ):
                 mrule = type.getSubstr();
                 break;
-                
+
             case ( ORDERING_MATCH ):
                 mrule = type.getOrdering();
                 break;
-                
+
             default:
                 throw new NamingException( "Unknown match type: " + matchType );
         }

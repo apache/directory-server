@@ -158,11 +158,11 @@
         <version>1.2.14</version>
       </dependency>
 
-      <dependency>
+      <!--dependency>
         <groupId>jdbm</groupId>
         <artifactId>jdbm</artifactId>
         <version>1.0</version>
-      </dependency>
+      </dependency-->
 
       <dependency>
         <groupId>org.apache.velocity</groupId>
@@ -332,6 +332,7 @@
   </dependencies>
 
   <modules>
+    <module>apacheds-jdbm</module>
     <module>bootstrap-extract</module>
     <module>bootstrap-partition</module>
     <module>bootstrap-plugin</module>

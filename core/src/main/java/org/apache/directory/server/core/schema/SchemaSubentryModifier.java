@@ -148,8 +148,8 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         Schema schema = dao.getSchema( obj.getSchema() );
         LdapDN dn = getDn( obj );
-        Attributes attrs = factory.getAttributes( obj, schema );
-        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, registries );
+        ServerEntry entry = factory.getAttributes( obj, schema, registries );
+        entry.setDn( dn );
 
         proxy.add( new AddOperationContext( registries, dn, entry, true ), BYPASS );
     }

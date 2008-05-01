@@ -41,17 +41,14 @@ public class SocketAcceptor extends org.apache.mina.transport.socket.nio.SocketA
 
     public SocketAcceptor( Executor logicExecutor )
     {
-        super( Runtime.getRuntime().availableProcessors(), getIOExecutor());
+        super( Runtime.getRuntime().availableProcessors(), Executors.newCachedThreadPool());
+        
         if ( logicExecutor == null )
         {
             logicExecutor = Executors.newFixedThreadPool( DEFAULT_THREADS );
         }
+        
         getFilterChain().addLast( "executor", new ExecutorFilter( logicExecutor ) );
-    }
-
-    private static Executor getIOExecutor()
-    {
-        return Executors.newCachedThreadPool();
     }
 
     public void bind( SocketAddress address, IoHandler ioHandler, IoServiceConfig tcpConfig ) throws IOException
@@ -64,6 +61,4 @@ public class SocketAcceptor extends org.apache.mina.transport.socket.nio.SocketA
     {
         super.unbind(address);
     }
-
-
 }

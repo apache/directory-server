@@ -48,8 +48,9 @@
     </dependency>
 
     <dependency>
-      <groupId>jdbm</groupId>
-      <artifactId>jdbm</artifactId>
+      <groupId>${pom.groupId}</groupId>
+      <version>${pom.version}</version>
+      <artifactId>apacheds-jdbm</artifactId>
     </dependency>
 
     <dependency>

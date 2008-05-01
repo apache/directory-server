@@ -29,6 +29,7 @@ import org.apache.directory.server.core.partition.impl.btree.IndexComparator;
 import org.apache.directory.server.core.partition.impl.btree.IndexEnumeration;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
@@ -61,7 +62,6 @@ public class JdbmIndex implements Index
     public static final String FORWARD_BTREE = "_forward";
     /**  the key used for the reverse btree name */
     public static final String REVERSE_BTREE = "_reverse";
-
 
     /** the attribute type resolved for this JdbmIndex */
     private AttributeType attribute;
@@ -122,11 +122,9 @@ public class JdbmIndex implements Index
      * instead with indirection.
      */
 
-
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-
 
     public JdbmIndex()
     {
@@ -145,13 +143,12 @@ public class JdbmIndex implements Index
     {
         this.keyCache = new SynchronizedLRUMap( cacheSize );
         this.attribute = attributeType;
-        if ( this.wkDirPath ==  null )
+        if ( this.wkDirPath == null )
         {
             this.wkDirPath = wkDirPath;
         }
 
         File file = new File( this.wkDirPath.getPath() + File.separator + attribute.getName() );
-
 
         try
         {
@@ -188,14 +185,9 @@ public class JdbmIndex implements Index
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        forward = new JdbmTable( 
-            attribute.getName() + FORWARD_BTREE, 
-            true,
-            numDupLimit,
-            recMan, 
-            new IndexComparator( comp, true ),
-            null, null );
-            //LongSerializer.INSTANCE );
+        forward = new JdbmTable( attribute.getName() + FORWARD_BTREE, true, numDupLimit, recMan, new IndexComparator(
+            comp, true ), null, null );
+        //LongSerializer.INSTANCE );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -203,14 +195,9 @@ public class JdbmIndex implements Index
          * is single valued according to its specification based on a schema 
          * then duplicate keys should not be allowed within the reverse table.
          */
-        reverse = new JdbmTable( 
-            attribute.getName() + REVERSE_BTREE, 
-            !attribute.isSingleValue(),
-            numDupLimit,
-            recMan,
-            new IndexComparator( comp, false ),
-            null, //LongSerializer.INSTANCE,
-            null);
+        reverse = new JdbmTable( attribute.getName() + REVERSE_BTREE, !attribute.isSingleValue(), numDupLimit, recMan,
+            new IndexComparator( comp, false ), null, //LongSerializer.INSTANCE,
+            null );
     }
 
 
@@ -227,7 +214,6 @@ public class JdbmIndex implements Index
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
 
-
     /**
      * Protects configuration properties from being set after initialization.
      *
@@ -238,7 +224,7 @@ public class JdbmIndex implements Index
         if ( initialized )
         {
             throw new IllegalStateException( "The " + property
-                    + " property for an index cannot be set after it has been initialized." );
+                + " property for an index cannot be set after it has been initialized." );
         }
     }
 
@@ -345,7 +331,6 @@ public class JdbmIndex implements Index
     // Scan Count Methods
     // ------------------------------------------------------------------------
 
-
     /**
      * @see Index#count()
      */
@@ -377,7 +362,6 @@ public class JdbmIndex implements Index
     // Forward and Reverse Lookups
     // ------------------------------------------------------------------------
 
-
     /**
      * @see Index#forwardLookup(java.lang.Object)
      */
@@ -399,7 +383,6 @@ public class JdbmIndex implements Index
     // ------------------------------------------------------------------------
     // Add/Drop Methods
     // ------------------------------------------------------------------------
-
 
     /**
      * @see Index#add(Object,Object)
@@ -503,7 +486,6 @@ public class JdbmIndex implements Index
     // Index Listing Operations
     // ------------------------------------------------------------------------
 
-
     /**
      * @see Index#listReverseIndices(Object)
      */
@@ -562,7 +544,6 @@ public class JdbmIndex implements Index
     // Value Assertion (a.k.a Index Lookup) Methods //
     // ------------------------------------------------------------------------
 
-    
     /**
      * @see Index#hasValue(java.lang.Object,
      * Object)
@@ -599,7 +580,6 @@ public class JdbmIndex implements Index
     // Maintenance Methods 
     // ------------------------------------------------------------------------
 
-    
     /**
      * @see Index#close()
      */
@@ -651,12 +631,19 @@ public class JdbmIndex implements Index
         {
             return attrVal;
         }
-        
+
         Object normalized = keyCache.get( attrVal );
 
         if ( null == normalized )
         {
-            normalized = attribute.getEquality().getNormalizer().normalize( attrVal );
+            if ( attrVal instanceof Value<?> )
+            {
+                normalized = attribute.getEquality().getNormalizer().normalize( ( ( Value<?> ) attrVal ).get() );
+            }
+            else
+            {
+                normalized = attribute.getEquality().getNormalizer().normalize( attrVal );
+            }
 
             // Double map it so if we use an already normalized
             // value we can get back the same normalized value.

@@ -24,6 +24,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
+
 /**
  * A Add context used for Interceptors. It contains all the informations
  * needed for the add operation, and used by all the interceptors
@@ -35,14 +36,14 @@ public class AddOperationContext extends AbstractOperationContext
 {
     /** The added entry  */
     private ServerEntry entry;
-    
+
 
     /**
      * Creates a new instance of AddOperationContext.
      */
     public AddOperationContext( Registries registries )
     {
-    	super( registries );
+        super( registries );
     }
 
 
@@ -58,9 +59,9 @@ public class AddOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of ModifyOperationContext.
      */
-    public AddOperationContext( Registries registries, LdapDN dn, ServerEntry entry )
+    public AddOperationContext( Registries registries, ServerEntry entry )
     {
-    	super( registries, dn );
+        super( registries, entry.getDn() );
         this.entry = entry;
     }
 
@@ -72,7 +73,7 @@ public class AddOperationContext extends AbstractOperationContext
      */
     public AddOperationContext( Registries registries, boolean collateralOperation )
     {
-    	super( registries, collateralOperation );
+        super( registries, collateralOperation );
     }
 
 
@@ -97,34 +98,35 @@ public class AddOperationContext extends AbstractOperationContext
      */
     public AddOperationContext( Registries registries, LdapDN dn, ServerEntry entry, boolean collateralOperation )
     {
-    	super( registries, dn, collateralOperation );
+        super( registries, dn, collateralOperation );
         this.entry = entry;
     }
 
 
     /**
-	 * @return The added attributes
-	 */
-	public ServerEntry getEntry() 
-	{
-		return entry;
-	}
+     * @return The added attributes
+     */
+    public ServerEntry getEntry()
+    {
+        return entry;
+    }
 
-	/**
-	 * Set the added attributes
-	 * @param entry The added attributes
-	 */
-	public void setEntry( ServerEntry entry ) 
-	{
-		this.entry = entry;
-	}
 
-	/**
+    /**
+     * Set the added attributes
+     * @param entry The added attributes
+     */
+    public void setEntry( ServerEntry entry )
+    {
+        this.entry = entry;
+    }
+
+
+    /**
      * @see Object#toString()
      */
     public String toString()
     {
-        return "AddContext for DN '" + getDn().getUpName() + "'" +
-        ", added entry: " + entry; 
+        return "AddContext for DN '" + getDn().getUpName() + "'" + ", added entry: " + entry;
     }
 }

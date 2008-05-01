@@ -108,7 +108,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
                 if ( partition instanceof BTreePartition )
                 {
                     BTreePartition btPartition = ( BTreePartition ) partition;
-                    PartitionFrame frame = new PartitionFrame( btPartition );
+                    PartitionFrame frame = new PartitionFrame( btPartition, service.getRegistries() );
                     Point pos = getCenteredPosition( frame );
                     pos.y = launchedWindowCount * 20 + pos.y;
                     double multiplier = getAspectRatio() * 20.0;

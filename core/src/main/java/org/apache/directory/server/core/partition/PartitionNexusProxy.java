@@ -31,7 +31,6 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ServiceUnavailableException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamingListener;
@@ -222,12 +221,6 @@ public class PartitionNexusProxy extends PartitionNexus
 
 
     public ServerEntry getContextEntry()
-    {
-        throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
-    }
-
-
-    public Attributes getContextEntryAttr()
     {
         throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
     }

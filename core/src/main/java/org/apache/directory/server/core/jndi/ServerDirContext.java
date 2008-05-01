@@ -29,6 +29,8 @@ import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -88,7 +90,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @param env the environment used for this context
      * @throws NamingException if something goes wrong
      */
-    public ServerDirContext(DirectoryService service, Hashtable<String, Object> env) throws NamingException
+    public ServerDirContext( DirectoryService service, Hashtable<String, Object> env ) throws NamingException
     {
         super( service, env );
     }
@@ -158,6 +160,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         modifyAttributes( new LdapDN( name ), modOp, AttributeUtils.toCaseInsensitive( attrs ) );
     }
 
+
     /**
      * @see javax.naming.directory.DirContext#modifyAttributes(java.lang.String,
      *      int, javax.naming.directory.Attributes)
@@ -165,29 +168,31 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public void modifyAttributes( Name name, int modOp, Attributes attrs ) throws NamingException
     {
         List<ModificationItemImpl> modItems = null;
-        
+
         if ( attrs != null )
         {
             modItems = new ArrayList<ModificationItemImpl>( attrs.size() );
-            NamingEnumeration<? extends Attribute> e = (NamingEnumeration<? extends Attribute>)attrs.getAll();
-            
+            NamingEnumeration<? extends Attribute> e = ( NamingEnumeration<? extends Attribute> ) attrs.getAll();
+
             while ( e.hasMore() )
             {
                 modItems.add( new ModificationItemImpl( modOp, e.next() ) );
             }
         }
 
-        List<Modification> newMods = ServerEntryUtils.toServerModification( modItems, registries.getAttributeTypeRegistry() );
+        List<Modification> newMods = ServerEntryUtils.toServerModification( modItems, registries
+            .getAttributeTypeRegistry() );
 
-    	if ( name instanceof LdapDN )
-    	{
+        if ( name instanceof LdapDN )
+        {
             doModifyOperation( buildTarget( name ), newMods );
-    	}
-    	else
-    	{
+        }
+        else
+        {
             doModifyOperation( buildTarget( new LdapDN( name ) ), newMods );
-    	}
+        }
     }
+
 
     /**
      * @see javax.naming.directory.DirContext#modifyAttributes(java.lang.String,
@@ -195,13 +200,13 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( String name, ModificationItem[] mods ) throws NamingException
     {
-        ModificationItemImpl[] newMods = new ModificationItemImpl[ mods.length ];
-        
+        ModificationItemImpl[] newMods = new ModificationItemImpl[mods.length];
+
         for ( int i = 0; i < mods.length; i++ )
         {
             newMods[i] = new ModificationItemImpl( mods[i] );
         }
-        
+
         modifyAttributes( new LdapDN( name ), newMods );
     }
 
@@ -222,7 +227,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( Name name, ModificationItem[] mods ) throws NamingException
     {
-        List<Modification> newMods = ServerEntryUtils.toServerModification( mods, registries.getAttributeTypeRegistry() );
+        List<Modification> newMods = ServerEntryUtils
+            .toServerModification( mods, registries.getAttributeTypeRegistry() );
         doModifyOperation( buildTarget( new LdapDN( name ) ), newMods );
     }
 
@@ -233,7 +239,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( Name name, List<ModificationItemImpl> mods ) throws NamingException
     {
-        List<Modification> newMods = ServerEntryUtils.toServerModification( mods, registries.getAttributeTypeRegistry() );
+        List<Modification> newMods = ServerEntryUtils
+            .toServerModification( mods, registries.getAttributeTypeRegistry() );
         doModifyOperation( buildTarget( new LdapDN( name ) ), newMods );
     }
 
@@ -269,12 +276,13 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         LdapDN target = buildTarget( name );
 
-        ServerEntry serverEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( attrs ), target, registries );
-        
+        ServerEntry serverEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( attrs ), target,
+            registries );
+
         // No object binding so we just add the attributes
         if ( null == obj )
         {
-        	ServerEntry clone = ( ServerEntry ) serverEntry.clone();
+            ServerEntry clone = ( ServerEntry ) serverEntry.clone();
             doAddOperation( target, clone );
             return;
         }
@@ -285,14 +293,14 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         if ( outServerEntry != serverEntry )
         {
-        	ServerEntry clone = ( ServerEntry ) serverEntry.clone();
+            ServerEntry clone = ( ServerEntry ) serverEntry.clone();
 
-        	if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
+            if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-        		for ( EntryAttribute attribute:outServerEntry )
-        		{
-        			clone.put( attribute );
-        		}
+                for ( EntryAttribute attribute : outServerEntry )
+                {
+                    clone.put( attribute );
+                }
             }
 
             doAddOperation( target, clone );
@@ -315,15 +323,15 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         {
             // Serialize and add outAttrs
             ServerEntry clone = ( ServerEntry ) serverEntry.clone();
-            
+
             if ( outServerEntry != null && outServerEntry.size() > 0 )
             {
-        		for ( EntryAttribute attribute:outServerEntry )
-        		{
-        			clone.put( attribute );
-        		}
+                for ( EntryAttribute attribute : outServerEntry )
+                {
+                    clone.put( attribute );
+                }
             }
-            
+
             // Serialize object into entry attributes and add it.
             JavaLdapSupport.serialize( serverEntry, obj, registries );
             doAddOperation( target, clone );
@@ -331,16 +339,17 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         else if ( obj instanceof DirContext )
         {
             // Grab attributes and merge with outAttrs
-            ServerEntry entry = ServerEntryUtils.toServerEntry( ( ( DirContext ) obj ).getAttributes( "" ), target, registries );
-            
+            ServerEntry entry = ServerEntryUtils.toServerEntry( ( ( DirContext ) obj ).getAttributes( "" ), target,
+                registries );
+
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-        		for ( EntryAttribute attribute:outServerEntry )
-        		{
-        			entry.put( attribute );
-        		}
+                for ( EntryAttribute attribute : outServerEntry )
+                {
+                    entry.put( attribute );
+                }
             }
-            
+
             doAddOperation( target, entry );
         }
         else
@@ -367,12 +376,12 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public void rebind( Name name, Object obj, Attributes attrs ) throws NamingException
     {
         LdapDN target = buildTarget( name );
-        
+
         if ( getNexusProxy().hasEntry( new EntryOperationContext( registries, target ) ) )
         {
             doDeleteOperation( target );
         }
-        
+
         bind( name, obj, AttributeUtils.toCaseInsensitive( attrs ) );
     }
 
@@ -400,22 +409,22 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         LdapDN target = buildTarget( name );
         Rdn rdn = target.getRdn( target.size() - 1 );
-        
-        attrs = AttributeUtils.toCaseInsensitive( attrs );        
+
+        attrs = AttributeUtils.toCaseInsensitive( attrs );
         Attributes attributes = ( Attributes ) attrs.clone();
-        
+
         if ( rdn.size() == 1 )
         {
             String rdnAttribute = rdn.getUpType();
-            String rdnValue = (String)rdn.getValue();
+            String rdnValue = ( String ) rdn.getValue();
 
             // Add the Rdn attribute
             boolean doRdnPut = attributes.get( rdnAttribute ) == null;
             doRdnPut = doRdnPut || attributes.get( rdnAttribute ).size() == 0;
-            
+
             // TODO Fix DIRSERVER-832
             doRdnPut = doRdnPut || !attributes.get( rdnAttribute ).contains( rdnValue );
-    
+
             if ( doRdnPut )
             {
                 attributes.put( rdnAttribute, rdnValue );
@@ -423,17 +432,17 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
         else
         {
-            for ( Iterator<AttributeTypeAndValue> ii = rdn.iterator(); ii.hasNext(); /**/ )
+            for ( Iterator<AttributeTypeAndValue> ii = rdn.iterator(); ii.hasNext(); /**/)
             {
                 AttributeTypeAndValue atav = ii.next();
 
                 // Add the Rdn attribute
                 boolean doRdnPut = attributes.get( atav.getNormType() ) == null;
                 doRdnPut = doRdnPut || attributes.get( atav.getNormType() ).size() == 0;
-                
+
                 // TODO Fix DIRSERVER-832
                 doRdnPut = doRdnPut || !attributes.get( atav.getNormType() ).contains( atav.getNormValue() );
-        
+
                 if ( doRdnPut )
                 {
                     attributes.put( atav.getNormType(), atav.getNormValue() );
@@ -513,8 +522,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @see javax.naming.directory.DirContext#search(java.lang.String,
      *      javax.naming.directory.Attributes, java.lang.String[])
      */
-    public NamingEnumeration<SearchResult> search( String name, Attributes matchingAttributes, String[] attributesToReturn )
-        throws NamingException
+    public NamingEnumeration<SearchResult> search( String name, Attributes matchingAttributes,
+        String[] attributesToReturn ) throws NamingException
     {
         return search( new LdapDN( name ), AttributeUtils.toCaseInsensitive( matchingAttributes ), attributesToReturn );
     }
@@ -538,7 +547,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         // If matchingAttributes is null/empty use a match for everything filter
         matchingAttributes = AttributeUtils.toCaseInsensitive( matchingAttributes );
-        
+
         if ( ( null == matchingAttributes ) || ( matchingAttributes.size() <= 0 ) )
         {
             PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
@@ -552,26 +561,26 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             NamingEnumeration<? extends Attribute> list = matchingAttributes.getAll();
             Attribute attr = list.next();
             list.close();
-            
+
             if ( attr.size() == 1 )
             {
                 Object value = attr.get();
                 SimpleNode node;
-                
+
                 if ( value instanceof byte[] )
                 {
-                    node = new EqualityNode( attr.getID(), ( byte [] ) value );
+                    node = new EqualityNode( attr.getID(), new ClientBinaryValue( ( byte[] ) value ) );
                 }
-                else 
+                else
                 {
-                    node = new EqualityNode( attr.getID(), ( String ) value );
+                    node = new EqualityNode( attr.getID(), new ClientStringValue( ( String ) value ) );
                 }
 
                 AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
                 return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, node, ctls ) );
             }
         }
-        
+
         /*
          * Go through the set of attributes using each attribute value pair as 
          * an attribute value assertion within one big AND filter expression.
@@ -608,7 +617,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 // Add simpel AVA node if its value is a String 
                 if ( val instanceof String )
                 {
-                    node = new EqualityNode( attr.getID(), ( String ) val );
+                    node = new EqualityNode( attr.getID(), new ClientStringValue( ( String ) val ) );
                     filter.addNode( node );
                 }
             }
@@ -623,7 +632,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @see javax.naming.directory.DirContext#search(java.lang.String,
      *      java.lang.String, javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration<SearchResult> search( String name, String filter, SearchControls cons ) throws NamingException
+    public NamingEnumeration<SearchResult> search( String name, String filter, SearchControls cons )
+        throws NamingException
     {
         return search( new LdapDN( name ), filter, cons );
     }
@@ -640,7 +650,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @return an enumeration over the SearchResults
      * @throws NamingException if there are problems performing the search
      */
-    public NamingEnumeration<SearchResult> search( Name name, ExprNode filter, SearchControls cons ) throws NamingException
+    public NamingEnumeration<SearchResult> search( Name name, ExprNode filter, SearchControls cons )
+        throws NamingException
     {
         LdapDN target = buildTarget( name );
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
@@ -652,7 +663,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @see javax.naming.directory.DirContext#search(javax.naming.Name,
      *      java.lang.String, javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration<SearchResult> search( Name name, String filter, SearchControls cons ) throws NamingException
+    public NamingEnumeration<SearchResult> search( Name name, String filter, SearchControls cons )
+        throws NamingException
     {
         ExprNode filterNode;
         LdapDN target = buildTarget( name );
@@ -679,8 +691,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      *      java.lang.String, java.lang.Object[],
      *      javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration<SearchResult> search( String name, String filterExpr, Object[] filterArgs, SearchControls cons )
-        throws NamingException
+    public NamingEnumeration<SearchResult> search( String name, String filterExpr, Object[] filterArgs,
+        SearchControls cons ) throws NamingException
     {
         return search( new LdapDN( name ), filterExpr, filterArgs, cons );
     }
@@ -691,8 +703,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      *      java.lang.String, java.lang.Object[],
      *      javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration<SearchResult> search( Name name, String filterExpr, Object[] filterArgs, SearchControls cons )
-        throws NamingException
+    public NamingEnumeration<SearchResult> search( Name name, String filterExpr, Object[] filterArgs,
+        SearchControls cons ) throws NamingException
     {
         int start;
         int index;
@@ -753,6 +765,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         return search( name, buf.toString(), cons );
     }
+
 
     // ------------------------------------------------------------------------
     // EventDirContext implementations

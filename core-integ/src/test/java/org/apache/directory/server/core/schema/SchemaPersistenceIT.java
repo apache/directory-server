@@ -58,13 +58,11 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
+@RunWith(CiRunner.class)
 public class SchemaPersistenceIT
 {
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
-    private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER =
-        new AttributeTypeDescriptionSchemaParser();
-
+    private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER = new AttributeTypeDescriptionSchemaParser();
 
     public static DirectoryService service;
 
@@ -78,48 +76,52 @@ public class SchemaPersistenceIT
     @Test
     public void testAddAttributeTypePersistence() throws Exception
     {
-        enableSchema( "nis" );
-        List<String> descriptions = new ArrayList<String>();
+        try
+        {
+            enableSchema( "nis" );
+            List<String> descriptions = new ArrayList<String>();
 
-        // -------------------------------------------------------------------
-        // test successful add with everything
-        // -------------------------------------------------------------------
+            // -------------------------------------------------------------------
+            // test successful add with everything
+            // -------------------------------------------------------------------
 
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " +
-                "OBSOLETE SUP 2.5.4.41 " +
-                "EQUALITY caseExactIA5Match " +
-                "ORDERING octetStringOrderingMatch " +
-                "SUBSTR caseExactIA5SubstringsMatch COLLECTIVE " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
-                "SINGLE-VALUE USAGE userApplications X-SCHEMA 'nis' )" );
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) " +
-                "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 " +
-                "NO-USER-MODIFICATION USAGE directoryOperation X-SCHEMA 'nis' )" );
-        
-        modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
-        
-        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
-        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+            descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " + "OBSOLETE SUP 2.5.4.41 "
+                + "EQUALITY caseExactIA5Match " + "ORDERING octetStringOrderingMatch "
+                + "SUBSTR caseExactIA5SubstringsMatch COLLECTIVE " + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 "
+                + "SINGLE-VALUE USAGE userApplications X-SCHEMA 'nis' )" );
+            descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) "
+                + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 "
+                + "NO-USER-MODIFICATION USAGE directoryOperation X-SCHEMA 'nis' )" );
 
-        // sync operation happens anyway on shutdowns but just to make sure we can do it again
-        service.sync();
-        
-        service.shutdown();
-        service.startup();
-        
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "metaSchema" );
-        attrs.put( "cn", "blah" );
-        getSchemaContext( service ).createSubcontext( "cn=blah", attrs );
-        
-        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
-        checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+            modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
+
+            checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
+            checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+
+            // sync operation happens anyway on shutdowns but just to make sure we can do it again
+            service.sync();
+
+            service.shutdown();
+            service.startup();
+
+            AttributesImpl attrs = new AttributesImpl( "objectClass", "metaSchema" );
+            attrs.put( "cn", "blah" );
+            getSchemaContext( service ).createSubcontext( "cn=blah", attrs );
+
+            checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
+            checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            throw e;
+        }
     }
-    
+
 
     // -----------------------------------------------------------------------
     // Private Utility Methods 
     // -----------------------------------------------------------------------
-    
 
     private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
     {
@@ -129,14 +131,14 @@ public class SchemaPersistenceIT
         {
             attr.add( description );
         }
-        
+
         Attributes mods = new AttributesImpl();
         mods.put( attr );
-        
+
         getRootContext( service ).modifyAttributes( dn, op, mods );
     }
-    
-    
+
+
     private void enableSchema( String schemaName ) throws NamingException
     {
         // now enable the test schema
@@ -145,8 +147,8 @@ public class SchemaPersistenceIT
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( "cn=" + schemaName, mods );
     }
-    
-    
+
+
     /**
      * Get's the subschemaSubentry attribute value from the rootDSE.
      * 
@@ -157,8 +159,9 @@ public class SchemaPersistenceIT
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ SUBSCHEMA_SUBENTRY } );
-        
+        controls.setReturningAttributes( new String[]
+            { SUBSCHEMA_SUBENTRY } );
+
         NamingEnumeration<SearchResult> results = getRootContext( service ).search( "", "(objectClass=*)", controls );
         SearchResult result = results.next();
         results.close();
@@ -166,7 +169,7 @@ public class SchemaPersistenceIT
         return ( String ) subschemaSubentry.get();
     }
 
-    
+
     /**
      * Gets the subschemaSubentry attributes for the global schema.
      * 
@@ -177,8 +180,9 @@ public class SchemaPersistenceIT
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ "+", "*" } );
-        
+        controls.setReturningAttributes( new String[]
+            { "+", "*" } );
+
         NamingEnumeration<SearchResult> results = getRootContext( service ).search( getSubschemaSubentryDN(),
             "(objectClass=*)", controls );
         SearchResult result = results.next();
@@ -192,20 +196,21 @@ public class SchemaPersistenceIT
         // -------------------------------------------------------------------
         // check first to see if it is present in the subschemaSubentry
         // -------------------------------------------------------------------
-        
+
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeTypeDescription attributeTypeDescription = null; 
+        AttributeTypeDescription attributeTypeDescription = null;
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
             if ( desc.indexOf( oid ) != -1 )
             {
-                attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
+                attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER
+                    .parseAttributeTypeDescription( desc );
                 break;
             }
         }
-     
+
         if ( isPresent )
         {
             assertNotNull( attributeTypeDescription );
@@ -219,9 +224,9 @@ public class SchemaPersistenceIT
         // -------------------------------------------------------------------
         // check next to see if it is present in the schema partition
         // -------------------------------------------------------------------
-        
+
         attrs = null;
-        
+
         if ( isPresent )
         {
             attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
@@ -232,21 +237,22 @@ public class SchemaPersistenceIT
             //noinspection EmptyCatchBlock
             try
             {
-                attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+                attrs = getSchemaContext( service ).getAttributes(
+                    "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
                 fail( "should never get here" );
             }
-            catch( NamingException e )
+            catch ( NamingException e )
             {
             }
             assertNull( attrs );
         }
-        
+
         // -------------------------------------------------------------------
         // check to see if it is present in the attributeTypeRegistry
         // -------------------------------------------------------------------
-        
-        if ( isPresent ) 
-        { 
+
+        if ( isPresent )
+        {
             assertTrue( service.getRegistries().getAttributeTypeRegistry().hasAttributeType( oid ) );
         }
         else

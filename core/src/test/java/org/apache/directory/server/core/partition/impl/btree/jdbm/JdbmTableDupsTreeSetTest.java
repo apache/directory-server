@@ -626,16 +626,6 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
     }
     
     
-//    private void printTuples( NamingEnumeration tuples ) throws NamingException
-//    {
-//        while ( tuples.hasMore() )
-//        {
-//            Tuple tuple = ( Tuple ) tuples.next();
-//            System.out.println( "(" + tuple.getKey() + ", " + tuple.getValue() + ")" );
-//        }
-//    }
-    
-    
     class ArrayNE extends ArrayEnumeration implements NamingEnumeration
     {
         public ArrayNE( Object[] array )

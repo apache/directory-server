@@ -19,11 +19,7 @@
  */
 package org.apache.directory.server.core.entry;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -114,15 +110,9 @@ public class ServerEntrySerializerTest
 
         ServerEntrySerializer ses = new ServerEntrySerializer( registries );
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
-
-        ses.serialize( entry, out );
+        byte[] data = ses.serialize( entry );
         
-        byte[] data = baos.toByteArray();
-        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-        
-        ServerEntry result = ses.deserialize( in );
+        ServerEntry result = (ServerEntry)ses.deserialize( data );
         
         assertEquals( entry, result );
     }
@@ -136,15 +126,9 @@ public class ServerEntrySerializerTest
 
         ServerEntrySerializer ses = new ServerEntrySerializer( registries );
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
-
-        ses.serialize( entry, out );
+        byte[] data = ses.serialize( entry );
         
-        byte[] data = baos.toByteArray();
-        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-        
-        ServerEntry result = ses.deserialize( in );
+        ServerEntry result = (ServerEntry)ses.deserialize( data );
         
         assertEquals( entry, result );
     }
@@ -159,16 +143,10 @@ public class ServerEntrySerializerTest
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( registries );
-        
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        ses.serialize( entry, out );
+        byte[] data = ses.serialize( entry );
         
-        byte[] data = baos.toByteArray();
-        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-        
-        ServerEntry result = ses.deserialize( in );
+        ServerEntry result = (ServerEntry)ses.deserialize( data );
         
         assertEquals( entry, result );
     }
@@ -187,15 +165,9 @@ public class ServerEntrySerializerTest
 
         ServerEntrySerializer ses = new ServerEntrySerializer( registries );
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
-
-        ses.serialize( entry, out );
+        byte[] data = ses.serialize( entry );
         
-        byte[] data = baos.toByteArray();
-        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-        
-        ServerEntry result = ses.deserialize( in );
+        ServerEntry result = (ServerEntry)ses.deserialize( data );
         
         assertEquals( entry, result );
     }

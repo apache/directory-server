@@ -120,7 +120,7 @@ public class ServerBinaryValueTest
             new ServerBinaryValue( null );
             fail();
         }
-        catch ( AssertionError ae )
+        catch ( IllegalArgumentException iae )
         {
             // Expected...
         }
@@ -133,7 +133,7 @@ public class ServerBinaryValueTest
             new ServerBinaryValue( at );
             fail();
         }
-        catch ( AssertionError ae )
+        catch ( IllegalArgumentException ae )
         {
             // Expected...
         }

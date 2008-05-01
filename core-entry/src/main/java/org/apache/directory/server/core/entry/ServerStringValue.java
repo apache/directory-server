@@ -109,10 +109,18 @@ public class ServerStringValue extends ClientStringValue
     public ServerStringValue( AttributeType attributeType )
     {
         super();
-        assert checkAttributeType( attributeType ) == null : logAssert( checkAttributeType( attributeType ) );
+        if ( attributeType == null )
+        {
+            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+        }
 
         try
         {
+            if ( attributeType.getSyntax() == null )
+            {
+                throw new IllegalArgumentException( "There is no Syntax associated with this attributeType" );
+            }
+
             if ( ! attributeType.getSyntax().isHumanReadable() )
             {
                 LOG.warn( "Treating a value of a binary attribute {} as a String: " +

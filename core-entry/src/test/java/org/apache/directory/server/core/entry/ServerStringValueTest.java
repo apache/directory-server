@@ -254,7 +254,7 @@ public class ServerStringValueTest
             new ServerStringValue( null );
             fail();
         }
-        catch ( AssertionError ae )
+        catch ( IllegalArgumentException iae )
         {
             // Expected...
         }
@@ -267,7 +267,7 @@ public class ServerStringValueTest
             new ServerStringValue( at );
             fail();
         }
-        catch ( AssertionError ae )
+        catch ( IllegalArgumentException iae )
         {
             // Expected...
         }

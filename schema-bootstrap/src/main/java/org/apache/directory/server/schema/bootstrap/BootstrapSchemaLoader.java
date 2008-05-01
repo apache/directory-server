@@ -137,9 +137,9 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
         HashMap<String,Schema> loaded = new HashMap<String,Schema>();
         HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();
 
-        for ( int ii = 0; ii < schemas.length; ii++ )
+        for ( BootstrapSchema schema:schemas )
         {
-            notLoaded.put( schemas[ii].getSchemaName(), schemas[ii] );
+            notLoaded.put( schema.getSchemaName(), schema );
         }
 
         BootstrapSchema schema;

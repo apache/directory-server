@@ -26,7 +26,6 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -88,7 +87,6 @@ import javax.naming.ConfigurationException;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
 import java.io.IOException;
@@ -245,17 +243,6 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * Returns root the rootDSE.
-     *
-     * @return the root entry for the DSA
-     */
-    public Attributes getContextEntryAttr()
-    {
-        return null;
-    }
-
-
-    /**
      * Sets root entry for this BTreePartition.
      *
      * @throws UnsupportedOperationException everytime
@@ -385,10 +372,21 @@ public class DefaultPartitionNexus extends PartitionNexus
             }
             else
             {
-                objectClassAttr.add( 
-                    SchemaConstants.TOP_OC,
-                    SchemaConstants.ORGANIZATIONAL_UNIT_OC,
-                    SchemaConstants.EXTENSIBLE_OBJECT_OC );
+            	// Feed the contextEntry with the mandatory ObjectClass values, if they are missing.
+            	if ( !objectClassAttr.contains( SchemaConstants.TOP_OC ) )
+            	{
+            		objectClassAttr.add( SchemaConstants.TOP_OC );
+            	}
+            	
+            	if ( !objectClassAttr.contains( SchemaConstants.ORGANIZATIONAL_UNIT_OC ) )
+            	{
+            		objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+            	}
+
+            	if ( !objectClassAttr.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
+            	{
+            		objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
+            	}
             }
             
             systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
@@ -650,14 +648,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         if ( ! partition.isInitialized() )
         {
-            if ( partition.getContextEntry() != null )
-            {
-                partition.setContextEntry( partition.getContextEntry() );
-            }
-            else
-            {
-                partition.setContextEntry( ServerEntryUtils.toServerEntry( partition.getContextEntryAttr(), new LdapDN( partition.getSuffix() ) , registries ) );
-            }
+            partition.setContextEntry( partition.getContextEntry() );
             
             partition.init( directoryService );
         }

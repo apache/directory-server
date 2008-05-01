@@ -26,7 +26,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.naming.directory.Attributes;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -40,8 +39,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +73,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
     private JButton m_cancelBut = new JButton();
     private JPopupMenu m_popup;
 
-    private Attributes m_childEntry = new AttributesImpl();
+    private ServerEntry childEntry = null;
 
 
     /**
@@ -81,10 +82,11 @@ public class AddEntryDialog extends JDialog implements ActionListener
      * @param parent the parent frame
      * @param modal whether or not to go modal on the dialog
      */
-    public AddEntryDialog(Frame parent, boolean modal)
+    public AddEntryDialog(Frame parent, boolean modal, Registries registries )
     {
         super( parent, modal );
-        m_childEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
+        childEntry = new DefaultServerEntry( registries );
+        childEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         initGUI();
     }
 
@@ -168,7 +170,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
             javax.swing.border.TitledBorder.LEADING, javax.swing.border.TitledBorder.TOP, new java.awt.Font(
                 "SansSerif", 0, 14 ), new java.awt.Color( 60, 60, 60 ) ) );
 
-        m_attrTbl.setModel( new AttributesTableModel( m_childEntry, null, null, true ) );
+        m_attrTbl.setModel( new AttributesTableModel( childEntry, null, null, true ) );
 
         //
         // Build the table's popup menu
@@ -279,9 +281,9 @@ public class AddEntryDialog extends JDialog implements ActionListener
     }
 
 
-    public Attributes getChildEntry()
+    public ServerEntry getChildEntry()
     {
-        return m_childEntry;
+        return childEntry;
     }
 
 

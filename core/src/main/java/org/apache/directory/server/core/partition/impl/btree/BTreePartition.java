@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -42,12 +41,10 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import java.util.Collections;
 import java.util.HashSet;
@@ -92,9 +89,6 @@ public abstract class BTreePartition implements Partition
     
     /** The rootDSE context */
     protected ServerEntry contextEntry;
-
-    /** The rootDSE context */
-    protected Attributes contextEntryAttr;
 
 
     // ------------------------------------------------------------------------
@@ -158,24 +152,6 @@ public abstract class BTreePartition implements Partition
 
 
     /**
-     * Returns root entry for this BTreePartition.
-     *
-     * @return the root suffix entry for this BTreePartition
-     */
-    public Attributes getContextEntryAttr()
-    {
-        if ( contextEntryAttr != null )
-        {
-            return ( Attributes ) contextEntryAttr.clone();
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-
-    /**
      * Sets root entry for this BTreePartition.
      *
      * @param rootEntry the root suffix entry of this BTreePartition
@@ -194,17 +170,6 @@ public abstract class BTreePartition implements Partition
     public void setContextEntry( String rootEntry )
     {
         System.out.println( rootEntry );
-    }
-
-    
-    /**
-     * Sets root entry for this BTreePartition.
-     *
-     * @param rootEntryAttr the root suffix entry of this BTreePartition
-     */
-    public void setContextEntry( Attributes rootEntryAttr )
-    {
-        this.contextEntryAttr = ( AttributesImpl ) rootEntryAttr.clone();
     }
 
     
@@ -328,10 +293,7 @@ public abstract class BTreePartition implements Partition
 
     public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
     {
-        ServerEntry entry = ServerEntryUtils.toServerEntry( 
-            lookup( getEntryId( opContext.getDn().getNormName() ) ),
-                opContext.getDn(),
-                opContext.getRegistries() );
+        ServerEntry entry = lookup( getEntryId( opContext.getDn().getNormName() ) );
 
         if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) )
         {
@@ -381,7 +343,7 @@ public abstract class BTreePartition implements Partition
 
     public void inspect() throws Exception
     {
-        PartitionViewer viewer = new PartitionViewer( this );
+        PartitionViewer viewer = new PartitionViewer( this, registries );
         viewer.execute();
     }
 
@@ -567,7 +529,7 @@ public abstract class BTreePartition implements Partition
     public abstract String getEntryUpdn( String dn ) throws NamingException;
 
 
-    public abstract Attributes lookup( Long id ) throws NamingException;
+    public abstract ServerEntry lookup( Long id ) throws NamingException;
 
 
     public abstract void delete( Long id ) throws NamingException;
@@ -579,7 +541,7 @@ public abstract class BTreePartition implements Partition
     public abstract int getChildCount( Long id ) throws NamingException;
 
 
-    public abstract Attributes getSuffixEntry() throws NamingException;
+    public abstract ServerEntry getSuffixEntry() throws NamingException;
 
 
     public abstract void setProperty( String key, String value ) throws NamingException;
@@ -594,7 +556,7 @@ public abstract class BTreePartition implements Partition
     public abstract Iterator<String> getSystemIndices();
 
 
-    public abstract Attributes getIndices( Long id ) throws NamingException;
+    public abstract ServerEntry getIndices( Long id ) throws NamingException;
 
 
     /**

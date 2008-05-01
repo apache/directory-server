@@ -994,7 +994,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
 
             TlsKeyGenerator.addKeyPair( serverEntry );
-            partitionNexus.add( new AddOperationContext( registries, PartitionNexus.getAdminName(), serverEntry ) );
+            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1019,7 +1019,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, userDn, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1033,7 +1033,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            ServerEntry serverEntry = new DefaultServerEntry( registries, userDn );
+            ServerEntry serverEntry = new DefaultServerEntry( registries, groupDn );
             
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                                 SchemaConstants.TOP_OC,
@@ -1043,7 +1043,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, groupDn, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1057,7 +1057,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             firstStart = true;
 
-            ServerEntry serverEntry = new DefaultServerEntry( registries, userDn );
+            ServerEntry serverEntry = new DefaultServerEntry( registries, name );
             
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                                 SchemaConstants.TOP_OC,
@@ -1068,7 +1068,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, name, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
             
             Interceptor authzInterceptor = interceptorChain.get( AciAuthorizationInterceptor.class.getName() );
             
@@ -1109,7 +1109,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, configurationDn, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1130,7 +1130,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, partitionsDn, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1151,7 +1151,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, servicesDn, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1172,7 +1172,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, interceptorsDn, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1196,7 +1196,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, sysPrefRootDn, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
         }
 
         return firstStart;
@@ -1493,7 +1493,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
         catch ( Exception e )
         {
-        	LOG.error( "Cannot build an entry for '{}' and this DN :'{}'", ldif, dn );
+            LOG.error( "Cannot build an entry for '{}' and this DN :'{}'", ldif, dn );
             // do nothing
             return null;
         }

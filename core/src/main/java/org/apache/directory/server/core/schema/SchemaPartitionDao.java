@@ -44,6 +44,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -91,20 +92,16 @@ public class SchemaPartitionDao
     /** static class logger */
     private final Logger LOG = LoggerFactory.getLogger( getClass() );
     private static final NumericOidSyntaxChecker NUMERIC_OID_CHECKER = new NumericOidSyntaxChecker();
-    private static final String[] SCHEMA_ATTRIBUTES = new String[] { 
-        SchemaConstants.CREATORS_NAME_AT, 
-        "m-dependencies", 
-        SchemaConstants.OBJECT_CLASS_AT, 
-        SchemaConstants.CN_AT,
-        "m-disabled" };
-
+    private static final String[] SCHEMA_ATTRIBUTES = new String[]
+        { SchemaConstants.CREATORS_NAME_AT, "m-dependencies", SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.CN_AT,
+            "m-disabled" };
 
     private final Partition partition;
     private final Registries registries;
     private final SchemaEntityFactory factory;
     private final OidRegistry oidRegistry;
     private final AttributeTypeRegistry attrRegistry;
-    
+
     private final String M_NAME_OID;
     private final String CN_OID;
     private final String M_OID_OID;
@@ -120,10 +117,10 @@ public class SchemaPartitionDao
     private final String M_OC_OID;
     private final String M_SUP_OBJECT_CLASS_OID;
     private final String M_DEPENDENCIES_OID;
-    
+
     private final AttributeType disabledAttributeType;
-    
-    
+
+
     /**
      * Creates a schema dao object backing information within a schema partition.
      * 
@@ -138,7 +135,7 @@ public class SchemaPartitionDao
         this.factory = new SchemaEntityFactory( registries );
         this.oidRegistry = registries.getOidRegistry();
         this.attrRegistry = registries.getAttributeTypeRegistry();
-        
+
         this.M_NAME_OID = oidRegistry.getOid( MetaSchemaConstants.M_NAME_AT );
         this.CN_OID = oidRegistry.getOid( SchemaConstants.CN_AT );
         this.disabledAttributeType = attrRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT );
@@ -158,47 +155,48 @@ public class SchemaPartitionDao
     }
 
 
-    public Map<String,Schema> getSchemas() throws NamingException
+    public Map<String, Schema> getSchemas() throws NamingException
     {
-        Map<String,Schema> schemas = new HashMap<String,Schema>();
+        Map<String, Schema> schemas = new HashMap<String, Schema>();
         NamingEnumeration<ServerSearchResult> list = listSchemas();
-        
-        while( list.hasMore() )
+
+        while ( list.hasMore() )
         {
-        	ServerSearchResult sr = list.next();
+            ServerSearchResult sr = list.next();
             Schema schema = factory.getSchema( sr.getServerEntry() );
             schemas.put( schema.getSchemaName(), schema );
         }
-        
+
         return schemas;
     }
 
-    
+
     public Set<String> getSchemaNames() throws NamingException
     {
         Set<String> schemaNames = new HashSet<String>();
         NamingEnumeration<ServerSearchResult> list = listSchemas();
-        
-        while( list.hasMore() )
+
+        while ( list.hasMore() )
         {
-        	ServerSearchResult sr = list.next();
+            ServerSearchResult sr = list.next();
             schemaNames.add( sr.getServerEntry().get( SchemaConstants.CN_AT ).getString() );
         }
-        
+
         return schemaNames;
     }
-    
+
 
     private NamingEnumeration<ServerSearchResult> listSchemas() throws NamingException
     {
         LdapDN base = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
         base.normalize( attrRegistry.getNormalizerMapping() );
-        ExprNode filter = new EqualityNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ), MetaSchemaConstants.META_SCHEMA_OC );
+        ExprNode filter = new EqualityNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ),
+            new ClientStringValue( MetaSchemaConstants.META_SCHEMA_OC ) );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         searchControls.setReturningAttributes( SCHEMA_ATTRIBUTES );
-        return partition.search( 
-            new SearchOperationContext( registries, base, AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+        return partition.search( new SearchOperationContext( registries, base, AliasDerefMode.DEREF_ALWAYS, filter,
+            searchControls ) );
     }
 
 
@@ -206,25 +204,25 @@ public class SchemaPartitionDao
     {
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
         dn.normalize( attrRegistry.getNormalizerMapping() );
-        return factory.getSchema( 
-            partition.lookup( new LookupOperationContext( registries, dn ) ) );
+        return factory.getSchema( partition.lookup( new LookupOperationContext( registries, dn ) ) );
     }
 
 
     public boolean hasMatchingRule( String oid ) throws NamingException
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_MATCHING_RULE_OC ) );
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
+            MetaSchemaConstants.META_MATCHING_RULE_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
+            filter.addNode( new EqualityNode( M_OID_OID, new ClientStringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
+            filter.addNode( new EqualityNode( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
         }
-        
+
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<ServerSearchResult> ne = null;
@@ -232,13 +230,13 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
-                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
-            
-            if ( ! ne.hasMore() )
+                AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+
+            if ( !ne.hasMore() )
             {
                 return false;
             }
-            
+
             ne.next();
             if ( ne.hasMore() )
             {
@@ -255,36 +253,37 @@ public class SchemaPartitionDao
             }
         }
     }
-    
-    
+
+
     public boolean hasAttributeType( String oid ) throws NamingException
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID,  MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC ) );
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
+            filter.addNode( new EqualityNode( M_OID_OID, new ClientStringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
+            filter.addNode( new EqualityNode( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
         }
-        
+
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<ServerSearchResult> ne = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext(
-                registries, partition.getSuffixDn(), AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
-            
-            if ( ! ne.hasMore() )
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+                AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+
+            if ( !ne.hasMore() )
             {
                 return false;
             }
-            
+
             ne.next();
             if ( ne.hasMore() )
             {
@@ -301,22 +300,23 @@ public class SchemaPartitionDao
             }
         }
     }
-    
-    
+
+
     public boolean hasObjectClass( String oid ) throws NamingException
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_OBJECT_CLASS_OC ) );
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
+            MetaSchemaConstants.META_OBJECT_CLASS_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
+            filter.addNode( new EqualityNode( M_OID_OID, new ClientStringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
+            filter.addNode( new EqualityNode( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
         }
-        
+
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<ServerSearchResult> ne = null;
@@ -324,13 +324,13 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
-                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
-            
-            if ( ! ne.hasMore() )
+                AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+
+            if ( !ne.hasMore() )
             {
                 return false;
             }
-            
+
             ne.next();
             if ( ne.hasMore() )
             {
@@ -347,22 +347,23 @@ public class SchemaPartitionDao
             }
         }
     }
-    
-    
+
+
     public boolean hasSyntax( String oid ) throws NamingException
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_SYNTAX_OC ) );
+        filter
+            .addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_SYNTAX_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
+            filter.addNode( new EqualityNode( M_OID_OID, new ClientStringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
+            filter.addNode( new EqualityNode( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
         }
-        
+
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<ServerSearchResult> ne = null;
@@ -370,13 +371,13 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
-                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
-            
-            if ( ! ne.hasMore() )
+                AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+
+            if ( !ne.hasMore() )
             {
                 return false;
             }
-            
+
             ne.next();
             if ( ne.hasMore() )
             {
@@ -393,36 +394,37 @@ public class SchemaPartitionDao
             }
         }
     }
-    
-    
+
+
     public boolean hasSyntaxChecker( String oid ) throws NamingException
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_SYNTAX_CHECKER_OC ) );
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
+            MetaSchemaConstants.META_SYNTAX_CHECKER_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
+            filter.addNode( new EqualityNode( M_OID_OID, new ClientStringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
+            filter.addNode( new EqualityNode( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
         }
-        
+
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<ServerSearchResult> ne = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(), AliasDerefMode.DEREF_ALWAYS,
-                        filter, searchControls ) );
-            
-            if ( ! ne.hasMore() )
+            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+                AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+
+            if ( !ne.hasMore() )
             {
                 return false;
             }
-            
+
             ne.next();
             if ( ne.hasMore() )
             {
@@ -439,8 +441,8 @@ public class SchemaPartitionDao
             }
         }
     }
-    
-    
+
+
     /**
      * Given the non-normalized name (alias) or the OID for a schema entity.  This 
      * method finds the schema under which that entity is located. 
@@ -462,26 +464,26 @@ public class SchemaPartitionDao
         {
             return null;
         }
-        
+
         Rdn rdn = dn.getRdn( 1 );
-        if ( ! rdn.getNormType().equalsIgnoreCase( CN_OID ) )
+        if ( !rdn.getNormType().equalsIgnoreCase( CN_OID ) )
         {
-            throw new NamingException( "Attribute of second rdn in dn '" + dn.toNormName() 
+            throw new NamingException( "Attribute of second rdn in dn '" + dn.toNormName()
                 + "' expected to be CN oid of " + CN_OID + " but was " + rdn.getNormType() );
         }
-        
+
         return ( String ) rdn.getValue();
     }
 
-    
+
     public LdapDN findDn( String entityName ) throws NamingException
     {
-    	ServerSearchResult sr = find( entityName );
+        ServerSearchResult sr = find( entityName );
         LdapDN dn = sr.getDn();
         dn.normalize( attrRegistry.getNormalizerMapping() );
         return dn;
     }
-    
+
 
     /**
      * Given the non-normalized name (alias) or the OID for a schema entity.  This 
@@ -500,24 +502,24 @@ public class SchemaPartitionDao
     public ServerSearchResult find( String entityName ) throws NamingException
     {
         BranchNode filter = new OrNode();
-        SimpleNode nameAVA = new EqualityNode( M_NAME_OID, entityName.toLowerCase() );
-        SimpleNode oidAVA = new EqualityNode( M_OID_OID, entityName.toLowerCase() );
+        SimpleNode nameAVA = new EqualityNode( M_NAME_OID, new ClientStringValue( entityName.toLowerCase() ) );
+        SimpleNode oidAVA = new EqualityNode( M_OID_OID, new ClientStringValue( entityName.toLowerCase() ) );
         filter.addNode( nameAVA );
         filter.addNode( oidAVA );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<ServerSearchResult> ne = null;
-        
+
         try
         {
             ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
-                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
-            
-            if ( ! ne.hasMore() )
+                AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+
+            if ( !ne.hasMore() )
             {
                 return null;
             }
-            
+
             ServerSearchResult sr = ne.next();
             if ( ne.hasMore() )
             {
@@ -573,43 +575,31 @@ public class SchemaPartitionDao
         ServerEntry entry = partition.lookup( new LookupOperationContext( registries, dn ) );
         EntryAttribute disabledAttr = entry.get( disabledAttributeType );
         List<Modification> mods = new ArrayList<Modification>( 3 );
-        
+
         if ( disabledAttr == null )
         {
             LOG.warn( "Does not make sense: you're trying to enable {} schema which is already enabled", schemaName );
             return;
         }
-        
+
         boolean isDisabled = disabledAttr.contains( "TRUE" );
-        if ( ! isDisabled )
+        if ( !isDisabled )
         {
             LOG.warn( "Does not make sense: you're trying to enable {} schema which is already enabled", schemaName );
             return;
         }
-        
-        mods.add( 
-            new ServerModification( 
-                DirContext.REMOVE_ATTRIBUTE, 
-                new DefaultServerAttribute( 
-                    MetaSchemaConstants.M_DISABLED_AT ,
-                    attrRegistry.lookup(MetaSchemaConstants.M_DISABLED_AT) ) ) );
-        
-        mods.add( 
-            new ServerModification( 
-                DirContext.ADD_ATTRIBUTE,
-                new DefaultServerAttribute( 
-                    SchemaConstants.MODIFIERS_NAME_AT, 
-                    attrRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT ),
-                    ServerDNConstants.ADMIN_SYSTEM_DN ) ) );
-        
-        mods.add( 
-            new ServerModification( 
-                DirContext.ADD_ATTRIBUTE,
-                new DefaultServerAttribute( 
-                    SchemaConstants.MODIFY_TIMESTAMP_AT, 
-                    attrRegistry.lookup( SchemaConstants.MODIFY_TIMESTAMP_AT ),
-                    DateUtils.getGeneralizedTime() ) ) );
-        
+
+        mods.add( new ServerModification( DirContext.REMOVE_ATTRIBUTE, new DefaultServerAttribute(
+            MetaSchemaConstants.M_DISABLED_AT, attrRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT ) ) ) );
+
+        mods.add( new ServerModification( DirContext.ADD_ATTRIBUTE, new DefaultServerAttribute(
+            SchemaConstants.MODIFIERS_NAME_AT, attrRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT ),
+            ServerDNConstants.ADMIN_SYSTEM_DN ) ) );
+
+        mods.add( new ServerModification( DirContext.ADD_ATTRIBUTE, new DefaultServerAttribute(
+            SchemaConstants.MODIFY_TIMESTAMP_AT, attrRegistry.lookup( SchemaConstants.MODIFY_TIMESTAMP_AT ), DateUtils
+                .getGeneralizedTime() ) ) );
+
         partition.modify( new ModifyOperationContext( registries, dn, mods ) );
     }
 
@@ -624,28 +614,28 @@ public class SchemaPartitionDao
      */
     public Set<ServerSearchResult> listSyntaxDependents( String numericOid ) throws NamingException
     {
-        Set<ServerSearchResult> set = new HashSet<ServerSearchResult>( );
+        Set<ServerSearchResult> set = new HashSet<ServerSearchResult>();
         BranchNode filter = new AndNode();
-        
+
         // subfilter for (| (objectClass=metaMatchingRule) (objectClass=metaAttributeType))  
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_MATCHING_RULE_OC.toLowerCase() ) );
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) );
-        
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_MATCHING_RULE_OC
+            .toLowerCase() ) ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
+
         filter.addNode( or );
-        filter.addNode( new EqualityNode( M_SYNTAX_OID, numericOid.toLowerCase() ) );
+        filter.addNode( new EqualityNode( M_SYNTAX_OID, new ClientStringValue( numericOid.toLowerCase() ) ) );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<ServerSearchResult> ne = null;
-        
+
         try
         {
             ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
-                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
-            while( ne.hasMore() )
+                AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            while ( ne.hasMore() )
             {
                 set.add( ne.next() );
             }
@@ -657,44 +647,45 @@ public class SchemaPartitionDao
                 ne.close();
             }
         }
-        
+
         return set;
     }
 
 
     public Set<ServerSearchResult> listMatchingRuleDependents( MatchingRule mr ) throws NamingException
     {
-        Set<ServerSearchResult> set = new HashSet<ServerSearchResult>( );
+        Set<ServerSearchResult> set = new HashSet<ServerSearchResult>();
         BranchNode filter = new AndNode();
-        
+
         // ( objectClass = metaAttributeType )
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) );
-        
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
+
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode( M_ORDERING_OID, mr.getOid() ) );
-        or.addNode( new EqualityNode( M_SUBSTRING_OID, mr.getOid() ) );
-        or.addNode( new EqualityNode( M_EQUALITY_OID, mr.getOid() ) );
+        or.addNode( new EqualityNode( M_ORDERING_OID, new ClientStringValue( mr.getOid() ) ) );
+        or.addNode( new EqualityNode( M_SUBSTRING_OID, new ClientStringValue( mr.getOid() ) ) );
+        or.addNode( new EqualityNode( M_EQUALITY_OID, new ClientStringValue( mr.getOid() ) ) );
         filter.addNode( or );
 
         if ( mr.getNames() != null || mr.getNames().length > 0 )
         {
             for ( String name : mr.getNames() )
             {
-                or.addNode( new EqualityNode( M_ORDERING_OID, name.toLowerCase() ) );
-                or.addNode( new EqualityNode( M_SUBSTRING_OID, name.toLowerCase() ) );
-                or.addNode( new EqualityNode( M_EQUALITY_OID, name.toLowerCase() ) );
+                or.addNode( new EqualityNode( M_ORDERING_OID, new ClientStringValue( name.toLowerCase() ) ) );
+                or.addNode( new EqualityNode( M_SUBSTRING_OID, new ClientStringValue( name.toLowerCase() ) ) );
+                or.addNode( new EqualityNode( M_EQUALITY_OID, new ClientStringValue( name.toLowerCase() ) ) );
             }
         }
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<ServerSearchResult> ne = null;
-        
+
         try
         {
             ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
-                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
-            while( ne.hasMore() )
+                AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            while ( ne.hasMore() )
             {
                 set.add( ne.next() );
             }
@@ -706,7 +697,7 @@ public class SchemaPartitionDao
                 ne.close();
             }
         }
-        
+
         return set;
     }
 
@@ -716,12 +707,12 @@ public class SchemaPartitionDao
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         BranchNode filter = new AndNode();
-        
+
         // (& (m-oid=*) (m-name=*) )
         filter.addNode( new PresenceNode( M_OID_OID ) );
         filter.addNode( new PresenceNode( M_NAME_OID ) );
         return partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
-                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
     }
 
 
@@ -744,34 +735,33 @@ public class SchemaPartitionDao
          *      ( & ( objectClass = metaObjectClass ) ( | ( m-may = $oid ) ( m-must = $oid ) ) )
          * )
          */
-        
-        Set<ServerSearchResult> set = new HashSet<ServerSearchResult>( );
+
+        Set<ServerSearchResult> set = new HashSet<ServerSearchResult>();
         BranchNode filter = new AndNode();
-        
+
         // ( objectClass = metaAttributeType )
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) );
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase() ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC
+            .toLowerCase() ) ) );
         filter.addNode( or );
 
-        
         or = new OrNode();
-        or.addNode( new EqualityNode( M_MAY_OID, at.getOid() ) );
-        or.addNode( new EqualityNode( M_MUST_OID, at.getOid() ) );
-        or.addNode( new EqualityNode( M_SUP_ATTRIBUTE_TYPE_OID, at.getOid() ) );
+        or.addNode( new EqualityNode( M_MAY_OID, new ClientStringValue( at.getOid() ) ) );
+        or.addNode( new EqualityNode( M_MUST_OID, new ClientStringValue( at.getOid() ) ) );
+        or.addNode( new EqualityNode( M_SUP_ATTRIBUTE_TYPE_OID, new ClientStringValue( at.getOid() ) ) );
         filter.addNode( or );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<ServerSearchResult> ne = null;
-        
+
         try
         {
             ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
-                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
-            while( ne.hasMore() )
+                AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            while ( ne.hasMore() )
             {
                 set.add( ne.next() );
             }
@@ -783,7 +773,7 @@ public class SchemaPartitionDao
                 ne.close();
             }
         }
-        
+
         return set;
     }
 
@@ -802,24 +792,23 @@ public class SchemaPartitionDao
          * 
          * ( & ( objectClass = metaSchema ) ( m-dependencies = $schemaName ) )
          */
-        
-        Set<ServerSearchResult> set = new HashSet<ServerSearchResult>( );
+
+        Set<ServerSearchResult> set = new HashSet<ServerSearchResult>();
         BranchNode filter = new AndNode();
-        
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_SCHEMA_OC.toLowerCase() ) );
-        filter.addNode( new EqualityNode( M_DEPENDENCIES_OID, 
-            schemaName.toLowerCase() ) );
+
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_SCHEMA_OC
+            .toLowerCase() ) ) );
+        filter.addNode( new EqualityNode( M_DEPENDENCIES_OID, new ClientStringValue( schemaName.toLowerCase() ) ) );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         NamingEnumeration<ServerSearchResult> ne = null;
-        
+
         try
         {
             ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
-                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
-            while( ne.hasMore() )
+                AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            while ( ne.hasMore() )
             {
                 set.add( ne.next() );
             }
@@ -831,7 +820,7 @@ public class SchemaPartitionDao
                 ne.close();
             }
         }
-        
+
         return set;
     }
 
@@ -845,28 +834,27 @@ public class SchemaPartitionDao
      */
     public Set<ServerSearchResult> listEnabledSchemaDependents( String schemaName ) throws NamingException
     {
-        Set<ServerSearchResult> set = new HashSet<ServerSearchResult>( );
+        Set<ServerSearchResult> set = new HashSet<ServerSearchResult>();
         BranchNode filter = new AndNode();
-        
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_SCHEMA_OC.toLowerCase() ) );
-        filter.addNode( new EqualityNode( M_DEPENDENCIES_OID, 
-            schemaName.toLowerCase() ) );
-        
+
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_SCHEMA_OC
+            .toLowerCase() ) ) );
+        filter.addNode( new EqualityNode( M_DEPENDENCIES_OID, new ClientStringValue( schemaName.toLowerCase() ) ) );
+
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         NamingEnumeration<ServerSearchResult> ne = null;
-        
+
         try
         {
             ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
-                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
-            
-            while( ne.hasMore() )
+                AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+
+            while ( ne.hasMore() )
             {
-            	ServerSearchResult sr = ne.next();
-            	EntryAttribute disabled = sr.getServerEntry().get( disabledAttributeType );
-                
+                ServerSearchResult sr = ne.next();
+                EntryAttribute disabled = sr.getServerEntry().get( disabledAttributeType );
+
                 if ( disabled == null )
                 {
                     set.add( sr );
@@ -884,7 +872,7 @@ public class SchemaPartitionDao
                 ne.close();
             }
         }
-        
+
         return set;
     }
 
@@ -914,35 +902,34 @@ public class SchemaPartitionDao
          *      ( & ( objectClass = metaDITContentRule ) ( m-aux = $oid ) )
          * )
          */
-        
-        Set<ServerSearchResult> set = new HashSet<ServerSearchResult>( );
+
+        Set<ServerSearchResult> set = new HashSet<ServerSearchResult>();
         BranchNode filter = new AndNode();
-        
+
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_NAME_FORM_OC.toLowerCase() ) );
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase() ) );
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_DIT_CONTENT_RULE_OC.toLowerCase() ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_NAME_FORM_OC
+            .toLowerCase() ) ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC
+            .toLowerCase() ) ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
+            MetaSchemaConstants.META_DIT_CONTENT_RULE_OC.toLowerCase() ) ) );
         filter.addNode( or );
 
-        
         or = new OrNode();
-        or.addNode( new EqualityNode( M_AUX_OID, oc.getOid() ) );
-        or.addNode( new EqualityNode( M_OC_OID, oc.getOid() ) );
-        or.addNode( new EqualityNode( M_SUP_OBJECT_CLASS_OID, oc.getOid() ) );
+        or.addNode( new EqualityNode( M_AUX_OID, new ClientStringValue( oc.getOid() ) ) );
+        or.addNode( new EqualityNode( M_OC_OID, new ClientStringValue( oc.getOid() ) ) );
+        or.addNode( new EqualityNode( M_SUP_OBJECT_CLASS_OID, new ClientStringValue( oc.getOid() ) ) );
         filter.addNode( or );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<ServerSearchResult> ne = null;
-        
+
         try
         {
             ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
-                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
-            while( ne.hasMore() )
+                AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            while ( ne.hasMore() )
             {
                 set.add( ne.next() );
             }
@@ -954,7 +941,7 @@ public class SchemaPartitionDao
                 ne.close();
             }
         }
-        
+
         return set;
     }
 }
