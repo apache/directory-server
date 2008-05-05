@@ -77,8 +77,6 @@ public class NotCursorTest
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
 
-    static Cursor<IndexEntry<?,Attributes>> storedCursor;
-    
     public NotCursorTest() throws Exception
     {
         // setup the standard registries
@@ -149,8 +147,6 @@ public class NotCursorTest
     @Test
     public void testNotCursor() throws Exception
     {
-        LdapDN baseDn = new LdapDN( "ou=Sales,o=Good Times Co." );
-        
         String filter = "(!(cn=J*))";
 
         ExprNode exprNode = FilterParser.parse( filter );
@@ -197,8 +193,6 @@ public class NotCursorTest
     @Test
     public void testNotCursorWithManualFilter() throws Exception
     {
-        LdapDN baseDn = new LdapDN( "ou=Sales,o=Good Times Co." );
-        
         NotNode notNode = new NotNode();
         
         ExprNode exprNode = new SubstringNode( "cn", "J", null );
@@ -206,7 +200,6 @@ public class NotCursorTest
         notNode.addNode( exprNode );
         
         Cursor<IndexEntry<?,Attributes>> cursor = ( Cursor<IndexEntry<?,Attributes>> ) new NotCursor( store, eval ); //cursorBuilder.build( andNode );
-        storedCursor = cursor;
         
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -277,20 +270,20 @@ public class NotCursorTest
             fail( "should fail with InvalidCursorPositionException" );
         }
         catch( InvalidCursorPositionException ice ) { }
-    }
-    
-    
-    @Test( expected = UnsupportedOperationException.class )
-    public void testAfter() throws Exception
-    {
-        storedCursor.after( new ForwardIndexEntry() );
-    }
-    
-    
-    @Test( expected = UnsupportedOperationException.class )
-    public void testBefore() throws Exception
-    {
-        storedCursor.before( new ForwardIndexEntry() );
+        
+        try
+        {
+            cursor.after( new ForwardIndexEntry() );
+            fail( "should fail with UnsupportedOperationException " );
+        }
+        catch( UnsupportedOperationException uoe ) {}
+        
+        try
+        {
+            cursor.before( new ForwardIndexEntry() );
+            fail( "should fail with UnsupportedOperationException " );
+        }
+        catch( UnsupportedOperationException uoe ) {}
     }
 
 }

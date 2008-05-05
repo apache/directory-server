@@ -82,8 +82,6 @@ public class OrCursorTest
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
 
-    static Cursor<IndexEntry<?,Attributes>> storedCursor;
-    
     public OrCursorTest() throws Exception
     {
         // setup the standard registries
@@ -270,7 +268,6 @@ public class OrCursorTest
         orNode.addNode( exprNode );
         
         cursor = ( Cursor<IndexEntry<?,Attributes>> ) new OrCursor( cursors, evaluators );
-        storedCursor = cursor;
         
         cursor.beforeFirst();
         assertFalse( cursor.available() );
@@ -348,21 +345,21 @@ public class OrCursorTest
         
         assertTrue( cursor.isElementReused() );
         
+        try
+        {
+            cursor.after( new ForwardIndexEntry() );
+            fail( "should fail with UnsupportedOperationException " );
+        }
+        catch( UnsupportedOperationException uoe ) {}
+        
+        try
+        {
+            cursor.before( new ForwardIndexEntry() );
+            fail( "should fail with UnsupportedOperationException " );
+        }
+        catch( UnsupportedOperationException uoe ) {}
+        
         cursor.get();
-    }
-    
-    
-    @Test( expected = UnsupportedOperationException.class )
-    public void testAfter() throws Exception
-    {
-        storedCursor.after( new ForwardIndexEntry() );
-    }
-    
-    
-    @Test( expected = UnsupportedOperationException.class )
-    public void testBefore() throws Exception
-    {
-        storedCursor.before( new ForwardIndexEntry() );
     }
 
 }
