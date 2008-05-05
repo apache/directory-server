@@ -76,6 +76,7 @@ public class AdministratorsGroupIT
      * @throws Exception on failures
      */
     @Test
+    @Factory ( AutzIntegUtils.ServiceFactory.class )
     public void testNonAdminReadAccessToGroups() throws Exception
     {
         Name billydDn = createUser( "billyd", "s3kr3t" );
