@@ -62,6 +62,7 @@ public class OrCursor<Attributes> extends AbstractCursor<IndexEntry<?,Attributes
         {
             this.blacklists.add( new HashSet<Long>() );
         }
+        this.cursorIndex = 0;
     }
 
 
