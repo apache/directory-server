@@ -34,4 +34,7 @@ public interface SupportedSASLMechanisms
     String DIGEST_MD5 = "DIGEST-MD5";
     String GSSAPI = "GSSAPI";
     String SIMPLE = "SIMPLE";
+
+    /** Not a SASL JDK supported mechanism */
+    String NTLM = "NTLM";
 }
