@@ -25,14 +25,7 @@ import java.net.InetSocketAddress;
 import java.security.KeyStore;
 import java.security.Provider;
 import java.security.Security;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -61,15 +54,14 @@ import org.apache.directory.server.ldap.handlers.ModifyDnHandler;
 import org.apache.directory.server.ldap.handlers.ModifyHandler;
 import org.apache.directory.server.ldap.handlers.SearchHandler;
 import org.apache.directory.server.ldap.handlers.UnbindHandler;
+import org.apache.directory.server.ldap.handlers.bind.*;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.asn1.codec.Asn1CodecDecoder;
 import org.apache.directory.shared.asn1.codec.Asn1CodecEncoder;
 import org.apache.directory.shared.ldap.constants.SaslQoP;
-import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.BindRequest;
@@ -126,6 +118,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LdapServer extends DirectoryBackedService
 {
+    @SuppressWarnings( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 3757127143811666817L;
 
     /** logger for this class */
@@ -169,10 +162,12 @@ public class LdapServer extends DirectoryBackedService
     private boolean allowAnonymousAccess = true; // allow by default
 
     /** The extended operation handlers. */
-    private final Collection<ExtendedOperationHandler> extendedOperationHandlers = new ArrayList<ExtendedOperationHandler>();
+    private final Collection<ExtendedOperationHandler> extendedOperationHandlers =
+        new ArrayList<ExtendedOperationHandler>();
 
     /** The supported authentication mechanisms. */
-    private Set<String> supportedMechanisms;
+    private Map<String, MechanismHandler> saslMechanismHandlers =
+        new HashMap<String, MechanismHandler>();
 
     /** The name of this host, validated during SASL negotiation. */
     private String saslHost = "ldap.example.com";
@@ -221,12 +216,6 @@ public class LdapServer extends DirectoryBackedService
         super.setServiceId( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
 
-        supportedMechanisms = new HashSet<String>();
-        supportedMechanisms.add( SupportedSASLMechanisms.SIMPLE );
-        supportedMechanisms.add( SupportedSASLMechanisms.CRAM_MD5 );
-        supportedMechanisms.add( SupportedSASLMechanisms.DIGEST_MD5 );
-        supportedMechanisms.add( SupportedSASLMechanisms.GSSAPI );
-
         saslQop = new HashSet<String>();
         saslQop.add( SaslQoP.QOP_AUTH );
         saslQop.add( SaslQoP.QOP_AUTH_INT );
@@ -243,6 +232,7 @@ public class LdapServer extends DirectoryBackedService
         this.supportedControls.add( ManageDsaITControl.CONTROL_OID );
         this.supportedControls.add( CascadeControl.CONTROL_OID );
     }
+
 
     /**
      * Install the LDAP request handlers.
@@ -261,7 +251,10 @@ public class LdapServer extends DirectoryBackedService
         
         if ( getBindHandler() == null )
         {
-            setBindHandler( new DefaultBindHandler( getDirectoryService(), registry ) );
+            DefaultBindHandler handler = new DefaultBindHandler();
+            handler.setSessionRegistry( registry );
+            handler.setSaslMechanismHandlers( saslMechanismHandlers );
+            setBindHandler( handler );
         }
         
         if ( getCompareHandler() == null )
@@ -407,16 +400,19 @@ public class LdapServer extends DirectoryBackedService
 
 
     private void startLDAP0( int port, IoFilterChainBuilder chainBuilder )
-        throws LdapNamingException, LdapConfigurationException, NamingException
+        throws NamingException
     {
-        for ( ExtendedOperationHandler h : getExtendedOperationHandlers() )
+        PartitionNexus nexus = getDirectoryService().getPartitionNexus();
+
+        for ( ExtendedOperationHandler h : extendedOperationHandlers )
         {
-            addExtendedOperationHandler( h );
+            extendedHandler.addHandler( h );
             LOG.info( "Added Extended Request Handler: " + h.getOid() );
             h.setLdapProvider( this );
-            PartitionNexus nexus = getDirectoryService().getPartitionNexus();
             nexus.registerSupportedExtensions( h.getExtensionOids() );
         }
+
+        nexus.registerSupportedSaslMechanisms( saslMechanismHandlers.keySet() );
 
         try
         {
@@ -477,14 +473,21 @@ public class LdapServer extends DirectoryBackedService
      * protocol provider to provide a specific LDAP extended operation.
      *
      * @param eoh an extended operation handler
+     * @throws NamingException on failure to add the handler
      */
-    public void addExtendedOperationHandler( ExtendedOperationHandler eoh )
+    public void addExtendedOperationHandler( ExtendedOperationHandler eoh ) throws NamingException
     {
-        if ( extendedHandler == null )
+        if ( started )
         {
-            setExtendedHandler( new DefaultExtendedHandler() );
+            extendedHandler.addHandler( eoh );
+            eoh.setLdapProvider( this );
+            PartitionNexus nexus = getDirectoryService().getPartitionNexus();
+            nexus.registerSupportedExtensions( eoh.getExtensionOids() );
         }
-        extendedHandler.addHandler( eoh );
+        else
+        {
+            extendedOperationHandlers.add( eoh );
+        }
     }
 
 
@@ -497,7 +500,27 @@ public class LdapServer extends DirectoryBackedService
      */
     public void removeExtendedOperationHandler( String oid )
     {
-        extendedHandler.removeHandler( oid );
+        if ( started )
+        {
+            extendedHandler.removeHandler( oid );
+
+            // need to do something like this to make this work right
+            //            PartitionNexus nexus = getDirectoryService().getPartitionNexus();
+            //            nexus.unregisterSupportedExtensions( eoh.getExtensionOids() );
+        }
+        else
+        {
+            ExtendedOperationHandler handler = null;
+            for ( ExtendedOperationHandler h : extendedOperationHandlers )
+            {
+                if ( h.getOid().equals( oid ) )
+                {
+                    handler = h;
+                    break;
+                }
+            }
+            extendedOperationHandlers.remove( handler );
+        }
     }
 
 
@@ -511,7 +534,22 @@ public class LdapServer extends DirectoryBackedService
      */
     public ExtendedOperationHandler getExtendedOperationHandler( String oid )
     {
-        return extendedHandler.getHandler( oid );
+        if ( started )
+        {
+            return extendedHandler.getHandler( oid );
+        }
+        else
+        {
+            for ( ExtendedOperationHandler h : extendedOperationHandlers )
+            {
+                if ( h.getOid().equals( oid ) )
+                {
+                    return h;
+                }
+            }
+        }
+
+        return null;
     }
 
 
@@ -763,27 +801,39 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    /**
-     * Returns the list of supported authentication mechanisms.
-     *
-     * @return The list of supported authentication mechanisms.
-     */
-    public Set<String> getSupportedMechanisms()
+    public void setSaslMechanismHandlers( Map<String, MechanismHandler> saslMechanismHandlers )
     {
-        return supportedMechanisms;
+        this.saslMechanismHandlers = saslMechanismHandlers;
     }
 
 
-    /**
-     * Sets the list of supported authentication mechanisms.
-     *
-     * @org.apache.xbean.Property propertyEditor="ListEditor" nestedType="java.lang.String"
-     *
-     * @param supportedMechanisms The list of supported authentication mechanisms.
-     */
-    public void setSupportedMechanisms( Set<String> supportedMechanisms )
+    public Map<String, MechanismHandler> getSaslMechanismHandlers()
     {
-        this.supportedMechanisms = supportedMechanisms;
+        return saslMechanismHandlers;
+    }
+
+
+    public MechanismHandler addSaslMechanismHandler( String mechanism, MechanismHandler handler )
+    {
+        return this.saslMechanismHandlers.put( mechanism, handler );
+    }
+
+
+    public MechanismHandler removeSaslMechanismHandler( String mechanism )
+    {
+        return this.saslMechanismHandlers.remove( mechanism );
+    }
+
+
+    public MechanismHandler getMechanismHandler( String mechanism )
+    {
+        return this.saslMechanismHandlers.get( mechanism );
+    }
+
+
+    public Set<String> getSupportedMechanisms()
+    {
+        return saslMechanismHandlers.keySet();
     }
 
 

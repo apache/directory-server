@@ -21,7 +21,7 @@ package org.apache.directory.server.ldap.handlers.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 
@@ -32,15 +32,18 @@ import java.util.Map;
 
 
 /**
+ * The DIGEST-MD5 mechanism handler.
+ * 
+ * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class DigestMd5MechanismHandler implements MechanismHandler
 {
-    private final DirectoryService directoryService;
+    private DirectoryService directoryService;
 
 
-    public DigestMd5MechanismHandler( DirectoryService directoryService )
+    public void setDirectoryService( DirectoryService directoryService )
     {
         this.directoryService = directoryService;
     }
@@ -61,7 +64,7 @@ public class DigestMd5MechanismHandler implements MechanismHandler
 
             CallbackHandler callbackHandler = new DigestMd5CallbackHandler( directoryService, session, bindRequest );
 
-            ss = Sasl.createSaslServer( SupportedSASLMechanisms.DIGEST_MD5, "ldap", saslHost, saslProps, callbackHandler );
+            ss = Sasl.createSaslServer( SupportedSaslMechanisms.DIGEST_MD5, "ldap", saslHost, saslProps, callbackHandler );
             session.setAttribute( SASL_CONTEXT, ss );
         }
 

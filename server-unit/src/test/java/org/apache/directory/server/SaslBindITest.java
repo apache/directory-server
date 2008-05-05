@@ -30,6 +30,7 @@ import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -175,19 +176,13 @@ public class SaslBindITest extends AbstractServerTest
                 { "supportedSASLMechanisms" } );
 
             NamingEnumeration<? extends Attribute> answer = attrs.getAll();
-
-            if ( answer.hasMore() )
-            {
-                Attribute result = answer.next();
-                assertTrue( result.size() == 3 );
-                assertTrue( result.contains( "GSSAPI" ) );
-                assertTrue( result.contains( "DIGEST-MD5" ) );
-                assertTrue( result.contains( "CRAM-MD5" ) );
-            }
-            else
-            {
-                fail( "Should have returned 3 SASL mechanisms." );
-            }
+            Attribute result = answer.next();
+            assertTrue( result.size() == 5 );
+            assertTrue( result.contains( SupportedSaslMechanisms.GSSAPI ) );
+            assertTrue( result.contains( SupportedSaslMechanisms.DIGEST_MD5 ) );
+            assertTrue( result.contains( SupportedSaslMechanisms.CRAM_MD5 ) );
+            assertTrue( result.contains( SupportedSaslMechanisms.NTLM ) );
+            assertTrue( result.contains( SupportedSaslMechanisms.SIMPLE ) );
         }
         catch ( NamingException e )
         {

@@ -863,6 +863,13 @@ public class PartitionNexusProxy extends PartitionNexus
         service.getPartitionNexus().registerSupportedExtensions( extensionOids );
     }
 
+
+    public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws NamingException
+    {
+        service.getPartitionNexus().registerSupportedSaslMechanisms( supportedSaslMechanisms );
+    }
+
+
     // -----------------------------------------------------------------------
     // EventContext and EventDirContext notification methods
     // -----------------------------------------------------------------------

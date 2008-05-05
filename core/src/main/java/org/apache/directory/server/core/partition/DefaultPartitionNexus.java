@@ -58,7 +58,6 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
@@ -155,6 +154,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      *
      * @see <a href="http://www.faqs.org/rfcs/rfc3045.html">Vendor Information</a>
      * @param rootDSE the root entry for the DSA
+     * @throws javax.naming.NamingException on failure to initialize
      */
     public DefaultPartitionNexus( ServerEntry rootDSE ) throws NamingException
     {
@@ -166,12 +166,6 @@ public class DefaultPartitionNexus extends PartitionNexus
         rootDSE.put( SchemaConstants.SUPPORTED_LDAP_VERSION_AT, "3" );
         rootDSE.put( SchemaConstants.SUPPORTED_FEATURES_AT, SchemaConstants.FEATURE_ALL_OPERATIONAL_ATTRIBUTES );
         rootDSE.put( SchemaConstants.SUPPORTED_EXTENSION_AT, NoticeOfDisconnect.EXTENSION_OID );
-
-        // Add the supportedSASLMechanisms attribute to rootDSE
-        rootDSE.put( SupportedSASLMechanisms.ATTRIBUTE, 
-            SupportedSASLMechanisms.GSSAPI, 
-            SupportedSASLMechanisms.DIGEST_MD5, 
-            SupportedSASLMechanisms.CRAM_MD5 );
 
         // Add the supported controls
         rootDSE.put( SchemaConstants.SUPPORTED_CONTROL_AT, 
@@ -1145,23 +1139,36 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    // ------------------------------------------------------------------------
-    // Private Methods
-    // ------------------------------------------------------------------------
-
-
     public void registerSupportedExtensions( Set<String> extensionOids ) throws NamingException
     {
         EntryAttribute supportedExtension = rootDSE.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
-        
+
         if ( supportedExtension == null )
         {
             rootDSE.set( SchemaConstants.SUPPORTED_EXTENSION_AT );
+            supportedExtension = rootDSE.get( SchemaConstants.SUPPORTED_EXTENSION_AT );
         }
-        
+
         for ( String extensionOid : extensionOids )
         {
             supportedExtension.add( extensionOid );
+        }
+    }
+
+
+    public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws NamingException
+    {
+        EntryAttribute supportedSaslMechanismsAttribute = rootDSE.get( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT );
+
+        if ( supportedSaslMechanismsAttribute == null )
+        {
+            rootDSE.set( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT );
+            supportedSaslMechanismsAttribute = rootDSE.get( SchemaConstants.SUPPORTED_SASL_MECHANISMS_AT );
+        }
+
+        for ( String saslMechanism : supportedSaslMechanisms )
+        {
+            supportedSaslMechanismsAttribute.add( saslMechanism );
         }
     }
 }

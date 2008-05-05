@@ -17,40 +17,41 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.ldap.handlers.bind;
+package org.apache.directory.server.ldap.handlers.bind.ntlm;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslServer;
-import java.security.PrivilegedExceptionAction;
-import java.util.Map;
 
 
 /**
- * The GSSAPI Sasl mechanism handler.
+ * A handler for the NTLM Sasl mechanism.
  *
  * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GssapiMechanismHandler implements MechanismHandler
+public class NtlmMechanismHandler implements MechanismHandler
 {
-    private DirectoryService directoryService;
+    private String providerFqcn;
+    private NtlmProvider provider;
 
 
-    public void setDirectoryService( DirectoryService directoryService )
+    public void setNtlmProvider( NtlmProvider provider )
     {
-        this.directoryService = directoryService;
+        this.provider = provider;
     }
 
-    
+
+    public void setNtlmProviderFqcn( String fqcnProvider )
+    {
+        this.providerFqcn = fqcnProvider;
+    }
+
+
     public SaslServer handleMechanism( IoSession session, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
@@ -61,24 +62,21 @@ public class GssapiMechanismHandler implements MechanismHandler
         }
         else
         {
-            Subject subject = ( Subject ) session.getAttribute( "saslSubject" );
-
-            final Map<String, String> saslProps = ( Map<String, String> ) session.getAttribute( "saslProps" );
-            final String saslHost = ( String ) session.getAttribute( "saslHost" );
-
-            final CallbackHandler callbackHandler = new GssapiCallbackHandler( directoryService, session, bindRequest );
-
-            ss = ( SaslServer ) Subject.doAs( subject, new PrivilegedExceptionAction<SaslServer>()
+            if ( provider == null )
             {
-                public SaslServer run() throws Exception
-                {
-                    return Sasl.createSaslServer( SupportedSaslMechanisms.GSSAPI, "ldap", saslHost, saslProps, callbackHandler );
-                }
-            } );
-
+                initProvider();
+            }
+            
+            ss = new NtlmSaslServer( provider );
             session.setAttribute( SASL_CONTEXT, ss );
         }
 
         return ss;
+    }
+
+
+    private void initProvider() throws Exception
+    {
+        provider = ( NtlmProvider ) Class.forName( providerFqcn ).newInstance();
     }
 }

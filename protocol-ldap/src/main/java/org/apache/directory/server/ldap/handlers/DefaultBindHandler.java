@@ -30,14 +30,11 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.SessionRegistry;
-import org.apache.directory.server.ldap.handlers.bind.CramMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.DigestMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslFilter;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindResponse;
@@ -65,7 +62,6 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -93,21 +89,27 @@ public class DefaultBindHandler extends BindHandler
     /**
      * A Hashed Adapter mapping SASL mechanisms to their handlers.
      */
-    private final Map<String, MechanismHandler> handlers;
+    private Map<String, MechanismHandler> handlers;
 
-    private final SessionRegistry registry;
+    private SessionRegistry registry;
 
+    
     /**
      * Creates a new instance of BindHandler.
      */
-    public DefaultBindHandler( DirectoryService directoryService, SessionRegistry registry )
+    public DefaultBindHandler()
     {
-        Map<String, MechanismHandler> map = new HashMap<String, MechanismHandler>();
-        map.put( SupportedSASLMechanisms.CRAM_MD5, new CramMd5MechanismHandler( directoryService ) );
-        map.put( SupportedSASLMechanisms.DIGEST_MD5, new DigestMd5MechanismHandler( directoryService ) );
-        map.put( SupportedSASLMechanisms.GSSAPI, new GssapiMechanismHandler( directoryService ) );
-        handlers = Collections.unmodifiableMap( map );
-        
+    }
+
+
+    public void setSaslMechanismHandlers( Map<String, MechanismHandler> handlers )
+    {
+        this.handlers = handlers;
+    }
+
+
+    public void setSessionRegistry( SessionRegistry registry )
+    {
         this.registry = registry;
     }
 
@@ -115,7 +117,7 @@ public class DefaultBindHandler extends BindHandler
     public void setDirectoryService( DirectoryService directoryService )
     {
     }
-    
+
 
     /**
      * Create an environment object and inject the Bond informations collected
@@ -265,7 +267,7 @@ public class DefaultBindHandler extends BindHandler
 
         // First, deal with Simple Authentication
         // Guard clause:  Reject SIMPLE mechanism.
-        if ( !supportedMechanisms.contains( SupportedSASLMechanisms.SIMPLE ) )
+        if ( !supportedMechanisms.contains( SupportedSaslMechanisms.SIMPLE ) )
         {
             LOG.error( "Bind error : SIMPLE authentication not supported. Please check the server.xml configuration file (supportedMechanisms field)" );
 
@@ -311,7 +313,7 @@ public class DefaultBindHandler extends BindHandler
 
         Set<String> activeMechanisms = ldapServer.getSupportedMechanisms();
 
-        if ( activeMechanisms.contains( SupportedSASLMechanisms.GSSAPI ) )
+        if ( activeMechanisms.contains( SupportedSaslMechanisms.GSSAPI ) )
         {
             try
             {
@@ -351,7 +353,7 @@ public class DefaultBindHandler extends BindHandler
     {
         String sessionMechanism = bindRequest.getSaslMechanism();
 
-        if ( sessionMechanism.equals( SupportedSASLMechanisms.SIMPLE ) )
+        if ( sessionMechanism.equals( SupportedSaslMechanisms.SIMPLE ) )
         {
             /*
              * This is the principal name that will be used to bind to the DIT.
@@ -639,8 +641,8 @@ public class DefaultBindHandler extends BindHandler
         /*
          * If the SASL mechanism is DIGEST-MD5 or GSSAPI, we insert a SASLFilter.
          */
-        if ( sessionMechanism.equals( SupportedSASLMechanisms.DIGEST_MD5 ) || 
-             sessionMechanism.equals( SupportedSASLMechanisms.GSSAPI ) )
+        if ( sessionMechanism.equals( SupportedSaslMechanisms.DIGEST_MD5 ) ||
+             sessionMechanism.equals( SupportedSaslMechanisms.GSSAPI ) )
         {
             LOG.debug( "Inserting SaslFilter to engage negotiated security layer." );
 
@@ -671,7 +673,7 @@ public class DefaultBindHandler extends BindHandler
      */
     private String getAuthenticationLevel( String sessionMechanism )
     {
-        if ( sessionMechanism.equals( SupportedSASLMechanisms.SIMPLE ) )
+        if ( sessionMechanism.equals( SupportedSaslMechanisms.SIMPLE ) )
         {
             return AuthenticationLevel.SIMPLE.toString();
         }
