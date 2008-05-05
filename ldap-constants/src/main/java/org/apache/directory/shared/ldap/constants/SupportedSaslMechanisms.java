@@ -26,10 +26,8 @@ package org.apache.directory.shared.ldap.constants;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SupportedSASLMechanisms
+public interface SupportedSaslMechanisms
 {
-    String ATTRIBUTE = "supportedSASLMechanisms";
-
     String CRAM_MD5 = "CRAM-MD5";
     String DIGEST_MD5 = "DIGEST-MD5";
     String GSSAPI = "GSSAPI";
