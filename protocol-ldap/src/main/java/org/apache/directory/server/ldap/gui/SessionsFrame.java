@@ -46,7 +46,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.directory.server.ldap.SessionRegistry;
-import org.apache.directory.server.ldap.support.extended.GracefulShutdownHandler;
+import org.apache.directory.server.ldap.handlers.extended.GracefulShutdownHandler;
 import org.apache.directory.shared.ldap.message.extended.GracefulDisconnect;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.mina.common.CloseFuture;
