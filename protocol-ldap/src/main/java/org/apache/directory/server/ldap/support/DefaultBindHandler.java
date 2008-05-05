@@ -115,6 +115,7 @@ public class DefaultBindHandler extends BindHandler
     public void setDirectoryService( DirectoryService directoryService )
     {
     }
+    
 
     /**
      * Create an environment object and inject the Bond informations collected
