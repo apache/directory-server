@@ -159,7 +159,12 @@ public class CursorBuilder
         for ( int ii = 0; ii < children.size(); ii++ )
         {
             ExprNode child = children.get( ii );
-            value = ( Long ) child.get( "count" );
+            Object count = child.get( "count" );
+            if( count == null )
+            {
+                continue;
+            }
+            value = ( Long ) count;
             minValue = Math.min( minValue, value );
 
             if ( minValue == value )
