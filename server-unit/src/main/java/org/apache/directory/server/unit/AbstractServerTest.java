@@ -247,6 +247,22 @@ public abstract class AbstractServerTest extends TestCase
         ldapServer.setDirectoryService( directoryService );
         ldapServer.setIpPort( port = AvailablePortFinder.getNextAvailable( 1024 ) );
 
+        setupSaslMechanisms( ldapServer );
+
+        doDelete( directoryService.getWorkingDirectory() );
+        configureDirectoryService();
+        directoryService.startup();
+
+        configureLdapServer();
+        ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
+        ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+        ldapServer.start();
+        setContexts( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+    }
+
+
+    private void setupSaslMechanisms( LdapServer server )
+    {
         Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
 
         mechanismHandlerMap.put( SupportedSaslMechanisms.SIMPLE, new SimpleMechanismHandler() );
@@ -269,28 +285,21 @@ public abstract class AbstractServerTest extends TestCase
         // TODO - or set FQCN of some sort of default NtlmProvider implementation here
         // ntlmMechanismHandler.setNtlmProviderFqcn( "com.foo.BarNtlmProvider" );
         mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
+        mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
 
         ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
-
-
-        doDelete( directoryService.getWorkingDirectory() );
-        configureDirectoryService();
-        directoryService.startup();
-
-        configureLdapServer();
-        ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
-        ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
-        ldapServer.start();
-        setContexts( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
+
 
     protected void configureDirectoryService() throws NamingException
     {
     }
 
+
     protected void configureLdapServer()
     {
     }
+
 
     protected void setAllowAnonymousAccess( boolean anonymousAccess )
     {
@@ -298,6 +307,7 @@ public abstract class AbstractServerTest extends TestCase
         ldapServer.setAllowAnonymousAccess( anonymousAccess );
     }
 
+    
     /**
      * Deletes the Eve working directory.
      * @param wkdir the directory to delete

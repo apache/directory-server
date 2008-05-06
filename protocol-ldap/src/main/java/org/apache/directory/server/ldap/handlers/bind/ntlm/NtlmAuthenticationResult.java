@@ -21,30 +21,44 @@ package org.apache.directory.server.ldap.handlers.bind.ntlm;
 
 
 /**
- * An NTLM authentication service provider.  Multiple providers may be
- * utilized to conduct the NTLM negotiation over various protocols or by
- * calling native SSPI interfaces.
+ * The results of an NTLM authentication attempt.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public interface NtlmProvider
+public class NtlmAuthenticationResult
 {
-    /**
-     * Handles a Type 1 NTLM response from the client to generate an NTLM
-     * Type 2 challenge message.
-     *
-     * @param type1reponse the Type 1 NTLM response from client
-     * @return the NTLM Type 2 message with the challenge
-     */
-    byte[] generateChallenge( byte[] type1reponse ) throws Exception;
+    private final boolean success;
+    private final byte[] response;
+
+
+    public NtlmAuthenticationResult( byte[] response, boolean success )
+    {
+        this.response = response;
+        this.success = success;
+    }
 
 
     /**
-     * Handles a Type 3 NTLM reponse from the client.
+     * Gets whether or not authentication was a success.
      *
-     * @param type3response the Type 3 NTLM reponse from the client
-     * @return the result of the successful authentication from the server
+     * @return true if authentication succeeded, or false if it failed
      */
-    NtlmAuthenticationResult authenticate( byte[] type3response ) throws Exception;
+    public boolean isSuccess()
+    {
+        return success;
+    }
+
+
+    /**
+     * Gets a copy of the response to return so it cannot be altered.
+     *
+     * @return a copy of the authentication response
+     */
+    public byte[] getResponse()
+    {
+        byte[] copy = new byte[response.length];
+        System.arraycopy( response, 0, copy, 0, response.length );
+        return copy;
+    }
 }

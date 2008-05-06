@@ -28,7 +28,9 @@ import javax.security.sasl.SaslServer;
 
 
 /**
- * A handler for the NTLM Sasl mechanism.
+ * A handler for the NTLM Sasl and GSS-SPNEGO mechanism. Note that both
+ * mechanisms require an NTLM mechanism provider which could be implemented
+ * using jCIFS or native Win32 system calls via a JNI wrapper.
  *
  * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

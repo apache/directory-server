@@ -114,26 +114,28 @@ public class NtlmSaslServer implements SaslServer
                 {
                     retval = provider.generateChallenge( response );
                 }
-                catch ( NtlmNegotiationException e )
+                catch ( Exception e )
                 {
-                    throw new SaslException( "NTLM negotiation failed.", e );
+                    throw new SaslException( "There was a failure during NTLM Type 1 message handling.", e );
                 }
                 break;
             case TYPE_3_RECEIVED:
+                NtlmAuthenticationResult result = null;
                 try
                 {
-                    retval = provider.authenticate( response );
+                    result = provider.authenticate( response );
                 }
-                catch ( NtlmNegotiationException e )
+                catch ( Exception e )
                 {
-                    throw new SaslException( "NTLM negotiation failed.", e );
+                    throw new SaslException( "There was a failure during NTLM Type 3 message handling.", e );
                 }
-                catch ( NtlmAuthenticationException e )
+
+                if ( ! result.isSuccess() )
                 {
-                    throw new SaslException( "Authentication failed.", e );
+                    throw new SaslException( "Authentication occurred but the credentials were invalid." );
                 }
                 break;
-        }
+        }       
         responseSent();
         return retval;
     }

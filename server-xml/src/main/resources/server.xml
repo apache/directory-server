@@ -172,6 +172,9 @@
       <s:entry key="NTLM">
         <ntlmMechanismHandler ntlmProviderFqcn="com.foo.Bar" />
       </s:entry>
+      <s:entry key="GSS-SPNEGO">
+        <ntlmMechanismHandler ntlmProviderFqcn="com.foo.Bar" />
+      </s:entry>
     </saslMechanismHandlers>
 
     <!-- The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.  -->
