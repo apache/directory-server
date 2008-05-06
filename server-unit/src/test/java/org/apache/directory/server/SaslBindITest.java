@@ -177,7 +177,7 @@ public class SaslBindITest extends AbstractServerTest
 
             NamingEnumeration<? extends Attribute> answer = attrs.getAll();
             Attribute result = answer.next();
-            assertTrue( result.size() == 5 );
+            assertTrue( result.size() == 6 );
             assertTrue( result.contains( SupportedSaslMechanisms.GSSAPI ) );
             assertTrue( result.contains( SupportedSaslMechanisms.DIGEST_MD5 ) );
             assertTrue( result.contains( SupportedSaslMechanisms.CRAM_MD5 ) );
