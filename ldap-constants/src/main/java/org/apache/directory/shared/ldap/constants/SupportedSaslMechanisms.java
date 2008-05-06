@@ -35,4 +35,6 @@ public interface SupportedSaslMechanisms
 
     /** Not a SASL JDK supported mechanism */
     String NTLM = "NTLM";
+    /** Not a SASL JDK supported mechanism */
+    String GSS_SPNEGO = "GSS-SPNEGO";
 }
