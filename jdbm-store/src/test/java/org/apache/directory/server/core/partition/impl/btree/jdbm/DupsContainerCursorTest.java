@@ -185,10 +185,11 @@ public class DupsContainerCursorTest
 
         cursor.last();
         cursor.next();
-        tuple = cursor.get();
+        assertFalse( cursor.available() );
+       /* tuple = cursor.get();
         assertTrue( tuple.getKey().equals( 9 ) );
-        assertEquals( 9, ( int ) tuple.getValue().getAvlTree().getFirst().getKey() );
-
+        assertEquals( 9, ( int ) tuple.getValue().getAvlTree().getFirst().getKey() ); */
+        
         cursor.beforeFirst();
         cursor.next();
         tuple = cursor.get();
@@ -204,12 +205,12 @@ public class DupsContainerCursorTest
         // just to clear the jdbmTuple value so that line 127 inside after(tuple) method
         // can be executed as part of the below after(tuple) call
         cursor.before(new Tuple<Integer,DupsContainer<Integer>>( 1, null ) );
-        cursor.after( new Tuple<Integer,DupsContainer<Integer>>( 0, null ) );
+        cursor.after( new Tuple<Integer,DupsContainer<Integer>>( 0, null ) ); // this positions on tuple with key 1
 
-        cursor.next();
+        cursor.next(); // this moves onto tuple with key 2
         tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 1 ) );
-        assertEquals( 1, ( int ) tuple.getValue().getAvlTree().getFirst().getKey() );
+        assertTrue( tuple.getKey().equals( 2 ) );
+        assertEquals( 2, ( int ) tuple.getValue().getAvlTree().getFirst().getKey() );
     }
 
 
