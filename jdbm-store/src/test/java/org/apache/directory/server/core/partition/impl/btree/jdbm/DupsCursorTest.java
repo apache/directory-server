@@ -274,6 +274,7 @@ public class DupsCursorTest
         while ( cursor.next() );
 
         // now go backwards
+        cursor.afterLast();
         ii = SIZE*2-2;
         while ( cursor.previous() )
         {
@@ -387,6 +388,7 @@ public class DupsCursorTest
         while ( cursor.next() );
 
         // now go backwards
+        cursor.afterLast();
         ii = SIZE*3-2;
         while ( cursor.previous() )
         {
@@ -501,6 +503,7 @@ public class DupsCursorTest
         while ( cursor.next() );
 
         // now go backwards
+        cursor.afterLast();
         ii = SIZE*3-2;
         while ( cursor.previous() )
         {
@@ -617,6 +620,7 @@ public class DupsCursorTest
         while ( cursor.next() );
 
         // now go backwards
+        cursor.afterLast();
         ii = SIZE*3-2;
         while ( cursor.previous() )
         {
