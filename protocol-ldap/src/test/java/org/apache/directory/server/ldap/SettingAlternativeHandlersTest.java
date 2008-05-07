@@ -21,7 +21,6 @@ package org.apache.directory.server.ldap;
 
 
 import junit.framework.TestCase;
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.ldap.handlers.AbandonHandler;
 import org.apache.directory.server.ldap.handlers.AddHandler;
@@ -32,7 +31,6 @@ import org.apache.directory.server.ldap.handlers.ModifyDnHandler;
 import org.apache.directory.server.ldap.handlers.ModifyHandler;
 import org.apache.directory.server.ldap.handlers.SearchHandler;
 import org.apache.directory.server.ldap.handlers.UnbindHandler;
-import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
@@ -44,39 +42,23 @@ import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.UnbindRequest;
-import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.common.SimpleByteBufferAllocator;
-import org.apache.mina.util.AvailablePortFinder;
 
 
 /**
- * Tests the .
- * FIXME: This test case doesn't test enough now.
+ * This test is simply used to test that handlers can be set properly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapServerTest extends TestCase
+public class SettingAlternativeHandlersTest extends TestCase
 {
     LdapServer ldapServer;
-    DirectoryService directoryService;
-    SocketAcceptor tcpAcceptor;
 
 
     public void setUp() throws Exception
     {
-        directoryService = new DefaultDirectoryService();
-        directoryService.startup();
-
-        ByteBuffer.setAllocator( new SimpleByteBufferAllocator() );
-        ByteBuffer.setUseDirectBuffers( false );
-        tcpAcceptor = new SocketAcceptor( null );
-
         ldapServer = new LdapServer();
-        ldapServer.setSocketAcceptor( tcpAcceptor );
-        ldapServer.setDirectoryService( directoryService );
-        ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
         
         if ( getName().equals( "testAlternativeConfiguration" ) )
         {
@@ -90,15 +72,6 @@ public class LdapServerTest extends TestCase
             ldapServer.setSearchHandler( new BogusSearchHandler() );
             ldapServer.setUnbindHandler( new BogusUnbindHandler() );
         }
-
-        ldapServer.start();
-    }
-
-
-    public void tearDown() throws Exception
-    {
-        ldapServer.stop();
-        directoryService.shutdown();
     }
 
 
@@ -111,7 +84,6 @@ public class LdapServerTest extends TestCase
      */
     public void testDefaultOperation() throws LdapNamingException
     {
-        assertNotNull( ldapServer.getCodecFactory() );
         assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
     }
 
@@ -134,10 +106,10 @@ public class LdapServerTest extends TestCase
         assertEquals( ldapServer.getModifyHandler().getClass(), BogusModifyHandler.class  );
         assertEquals( ldapServer.getSearchHandler().getClass(), BogusSearchHandler.class  );
         assertEquals( ldapServer.getUnbindHandler().getClass(), BogusUnbindHandler.class  );
-        assertNotNull( ldapServer.getCodecFactory() );
         assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
     }
 
+    
     public static class BogusAbandonHandler extends AbandonHandler
     {
         public void abandonMessageReceived( IoSession session, AbandonRequest request )
@@ -146,6 +118,7 @@ public class LdapServerTest extends TestCase
         }
     }
 
+    
     public static class BogusUnbindHandler extends UnbindHandler
     {
         public void unbindMessageReceived( IoSession session, UnbindRequest request )
