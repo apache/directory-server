@@ -28,6 +28,8 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.AttributeValueAssertion;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -152,17 +154,17 @@ public class AttributeValueAssertionFilter extends Filter
 
         avaLength = 1 + TLV.getNbBytes( attributeDescLength ) + attributeDescLength;
 
-        Object assertionValue = assertion.getAssertionValue();
+        org.apache.directory.shared.ldap.entry.Value<?> assertionValue = assertion.getAssertionValue();
 
         int assertionValueLength = 0;
 
-        if ( assertionValue instanceof String )
+        if ( assertionValue instanceof ClientStringValue )
         {
-            assertionValueLength = StringTools.getBytesUtf8( ( String ) assertionValue ).length;
+            assertionValueLength = StringTools.getBytesUtf8( ((ClientStringValue)assertionValue).get() ).length;
         }
         else
         {
-            assertionValueLength = ( ( byte[] ) assertionValue ).length;
+            assertionValueLength = ((ClientBinaryValue)assertionValue).get().length;
         }
 
         avaLength += 1 + TLV.getNbBytes( assertionValueLength ) + assertionValueLength;
@@ -228,13 +230,13 @@ public class AttributeValueAssertionFilter extends Filter
         Value.encode( buffer, assertion.getAttributeDesc() );
 
         // The assertion desc
-        if ( assertion.getAssertionValue() instanceof String )
+        if ( assertion.getAssertionValue().get() instanceof String )
         {
-            Value.encode( buffer, ( String ) assertion.getAssertionValue() );
+            Value.encode( buffer, ( String ) assertion.getAssertionValue().get() );
         }
         else
         {
-            Value.encode( buffer, ( byte[] ) assertion.getAssertionValue() );
+            Value.encode( buffer, ( byte[] ) assertion.getAssertionValue().get() );
         }
 
         return buffer;

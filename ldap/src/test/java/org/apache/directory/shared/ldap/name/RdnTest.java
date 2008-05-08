@@ -356,6 +356,29 @@ public class RdnTest
 
 
     /**
+     * Test for DIRSHARED-2.
+     * The first ATAV is equal, the second or following ATAV differs.
+     */
+    @Test
+    public void test_DIRSHARED_2() throws InvalidNameException
+    {
+        // the second ATAV differs
+        Rdn rdn1 = new Rdn( " a = b + c = d " );
+        Rdn rdn2 = new Rdn( " a = b + c = y " );
+        assertTrue( rdn1.compareTo( rdn2 ) != 0 );
+
+        // the third ATAV differs
+        Rdn rdn3 = new Rdn( " a = b + c = d + e = f " );
+        Rdn rdn4 = new Rdn( " a = b + c = d + e = y " );
+        assertTrue( rdn3.compareTo( rdn4 ) != 0 );
+
+        // the second ATAV differs in value only
+        Rdn rdn5 = new Rdn( " a = b + a = c " );
+        Rdn rdn6 = new Rdn( " a = b + a = y " );
+        assertTrue( rdn5.compareTo( rdn6 ) != 0 );
+    }
+    
+    /**
      * Compares with a null RDN.
      */
     @Test

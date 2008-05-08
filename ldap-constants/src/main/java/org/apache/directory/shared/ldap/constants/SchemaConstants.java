@@ -264,6 +264,10 @@ public interface SchemaConstants
     // SupportedExtension
     String SUPPORTED_EXTENSION_AT = "supportedExtension";
     String SUPPORTED_EXTENSION_AT_OID = "1.3.6.1.4.1.1466.101.120.7";
+
+    // supportedSASLMechanisms
+    String SUPPORTED_SASL_MECHANISMS_AT = "supportedSASLMechanisms";
+    String SUPPORTED_SASL_MECHANISMS_AT_OID = "1.3.6.1.4.1.1466.101.120.14";
     
     // supportedControl
     String SUPPORTED_CONTROL_AT = "supportedControl";

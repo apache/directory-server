@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 
@@ -112,6 +113,7 @@ import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest;
 import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -238,6 +240,72 @@ public class TwixTransformer implements TransformerSpi
         return snickersMessage;
     }
 
+
+    /**
+     * Transform a BindResponse message from a TwixMessage to a 
+     * SnickersMessage.  This is used by clients which are receiving a 
+     * BindResponse PDU and must decode it to return the Snickers 
+     * representation.
+     * 
+     * @param twixMessage The message to transform
+     * @param messageId The message Id
+     * @return a Snickers BindResponseImpl
+     */
+    private Message transformBindResponse( LdapMessage twixMessage, int messageId )
+    {
+        BindResponseImpl snickersMessage = new BindResponseImpl( messageId );
+        BindResponse bindResponse = twixMessage.getBindResponse();
+
+        // Twix : byte[] serverSaslcreds -> Snickers : byte[] serverSaslCreds
+        snickersMessage.setServerSaslCreds( bindResponse.getServerSaslCreds() );
+        transformControlsTwixToSnickers( twixMessage, snickersMessage );
+        transformLdapResultTwixToSnickers( bindResponse.getLdapResult(), snickersMessage.getLdapResult() );
+        
+        return snickersMessage;
+    }
+
+    
+    /**
+     * Transforms parameters of a Twix LdapResult into a Snickers LdapResult.
+     *
+     * @param twixResult the Twix LdapResult representation
+     * @param snickersResult the Snickers LdapResult representation
+     */
+    private void transformLdapResultTwixToSnickers( LdapResult twixResult, 
+        org.apache.directory.shared.ldap.message.LdapResult snickersResult )
+    {
+        snickersResult.setErrorMessage( twixResult.getErrorMessage() );
+        
+        try
+        {
+            snickersResult.setMatchedDn( new LdapDN( twixResult.getMatchedDN() ) );
+        }
+        catch ( InvalidNameException e )
+        {
+            log.error( "Could not parse matchedDN while transforming twix value to snickers: {}", 
+                twixResult.getMatchedDN() );
+            snickersResult.setMatchedDn( new LdapDN() );
+        }
+        
+        snickersResult.setResultCode( twixResult.getResultCode() );
+
+        if ( twixResult.getReferrals() == null )
+        {
+            
+        }
+        else
+        {
+            ReferralImpl referral = new ReferralImpl();
+            
+            for ( LdapURL url : twixResult.getReferrals() )
+            {
+                referral.addLdapUrl( url.toString() );
+            }
+            
+            snickersResult.setReferral( referral );
+        }
+    }
+    
 
     /**
      * Transform a CompareRequest message from a TwixMessage to a
@@ -443,58 +511,26 @@ public class TwixTransformer implements TransformerSpi
                     switch ( ( ( AttributeValueAssertionFilter ) twixFilter ).getFilterType() )
                     {
                         case LdapConstants.EQUALITY_MATCH_FILTER:
-                            if ( ava.getAssertionValue() instanceof String )
-                            {
-                                branch = new EqualityNode( ava.getAttributeDesc(), 
-                                    (String)ava.getAssertionValue() );
-                            }
-                            else
-                            {
-                                branch = new EqualityNode( ava.getAttributeDesc(), 
-                                    (byte[])ava.getAssertionValue() );
-                            }
+                            branch = new EqualityNode( ava.getAttributeDesc(), 
+                                ava.getAssertionValue() );
                             
                             break;
 
                         case LdapConstants.GREATER_OR_EQUAL_FILTER:
-                            if ( ava.getAssertionValue() instanceof String )
-                            {
-                                branch = new GreaterEqNode( ava.getAttributeDesc(),
-                                    (String)ava.getAssertionValue() );
-                            }
-                            else
-                            {
-                                branch = new GreaterEqNode( ava.getAttributeDesc(),
-                                    (byte[])ava.getAssertionValue() );
-                            }
+                            branch = new GreaterEqNode( ava.getAttributeDesc(),
+                                ava.getAssertionValue() );
 
                             break;
 
                         case LdapConstants.LESS_OR_EQUAL_FILTER:
-                            if ( ava.getAssertionValue() instanceof String )
-                            {
-                                branch = new LessEqNode( ava.getAttributeDesc(), 
-                                    (String)ava.getAssertionValue() );
-                            }
-                            else
-                            {
-                                branch = new LessEqNode( ava.getAttributeDesc(), 
-                                    (byte[])ava.getAssertionValue() );
-                            }
+                            branch = new LessEqNode( ava.getAttributeDesc(), 
+                                ava.getAssertionValue() );
 
                             break;
 
                         case LdapConstants.APPROX_MATCH_FILTER:
-                            if ( ava.getAssertionValue() instanceof String )
-                            {
-                                branch = new ApproximateNode( ava.getAttributeDesc(), 
-                                    (String)ava.getAssertionValue() );
-                            }
-                            else
-                            {
-                                branch = new ApproximateNode( ava.getAttributeDesc(), 
-                                    (byte[])ava.getAssertionValue() );
-                            }
+                            branch = new ApproximateNode( ava.getAttributeDesc(), 
+                                ava.getAssertionValue() );
 
                             break;
                     }
@@ -730,6 +766,9 @@ public class TwixTransformer implements TransformerSpi
                 break;
 
             case ( LdapConstants.BIND_RESPONSE  ):
+                snickersMessage = transformBindResponse( twixMessage, messageId );
+                break;
+
             case ( LdapConstants.SEARCH_RESULT_ENTRY  ):
             case ( LdapConstants.SEARCH_RESULT_DONE  ):
             case ( LdapConstants.SEARCH_RESULT_REFERENCE  ):
@@ -838,7 +877,7 @@ public class TwixTransformer implements TransformerSpi
     /**
      * Transform a Ldapresult part of a Snickers Response to a Twix LdapResult
      * 
-     * @param snickersLdapResult The Snickers LdapResult to transform
+     * @param snickersLdapResult the Snickers LdapResult to transform
      * @return A Twix LdapResult
      */
     private LdapResult transformLdapResult( LdapResultImpl snickersLdapResult )
@@ -931,6 +970,41 @@ public class TwixTransformer implements TransformerSpi
 
         // Set the operation into the LdapMessage
         twixMessage.setProtocolOP( bindResponse );
+    }
+
+
+    /**
+     * Transform a Snickers BindRequest to a Twix BindRequest
+     * 
+     * @param twixMessage The Twix BindRequest to produce
+     * @param snickersMessage The incoming Snickers BindRequest
+     */
+    private void transformBindRequest( LdapMessage twixMessage, Message snickersMessage )
+    {
+        BindRequestImpl snickersBindRequest = ( BindRequestImpl ) snickersMessage;
+
+        BindRequest bindRequest = new BindRequest();
+        
+        if ( snickersBindRequest.isSimple() )
+        {
+            SimpleAuthentication simple = new SimpleAuthentication();
+            simple.setSimple( snickersBindRequest.getCredentials() );
+            bindRequest.setAuthentication( simple );
+        }
+        else
+        {
+            SaslCredentials sasl = new SaslCredentials();
+            sasl.setCredentials( snickersBindRequest.getCredentials() );
+            sasl.setMechanism( snickersBindRequest.getSaslMechanism() );
+            bindRequest.setAuthentication( sasl );
+        }
+        
+        bindRequest.setMessageId( snickersBindRequest.getMessageId() );
+        bindRequest.setName( snickersBindRequest.getName() );
+        bindRequest.setVersion( snickersBindRequest.isVersion3() ? 3 : 2 );
+        
+        // Set the operation into the LdapMessage
+        twixMessage.setProtocolOP( bindRequest );
     }
 
 
@@ -1174,6 +1248,10 @@ public class TwixTransformer implements TransformerSpi
                 transformBindResponse( twixMessage, msg );
                 break;
                 
+            case BIND_REQUEST :
+                transformBindRequest( twixMessage, msg );
+                break;
+                
             case ADD_RESPONSE :
                 transformAddResponse( twixMessage, msg );
                 break;
@@ -1214,6 +1292,30 @@ public class TwixTransformer implements TransformerSpi
         return twixMessage;
     }
 
+
+    /**
+     * TODO finish this implementation.  Takes Twix Controls, transforming 
+     * them to Snickers Controls and populates the Snickers message with them.
+     *
+     * @param twixMessage the Twix message
+     * @param msg the Snickers message
+     */
+    private void transformControlsTwixToSnickers( LdapMessage twixMessage, Message msg )
+    {
+        if ( twixMessage.getControls() == null )
+        {
+            return;
+        }
+        
+        Iterator<Control> list = twixMessage.getControls().iterator();
+        
+        while ( list.hasNext() )
+        {
+            log.debug( "Not decoding response control: {}", list.next() );
+        }
+    }
+    
+    
     /**
      * Transforms the controls
      * @param twixMessage The Twix SearchResultReference to produce

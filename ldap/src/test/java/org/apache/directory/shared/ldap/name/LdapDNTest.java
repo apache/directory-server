@@ -1271,7 +1271,7 @@ public class LdapDNTest
            dn.get( 4 );
            fail();
        }
-       catch ( ArrayIndexOutOfBoundsException aioob )
+       catch ( IndexOutOfBoundsException aioob )
        {
            assertTrue( true );
        }
