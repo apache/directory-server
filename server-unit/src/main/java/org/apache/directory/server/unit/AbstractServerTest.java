@@ -254,8 +254,11 @@ public abstract class AbstractServerTest extends TestCase
         directoryService.startup();
 
         configureLdapServer();
+
+        // TODO shouldn't this be before calling configureLdapServer() ???
         ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
         ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+
         ldapServer.start();
         setContexts( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }

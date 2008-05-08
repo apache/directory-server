@@ -21,7 +21,10 @@ package org.apache.directory.server.ldap.handlers.bind.ntlm;
 
 
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.mina.common.IoSession;
 
+import javax.naming.Context;
 import javax.security.sasl.SaslServer;
 import javax.security.sasl.SaslException;
 
@@ -40,10 +43,14 @@ public class NtlmSaslServer implements SaslServer
 
     private NegotiationState state = NegotiationState.INITIALIZED;
     private final NtlmProvider provider;
+    private final BindRequest request;
+    private final IoSession session;
 
-
-    public NtlmSaslServer( NtlmProvider provider )
+    
+    public NtlmSaslServer( NtlmProvider provider, BindRequest request, IoSession session )
     {
+        this.session = session;
+        this.request = request;
         this.provider = provider;
     }
 
@@ -82,10 +89,12 @@ public class NtlmSaslServer implements SaslServer
                 throw new IllegalStateException( "Cannot send Type 2 challenge before Type 1 response." );
             case TYPE_1_RECEIVED:
                 state = NegotiationState.TYPE_2_SENT;
+                break;
             case TYPE_2_SENT:
                 throw new IllegalStateException( "Cannot send Type 2 after it's already sent." );
             case TYPE_3_RECEIVED:
                 state = NegotiationState.COMPLETED;
+                break;
             case COMPLETED:
                 throw new IllegalStateException( "Sasl challenge response already completed." );
         }
@@ -124,6 +133,8 @@ public class NtlmSaslServer implements SaslServer
                 try
                 {
                     result = provider.authenticate( response );
+                    retval = result.getResponse();
+                    session.setAttribute( Context.SECURITY_PRINCIPAL, request.getName().toString() );
                 }
                 catch ( Exception e )
                 {

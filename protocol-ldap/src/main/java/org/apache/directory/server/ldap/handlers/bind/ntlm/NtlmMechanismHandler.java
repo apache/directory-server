@@ -69,7 +69,7 @@ public class NtlmMechanismHandler implements MechanismHandler
                 initProvider();
             }
             
-            ss = new NtlmSaslServer( provider );
+            ss = new NtlmSaslServer( provider, bindRequest, session );
             session.setAttribute( SASL_CONTEXT, ss );
         }
 
