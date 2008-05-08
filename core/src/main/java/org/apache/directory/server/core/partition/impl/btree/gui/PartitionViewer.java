@@ -24,6 +24,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.schema.registries.Registries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,11 +43,15 @@ public class PartitionViewer
 
     /** A handle on the atomic partition */
     private BTreePartition partition;
+    
+    /** A handle on the global registries */
+    private Registries registries;
 
 
-    public PartitionViewer( BTreePartition db )
+    public PartitionViewer( BTreePartition db, Registries registries )
     {
         this.partition = db;
+        this.registries = registries;
     }
 
 
@@ -59,7 +64,7 @@ public class PartitionViewer
                 PartitionFrame frame = null;
                 try
                 {
-                    frame = new PartitionFrame( PartitionViewer.this.partition );
+                    frame = new PartitionFrame( PartitionViewer.this.partition, registries );
                 }
                 catch ( NamingException e )
                 {

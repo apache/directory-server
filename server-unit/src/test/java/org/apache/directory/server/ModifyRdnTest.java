@@ -121,7 +121,7 @@ public class ModifyRdnTest extends AbstractServerTest
 
     /**
      * Just a little test to check wether opening the connection succeeds.
-     */
+     *
     @Test public void testSetUpTearDown()
     {
         assertNotNull( ctx );
@@ -132,7 +132,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * Modify Rdn of an entry, delete its old rdn value.
      * 
      * @throws NamingException
-     */
+     *
     @Test public void testModifyRdnAndDeleteOld() throws NamingException
     {
         // Create a person, cn value is rdn
@@ -179,7 +179,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * The JNDI property is set with 'False'
      * 
      * @throws NamingException
-     */
+     *
     @Test public void testModifyRdnAndDontDeleteOldFalse() throws NamingException
     {
         // Create a person, cn value is rdn
@@ -224,7 +224,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * Modify Rdn of an entry, keep its old rdn value.
      * 
      * @throws NamingException
-     */
+     *
     @Test public void testModifyRdnAndKeepOld() throws NamingException
     {
         // Create a person, cn value is rdn
@@ -271,7 +271,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * cn has another value as well.
      * 
      * @throws NamingException
-     */
+     *
     @Test public void testModifyRdnAndDeleteOldVariant() throws NamingException
     {
         // Create a person, cn value is rdn
@@ -325,7 +325,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * Modify DN of an entry, changing RDN from cn to sn.
      * 
      * @throws NamingException
-     */
+     *
     @Test public void testModifyRdnDifferentAttribute() throws NamingException
     {
 
@@ -447,7 +447,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * Ensure that the attribute itself contains the not-escaped value.
      *
      * @throws Exception
-     */
+     *
     @Test
     public void testModifyRdnWithEncodedNewRdn() throws Exception
     {
@@ -490,6 +490,6 @@ public class ModifyRdnTest extends AbstractServerTest
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
     }
-
+*/
 }
 

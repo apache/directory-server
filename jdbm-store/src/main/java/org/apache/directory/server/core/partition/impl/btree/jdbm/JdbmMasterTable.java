@@ -21,13 +21,16 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
 import jdbm.RecordManager;
 import jdbm.helper.LongSerializer;
 import jdbm.helper.StringComparator;
+
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntrySerializer;
 import org.apache.directory.server.core.partition.impl.btree.MasterTable;
 import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.server.schema.registries.Registries;
 
 
 /**
@@ -50,7 +53,8 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
             if ( o1 == null )
             {
                 throw new IllegalArgumentException( "Argument 'obj1' is null" );
-            } else if ( o2 == null )
+            } 
+            else if ( o2 == null )
             {
                 throw new IllegalArgumentException( "Argument 'obj2' is null" );
             }
@@ -110,9 +114,9 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @param recMan the jdbm record manager
      * @throws NamingException if there is an error opening the Db file.
      */
-    public JdbmMasterTable( RecordManager recMan ) throws NamingException
+    public JdbmMasterTable( RecordManager recMan, Registries registries ) throws NamingException
     {
-        super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new AttributesSerializer() );
+        super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new ServerEntrySerializer( registries ) );
         adminTbl = new JdbmTable( "admin", recMan, STRING_COMPARATOR, null, null );
         String seqValue = ( String ) adminTbl.get( SEQPROP_KEY );
 
@@ -124,44 +128,44 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
 
 
     /**
-     * Gets the Attributes of an entry from this MasterTable.
+     * Gets the ServerEntry from this MasterTable.
      *
-     * @param id the BigInteger id of the entry to retrieve.
-     * @return the Attributes of the entry with operational attributes and all.
+     * @param id the Long id of the entry to retrieve.
+     * @return the ServerEntry with operational attributes and all.
      * @throws NamingException if there is a read error on the underlying Db.
      */
-    public Attributes get( Object id ) throws NamingException
+    public ServerEntry get( Object id ) throws NamingException
     {
-        return ( Attributes ) super.get( id );
+        return ( ServerEntry ) super.get( id );
     }
 
 
     /**
-     * Puts the Attributes of an entry into this master table at an index
+     * Puts the ServerEntry into this master table at an index
      * specified by id.  Used both to create new entries and update existing
      * ones.
      *
-     * @param entry the Attributes of entry w/ operational attributes
-     * @param id    the BigInteger id of the entry to put
-     * @return the Attributes of the entry put
+     * @param entry the ServerEntry w/ operational attributes
+     * @param id    the Long id of the entry to put
+     * @return the ServerEntry put
      * @throws NamingException if there is a write error on the underlying Db.
      */
-    public Attributes put( Attributes entry, Object id ) throws NamingException
+    public ServerEntry put( ServerEntry entry, Object id ) throws NamingException
     {
-        return ( Attributes ) super.put( id, entry );
+        return ( ServerEntry ) super.put( id, entry );
     }
 
 
     /**
-     * Deletes a entry from the master table at an index specified by id.
+     * Deletes a ServerEntry from the master table at an index specified by id.
      *
-     * @param id the BigInteger id of the entry to delete
+     * @param id the Long id of the entry to delete
      * @return the Attributes of the deleted entry
      * @throws NamingException if there is a write error on the underlying Db
      */
-    public Attributes delete( Object id ) throws NamingException
+    public ServerEntry delete( Object id ) throws NamingException
     {
-        return ( Attributes ) super.remove( id );
+        return ( ServerEntry ) super.remove( id );
     }
 
 
@@ -195,13 +199,13 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
 
     /**
      * Get's the next value from this SequenceBDb.  This has the side-effect of
-     * changing the current sequence values perminantly in memory and on disk.
+     * changing the current sequence values permanently in memory and on disk.
      * Master table sequence begins at BigInteger.ONE.  The BigInteger.ZERO is
      * used for the fictitious parent of the suffix root entry.
      *
      * @return the current value incremented by one.
      * @throws NamingException if the admin table storing sequences cannot be
-     *                         read and writen to.
+     *                         read and written to.
      */
     public Long getNextId() throws NamingException
     {
@@ -229,7 +233,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
 
 
     /**
-     * Gets a persistant property stored in the admin table of this MasterTable.
+     * Gets a persistent property stored in the admin table of this MasterTable.
      *
      * @param property the key of the property to get the value of
      * @return the value of the property
@@ -245,7 +249,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
 
 
     /**
-     * Sets a persistant property stored in the admin table of this MasterTable.
+     * Sets a persistent property stored in the admin table of this MasterTable.
      *
      * @param property the key of the property to set the value of
      * @param value    the value of the property
@@ -258,5 +262,4 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
             adminTbl.put( property, value );
         }
     }
-
 }

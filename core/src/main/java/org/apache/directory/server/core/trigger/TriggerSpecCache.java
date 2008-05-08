@@ -22,7 +22,6 @@ package org.apache.directory.server.core.trigger;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -42,6 +41,7 @@ import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,7 +113,8 @@ public class TriggerSpecCache
         {
             String suffix = suffixes.next();
             LdapDN baseDn = new LdapDN( suffix );
-            ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC );
+            ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, 
+                    new ClientStringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration<ServerSearchResult> results = 
@@ -121,7 +122,7 @@ public class TriggerSpecCache
             
             while ( results.hasMore() )
             {
-            	ServerSearchResult result = results.next();
+                ServerSearchResult result = results.next();
                 LdapDN subentryDn = result.getDn();
                 ServerEntry resultEntry = result.getServerEntry();
                 EntryAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );

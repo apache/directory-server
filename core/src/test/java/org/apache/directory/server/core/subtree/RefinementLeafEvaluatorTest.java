@@ -29,6 +29,7 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -113,7 +114,7 @@ public class RefinementLeafEvaluatorTest
 
         try
         {
-            assertFalse( evaluator.evaluate( new GreaterEqNode( "", "" ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new GreaterEqNode( "", new ClientStringValue( "" ) ), objectClasses ) );
             fail( "should never get here due to an NE" );
         }
         catch ( NamingException ne )
@@ -122,7 +123,7 @@ public class RefinementLeafEvaluatorTest
 
         try
         {
-            assertFalse( evaluator.evaluate( new EqualityNode( "", "" ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( "", new ClientStringValue( "" ) ), objectClasses ) );
             fail( "should never get here due to an NE" );
         }
         catch ( NamingException ne )
@@ -131,7 +132,7 @@ public class RefinementLeafEvaluatorTest
 
         try
         {
-            assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", "" ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "" ) ), objectClasses ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -141,7 +142,7 @@ public class RefinementLeafEvaluatorTest
         try
         {
             objectClasses = new DefaultServerAttribute( "cn", OBJECT_CLASS );
-            assertFalse( evaluator.evaluate( new EqualityNode( "cn", "" ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( "cn", new ClientStringValue( "" ) ), objectClasses ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( NamingException ne )
@@ -155,19 +156,19 @@ public class RefinementLeafEvaluatorTest
     {
         // positive test
         ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
-        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", "person" ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "person" ) ), objectClasses ) );
 
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
-        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", "person" ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "person" ) ), objectClasses ) );
 
         // negative tests
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
-        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", "blah" ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "blah" ) ), objectClasses ) );
 
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", "person" ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "person" ) ), objectClasses ) );
     }
 
 
@@ -176,18 +177,18 @@ public class RefinementLeafEvaluatorTest
         ServerAttribute objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
 
         // positive test
-        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", "2.5.6.6" ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "2.5.6.6" ) ), objectClasses ) );
 
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
-        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", "2.5.6.6" ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "2.5.6.6" ) ), objectClasses ) );
 
         // negative tests
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "person" );
-        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", "2.5.6.5" ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "2.5.6.5" ) ), objectClasses ) );
 
         objectClasses = new DefaultServerAttribute( "objectClass", OBJECT_CLASS, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", "2.5.6.5" ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( "objectClass", new ClientStringValue( "2.5.6.5" ) ), objectClasses ) );
     }
 }

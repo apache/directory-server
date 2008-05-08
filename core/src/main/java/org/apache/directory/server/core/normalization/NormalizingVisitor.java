@@ -20,7 +20,10 @@
 package org.apache.directory.server.core.normalization;
 
 
-import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -32,6 +35,8 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,53 +68,72 @@ public class NormalizingVisitor implements FilterVisitor
 {
     /** logger used by this class */
     private final static Logger log = LoggerFactory.getLogger( NormalizingVisitor.class );
-    
+
     /** the name component normalizer used by this visitor */
     private final NameComponentNormalizer ncn;
-    
-    /** the oid registry used to resolve OIDs for attributeType ids */
-    private final OidRegistry registry;
+
+    /** the global registries used to resolve OIDs for attributeType ids */
+    private final Registries registries;
 
 
-    public NormalizingVisitor( NameComponentNormalizer ncn, OidRegistry registry )
+    public NormalizingVisitor( NameComponentNormalizer ncn, Registries registries )
     {
         this.ncn = ncn;
-        this.registry = registry;
+        this.registries = registries;
     }
-    
+
+
     /**
      * A private method used to normalize a value
      * @return
      */
-    private Object normalizeValue( String attribute, Object value )
+    private Value<?> normalizeValue( String attribute, Value<?> value )
     {
-    	try
-    	{
-	    	Object normalized;
-	    	
-            if ( value instanceof String )
+        try
+        {
+            Value<?> normalized;
+
+            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute );
+
+            if ( attributeType.getSyntax().isHumanReadable() )
             {
-                normalized = ncn.normalizeByName( attribute, ( String ) value );
-            }
-            else if ( value instanceof byte [] )
-            {
-                normalized = ncn.normalizeByName( attribute, ( byte[] ) value );
+                if ( value.isBinary() )
+                {
+                    normalized = new ClientStringValue( ( String ) ncn.normalizeByName( attribute, StringTools
+                        .utf8ToString( ( byte[] ) value.get() ) ) );
+                }
+                else
+                {
+                    normalized = new ClientStringValue( ( String ) ncn.normalizeByName( attribute, ( String ) value
+                        .get() ) );
+                }
             }
             else
             {
-                normalized = ncn.normalizeByOid( attribute, value.toString() );
+                if ( value.isBinary() )
+                {
+                    normalized = new ClientBinaryValue( ( byte[] ) ncn.normalizeByName( attribute, ( byte[] ) value
+                        .get() ) );
+                }
+                else
+                {
+                    normalized = new ClientBinaryValue( ( byte[] ) ncn.normalizeByName( attribute, ( String ) value
+                        .get() ) );
+
+                }
             }
-	        
-	        return normalized;
-	    }
-	    catch ( NamingException ne )
-	    {
-	        log.warn( "Failed to normalize filter value: {}", ne.getMessage(), ne );
-	        return null;
-	    }
-    	
+
+            return normalized;
+        }
+        catch ( NamingException ne )
+        {
+            log.warn( "Failed to normalize filter value: {}", ne.getMessage(), ne );
+            return null;
+        }
+
     }
-    
+
+
     /**
      * Visit a PresenceNode. If the attribute exists, the node is returned, otherwise
      * null is returned.
@@ -118,7 +142,7 @@ public class NormalizingVisitor implements FilterVisitor
     {
         try
         {
-            node.setAttribute( registry.getOid( node.getAttribute() ) );
+            node.setAttribute( registries.getOidRegistry().getOid( node.getAttribute() ) );
             return node;
         }
         catch ( NamingException ne )
@@ -127,6 +151,7 @@ public class NormalizingVisitor implements FilterVisitor
             return null;
         }
     }
+
 
     /**
      * Visit a SimpleNode. If the attribute exists, the node is returned, otherwise
@@ -145,16 +170,16 @@ public class NormalizingVisitor implements FilterVisitor
             return null;
         }
 
-       	Object normalized = normalizeValue( node.getAttribute(), node.getValue() );
-        
+        Value<?> normalized = normalizeValue( node.getAttribute(), node.getValue() );
+
         if ( normalized == null )
         {
-        	return null;
+            return null;
         }
 
         try
         {
-            node.setAttribute( registry.getOid( node.getAttribute() ) );
+            node.setAttribute( registries.getOidRegistry().getOid( node.getAttribute() ) );
             node.setValue( normalized );
             return node;
         }
@@ -164,6 +189,7 @@ public class NormalizingVisitor implements FilterVisitor
             return null;
         }
     }
+
 
     /**
      * Visit a SubstringNode. If the attribute exists, the node is returned, otherwise
@@ -177,62 +203,79 @@ public class NormalizingVisitor implements FilterVisitor
         // with an undefined attributeType for its attribute
         if ( !ncn.isDefined( node.getAttribute() ) )
         {
-        	return null;
+            return null;
         }
 
-        Object normInitial = null;
-        
+        Value<?> normInitial = null;
+
         if ( node.getInitial() != null )
         {
-	        normInitial = normalizeValue( node.getAttribute(), node.getInitial() );
-	        
-	        if ( normInitial == null )
-	        {
-	        	return null;
-	        }
+            normInitial = normalizeValue( node.getAttribute(), new ClientStringValue( node.getInitial() ) );
+
+            if ( normInitial == null )
+            {
+                return null;
+            }
         }
-        
+
         List<String> normAnys = null;
-        
+
         if ( ( node.getAny() != null ) && ( node.getAny().size() != 0 ) )
         {
-	        normAnys = new ArrayList<String>( node.getAny().size() );
-	        
-	        for ( String any:node.getAny() )
-	        {
-	        	Object normAny = normalizeValue( node.getAttribute(), any );
-	        	
-	        	if ( normAny != null )
-	        	{
-	        		normAnys.add( (String)normAny );
-	        	}
-	        }
-        
-	        if ( normAnys.size() == 0 )
-	        {
-	        	return null;
-	        }
+            normAnys = new ArrayList<String>( node.getAny().size() );
+
+            for ( String any : node.getAny() )
+            {
+                Value<?> normAny = normalizeValue( node.getAttribute(), new ClientStringValue( any ) );
+
+                if ( normAny != null )
+                {
+                    normAnys.add( ( String ) normAny.get() );
+                }
+            }
+
+            if ( normAnys.size() == 0 )
+            {
+                return null;
+            }
         }
-        
-        Object normFinal = null;
-        
+
+        Value<?> normFinal = null;
+
         if ( node.getFinal() != null )
         {
-	        normFinal = normalizeValue( node.getAttribute(), node.getFinal() );
-	        
-	        if ( normFinal == null )
-	        {
-	        	return null;
-	        }
+            normFinal = normalizeValue( node.getAttribute(), new ClientStringValue( node.getFinal() ) );
+
+            if ( normFinal == null )
+            {
+                return null;
+            }
         }
-        
-        
+
         try
         {
-            node.setAttribute( registry.getOid( node.getAttribute() ) );
-            node.setInitial( (String)normInitial );
+            node.setAttribute( registries.getOidRegistry().getOid( node.getAttribute() ) );
+
+            if ( normInitial != null )
+            {
+                node.setInitial( ( String ) normInitial.get() );
+            }
+            else
+            {
+                node.setInitial( null );
+            }
+
             node.setAny( normAnys );
-            node.setFinal( (String)normFinal );
+
+            if ( normFinal != null )
+            {
+                node.setFinal( ( String ) normFinal.get() );
+            }
+            else
+            {
+                node.setFinal( null );
+            }
+
             return node;
         }
         catch ( NamingException ne )
@@ -241,6 +284,7 @@ public class NormalizingVisitor implements FilterVisitor
             return null;
         }
     }
+
 
     /**
      * Visit a ExtensibleNode. If the attribute exists, the node is returned, otherwise
@@ -252,7 +296,7 @@ public class NormalizingVisitor implements FilterVisitor
     {
         try
         {
-            node.setAttribute( registry.getOid( node.getAttribute() ) );
+            node.setAttribute( registries.getOidRegistry().getOid( node.getAttribute() ) );
             return node;
         }
         catch ( NamingException ne )
@@ -262,6 +306,7 @@ public class NormalizingVisitor implements FilterVisitor
         }
     }
 
+
     /**
      * Visit a BranchNode. BranchNodes are :
      *  - AndNode
@@ -270,86 +315,86 @@ public class NormalizingVisitor implements FilterVisitor
      */
     private ExprNode visitBranchNode( BranchNode node )
     {
-    	// Two differente cases :
-    	// - AND or OR
-    	// - NOT
-    	
-    	if ( node instanceof NotNode )
-    	{
-        	// Manage the NOT
-    		ExprNode child = node.getFirstChild();
-    		
-    		ExprNode result = (ExprNode)visit( child );
-    		
-    		if ( result == null )
-    		{
-    			return result;
-    		}
-    		else if ( result instanceof BranchNode )
-    		{
-    			node.setChildren( ((BranchNode)result).getChildren() );
-    			return node;
-    		}
-    		else if ( result instanceof LeafNode )
-    		{
-    			List<ExprNode> newChildren = new ArrayList<ExprNode>(1); 
-    			newChildren.add( result );
-    			node.setChildren( newChildren );
-    			return node;
-    		}
-    	}
-    	else
-    	{
-    		// Manage AND and OR nodes.
-    		BranchNode branchNode = (BranchNode)node;
+        // Two differente cases :
+        // - AND or OR
+        // - NOT
+
+        if ( node instanceof NotNode )
+        {
+            // Manage the NOT
+            ExprNode child = node.getFirstChild();
+
+            ExprNode result = ( ExprNode ) visit( child );
+
+            if ( result == null )
+            {
+                return result;
+            }
+            else if ( result instanceof BranchNode )
+            {
+                node.setChildren( ( ( BranchNode ) result ).getChildren() );
+                return node;
+            }
+            else if ( result instanceof LeafNode )
+            {
+                List<ExprNode> newChildren = new ArrayList<ExprNode>( 1 );
+                newChildren.add( result );
+                node.setChildren( newChildren );
+                return node;
+            }
+        }
+        else
+        {
+            // Manage AND and OR nodes.
+            BranchNode branchNode = ( BranchNode ) node;
             List<ExprNode> children = node.getChildren();
-    		
-    		// For AND and OR, we may have more than one children.
-    		// We may have to remove some of them, so let's create
-    		// a new handler to store the correct nodes.
-    		List<ExprNode> newChildren = new ArrayList<ExprNode>( 
-    				children.size() );
-    		
-    		// Now, iterate through all the children
-    		for ( int i = 0; i < children.size(); i++ )
-    		{
-    			ExprNode child = children.get( i );
-    			
-    			ExprNode result = (ExprNode)visit( child );
-    			
-    			if ( result != null )
-    			{
-    				// As the node is correct, add it to the children 
-    				// list.
-    				newChildren.add( result );
-    			}
-    		}
-            
+
+            // For AND and OR, we may have more than one children.
+            // We may have to remove some of them, so let's create
+            // a new handler to store the correct nodes.
+            List<ExprNode> newChildren = new ArrayList<ExprNode>( children.size() );
+
+            // Now, iterate through all the children
+            for ( int i = 0; i < children.size(); i++ )
+            {
+                ExprNode child = children.get( i );
+
+                ExprNode result = ( ExprNode ) visit( child );
+
+                if ( result != null )
+                {
+                    // As the node is correct, add it to the children 
+                    // list.
+                    newChildren.add( result );
+                }
+            }
+
             if ( ( branchNode instanceof AndNode ) && ( newChildren.size() != children.size() ) )
             {
                 return null;
             }
-    		
-    		if ( newChildren.size() == 0 )
-    		{
-    			// No more children, return null
-    			return null;
-    		}
-    		else if ( newChildren.size() == 1 )
-    		{
-    			// As we only have one child, return it
-    			// to the caller.
-    			return newChildren.get( 0 );
-    		}
-    		else
-    		{
-    			branchNode.setChildren( newChildren );
-    		}
-    	}
-    	
-    	return node;
+
+            if ( newChildren.size() == 0 )
+            {
+                // No more children, return null
+                return null;
+            }
+            else if ( newChildren.size() == 1 )
+            {
+                // As we only have one child, return it
+                // to the caller.
+                return newChildren.get( 0 );
+            }
+            else
+            {
+                branchNode.setChildren( newChildren );
+            }
+        }
+
+        return node;
     }
-    
+
+
     /**
      * Visit the tree, normalizing the leaves and recusrsively visit the branches.
      * 
@@ -370,41 +415,41 @@ public class NormalizingVisitor implements FilterVisitor
         // -------------------------------------------------------------------
         // Handle PresenceNodes
         // -------------------------------------------------------------------
-        
+
         if ( node instanceof PresenceNode )
         {
-        	return visitPresenceNode( (PresenceNode)node );
+            return visitPresenceNode( ( PresenceNode ) node );
         }
 
         // -------------------------------------------------------------------
         // Handle BranchNodes (AndNode, NotNode and OrNode)
         // -------------------------------------------------------------------
-        
+
         else if ( node instanceof BranchNode )
         {
-        	return visitBranchNode( (BranchNode)node );
+            return visitBranchNode( ( BranchNode ) node );
         }
 
         // -------------------------------------------------------------------
         // Handle SimpleNodes (ApproximateNode, EqualityNode, GreaterEqNode,
         // and LesserEqNode) 
         // -------------------------------------------------------------------
-        
+
         else if ( node instanceof SimpleNode )
         {
-        	return visitSimpleNode( (SimpleNode)node );
+            return visitSimpleNode( ( SimpleNode ) node );
         }
         else if ( node instanceof ExtensibleNode )
         {
-        	return visitExtensibleNode( (ExtensibleNode)node );
+            return visitExtensibleNode( ( ExtensibleNode ) node );
         }
         else if ( node instanceof SubstringNode )
         {
-        	return visitSubstringNode( (SubstringNode)node );
+            return visitSubstringNode( ( SubstringNode ) node );
         }
         else
         {
-        	return null;
+            return null;
         }
     }
 

@@ -26,16 +26,16 @@ import java.util.regex.PatternSyntaxException;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -133,14 +133,14 @@ public class SubstringEvaluator implements Evaluator
         // Index not defined beyond this point
         // --------------------------------------------------------------------
 
-        Attributes entry = record.getAttributes();
+        ServerEntry entry = record.getEntry();
         
         // resuscitate the entry if it has not been and set entry in IndexRecord
         if ( null == entry )
         {
-            Attributes attrs = db.lookup( (Long)record.getEntryId() );
-            record.setAttributes( attrs );
-            entry = record.getAttributes();
+        	ServerEntry attrs = db.lookup( (Long)record.getEntryId() );
+            record.setEntry( attrs );
+            entry = record.getEntry();
         }
 
         // Of course, if the entry does not contains any attributes
@@ -152,7 +152,7 @@ public class SubstringEvaluator implements Evaluator
         }
 
         // get the attribute
-        Attribute attr = AttributeUtils.getAttribute( entry, type );
+        EntryAttribute attr = entry.get( type );
 
         // if the attribute does not exist just return false
         if ( attr != null)
@@ -175,16 +175,13 @@ public class SubstringEvaluator implements Evaluator
              * The test uses the comparator obtained from the appropriate 
              * substring matching rule.
              */
-            NamingEnumeration values = attr.getAll();
-            
-            while ( values.hasMore() )
+            for( Value<?> value:attr )
             {
-                String value = ( String ) normalizer.normalize( values.next() );
+                String normValue = ( String ) normalizer.normalize( value.get() );
     
                 // Once match is found cleanup and return true
-                if ( regex.matcher( value ).matches() )
+                if ( regex.matcher( normValue ).matches() )
                 {
-                    values.close();
                     return true;
                 }
             }
@@ -203,7 +200,7 @@ public class SubstringEvaluator implements Evaluator
             {
                 AttributeType descendant = descendants.next();
 
-                attr = AttributeUtils.getAttribute( entry, descendant );
+                attr = entry.get( descendant );
 
                 if ( null == attr )
                 {
@@ -229,16 +226,13 @@ public class SubstringEvaluator implements Evaluator
                      * The test uses the comparator obtained from the appropriate 
                      * substring matching rule.
                      */
-                    NamingEnumeration values = attr.getAll();
-                    
-                    while ( values.hasMore() )
+                    for ( Value<?> value:attr )
                     {
-                        String value = ( String ) normalizer.normalize( values.next() );
+                        String normValue = ( String ) normalizer.normalize( value.get() );
             
                         // Once match is found cleanup and return true
-                        if ( regex.matcher( value ).matches() )
+                        if ( regex.matcher( normValue ).matches() )
                         {
-                            values.close();
                             return true;
                         }
                     }

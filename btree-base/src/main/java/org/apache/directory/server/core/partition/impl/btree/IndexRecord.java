@@ -19,8 +19,7 @@
  */
 package org.apache.directory.server.core.partition.impl.btree;
 
-
-import javax.naming.directory.Attributes;
+import org.apache.directory.server.core.entry.ServerEntry;
 
 
 /**
@@ -34,8 +33,9 @@ public class IndexRecord
 {
     /** The underlying BTree Tuple */
     private final Tuple tuple = new Tuple();
-    /** The referenced entry if resusitated */
-    private Attributes entry = null;
+    
+    /** The referenced entry if ressucitated */
+    private ServerEntry entry = null;
 
 
     /**
@@ -45,7 +45,7 @@ public class IndexRecord
      * @param tuple the tuple for the IndexRecord
      * @param entry the resusitated entry if any
      */
-    public void setTuple( Tuple tuple, Attributes entry )
+    public void setTuple( Tuple tuple, ServerEntry entry )
     {
         this.tuple.setKey( tuple.getKey() );
         this.tuple.setValue( tuple.getValue() );
@@ -60,7 +60,7 @@ public class IndexRecord
      * @param tuple the tuple for the IndexRecord
      * @param entry the resusitated entry if any
      */
-    public void setSwapped( Tuple tuple, Attributes entry )
+    public void setSwapped( Tuple tuple, ServerEntry entry )
     {
         this.tuple.setKey( tuple.getValue() );
         this.tuple.setValue( tuple.getKey() );
@@ -118,14 +118,14 @@ public class IndexRecord
      * 
      * @return the entry's attributes
      */
-    public Attributes getAttributes()
+    public ServerEntry getEntry()
     {
         if ( entry == null )
         {
             return null;
         }
 
-        return ( Attributes ) entry.clone();
+        return ( ServerEntry ) entry.clone();
     }
 
 
@@ -134,7 +134,7 @@ public class IndexRecord
      * 
      * @param entry the entry's attributes
      */
-    public void setAttributes( Attributes entry )
+    public void setEntry( ServerEntry entry )
     {
         this.entry = entry;
     }
@@ -159,7 +159,7 @@ public class IndexRecord
      */
     public void copy( IndexRecord record )
     {
-        entry = record.getAttributes();
+        entry = record.getEntry();
         tuple.setKey( record.getIndexKey() );
         tuple.setValue( record.getEntryId() );
     }

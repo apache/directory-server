@@ -22,7 +22,6 @@ package org.apache.directory.server.core.jndi;
 
 import java.util.Hashtable;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.ExtendedRequest;

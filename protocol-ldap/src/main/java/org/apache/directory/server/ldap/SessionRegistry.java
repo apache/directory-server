@@ -64,8 +64,8 @@ public class SessionRegistry
     /**
      * Creates a singleton session state object for the system.
      *
+     * @param ldapServer the ldap server instance
      * @param env the properties associated with this SessionRegistry
-     * @param ldapServer the ldap configuration
      */
     public SessionRegistry( LdapServer ldapServer, Hashtable<String, Object> env )
     {
@@ -256,7 +256,7 @@ public class SessionRegistry
         if ( ctx == null && allowAnonymous )
         {
             // if configuration says disable anonymous binds we throw exception
-            if ( !ldapServer.isAllowAnonymousAccess() )
+            if ( ! ldapServer.isAllowAnonymousAccess() )
             {
                 throw new LdapNoPermissionException( "Anonymous binds have been disabled!" );
             }
@@ -300,7 +300,7 @@ public class SessionRegistry
 
             // if the user principal is anonymous and the configuration does not allow anonymous binds we
             // prevent the operation by blowing a NoPermissionsException
-            if ( isAnonymousUser && !ldapServer.isAllowAnonymousAccess() )
+            if ( isAnonymousUser && ! ldapServer.isAllowAnonymousAccess() )
             {
                 throw new LdapNoPermissionException( "Anonymous binds have been disabled!" );
             }

@@ -48,8 +48,11 @@ public class AddEntryOperation extends Operation
 {
     private static final long serialVersionUID = 2294492811671880570L;
 
-    private final LdapDN normalizedName;
+    /** The entry to add */
     private final Attributes entry;
+    
+    /** The entry's dn */
+    private final LdapDN dn;
 
 
     /**
@@ -57,41 +60,34 @@ public class AddEntryOperation extends Operation
      * 
      * @param entry an entry
      */
-    public AddEntryOperation( CSN csn, LdapDN normalizedName, ServerEntry entry )
+    public AddEntryOperation( CSN csn, ServerEntry entry )
     {
         super( csn );
 
-        assert normalizedName != null;
         assert entry != null;
 
-        this.normalizedName = normalizedName;
         this.entry = ServerEntryUtils.toAttributesImpl( entry );
-    }
-
-
-    public String toString()
-    {
-        return super.toString() + ": [" + normalizedName + "].new( " + entry + " )";
+        this.dn = entry.getDn();
     }
 
 
     protected void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries )
         throws NamingException
     {
-        if ( !EntryUtil.isEntryUpdatable( registries, nexus, normalizedName, getCSN() ) )
+        if ( !EntryUtil.isEntryUpdatable( registries, nexus, dn, getCSN() ) )
         {
             return;
         }
         
-        EntryUtil.createGlueEntries( registries, nexus, normalizedName, false );
+        EntryUtil.createGlueEntries( registries, nexus, dn, false );
 
         // Replace the entry if an entry with the same name exists.
-        if ( nexus.lookup( new LookupOperationContext( registries, normalizedName ) ) != null )
+        if ( nexus.lookup( new LookupOperationContext( registries, dn ) ) != null )
         {
-            recursiveDelete( nexus, normalizedName, registries );
+            recursiveDelete( nexus, dn, registries );
         }
 
-        nexus.add( new AddOperationContext( registries, normalizedName, ServerEntryUtils.toServerEntry( entry, normalizedName, registries ) ) );
+        nexus.add( new AddOperationContext( registries, ServerEntryUtils.toServerEntry( entry, dn, registries ) ) );
     }
 
 
@@ -109,12 +105,18 @@ public class AddEntryOperation extends Operation
 
         while ( ne.hasMore() )
         {
-        	ServerSearchResult sr = ne.next();
+            ServerSearchResult sr = ne.next();
             LdapDN dn = sr.getDn();
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             recursiveDelete( nexus, dn, registries );
         }
         
         nexus.delete( new DeleteOperationContext( registries, normalizedName ) );
+    }
+
+
+    public String toString()
+    {
+        return super.toString() + ": [" + dn + "].new( " + entry + " )";
     }
 }

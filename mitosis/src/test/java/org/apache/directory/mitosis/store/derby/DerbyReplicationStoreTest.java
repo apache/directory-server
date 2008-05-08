@@ -198,7 +198,7 @@ public class DerbyReplicationStoreTest extends TestCase
         CSN csn = csnFactory.newInstance( REPLICA_ID );
         CompositeOperation op1 = new CompositeOperation( csn );
         LdapDN ouA =  new LdapDN( "ou=a" ).normalize( oids );
-        op1.add( new AddEntryOperation( csn, ouA, 
+        op1.add( new AddEntryOperation( csn, 
             new DefaultServerEntry( service.getRegistries(), ouA ) ) );
         
         op1.add( new AddAttributeOperation( csn, ouA, 
@@ -215,7 +215,7 @@ public class DerbyReplicationStoreTest extends TestCase
 
         csn = csnFactory.newInstance( OTHER_REPLICA_ID );
         CompositeOperation op2 = new CompositeOperation( csn );
-        op2.add( new AddEntryOperation( csn, ouA, 
+        op2.add( new AddEntryOperation( csn, 
             new DefaultServerEntry( service.getRegistries(), ouA ) ) );
         
         op2.add( new AddAttributeOperation( csn, ouA, 

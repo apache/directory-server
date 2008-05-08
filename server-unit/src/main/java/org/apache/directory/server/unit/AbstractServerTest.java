@@ -28,13 +28,16 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.ldap.support.extended.StartTlsHandler;
-import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.ldap.handlers.bind.*;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.mina.util.AvailablePortFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,11 +52,7 @@ import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -248,24 +247,62 @@ public abstract class AbstractServerTest extends TestCase
         ldapServer.setDirectoryService( directoryService );
         ldapServer.setIpPort( port = AvailablePortFinder.getNextAvailable( 1024 ) );
 
+        setupSaslMechanisms( ldapServer );
+
         doDelete( directoryService.getWorkingDirectory() );
         configureDirectoryService();
         directoryService.startup();
 
         configureLdapServer();
+
+        // TODO shouldn't this be before calling configureLdapServer() ???
         ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
         ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+
         ldapServer.start();
         setContexts( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
+
+
+    private void setupSaslMechanisms( LdapServer server )
+    {
+        Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
+
+        mechanismHandlerMap.put( SupportedSaslMechanisms.SIMPLE, new SimpleMechanismHandler() );
+
+        CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
+        cramMd5MechanismHandler.setDirectoryService( directoryService );
+        mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
+
+        DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
+        digestMd5MechanismHandler.setDirectoryService( directoryService );
+        mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
+
+        GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
+        gssapiMechanismHandler.setDirectoryService( directoryService );
+        mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
+
+        NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
+        // TODO - set some sort of default NtlmProvider implementation here
+        // ntlmMechanismHandler.setNtlmProvider( provider );
+        // TODO - or set FQCN of some sort of default NtlmProvider implementation here
+        // ntlmMechanismHandler.setNtlmProviderFqcn( "com.foo.BarNtlmProvider" );
+        mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
+        mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
+
+        ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
+    }
+
 
     protected void configureDirectoryService() throws NamingException
     {
     }
 
+
     protected void configureLdapServer()
     {
     }
+
 
     protected void setAllowAnonymousAccess( boolean anonymousAccess )
     {
@@ -273,6 +310,7 @@ public abstract class AbstractServerTest extends TestCase
         ldapServer.setAllowAnonymousAccess( anonymousAccess );
     }
 
+    
     /**
      * Deletes the Eve working directory.
      * @param wkdir the directory to delete

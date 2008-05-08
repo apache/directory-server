@@ -21,7 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
 import java.io.File;
 import java.util.HashSet;
@@ -241,7 +240,7 @@ public class JdbmPartition extends BTreePartition
             store.setEnableOptimizer( isOptimizerEnabled() );
         }
 
-        store.init( registries.getOidRegistry(), registries.getAttributeTypeRegistry() );
+        store.init( registries );
     }
 
 
@@ -468,11 +467,11 @@ public class JdbmPartition extends BTreePartition
     
     public final void add( AddOperationContext addContext ) throws NamingException
     {
-        store.add( addContext.getDn(), ServerEntryUtils.toAttributesImpl( addContext.getEntry() ) );
+        store.add( addContext.getDn(), addContext.getEntry() );
     }
 
 
-    public final Attributes lookup( Long id ) throws NamingException
+    public final ServerEntry lookup( Long id ) throws NamingException
     {
         return store.lookup( id );
     }
@@ -507,7 +506,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final Attributes getSuffixEntry() throws NamingException
+    public final ServerEntry getSuffixEntry() throws NamingException
     {
         return store.getSuffixEntry();
     }
@@ -525,7 +524,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final Attributes getIndices( Long id ) throws NamingException
+    public final ServerEntry getIndices( Long id ) throws NamingException
     {
         return store.getIndices( id );
     }
@@ -544,8 +543,10 @@ public class JdbmPartition extends BTreePartition
 
     public final void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws NamingException
     {
-        store.move( moveAndRenameContext.getDn(), moveAndRenameContext.getParent(), 
-        		moveAndRenameContext.getNewRdn(), moveAndRenameContext.getDelOldDn() );
+        store.move( moveAndRenameContext.getDn(), 
+            moveAndRenameContext.getParent(), 
+            moveAndRenameContext.getNewRdn(), 
+            moveAndRenameContext.getDelOldDn() );
     }
 
 

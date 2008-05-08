@@ -36,7 +36,6 @@ import java.util.Stack;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -67,6 +66,7 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
+import org.apache.directory.server.schema.registries.Registries;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -117,6 +117,9 @@ public class PartitionFrame extends JFrame
     private Map<Long, EntryNode> nodes;
     private EntryNode root;
 
+    
+    /** A handle on the global registries */
+    private Registries registries;
 
     /**
      * Creates new form JFrame
@@ -124,9 +127,10 @@ public class PartitionFrame extends JFrame
      * @param db the partition to view
      * @throws NamingException if there are problems accessing the partition
      */
-    public PartitionFrame( BTreePartition db ) throws NamingException
+    public PartitionFrame( BTreePartition db, Registries registries ) throws NamingException
     {
         partition = db;
+        this.registries = registries;
 
         initialize();
         buildIndicesMenu( partition );
@@ -377,7 +381,7 @@ public class PartitionFrame extends JFrame
                 return;
             }
 
-            AddEntryDialog dialog = new AddEntryDialog( this, false );
+            AddEntryDialog dialog = new AddEntryDialog( this, false, registries );
             dialog.setParentDn( parentDn );
 
             centerOnScreen( dialog );
@@ -451,14 +455,14 @@ public class PartitionFrame extends JFrame
             {
                 LdifEntry entry = ( LdifEntry ) list.next();
                 String updn = entry.getDn();
-                Attributes attrs = entry.getAttributes();
                 
                 LdapDN ndn = new LdapDN( StringTools.deepTrimToLower( updn ) );
 
+                ServerEntry attrs = ServerEntryUtils.toServerEntry( entry.getAttributes(), ndn, null );
+
                 if ( null == partition.getEntryId( ndn.toString() ) )
                 {
-                    ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, ndn, null );
-                    partition.add( new AddOperationContext( null, ndn, serverEntry ) );
+                    partition.add( new AddOperationContext( null, attrs ) );
                     load();
                 }
             }
@@ -852,7 +856,7 @@ public class PartitionFrame extends JFrame
     }
 
 
-    void displayEntry( Long id, Attributes entry ) throws Exception
+    void displayEntry( Long id, ServerEntry entry ) throws Exception
     {
         String dn = partition.getEntryUpdn( id );
         AttributesTableModel model = new AttributesTableModel( entry, id, dn, false );
@@ -870,7 +874,7 @@ public class PartitionFrame extends JFrame
         // boolean doFiltered = false;
         nodes = new HashMap<Long, EntryNode>();
 
-        Attributes suffix = partition.getSuffixEntry();
+        ServerEntry suffix = partition.getSuffixEntry();
         Long id = partition.getEntryId( partition.getSuffixDn().toString() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 

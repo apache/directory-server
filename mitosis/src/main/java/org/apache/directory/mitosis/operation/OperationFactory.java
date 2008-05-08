@@ -136,7 +136,7 @@ public class OperationFactory
         // MODIFY operation)
         cloneEntry.put( Constants.ENTRY_CSN, csn.toOctetString() );
 
-        return new AddEntryOperation( csn, normalizedName, cloneEntry );
+        return new AddEntryOperation( csn, cloneEntry );
     }
 
 
@@ -277,7 +277,7 @@ public class OperationFactory
 
         while ( e.hasMore() )
         {
-        	ServerSearchResult sr = e.next();
+            ServerSearchResult sr = e.next();
 
             // Get the name of the old entry
             LdapDN oldEntryName = sr.getDn();

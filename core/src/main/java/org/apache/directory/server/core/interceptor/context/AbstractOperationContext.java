@@ -25,6 +25,8 @@ import java.util.Map;
 
 import javax.naming.ldap.Control;
 
+import org.apache.directory.server.core.invocation.Invocation;
+import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -55,7 +57,6 @@ public abstract class AbstractOperationContext implements OperationContext
     /** The global registries reference */
     private Registries registries;
 
-    
     /**
      * Creates a new instance of AbstractOperationContext.
      *
@@ -219,5 +220,27 @@ public abstract class AbstractOperationContext implements OperationContext
     public Registries getRegistries()
     {
         return registries;
+    }
+    
+    
+    /**
+     * Add the invocation into the invocation stack
+     * 
+     * @param invocation The new invocation.
+     */
+    public void push( Invocation invocation )
+    {
+        InvocationStack stack = InvocationStack.getInstance();
+        stack.push( invocation );
+    }
+    
+    
+    /**
+     * Remove the invocation fro the invocation stack
+     */
+    public void pop()
+    {
+        InvocationStack stack = InvocationStack.getInstance();
+        stack.pop();
     }
 }

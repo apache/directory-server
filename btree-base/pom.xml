@@ -41,6 +41,12 @@
       <artifactId>apacheds-schema-registries</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-core-entry</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
   </dependencies>
 </project>
 

@@ -130,7 +130,7 @@ public class EntryUtil
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
 
         // And add it to the nexus.
-        nexus.add( new AddOperationContext( registries, name, entry ) );
+        nexus.add( new AddOperationContext( registries, entry ) );
     }
 
 

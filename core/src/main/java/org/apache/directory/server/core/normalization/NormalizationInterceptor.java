@@ -90,7 +90,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
         attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
-        normVisitor = new NormalizingVisitor( ncn, oidRegistry );
+        normVisitor = new NormalizingVisitor( ncn, directoryService.getRegistries() );
         //expVisitor = new ExpandingVisitor( attributeRegistry );
         attrNormalizers = attributeRegistry.getNormalizerMapping();
     }

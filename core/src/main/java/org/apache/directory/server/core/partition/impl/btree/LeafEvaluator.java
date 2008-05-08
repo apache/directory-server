@@ -23,13 +23,13 @@ package org.apache.directory.server.core.partition.impl.btree;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -45,7 +45,6 @@ import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -118,15 +117,15 @@ public class LeafEvaluator implements Evaluator
      * @return
      * @throws NamingException
      */
-    private boolean matchValue( SimpleNode node, Attribute attr, AttributeType type, Normalizer normalizer,
+    private boolean matchValue( SimpleNode node, EntryAttribute attr, AttributeType type, Normalizer normalizer,
         Comparator comparator ) throws NamingException
     {
         // get the normalized AVA filter value
-        Object filterValue = node.getValue();
+        Value<?> filterValue = node.getValue();
 
         // Check if the attribute normalized value match 
         // Fast check. If it succeeds, we are done.
-        if ( AttributeUtils.containsValue( attr, filterValue, type ) )
+        if ( attr.contains( filterValue ) )
         {
             // We are lucky.
             return true;
@@ -137,14 +136,12 @@ public class LeafEvaluator implements Evaluator
          * a lookup to work.  For each value we normalize and use the comparator
          * to determine if a match exists.
          */
-        NamingEnumeration values = attr.getAll();
-
-        while ( values.hasMore() )
+        for ( Value<?> value:attr )
         {
-            Object normValue = normalizer.normalize( values.next() );
+            Object normValue = normalizer.normalize( value.get() );
 
             // TODO Fix DIRSERVER-832
-            if ( 0 == comparator.compare( normValue, filterValue ) )
+            if ( 0 == comparator.compare( normValue, filterValue.get() ) )
             {
                 // The value has been found. get out.
                 return true;
@@ -159,18 +156,18 @@ public class LeafEvaluator implements Evaluator
     /**
      * Get the entry from the backend, if it's not already into the record
      */
-    private Attributes getEntry( IndexRecord rec ) throws NamingException
+    private ServerEntry getEntry( IndexRecord rec ) throws NamingException
     {
         // get the attributes associated with the entry 
-        Attributes entry = rec.getAttributes();
+    	ServerEntry entry = rec.getEntry();
 
         // resuscitate entry if need be
         // TODO Is this really needed ? 
         // How possibly can't we have the entry at this point ?
         if ( null == entry )
         {
-            rec.setAttributes( db.lookup( ( Long ) rec.getEntryId() ) );
-            entry = rec.getAttributes();
+            rec.setEntry( db.lookup( ( Long ) rec.getEntryId() ) );
+            entry = rec.getEntry();
         }
 
         return entry;
@@ -261,13 +258,13 @@ public class LeafEvaluator implements Evaluator
         }
 
         // resuscitate entry if need be
-        if ( null == record.getAttributes() )
+        if ( null == record.getEntry() )
         {
-            record.setAttributes( db.lookup( id ) );
+            record.setEntry( db.lookup( id ) );
         }
 
         // get the attribute associated with the node
-        Attribute attr = AttributeUtils.getAttribute( record.getAttributes(), 
+        EntryAttribute attr = record.getEntry().get( 
         		registries.getAttributeTypeRegistry().lookup( node.getAttribute() ) );
 
         // If we do not have the attribute just return false
@@ -283,7 +280,6 @@ public class LeafEvaluator implements Evaluator
         Normalizer normalizer = getNormalizer( attrId, ORDERING_MATCH );
         Comparator comparator = getComparator( attrId, ORDERING_MATCH );
         Object filterValue = node.getValue();
-        NamingEnumeration list = attr.getAll();
 
         /*
          * Cheaper to not check isGreater in one loop - better to separate
@@ -291,12 +287,12 @@ public class LeafEvaluator implements Evaluator
          */
         if ( isGreaterOrLesser == SimpleNode.EVAL_GREATER )
         {
-            while ( list.hasMore() )
+            for ( Value<?> value:attr )
             {
-                Object value = normalizer.normalize( list.next() );
+                Object normValue = normalizer.normalize( value.get() );
 
                 // Found a value that is greater than or equal to the ava value
-                if ( 0 >= comparator.compare( filterValue, value ) )
+                if ( 0 >= comparator.compare( (String)((Value<?>)filterValue).get(), normValue ) )
                 {
                     return true;
                 }
@@ -304,12 +300,12 @@ public class LeafEvaluator implements Evaluator
         }
         else
         {
-            while ( list.hasMore() )
+        	for ( Value<?> value:attr )
             {
-                Object value = normalizer.normalize( list.next() );
+                Object normValue = normalizer.normalize( value );
 
                 // Found a value that is less than or equal to the ava value
-                if ( 0 <= comparator.compare( filterValue, value ) )
+                if ( 0 <= comparator.compare( filterValue, normValue ) )
                 {
                     return true;
                 }
@@ -350,7 +346,7 @@ public class LeafEvaluator implements Evaluator
         }
 
         // get the attributes associated with the entry 
-        Attributes entry = getEntry( rec );
+        ServerEntry entry = getEntry( rec );
 
         // Of course, if the entry does not contains any attributes
         // (very unlikely !!!), get out of here
@@ -365,7 +361,7 @@ public class LeafEvaluator implements Evaluator
         		registries.getOidRegistry().getOid( attrId ) );
 
         // here, we may have some descendants if the attribute is not found
-        if ( AttributeUtils.getAttribute( entry, type ) != null )
+        if ( entry.get( type ) != null )
         {
             // The current entry contains this attribute. We can exit
             return true;
@@ -384,7 +380,7 @@ public class LeafEvaluator implements Evaluator
                 {
                     AttributeType descendant = descendants.next();
 
-                    if ( AttributeUtils.getAttribute( entry, descendant ) != null )
+                    if ( entry.get( descendant ) != null )
                     {
                         // We have found one descendant : exit
                         return true;
@@ -411,7 +407,7 @@ public class LeafEvaluator implements Evaluator
     private boolean evalEquality( SimpleNode node, IndexRecord rec ) throws NamingException
     {
         String filterAttr = node.getAttribute();
-        Object filterValue = node.getValue();
+        Value<?> filterValue = node.getValue();
 
         // First, check if the attributeType is indexed
         if ( db.hasUserIndexOn( filterAttr ) )
@@ -444,7 +440,7 @@ public class LeafEvaluator implements Evaluator
          * contained.
          */
         // get the attributes associated with the entry 
-        Attributes entry = getEntry( rec );
+        ServerEntry entry = getEntry( rec );
 
         // Of course, if the entry does not contains any attributes
         // (very unlikely !!!), get out of here
@@ -456,13 +452,13 @@ public class LeafEvaluator implements Evaluator
 
         // get the attribute associated with the node 
         AttributeType type = registries.getAttributeTypeRegistry().lookup( filterAttr );
-        Attribute attr = AttributeUtils.getAttribute( entry, type );
+        EntryAttribute attr = entry.get( type );
 
         if ( attr != null )
         {
             // We have found the attribute into the entry.
             // Check if the normalized value is present
-            if ( AttributeUtils.containsValue( attr, filterValue, type ) )
+            if ( attr.contains( filterValue ) )
             {
                 // We are lucky.
                 return true;
@@ -492,7 +488,7 @@ public class LeafEvaluator implements Evaluator
             {
                 AttributeType descendant = descendants.next();
 
-                attr = AttributeUtils.getAttribute( entry, descendant );
+                attr = entry.get( descendant );
 
                 if ( null == attr )
                 {
@@ -501,7 +497,7 @@ public class LeafEvaluator implements Evaluator
                 else
                 {
                     // check if the normalized value is present
-                    if ( AttributeUtils.containsValue( attr, filterValue, descendant ) )
+                    if ( attr.contains( filterValue ) )
                     {
                         return true;
                     }

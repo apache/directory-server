@@ -41,18 +41,27 @@
       <version>${pom.version}</version>
       <artifactId>apacheds-schema-registries</artifactId>
     </dependency>
+    
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <version>${pom.version}</version>
       <artifactId>apacheds-schema-bootstrap</artifactId>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <version>${pom.version}</version>
       <artifactId>apacheds-schema-extras</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <version>${pom.version}</version>
+      <artifactId>apacheds-jdbm</artifactId>
+    </dependency>
+    
   </dependencies>
   
 </project>

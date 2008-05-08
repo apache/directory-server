@@ -243,7 +243,7 @@ public class DumpCommand extends ToolCommand
         base.disableTransactions();
         CacheRecordManager recMan = new CacheRecordManager( base, new MRU( 1000 ) );
 
-        JdbmMasterTable master = new JdbmMasterTable( recMan );
+        JdbmMasterTable master = new JdbmMasterTable( recMan, bootstrapRegistries );
         AttributeType attributeType = bootstrapRegistries.getAttributeTypeRegistry().lookup( "apacheUpdn" );
         JdbmIndex idIndex = new JdbmIndex();
         idIndex.setAttributeId( attributeType.getName() );
