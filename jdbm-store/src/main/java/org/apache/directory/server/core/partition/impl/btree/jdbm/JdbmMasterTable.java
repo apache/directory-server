@@ -23,9 +23,13 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import jdbm.RecordManager;
 import jdbm.helper.LongSerializer;
 import jdbm.helper.StringComparator;
+
 import jdbm.helper.Serializer;
 import org.apache.directory.server.xdbm.MasterTable;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntrySerializer;
 import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.server.schema.registries.Registries;
 
 import java.io.IOException;
 
@@ -52,7 +56,8 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
             if ( o1 == null )
             {
                 throw new IllegalArgumentException( "Argument 'obj1' is null" );
-            } else if ( o2 == null )
+            } 
+            else if ( o2 == null )
             {
                 throw new IllegalArgumentException( "Argument 'obj2' is null" );
             }
@@ -116,9 +121,9 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
      * @param serializer the serializer to use for persisting objects
      * @throws Exception if there is an error opening the Db file.
      */
-    public JdbmMasterTable( RecordManager recMan, Serializer serializer ) throws Exception
+    public JdbmMasterTable( RecordManager recMan, Registries registries ) throws Exception
     {
-        super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, serializer );
+        super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new ServerEntrySerializer( registries ) );
         adminTbl = new JdbmTable<String,String>( "admin", recMan, STRING_COMPARATOR, null, null );
         String seqValue = adminTbl.get( SEQPROP_KEY );
 
@@ -129,19 +134,43 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
     }
 
 
-    public E get( Long id ) throws IOException
+    /**
+     * Gets the ServerEntry from this MasterTable.
+     *
+     * @param id the Long id of the entry to retrieve.
+     * @return the ServerEntry with operational attributes and all.
+     * @throws NamingException if there is a read error on the underlying Db.
+     */
+    public E get( Object id ) throws Exception
     {
         return super.get( id );
     }
 
 
+    /**
+     * Puts the ServerEntry into this master table at an index
+     * specified by id.  Used both to create new entries and update existing
+     * ones.
+     *
+     * @param entry the ServerEntry w/ operational attributes
+     * @param id    the Long id of the entry to put
+     * @return the ServerEntry put
+     * @throws Exception if there is a write error on the underlying Db.
+     */
     public E put( Long id, E entry ) throws Exception
     {
         return super.put( id, entry );
     }
 
 
-    public E delete( Long id ) throws IOException
+    /**
+     * Deletes a ServerEntry from the master table at an index specified by id.
+     *
+     * @param id the Long id of the entry to delete
+     * @return the Attributes of the deleted entry
+     * @throws Exception if there is a write error on the underlying Db
+     */
+    public E delete( Long id ) throws Exception
     {
         return super.remove( id );
     }
@@ -160,6 +189,16 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
     }
 
 
+    /**
+     * Get's the next value from this SequenceBDb.  This has the side-effect of
+     * changing the current sequence values permanently in memory and on disk.
+     * Master table sequence begins at BigInteger.ONE.  The BigInteger.ZERO is
+     * used for the fictitious parent of the suffix root entry.
+     *
+     * @return the current value incremented by one.
+     * @throws Exception if the admin table storing sequences cannot be
+     *                         read and written to.
+     */
     public Long getNextId() throws Exception
     {
         Long nextVal;
@@ -176,7 +215,14 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
     }
 
 
-    public String getProperty( String property ) throws IOException
+    /**
+     * Gets a persistent property stored in the admin table of this MasterTable.
+     *
+     * @param property the key of the property to get the value of
+     * @return the value of the property
+     * @throws Exception when the underlying admin table cannot be read
+     */
+    public String getProperty( String property ) throws Exception
     {
         synchronized ( adminTbl )
         {
@@ -185,6 +231,13 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
     }
 
 
+    /**
+     * Sets a persistent property stored in the admin table of this MasterTable.
+     *
+     * @param property the key of the property to set the value of
+     * @param value    the value of the property
+     * @throws Exception when the underlying admin table cannot be writen
+     */
     public void setProperty( String property, String value ) throws Exception
     {
         synchronized ( adminTbl )

@@ -247,4 +247,7 @@ public abstract class PartitionNexus implements Partition
      * attribute in the RootDSE
      */
     public abstract void registerSupportedExtensions( Set<String> extensionOids ) throws NamingException;
+
+
+    public abstract void registerSupportedSaslMechanisms( Set<String> strings ) throws NamingException;
 }

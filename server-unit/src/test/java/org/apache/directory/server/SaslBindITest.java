@@ -20,16 +20,30 @@
 package org.apache.directory.server;
 
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.net.SocketClient;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmAuthenticationResult;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmProvider;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.BindRequestImpl;
+import org.apache.directory.shared.ldap.message.BindResponse;
+import org.apache.directory.shared.ldap.message.MessageDecoder;
+import org.apache.directory.shared.ldap.message.MessageEncoder;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -38,6 +52,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -52,7 +67,9 @@ import java.util.Set;
  */
 public class SaslBindITest extends AbstractServerTest
 {
+    private static final Logger LOG = LoggerFactory.getLogger( SaslBindITest.class );
     private DirContext ctx;
+    private BogusNtlmProvider provider;
 
 
     /**
@@ -61,6 +78,7 @@ public class SaslBindITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
+        provider = new BogusNtlmProvider();
         super.setUp();
         setAllowAnonymousAccess( false );
 
@@ -84,7 +102,6 @@ public class SaslBindITest extends AbstractServerTest
     @Override
     protected void configureDirectoryService() throws NamingException
     {
-
         Set<Partition> partitions = new HashSet<Partition>();
         JdbmPartition partition = new JdbmPartition();
         partition.setId( "example" );
@@ -113,8 +130,17 @@ public class SaslBindITest extends AbstractServerTest
     protected void configureLdapServer()
     {
         ldapServer.setSaslHost( "localhost" );
+        
+        NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
+        ntlmMechanismHandler.setNtlmProvider( provider  );
+        
+        ldapServer.removeSaslMechanismHandler( SupportedSaslMechanisms.NTLM );
+        ldapServer.addSaslMechanismHandler( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
+        ldapServer.removeSaslMechanismHandler( SupportedSaslMechanisms.GSS_SPNEGO );
+        ldapServer.addSaslMechanismHandler( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
     }
 
+    
     /**
      * Tear down.
      */
@@ -175,19 +201,14 @@ public class SaslBindITest extends AbstractServerTest
                 { "supportedSASLMechanisms" } );
 
             NamingEnumeration<? extends Attribute> answer = attrs.getAll();
-
-            if ( answer.hasMore() )
-            {
-                Attribute result = answer.next();
-                assertTrue( result.size() == 3 );
-                assertTrue( result.contains( "GSSAPI" ) );
-                assertTrue( result.contains( "DIGEST-MD5" ) );
-                assertTrue( result.contains( "CRAM-MD5" ) );
-            }
-            else
-            {
-                fail( "Should have returned 3 SASL mechanisms." );
-            }
+            Attribute result = answer.next();
+            assertTrue( result.size() == 6 );
+            assertTrue( result.contains( SupportedSaslMechanisms.GSSAPI ) );
+            assertTrue( result.contains( SupportedSaslMechanisms.DIGEST_MD5 ) );
+            assertTrue( result.contains( SupportedSaslMechanisms.CRAM_MD5 ) );
+            assertTrue( result.contains( SupportedSaslMechanisms.NTLM ) );
+            assertTrue( result.contains( SupportedSaslMechanisms.SIMPLE ) );
+            assertTrue( result.contains( SupportedSaslMechanisms.GSS_SPNEGO ) );
         }
         catch ( NamingException e )
         {
@@ -497,6 +518,177 @@ public class SaslBindITest extends AbstractServerTest
         catch ( NamingException e )
         {
             assertTrue( e.getMessage().contains( "Invalid response" ) );
+        }
+    }
+
+
+    /**
+     * Tests that the plumbing for NTLM bind works.
+     */
+    public void testNtlmBind() throws Exception
+    {
+        NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.NTLM );
+        BindResponse type2response = client.bindType1( "type1_test".getBytes() );
+        assertEquals( 1, type2response.getMessageId() );
+        assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
+        assertTrue( ArrayUtils.isEquals( "type1_test".getBytes(), provider.getType1Response() ) );
+        assertTrue( ArrayUtils.isEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
+        
+        BindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
+        assertEquals( 2, finalResponse.getMessageId() );
+        assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
+        assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
+        assertTrue( ArrayUtils.isEquals( "results".getBytes(), finalResponse.getServerSaslCreds() ) );
+    }
+
+
+    /**
+     * Tests that the plumbing for NTLM bind works.
+     */
+    public void testGssSpnegoBind() throws Exception
+    {
+        NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.GSS_SPNEGO );
+        BindResponse type2response = client.bindType1( "type1_test".getBytes() );
+        assertEquals( 1, type2response.getMessageId() );
+        assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
+        assertTrue( ArrayUtils.isEquals( "type1_test".getBytes(), provider.getType1Response() ) );
+        assertTrue( ArrayUtils.isEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
+        
+        BindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
+        assertEquals( 2, finalResponse.getMessageId() );
+        assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
+        assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
+        assertTrue( ArrayUtils.isEquals( "results".getBytes(), finalResponse.getServerSaslCreds() ) );
+    }
+
+
+    class BogusNtlmProvider implements NtlmProvider
+    {
+        private byte[] type1response;
+        private byte[] type3response;
+        
+        
+        public NtlmAuthenticationResult authenticate( byte[] type3response ) throws Exception
+        {
+            this.type3response = type3response;
+            return new NtlmAuthenticationResult( "results".getBytes(), true );
+        }
+
+
+        public byte[] generateChallenge( byte[] type1reponse ) throws Exception
+        {
+            this.type1response = type1reponse;
+            return "challenge".getBytes();
+        }
+        
+        
+        public byte[] getType1Response()
+        {
+            return type1response;
+        }
+        
+        
+        public byte[] getType3Response()
+        {
+            return type3response;
+        }
+    }
+
+
+    class NtlmSaslBindClient extends SocketClient
+    {
+        private final String mechanism;
+        
+        
+        NtlmSaslBindClient( String mechanism ) throws Exception
+        {
+            this.mechanism = mechanism;
+            setDefaultPort( port );
+            connect( "localhost", port );
+            setTcpNoDelay( false );
+            
+            LOG.debug( "isConnected() = {}", _isConnected_ );
+            LOG.debug( "LocalPort     = {}", getLocalPort() );
+            LOG.debug( "LocalAddress  = {}", getLocalAddress() );
+            LOG.debug( "RemotePort    = {}", getRemotePort() );
+            LOG.debug( "RemoteAddress = {}", getRemoteAddress() );
+        }
+
+        
+        BindResponse bindType1( byte[] type1response ) throws Exception
+        {
+            if ( ! isConnected() )
+            {
+                throw new IllegalStateException( "Client is not connected." );
+            }
+            
+            // Setup the bind request
+            BindRequestImpl request = new BindRequestImpl( 1 ) ;
+            request.setName( new LdapDN( "uid=admin,ou=system" ) ) ;
+            request.setSimple( false ) ;
+            request.setCredentials( type1response ) ;
+            request.setSaslMechanism( mechanism );
+            request.setVersion3( true ) ;
+            
+            // Setup the ASN1 Enoder and Decoder
+            MessageEncoder encoder = new MessageEncoder();
+            MessageDecoder decoder = new MessageDecoder( new BinaryAttributeDetector() {
+                public boolean isBinary( String attributeId )
+                {
+                    return false;
+                }
+            } );
+     
+            // Send encoded request to server
+            encoder.encodeBlocking( null, _output_, request );
+            _output_.flush();
+            
+            while ( _input_.available() <= 0 )
+            {
+                Thread.sleep( 100 );
+            }
+            
+            // Retrieve the response back from server to my last request.
+            return ( BindResponse ) decoder.decode( null, _input_ );
+        }
+        
+        
+        BindResponse bindType3( byte[] type3response ) throws Exception
+        {
+            if ( ! isConnected() )
+            {
+                throw new IllegalStateException( "Client is not connected." );
+            }
+            
+            // Setup the bind request
+            BindRequestImpl request = new BindRequestImpl( 2 ) ;
+            request.setName( new LdapDN( "uid=admin,ou=system" ) ) ;
+            request.setSimple( false ) ;
+            request.setCredentials( type3response ) ;
+            request.setSaslMechanism( mechanism );
+            request.setVersion3( true ) ;
+            
+            // Setup the ASN1 Enoder and Decoder
+            MessageEncoder encoder = new MessageEncoder();
+            MessageDecoder decoder = new MessageDecoder( new BinaryAttributeDetector() {
+                public boolean isBinary( String attributeId )
+                {
+                    return false;
+                }
+            } );
+     
+            // Send encoded request to server
+            encoder.encodeBlocking( null, _output_, request );
+            
+            _output_.flush();
+            
+            while ( _input_.available() <= 0 )
+            {
+                Thread.sleep( 100 );
+            }
+            
+            // Retrieve the response back from server to my last request.
+            return ( BindResponse ) decoder.decode( null, _input_ );
         }
     }
 }

@@ -156,7 +156,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             // explicitly managed by this code.  Value serialization is delegated to these
             // marshallers.
 
-            bt = BTree.createInstance( recMan, keyComparator, keySerializer, null );
+            bt = BTree.createInstance( recMan, keyComparator, keySerializer, valueSerializer );
             recId = bt.getRecid();
             recMan.setNamedObject( name, recId );
             recId = recMan.insert( 0 );
@@ -165,6 +165,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         else // Load existing BTree
         {
             bt = BTree.load( recMan, recId );
+            bt.setValueSerializer( valueSerializer );
             recId = recMan.getNamedObject( name + SZSUFFIX );
             count = ( Integer ) recMan.fetch( recId );
         }

@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>1.5.3-SNAPSHOT</version>
+    <version>1.5.4-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-jdbm-store</artifactId>
   <name>ApacheDS JDBM Store</name>
@@ -48,8 +48,9 @@
     </dependency>
 
     <dependency>
-      <groupId>jdbm</groupId>
-      <artifactId>jdbm</artifactId>
+      <groupId>${pom.groupId}</groupId>
+      <version>${pom.version}</version>
+      <artifactId>apacheds-jdbm</artifactId>
     </dependency>
 
     <dependency>
@@ -96,5 +97,24 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
 

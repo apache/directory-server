@@ -142,6 +142,7 @@
     <socketAcceptor>#socketAcceptor</socketAcceptor>
   </ldapServer>
 
+
   <ldapServer id="ldapServer"
               ipPort="10389"
               allowAnonymousAccess="false"
@@ -153,13 +154,28 @@
 
     <directoryService>#directoryService</directoryService>
     <socketAcceptor>#socketAcceptor</socketAcceptor>
+
     <!-- The list of supported authentication mechanisms.                   -->
-    <supportedMechanisms>
-      <s:value>SIMPLE</s:value>
-      <s:value>CRAM-MD5</s:value>
-      <s:value>DIGEST-MD5</s:value>
-      <!--<s:value>GSSAPI</s:value>-->
-    </supportedMechanisms>
+    <saslMechanismHandlers>
+      <s:entry key="SIMPLE">
+        <simpleMechanismHandler/>
+      </s:entry>
+      <s:entry key="CRAM-MD5">
+        <cramMd5MechanismHandler directoryService="#directoryService"/>
+      </s:entry>
+      <s:entry key="DIGEST-MD5">
+        <digestMd5MechanismHandler directoryService="#directoryService" />
+      </s:entry>
+      <s:entry key="GSSAPI">
+        <gssapiMechanismHandler directoryService="#directoryService" />
+      </s:entry>
+      <s:entry key="NTLM">
+        <ntlmMechanismHandler ntlmProviderFqcn="com.foo.Bar" />
+      </s:entry>
+      <s:entry key="GSS-SPNEGO">
+        <ntlmMechanismHandler ntlmProviderFqcn="com.foo.Bar" />
+      </s:entry>
+    </saslMechanismHandlers>
 
     <!-- The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.  -->
     <saslQop>

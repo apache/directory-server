@@ -30,7 +30,7 @@
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
-  <version>1.5.3-SNAPSHOT</version>
+  <version>1.5.4-SNAPSHOT</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
@@ -47,31 +47,31 @@
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-asn1-codec</artifactId>
-        <version>0.9.11-SNAPSHOT</version>
+        <version>0.9.12-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-ldap</artifactId>
-        <version>0.9.11-SNAPSHOT</version>
+        <version>0.9.12-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-ldap-constants</artifactId>
-        <version>0.9.11-SNAPSHOT</version>
+        <version>0.9.12-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-bouncycastle-reduced</artifactId>
-        <version>0.9.11-SNAPSHOT</version>
+        <version>0.9.12-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.daemon</groupId>
         <artifactId>daemon-bootstrappers</artifactId>
-        <version>1.1.4-SNAPSHOT</version>
+        <version>1.1.5-SNAPSHOT</version>
       </dependency>
 
       <dependency>
@@ -158,11 +158,11 @@
         <version>1.2.14</version>
       </dependency>
 
-      <dependency>
+      <!--dependency>
         <groupId>jdbm</groupId>
         <artifactId>jdbm</artifactId>
         <version>1.0</version>
-      </dependency>
+      </dependency-->
 
       <dependency>
         <groupId>org.apache.velocity</groupId>
@@ -332,6 +332,7 @@
   </dependencies>
 
   <modules>
+    <module>apacheds-jdbm</module>
     <module>bootstrap-extract</module>
     <module>bootstrap-partition</module>
     <module>bootstrap-plugin</module>
@@ -344,6 +345,7 @@
     <module>xdbm-search</module>
     <module>xdbm-tools</module>
     <module>core</module>
+    <!--module>core-jndi</module-->
     <module>core-constants</module>
     <module>core-shared</module>
     <module>core-plugin</module>

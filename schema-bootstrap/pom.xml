@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>1.5.3-SNAPSHOT</version>
+    <version>1.5.4-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-schema-bootstrap</artifactId>
   <name>ApacheDS Bootstrap Schemas</name>
@@ -56,8 +56,9 @@
     </dependency>
 
     <dependency>
-      <groupId>jdbm</groupId>
-      <artifactId>jdbm</artifactId>
+      <groupId>${pom.groupId}</groupId>
+      <version>${pom.version}</version>
+      <artifactId>apacheds-jdbm</artifactId>
     </dependency>
   </dependencies>
 

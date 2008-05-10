@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 
 
 /**
- * Tests the {@link AttributeSerializer}.
+ * Tests the {@link EntryAttributeSerializer}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

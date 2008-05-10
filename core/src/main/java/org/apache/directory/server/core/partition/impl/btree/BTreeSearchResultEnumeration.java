@@ -20,18 +20,17 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.schema.registries.Registries;
@@ -112,16 +111,20 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
     public ServerSearchResult next() throws NamingException
     {
         IndexEntry rec = underlying.next();
-        ServerEntry entry;
-        String name = partition.getEntryUpdn( (Long)rec.getId() );
+        ServerEntry entry = rec.getEntry();
+        String name = partition.getEntryUpdn( ( Long )rec.getId() );
         LdapDN dn = new LdapDN( name );
 
-        if ( null == rec.getObject() )
+        if ( null == entry )
         {
-            rec.setObject( partition.lookup( (Long)rec.getId() ) );
+            rec.setObject( partition.lookup( ( Long ) rec.getId() ) );
+            rec.setEntry( entry );
+            entry = ( ServerEntry ) entry.clone();
         }
+        
+        LdapDN dn = entry.getDn();
 
-        if ( attrIds == null )
+        if ( ( attrIds == null ) || ( attrIdsHasPlus && attrIdsHasStar ) )
         {
             entry = ServerEntryUtils.toServerEntry( ( Attributes ) rec.getObject().clone(), dn, registries );
         }
@@ -146,26 +149,21 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                     continue;
                 }
 
-            	ServerAttribute attr = ServerEntryUtils.toServerAttribute( ( Attribute ) rec.getObject().get( attrId ).clone(), 
-            			registries.getAttributeTypeRegistry().lookup( attrId ) ); 
-                entry.put( attr );
+            	ServerAttribute attr =  ( ServerAttribute ) rec.getObject().get( attrId ).clone(); 
+            	entry.put( attr );
             }
 
             // add all operational attributes
-            NamingEnumeration<String> list = rec.getObject().getIDs();
-            
-            while ( list.hasMore() )
+            for ( EntryAttribute attribute:rec.getObject() )
             {
-                String attrId = list.next();
-                AttributeType attrType = registries.getAttributeTypeRegistry().lookup( attrId );
+                AttributeType attrType = ( ( ServerAttribute ) attribute ).getAttributeType();
                 
                 if ( attrType.getUsage() == UsageEnum.USER_APPLICATIONS )
                 {
                     continue;
                 }
 
-            	ServerAttribute attr = ServerEntryUtils.toServerAttribute( ( Attribute ) rec.getObject().get( attrId ).clone(), 
-            			registries.getAttributeTypeRegistry().lookup( attrId ) ); 
+            	ServerAttribute attr = ( ServerAttribute ) attribute.clone(); 
                 entry.put( attr );
             }
         }
@@ -187,31 +185,31 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                 }
 
                 // clone attribute to stuff into the new resultant entry
-            	ServerAttribute attr = ServerEntryUtils.toServerAttribute( ( Attribute ) rec.getObject().get( attrId ).clone(), 
-            			registries.getAttributeTypeRegistry().lookup( attrId ) ); 
+            	ServerAttribute attr = ( ServerAttribute ) rec.getObject().get( attrId ).clone(); 
                 entry.put( attr );
             }
 
             // add all user attributes
-            NamingEnumeration<String> list = rec.getObject().getIDs();
-            
-            while ( list.hasMore() )
+            for ( EntryAttribute attribute:rec.getObject() )
             {
-                String attrId = list.next();
-                AttributeType attrType = registries.getAttributeTypeRegistry().lookup( attrId );
+                AttributeType attrType = ((ServerAttribute)attribute).getAttributeType();
                 
                 if ( attrType.getUsage() == UsageEnum.USER_APPLICATIONS )
                 {
-                	ServerAttribute attr = ServerEntryUtils.toServerAttribute( ( Attribute ) rec.getObject().get( attrId ).clone(), 
-                			registries.getAttributeTypeRegistry().lookup( attrId ) ); 
+                    ServerAttribute attr = ( ServerAttribute ) rec.getEntry().get( attrType ).clone(); 
                     entry.put( attr );
                 }
             }
         }
         else
         {
-            entry = new DefaultServerEntry( registries, dn );
-            ServerEntry attrs = ServerEntryUtils.toServerEntry( rec.getObject(), dn, registries );
+        	Set<EntryAttribute> entryAttrs = new HashSet<EntryAttribute>(); 
+        	
+        	for ( EntryAttribute entryAttribute:entry )
+        	{
+        		entryAttrs.add( entryAttribute );
+        	}
+            //entry = new DefaultServerEntry( registries, dn );
             
             for ( String attrId:attrIds )
             {
@@ -220,7 +218,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                     break;
                 }
                 
-                EntryAttribute attr = attrs.get( registries.getAttributeTypeRegistry().lookup( attrId ) );
+                EntryAttribute attr = entry.get( registries.getAttributeTypeRegistry().lookup( attrId ) );
                 
                 // there is no attribute by that name in the entry so we continue
                 if ( null == attr )
@@ -232,21 +230,28 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                     {
                         AttributeType atype = descendants.next();
                         
-                        attr = attrs.get( atype );
+                        attr = entry.get( atype );
                         
                         if ( attr != null )
                         {
                             // we may have more than one descendant, like sn and cn
                             // for name, so add all of them
-                            entry.put( (ServerAttribute)attr.clone() );
+                            //entry.put( (ServerAttribute)attr.clone() );
+                        	entryAttrs.remove( attr );
                         }
                     }
                 }
                 else
                 {
                     // clone attribute to stuff into the new resultant entry
-                    entry.put( (ServerAttribute)attr.clone() );
+                    //entry.put( (ServerAttribute)attr.clone() );
+                	entryAttrs.remove( attr );
                 }
+            }
+            
+            for ( EntryAttribute entryAttribute:entryAttrs )
+            {
+            	entry.remove( entryAttribute );
             }
         }
 

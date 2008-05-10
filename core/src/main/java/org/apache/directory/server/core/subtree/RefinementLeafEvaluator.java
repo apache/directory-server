@@ -24,6 +24,8 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -95,27 +97,20 @@ public class RefinementLeafEvaluator
         }
 
         // check if AVA value exists in attribute
-        if ( node.getValue() instanceof String )
-        {
-            if ( objectClasses.contains( (String)node.getValue() ) )
-            {
-                return true;
-            }
-        }
-        else if ( objectClasses.contains( (byte[])node.getValue() ) )
+        if ( objectClasses.contains( node.getValue() ) )
         {
             return true;
         }
 
         // If the filter value for the objectClass is an OID we need to resolve a name
         String value = null;
-        if ( node.getValue() instanceof String )
+        if ( node.getValue() instanceof ClientStringValue )
         {
-            value = ( String ) node.getValue();
+            value = ( String ) node.getValue().get();
         }
-        else if ( node.getValue() instanceof byte[] )
+        else if ( node.getValue() instanceof ClientBinaryValue )
         {
-            value = "#" + StringTools.toHexString( ( byte[] ) node.getValue() );
+            value = "#" + StringTools.toHexString( ( byte[] ) node.getValue().get() );
         }
         else
         {

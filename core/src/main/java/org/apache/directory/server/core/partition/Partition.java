@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
 
 /**
@@ -96,14 +95,6 @@ public interface Partition
     ServerEntry getContextEntry();
 
 
-    /**
-     * Gets the root entry of the partition, the entry for the suffix.
-     *
-     * @return the entry for the suffix of this Partition.
-     */
-    Attributes getContextEntryAttr();
-
-    
     /**
      * Sets the root entry of the partition, the entry for the suffix.
      *

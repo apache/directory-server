@@ -22,11 +22,11 @@ package org.apache.directory.server.core.partition.impl.btree.gui;
 
 import java.util.ArrayList;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.swing.table.AbstractTableModel;
+
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 
 
 /**
@@ -49,7 +49,7 @@ public class AttributesTableModel extends AbstractTableModel
     private final transient ArrayList<Object> valList;
 
     /** the attributes for the entry */
-    private final Attributes entry;
+    private final ServerEntry entry;
     /** the unique id of the entry  */
     private final Long id;
     /** the distinguished name of the entry */
@@ -66,42 +66,32 @@ public class AttributesTableModel extends AbstractTableModel
      * @param dn the distinguished name of the entry
      * @param isMutable whether or not the model can be changed
      */
-    public AttributesTableModel(Attributes entry, Long id, String dn, boolean isMutable)
+    public AttributesTableModel( ServerEntry entry, Long id, String dn, boolean isMutable)
     {
         this.dn = dn;
         this.id = id;
         this.entry = entry;
         this.isMutable = isMutable;
 
-        NamingEnumeration<String> list = entry.getIDs();
         int rowCount = 0;
 
-        while ( list.hasMoreElements() )
+        for ( EntryAttribute attribute:entry )
         {
-            String attrId = list.nextElement();
+            String attrId = attribute.getId();
             rowCount = rowCount + entry.get( attrId ).size();
         }
 
         keyList = new ArrayList<Object>( rowCount );
         valList = new ArrayList<Object>( rowCount );
 
-        list = this.entry.getIDs();
-        while ( list.hasMoreElements() )
+        for ( EntryAttribute attribute:entry )
         {
-            String l_key = ( String ) list.nextElement();
-            Attribute l_attr = this.entry.get( l_key );
+            String key = attribute.getId();
 
-            for ( int ii = 0; ii < l_attr.size(); ii++ )
+            for ( Value<?> value:attribute )
             {
-                try
-                {
-                    keyList.add( l_attr.getID() );
-                    valList.add( l_attr.get( ii ) );
-                }
-                catch ( NamingException e )
-                {
-                    e.printStackTrace();
-                }
+                keyList.add( attribute.getId() );
+                valList.add( value.get() );
             }
         }
     }

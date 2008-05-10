@@ -67,7 +67,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.event.EventContext;
@@ -116,17 +115,17 @@ public abstract class ServerContext implements EventContext
 
     /** The Principal associated with this context */
     private LdapPrincipal principal;
-    
+
     /** The request controls to set on operations before performing them */
     protected Control[] requestControls = EMPTY_CONTROLS;
-    
+
     /** The response controls to set after performing operations */
     protected Control[] responseControls = EMPTY_CONTROLS;
-    
+
     /** Connection level controls associated with the session */
     protected Control[] connectControls = EMPTY_CONTROLS;
 
-    
+
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
@@ -145,7 +144,8 @@ public abstract class ServerContext implements EventContext
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
-    @SuppressWarnings(value={"unchecked"})
+    @SuppressWarnings(value =
+        { "unchecked" })
     protected ServerContext( DirectoryService service, Hashtable<String, Object> env ) throws NamingException
     {
         this.service = service;
@@ -156,20 +156,20 @@ public abstract class ServerContext implements EventContext
         this.env = env;
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
         dn = props.getProviderDn();
-        
+
         // need to issue a bind operation here
-        doBindOperation( props.getBindDn(), props.getCredentials(), props.getAuthenticationMechanisms(), 
-            props.getSaslAuthId() );
-        
+        doBindOperation( props.getBindDn(), props.getCredentials(), props.getAuthenticationMechanisms(), props
+            .getSaslAuthId() );
+
         registries = service.getRegistries();
 
-        if ( ! nexusProxy.hasEntry( new EntryOperationContext( registries, dn ) ) )
+        if ( !nexusProxy.hasEntry( new EntryOperationContext( registries, dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
     }
-    
-    
+
+
     /**
      * Must be called by all subclasses to initialize the nexus proxy and the
      * environment settings to be used by this Context implementation.  This
@@ -192,8 +192,8 @@ public abstract class ServerContext implements EventContext
         this.principal = principal;
         registries = service.getRegistries();
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // Protected Methods for Control [De]Marshalling 
     // ------------------------------------------------------------------------
@@ -204,7 +204,6 @@ public abstract class ServerContext implements EventContext
     // context not thread safe.
     // ------------------------------------------------------------------------
 
-    
     /**
      * Used to encapsulate [de]marshalling of controls before and after add operations.
      * @param entry
@@ -213,13 +212,10 @@ public abstract class ServerContext implements EventContext
     protected void doAddOperation( LdapDN target, ServerEntry entry ) throws NamingException
     {
         // setup the op context and populate with request controls
-        AddOperationContext opCtx = new AddOperationContext( 
-            service.getRegistries(), 
-            target, 
-            entry );
-        
+        AddOperationContext opCtx = new AddOperationContext( service.getRegistries(), entry );
+
         opCtx.addRequestControls( requestControls );
-        
+
         // execute add operation
         nexusProxy.add( opCtx );
 
@@ -227,8 +223,8 @@ public abstract class ServerContext implements EventContext
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
     }
-    
-    
+
+
     /**
      * Used to encapsulate [de]marshalling of controls before and after delete operations.
      * @param target
@@ -238,7 +234,7 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         DeleteOperationContext opCtx = new DeleteOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
-        
+
         // execute delete operation
         nexusProxy.delete( opCtx );
 
@@ -246,8 +242,8 @@ public abstract class ServerContext implements EventContext
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
     }
-    
-    
+
+
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
      * @param dn
@@ -257,24 +253,24 @@ public abstract class ServerContext implements EventContext
      * @return NamingEnumeration
      */
     protected NamingEnumeration<ServerSearchResult> doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
-                                                                 ExprNode filter, SearchControls searchControls )
-        throws NamingException
+        ExprNode filter, SearchControls searchControls ) throws NamingException
     {
         // setup the op context and populate with request controls
-        SearchOperationContext opCtx = new SearchOperationContext( registries, dn, aliasDerefMode, filter, searchControls );
+        SearchOperationContext opCtx = new SearchOperationContext( registries, dn, aliasDerefMode, filter,
+            searchControls );
         opCtx.addRequestControls( requestControls );
-        
+
         // execute search operation
         NamingEnumeration<ServerSearchResult> results = nexusProxy.search( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
-        
+
         return results;
     }
-    
-    
+
+
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
      */
@@ -283,29 +279,29 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         ListOperationContext opCtx = new ListOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
-        
+
         // execute list operation
         NamingEnumeration<ServerSearchResult> results = nexusProxy.list( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
-        
+
         return results;
     }
-    
-    
+
+
     protected ServerEntry doGetRootDSEOperation( LdapDN target ) throws NamingException
     {
         GetRootDSEOperationContext opCtx = new GetRootDSEOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
-        
+
         // do not reset request controls since this is not an external 
         // operation and not do bother setting the response controls either
         return nexusProxy.getRootDSE( opCtx );
     }
-    
-    
+
+
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
      */
@@ -313,7 +309,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         LookupOperationContext opCtx;
-        
+
         // execute lookup/getRootDSE operation
         opCtx = new LookupOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
@@ -324,8 +320,8 @@ public abstract class ServerContext implements EventContext
         responseControls = opCtx.getResponseControls();
         return serverEntry;
     }
-    
-    
+
+
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
      */
@@ -333,7 +329,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         LookupOperationContext opCtx;
-        
+
         // execute lookup/getRootDSE operation
         opCtx = new LookupOperationContext( registries, target, attrIds );
         opCtx.addRequestControls( requestControls );
@@ -342,21 +338,21 @@ public abstract class ServerContext implements EventContext
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
-        
+
         // Now remove the ObjectClass attribute if it has not been requested
         if ( ( opCtx.getAttrsId() != null ) && ( opCtx.getAttrsId().size() != 0 ) )
         {
-            if ( ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null ) && 
-                 (serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) )
+            if ( ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null )
+                && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) )
             {
-            	serverEntry.removeAttributes( SchemaConstants.OBJECT_CLASS_AT );
+                serverEntry.removeAttributes( SchemaConstants.OBJECT_CLASS_AT );
             }
         }
-        
+
         return serverEntry;
     }
-    
-    
+
+
     /**
      * Used to encapsulate [de]marshalling of controls before and after bind operations.
      */
@@ -370,27 +366,27 @@ public abstract class ServerContext implements EventContext
         opCtx.setMechanisms( mechanisms );
         opCtx.setSaslAuthId( saslAuthId );
         opCtx.addRequestControls( requestControls );
-        
+
         // execute bind operation
-        this.nexusProxy.bind( opCtx ); 
-        
+        this.nexusProxy.bind( opCtx );
+
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
     }
-    
-    
+
+
     /**
      * Used to encapsulate [de]marshalling of controls before and after moveAndRename operations.
      */
-    protected void doMoveAndRenameOperation( LdapDN oldDn, LdapDN parent, String newRdn, boolean delOldDn ) 
+    protected void doMoveAndRenameOperation( LdapDN oldDn, LdapDN parent, String newRdn, boolean delOldDn )
         throws NamingException
     {
         // setup the op context and populate with request controls
-        MoveAndRenameOperationContext opCtx =
-                new MoveAndRenameOperationContext( registries, oldDn, parent, new Rdn( newRdn ), delOldDn );
+        MoveAndRenameOperationContext opCtx = new MoveAndRenameOperationContext( registries, oldDn, parent, new Rdn(
+            newRdn ), delOldDn );
         opCtx.addRequestControls( requestControls );
-        
+
         // execute moveAndRename operation
         nexusProxy.moveAndRename( opCtx );
 
@@ -398,8 +394,8 @@ public abstract class ServerContext implements EventContext
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
     }
-    
-    
+
+
     /**
      * Used to encapsulate [de]marshalling of controls before and after modify operations.
      */
@@ -408,7 +404,7 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         ModifyOperationContext opCtx = new ModifyOperationContext( registries, dn, modifications );
         opCtx.addRequestControls( requestControls );
-        
+
         // execute modify operation
         nexusProxy.modify( opCtx );
 
@@ -416,8 +412,8 @@ public abstract class ServerContext implements EventContext
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
     }
-        
-    
+
+
     /**
      * Used to encapsulate [de]marshalling of controls before and after moveAndRename operations.
      */
@@ -426,7 +422,7 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         MoveOperationContext opCtx = new MoveOperationContext( registries, oldDn, target );
         opCtx.addRequestControls( requestControls );
-        
+
         // execute move operation
         nexusProxy.move( opCtx );
 
@@ -434,8 +430,8 @@ public abstract class ServerContext implements EventContext
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
     }
-    
-    
+
+
     /**
      * Used to encapsulate [de]marshalling of controls before and after rename operations.
      */
@@ -444,7 +440,7 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         RenameOperationContext opCtx = new RenameOperationContext( registries, oldDn, new Rdn( newRdn ), delOldRdn );
         opCtx.addRequestControls( requestControls );
-        
+
         // execute rename operation
         nexusProxy.rename( opCtx );
 
@@ -452,13 +448,12 @@ public abstract class ServerContext implements EventContext
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // New Impl Specific Public Methods
     // ------------------------------------------------------------------------
 
-    
     /**
      * Gets a handle on the root context of the DIT.  The RootDSE as the present user.
      *
@@ -466,8 +461,8 @@ public abstract class ServerContext implements EventContext
      * @throws NamingException if this fails
      */
     public abstract ServerContext getRootContext() throws NamingException;
-    
-    
+
+
     /**
      * Gets the {@link DirectoryService} associated with this context.
      *
@@ -602,28 +597,30 @@ public abstract class ServerContext implements EventContext
         LdapDN target = buildTarget( name );
         ServerEntry serverEntry = new DefaultServerEntry( registries, target );
         serverEntry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, JavaLdapSupport.JCONTAINER_ATTR );
-        
+
         // Now add the CN attribute, which is mandatory
         Rdn rdn = target.getRdn();
-        
+
         if ( rdn != null )
         {
-            if ( SchemaConstants.CN_AT.equals( rdn.getNormType() )  )
+            if ( SchemaConstants.CN_AT.equals( rdn.getNormType() ) )
             {
-                serverEntry.put( rdn.getUpType(), (String)rdn.getUpValue() );
+                serverEntry.put( rdn.getUpType(), ( String ) rdn.getUpValue() );
             }
             else
             {
                 // No CN in the rdn, this is an error
-                throw new LdapSchemaViolationException( name + " does not contains the mandatory 'cn' attribute for JavaContainer ObjectClass!", 
+                throw new LdapSchemaViolationException( name
+                    + " does not contains the mandatory 'cn' attribute for JavaContainer ObjectClass!",
                     ResultCodeEnum.OBJECT_CLASS_VIOLATION );
             }
         }
         else
         {
             // No CN in the rdn, this is an error
-            throw new LdapSchemaViolationException( name + " does not contains the mandatory 'cn' attribute for JavaContainer ObjectClass!", 
-                ResultCodeEnum.OBJECT_CLASS_VIOLATION);
+            throw new LdapSchemaViolationException( name
+                + " does not contains the mandatory 'cn' attribute for JavaContainer ObjectClass!",
+                ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
 
         /*
@@ -653,7 +650,7 @@ public abstract class ServerContext implements EventContext
     public void destroySubcontext( Name name ) throws NamingException
     {
         LdapDN target = buildTarget( name );
-        
+
         if ( target.size() == 0 )
         {
             throw new LdapNoPermissionException( "can't delete the rootDSE" );
@@ -671,26 +668,26 @@ public abstract class ServerContext implements EventContext
         bind( new LdapDN( name ), obj );
     }
 
-    
+
     private void injectRdnAttributeValues( LdapDN target, ServerEntry serverEntry ) throws NamingException
     {
         // Add all the RDN attributes and their values to this entry
         Rdn rdn = target.getRdn( target.size() - 1 );
-        
+
         if ( rdn.size() == 1 )
         {
-            serverEntry.put( rdn.getUpType(), (String)rdn.getValue() );
+            serverEntry.put( rdn.getUpType(), ( String ) rdn.getValue() );
         }
         else
         {
-        	for ( AttributeTypeAndValue atav:rdn )
-        	{
-                serverEntry.put( atav.getUpType(), (String)atav.getNormValue() );
+            for ( AttributeTypeAndValue atav : rdn )
+            {
+                serverEntry.put( atav.getUpType(), ( String ) atav.getNormValue() );
             }
         }
     }
 
-    
+
     /**
      * @see javax.naming.Context#bind(javax.naming.Name, java.lang.Object)
      */
@@ -700,9 +697,10 @@ public abstract class ServerContext implements EventContext
         DirStateFactory.Result res = DirectoryManager.getStateToBind( obj, name, this, env, null );
 
         LdapDN target = buildTarget( name );
-        
+
         // let's be sure that the Attributes is case insensitive
-        ServerEntry outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( res.getAttributes() ), dn, registries );
+        ServerEntry outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( res
+            .getAttributes() ), target, registries );
 
         if ( outServerEntry != null )
         {
@@ -710,16 +708,10 @@ public abstract class ServerContext implements EventContext
             return;
         }
 
-        if ( obj instanceof Attributes ) 
+        if ( obj instanceof ServerEntry )
         {
-			Attributes attributes = (Attributes)obj;
-			
-            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
-		}
-        else if ( obj instanceof ServerEntry ) 
-        {
-            doAddOperation( target, (ServerEntry)obj );
-		}
+            doAddOperation( target, ( ServerEntry ) obj );
+        }
         // Check for Referenceable
         else if ( obj instanceof Referenceable )
         {
@@ -735,13 +727,13 @@ public abstract class ServerContext implements EventContext
         {
             // Serialize and add outAttrs
             ServerEntry serverEntry = new DefaultServerEntry( registries, target );
-            
+
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-            	for ( EntryAttribute serverAttribute:outServerEntry )
-            	{
-            		serverEntry.put( serverAttribute );
-            	}
+                for ( EntryAttribute serverAttribute : outServerEntry )
+                {
+                    serverEntry.put( serverAttribute );
+                }
             }
 
             // Get target and inject all rdn attributes into entry
@@ -754,14 +746,15 @@ public abstract class ServerContext implements EventContext
         else if ( obj instanceof DirContext )
         {
             // Grab attributes and merge with outAttrs
-            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( ((DirContext)obj).getAttributes( "" ), target, registries );
-            
+            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( ( ( DirContext ) obj ).getAttributes( "" ),
+                target, registries );
+
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
-            	for ( EntryAttribute serverAttribute:outServerEntry )
-            	{
-            		serverEntry.put( serverAttribute );
-            	}
+                for ( EntryAttribute serverAttribute : outServerEntry )
+                {
+                    serverEntry.put( serverAttribute );
+                }
             }
 
             injectRdnAttributeValues( target, serverEntry );
@@ -790,7 +783,7 @@ public abstract class ServerContext implements EventContext
     {
         LdapDN oldDn = buildTarget( oldName );
         LdapDN newDn = buildTarget( newName );
-        
+
         if ( oldDn.size() == 0 )
         {
             throw new LdapNoPermissionException( "can't rename the rootDSE" );
@@ -801,7 +794,7 @@ public abstract class ServerContext implements EventContext
         oldBase.remove( oldName.size() - 1 );
         LdapDN newBase = ( LdapDN ) newName.clone();
         newBase.remove( newName.size() - 1 );
-        
+
         String newRdn = newName.get( newName.size() - 1 );
         String oldRdn = oldName.get( oldName.size() - 1 );
         boolean delOldRdn = true;
@@ -813,9 +806,8 @@ public abstract class ServerContext implements EventContext
         if ( null != env.get( DELETE_OLD_RDN_PROP ) )
         {
             String delOldRdnStr = ( String ) env.get( DELETE_OLD_RDN_PROP );
-            delOldRdn = !delOldRdnStr.equalsIgnoreCase( "false" ) && 
-                            !delOldRdnStr.equalsIgnoreCase( "no" ) && 
-                            !delOldRdnStr.equals( "0" );
+            delOldRdn = !delOldRdnStr.equalsIgnoreCase( "false" ) && !delOldRdnStr.equalsIgnoreCase( "no" )
+                && !delOldRdnStr.equals( "0" );
         }
 
         /*
@@ -834,7 +826,7 @@ public abstract class ServerContext implements EventContext
         {
             LdapDN target = ( LdapDN ) newDn.clone();
             target.remove( newDn.size() - 1 );
-            
+
             if ( newRdn.equalsIgnoreCase( oldRdn ) )
             {
                 doMove( oldDn, target );
@@ -862,12 +854,12 @@ public abstract class ServerContext implements EventContext
     public void rebind( Name name, Object obj ) throws NamingException
     {
         LdapDN target = buildTarget( name );
-        
+
         if ( nexusProxy.hasEntry( new EntryOperationContext( registries, target ) ) )
         {
             doDeleteOperation( target );
         }
-        
+
         bind( name, obj );
     }
 
@@ -913,9 +905,9 @@ public abstract class ServerContext implements EventContext
     {
         Object obj;
         LdapDN target = buildTarget( name );
-        
+
         ServerEntry serverEntry;
-        
+
         if ( name.size() == 0 )
         {
             serverEntry = doGetRootDSEOperation( target );
@@ -927,7 +919,8 @@ public abstract class ServerContext implements EventContext
 
         try
         {
-            obj = DirectoryManager.getObjectInstance( null, name, this, env, ServerEntryUtils.toAttributesImpl( serverEntry ) );
+            obj = DirectoryManager.getObjectInstance( null, name, this, env, ServerEntryUtils
+                .toAttributesImpl( serverEntry ) );
         }
         catch ( Exception e )
         {
@@ -1016,7 +1009,8 @@ public abstract class ServerContext implements EventContext
     /**
      * @see javax.naming.Context#list(java.lang.String)
      */
-    @SuppressWarnings(value={"unchecked"})
+    @SuppressWarnings(value =
+        { "unchecked" })
     public NamingEnumeration list( String name ) throws NamingException
     {
         return list( new LdapDN( name ) );
@@ -1026,7 +1020,8 @@ public abstract class ServerContext implements EventContext
     /**
      * @see javax.naming.Context#list(javax.naming.Name)
      */
-    @SuppressWarnings(value={"unchecked"})
+    @SuppressWarnings(value =
+        { "unchecked" })
     public NamingEnumeration list( Name name ) throws NamingException
     {
         return ServerEntryUtils.toSearchResultEnum( doListOperation( buildTarget( name ) ) );
@@ -1036,7 +1031,8 @@ public abstract class ServerContext implements EventContext
     /**
      * @see javax.naming.Context#listBindings(java.lang.String)
      */
-    @SuppressWarnings(value={"unchecked"})
+    @SuppressWarnings(value =
+        { "unchecked" })
     public NamingEnumeration listBindings( String name ) throws NamingException
     {
         return listBindings( new LdapDN( name ) );
@@ -1046,7 +1042,8 @@ public abstract class ServerContext implements EventContext
     /**
      * @see javax.naming.Context#listBindings(javax.naming.Name)
      */
-    @SuppressWarnings(value={"unchecked"})
+    @SuppressWarnings(value =
+        { "unchecked" })
     public NamingEnumeration listBindings( Name name ) throws NamingException
     {
         // Conduct a special one level search at base for all objects
@@ -1129,8 +1126,8 @@ public abstract class ServerContext implements EventContext
         ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( scope );
-        ( ( PartitionNexusProxy ) this.nexusProxy ).addNamingListener( this, buildTarget( name ), filter,
-            controls, namingListener );
+        ( ( PartitionNexusProxy ) this.nexusProxy ).addNamingListener( this, buildTarget( name ), filter, controls,
+            namingListener );
         listeners.add( namingListener );
     }
 

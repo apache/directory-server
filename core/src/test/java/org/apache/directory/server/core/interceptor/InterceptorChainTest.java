@@ -97,7 +97,7 @@ public class InterceptorChainTest extends TestCase
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]{ dn } );
+        Invocation i = new Invocation( proxy, ctx, "lookup" );
         InvocationStack.getInstance().push( i );
 
         try
@@ -122,8 +122,7 @@ public class InterceptorChainTest extends TestCase
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
-            { dn }, Collections.singleton( "0" ) );
+        Invocation i = new Invocation( proxy, ctx, "lookup", Collections.singleton( "0" ) );
         InvocationStack.getInstance().push( i );
 
         try
@@ -151,8 +150,7 @@ public class InterceptorChainTest extends TestCase
         Set<String> bypass = new HashSet<String>();
         bypass.add( "0" );
         bypass.add( "1" );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
-            { dn }, bypass );
+        Invocation i = new Invocation( proxy, ctx, "lookup", bypass );
         InvocationStack.getInstance().push( i );
 
         try
@@ -180,8 +178,7 @@ public class InterceptorChainTest extends TestCase
         Set<String> bypass = new HashSet<String>();
         bypass.add( "0" );
         bypass.add( "4" );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
-            { dn }, bypass );
+        Invocation i = new Invocation( proxy, ctx, "lookup", bypass );
         InvocationStack.getInstance().push( i );
 
         try
@@ -208,8 +205,7 @@ public class InterceptorChainTest extends TestCase
         Set<String> bypass = new HashSet<String>();
         bypass.add( "1" );
         bypass.add( "3" );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
-            { dn }, bypass );
+        Invocation i = new Invocation( proxy, ctx, "lookup", bypass );
         InvocationStack.getInstance().push( i );
 
         try
@@ -233,8 +229,7 @@ public class InterceptorChainTest extends TestCase
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
-            { dn }, PartitionNexusProxy.BYPASS_ALL_COLLECTION );
+        Invocation i = new Invocation( proxy, ctx, "lookup", PartitionNexusProxy.BYPASS_ALL_COLLECTION );
         InvocationStack.getInstance().push( i );
 
         try

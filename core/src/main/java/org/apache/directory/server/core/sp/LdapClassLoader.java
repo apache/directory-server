@@ -30,6 +30,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -74,8 +75,8 @@ public class LdapClassLoader extends ClassLoader
         byte[] classBytes = null;
         
         BranchNode filter = new AndNode( );
-        filter.addNode( new EqualityNode( "fullyQualifiedJavaClassName", name ) );
-        filter.addNode( new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, ApacheSchemaConstants.JAVA_CLASS_OC ) );
+        filter.addNode( new EqualityNode( "fullyQualifiedJavaClassName", new ClientStringValue( name ) ) );
+        filter.addNode( new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue( ApacheSchemaConstants.JAVA_CLASS_OC ) ) );
         
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );

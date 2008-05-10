@@ -27,3 +27,8 @@ Wed Apr 16 22:45:23 EDT 2008
 ----------------------------
 svn merge -r 642495:648929 https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang .
 
+
+Sat May 10 11:39:05 EDT 2008
+----------------------------
+svn merge -r 648929:655116 https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang .
+

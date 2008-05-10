@@ -30,6 +30,7 @@ import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 
@@ -117,11 +118,9 @@ public class JdbmIndex<K,O> implements Index<K,O>
      * instead with indirection.
      */
 
-
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ----------------------------------------------------------------------
-
 
     public JdbmIndex()
     {
@@ -146,7 +145,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
             setAttributeId( attribute.getName() );
         }
 
-        if ( this.wkDirPath ==  null )
+        if ( this.wkDirPath == null )
         {
             this.wkDirPath = wkDirPath;
         }
@@ -233,7 +232,6 @@ public class JdbmIndex<K,O> implements Index<K,O>
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
 
-
     /**
      * Protects configuration properties from being set after initialization.
      *
@@ -244,7 +242,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
         if ( initialized )
         {
             throw new IllegalStateException( "The " + property
-                    + " property for an index cannot be set after it has been initialized." );
+                + " property for an index cannot be set after it has been initialized." );
         }
     }
 
@@ -524,7 +522,6 @@ public class JdbmIndex<K,O> implements Index<K,O>
         return forward.has( getNormalized( attrVal ), id );
     }
 
-
     /**
      * @see Index#reverse(Long)
      */
@@ -619,7 +616,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
     // Maintenance Methods 
     // ------------------------------------------------------------------------
 
-    
+
     /**
      * @see org.apache.directory.server.xdbm.Index#close()
      */
@@ -647,13 +644,25 @@ public class JdbmIndex<K,O> implements Index<K,O>
      */
     public K getNormalized( K attrVal ) throws Exception
     {
+        if ( attrVal instanceof Long )
+        {
+            return attrVal;
+        }
+
         //noinspection unchecked
         K normalized = ( K ) keyCache.get( attrVal );
 
         if ( null == normalized )
         {
-            //noinspection unchecked
-            normalized = ( K ) attribute.getEquality().getNormalizer().normalize( attrVal );
+            if ( attrVal instanceof Value<?> )
+            {
+                normalized = attribute.getEquality().getNormalizer().normalize( ( ( Value<?> ) attrVal ).get() );
+            }
+            else
+            {
+                //noinspection unchecked
+                normalized = ( K ) attribute.getEquality().getNormalizer().normalize( attrVal );
+            }
 
             // Double map it so if we use an already normalized
             // value we can get back the same normalized value.

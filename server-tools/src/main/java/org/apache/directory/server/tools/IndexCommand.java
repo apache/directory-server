@@ -207,7 +207,7 @@ public class IndexCommand extends ToolCommand
         base.disableTransactions();
         CacheRecordManager recMan = new CacheRecordManager( base, new MRU( 1000 ) );
 
-        JdbmMasterTable master = new JdbmMasterTable( recMan );
+        JdbmMasterTable master = new JdbmMasterTable( recMan, bootstrapRegistries );
         JdbmIndex index = new JdbmIndex();
         index.setAttributeId( attributeType.getName() );
         index.setWkDirPath( partitionDirectory );

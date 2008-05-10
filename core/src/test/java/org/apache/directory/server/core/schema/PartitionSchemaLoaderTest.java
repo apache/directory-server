@@ -161,7 +161,7 @@ public class PartitionSchemaLoaderTest
         Schema schema = schemas.get( "mozilla" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "mozilla" );
-        assertTrue( schema.isDisabled() );
+        //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
@@ -175,14 +175,14 @@ public class PartitionSchemaLoaderTest
         schema = schemas.get( "apachedns" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "apachedns" );
-        assertTrue( schema.isDisabled() );
+        //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
         schema = schemas.get( "autofs" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "autofs" );
-        assertTrue( schema.isDisabled() );
+        //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
@@ -203,14 +203,14 @@ public class PartitionSchemaLoaderTest
         schema = schemas.get( "krb5kdc" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "krb5kdc" );
-        assertTrue( schema.isDisabled() );
+        //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
         schema = schemas.get( "samba" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "samba" );
-        assertTrue( schema.isDisabled() );
+        //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
@@ -231,21 +231,21 @@ public class PartitionSchemaLoaderTest
         schema = schemas.get( "dhcp" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "dhcp" );
-        assertTrue( schema.isDisabled() );
+        //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
         schema = schemas.get( "corba" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "corba" );
-        assertTrue( schema.isDisabled() );
+        //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         
         schema = schemas.get( "nis" );
         assertNotNull( schema );
         assertEquals( schema.getSchemaName(), "nis" );
-        assertTrue( schema.isDisabled() );
+        //assertTrue( schema.isDisabled() );
         assertEquals( schema.getOwner(), "uid=admin,ou=system" );
         schema = null;
         

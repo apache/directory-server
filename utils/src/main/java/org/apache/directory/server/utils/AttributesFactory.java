@@ -23,14 +23,15 @@ package org.apache.directory.server.utils;
 import java.util.Comparator; 
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -54,49 +55,50 @@ import org.apache.directory.shared.ldap.util.DateUtils;
  */
 public class AttributesFactory
 {
-    public Attributes getAttributes( SchemaObject obj, Schema schema ) throws NamingException
+    public ServerEntry getAttributes( SchemaObject obj, Schema schema, Registries registries ) throws NamingException
     {
         if ( obj instanceof Syntax )
         {
-            return getAttributes( ( Syntax ) obj, schema );
+            return getAttributes( ( Syntax ) obj, schema, registries );
         }
         else if ( obj instanceof MatchingRule )
         {
-            return getAttributes( ( MatchingRule ) obj, schema );
+            return getAttributes( ( MatchingRule ) obj, schema, registries );
         }
         else if ( obj instanceof AttributeType )
         {
-            return getAttributes( ( AttributeType ) obj, schema );
+            return getAttributes( ( AttributeType ) obj, schema, registries );
         }
         else if ( obj instanceof ObjectClass )
         {
-            return getAttributes( ( ObjectClass ) obj, schema );
+            return getAttributes( ( ObjectClass ) obj, schema, registries );
         }
         else if ( obj instanceof MatchingRuleUse )
         {
-            return getAttributes( ( MatchingRuleUse ) obj, schema );
+            return getAttributes( ( MatchingRuleUse ) obj, schema, registries );
         }
         else if ( obj instanceof DITStructureRule )
         {
-            return getAttributes( ( DITStructureRule ) obj, schema );
+            return getAttributes( ( DITStructureRule ) obj, schema, registries );
         }
         else if ( obj instanceof DITContentRule )
         {
-            return getAttributes( ( DITContentRule ) obj, schema );
+            return getAttributes( ( DITContentRule ) obj, schema, registries );
         }
         else if ( obj instanceof NameForm )
         {
-            return getAttributes( ( NameForm ) obj, schema );
+            return getAttributes( ( NameForm ) obj, schema, registries );
         }
         
         throw new IllegalArgumentException( "Unknown SchemaObject type: " + obj.getClass() );
     }
     
     
-    public Attributes getAttributes( Schema schema )
+    public ServerEntry getAttributes( Schema schema, Registries registries ) throws NamingException
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SCHEMA_OC );
+        ServerEntry entry = new DefaultServerEntry( registries );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_SCHEMA_OC );
         entry.put( SchemaConstants.CN_AT, schema.getSchemaName() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
@@ -107,13 +109,16 @@ public class AttributesFactory
         }
         
         String[] dependencies = schema.getDependencies();
+        
         if ( dependencies != null && dependencies.length > 0 )
         {
-            Attribute attr = new AttributeImpl( MetaSchemaConstants.M_DEPENDENCIES_AT );
-            for ( int ii = 0; ii < dependencies.length; ii++ )
+            EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DEPENDENCIES_AT ) );
+            
+            for ( String dependency:dependencies )
             {
-                attr.add( dependencies[ii] );
+                attr.add( dependency );
             }
+            
             entry.put( attr );
         }
         
@@ -121,34 +126,39 @@ public class AttributesFactory
     }
     
     
-    public Attributes getAttributes( SyntaxChecker syntaxChecker, Schema schema )
+    public ServerEntry getAttributes( SyntaxChecker syntaxChecker, Schema schema, Registries registries )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
+        ServerEntry entry = new DefaultServerEntry( registries );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, syntaxChecker.getSyntaxOid() );
         entry.put( MetaSchemaConstants.M_FQCN_AT, syntaxChecker.getClass().getName() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        
         return entry;
     }
 
     
-    public Attributes getAttributes( Syntax syntax, Schema schema )
+    public ServerEntry getAttributes( Syntax syntax, Schema schema, Registries registries ) throws NamingException
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_SYNTAX_OC );
+        ServerEntry entry = new DefaultServerEntry( registries );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_SYNTAX_OC );
         entry.put( MetaSchemaConstants.X_HUMAN_READABLE_AT, getBoolean( syntax.isHumanReadable() ) );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        injectCommon( syntax, entry );
+        injectCommon( syntax, entry, registries );
+        
         return entry;
     }
 
     
-    public Attributes getAttributes( String oid, Normalizer normalizer, Schema schema )
+    public ServerEntry getAttributes( String oid, Normalizer normalizer, Schema schema, Registries registries )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_NORMALIZER_OC );
+        ServerEntry entry = new DefaultServerEntry( registries );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_NORMALIZER_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
         entry.put( MetaSchemaConstants.M_FQCN_AT, normalizer.getClass().getName() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -157,10 +167,11 @@ public class AttributesFactory
     }
 
     
-    public Attributes getAttributes( String oid, Comparator comparator, Schema schema )
+    public ServerEntry getAttributes( String oid, Comparator comparator, Schema schema, Registries registries )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_COMPARATOR_OC );
+        ServerEntry entry = new DefaultServerEntry( registries );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_COMPARATOR_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
         entry.put( MetaSchemaConstants.M_FQCN_AT, comparator.getClass().getName() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -175,52 +186,57 @@ public class AttributesFactory
      * @return Attributes
      * @throws NamingException
      */
-    public Attributes getAttributes( MatchingRule matchingRule, Schema schema ) throws NamingException
+    public ServerEntry getAttributes( MatchingRule matchingRule, Schema schema, Registries registries ) throws NamingException
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_MATCHING_RULE_OC );
+        ServerEntry entry = new DefaultServerEntry( registries );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_MATCHING_RULE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, matchingRule.getSyntax().getOid() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        injectCommon( matchingRule, entry );
+        injectCommon( matchingRule, entry, registries );
         return entry;
     }
 
     
-    public Attributes getAttributes( MatchingRuleUse matchingRuleUse, Schema schema )
+    public ServerEntry getAttributes( MatchingRuleUse matchingRuleUse, Schema schema, Registries registries )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "" );
+        ServerEntry entry = new DefaultServerEntry( registries );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, "" );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
     
-    public Attributes getAttributes( DITStructureRule dITStructureRule, Schema schema )
+    public ServerEntry getAttributes( DITStructureRule dITStructureRule, Schema schema, Registries registries )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "" );
+        ServerEntry entry = new DefaultServerEntry( registries );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, "" );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
     
-    public Attributes getAttributes( DITContentRule dITContentRule, Schema schema )
+    public ServerEntry getAttributes( DITContentRule dITContentRule, Schema schema, Registries registries )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "" );
+        ServerEntry entry = new DefaultServerEntry( registries );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, "" );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
     }
 
     
-    public Attributes getAttributes( NameForm nameForm, Schema schema )
+    public ServerEntry getAttributes( NameForm nameForm, Schema schema, Registries registries )
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( "" );
+        ServerEntry entry = new DefaultServerEntry( registries );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, "" );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         return entry;
@@ -245,10 +261,11 @@ public class AttributesFactory
      * @return Attributes
      * @throws NamingException
      */
-    public Attributes getAttributes( AttributeType attributeType, Schema schema ) throws NamingException
+    public ServerEntry getAttributes( AttributeType attributeType, Schema schema, Registries registries ) throws NamingException
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
+        ServerEntry entry = new DefaultServerEntry( registries );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, attributeType.getSyntax().getOid() );
         entry.put( MetaSchemaConstants.M_COLLECTIVE_AT, getBoolean( attributeType.isCollective() ) );
         entry.put( MetaSchemaConstants.M_NO_USER_MODIFICATION_AT, getBoolean( ! attributeType.isCanUserModify() ) );
@@ -257,17 +274,20 @@ public class AttributesFactory
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-        injectCommon( attributeType, entry );
+        injectCommon( attributeType, entry, registries );
         
         AttributeType superior = attributeType.getSuperior();
+        
         if ( superior != null )
         {
             // use name if we can for clarity
             String sup = superior.getName();
+            
             if ( sup == null )
             {
                 sup = superior.getOid();
             }
+            
             entry.put( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT, sup );
         }
         
@@ -330,49 +350,56 @@ public class AttributesFactory
      * @return the attributes of the metaSchema entry representing the objectClass
      * @throws NamingException if there are any problems
      */
-    public Attributes getAttributes( ObjectClass objectClass, Schema schema ) throws NamingException
+    public ServerEntry getAttributes( ObjectClass objectClass, Schema schema, Registries registries ) throws NamingException
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( MetaSchemaConstants.META_OBJECT_CLASS_OC );
+        ServerEntry entry = new DefaultServerEntry( registries );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_OBJECT_CLASS_OC );
         entry.put( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT, objectClass.getType().toString() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         
-        injectCommon( objectClass, entry );
+        injectCommon( objectClass, entry, registries );
 
         // handle the superior objectClasses 
         if ( objectClass.getSuperClasses() != null && objectClass.getSuperClasses().length != 0 )
         {
-            Attribute attr = new AttributeImpl( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
-            ObjectClass[] superclasses = objectClass.getSuperClasses();
-            for ( int ii = 0; ii < superclasses.length; ii++ )
+            EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) );
+            ObjectClass[] superClasses = objectClass.getSuperClasses();
+            
+            for ( ObjectClass superClass:superClasses )
             {
-                attr.add( getNameOrNumericoid( superclasses[ii] ) ); 
+                attr.add( getNameOrNumericoid( superClass ) ); 
             }
+            
             entry.put( attr );
         }
 
         // add the must list
         if ( objectClass.getMustList() != null && objectClass.getMustList().length != 0 )
         {
-            Attribute attr = new AttributeImpl( MetaSchemaConstants.M_MUST_AT );
+            EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_MUST_AT ) );
             AttributeType[] mustList = objectClass.getMustList();
-            for ( int ii = 0; ii < mustList.length; ii++ )
+
+            for ( AttributeType attributeType:mustList )
             {
-                attr.add( getNameOrNumericoid( mustList[ii] ) );
+                attr.add( getNameOrNumericoid( attributeType ) );
             }
+            
             entry.put( attr );
         }
         
         // add the may list
         if ( objectClass.getMayList() != null && objectClass.getMayList().length != 0 )
         {
-            Attribute attr = new AttributeImpl( MetaSchemaConstants.M_MAY_AT );
+            EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_MAY_AT ) );
             AttributeType[] mayList = objectClass.getMayList();
-            for ( int ii = 0; ii < mayList.length; ii++ )
+
+            for ( AttributeType attributeType:mayList )
             {
-                attr.add( getNameOrNumericoid( mayList[ii] ) );
+                attr.add( getNameOrNumericoid( attributeType ) );
             }
+            
             entry.put( attr );
         }
         
@@ -382,7 +409,7 @@ public class AttributesFactory
     
     private final String getNameOrNumericoid( SchemaObject object )
     {
-        // first try to use userfriendly name if we can
+        // first try to use user friendly name if we can
         if ( object.getName() != null )
         {
             return object.getName();
@@ -392,9 +419,9 @@ public class AttributesFactory
     }
     
     
-    private final void injectCommon( SchemaObject object, Attributes entry )
+    private final void injectCommon( SchemaObject object, ServerEntry entry, Registries registries ) throws NamingException
     {
-        injectNames( object.getNames(), entry );
+        injectNames( object.getNames(), entry, registries );
         entry.put( MetaSchemaConstants.M_OBSOLETE_AT, getBoolean( object.isObsolete() ) );
         entry.put( MetaSchemaConstants.M_OID_AT, object.getOid() );
         
@@ -405,18 +432,20 @@ public class AttributesFactory
     }
     
     
-    private final void injectNames( String[] names, Attributes entry )
+    private final void injectNames( String[] names, ServerEntry entry, Registries registries ) throws NamingException
     {
         if ( names == null || names.length == 0 )
         {
             return;
         }
         
-        Attribute attr = new AttributeImpl( MetaSchemaConstants.M_NAME_AT );
-        for ( int ii = 0; ii < names.length; ii++ )
+        EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_NAME_AT ) );
+
+        for ( String name:names )
         {
-            attr.add( names[ii] );
+            attr.add( name );
         }
+        
         entry.put( attr );
     }
 

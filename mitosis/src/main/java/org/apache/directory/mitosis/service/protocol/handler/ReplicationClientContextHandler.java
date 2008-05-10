@@ -131,9 +131,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         ctx.getSession().setWriteTimeout( ctx.getConfiguration().getResponseTimeout() );
 
         // Check update vector of the remote peer periodically.
-        ctx.getSession().setIdleTime(
-        		IdleStatus.BOTH_IDLE,
-        		ctx.getConfiguration().getReplicationInterval());
+        ctx.getSession().setIdleTime( IdleStatus.BOTH_IDLE, ctx.getConfiguration().getReplicationInterval() );
     }
 
 
@@ -182,8 +180,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     public void messageSent( ReplicationContext ctx, Object message ) throws Exception
     {
     }
-    
-    
+
+
     /**
      * A helper to write a message and schedule that message for expiration.
      *
@@ -202,8 +200,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     {
         if ( SessionLog.isWarnEnabled( ctx.getSession() ) )
         {
-            SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId()
-                    +"] Unexpected exception.", cause );
+            SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] Unexpected exception.", cause );
         }
         ctx.getSession().close();
     }
@@ -219,8 +217,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     {
         if ( message.getResponseCode() != Constants.OK )
         {
-            SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
-                    "] Login attempt failed: " + message.getResponseCode() );
+            SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] Login attempt failed: " + message.getResponseCode() );
             ctx.getSession().close();
             return;
         }
@@ -230,7 +228,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
             if ( replica.getId().equals( message.getReplicaId() ) )
             {
                 if ( replica.getAddress().getAddress().equals(
-                        ( ( InetSocketAddress ) ctx.getSession().getRemoteAddress() ).getAddress() ) )
+                    ( ( InetSocketAddress ) ctx.getSession().getRemoteAddress() ).getAddress() ) )
                 {
                     ctx.setPeer( replica );
                     ctx.setState( State.READY );
@@ -238,17 +236,17 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 }
                 else
                 {
-                    SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId()
-                            + "] Peer address mismatches: "
-                            + ctx.getSession().getRemoteAddress() + " (expected: " + replica.getAddress() );
+                    SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                        + "] Peer address mismatches: " + ctx.getSession().getRemoteAddress() + " (expected: "
+                        + replica.getAddress() );
                     ctx.getSession().close();
                     return;
                 }
             }
         }
 
-        SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
-                    "] Unknown peer replica ID: " + message.getReplicaId() );
+        SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+            + "] Unknown peer replica ID: " + message.getReplicaId() );
         ctx.getSession().close();
     }
 
@@ -262,27 +260,26 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         if ( ctx.getState() == State.READY && ctx.getScheduledExpirations() <= 0
             && ctx.getSession().getScheduledWriteRequests() <= 0 )
         {
-        	// Initiate replication process asking update vector.
-            if ( SessionLog.isDebugEnabled( ctx.getSession() ) ) {
-                SessionLog.debug( ctx.getSession(), "(" +
-                    ctx.getConfiguration().getReplicaId().getId() + "->" +
-                    (ctx.getPeer() != null ? ctx.getPeer().getId().getId() : "null") +
-                    ") Beginning replication. " );
+            // Initiate replication process asking update vector.
+            if ( SessionLog.isDebugEnabled( ctx.getSession() ) )
+            {
+                SessionLog.debug( ctx.getSession(), "(" + ctx.getConfiguration().getReplicaId().getId() + "->"
+                    + ( ctx.getPeer() != null ? ctx.getPeer().getId().getId() : "null" ) + ") Beginning replication. " );
             }
-        	ctx.getSession().write( new BeginLogEntriesMessage( ctx.getNextSequence() ) );
-        	return true;
+            ctx.getSession().write( new BeginLogEntriesMessage( ctx.getNextSequence() ) );
+            return true;
         }
         else
         {
-            if ( SessionLog.isDebugEnabled( ctx.getSession() ) ) {
-                SessionLog.debug( ctx.getSession(), "(" +
-                    ctx.getConfiguration().getReplicaId().getId() + "->" +
-                    (ctx.getPeer() != null ? ctx.getPeer().getId().getId() : "null") +
-                    ") Couldn't begin replication.  State:" + ctx.getState() + ", scheduledExpirations:"
-                        + ctx.getScheduledExpirations() +
-                        ", scheduledWriteRequests:" + ctx.getSession().getScheduledWriteRequests() );
+            if ( SessionLog.isDebugEnabled( ctx.getSession() ) )
+            {
+                SessionLog.debug( ctx.getSession(), "(" + ctx.getConfiguration().getReplicaId().getId() + "->"
+                    + ( ctx.getPeer() != null ? ctx.getPeer().getId().getId() : "null" )
+                    + ") Couldn't begin replication.  State:" + ctx.getState() + ", scheduledExpirations:"
+                    + ctx.getScheduledExpirations() + ", scheduledWriteRequests:"
+                    + ctx.getSession().getScheduledWriteRequests() );
             }
-        	return false;
+            return false;
         }
     }
 
@@ -291,8 +288,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     {
         if ( message.getResponseCode() != Constants.OK )
         {
-            SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
-                    "] Remote peer failed to execute a log entry." );
+            SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] Remote peer failed to execute a log entry." );
             ctx.getSession().close();
         }
     }
@@ -316,8 +313,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         }
         catch ( Exception e )
         {
-            SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
-                    "] Failed to get update vector.", e );
+            SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] Failed to get update vector.", e );
             ctx.getSession().close();
             return;
         }
@@ -327,14 +324,14 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         {
             if ( myPV.size() > 0 && yourUV.size() == 0 )
             {
-                SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
-                    "] Starting a whole DIT transfer." );
+                SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                    + "] Starting a whole DIT transfer." );
                 sendAllEntries( ctx );
             }
             else
             {
-                SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
-                    "] Starting a partial replication log transfer." );
+                SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                    + "] Starting a partial replication log transfer." );
                 sendReplicationLogs( ctx, myPV, yourUV );
             }
         }
@@ -351,24 +348,24 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         ServerEntry rootDSE = ctx.getDirectoryService().getPartitionNexus().getRootDSE( null );
 
         EntryAttribute namingContextsAttr = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
-        
+
         if ( namingContextsAttr == null || namingContextsAttr.size() == 0 )
         {
-            SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
-                    "] No namingContexts attributes in rootDSE." );
+            SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] No namingContexts attributes in rootDSE." );
             return;
         }
 
         // Iterate all context partitions to send all entries of them.
-        for ( Value<?> namingContext:namingContextsAttr )
+        for ( Value<?> namingContext : namingContextsAttr )
         {
             // Convert attribute value to JNDI name.
             LdapDN contextName;
 
-            contextName = new LdapDN( (String)namingContext.get() );
+            contextName = new LdapDN( ( String ) namingContext.get() );
 
-            SessionLog.info( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
-                    "] Sending entries under '" + contextName + '\'' );
+            SessionLog.info( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] Sending entries under '" + contextName + '\'' );
 
             Map<String, OidNormalizer> mapping = ctx.getDirectoryService().getRegistries().getAttributeTypeRegistry()
                 .getNormalizerMapping();
@@ -384,19 +381,19 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<ServerSearchResult> e = ctx.getDirectoryService().getPartitionNexus().search(
-            new SearchOperationContext( ctx.getDirectoryService().getRegistries(), contextName, AliasDerefMode.DEREF_ALWAYS,
-            new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
+            new SearchOperationContext( ctx.getDirectoryService().getRegistries(), contextName,
+                AliasDerefMode.DEREF_ALWAYS, new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         try
         {
             while ( e.hasMore() )
             {
-            	ServerSearchResult sr = e.next();
-                ServerEntry attrs = sr.getServerEntry(); 
+                ServerSearchResult sr = e.next();
+                ServerEntry attrs = sr.getServerEntry();
 
                 // Skip entries without entryCSN attribute.
                 EntryAttribute entryCSNAttr = attrs.get( org.apache.directory.mitosis.common.Constants.ENTRY_CSN );
-                
+
                 if ( entryCSNAttr == null )
                 {
                     continue;
@@ -404,18 +401,18 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
                 // Get entryCSN of the entry.  Skip if entryCSN value is invalid. 
                 CSN csn;
-                
+
                 try
                 {
                     Object val = entryCSNAttr.get();
-                    
+
                     if ( val instanceof byte[] )
                     {
-                        csn = new DefaultCSN( StringTools.utf8ToString( (byte[])val ) );
+                        csn = new DefaultCSN( StringTools.utf8ToString( ( byte[] ) val ) );
                     }
                     else
                     {
-                        csn = new DefaultCSN( (String)val );
+                        csn = new DefaultCSN( ( String ) val );
                     }
                 }
                 catch ( IllegalArgumentException ex )
@@ -426,9 +423,9 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
                 // Convert the entry into AddEntryOperation log.
                 LdapDN dn = sr.getDn();
-                dn.normalize( ctx.getDirectoryService().getRegistries()
-                        .getAttributeTypeRegistry().getNormalizerMapping() );
-                Operation op = new AddEntryOperation( csn, dn, attrs );
+                dn.normalize( ctx.getDirectoryService().getRegistries().getAttributeTypeRegistry()
+                    .getNormalizerMapping() );
+                Operation op = new AddEntryOperation( csn, attrs );
 
                 // Send a LogEntry message for the entry.
                 writeTimeLimitedMessage( ctx, new LogEntryMessage( ctx.getNextSequence(), op ) );
@@ -451,7 +448,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
             if ( yourCSN != null && ( myCSN == null || yourCSN.compareTo( myCSN ) < 0 ) )
             {
                 SessionLog.warn( ctx.getSession(), "Remote update vector (" + yourUV
-                        + ") is out-of-date.  Full replication is required." );
+                    + ") is out-of-date.  Full replication is required." );
                 ctx.getSession().close();
                 return;
             }

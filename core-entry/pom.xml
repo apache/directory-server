@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>1.5.3-SNAPSHOT</version>
+    <version>1.5.4-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-core-entry</artifactId>
   <name>ApacheDS Core Entry</name>
@@ -41,18 +41,27 @@
       <version>${pom.version}</version>
       <artifactId>apacheds-schema-registries</artifactId>
     </dependency>
+    
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <version>${pom.version}</version>
       <artifactId>apacheds-schema-bootstrap</artifactId>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <version>${pom.version}</version>
       <artifactId>apacheds-schema-extras</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <version>${pom.version}</version>
+      <artifactId>apacheds-jdbm</artifactId>
+    </dependency>
+    
   </dependencies>
   
 </project>

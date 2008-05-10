@@ -50,14 +50,14 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 public class ExpandingVisitor implements FilterVisitor
 {
     private final AttributeTypeRegistry attrRegistry;
-    
-    
+
+
     public ExpandingVisitor( AttributeTypeRegistry attrRegistry )
     {
         this.attrRegistry = attrRegistry;
     }
-    
-    
+
+
     public boolean canVisit( ExprNode node )
     {
         return node instanceof BranchNode;
@@ -76,24 +76,24 @@ public class ExpandingVisitor implements FilterVisitor
     }
 
 
-    public Object visit( ExprNode node ) 
+    public Object visit( ExprNode node )
     {
         BranchNode bnode = ( BranchNode ) node;
-        
+
         // --------------------------------------------------------------------
         // we want to check each child leaf node to see if it must be expanded
         // children that are branch nodes are recursively visited
         // --------------------------------------------------------------------
-        
+
         final List<ExprNode> children = bnode.getChildren();
         int childNumber = 0;
-        
-        for ( ExprNode child:children )
+
+        for ( ExprNode child : children )
         {
             if ( child instanceof LeafNode )
             {
                 LeafNode leaf = ( LeafNode ) child;
-                
+
                 try
                 {
                     if ( attrRegistry.hasDescendants( leaf.getAttribute() ) )
@@ -104,117 +104,58 @@ public class ExpandingVisitor implements FilterVisitor
                         BranchNode orNode = new OrNode();
                         orNode.getChildren().add( leaf );
                         children.set( childNumber++, orNode );
-                        
+
                         // iterate through descendants adding them to the orNode
                         Iterator<AttributeType> descendants = attrRegistry.descendants( leaf.getAttribute() );
-                        
+
                         while ( descendants.hasNext() )
                         {
                             LeafNode newLeaf = null;
                             AttributeType descendant = descendants.next();
-                            
+
                             if ( leaf instanceof PresenceNode )
                             {
                                 newLeaf = new PresenceNode( descendant.getOid() );
                             }
-                            else if ( leaf instanceof ApproximateNode ) 
+                            else if ( leaf instanceof ApproximateNode )
                             {
-                            	ApproximateNode approximateNode = ( ApproximateNode ) leaf;
-                                
-                                if ( approximateNode.getValue() instanceof String )
-                                {
-                                    newLeaf = new ApproximateNode( descendant.getOid(), 
-                                        ( String ) approximateNode.getValue() );
-                                }
-                                else if ( approximateNode.getValue() instanceof byte[] )
-                                {
-                                    newLeaf = new ApproximateNode( descendant.getOid(), 
-                                        ( byte[] ) approximateNode.getValue() );
-                                }
-                                else
-                                {
-                                    newLeaf = new ApproximateNode( descendant.getOid(), 
-                                    		approximateNode.getValue().toString() );
-                                }
+                                ApproximateNode approximateNode = ( ApproximateNode ) leaf;
+
+                                newLeaf = new ApproximateNode( descendant.getOid(), approximateNode.getValue() );
                             }
                             else if ( leaf instanceof EqualityNode )
                             {
-                            	EqualityNode equalityNode = ( EqualityNode ) leaf;
-                                
-                                if ( equalityNode.getValue() instanceof String )
-                                {
-                                    newLeaf = new EqualityNode( descendant.getOid(), 
-                                        ( String ) equalityNode.getValue() );
-                                }
-                                else if ( equalityNode.getValue() instanceof byte[] )
-                                {
-                                    newLeaf = new EqualityNode( descendant.getOid(), 
-                                        ( byte[] ) equalityNode.getValue() );
-                                }
-                                else
-                                {
-                                    newLeaf = new EqualityNode( descendant.getOid(), 
-                                    		equalityNode.getValue().toString() );
-                                }
+                                EqualityNode equalityNode = ( EqualityNode ) leaf;
+
+                                newLeaf = new EqualityNode( descendant.getOid(), equalityNode.getValue() );
                             }
                             else if ( leaf instanceof GreaterEqNode )
                             {
-                            	GreaterEqNode greaterEqNode = ( GreaterEqNode ) leaf;
-                                
-                                if ( greaterEqNode.getValue() instanceof String )
-                                {
-                                    newLeaf = new GreaterEqNode( descendant.getOid(), 
-                                        ( String ) greaterEqNode.getValue() );
-                                }
-                                else if ( greaterEqNode.getValue() instanceof byte[] )
-                                {
-                                    newLeaf = new GreaterEqNode( descendant.getOid(), 
-                                        ( byte[] ) greaterEqNode.getValue() );
-                                }
-                                else
-                                {
-                                    newLeaf = new GreaterEqNode( descendant.getOid(), 
-                                    		greaterEqNode.getValue().toString() );
-                                }
+                                GreaterEqNode greaterEqNode = ( GreaterEqNode ) leaf;
+
+                                newLeaf = new GreaterEqNode( descendant.getOid(), greaterEqNode.getValue() );
                             }
                             else if ( leaf instanceof LessEqNode )
                             {
-                            	LessEqNode lessEqNode = ( LessEqNode ) leaf;
-                                
-                                if ( lessEqNode.getValue() instanceof String )
-                                {
-                                    newLeaf = new LessEqNode( descendant.getOid(), 
-                                        ( String ) lessEqNode.getValue() );
-                                }
-                                else if ( lessEqNode.getValue() instanceof byte[] )
-                                {
-                                    newLeaf = new LessEqNode( descendant.getOid(), 
-                                        ( byte[] ) lessEqNode.getValue() );
-                                }
-                                else
-                                {
-                                    newLeaf = new LessEqNode( descendant.getOid(), 
-                                    		lessEqNode.getValue().toString() );
-                                }
+                                LessEqNode lessEqNode = ( LessEqNode ) leaf;
+
+                                newLeaf = new LessEqNode( descendant.getOid(), lessEqNode.getValue() );
                             }
                             else if ( leaf instanceof ExtensibleNode )
                             {
                                 ExtensibleNode extensibleNode = ( ExtensibleNode ) leaf;
-                                newLeaf = new ExtensibleNode( descendant.getOid(), 
-                                    extensibleNode.getValue(), 
-                                    extensibleNode.getMatchingRuleId(), 
-                                    extensibleNode.hasDnAttributes() );
+                                newLeaf = new ExtensibleNode( descendant.getOid(), extensibleNode.getValue(),
+                                    extensibleNode.getMatchingRuleId(), extensibleNode.hasDnAttributes() );
                             }
                             else if ( leaf instanceof SubstringNode )
                             {
                                 SubstringNode substringNode = ( SubstringNode ) leaf;
-                                newLeaf = new SubstringNode( descendant.getOid(), 
-                                    substringNode.getInitial(), 
+                                newLeaf = new SubstringNode( descendant.getOid(), substringNode.getInitial(),
                                     substringNode.getFinal() );
                             }
                             else
                             {
-                                    throw new IllegalStateException( "Unknown assertion type: " + leaf );
+                                throw new IllegalStateException( "Unknown assertion type: " + leaf );
                             }
 
                             orNode.addNode( newLeaf );
@@ -232,7 +173,7 @@ public class ExpandingVisitor implements FilterVisitor
                 visit( child );
             }
         } // end for loop
-        
+
         return null;
     }
 }

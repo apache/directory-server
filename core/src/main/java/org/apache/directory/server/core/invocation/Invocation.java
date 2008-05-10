@@ -20,10 +20,8 @@
 package org.apache.directory.server.core.invocation;
 
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Collection;
 import java.util.Set;
 
@@ -43,7 +41,6 @@ public class Invocation
 {
     private final Context caller;
     private final String name;
-    private final List<Object> parameters;
     private final Collection<String> bypassed;
     private final PartitionNexusProxy proxy;
     
@@ -58,20 +55,7 @@ public class Invocation
      */
     public Invocation( PartitionNexusProxy proxy, Context caller, String name )
     {
-        this( proxy, caller, name, null, EMPTY_STRING_SET );
-    }
-
-
-    /**
-     * Creates a new instance.
-     *
-     * @param caller the JNDI {@link Context} that made this invocation
-     * @param name the name of the called method
-     * @param parameters the array of parameters passed to the called method
-     */
-    public Invocation( PartitionNexusProxy proxy, Context caller, String name, Object[] parameters )
-    {
-        this( proxy, caller, name, parameters, EMPTY_STRING_SET );
+        this( proxy, caller, name, EMPTY_STRING_SET );
     }
 
 
@@ -83,8 +67,7 @@ public class Invocation
      * @param parameters the array of parameters passed to the called method
      * @param bypassed the set of bypassed Interceptor names
      */
-    public Invocation( PartitionNexusProxy proxy, Context caller, String name, Object[] parameters,
-        Collection<String> bypassed )
+    public Invocation( PartitionNexusProxy proxy, Context caller, String name, Collection<String> bypassed )
     {
         if ( proxy == null )
         {
@@ -101,11 +84,6 @@ public class Invocation
             throw new NullPointerException( "name" );
         }
 
-        if ( parameters == null )
-        {
-            parameters = new Object[0];
-        }
-
         if ( bypassed == null )
         {
             this.bypassed = EMPTY_STRING_SET;
@@ -118,15 +96,6 @@ public class Invocation
         this.proxy = proxy;
         this.caller = caller;
         this.name = name;
-
-        List<Object> paramList = new ArrayList<Object>();
-        
-        for ( int i = 0; i < parameters.length; i++ )
-        {
-            paramList.add( parameters[i] );
-        }
-
-        this.parameters = Collections.unmodifiableList( paramList );
     }
 
 
@@ -154,15 +123,6 @@ public class Invocation
     public String getName()
     {
         return name;
-    }
-
-
-    /**
-     * Returns the list of parameters parameters passed to the called method.
-     */
-    public List<Object> getParameters()
-    {
-        return parameters;
     }
 
 

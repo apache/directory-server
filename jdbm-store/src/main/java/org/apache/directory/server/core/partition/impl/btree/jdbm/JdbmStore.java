@@ -25,11 +25,14 @@ import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -48,7 +51,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.MultiException;
@@ -57,8 +59,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,7 +75,6 @@ public class JdbmStore<E> implements Store<E>
     private static final Logger LOG = LoggerFactory.getLogger( JdbmStore.class );
     /** The default cache size is set to 10 000 objects */
     static final int DEFAULT_CACHE_SIZE = 10000;
-
 
     /** the JDBM record manager used by this database */
     private RecordManager recMan;
@@ -110,17 +109,20 @@ public class JdbmStore<E> implements Store<E>
     private JdbmIndex<Long,E> subAliasIdx;
     /** a system index on aliasedObjectName attribute */
     private JdbmIndex<String,E> aliasIdx;
-    
+
     /** a system index on the entries of descendants of root DN*/
     private JdbmIndex<Long,E> subLevelIdx;
     
     /** Two static declaration to avoid lookup all over the code */
     private static AttributeType OBJECT_CLASS_AT;
     private static AttributeType ALIASED_OBJECT_NAME_AT;
-    
+
+    /** A pointer on the global registries */
+    private Registries registries;
+
     /** A pointer on the AT registry */
     private AttributeTypeRegistry attributeTypeRegistry;
-    
+
     /** A pointer on the OID registry */
     private OidRegistry oidRegistry;
 
@@ -129,11 +131,11 @@ public class JdbmStore<E> implements Store<E>
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-    
+
     /**
      * Creates a store based on JDBM B+Trees.
      */
-    public JdbmStore() 
+    public JdbmStore()
     {
     }
 
@@ -241,20 +243,18 @@ public class JdbmStore<E> implements Store<E>
     // -----------------------------------------------------------------------
 
 
-
     /**
      * Initialize the JDBM storage system.
      *
-     * @param oidRegistry an OID registry to resolve numeric identifiers from names
-     * @param attributeTypeRegistry an attributeType specification registry to lookup type specs
-     * @throws NamingException on failure to lookup elements in registries
+     * @param registries the schema registries
+     * @throws Exception on failure to lookup elements in registries
      * @throws Exception on failure to create database files
      */
-    public synchronized void init( OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry )
-            throws Exception
+    public synchronized void init( Registries registries ) throws Exception
     {
-        this.oidRegistry = oidRegistry;
-        this.attributeTypeRegistry = attributeTypeRegistry;
+        this.registries = registries;
+        this.oidRegistry = registries.getOidRegistry();
+        this.attributeTypeRegistry = registries.getAttributeTypeRegistry();
 
         OBJECT_CLASS_AT = attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
         ALIASED_OBJECT_NAME_AT = attributeTypeRegistry.lookup( SchemaConstants.ALIASED_OBJECT_NAME_AT );
@@ -271,25 +271,18 @@ public class JdbmStore<E> implements Store<E>
         if ( cacheSize < 0 )
         {
             cacheSize = DEFAULT_CACHE_SIZE;
-
-            if ( LOG.isDebugEnabled() )
-            {
-                LOG.debug( "Using the default entry cache size of {} for {} partition", cacheSize, name );
-            }
+            LOG.debug( "Using the default entry cache size of {} for {} partition", cacheSize, name );
         }
         else
         {
-            if ( LOG.isDebugEnabled() )
-            {
-                LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, name );
-            }
+            LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, name );
         }
 
         // Now, create the entry cache for this partition
         recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
         // Create the master table (the table wcontaining all the entries)
-        master = new JdbmMasterTable<Attributes>( recMan, new AttributesSerializer() );
+        master = new JdbmMasterTable<E>( recMan, registries );
 
         // -------------------------------------------------------------------
         // Initializes the user and system indices
@@ -297,6 +290,9 @@ public class JdbmStore<E> implements Store<E>
 
         setupSystemIndices();
         setupUserIndices();
+
+        contextEntry.getDn().normalize( attributeTypeRegistry.getNormalizerMapping() );
+
         initSuffixEntry3( suffixDn, contextEntry );
 
         // We are done !
@@ -308,7 +304,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( systemIndices.size() > 0 )
         {
-            HashMap<String,JdbmIndex> tmp = new HashMap<String,JdbmIndex>();
+            HashMap<String, JdbmIndex> tmp = new HashMap<String, JdbmIndex>();
             for ( JdbmIndex index : systemIndices.values() )
             {
                 String oid = oidRegistry.getOid( index.getAttributeId() );
@@ -388,7 +384,7 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( userIndices != null && userIndices.size() > 0 )
         {
-            HashMap<String,JdbmIndex> tmp = new HashMap<String,JdbmIndex>();
+            HashMap<String, JdbmIndex> tmp = new HashMap<String, JdbmIndex>();
             for ( JdbmIndex index : userIndices.values() )
             {
                 String oid = oidRegistry.getOid( index.getAttributeId() );
@@ -399,7 +395,7 @@ public class JdbmStore<E> implements Store<E>
         }
         else
         {
-            userIndices = new HashMap<String,JdbmIndex>();
+            userIndices = new HashMap<String, JdbmIndex>();
         }
     }
 
@@ -410,22 +406,19 @@ public class JdbmStore<E> implements Store<E>
      *  
      * @param suffix the suffix for the store
      * @param entry the root entry of the store
-     * @throws NamingException on failre to add the root entry
+     * @throws NamingException on failure to add the root entry
      * @throws Exception failure to access btrees
      */
     protected void initSuffixEntry3( String suffix, ServerEntry entry ) throws Exception
     {
         // add entry for context, if it does not exist
-        Attributes suffixOnDisk = getSuffixEntry();
-        
+        ServerEntry suffixOnDisk = getSuffixEntry();
+
         if ( suffixOnDisk == null )
         {
             LdapDN dn = new LdapDN( suffix );
             LdapDN normalizedSuffix = LdapDN.normalize( dn, attributeTypeRegistry.getNormalizerMapping() );
-            
-            //add( normalizedSuffix, entry );
-            // TODO just start using ServerEntry here!!!!
-            add( normalizedSuffix, ServerEntryUtils.toAttributesImpl( entry ) );
+            add( normalizedSuffix, entry );
         }
     }
 
@@ -450,12 +443,12 @@ public class JdbmStore<E> implements Store<E>
         array.addAll( systemIndices.values() );
         MultiException errors = new MultiException( "Errors encountered on destroy()" );
 
-        for ( JdbmIndex index:array )
+        for ( JdbmIndex index : array )
         {
             try
             {
                 index.close();
-                LOG.debug( "Closed {} index for {} partition.",  index.getAttributeId(), suffixDn );
+                LOG.debug( "Closed {} index for {} partition.", index.getAttributeId(), suffixDn );
             }
             catch ( Throwable t )
             {
@@ -467,7 +460,7 @@ public class JdbmStore<E> implements Store<E>
         try
         {
             master.close();
-            LOG.debug( "Closed master table for {} partition.",  suffixDn );
+            LOG.debug( "Closed master table for {} partition.", suffixDn );
         }
         catch ( Throwable t )
         {
@@ -478,7 +471,7 @@ public class JdbmStore<E> implements Store<E>
         try
         {
             recMan.close();
-            LOG.debug( "Closed record manager for {} partition.",  suffixDn );
+            LOG.debug( "Closed record manager for {} partition.", suffixDn );
         }
         catch ( Throwable t )
         {
@@ -531,7 +524,7 @@ public class JdbmStore<E> implements Store<E>
         array.add( subLevelIdx );
         
         // Sync all user defined userIndices
-        for ( Index idx:array )
+        for ( Index idx : array )
         {
             idx.sync();
         }
@@ -578,7 +571,6 @@ public class JdbmStore<E> implements Store<E>
         return new HashSet<Index>( userIndices.values() );
     }
 
-
     public void addIndex( Index index ) throws NamingException
     {
         userIndices.put( index.getAttributeId(), convertIndex( index ) );
@@ -623,7 +615,7 @@ public class JdbmStore<E> implements Store<E>
     {
         protect( "aliasIndex" );
         aliasIdx = ( JdbmIndex<String,E> ) convertIndex( index );
-        systemIndices.put( index.getAttributeId() , aliasIdx );
+        systemIndices.put( index.getAttributeId(), aliasIdx );
     }
 
 
@@ -754,7 +746,6 @@ public class JdbmStore<E> implements Store<E>
             LOG.error( "Failed to identify OID for: " + id, e );
             throw new IndexNotFoundException( "Failed to identify OID for: " + id, id, e );
         }
-
 
         if ( systemIndices.containsKey( id ) )
         {
@@ -1002,8 +993,8 @@ public class JdbmStore<E> implements Store<E>
         }
     }
 
-    
-    public void add( LdapDN normName, Attributes entry ) throws Exception
+
+    public void add( LdapDN normName, ServerEntry entry ) throws Exception
     {
         Long id;
         Long parentId;
@@ -1017,7 +1008,7 @@ public class JdbmStore<E> implements Store<E>
         //
 
         LdapDN parentDn = null;
-        
+
         if ( normName.equals( normSuffix ) )
         {
             parentId = 0L;
@@ -1035,7 +1026,7 @@ public class JdbmStore<E> implements Store<E>
             throw new LdapNameNotFoundException( "Id for parent '" + parentDn + "' not found!" );
         }
 
-        Attribute objectClass = AttributeUtils.getAttribute( entry, OBJECT_CLASS_AT );
+        EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
 
         if ( objectClass == null )
         {
@@ -1048,16 +1039,14 @@ public class JdbmStore<E> implements Store<E>
 
         if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
-            Attribute aliasAttr = AttributeUtils.getAttribute( entry, ALIASED_OBJECT_NAME_AT );
-            addAliasIndices( id, normName, ( String ) aliasAttr.get() );
+            EntryAttribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
+            addAliasIndices( id, normName, aliasAttr.getString() );
         }
 
-
-        if ( ! Character.isDigit( normName.toNormName().charAt( 0 ) ) )
+        if ( !Character.isDigit( normName.toNormName().charAt( 0 ) ) )
         {
             throw new IllegalStateException( "Not a normalized name: " + normName.toNormName() );
         }
-
 
         ndnIdx.add( normName.toNormName(), id );
         updnIdx.add( normName.getUpName(), id );
@@ -1071,24 +1060,20 @@ public class JdbmStore<E> implements Store<E>
         }
         
         // Now work on the user defined userIndices
-        NamingEnumeration<String> list = entry.getIDs();
-        
-        while ( list.hasMore() )
+        for ( EntryAttribute attribute : entry )
         {
-            String attributeId = list.next();
-            String attributeOid = oidRegistry.getOid( attributeId );
+            String attributeOid = ( ( ServerAttribute ) attribute ).getAttributeType().getOid();
 
             if ( hasUserIndexOn( attributeOid ) )
             {
                 Index idx = getUserIndex( attributeOid );
-                
+
                 // here lookup by attributeId is ok since we got attributeId from 
                 // the entry via the enumeration - it's in there as is for sure
-                NamingEnumeration<?> values = entry.get( attributeId ).getAll();
 
-                while ( values.hasMore() )
+                for ( Value<?> value : attribute )
                 {
-                    idx.add( values.next(), id );
+                    idx.add( value.get(), id );
                 }
 
                 // Adds only those attributes that are indexed
@@ -1097,7 +1082,7 @@ public class JdbmStore<E> implements Store<E>
         }
 
         master.put( id, entry );
-        
+
         if ( isSyncOnWrite )
         {
             sync();
@@ -1105,7 +1090,7 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Attributes lookup( Long id ) throws Exception
+    public ServerEntry lookup( Long id ) throws Exception
     {
         return master.get( id );
     }
@@ -1119,12 +1104,11 @@ public class JdbmStore<E> implements Store<E>
                 "Deletion of the suffix entry is not permitted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        Attributes entry = lookup( id );
+        ServerEntry entry = lookup( id );
         Long parentId = getParentId( id );
-        NamingEnumeration<String> attrs = entry.getIDs();
 
-        Attribute objectClass = AttributeUtils.getAttribute( entry, OBJECT_CLASS_AT );
-        
+        EntryAttribute objectClass = entry.get( OBJECT_CLASS_AT );
+
         if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
             dropAliasIndices( id );
@@ -1145,10 +1129,9 @@ public class JdbmStore<E> implements Store<E>
             oneLevelIdx.drop( parentId, id );
         }
 
-        while ( attrs.hasMore() )
+        for ( EntryAttribute attribute : entry )
         {
-            String attributeId = attrs.next();
-            String attributeOid = oidRegistry.getOid( attributeId );
+            String attributeOid = ( ( ServerAttribute ) attribute ).getAttributeType().getOid();
 
             if ( hasUserIndexOn( attributeOid ) )
             {
@@ -1156,11 +1139,9 @@ public class JdbmStore<E> implements Store<E>
 
                 // here lookup by attributeId is ok since we got attributeId from 
                 // the entry via the enumeration - it's in there as is for sure
-                NamingEnumeration<?> values = entry.get( attributeId ).getAll();
-
-                while ( values.hasMore() )
+                for ( Value<?> value : attribute )
                 {
-                    index.drop( values.next(), id );
+                    index.drop( value, id );
                 }
 
                 existanceIdx.drop( attributeOid, id );
@@ -1168,7 +1149,7 @@ public class JdbmStore<E> implements Store<E>
         }
 
         master.delete( id );
-        
+
         if ( isSyncOnWrite )
         {
             sync();
@@ -1211,7 +1192,7 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Attributes getSuffixEntry() throws Exception
+    public ServerEntry getSuffixEntry() throws Exception
     {
         Long id = getEntryId( normSuffix.toNormName() );
 
@@ -1246,10 +1227,10 @@ public class JdbmStore<E> implements Store<E>
      * @param mods the attribute and values to add 
      * @throws Exception if index alteration or attribute addition fails
      */
-    private void add( Long id, Attributes entry, EntryAttribute mods ) throws Exception
+    private void add( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
     {
         String modsOid = oidRegistry.getOid( mods.getId() );
-        
+
         if ( hasUserIndexOn( modsOid ) )
         {
             Index idx = getUserIndex( modsOid );
@@ -1264,17 +1245,10 @@ public class JdbmStore<E> implements Store<E>
 
         // add all the values in mods to the same attribute in the entry
         AttributeType type = attributeTypeRegistry.lookup( modsOid );
-        Attribute entryAttrToAddTo = AttributeUtils.getAttribute( entry, type );
 
-        if ( entryAttrToAddTo == null )
+        for ( Value<?> value : mods )
         {
-            entryAttrToAddTo = new AttributeImpl( mods.getId() );
-            entry.put( entryAttrToAddTo );
-        }
-
-        for ( Value<?> value:mods )
-        {
-            entryAttrToAddTo.add( value.get() );
+            entry.add( type, value );
         }
 
         if ( modsOid.equals( oidRegistry.getOid( SchemaConstants.ALIASED_OBJECT_NAME_AT ) ) )
@@ -1298,10 +1272,10 @@ public class JdbmStore<E> implements Store<E>
      * @param mods the attribute and its values to delete
      * @throws Exception if index alteration or attribute modification fails.
      */
-    private void remove( Long id, Attributes entry, EntryAttribute mods ) throws Exception
+    private void remove( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
     {
         String modsOid = oidRegistry.getOid( mods.getId() );
-        
+
         if ( hasUserIndexOn( modsOid ) )
         {
             Index idx = getUserIndex( modsOid );
@@ -1326,21 +1300,28 @@ public class JdbmStore<E> implements Store<E>
          */
         if ( mods.size() == 0 )
         {
-            AttributeUtils.removeAttribute( attrType, entry );
+            entry.removeAttributes( attrType );
         }
         else
         {
-            Attribute entryAttr = AttributeUtils.getAttribute( entry, attrType );
-            
-            for ( Value<?> value:mods )
+            EntryAttribute entryAttr = entry.get( attrType );
+
+            for ( Value<?> value : mods )
             {
-                entryAttr.remove( value.get() );
+                if ( value instanceof ServerStringValue )
+                {
+                    entryAttr.remove( ( String ) value.get() );
+                }
+                else
+                {
+                    entryAttr.remove( ( byte[] ) value.get() );
+                }
             }
 
             // if nothing is left just remove empty attribute
             if ( entryAttr.size() == 0 )
             {
-                entry.remove( entryAttr.getID() );
+                entry.removeAttributes( entryAttr.getId() );
             }
         }
 
@@ -1361,13 +1342,13 @@ public class JdbmStore<E> implements Store<E>
      * @param id the primary key of the entry
      * @param entry the entry to alter
      * @param mods the replacement attribute and values
-     * @throws NamingException if index alteration or attribute modification 
+     * @throws Exception if index alteration or attribute modification 
      * fails.
      */
-    private void replace( Long id, Attributes entry, EntryAttribute mods ) throws Exception
+    private void replace( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
     {
         String modsOid = oidRegistry.getOid( mods.getId() );
-        
+
         if ( hasUserIndexOn( modsOid ) )
         {
             Index idx = getUserIndex( modsOid );
@@ -1387,7 +1368,7 @@ public class JdbmStore<E> implements Store<E>
         }
 
         String aliasAttributeOid = oidRegistry.getOid( SchemaConstants.ALIASED_OBJECT_NAME_AT );
-        
+
         if ( modsOid.equals( aliasAttributeOid ) )
         {
             dropAliasIndices( id );
@@ -1396,11 +1377,12 @@ public class JdbmStore<E> implements Store<E>
         // replaces old attributes with new modified ones if they exist
         if ( mods.size() > 0 )
         {
-            entry.put( ServerEntryUtils.toAttributeImpl( mods ) );
+            entry.put( mods );
         }
-        else  // removes old attributes if new replacements do not exist
+        else
+        // removes old attributes if new replacements do not exist
         {
-            entry.remove( mods.getId() );
+            entry.remove( mods );
         }
 
         if ( modsOid.equals( aliasAttributeOid ) && mods.size() > 0 )
@@ -1414,34 +1396,34 @@ public class JdbmStore<E> implements Store<E>
     public void modify( LdapDN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception
     {
         Long id = getEntryId( dn.toString() );
-        Attributes entry = master.get( id );
+        ServerEntry entry = master.get( id );
 
-        for ( AttributeType attributeType:mods.getAttributeTypes() )
+        for ( AttributeType attributeType : mods.getAttributeTypes() )
         {
             EntryAttribute attr = mods.get( attributeType );
 
             switch ( modOp )
             {
-                case ADD_ATTRIBUTE :
+                case ADD_ATTRIBUTE:
                     add( id, entry, attr );
                     break;
-                
-                case REMOVE_ATTRIBUTE :
+
+                case REMOVE_ATTRIBUTE:
                     remove( id, entry, attr );
                     break;
-                
-                case REPLACE_ATTRIBUTE :
+
+                case REPLACE_ATTRIBUTE:
                     replace( id, entry, attr );
-    
+
                     break;
-                    
+
                 default:
                     throw new NamingException( "Unidentified modification operation" );
             }
         }
 
         master.put( id, entry );
-        
+
         if ( isSyncOnWrite )
         {
             sync();
@@ -1452,23 +1434,23 @@ public class JdbmStore<E> implements Store<E>
     public void modify( LdapDN dn, List<Modification> mods ) throws Exception
     {
         Long id = getEntryId( dn.toString() );
-        Attributes entry = master.get( id );
+        ServerEntry entry = master.get( id );
 
         for ( Modification mod : mods )
         {
-            ServerAttribute attrMods = (ServerAttribute)mod.getAttribute();
+            ServerAttribute attrMods = ( ServerAttribute ) mod.getAttribute();
 
             switch ( mod.getOperation() )
             {
-                case ADD_ATTRIBUTE :
+                case ADD_ATTRIBUTE:
                     add( id, entry, attrMods );
                     break;
 
-                case REMOVE_ATTRIBUTE :
-                    remove(id, entry, attrMods);
+                case REMOVE_ATTRIBUTE:
+                    remove( id, entry, attrMods );
                     break;
 
-                case REPLACE_ATTRIBUTE :
+                case REPLACE_ATTRIBUTE:
                     replace( id, entry, attrMods );
                     break;
 
@@ -1478,7 +1460,7 @@ public class JdbmStore<E> implements Store<E>
         }
 
         master.put( id, entry );
-        
+
         if ( isSyncOnWrite )
         {
             sync();
@@ -1507,8 +1489,8 @@ public class JdbmStore<E> implements Store<E>
         String newRdnAttr = newRdn.getNormType();
         String newRdnValue = ( String ) newRdn.getValue();
         Long id = getEntryId( dn.getNormName() );
-        Attributes entry = lookup( id );
-        LdapDN updn = new LdapDN( getEntryUpdn( id ) );
+        ServerEntry entry = lookup( id );
+        LdapDN updn = entry.getDn();
 
         /* 
          * H A N D L E   N E W   R D N
@@ -1520,20 +1502,20 @@ public class JdbmStore<E> implements Store<E>
          */
 
         AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newRdn.getNormType() );
-        Attribute rdnAttr = AttributeUtils.getAttribute( entry, newRdnAttrType );
-        
+        EntryAttribute rdnAttr = entry.get( newRdnAttrType );
+
         if ( rdnAttr == null )
         {
-            rdnAttr = new AttributeImpl( newRdnAttr );
+            rdnAttr = new DefaultServerAttribute( newRdnAttrType );
         }
 
         // add the new Rdn value only if it is not already present in the entry
-        if ( ! AttributeUtils.containsValue( rdnAttr, newRdnValue, newRdnAttrType ) )
+        if ( !rdnAttr.contains( newRdnValue ) )
         {
-            rdnAttr.add( newRdn.getUpValue() );
+            rdnAttr.add( ( String ) newRdn.getUpValue() );
         }
 
-        entry.put( rdnAttr );
+        //entry.put( rdnAttr );
 
         if ( hasUserIndexOn( newRdn.getNormType() ) )
         {
@@ -1566,8 +1548,8 @@ public class JdbmStore<E> implements Store<E>
             Rdn oldRdn = updn.getRdn();
             AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldRdn.getNormType() );
 
-            Attribute oldRdnAttr = AttributeUtils.getAttribute( entry, oldRdnAttrType );
-            AttributeUtils.removeValue( oldRdnAttr, oldRdn.getUpValue(), oldRdnAttrType );
+            EntryAttribute oldRdnAttr = entry.get( oldRdnAttrType );
+            oldRdnAttr.remove( ( String ) oldRdn.getUpValue() );
 
             if ( hasUserIndexOn( oldRdn.getNormType() ) )
             {
@@ -1602,9 +1584,13 @@ public class JdbmStore<E> implements Store<E>
 
         // gotta normalize cuz this thang is cloned and not normalized by default
         newUpdn.normalize( attributeTypeRegistry.getNormalizerMapping() );
-        
+
         modifyDn( id, newUpdn, false ); // propagate dn changes
-        
+
+        // Update the current entry
+        entry.setDn( newUpdn );
+        master.put( entry, id );
+
         if ( isSyncOnWrite )
         {
             sync();
@@ -1636,7 +1622,7 @@ public class JdbmStore<E> implements Store<E>
         // Now we can handle the appropriate name userIndices for all cases
         ndnIdx.drop( id );
 
-        if ( ! updn.isNormalized() )
+        if ( !updn.isNormalized() )
         {
             updn.normalize( attributeTypeRegistry.getNormalizerMapping() );
         }
@@ -1684,6 +1670,11 @@ public class JdbmStore<E> implements Store<E>
             rdnDN.normalize( attributeTypeRegistry.getNormalizerMapping() );
             childUpdn.add( rdnDN.getRdn() );
 
+            // Modify the child
+            ServerEntry entry = lookup( childId );
+            entry.setDn( childUpdn );
+            master.put( childId, entry );
+
             // Recursively change the names of the children below
             modifyDn( childId, childUpdn, isMove );
         }
@@ -1695,7 +1686,7 @@ public class JdbmStore<E> implements Store<E>
         Long childId = getEntryId( oldChildDn.toString() );
         rename( oldChildDn, newRdn, deleteOldRdn );
         move( oldChildDn, childId, newParentDn );
-        
+
         if ( isSyncOnWrite )
         {
             sync();
@@ -1707,7 +1698,7 @@ public class JdbmStore<E> implements Store<E>
     {
         Long childId = getEntryId( oldChildDn.toString() );
         move( oldChildDn, childId, newParentDn );
-        
+
         if ( isSyncOnWrite )
         {
             sync();
