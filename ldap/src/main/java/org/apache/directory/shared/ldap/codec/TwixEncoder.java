@@ -68,7 +68,7 @@ public class TwixEncoder implements ProviderEncoder
      * 
      * @param provider The associated Provider
      */
-    public TwixEncoder(Provider provider)
+    public TwixEncoder( Provider provider )
     {
         this.provider = provider;
         encodeCallback = new OutputCallback();
@@ -92,6 +92,7 @@ public class TwixEncoder implements ProviderEncoder
                 log.debug( "Encoding this LdapMessage : " + obj );
             }
 
+            ( ( OutputCallback ) encodeCallback ).attach( out );
             encodeCallback.encodeOccurred( null, ( ( LdapMessage ) obj ).encode( null ) );
         }
         catch ( EncoderException e )
@@ -255,6 +256,7 @@ public class TwixEncoder implements ProviderEncoder
         {
             try
             {
+                ( ( ByteBuffer ) encoded ).flip();
                 channel.write( ( ByteBuffer ) encoded );
             }
             catch ( IOException e )

@@ -20,6 +20,9 @@
 package org.apache.directory.shared.ldap.filter;
 
 
+import org.apache.directory.shared.ldap.entry.Value;
+
+
 /**
  * A assertion value node for GreaterOrEqual.
  * 
@@ -34,19 +37,7 @@ public class GreaterEqNode extends SimpleNode
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    public GreaterEqNode( String attribute, byte[] value )
-    {
-        super( attribute, value, AssertionType.GREATEREQ );
-    }
-
-
-    /**
-     * Creates a new GreaterOrEqual object.
-     * 
-     * @param attribute the attribute name
-     * @param value the value to test for
-     */
-    public GreaterEqNode( String attribute, String value )
+    public GreaterEqNode( String attribute, Value<?> value )
     {
         super( attribute, value, AssertionType.GREATEREQ );
     }
@@ -60,20 +51,20 @@ public class GreaterEqNode extends SimpleNode
         return super.hashCode();
     }
 
-    
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
+        StringBuilder buf = new StringBuilder();
+
         buf.append( '(' ).append( getAttribute() ).append( ">=" ).append( value );
 
         buf.append( super.toString() );
-        
+
         buf.append( ')' );
-        
-    	return buf.toString();
+
+        return buf.toString();
     }
 }

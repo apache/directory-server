@@ -36,7 +36,6 @@ public abstract class LeafNode extends AbstractExprNode
      * Creates a leaf node.
      * 
      * @param attribute the attribute this node is based on
-     * @param type the type of this leaf node
      */
     protected LeafNode( String attribute, AssertionType assertionType )
     {
@@ -109,11 +108,12 @@ public abstract class LeafNode extends AbstractExprNode
             return false;
         }
 
+        //noinspection SimplifiableIfStatement
         if ( other.getClass() != this.getClass() )
         {
         	return false;
         }
-            
+
         return attribute.equals( ( ( LeafNode ) other ).getAttribute() );
     }
 

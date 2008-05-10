@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.ldap.filter;
 
+import org.apache.directory.shared.ldap.entry.Value;
 
 /**
  * A simple assertion value node.
@@ -34,19 +35,7 @@ public class ApproximateNode extends EqualityNode
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    public ApproximateNode( String attribute, byte[] value )
-    {
-        super( attribute, value, AssertionType.APPROXIMATE );
-    }
-
-
-    /**
-     * Creates a new ApproximateNode object.
-     * 
-     * @param attribute the attribute name
-     * @param value the value to test for
-     */
-    public ApproximateNode( String attribute, String value )
+    public ApproximateNode( String attribute, Value<?> value )
     {
         super( attribute, value, AssertionType.APPROXIMATE );
     }
@@ -66,14 +55,14 @@ public class ApproximateNode extends EqualityNode
      */
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
+        StringBuilder buf = new StringBuilder();
+    
         buf.append( '(' ).append( getAttribute() ).append( "~=" ).append( value );
 
         buf.append( super.toString() );
         
         buf.append( ')' );
         
-    	return buf.toString();
+        return buf.toString();
     }
 }

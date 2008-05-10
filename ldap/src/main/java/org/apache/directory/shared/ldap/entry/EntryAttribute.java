@@ -63,7 +63,7 @@ public interface EntryAttribute extends Iterable<Value<?>>, Cloneable
      * adding the first value, using the value's type to set the flag.
      * </p>
      *
-     * @param val some new values to be added which may be null
+     * @param vals some new values to be added which may be null
      * @return the number of added values, or 0 if none has been added
      */
     int add( String... vals );
@@ -94,7 +94,7 @@ public interface EntryAttribute extends Iterable<Value<?>>, Cloneable
      * the current attribute, otherwise this type will be set while
      * adding the first value, using the value's type to set the flag.
      *
-     * @param val some new values to be added which may be null
+     * @param vals some new values to be added which may be null
      * @return the number of added values, or 0 if none has been added
      */
     int add( byte[]... vals );
@@ -135,7 +135,7 @@ public interface EntryAttribute extends Iterable<Value<?>>, Cloneable
      * is a null length value, then this value will be considered as
      * a binary value.
      * </p>
-     * @param val some new values to be added which may be null
+     * @param vals some new values to be added which may be null
      * @return the number of added values, or 0 if none has been added
      */
     int add( Value<?>... val );

@@ -29,6 +29,9 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.search.AttributeValueAssertionFilter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
@@ -65,11 +68,15 @@ public class InitAssertionValueFilterAction extends GrammarAction
         TLV tlv = ldapMessageContainer.getCurrentTLV();
 
         // The value can be null.
-        Object assertionValue = StringTools.EMPTY_BYTES;
+        Value<?> assertionValue = null;
 
         if ( tlv.getLength() != 0 )
         {
-            assertionValue = tlv.getValue().getData();
+            assertionValue = new ClientBinaryValue( tlv.getValue().getData() );
+        }
+        else
+        {
+            assertionValue = new ClientBinaryValue( StringTools.EMPTY_BYTES );
         }
 
         AttributeValueAssertionFilter terminalFilter = ( AttributeValueAssertionFilter ) searchRequest
@@ -78,11 +85,29 @@ public class InitAssertionValueFilterAction extends GrammarAction
 
         if ( ldapMessageContainer.isBinary( assertion.getAttributeDesc() ) )
         {
+            if ( tlv.getLength() != 0 )
+            {
+                assertionValue = new ClientBinaryValue( tlv.getValue().getData() );
+            }
+            else
+            {
+                assertionValue = new ClientBinaryValue( StringTools.EMPTY_BYTES );
+            }
+            
             assertion.setAssertionValue( assertionValue );
         }
         else
         {
-            assertion.setAssertionValue( StringTools.utf8ToString( ( byte[] ) assertionValue ) );
+            if ( tlv.getLength() != 0 )
+            {
+                assertionValue = new ClientStringValue( StringTools.utf8ToString( tlv.getValue().getData() ) );
+            }
+            else
+            {
+                assertionValue = new ClientStringValue( "" );
+            }
+            
+            assertion.setAssertionValue(assertionValue );
         }
 
         // We now have to get back to the nearest filter which is
