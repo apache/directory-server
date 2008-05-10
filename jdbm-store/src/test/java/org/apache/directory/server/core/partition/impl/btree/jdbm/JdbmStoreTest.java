@@ -38,7 +38,6 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -371,7 +370,7 @@ public class JdbmStoreTest
         entry.add( "ou", "Apache" );
         entry.add( "commonName",  "Jack Daniels");
         entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
         
         store.delete( 12L ); // drops the alias indices
         
@@ -411,7 +410,7 @@ public class JdbmStoreTest
       entry.add( "objectClass", "top", "person", "organizationalPerson" );
       entry.add( "ou", "Sales" );
       entry.add( "cn",  "Martin King");
-      store.add( martinDn, ServerEntryUtils.toAttributesImpl( entry ) );
+      store.add( martinDn, entry );
       
       cursor = idx.forwardCursor( 2L);
       cursor.afterLast();
@@ -433,7 +432,7 @@ public class JdbmStoreTest
       entry = new DefaultServerEntry( registries, marketingDn );
       entry.add( "objectClass", "top", "organizationalUnit" );
       entry.add( "ou", "Marketing" );
-      store.add( marketingDn, ServerEntryUtils.toAttributesImpl( entry ) );
+      store.add( marketingDn, entry );
 
       // dn id 14
       LdapDN jimmyDn = new LdapDN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
@@ -442,7 +441,7 @@ public class JdbmStoreTest
       entry.add( "objectClass", "top", "person", "organizationalPerson" );
       entry.add( "ou", "Marketing" );
       entry.add( "cn",  "Jimmy Wales");
-      store.add( jimmyDn, ServerEntryUtils.toAttributesImpl( entry ) );
+      store.add( jimmyDn, entry );
       
       store.move( marketingDn, newParentDn );
 
@@ -661,7 +660,7 @@ public class JdbmStoreTest
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Not Present" );
         entry.add( "cn",  "Martin King");
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
     }
     
     
@@ -673,7 +672,7 @@ public class JdbmStoreTest
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         entry.add( "ou", "Sales" );
         entry.add( "cn",  "Martin King");
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
     }
         
     
@@ -707,7 +706,7 @@ public class JdbmStoreTest
         entry.add( "ou", "Engineering" );
         entry.add( "cn",  "Private Ryan");
 
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
         
         Rdn rdn = new Rdn("sn=James");
         
@@ -725,7 +724,7 @@ public class JdbmStoreTest
         childEntry.add( "ou", "Engineering" );
         childEntry.add( "cn",  "Private Ryan");
 
-        store.add( childDn, ServerEntryUtils.toAttributesImpl( childEntry ) );
+        store.add( childDn, childEntry );
 
         LdapDN parentDn = new LdapDN( "ou=Sales,o=Good Times Co." );
         parentDn.normalize( attributeRegistry.getNormalizerMapping() );
@@ -765,10 +764,10 @@ public class JdbmStoreTest
         Modification add = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
         mods.add( add );
         
-        Attributes attributes = store.lookup( store.getEntryId( dn.toNormName() ) );
+        ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
 
         store.modify( dn, mods );
-        assertTrue( attributes.get( "sn" ).contains( attribVal ) );
+        assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
         
         // testing the store.modify( dn, mod, entry ) API
         ServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -776,7 +775,8 @@ public class JdbmStoreTest
         entry.add( "telephoneNumber", attribVal );
         
         store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
-        assertTrue( attributes.get( "telephoneNumber" ).contains( attribVal ) );
+        lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
+        assertTrue( lookedup.get( "telephoneNumber" ).contains( attribVal ) );
     }
     
     
@@ -796,12 +796,12 @@ public class JdbmStoreTest
         Modification add = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
         mods.add( add );
         
-        Attributes attributes = store.lookup( store.getEntryId( dn.toNormName() ) );
+        ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
         
-        assertEquals( "WAlkeR", attributes.get( "sn" ).get() ); // before replacing
+        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().get() ); // before replacing
         
         store.modify( dn, mods );
-        assertEquals( attribVal, attributes.get( "sn" ).get() );
+        assertEquals( attribVal, lookedup.get( "sn" ).get().get() );
         
         // testing the store.modify( dn, mod, entry ) API
         ServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -809,7 +809,7 @@ public class JdbmStoreTest
         entry.add( "sn", attribVal );
         
         store.modify( dn, ModificationOperation.REPLACE_ATTRIBUTE, entry );
-        assertEquals( attribVal, attributes.get( "sn" ).get() );
+        assertEquals( attribVal, lookedup.get( "sn" ).get().get() );
     }
     
     
@@ -826,12 +826,12 @@ public class JdbmStoreTest
         Modification add = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
         mods.add( add );
         
-        Attributes attributes = store.lookup( store.getEntryId( dn.toNormName() ) );
+        ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
         
-        assertNotNull( attributes.get( "sn" ) );
+        assertNotNull( lookedup.get( "sn" ).get() );
         
         store.modify( dn, mods );
-        assertNull( attributes.get( "sn" ) );
+        assertNull( lookedup.get( "sn" ).get() );
         
         // testing the store.modify( dn, mod, entry ) API
         ServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -839,10 +839,10 @@ public class JdbmStoreTest
         // add an entry for the sake of testing the remove operation
         entry.add( "sn", "JWalker" );
         store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
-        assertNotNull( attributes.get( "sn" ) );
+        assertNotNull( lookedup.get( "sn" ).get() );
         
         store.modify( dn, ModificationOperation.REMOVE_ATTRIBUTE, entry );
-        assertNull( attributes.get( "sn" ) );
+        assertNull( lookedup.get( "sn" ).get() );
     }
 
 }

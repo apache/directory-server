@@ -21,7 +21,6 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -33,6 +32,7 @@ import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ServerEntry;
 
 
 /**
@@ -42,14 +42,14 @@ import org.apache.directory.server.core.cursor.Cursor;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultSearchEngine implements SearchEngine<Attributes>
+public class DefaultSearchEngine implements SearchEngine<ServerEntry>
 {
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
     /** the Database this DefaultSearchEngine operates on */
-    private Store<Attributes> db;
+    private Store<ServerEntry> db;
     /** Evaluator flyweight used for filter expression assertions */
-    private Evaluator<? extends ExprNode, Attributes> evaluator;
+    private Evaluator<? extends ExprNode, ServerEntry> evaluator;
     /** CursorBuilder flyweight that creates enumerations on filter expressions */
     private CursorBuilder cursorBuilder;
 
@@ -66,8 +66,8 @@ public class DefaultSearchEngine implements SearchEngine<Attributes>
      * @param evaluator an expression evaluator
      * @param optimizer an optimizer to use during search
      */
-    public DefaultSearchEngine( Store<Attributes> db,
-                                Evaluator<? extends ExprNode, Attributes> evaluator,
+    public DefaultSearchEngine( Store<ServerEntry> db,
+                                Evaluator<? extends ExprNode, ServerEntry> evaluator,
                                 CursorBuilder cursorBuilder, Optimizer optimizer )
     {
         this.db = db;
@@ -88,7 +88,7 @@ public class DefaultSearchEngine implements SearchEngine<Attributes>
     }
 
 
-    public Cursor<IndexEntry<?,Attributes>> search( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
+    public Cursor<IndexEntry<?,ServerEntry>> search( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
         throws Exception
     {
         LdapDN effectiveBase;
@@ -136,7 +136,7 @@ public class DefaultSearchEngine implements SearchEngine<Attributes>
      */
     public boolean evaluate( ExprNode filter, Long id ) throws Exception
     {
-        IndexEntry<?,Attributes> rec = new ForwardIndexEntry<Object,Attributes>();
+        IndexEntry<?,ServerEntry> rec = new ForwardIndexEntry<Object,ServerEntry>();
         rec.setId( id );
         return evaluator.evaluate( rec );
     }

@@ -25,8 +25,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
-
-import javax.naming.directory.Attributes;
+import org.apache.directory.server.core.entry.ServerEntry;
 
 
 /**
@@ -41,7 +40,7 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
+public class ApproximateCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
 {
     private static final String UNSUPPORTED_MSG =
         "ApproximateCursors only support positioning by element when a user index exists on the asserted attribute.";
@@ -50,16 +49,16 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     private final ApproximateEvaluator approximateEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final Cursor<IndexEntry<?,Attributes>> userIdxCursor;
+    private final Cursor<IndexEntry<?,ServerEntry>> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final Cursor<IndexEntry<String,Attributes>> ndnIdxCursor;
+    private final Cursor<IndexEntry<String,ServerEntry>> ndnIdxCursor;
 
     /** used only when ndnIdxCursor is used (no index on attribute) */
     private boolean available = false;
 
 
-    public ApproximateCursor( Store<Attributes> db, ApproximateEvaluator approximateEvaluator ) throws Exception
+    public ApproximateCursor( Store<ServerEntry> db, ApproximateEvaluator approximateEvaluator ) throws Exception
     {
         this.approximateEvaluator = approximateEvaluator;
 
@@ -90,7 +89,7 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     }
 
 
-    public void before( IndexEntry<?, Attributes> element ) throws Exception
+    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
     {
         if ( userIdxCursor != null )
         {
@@ -103,7 +102,7 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     }
 
 
-    public void after( IndexEntry<?, Attributes> element ) throws Exception
+    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
     {
         if ( userIdxCursor != null )
         {
@@ -167,7 +166,7 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
         while( ndnIdxCursor.previous() )
         {
-            IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
+            IndexEntry<?,ServerEntry> candidate = ndnIdxCursor.get();
             if ( approximateEvaluator.evaluate( candidate ) )
             {
                  return available = true;
@@ -187,7 +186,7 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
 
         while( ndnIdxCursor.next() )
         {
-            IndexEntry<?,Attributes> candidate = ndnIdxCursor.get();
+            IndexEntry<?,ServerEntry> candidate = ndnIdxCursor.get();
             if ( approximateEvaluator.evaluate( candidate ) )
             {
                  return available = true;
@@ -198,7 +197,7 @@ public class ApproximateCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     }
 
 
-    public IndexEntry<?, Attributes> get() throws Exception
+    public IndexEntry<?, ServerEntry> get() throws Exception
     {
         if ( userIdxCursor != null )
         {

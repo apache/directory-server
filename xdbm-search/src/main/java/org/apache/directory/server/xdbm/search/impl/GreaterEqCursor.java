@@ -26,8 +26,7 @@ import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
-
-import javax.naming.directory.Attributes;
+import org.apache.directory.server.core.entry.ServerEntry;
 
 
 /**
@@ -40,7 +39,7 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
+public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
 {
     private static final String UNSUPPORTED_MSG =
         "GreaterEqCursors only support positioning by element when a user index exists on the asserted attribute.";
@@ -49,23 +48,23 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     private final GreaterEqEvaluator greaterEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final Cursor<IndexEntry<?,Attributes>> userIdxCursor;
+    private final Cursor<IndexEntry<?,ServerEntry>> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final Cursor<IndexEntry<String,Attributes>> ndnIdxCursor;
+    private final Cursor<IndexEntry<String,ServerEntry>> ndnIdxCursor;
 
     /**
      * Used to store indexEntry from ndnCandidate so it can be saved after
      * call to evaluate() which changes the value so it's not referring to
      * the NDN but to the value of the attribute instead.
      */
-    IndexEntry<String, Attributes> ndnCandidate;
+    IndexEntry<String, ServerEntry> ndnCandidate;
 
     /** used in both modes */
     private boolean available = false;
 
 
-    public GreaterEqCursor( Store<Attributes> db, GreaterEqEvaluator greaterEqEvaluator ) throws Exception
+    public GreaterEqCursor( Store<ServerEntry> db, GreaterEqEvaluator greaterEqEvaluator ) throws Exception
     {
         this.greaterEqEvaluator = greaterEqEvaluator;
 
@@ -90,7 +89,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     }
 
 
-    public void before( IndexEntry<?, Attributes> element ) throws Exception
+    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
     {
         if ( userIdxCursor != null )
         {
@@ -120,7 +119,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     }
 
 
-    public void after( IndexEntry<?, Attributes> element ) throws Exception
+    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
     {
         if ( userIdxCursor != null )
         {
@@ -163,7 +162,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( userIdxCursor != null )
         {
-            IndexEntry<Object,Attributes> advanceTo = new ForwardIndexEntry<Object,Attributes>();
+            IndexEntry<Object,ServerEntry> advanceTo = new ForwardIndexEntry<Object,ServerEntry>();
             advanceTo.setValue( greaterEqEvaluator.getExpression().getValue() );
             userIdxCursor.before( advanceTo );
         }
@@ -217,7 +216,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
              */
             while ( userIdxCursor.previous() )
             {
-                IndexEntry<?,Attributes> candidate = userIdxCursor.get();
+                IndexEntry<?,ServerEntry> candidate = userIdxCursor.get();
                 //noinspection unchecked
                 if ( greaterEqEvaluator.getComparator().compare( candidate.getValue(), greaterEqEvaluator.getExpression().getValue() ) >= 0 )
                 {
@@ -265,7 +264,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     }
 
 
-    public IndexEntry<?, Attributes> get() throws Exception
+    public IndexEntry<?, ServerEntry> get() throws Exception
     {
         if ( userIdxCursor != null )
         {

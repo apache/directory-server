@@ -23,7 +23,9 @@ package org.apache.directory.server.xdbm.search.impl;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.shared.ldap.filter.ExprNode;
 
 import java.util.*;
 
@@ -34,19 +36,19 @@ import java.util.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class OrCursor<Attributes> extends AbstractCursor<IndexEntry<?,Attributes>>
+public class OrCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
 {
     private static final String UNSUPPORTED_MSG =
         "OrCursors are not ordered and do not support positioning by element.";
-    private final List<Cursor<IndexEntry<?,Attributes>>> cursors;
-    private final List<Evaluator> evaluators;
+    private final List<Cursor<IndexEntry<?,ServerEntry>>> cursors;
+    private final List<Evaluator<? extends ExprNode,ServerEntry>> evaluators;
     private final List<Set<Long>> blacklists;
     private int cursorIndex = -1;
     private boolean available = false;
 
 
     // TODO - do same evaluator fail fast optimization that we do in AndCursor
-    public OrCursor( List<Cursor<IndexEntry<?,Attributes>>> cursors, List<Evaluator> evaluators )
+    public OrCursor( List<Cursor<IndexEntry<?, ServerEntry>>> cursors, List<Evaluator<? extends ExprNode,ServerEntry>> evaluators )
     {
         if ( cursors.size() <= 1 )
         {
@@ -72,13 +74,13 @@ public class OrCursor<Attributes> extends AbstractCursor<IndexEntry<?,Attributes
     }
 
 
-    public void before( IndexEntry<?, Attributes> element ) throws Exception
+    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<?, Attributes> element ) throws Exception
+    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -127,7 +129,7 @@ public class OrCursor<Attributes> extends AbstractCursor<IndexEntry<?,Attributes
      * @param indexEntry the index entry to blacklist
      * @throws Exception if there are problems accessing underlying db
      */
-    private void blackListIfDuplicate( IndexEntry<?,Attributes> indexEntry ) throws Exception
+    private void blackListIfDuplicate( IndexEntry<?, ServerEntry> indexEntry ) throws Exception
     {
         for ( int ii = 0; ii < evaluators.size(); ii++ )
         {
@@ -149,7 +151,7 @@ public class OrCursor<Attributes> extends AbstractCursor<IndexEntry<?,Attributes
     {
         while ( cursors.get( cursorIndex ).previous() )
         {
-            IndexEntry<?,Attributes> candidate = cursors.get( cursorIndex ).get();
+            IndexEntry<?,ServerEntry> candidate = cursors.get( cursorIndex ).get();
             if ( ! isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );
@@ -164,7 +166,7 @@ public class OrCursor<Attributes> extends AbstractCursor<IndexEntry<?,Attributes
 
             while ( cursors.get( cursorIndex ).previous() )
             {
-                IndexEntry<?,Attributes> candidate = cursors.get( cursorIndex ).get();
+                IndexEntry<?,ServerEntry> candidate = cursors.get( cursorIndex ).get();
                 if ( ! isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
@@ -181,7 +183,7 @@ public class OrCursor<Attributes> extends AbstractCursor<IndexEntry<?,Attributes
     {
         while ( cursors.get( cursorIndex ).next() )
         {
-            IndexEntry<?,Attributes> candidate = cursors.get( cursorIndex ).get();
+            IndexEntry<?,ServerEntry> candidate = cursors.get( cursorIndex ).get();
             if ( ! isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );
@@ -196,7 +198,7 @@ public class OrCursor<Attributes> extends AbstractCursor<IndexEntry<?,Attributes
 
             while ( cursors.get( cursorIndex ).next() )
             {
-                IndexEntry<?,Attributes> candidate = cursors.get( cursorIndex ).get();
+                IndexEntry<?,ServerEntry> candidate = cursors.get( cursorIndex ).get();
                 if ( ! isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
@@ -209,7 +211,7 @@ public class OrCursor<Attributes> extends AbstractCursor<IndexEntry<?,Attributes
     }
 
 
-    public IndexEntry<?, Attributes> get() throws Exception
+    public IndexEntry<?, ServerEntry> get() throws Exception
     {
         if ( available )
         {

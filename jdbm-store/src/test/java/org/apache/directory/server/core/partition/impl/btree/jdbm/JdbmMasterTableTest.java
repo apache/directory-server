@@ -26,11 +26,15 @@ import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.apache.directory.server.schema.bootstrap.*;
+import org.apache.directory.server.schema.registries.*;
+import org.apache.directory.server.schema.SerializableComparator;
 
 import java.io.File;
+import java.util.Set;
+import java.util.HashSet;
 
 import jdbm.RecordManager;
-import jdbm.helper.IntegerSerializer;
 import jdbm.recman.BaseRecordManager;
 
 
@@ -48,6 +52,27 @@ public class JdbmMasterTableTest
     transient JdbmMasterTable<Integer> table;
     transient File dbFile;
     transient RecordManager recman;
+    transient Registries registries = null;
+    transient AttributeTypeRegistry attributeRegistry;
+
+
+    public JdbmMasterTableTest() throws Exception
+    {
+        // setup the standard registries
+        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
+        OidRegistry oidRegistry = new DefaultOidRegistry();
+        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
+        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
+
+        // load essential bootstrap schemas
+        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
+        bootstrapSchemas.add( new ApachemetaSchema() );
+        bootstrapSchemas.add( new ApacheSchema() );
+        bootstrapSchemas.add( new CoreSchema() );
+        bootstrapSchemas.add( new SystemSchema() );
+        loader.loadWithDependencies( bootstrapSchemas, registries );
+        attributeRegistry = registries.getAttributeTypeRegistry();
+    }
 
 
     @Before
@@ -63,10 +88,10 @@ public class JdbmMasterTableTest
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
-        table = new JdbmMasterTable<Integer>( recman, new IntegerSerializer() );
+        table = new JdbmMasterTable<Integer>( recman, registries );
         LOG.debug( "Created new table and populated it with data" );
 
-        JdbmMasterTable t2 = new JdbmMasterTable<Integer>( recman, new IntegerSerializer() );
+        JdbmMasterTable t2 = new JdbmMasterTable<Integer>( recman, registries );
         t2.close();
     }
 

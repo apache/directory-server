@@ -370,7 +370,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     // ------------------------------------------------------------------------
 
 
-    public V get( K key ) throws IOException
+    public V get( K key ) throws Exception
     {
         if ( key == null )
         {

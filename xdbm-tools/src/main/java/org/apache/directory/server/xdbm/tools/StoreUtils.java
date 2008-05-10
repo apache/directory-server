@@ -27,7 +27,6 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -72,8 +71,8 @@ public class StoreUtils
         store.setContextEntry( contextEntry );
         
         AttributeTypeRegistry attributeRegistry = registries.getAttributeTypeRegistry();
-        
-        store.init( registries.getOidRegistry(), attributeRegistry );
+
+        store.init( registries );
 
         // Entry #2
         LdapDN dn = new LdapDN( "ou=Sales,o=Good Times Co." );
@@ -83,7 +82,7 @@ public class StoreUtils
         entry.add( "ou", "Sales" );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
 
         // Entry #3
         dn = new LdapDN( "ou=Board of Directors,o=Good Times Co." );
@@ -93,7 +92,7 @@ public class StoreUtils
         entry.add( "ou", "Board of Directors" );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
         
         // Entry #4
         dn = new LdapDN( "ou=Engineering,o=Good Times Co." );
@@ -103,7 +102,7 @@ public class StoreUtils
         entry.add( "ou", "Engineering" );
         entry.add( "postalCode", "2" );
         entry.add( "postOfficeBox", "2" );
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
         
         // Entry #5
         dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
@@ -115,7 +114,7 @@ public class StoreUtils
         entry.add( "sn", "WAlkeR");
         entry.add( "postalCode", "3" );
         entry.add( "postOfficeBox", "3" );
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
         
         // Entry #6
         dn = new LdapDN( "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
@@ -127,7 +126,7 @@ public class StoreUtils
         entry.add( "surName", "BEAN");
         entry.add( "postalCode", "4" );
         entry.add( "postOfficeBox", "4" );
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
 
         // Entry #7
         dn = new LdapDN( "ou=Apache,ou=Board of Directors,o=Good Times Co." );
@@ -137,7 +136,7 @@ public class StoreUtils
         entry.add( "ou", "Apache" );
         entry.add( "postalCode", "5" );
         entry.add( "postOfficeBox", "5" );
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
         
         // Entry #8
         dn = new LdapDN( "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
@@ -149,7 +148,7 @@ public class StoreUtils
         entry.add( "SN",  "Daniels");
         entry.add( "postalCode", "6" );
         entry.add( "postOfficeBox", "6" );
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
 
         // aliases -------------
 
@@ -161,7 +160,7 @@ public class StoreUtils
         entry.add( "ou", "Apache" );
         entry.add( "commonName",  "Jim Bean");
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
 
         // Entry #10
         dn = new LdapDN( "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co." );
@@ -170,7 +169,7 @@ public class StoreUtils
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "commonName",  "Jim Bean");
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
 
         // Entry #11
         dn = new LdapDN( "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co." );
@@ -180,7 +179,7 @@ public class StoreUtils
         entry.add( "ou", "Engineering" );
         entry.add( "2.5.4.3",  "Johnny Walker");
         entry.add( "aliasedObjectName", "cn=Johnny Walker,ou=Sales,o=Good Times Co." );
-        store.add( dn, ServerEntryUtils.toAttributesImpl( entry ) );
+        store.add( dn, entry );
     }
     
     

@@ -21,18 +21,17 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
 
-import javax.naming.directory.Attributes;
-import javax.naming.directory.Attribute;
-import javax.naming.NamingEnumeration;
 import java.util.Iterator;
 import java.util.Comparator;
 
@@ -44,18 +43,18 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
+public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, ServerEntry>
 {
     private final GreaterEqNode node;
-    private final Store<Attributes> db;
+    private final Store<ServerEntry> db;
     private final Registries registries;
     private final AttributeType type;
     private final Normalizer normalizer;
     private final Comparator comparator;
-    private final Index<Object,Attributes> idx;
+    private final Index<Object,ServerEntry> idx;
 
 
-    public GreaterEqEvaluator( GreaterEqNode node, Store<Attributes> db, Registries registries )
+    public GreaterEqEvaluator( GreaterEqNode node, Store<ServerEntry> db, Registries registries )
         throws Exception
     {
         this.db = db;
@@ -121,14 +120,14 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
     }
 
 
-    public boolean evaluate( IndexEntry<?,Attributes> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
             return idx.reverseGreaterOrEq( indexEntry.getId(), node.getValue() );
         }
 
-        Attributes entry = indexEntry.getObject();
+        ServerEntry entry = indexEntry.getObject();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
@@ -138,10 +137,10 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
         }
 
         // get the attribute
-        Attribute attr = AttributeUtils.getAttribute( entry, type );
+        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
 
-        // if the attribute does not exist just return false
-        if ( attr != null && evaluate( ( IndexEntry<Object,Attributes> ) indexEntry, attr ) )
+        // if the attribute exists and has a greater than or equal value return true
+        if ( attr != null && evaluate( ( IndexEntry<Object,ServerEntry> ) indexEntry, attr ) )
         {
             return true;
         }
@@ -161,9 +160,9 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
             {
                 AttributeType descendant = descendants.next();
 
-                attr = AttributeUtils.getAttribute( entry, descendant );
+                attr = ( ServerAttribute ) entry.get( descendant );
 
-                if ( attr != null && evaluate( ( IndexEntry<Object,Attributes> ) indexEntry, attr ) )
+                if ( attr != null && evaluate( ( IndexEntry<Object, ServerEntry> ) indexEntry, attr ) )
                 {
                     return true;
                 }
@@ -175,7 +174,9 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
     }
 
 
-    private boolean evaluate( IndexEntry<Object,Attributes> indexEntry, Attribute attribute ) throws Exception
+    // TODO - determine if comaparator and index entry should have the Value
+    // wrapper or the raw normalized value 
+    private boolean evaluate( IndexEntry<Object,ServerEntry> indexEntry, ServerAttribute attribute ) throws Exception
     {
         /*
          * Cycle through the attribute values testing normalized version
@@ -183,18 +184,13 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, Attributes>
          * normalizer.  The test uses the comparator obtained from the
          * appropriate matching rule to perform the check.
          */
-        NamingEnumeration values = attribute.getAll();
-
-        while ( values.hasMore() )
+        for ( Value value : attribute )
         {
-            Object value = normalizer.normalize( values.next() );
+            value.normalize( normalizer );
 
-            // Once match is found cleanup and return true
-            //noinspection unchecked
-            if ( comparator.compare( value, node.getValue() ) >= 0 )
+            if ( comparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) >= 0 )
             {
-                indexEntry.setValue( value );
-                values.close();
+                indexEntry.setValue( value.getNormalizedValue() );
                 return true;
             }
         }

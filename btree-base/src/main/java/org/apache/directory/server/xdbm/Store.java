@@ -30,8 +30,6 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Modification;
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import java.io.File;
 import java.util.Set;
 import java.util.Iterator;
@@ -155,13 +153,11 @@ public interface Store<E>
     /**
      * Initialize the JDBM storage system.
      *
-     * @param oidRegistry an OID registry to resolve numeric identifiers from names
-     * @param attributeTypeRegistry an attributeType specification registry to lookup type specs
-     * @throws javax.naming.NamingException on failure to lookup elements in registries
+     * @param registries the schema registries
+     * @throws Exception on failure to lookup elements in registries
      * @throws Exception on failure to create database files
      */
-    void init( OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry )
-            throws Exception;
+    void init( Registries registries ) throws Exception;
 
 
     /**
@@ -190,55 +186,55 @@ public interface Store<E>
     void sync() throws Exception;
 
 
-    void addIndex( Index index ) throws NamingException;
+    void addIndex( Index index ) throws Exception;
 
 
     Index<String,E> getPresenceIndex();
 
 
-    void setPresenceIndex( Index<String,E> index ) throws NamingException;
+    void setPresenceIndex( Index<String,E> index ) throws Exception;
 
 
     Index<Long,E> getOneLevelIndex();
 
 
-    void setOneLevelIndex( Index<Long,E> index ) throws NamingException;
+    void setOneLevelIndex( Index<Long,E> index ) throws Exception;
 
 
     Index<Long,E> getSubLevelIndex();
 
 
-    void setSubLevelIndex( Index<Long,E> index ) throws NamingException;
+    void setSubLevelIndex( Index<Long,E> index ) throws Exception;
 
 
     Index<String,E> getAliasIndex();
 
 
-    void setAliasIndex( Index<String,E> index ) throws NamingException;
+    void setAliasIndex( Index<String,E> index ) throws Exception;
 
 
     Index<Long,E> getOneAliasIndex();
 
 
-    void setOneAliasIndex( Index<Long,E> index ) throws NamingException;
+    void setOneAliasIndex( Index<Long,E> index ) throws Exception;
 
 
     Index<Long,E> getSubAliasIndex();
 
 
-    void setSubAliasIndex( Index<Long,E> index ) throws NamingException;
+    void setSubAliasIndex( Index<Long,E> index ) throws Exception;
 
 
     Index<String,E> getUpdnIndex();
 
 
-    void setUpdnIndex( Index<String,E> index ) throws NamingException;
+    void setUpdnIndex( Index<String,E> index ) throws Exception;
 
 
     Index<String,E> getNdnIndex();
 
 
-    void setNdnIndex( Index<String,E> index ) throws NamingException;
+    void setNdnIndex( Index<String,E> index ) throws Exception;
 
 
     Iterator<String> userIndices();
@@ -247,10 +243,10 @@ public interface Store<E>
     Iterator<String> systemIndices();
 
 
-    boolean hasUserIndexOn( String id ) throws NamingException;
+    boolean hasUserIndexOn( String id ) throws Exception;
 
 
-    boolean hasSystemIndexOn( String id ) throws NamingException;
+    boolean hasSystemIndexOn( String id ) throws Exception;
 
 
     Index getUserIndex( String id ) throws IndexNotFoundException;
@@ -290,10 +286,10 @@ public interface Store<E>
     int count() throws Exception;
 
 
-    void add( LdapDN normName, Attributes entry ) throws Exception;
+    void add( LdapDN normName, ServerEntry entry ) throws Exception;
 
 
-    Attributes lookup( Long id ) throws Exception;
+    ServerEntry lookup( Long id ) throws Exception;
 
 
     void delete( Long id ) throws Exception;
@@ -318,7 +314,7 @@ public interface Store<E>
     LdapDN getUpSuffix();
 
 
-    Attributes getSuffixEntry() throws Exception;
+    ServerEntry getSuffixEntry() throws Exception;
 
 
     void setProperty( String propertyName, String propertyValue ) throws Exception;

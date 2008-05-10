@@ -23,21 +23,19 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.entry.Value;
 
 
 /**
@@ -46,10 +44,10 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
+public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
 {
     /** Database used while evaluating candidates */
-    private final Store<Attributes> db;
+    private final Store<ServerEntry> db;
     
     /** Oid Registry used to translate attributeIds to OIDs */
     private final Registries registries;
@@ -64,7 +62,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
 
     private final Normalizer normalizer;
 
-    private final Index<String,Attributes> idx;
+    private final Index<String,ServerEntry> idx;
 
 
     /**
@@ -75,7 +73,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
      * @param registries the set of registries
      * @throws Exception if there are failures accessing resources and the db
      */
-    public SubstringEvaluator( SubstringNode node, Store<Attributes> db, Registries registries ) throws Exception
+    public SubstringEvaluator( SubstringNode node, Store<ServerEntry> db, Registries registries ) throws Exception
     {
         this.db = db;
         this.node = node;
@@ -115,16 +113,13 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
     }
 
 
-    /**
-     * @see Evaluator#evaluate(IndexEntry)
-     */
-    public boolean evaluate( IndexEntry<?,Attributes> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
     {
 
         if ( idx == null )
         {
             //noinspection unchecked
-            return evaluateWithoutIndex( ( IndexEntry<String,Attributes> ) indexEntry );
+            return evaluateWithoutIndex( ( IndexEntry<String,ServerEntry> ) indexEntry );
         }
         else
         {
@@ -145,7 +140,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
     }
 
 
-    private boolean evaluateWithIndex( IndexEntry<?,Attributes> indexEntry ) throws Exception
+    private boolean evaluateWithIndex( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
     {
         /*
          * Note that this is using the reverse half of the index giving a
@@ -153,7 +148,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
          * Otherwise we would have to scan the entire index if there were
          * no reverse lookups.
          */
-        Cursor<IndexEntry<String,Attributes>> entries = idx.reverseCursor( indexEntry.getId() );
+        Cursor<IndexEntry<String,ServerEntry>> entries = idx.reverseCursor( indexEntry.getId() );
 
         // cycle through the attribute values testing for a match
         while ( entries.next() )
@@ -173,9 +168,11 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
     }
 
 
-    private boolean evaluateWithoutIndex( IndexEntry<String,Attributes> indexEntry ) throws Exception
+    // TODO - determine if comaparator and index entry should have the Value
+    // wrapper or the raw normalized value
+    private boolean evaluateWithoutIndex( IndexEntry<String,ServerEntry> indexEntry ) throws Exception
     {
-        Attributes entry = indexEntry.getObject();
+        ServerEntry entry = indexEntry.getObject();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
@@ -185,31 +182,27 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
         }
 
         // get the attribute
-        Attribute attr = AttributeUtils.getAttribute( entry, type );
+        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
 
-        // if the attribute does not exist just return false
+        // if the attribute exists and the pattern matches return true
         if ( attr != null )
         {
-
             /*
              * Cycle through the attribute values testing normalized version
              * obtained from using the substring matching rule's normalizer.
              * The test uses the comparator obtained from the appropriate
              * substring matching rule.
              */
-            NamingEnumeration values = attr.getAll();
-
-            while ( values.hasMore() )
+            for ( Value value : attr )
             {
-                String value = ( String ) normalizer.normalize( values.next() );
+                value.normalize( normalizer );
+                String strValue = ( String ) value.getNormalizedValue();
 
                 // Once match is found cleanup and return true
-                if ( regex.matcher( value ).matches() )
+                if ( regex.matcher( strValue ).matches() )
                 {
                     // before returning we set the normalized value
-                    indexEntry.setValue( value );
-                    
-                    values.close();
+                    indexEntry.setValue( strValue );
                     return true;
                 }
             }
@@ -232,26 +225,28 @@ public class SubstringEvaluator implements Evaluator<SubstringNode,Attributes>
             {
                 AttributeType descendant = descendants.next();
 
-                attr = AttributeUtils.getAttribute( entry, descendant );
+                attr = ( ServerAttribute ) entry.get( descendant );
 
                 if ( null != attr )
                 {
+
+
                     /*
                      * Cycle through the attribute values testing normalized version
                      * obtained from using the substring matching rule's normalizer.
                      * The test uses the comparator obtained from the appropriate
                      * substring matching rule.
                      */
-                    NamingEnumeration values = attr.getAll();
-
-                    while ( values.hasMore() )
+                    for ( Value value : attr )
                     {
-                        String value = ( String ) normalizer.normalize( values.next() );
+                        value.normalize( normalizer );
+                        String strValue = ( String ) value.getNormalizedValue();
 
                         // Once match is found cleanup and return true
-                        if ( regex.matcher( value ).matches() )
+                        if ( regex.matcher( strValue ).matches() )
                         {
-                            values.close();
+                            // before returning we set the normalized value
+                            indexEntry.setValue( strValue );
                             return true;
                         }
                     }

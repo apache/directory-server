@@ -30,7 +30,6 @@ import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Tuple;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 
@@ -654,15 +653,8 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
         if ( null == normalized )
         {
-            if ( attrVal instanceof Value<?> )
-            {
-                normalized = attribute.getEquality().getNormalizer().normalize( ( ( Value<?> ) attrVal ).get() );
-            }
-            else
-            {
-                //noinspection unchecked
-                normalized = ( K ) attribute.getEquality().getNormalizer().normalize( attrVal );
-            }
+            //noinspection unchecked
+            normalized = ( K ) attribute.getEquality().getNormalizer().normalize( attrVal );
 
             // Double map it so if we use an already normalized
             // value we can get back the same normalized value.

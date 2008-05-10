@@ -21,18 +21,17 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
 
-import javax.naming.directory.Attributes;
-import javax.naming.directory.Attribute;
-import javax.naming.NamingEnumeration;
 import java.util.Iterator;
 import java.util.Comparator;
 
@@ -44,18 +43,18 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EqualityEvaluator implements Evaluator<EqualityNode, Attributes>
+public class EqualityEvaluator implements Evaluator<EqualityNode, ServerEntry>
 {
     private final EqualityNode node;
-    private final Store<Attributes> db;
+    private final Store<ServerEntry> db;
     private final Registries registries;
     private final AttributeType type;
     private final Normalizer normalizer;
     private final Comparator comparator;
-    private final Index<Number,Attributes> idx;
+    private final Index<Number,ServerEntry> idx;
 
 
-    public EqualityEvaluator( EqualityNode node, Store<Attributes> db, Registries registries )
+    public EqualityEvaluator( EqualityNode node, Store<ServerEntry> db, Registries registries )
         throws Exception
     {
         this.db = db;
@@ -95,14 +94,14 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, Attributes>
     }
 
 
-    public boolean evaluate( IndexEntry<?,Attributes> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
             return idx.forward( ( Number ) indexEntry.getValue(), indexEntry.getId() );
         }
 
-        Attributes entry = indexEntry.getObject();
+        ServerEntry entry = indexEntry.getObject();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
@@ -112,7 +111,7 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, Attributes>
         }
 
         // get the attribute
-        Attribute attr = AttributeUtils.getAttribute( entry, type );
+        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
 
         // if the attribute does not exist just return false
         if ( attr != null && evaluate( attr ) )
@@ -135,7 +134,7 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, Attributes>
             {
                 AttributeType descendant = descendants.next();
 
-                attr = AttributeUtils.getAttribute( entry, descendant );
+                attr = ( ServerAttribute ) entry.get( descendant );
 
                 if ( attr != null && evaluate( attr ) )
                 {
@@ -149,7 +148,9 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, Attributes>
     }
 
 
-    private boolean evaluate( Attribute attribute ) throws Exception
+    // TODO - determine if comaparator and index entry should have the Value
+    // wrapper or the raw normalized value
+    private boolean evaluate( ServerAttribute attribute ) throws Exception
     {
         /*
          * Cycle through the attribute values testing normalized version
@@ -157,17 +158,12 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, Attributes>
          * normalizer.  The test uses the comparator obtained from the
          * appropriate matching rule to perform the check.
          */
-        NamingEnumeration values = attribute.getAll();
-
-        while ( values.hasMore() )
+        for ( Value value : attribute )
         {
-            Object value = normalizer.normalize( values.next() );
+            value.normalize( normalizer );
 
-            // Once match is found cleanup and return true
-            //noinspection unchecked
-            if ( comparator.compare( value, node.getValue() ) == 0 )
+            if ( comparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) == 0 )
             {
-                values.close();
                 return true;
             }
         }

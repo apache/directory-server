@@ -26,7 +26,6 @@ import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
@@ -46,18 +45,15 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
-import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.MultiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import java.io.File;
 import java.util.ArrayList;
@@ -85,7 +81,7 @@ public class JdbmStore<E> implements Store<E>
     /** the working directory to use for files */
     private File workingDirectory;
     /** the master table storing entries by primary key */
-    private JdbmMasterTable<Attributes> master;
+    private JdbmMasterTable<E> master;
     /** a map of attributeType numeric ids to user userIndices */
     private Map<String, JdbmIndex> userIndices = new HashMap<String, JdbmIndex>();
     /** a map of attributeType numeric ids to system userIndices */
@@ -247,8 +243,7 @@ public class JdbmStore<E> implements Store<E>
      * Initialize the JDBM storage system.
      *
      * @param registries the schema registries
-     * @throws Exception on failure to lookup elements in registries
-     * @throws Exception on failure to create database files
+     * @throws Exception on failure to lookup elements in registries or create database files
      */
     public synchronized void init( Registries registries ) throws Exception
     {
@@ -1081,7 +1076,7 @@ public class JdbmStore<E> implements Store<E>
             }
         }
 
-        master.put( id, entry );
+        master.put( id, ( E ) entry );
 
         if ( isSyncOnWrite )
         {
@@ -1092,7 +1087,7 @@ public class JdbmStore<E> implements Store<E>
 
     public ServerEntry lookup( Long id ) throws Exception
     {
-        return master.get( id );
+        return ( ServerEntry ) master.get( id );
     }
 
 
@@ -1396,7 +1391,7 @@ public class JdbmStore<E> implements Store<E>
     public void modify( LdapDN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception
     {
         Long id = getEntryId( dn.toString() );
-        ServerEntry entry = master.get( id );
+        ServerEntry entry = ( ServerEntry ) master.get( id );
 
         for ( AttributeType attributeType : mods.getAttributeTypes() )
         {
@@ -1422,7 +1417,7 @@ public class JdbmStore<E> implements Store<E>
             }
         }
 
-        master.put( id, entry );
+        master.put( id, ( E ) entry );
 
         if ( isSyncOnWrite )
         {
@@ -1434,7 +1429,7 @@ public class JdbmStore<E> implements Store<E>
     public void modify( LdapDN dn, List<Modification> mods ) throws Exception
     {
         Long id = getEntryId( dn.toString() );
-        ServerEntry entry = master.get( id );
+        ServerEntry entry = ( ServerEntry ) master.get( id );
 
         for ( Modification mod : mods )
         {
@@ -1459,7 +1454,7 @@ public class JdbmStore<E> implements Store<E>
             }
         }
 
-        master.put( id, entry );
+        master.put( id, ( E ) entry );
 
         if ( isSyncOnWrite )
         {
@@ -1589,7 +1584,7 @@ public class JdbmStore<E> implements Store<E>
 
         // Update the current entry
         entry.setDn( newUpdn );
-        master.put( entry, id );
+        master.put( id, ( E ) entry );
 
         if ( isSyncOnWrite )
         {
@@ -1673,7 +1668,7 @@ public class JdbmStore<E> implements Store<E>
             // Modify the child
             ServerEntry entry = lookup( childId );
             entry.setDn( childUpdn );
-            master.put( childId, entry );
+            master.put( childId, ( E ) entry );
 
             // Recursively change the names of the children below
             modifyDn( childId, childUpdn, isMove );

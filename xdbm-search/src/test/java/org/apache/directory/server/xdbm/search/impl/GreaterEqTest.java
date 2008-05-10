@@ -31,10 +31,12 @@ import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerStringValue;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.schema.*;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -44,7 +46,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import javax.naming.directory.Attributes;
 import javax.naming.NamingException;
 import java.io.File;
 import java.util.Set;
@@ -66,7 +67,7 @@ public class GreaterEqTest
 
 
     File wkdir;
-    Store<Attributes> store;
+    Store<ServerEntry> store;
     Registries registries = null;
     AttributeTypeRegistry attributeRegistry;
 
@@ -103,7 +104,7 @@ public class GreaterEqTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new JdbmStore<Attributes>();
+        store = new JdbmStore<ServerEntry>();
         store.setName( "example" );
         store.setCacheSize( 10 );
         store.setWorkingDirectory( wkdir );
@@ -139,7 +140,8 @@ public class GreaterEqTest
     @Test
     public void testCursorIndexed() throws Exception
     {
-        GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTALCODE_AT_OID, "3" );
+        AttributeType at = attributeRegistry.lookup( SchemaConstants.POSTALCODE_AT_OID );
+        GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTALCODE_AT_OID, new ServerStringValue( at, "3" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, registries );
         GreaterEqCursor cursor = new GreaterEqCursor( store, evaluator );
         assertNotNull( cursor );
@@ -277,7 +279,7 @@ public class GreaterEqTest
         // ---------- test before() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        ForwardIndexEntry<String,Attributes> indexEntry = new ForwardIndexEntry<String,Attributes>();
+        ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setValue( "5" );
 
         assertFalse( cursor.available() );
@@ -300,7 +302,7 @@ public class GreaterEqTest
         assertTrue( cursor.isClosed() );
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setValue( "7" );
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
@@ -310,7 +312,7 @@ public class GreaterEqTest
         cursor.close();
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setValue( "3" );
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
@@ -322,7 +324,7 @@ public class GreaterEqTest
         // ---------- test after() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setValue( "4" );
 
         assertFalse( cursor.available() );
@@ -345,7 +347,7 @@ public class GreaterEqTest
         assertTrue( cursor.isClosed() );
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setValue( "7" );
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
@@ -355,7 +357,7 @@ public class GreaterEqTest
         cursor.close();
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setValue( "3" );
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
@@ -369,7 +371,8 @@ public class GreaterEqTest
     @Test
     public void testCursorNotIndexed() throws Exception
     {
-        GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTOFFICEBOX_AT_OID, "3" );
+        AttributeType at = attributeRegistry.lookup( SchemaConstants.POSTOFFICEBOX_AT_OID );
+        GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTOFFICEBOX_AT_OID, new ServerStringValue( at, "3" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, registries );
         GreaterEqCursor cursor = new GreaterEqCursor( store, evaluator );
         assertNotNull( cursor );
@@ -502,7 +505,7 @@ public class GreaterEqTest
         // ---------- test before() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        ForwardIndexEntry<String,Attributes> indexEntry = new ForwardIndexEntry<String,Attributes>();
+        ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setValue( "2" );
         try { cursor.before( indexEntry ); fail( "Should never get here." );}
         catch ( UnsupportedOperationException e ) {}
@@ -510,7 +513,7 @@ public class GreaterEqTest
         // ---------- test after() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setValue( "2" );
         try { cursor.after( indexEntry ); fail( "Should never get here." );}
         catch ( UnsupportedOperationException e ) {}
@@ -525,9 +528,10 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorIndexed() throws Exception
     {
-        GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTALCODE_AT_OID, "3" );
+        AttributeType at = attributeRegistry.lookup( SchemaConstants.POSTALCODE_AT_OID );
+        GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTALCODE_AT_OID, new ServerStringValue( at, "3" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, registries );
-        ForwardIndexEntry<String,Attributes> indexEntry = new ForwardIndexEntry<String,Attributes>();
+        ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -536,31 +540,31 @@ public class GreaterEqTest
         indexEntry.setId( 1L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 4L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 5L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 6L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 7L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 8L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 9L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 10L );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
@@ -569,9 +573,10 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorWithDescendantValue() throws Exception
     {
-        GreaterEqNode node = new GreaterEqNode( SchemaConstants.STREET_AT_OID, "2" );
+        AttributeType at = attributeRegistry.lookup( SchemaConstants.STREET_AT_OID );
+        GreaterEqNode node = new GreaterEqNode( SchemaConstants.STREET_AT_OID, new ServerStringValue( at, "2" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, registries );
-        ForwardIndexEntry<String,Attributes> indexEntry = new ForwardIndexEntry<String,Attributes>();
+        ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.STREET_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -579,10 +584,11 @@ public class GreaterEqTest
 
         LdapDN dn = new LdapDN( "cn=jane doe,o=good times co." );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
-        attrs.put( "c-street", "3" );
-        attrs.put( "cn", "jane doe" );
-        attrs.put( "sn", "doe" );
+        ServerEntry attrs = new DefaultServerEntry( registries, dn );
+        attrs.add( "objectClass", "person" );
+        attrs.add( "c-street", "3" );
+        attrs.add( "cn", "jane doe" );
+        attrs.add( "sn", "doe" );
         store.add( dn, attrs );
 
         indexEntry.setId( 12L );
@@ -593,9 +599,11 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorWithoutDescendants() throws Exception
     {
-        GreaterEqNode node = new GreaterEqNode( SchemaConstants.C_POSTALCODE_AT_OID, "2" );
+        AttributeType at = attributeRegistry.lookup( SchemaConstants.C_POSTALCODE_AT_OID );
+        GreaterEqNode node = new GreaterEqNode( SchemaConstants.C_POSTALCODE_AT_OID, new ServerStringValue( at, "2" ) );
+
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, registries );
-        ForwardIndexEntry<String,Attributes> indexEntry = new ForwardIndexEntry<String,Attributes>();
+        ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.C_POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -609,9 +617,11 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorNotIndexed() throws Exception
     {
-        GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTOFFICEBOX_AT_OID, "3" );
+        AttributeType at = attributeRegistry.lookup( SchemaConstants.POSTOFFICEBOX_AT_OID );
+        GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTOFFICEBOX_AT_OID, new ServerStringValue( at, "3" ) );
+
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, registries );
-        ForwardIndexEntry<String,Attributes> indexEntry = new ForwardIndexEntry<String,Attributes>();
+        ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String, ServerEntry>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTOFFICEBOX_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -620,31 +630,31 @@ public class GreaterEqTest
         indexEntry.setId( 1L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 4L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 5L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 6L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 7L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 8L );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 9L );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String,Attributes>();
+        indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         indexEntry.setId( 10L );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
@@ -769,7 +779,8 @@ public class GreaterEqTest
             }
         };
         registries.getAttributeTypeRegistry().register( at );
-        GreaterEqNode node = new GreaterEqNode( at.getOid(), "3" );
+
+        GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new GreaterEqEvaluator( node, store, registries );
         registries.getAttributeTypeRegistry().unregister( at.getOid() );
     }
@@ -954,7 +965,8 @@ public class GreaterEqTest
             }
         };
         registries.getAttributeTypeRegistry().register( at );
-        GreaterEqNode node = new GreaterEqNode( at.getOid(), "3" );
+
+        GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new GreaterEqEvaluator( node, store, registries );
         registries.getAttributeTypeRegistry().unregister( at.getOid() );
     }

@@ -27,13 +27,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.directory.Attributes;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
@@ -57,8 +56,10 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.junit.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * 
@@ -76,7 +77,7 @@ public class OrCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( OrCursorTest.class.getSimpleName() );
 
     File wkdir;
-    Store<Attributes> store;
+    Store<ServerEntry> store;
     Registries registries = null;
     AttributeTypeRegistry attributeRegistry;
     EvaluatorBuilder evaluatorBuilder;
@@ -114,7 +115,7 @@ public class OrCursorTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new JdbmStore<Attributes>();
+        store = new JdbmStore<ServerEntry>();
         store.setName( "example" );
         store.setCacheSize( 10 );
         store.setWorkingDirectory( wkdir );
@@ -157,7 +158,7 @@ public class OrCursorTest
 
         ExprNode exprNode = FilterParser.parse( filter );
         
-        Cursor<IndexEntry<?,Attributes>> cursor = ( Cursor<IndexEntry<?,Attributes>> ) cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?,ServerEntry>> cursor = cursorBuilder.build( exprNode );
 
         cursor.afterLast();
 
@@ -238,10 +239,10 @@ public class OrCursorTest
     @SuppressWarnings( "unchecked" )
     public void testOrCursor() throws Exception
     {
-        List<Evaluator<? extends ExprNode,Attributes>> evaluators = new ArrayList<Evaluator<? extends ExprNode,Attributes>>();
-        List<Cursor<IndexEntry<?,Attributes>>> cursors = new ArrayList<Cursor<IndexEntry<?,Attributes>>>();
-        Evaluator<? extends ExprNode, Attributes> eval;
-        Cursor<IndexEntry<?,Attributes>> cursor;
+        List<Evaluator<? extends ExprNode,ServerEntry>> evaluators = new ArrayList<Evaluator<? extends ExprNode,ServerEntry>>();
+        List<Cursor<IndexEntry<?,ServerEntry>>> cursors = new ArrayList<Cursor<IndexEntry<?,ServerEntry>>>();
+        Evaluator<? extends ExprNode, ServerEntry> eval;
+        Cursor<IndexEntry<?,ServerEntry>> cursor;
         
         OrNode orNode = new OrNode();
 
@@ -254,8 +255,8 @@ public class OrCursorTest
         
         try
         {
-            cursor = ( Cursor<IndexEntry<?,Attributes>> ) new OrCursor( cursors, evaluators );
-            fail("should throw IllegalArgumentException");
+            new OrCursor( cursors, evaluators );
+            fail( "should throw IllegalArgumentException" );
         }
         catch( IllegalArgumentException ie ){ }
         
@@ -267,7 +268,7 @@ public class OrCursorTest
         
         orNode.addNode( exprNode );
         
-        cursor = ( Cursor<IndexEntry<?,Attributes>> ) new OrCursor( cursors, evaluators );
+        cursor =  new OrCursor( cursors, evaluators );
         
         cursor.beforeFirst();
         assertFalse( cursor.available() );

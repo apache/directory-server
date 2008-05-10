@@ -284,7 +284,7 @@ public class ServerStringValue extends ClientStringValue
 
 
     /**
-     * @see Value#compareTo(Value)
+     * @see Value#compareTo(Object)
      * @throws IllegalStateException on failures to extract the comparator, or the
      * normalizers needed to perform the required comparisons based on the schema
      */

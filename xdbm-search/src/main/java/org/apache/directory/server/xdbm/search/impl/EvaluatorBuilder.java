@@ -25,6 +25,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.filter.*;
 import org.apache.directory.shared.ldap.NotImplementedException;
 
@@ -40,7 +41,7 @@ import java.util.ArrayList;
  */
 public class EvaluatorBuilder
 {
-    private final Store<Attributes> db;
+    private final Store<ServerEntry> db;
     private final Registries registries;
 
 
@@ -52,14 +53,14 @@ public class EvaluatorBuilder
      * @param registries the schema registries
      * @throws Exception failure to access db or lookup schema in registries
      */
-    public EvaluatorBuilder( Store<Attributes> db, Registries registries ) throws Exception
+    public EvaluatorBuilder( Store<ServerEntry> db, Registries registries ) throws Exception
     {
         this.db = db;
         this.registries = registries;
     }
 
 
-    public Evaluator<? extends ExprNode, Attributes> build( ExprNode node ) throws Exception
+    public Evaluator<? extends ExprNode, ServerEntry> build( ExprNode node ) throws Exception
     {
         switch ( node.getAssertionType() )
         {
@@ -78,11 +79,11 @@ public class EvaluatorBuilder
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchControls.ONELEVEL_SCOPE )
                 {
-                    return new OneLevelScopeEvaluator<Attributes>( db, ( ScopeNode ) node );
+                    return new OneLevelScopeEvaluator<ServerEntry>( db, ( ScopeNode ) node );
                 }
                 else
                 {
-                    return new SubtreeScopeEvaluator<Attributes>( db, ( ScopeNode ) node );
+                    return new SubtreeScopeEvaluator<ServerEntry>( db, ( ScopeNode ) node );
                 }
             case SUBSTRING:
                 return new SubstringEvaluator( ( SubstringNode ) node, db, registries );
@@ -111,8 +112,8 @@ public class EvaluatorBuilder
     AndEvaluator buildAndEvaluator( AndNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode,Attributes>> evaluators =
-            new ArrayList<Evaluator<? extends ExprNode,Attributes>>( children.size() );
+        List<Evaluator<? extends ExprNode,ServerEntry>> evaluators =
+            new ArrayList<Evaluator<? extends ExprNode,ServerEntry>>( children.size() );
         for ( ExprNode child : children )
         {
             evaluators.add( build( child ) );
@@ -124,8 +125,8 @@ public class EvaluatorBuilder
     OrEvaluator buildOrEvaluator( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode,Attributes>> evaluators =
-            new ArrayList<Evaluator<? extends ExprNode,Attributes>>( children.size() );
+        List<Evaluator<? extends ExprNode,ServerEntry>> evaluators =
+            new ArrayList<Evaluator<? extends ExprNode,ServerEntry>>( children.size() );
         for ( ExprNode child : children )
         {
             evaluators.add( build( child ) );

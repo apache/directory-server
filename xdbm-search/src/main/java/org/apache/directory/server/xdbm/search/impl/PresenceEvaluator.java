@@ -21,15 +21,14 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
 
-import javax.naming.directory.Attributes;
-import javax.naming.directory.Attribute;
 import java.util.Iterator;
 
 
@@ -40,16 +39,16 @@ import java.util.Iterator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PresenceEvaluator implements Evaluator<PresenceNode, Attributes>
+public class PresenceEvaluator implements Evaluator<PresenceNode, ServerEntry>
 {
     private final PresenceNode node;
-    private final Store<Attributes> db;
+    private final Store<ServerEntry> db;
     private final Registries registries;
     private final AttributeType type;
-    private final Index<String,Attributes> idx;
+    private final Index<String,ServerEntry> idx;
 
 
-    public PresenceEvaluator( PresenceNode node, Store<Attributes> db, Registries registries )
+    public PresenceEvaluator( PresenceNode node, Store<ServerEntry> db, Registries registries )
         throws Exception
     {
         this.db = db;
@@ -80,14 +79,16 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, Attributes>
     }
 
 
-    public boolean evaluate( IndexEntry<?,Attributes> indexEntry ) throws Exception
+    // TODO - determine if comaparator and index entry should have the Value
+    // wrapper or the raw normalized value
+    public boolean evaluate( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
     {
         if ( idx != null )
         {
             return idx.forward( type.getOid(), indexEntry.getId() );
         }
 
-        Attributes entry = indexEntry.getObject();
+        ServerEntry entry = indexEntry.getObject();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
@@ -97,7 +98,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, Attributes>
         }
 
         // get the attribute
-        Attribute attr = AttributeUtils.getAttribute( entry, type );
+        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
 
         // if the attribute exists just return true
         if ( attr != null )
@@ -120,7 +121,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, Attributes>
             {
                 AttributeType descendant = descendants.next();
 
-                attr = AttributeUtils.getAttribute( entry, descendant );
+                attr = ( ServerAttribute ) entry.get( descendant );
 
                 if ( attr != null )
                 {

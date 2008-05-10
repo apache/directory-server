@@ -24,14 +24,10 @@ import jdbm.RecordManager;
 import jdbm.helper.LongSerializer;
 import jdbm.helper.StringComparator;
 
-import jdbm.helper.Serializer;
 import org.apache.directory.server.xdbm.MasterTable;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntrySerializer;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.Registries;
-
-import java.io.IOException;
 
 
 /**
@@ -62,37 +58,34 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
                 throw new IllegalArgumentException( "Argument 'obj2' is null" );
             }
 
-            long thisVal = ( Long ) o1;
-            long anotherVal = ( Long ) o2;
-            
-            if ( thisVal == anotherVal )
+            if ( o1 == ( long ) o2 )
             {
                 return 0;
             }
             
-            if ( thisVal == anotherVal )
+            if ( o1 == ( long ) o2 )
             {
                 return 0;
             }
             
-            if ( thisVal >= 0 )
+            if ( o1 >= 0 )
             {
-                if ( anotherVal >= 0 )
+                if ( o2 >= 0 )
                 {
-                    return ( thisVal > anotherVal ) ? 1 : -1;
+                    return ( o1 > ( long ) o2 ) ? 1 : -1;
                 }
                 else
                 {
                     return -1;
                 }
             }
-            else if ( anotherVal >= 0 )
+            else if ( o2 >= 0 )
             {
                 return 1;
             }
             else
             {
-                return ( thisVal < anotherVal ) ? -1 : 1;
+                return ( o1 < ( long ) o2 ) ? -1 : 1;
             }
         }
     };
@@ -118,7 +111,7 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
      * Creates the master table using JDBM B+Trees for the backing store.
      *
      * @param recMan the JDBM record manager
-     * @param serializer the serializer to use for persisting objects
+     * @param registries the schema registries
      * @throws Exception if there is an error opening the Db file.
      */
     public JdbmMasterTable( RecordManager recMan, Registries registries ) throws Exception
@@ -139,9 +132,9 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
      *
      * @param id the Long id of the entry to retrieve.
      * @return the ServerEntry with operational attributes and all.
-     * @throws NamingException if there is a read error on the underlying Db.
+     * @throws Exception if there is a read error on the underlying Db.
      */
-    public E get( Object id ) throws Exception
+    public E get( Long id ) throws Exception
     {
         return super.get( id );
     }

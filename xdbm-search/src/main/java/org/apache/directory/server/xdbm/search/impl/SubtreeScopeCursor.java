@@ -23,10 +23,9 @@ package org.apache.directory.server.xdbm.search.impl;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-
-import javax.naming.directory.Attributes;
 
 
 /**
@@ -36,25 +35,25 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>>
+public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
 {
     private static final String UNSUPPORTED_MSG =
         "Scope Cursors are not ordered and do not support positioning by element.";
 
     /** The Entry database/store */
-    private final Store<Attributes> db;
+    private final Store<ServerEntry> db;
 
     /** A ScopeNode Evaluator */
     private final SubtreeScopeEvaluator evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final Cursor<IndexEntry<Long,Attributes>> scopeCursor;
+    private final Cursor<IndexEntry<Long,ServerEntry>> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final Cursor<IndexEntry<Long,Attributes>> dereferencedCursor;
+    private final Cursor<IndexEntry<Long,ServerEntry>> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private Cursor<IndexEntry<Long,Attributes>> cursor;
+    private Cursor<IndexEntry<Long,ServerEntry>> cursor;
 
     /** Whether or not this Cursor is positioned so an entry is available */
     private boolean available = false;
@@ -67,7 +66,7 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public SubtreeScopeCursor( Store<Attributes> db, SubtreeScopeEvaluator evaluator ) throws Exception
+    public SubtreeScopeCursor( Store<ServerEntry> db, SubtreeScopeEvaluator evaluator ) throws Exception
     {
         this.db = db;
         this.evaluator = evaluator;
@@ -90,13 +89,13 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>
     }
 
 
-    public void before( IndexEntry<?, Attributes> element ) throws Exception
+    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<?, Attributes> element ) throws Exception
+    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -266,7 +265,7 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>
     }
 
 
-    public IndexEntry<Long, Attributes> get() throws Exception
+    public IndexEntry<Long, ServerEntry> get() throws Exception
     {
         if ( available )
         {

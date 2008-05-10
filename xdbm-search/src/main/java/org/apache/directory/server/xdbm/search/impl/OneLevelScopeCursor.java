@@ -23,10 +23,9 @@ package org.apache.directory.server.xdbm.search.impl;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-
-import javax.naming.directory.Attributes;
 
 
 /**
@@ -36,26 +35,26 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class OneLevelScopeCursor extends AbstractCursor<IndexEntry<?, Attributes>>
+public class OneLevelScopeCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
 {
     /** Error message for unsupported operations */
     private static final String UNSUPPORTED_MSG =
         "Scope Cursors are not ordered and do not support positioning by element.";
 
     /** The entry database/store */
-    private final Store<Attributes> db;
+    private final Store<ServerEntry> db;
 
     /** A onelevel ScopeNode Evaluator */
     private final OneLevelScopeEvaluator evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final Cursor<IndexEntry<Long,Attributes>> scopeCursor;
+    private final Cursor<IndexEntry<Long,ServerEntry>> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final Cursor<IndexEntry<Long,Attributes>> dereferencedCursor;
+    private final Cursor<IndexEntry<Long,ServerEntry>> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private Cursor<IndexEntry<Long,Attributes>> cursor;
+    private Cursor<IndexEntry<Long,ServerEntry>> cursor;
 
     /** Whether or not this Cursor is positioned so an entry is available */
     private boolean available = false;
@@ -68,7 +67,7 @@ public class OneLevelScopeCursor extends AbstractCursor<IndexEntry<?, Attributes
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public OneLevelScopeCursor( Store<Attributes> db, OneLevelScopeEvaluator evaluator ) throws Exception
+    public OneLevelScopeCursor( Store<ServerEntry> db, OneLevelScopeEvaluator evaluator ) throws Exception
     {
         this.db = db;
         this.evaluator = evaluator;
@@ -91,13 +90,13 @@ public class OneLevelScopeCursor extends AbstractCursor<IndexEntry<?, Attributes
     }
 
 
-    public void before( IndexEntry<?, Attributes> element ) throws Exception
+    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<?, Attributes> element ) throws Exception
+    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -268,7 +267,7 @@ public class OneLevelScopeCursor extends AbstractCursor<IndexEntry<?, Attributes
     }
 
 
-    public IndexEntry<Long, Attributes> get() throws Exception
+    public IndexEntry<Long, ServerEntry> get() throws Exception
     {
         if ( available )
         {

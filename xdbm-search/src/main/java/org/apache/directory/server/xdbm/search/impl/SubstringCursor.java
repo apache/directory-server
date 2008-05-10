@@ -23,11 +23,10 @@ package org.apache.directory.server.xdbm.search.impl;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-
-import javax.naming.directory.Attributes;
 
 
 /**
@@ -36,19 +35,19 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
+public class SubstringCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
 {
     private static final String UNSUPPORTED_MSG =
         "SubstringCursors may not be ordered and do not support positioning by element.";
     private final boolean hasIndex;
-    private final Cursor<IndexEntry<String,Attributes>> wrapped;
+    private final Cursor<IndexEntry<String,ServerEntry>> wrapped;
     private final SubstringEvaluator evaluator;
-    private final ForwardIndexEntry<String,Attributes> indexEntry =
-        new ForwardIndexEntry<String,Attributes>();
+    private final ForwardIndexEntry<String,ServerEntry> indexEntry =
+        new ForwardIndexEntry<String,ServerEntry>();
     private boolean available = false;
 
 
-    public SubstringCursor( Store<Attributes> db,
+    public SubstringCursor( Store<ServerEntry> db,
                             final SubstringEvaluator substringEvaluator ) throws Exception
     {
         evaluator = substringEvaluator;
@@ -83,13 +82,13 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     }
 
 
-    public void before( IndexEntry<?, Attributes> element ) throws Exception
+    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<?, Attributes> element ) throws Exception
+    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -99,7 +98,7 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
-            ForwardIndexEntry<String,Attributes> indexEntry = new ForwardIndexEntry<String,Attributes>();
+            ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
             indexEntry.setValue( evaluator.getExpression().getInitial() );
             wrapped.before( indexEntry );
         }
@@ -138,7 +137,7 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     }
 
 
-    private boolean evaluateCandidate( IndexEntry<String,Attributes> indexEntry ) throws Exception
+    private boolean evaluateCandidate( IndexEntry<String,ServerEntry> indexEntry ) throws Exception
     {
         if ( hasIndex )
         {
@@ -162,7 +161,7 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         while ( wrapped.previous() )
         {
-            IndexEntry<String,Attributes> entry = wrapped.get();
+            IndexEntry<String,ServerEntry> entry = wrapped.get();
             if ( evaluateCandidate( entry ) )
             {
                 available = true;
@@ -182,7 +181,7 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     {
         while ( wrapped.next() )
         {
-            IndexEntry<String,Attributes> entry = wrapped.get();
+            IndexEntry<String,ServerEntry> entry = wrapped.get();
             if ( evaluateCandidate( entry ) )
             {
                 available = true;
@@ -198,7 +197,7 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, Attributes>>
     }
 
 
-    public IndexEntry<?, Attributes> get() throws Exception
+    public IndexEntry<?, ServerEntry> get() throws Exception
     {
         if ( available )
         {
