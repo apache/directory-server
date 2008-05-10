@@ -33,7 +33,7 @@ public class LessEqNode extends SimpleNode
 {
     /**
      * Creates a new LessEqNode object.
-     * 
+     *
      * @param attribute the attribute name
      * @param value the value to test for
      */

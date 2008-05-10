@@ -171,7 +171,7 @@ public interface AttributeType extends SchemaObject
      * @throws NamingException
      *             if there is a failure to resolve the superior
      */
-    AttributeType getSuperior() throws NamingException;
+    AttributeType getSuperior() throws NamingException, NamingException;
 
 
     /**
