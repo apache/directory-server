@@ -77,7 +77,7 @@ public class LdapDNSerializer
         }
         else
         {
-            String message = "The DN should have been normalized before being serialized";
+            String message = "The DN should have been normalized before being serialized " + dn;
             LOG.error( message );
             throw new IOException( message );
         }

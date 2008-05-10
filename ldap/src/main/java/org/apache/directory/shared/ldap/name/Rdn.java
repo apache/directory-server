@@ -784,7 +784,13 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
                                AttributeTypeAndValue atavLocal = ( AttributeTypeAndValue ) atavLocalList.get( 0 );
                                AttributeTypeAndValue atavParam = ( AttributeTypeAndValue ) atavParamList.get( 0 );
 
-                               return atavLocal.compareTo( atavParam );
+                               // If the ATAVs are different we are finished.
+                               // It the ATAVs are equal we must compare the remaining ATAVs, too. 
+                               int result = atavLocal.compareTo( atavParam );
+                               if ( result != 0 )
+                               {
+                            	   return result;
+                               }
                            }
                            else
                            {
@@ -813,14 +819,11 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
 
                                    if ( !found )
                                    {
-                                       // The ATAV does not exist in the second
-                                       // RDN
+                                       // The ATAV does not exist in the second RDN
                                        return SUPERIOR;
                                    }
                                }
                            }
-
-                           return EQUALS;
                        }
                        else
                        {

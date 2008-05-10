@@ -22,6 +22,7 @@ package org.apache.directory.shared.ldap.filter;
 
 import java.text.ParseException;
 
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Position;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -35,7 +36,8 @@ public class FilterParser
     public FilterParser()
     {
     }
-    
+
+
     /**
      * Parse an extensible
      * 
@@ -61,35 +63,35 @@ public class FilterParser
                 // Push back the ':' 
                 pos.start--;
             }
-            
+
             // Do we have a MatchingRule ?
             if ( StringTools.charAt( filter, pos.start ) == ':' )
             {
                 pos.start++;
                 int start = pos.start;
-                
+
                 if ( StringTools.charAt( filter, pos.start ) == '=' )
                 {
                     pos.start++;
-                    
+
                     // Get the assertionValue
                     node.setValue( parseAssertionValue( filter, pos ) );
-                    
+
                     return node;
                 }
                 else
                 {
                     AttributeUtils.parseAttribute( filter, pos, false );
-                    
+
                     node.setMatchingRuleId( filter.substring( start, pos.start ) );
-                    
+
                     if ( StringTools.areEquals( filter, pos.start, ":=" ) )
                     {
                         pos.start += 2;
-                        
+
                         // Get the assertionValue
                         node.setValue( parseAssertionValue( filter, pos ) );
-                        
+
                         return node;
                     }
                     else
@@ -106,7 +108,7 @@ public class FilterParser
         else
         {
             boolean oidRequested = false;
-            
+
             // First check if we have a ":dn"
             if ( StringTools.areEquals( filter, pos.start, ":dn" ) )
             {
@@ -118,40 +120,40 @@ public class FilterParser
             {
                 oidRequested = true;
             }
-            
+
             // Do we have a MatchingRule ?
             if ( StringTools.charAt( filter, pos.start ) == ':' )
             {
                 pos.start++;
                 int start = pos.start;
-                
+
                 if ( StringTools.charAt( filter, pos.start ) == '=' )
                 {
                     if ( oidRequested )
                     {
                         throw new ParseException( "MatchingRule expected", pos.start );
                     }
-                    
+
                     pos.start++;
-                    
+
                     // Get the assertionValue
                     node.setValue( parseAssertionValue( filter, pos ) );
-                    
+
                     return node;
                 }
                 else
                 {
                     AttributeUtils.parseAttribute( filter, pos, false );
-                    
+
                     node.setMatchingRuleId( filter.substring( start, pos.start ) );
-                    
+
                     if ( StringTools.areEquals( filter, pos.start, ":=" ) )
                     {
                         pos.start += 2;
-                        
+
                         // Get the assertionValue
                         node.setValue( parseAssertionValue( filter, pos ) );
-                        
+
                         return node;
                     }
                     else
@@ -166,8 +168,8 @@ public class FilterParser
             }
         }
     }
-    
-    
+
+
     /**
      * An assertion value : 
      * assertionvalue = valueencoding
@@ -204,9 +206,9 @@ public class FilterParser
     private static String parseAssertionValue( String filter, Position pos ) throws ParseException
     {
         int start = pos.start;
-        
+
         char c = StringTools.charAt( filter, pos.start );
-        
+
         do
         {
             if ( StringTools.isUnicodeSubset( c ) )
@@ -217,7 +219,7 @@ public class FilterParser
             {
                 // Maybe an escaped 
                 pos.start++;
-                
+
                 // First hex
                 if ( StringTools.isHex( filter, pos.start ) )
                 {
@@ -243,35 +245,38 @@ public class FilterParser
                 // not a valid char, so let's get out
                 return filter.substring( start, pos.start );
             }
-        } while ( ( c = StringTools.charAt( filter, pos.start ) ) != '\0' );
-        
+        }
+        while ( ( c = StringTools.charAt( filter, pos.start ) ) != '\0' );
+
         return filter.substring( start, pos.start );
     }
+
 
     /**
      * Parse a substring
      */
-    private static ExprNode parseSubstring( String attr, String initial, String filter, Position pos ) throws ParseException
+    private static ExprNode parseSubstring( String attr, String initial, String filter, Position pos )
+        throws ParseException
     {
         if ( StringTools.isCharASCII( filter, pos.start, '*' ) )
         {
             // We have found a '*' : this is a substring
             SubstringNode node = new SubstringNode( attr );
-            
+
             if ( !StringTools.isEmpty( initial ) )
             {
                 // We have a substring starting with a value : val*...
                 // Set the initial value
                 node.setInitial( initial );
             }
-            
+
             pos.start++;
-            
+
             // 
             while ( true )
             {
                 String assertionValue = parseAssertionValue( filter, pos );
-                
+
                 // Is there anything else but a ')' after the value ?
                 if ( StringTools.isCharASCII( filter, pos.start, ')' ) )
                 {
@@ -293,10 +298,10 @@ public class FilterParser
                     {
                         node.addAny( assertionValue );
                     }
-                    
+
                     pos.start++;
                 }
-            } 
+            }
         }
         else
         {
@@ -304,7 +309,8 @@ public class FilterParser
             throw new ParseException( "Bad substring", pos.start );
         }
     }
-    
+
+
     /**
      * Here is the grammar to parse :
      * 
@@ -329,7 +335,8 @@ public class FilterParser
      * @param pos
      * @return
      */
-    private static ExprNode parsePresenceEqOrSubstring( String attr, String filter, Position pos ) throws ParseException
+    private static ExprNode parsePresenceEqOrSubstring( String attr, String filter, Position pos )
+        throws ParseException
     {
         if ( StringTools.isCharASCII( filter, pos.start, '*' ) )
         {
@@ -353,25 +360,25 @@ public class FilterParser
         else if ( StringTools.isCharASCII( filter, pos.start, ')' ) )
         {
             // An empty equality Node
-            return new EqualityNode( attr, "" );
+            return new EqualityNode( attr, new ClientStringValue( "" ) );
         }
         else
         {
             // A substring or an equality node
             String value = parseAssertionValue( filter, pos );
-            
+
             // Is there anything else but a ')' after the value ?
             if ( StringTools.isCharASCII( filter, pos.start, ')' ) )
             {
                 // This is an equality node
-                return new EqualityNode( attr, value );
+                return new EqualityNode( attr, new ClientStringValue( value ) );
             }
-            
+
             return parseSubstring( attr, value, filter, pos );
         }
     }
-    
-    
+
+
     /**
      * Parse the following grammar :
      * item           = simple / present / substring / extensible
@@ -389,15 +396,15 @@ public class FilterParser
     {
         LeafNode node = null;
         String attr = null;
-        
+
         // Relax the grammar a bit : we can have spaces 
         // StringTools.trimLeft( filter, pos );
-        
+
         if ( c == '\0' )
         {
             throw new ParseException( "Bad char", pos.start );
         }
-        
+
         if ( c == ':' )
         {
             // If we have a colon, then the item is an extensible one
@@ -407,24 +414,24 @@ public class FilterParser
         {
             // We must have an attribute
             attr = AttributeUtils.parseAttribute( filter, pos, true );
-            
+
             // Relax the grammar a bit : we can have spaces 
             // StringTools.trimLeft( filter, pos );
 
             // Now, we may have a present, substring, simple or an extensible
             c = StringTools.charAt( filter, pos.start );
-            
+
             switch ( c )
             {
-                case '=' :
+                case '=':
                     // It can be a presence, an equal or a substring
                     pos.start++;
                     return parsePresenceEqOrSubstring( attr, filter, pos );
-                    
-                case '~' :
+
+                case '~':
                     // Approximate node
                     pos.start++;
-                    
+
                     // Check that we have a '='
                     if ( !StringTools.isCharASCII( filter, pos.start, '=' ) )
                     {
@@ -432,15 +439,15 @@ public class FilterParser
                     }
 
                     pos.start++;
-                    
+
                     // Parse the value and create the node
-                    node = new ApproximateNode( attr, parseAssertionValue( filter, pos ) );
+                    node = new ApproximateNode( attr, new ClientStringValue( parseAssertionValue( filter, pos ) ) );
                     return node;
-                    
-                case '>' :
+
+                case '>':
                     // Greater or equal node
                     pos.start++;
-                    
+
                     // Check that we have a '='
                     if ( !StringTools.isCharASCII( filter, pos.start, '=' ) )
                     {
@@ -448,15 +455,15 @@ public class FilterParser
                     }
 
                     pos.start++;
-                    
+
                     // Parse the value and create the node
-                    node = new GreaterEqNode( attr, parseAssertionValue( filter, pos ) );
+                    node = new GreaterEqNode( attr, new ClientStringValue( parseAssertionValue( filter, pos ) ) );
                     return node;
-                    
-                case '<' :
+
+                case '<':
                     // Less or equal node
                     pos.start++;
-                    
+
                     // Check that we have a '='
                     if ( !StringTools.isCharASCII( filter, pos.start, '=' ) )
                     {
@@ -464,22 +471,23 @@ public class FilterParser
                     }
 
                     pos.start++;
-                    
+
                     // Parse the value and create the node
-                    node = new LessEqNode( attr, parseAssertionValue( filter, pos ) );
+                    node = new LessEqNode( attr, new ClientStringValue( parseAssertionValue( filter, pos ) ) );
                     return node;
-                    
-                case ':' :
+
+                case ':':
                     // An extensible node
                     pos.start++;
                     return parseExtensible( attr, filter, pos );
-                    
-                default :
+
+                default:
                     // This is an error
                     throw new ParseException( "An item is expected", pos.start );
             }
         }
     }
+
 
     /**
      * Parse AND, OR and NOT nodes :
@@ -493,20 +501,20 @@ public class FilterParser
      */
     private static ExprNode parseBranchNode( ExprNode node, String filter, Position pos ) throws ParseException
     {
-        BranchNode bNode = (BranchNode)node;
-        
+        BranchNode bNode = ( BranchNode ) node;
+
         // Relax the grammar a bit : we can have spaces 
         // StringTools.trimLeft( filter, pos );
-        
+
         // We must have at least one filter
         ExprNode child = parseFilterInternal( filter, pos );
-        
+
         // Add the child to the node children
         bNode.addNode( child );
 
         // Relax the grammar a bit : we can have spaces 
         // StringTools.trimLeft( filter, pos );
-        
+
         // Now, iterate though all the remaining filters, if any
         while ( ( child = parseFilterInternal( filter, pos ) ) != null )
         {
@@ -516,12 +524,13 @@ public class FilterParser
             // Relax the grammar a bit : we can have spaces 
             // StringTools.trimLeft( filter, pos );
         }
-        
+
         // Relax the grammar a bit : we can have spaces 
         // StringTools.trimLeft( filter, pos );
 
         return node;
     }
+
 
     /**
      * filtercomp     = and / or / not / item
@@ -537,53 +546,54 @@ public class FilterParser
      *                    / ( [dnattrs]
      *                         matchingrule COLON EQUALS assertionvalue )
      */
-    private static ExprNode parseFilterComp( String filter, Position pos )  throws ParseException
+    private static ExprNode parseFilterComp( String filter, Position pos ) throws ParseException
     {
         ExprNode node = null;
 
         // Relax the grammar a bit : we can have spaces 
         // StringTools.trimLeft( filter, pos );
-        
+
         if ( pos.start == pos.length )
         {
             throw new ParseException( "Empty filterComp", pos.start );
         }
-        
+
         char c = StringTools.charAt( filter, pos.start );
-        
+
         switch ( c )
         {
-            case '&' :
+            case '&':
                 // This is a AND node
                 pos.start++;
                 node = new AndNode();
                 parseBranchNode( node, filter, pos );
                 break;
-                
-            case '|' :
+
+            case '|':
                 // This is an OR node
                 pos.start++;
                 node = new OrNode();
                 parseBranchNode( node, filter, pos );
                 break;
-                
-            case '!' :
+
+            case '!':
                 // This is a NOT node
                 pos.start++;
                 node = new NotNode();
                 parseBranchNode( node, filter, pos );
                 break;
-                
-            default :
+
+            default:
                 // This is an item
                 node = parseItem( filter, pos, c );
                 break;
-                    
+
         }
-        
+
         return node;
     }
-    
+
+
     /**
      * Pasre the grammar rule :
      * filter ::= '(' filterComp ')'
@@ -592,7 +602,7 @@ public class FilterParser
     {
         // relax the grammar by allowing spaces
         // StringTools.trimLeft( filter, pos );
-        
+
         // Check for the left '('
         if ( StringTools.isCharASCII( filter, pos.start, '(' ) == false )
         {
@@ -606,34 +616,35 @@ public class FilterParser
                 return null;
             }
         }
-        
+
         pos.start++;
-        
+
         // relax the grammar by allowing spaces
         // StringTools.trimLeft( filter, pos );
-        
+
         // parse the filter component
         ExprNode node = parseFilterComp( filter, pos );
-        
+
         if ( node == null )
         {
             throw new ParseException( "Bad filter", pos.start );
         }
-        
+
         // relax the grammar by allowing spaces
         // StringTools.trimLeft( filter, pos );
-        
+
         // Check that we have a right ')'
         if ( StringTools.isCharASCII( filter, pos.start, ')' ) == false )
         {
             throw new ParseException( "The filter has no right parenthese", pos.start );
         }
-        
+
         pos.start++;
-        
+
         return node;
     }
-    
+
+
     /**
      * @see FilterParser#parse(String)
      */
@@ -644,12 +655,12 @@ public class FilterParser
         {
             throw new ParseException( "Empty filter", 0 );
         }
-        
+
         Position pos = new Position();
         pos.start = 0;
         pos.end = 0;
         pos.length = filter.length();
-        
+
         return parseFilterInternal( filter, pos );
     }
 

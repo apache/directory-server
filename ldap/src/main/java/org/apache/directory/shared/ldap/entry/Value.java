@@ -171,4 +171,12 @@ public interface Value<T> extends Cloneable, Externalizable, Comparable<Value<T>
      * @exception NamingException If the value cannot be normalized
      */
     void normalize( Normalizer normalizer ) throws NamingException;
+    
+    
+    /**
+     * Tells if the current value is Binary or String
+     * 
+     * @return <code>true</code> if the value is Binary, <code>false</code> otherwise
+     */
+    boolean isBinary();
 }

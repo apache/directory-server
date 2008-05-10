@@ -19,7 +19,9 @@
  */
 package org.apache.directory.shared.ldap.filter;
 
+
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
 
 
 /**
@@ -30,25 +32,13 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
  */
 public abstract class SimpleNode extends LeafNode
 {
-	/** the value */
-    protected Object value;
+    /** the value */
+    protected Value<?> value;
 
     /** Constants for comparisons */
     public final static boolean EVAL_GREATER = true;
     public final static boolean EVAL_LESSER = false;
 
-    /**
-     * Creates a new SimpleNode object.
-     * 
-     * @param attribute the attribute name
-     * @param value the value to test for
-     */
-    protected SimpleNode( String attribute, byte[] value, AssertionType assertionType )
-    {
-        super( attribute, assertionType );
-        this.value = value;
-    }
-
 
     /**
      * Creates a new SimpleNode object.
@@ -56,7 +46,7 @@ public abstract class SimpleNode extends LeafNode
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    protected SimpleNode( String attribute, String value, AssertionType assertionType )
+    protected SimpleNode( String attribute, Value<?> value, AssertionType assertionType )
     {
         super( attribute, assertionType );
         this.value = value;
@@ -68,7 +58,7 @@ public abstract class SimpleNode extends LeafNode
      * 
      * @return the value
      */
-    public final Object getValue()
+    public final Value<?> getValue()
     {
         return value;
     }
@@ -79,7 +69,7 @@ public abstract class SimpleNode extends LeafNode
      * 
      * @param value the value for this node
      */
-    public void setValue( Object value )
+    public void setValue( Value<?> value )
     {
         this.value = value;
     }
@@ -103,7 +93,7 @@ public abstract class SimpleNode extends LeafNode
         return buf;
     }
 
-    
+
     /**
      * @see ExprNode#printRefinementToBuffer(StringBuilder)
      */
@@ -125,15 +115,15 @@ public abstract class SimpleNode extends LeafNode
      */
     public int hashCode()
     {
-    	int h = 37;
-    	
-    	h = h*17 + super.hashCode();
-    	h = h*17 + ( value == null ? 0 : value.hashCode() );
-    	
-    	return h;
+        int h = 37;
+
+        h = h * 17 + super.hashCode();
+        h = h * 17 + ( value == null ? 0 : value.hashCode() );
+
+        return h;
     }
 
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -150,26 +140,26 @@ public abstract class SimpleNode extends LeafNode
         {
             return false;
         }
-        
+
         if ( other.getClass() != this.getClass() )
         {
-        	return false;
-        }
-        
-        if ( !super.equals( other ) )
-        {
-        	return false;
+            return false;
         }
 
-        SimpleNode otherNode = (SimpleNode)other;
+        if ( !super.equals( other ) )
+        {
+            return false;
+        }
+
+        SimpleNode otherNode = ( SimpleNode ) other;
 
         if ( value == null )
         {
-        	return otherNode.value == null;
+            return otherNode.value == null;
         }
         else
         {
-        	return value.equals( otherNode.value );
-    	}
+            return value.equals( otherNode.value );
+        }
     }
 }

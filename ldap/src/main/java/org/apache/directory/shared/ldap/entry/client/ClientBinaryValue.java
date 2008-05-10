@@ -338,6 +338,17 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
         System.arraycopy( wrapped, 0, copy, 0, wrapped.length );
         return copy;
     }
+    
+    
+    /**
+     * Tells if the current value is Binary or String
+     * 
+     * @return <code>true</code> if the value is Binary, <code>false</code> otherwise
+     */
+    public boolean isBinary()
+    {
+        return true;
+    }
 
 
     /**

@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.directory.shared.ldap.entry.AbstractEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -1050,11 +1052,18 @@ public final class DefaultClientEntry extends AbstractEntry<String> implements C
         
         result = result*17 + dn.hashCode();
         
-        for ( EntryAttribute attribute:attributes.values() )
+        SortedMap<String, EntryAttribute> sortedMap = new TreeMap<String, EntryAttribute>();
+        
+        for ( String id:attributes.keySet() )
         {
-            result = result*17 + attribute.hashCode();
+            sortedMap.put( id, attributes.get( id ) );
         }
-
+        
+        for ( String id:sortedMap.keySet() )
+        {
+            result = result*17 + sortedMap.get( id ).hashCode();
+        }
+        
         return result;
     }
 

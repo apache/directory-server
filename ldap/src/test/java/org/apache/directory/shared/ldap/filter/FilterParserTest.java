@@ -83,7 +83,7 @@ public class FilterParserTest
     {
         SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou~=people)" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "people", node.getValue() );
+        assertEquals( "people", node.getValue().get() );
         assertTrue( node instanceof ApproximateNode );
     }
 
@@ -138,7 +138,7 @@ public class FilterParserTest
     {
         SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou;lang-de>=\\23\\42asdl fkajsd)" );
         assertEquals( "ou;lang-de", node.getAttribute() );
-        assertEquals( "\\23\\42asdl fkajsd", node.getValue() );
+        assertEquals( "\\23\\42asdl fkajsd", node.getValue().get() );
     }
 
 
@@ -147,7 +147,7 @@ public class FilterParserTest
     {
         SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou;lang-de;version-124>=\\23\\42asdl fkajsd)" );
         assertEquals( "ou;lang-de;version-124", node.getAttribute() );
-        assertEquals( "\\23\\42asdl fkajsd", node.getValue() );
+        assertEquals( "\\23\\42asdl fkajsd", node.getValue().get() );
     }
 
 
@@ -156,7 +156,7 @@ public class FilterParserTest
     {
         SimpleNode node = ( SimpleNode ) FilterParser.parse( "(1.3.4.2;lang-de;version-124>=\\23\\42asdl fkajsd)" );
         assertEquals( "1.3.4.2;lang-de;version-124", node.getAttribute() );
-        assertEquals( "\\23\\42asdl fkajsd", node.getValue() );
+        assertEquals( "\\23\\42asdl fkajsd", node.getValue().get() );
     }
 
 
@@ -183,7 +183,7 @@ public class FilterParserTest
     {
         SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou=people)" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "people", node.getValue() );
+        assertEquals( "people", node.getValue().get() );
         assertTrue( node instanceof EqualityNode );
     }
 
@@ -210,7 +210,7 @@ public class FilterParserTest
     {
         SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou=people/in/my/company)" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "people/in/my/company", node.getValue() );
+        assertEquals( "people/in/my/company", node.getValue().get() );
         assertTrue( node instanceof EqualityNode );
     }
 
@@ -638,7 +638,7 @@ public class FilterParserTest
     {
         SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou=)" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "", node.getValue() );
+        assertEquals( "", node.getValue().get() );
         assertTrue( node instanceof EqualityNode );
     }
 

@@ -1146,8 +1146,8 @@ public class DefaultClientEntryTest
         String expected = 
             "ClientEntry\n" +
             "    dn: dc=example,dc=com\n" +
-            "    ObjectClass: 'top'\n" +
-            "    ObjectClass: 'person'\n" +
+            "    ObjectClass: top\n" +
+            "    ObjectClass: person\n" +
             "    ObjectClass: ''\n" +
             "    UserPassword: '0x61 0x62 '\n" +
             "    UserPassword: '0x62 '\n" +

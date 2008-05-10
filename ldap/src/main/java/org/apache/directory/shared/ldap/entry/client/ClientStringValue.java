@@ -295,6 +295,17 @@ public class ClientStringValue extends AbstractValue<String>
     
     
     /**
+     * Tells if the current value is Binary or String
+     * 
+     * @return <code>true</code> if the value is Binary, <code>false</code> otherwise
+     */
+    public boolean isBinary()
+    {
+        return false;
+    }
+
+
+    /**
      * @see Externalizable#readExternal(ObjectInput)
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
@@ -318,6 +329,6 @@ public class ClientStringValue extends AbstractValue<String>
      */
     public String toString()
     {
-        return "'" + wrapped + "'";
+        return wrapped == null ? "null": wrapped;
     }
 }
