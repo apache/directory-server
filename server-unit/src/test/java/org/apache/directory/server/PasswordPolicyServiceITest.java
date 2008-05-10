@@ -25,7 +25,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.PasswordPolicyInterceptor;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.unit.AbstractServerTest;

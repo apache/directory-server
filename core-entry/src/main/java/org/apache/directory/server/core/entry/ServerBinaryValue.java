@@ -57,6 +57,10 @@ public class ServerBinaryValue extends ClientBinaryValue
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerBinaryValue.class );
 
+    /** used to dynamically lookup the attributeType when/if deserializing */
+    @SuppressWarnings ( { "FieldCanBeLocal", "UnusedDeclaration" } )
+    private final String oid;
+
     /** reference to the attributeType which is not serialized */
     private transient AttributeType attributeType;
 
@@ -139,6 +143,7 @@ public class ServerBinaryValue extends ClientBinaryValue
         }
 
         this.attributeType = attributeType;
+        this.oid = attributeType.getOid();
     }
 
 
@@ -171,6 +176,7 @@ public class ServerBinaryValue extends ClientBinaryValue
         this.normalizedValue = normalizedValue;
         this.valid = valid;
         this.same = same;
+        this.oid = attributeType.getOid();
     }
 
 

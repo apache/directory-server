@@ -52,7 +52,7 @@ import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.referral.ReferralInterceptor;

@@ -1,0 +1,165 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
+package org.apache.directory.server.core.partition.impl.btree.jdbm;
+
+
+import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.*;
+import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.CursorIterator;
+
+import java.util.Iterator;
+
+
+/**
+ * A Cursor which adapts an underlying Tuple based Cursor to one which returns
+ * IndexEntry objects rather than tuples.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $$Rev$$
+ */
+public class IndexCursor<K,O> implements Cursor<IndexEntry<K,O>>
+{
+    final Cursor<Tuple> wrappedCursor;
+    final ForwardIndexEntry<K, O> forwardEntry;
+    final ReverseIndexEntry<K, O> reverseEntry;
+
+
+    /**
+     * Creates an IndexCursor which wraps and adapts a Cursor from a table to
+     * one which returns an IndexEntry.
+     *
+     * @param wrappedCursor the Cursor being adapted
+     * @param forwardIndex true for a cursor over a forward index, false for
+     * one over a reverse index
+     */
+    public IndexCursor( Cursor<Tuple> wrappedCursor, boolean forwardIndex )
+    {
+        this.wrappedCursor = wrappedCursor;
+        if ( forwardIndex )
+        {
+            forwardEntry = new ForwardIndexEntry<K,O>();
+            reverseEntry = null;
+        }
+        else
+        {
+            forwardEntry = null;
+            reverseEntry = new ReverseIndexEntry<K, O>();
+        }
+    }
+
+
+    public boolean available()
+    {
+        return wrappedCursor.available();
+    }
+
+
+    public void before( IndexEntry<K, O> element ) throws Exception
+    {
+        wrappedCursor.before( element.getTuple() );
+    }
+
+
+    public void after( IndexEntry<K, O> element ) throws Exception
+    {
+        wrappedCursor.after( element.getTuple() );
+    }
+
+
+    public void beforeFirst() throws Exception
+    {
+        wrappedCursor.beforeFirst();
+    }
+
+
+    public void afterLast() throws Exception
+    {
+        wrappedCursor.afterLast();
+    }
+
+
+    public boolean first() throws Exception
+    {
+        return wrappedCursor.first();
+    }
+
+
+    public boolean last() throws Exception
+    {
+        return wrappedCursor.last();
+    }
+
+
+    public boolean isClosed() throws Exception
+    {
+        return wrappedCursor.isClosed();
+    }
+
+
+    public boolean previous() throws Exception
+    {
+        return wrappedCursor.previous();
+    }
+
+
+    public boolean next() throws Exception
+    {
+        return wrappedCursor.next();
+    }
+
+
+    public IndexEntry<K, O> get() throws Exception
+    {
+        if ( forwardEntry != null )
+        {
+            //noinspection unchecked
+            Tuple<K,Long> tuple = wrappedCursor.get();
+            forwardEntry.setTuple( tuple, null );
+            return forwardEntry;
+        }
+        else
+        {
+            //noinspection unchecked
+            Tuple<Long,K> tuple = wrappedCursor.get();
+            reverseEntry.setTuple( tuple, null );
+            return reverseEntry;
+        }
+    }
+
+
+    public boolean isElementReused()
+    {
+        return true;
+    }
+
+
+    public void close() throws Exception
+    {
+        wrappedCursor.close();
+    }
+
+
+    public Iterator<IndexEntry<K, O>> iterator()
+    {
+        return new CursorIterator<IndexEntry<K,O>>( this );
+    }
+}

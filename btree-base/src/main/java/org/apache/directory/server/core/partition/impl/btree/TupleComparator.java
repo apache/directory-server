@@ -31,7 +31,7 @@ import org.apache.directory.server.schema.SerializableComparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface TupleComparator extends Serializable
+public interface TupleComparator<K,V> extends Serializable
 {
     /**
      * Gets the comparator used to compare keys.  May be null in which
@@ -39,7 +39,7 @@ public interface TupleComparator extends Serializable
      *
      * @return the comparator for comparing keys.
      */
-    SerializableComparator getKeyComparator();
+    SerializableComparator<K> getKeyComparator();
 
 
     /**
@@ -48,7 +48,7 @@ public interface TupleComparator extends Serializable
      *
      * @return the binary comparator for comparing values.
      */
-    SerializableComparator getValueComparator();
+    SerializableComparator<V> getValueComparator();
 
 
     /**
@@ -61,7 +61,7 @@ public interface TupleComparator extends Serializable
      * is less than the second, or a postive value if the first is greater than
      * the second byte array.
      */
-    int compareKey( Object key1, Object key2 );
+    int compareKey( K key1, K key2 );
 
 
     /**
@@ -74,5 +74,5 @@ public interface TupleComparator extends Serializable
      * is less than the second, or a postive value if the first is greater than
      * the second Object.
      */
-    int compareValue( Object value1, Object value2 );
+    int compareValue( V value1, V value2 );
 }

@@ -36,16 +36,16 @@ import org.apache.directory.server.schema.registries.ComparatorRegistry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SerializableComparator implements Comparator, Serializable
+public class SerializableComparator<E> implements Comparator<E>, Serializable
 {
     private static final long serialVersionUID = 3257566226288162870L;
 
     /** the system global Comparator registry */
-    private static ComparatorRegistry registry = null;
+    private static ComparatorRegistry registry;
     /** the OID of the matchingRule for this comparator */
     private String matchingRuleOid;
     /** the transient wrapped comparator */
-    private transient Comparator wrapped;
+    private transient Comparator<E> wrapped;
 
 
     // ------------------------------------------------------------------------
@@ -67,6 +67,7 @@ public class SerializableComparator implements Comparator, Serializable
     // C O N T R U C T O R S
     // ------------------------------------------------------------------------
 
+
     public SerializableComparator( String matchingRuleOid )
     {
         this.matchingRuleOid = matchingRuleOid;
@@ -81,7 +82,7 @@ public class SerializableComparator implements Comparator, Serializable
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @SuppressWarnings("unchecked")
-    public int compare( Object o1, Object o2 )
+    public int compare( E o1, E o2 )
     {
         if ( wrapped == null )
         {

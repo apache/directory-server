@@ -154,10 +154,10 @@ public class OperationalAttributeServiceIT
         attributes.put( "jpegPhoto", "testing a string" );
         sysRoot.createSubcontext( "ou=yetanothertest", attributes );
         ctx = ( DirContext ) sysRoot.lookup( "ou=yetanothertest" );
-        ou = ctx.getAttributes( "" ).get( "ou" );
+        ou = ctx.getObject( "" ).get( "ou" );
         value = ou.get();
         assertEquals( "yetanothertest", value );
-        jpegPhoto = ctx.getAttributes( "" ).get( "jpegPhoto" );
+        jpegPhoto = ctx.getObject( "" ).get( "jpegPhoto" );
         value = jpegPhoto.get();
         assertTrue( value instanceof byte[] );*/
     }

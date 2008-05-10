@@ -20,15 +20,12 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import javax.naming.NamingException;
-
 import jdbm.RecordManager;
 import jdbm.helper.LongSerializer;
 import jdbm.helper.StringComparator;
 
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.xdbm.MasterTable;
 import org.apache.directory.server.core.entry.ServerEntrySerializer;
-import org.apache.directory.server.core.partition.impl.btree.MasterTable;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.Registries;
 
@@ -39,16 +36,18 @@ import org.apache.directory.server.schema.registries.Registries;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmMasterTable extends JdbmTable implements MasterTable
+public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable<E>
 {
     private static final StringComparator STRCOMP = new StringComparator();
 
-    private static final SerializableComparator LONG_COMPARATOR = new SerializableComparator( "1.3.6.1.4.1.18060.0.4.1.1.2" )
+
+    private static final SerializableComparator<Long> LONG_COMPARATOR =
+            new SerializableComparator<Long>( "1.3.6.1.4.1.18060.0.4.1.1.2" )
     {
         private static final long serialVersionUID = 4048791282048841016L;
 
 
-        public int compare( Object o1, Object o2 )
+        public int compare( Long o1, Long o2 )
         {
             if ( o1 == null )
             {
@@ -59,66 +58,67 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
                 throw new IllegalArgumentException( "Argument 'obj2' is null" );
             }
 
-            long thisVal = ( Long ) o1;
-            long anotherVal = ( Long ) o2;
-            
-            if ( thisVal == anotherVal )
+            if ( o1 == ( long ) o2 )
             {
                 return 0;
             }
             
-            if ( thisVal == anotherVal )
+            if ( o1 == ( long ) o2 )
             {
                 return 0;
             }
             
-            if ( thisVal >= 0 )
+            if ( o1 >= 0 )
             {
-                if ( anotherVal >= 0 )
+                if ( o2 >= 0 )
                 {
-                    return ( thisVal > anotherVal ) ? 1 : -1;
+                    return ( o1 > ( long ) o2 ) ? 1 : -1;
                 }
                 else
                 {
                     return -1;
                 }
             }
-            else if ( anotherVal >= 0 )
+            else if ( o2 >= 0 )
             {
                 return 1;
             }
             else
             {
-                return ( thisVal < anotherVal ) ? -1 : 1;
+                return ( o1 < ( long ) o2 ) ? -1 : 1;
             }
         }
     };
 
-    private static final SerializableComparator STRING_COMPARATOR = new SerializableComparator( "1.3.6.1.4.1.18060.0.4.1.1.3" )
+
+    private static final SerializableComparator<String> STRING_COMPARATOR =
+            new SerializableComparator<String>( "1.3.6.1.4.1.18060.0.4.1.1.3" )
     {
         private static final long serialVersionUID = 3258689922792961845L;
 
 
-        public int compare( Object o1, Object o2 )
+        public int compare( String o1, String o2 )
         {
             return STRCOMP.compare( o1, o2 );
         }
     };
 
-    private final JdbmTable adminTbl;
+
+    private final JdbmTable<String,String> adminTbl;
 
 
     /**
-     * Creates the master entry table using a Berkeley Db for the backing store.
+     * Creates the master table using JDBM B+Trees for the backing store.
      *
-     * @param recMan the jdbm record manager
-     * @throws NamingException if there is an error opening the Db file.
+     * @param recMan the JDBM record manager
+     * @param registries the schema registries
+     * @throws Exception if there is an error opening the Db file.
      */
-    public JdbmMasterTable( RecordManager recMan, Registries registries ) throws NamingException
+    public JdbmMasterTable( RecordManager recMan, Registries registries ) throws Exception
     {
         super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new ServerEntrySerializer( registries ) );
-        adminTbl = new JdbmTable( "admin", recMan, STRING_COMPARATOR, null, null );
-        String seqValue = ( String ) adminTbl.get( SEQPROP_KEY );
+        adminTbl = new JdbmTable<String,String>( "admin", recMan, STRING_COMPARATOR, null, null );
+        String seqValue = adminTbl.get( SEQPROP_KEY );
 
         if ( null == seqValue )
         {
@@ -132,11 +132,11 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      *
      * @param id the Long id of the entry to retrieve.
      * @return the ServerEntry with operational attributes and all.
-     * @throws NamingException if there is a read error on the underlying Db.
+     * @throws Exception if there is a read error on the underlying Db.
      */
-    public ServerEntry get( Object id ) throws NamingException
+    public E get( Long id ) throws Exception
     {
-        return ( ServerEntry ) super.get( id );
+        return super.get( id );
     }
 
 
@@ -148,11 +148,11 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @param entry the ServerEntry w/ operational attributes
      * @param id    the Long id of the entry to put
      * @return the ServerEntry put
-     * @throws NamingException if there is a write error on the underlying Db.
+     * @throws Exception if there is a write error on the underlying Db.
      */
-    public ServerEntry put( ServerEntry entry, Object id ) throws NamingException
+    public E put( Long id, E entry ) throws Exception
     {
-        return ( ServerEntry ) super.put( id, entry );
+        return super.put( id, entry );
     }
 
 
@@ -161,36 +161,21 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      *
      * @param id the Long id of the entry to delete
      * @return the Attributes of the deleted entry
-     * @throws NamingException if there is a write error on the underlying Db
+     * @throws Exception if there is a write error on the underlying Db
      */
-    public ServerEntry delete( Object id ) throws NamingException
+    public E delete( Long id ) throws Exception
     {
-        return ( ServerEntry ) super.remove( id );
+        return super.remove( id );
     }
 
 
-    /**
-     * Get's the current id value from this master database's sequence without
-     * affecting the seq.
-     *
-     * @return the current value.
-     * @throws NamingException if the admin table storing sequences cannot be
-     *                         read.
-     */
-    public Long getCurrentId() throws NamingException
+    public Long getCurrentId() throws Exception
     {
         Long id;
 
         synchronized ( adminTbl )
         {
-            id = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
-
-            //noinspection ConstantConditions
-            if ( null == id )
-            {
-                adminTbl.put( SEQPROP_KEY, "0" );
-                id = 0L;
-            }
+            id = new Long( adminTbl.get( SEQPROP_KEY ) );
         }
 
         return id;
@@ -204,28 +189,19 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * used for the fictitious parent of the suffix root entry.
      *
      * @return the current value incremented by one.
-     * @throws NamingException if the admin table storing sequences cannot be
+     * @throws Exception if the admin table storing sequences cannot be
      *                         read and written to.
      */
-    public Long getNextId() throws NamingException
+    public Long getNextId() throws Exception
     {
-        Long lastVal;
         Long nextVal;
+        Long lastVal;
 
         synchronized ( adminTbl )
         {
-            lastVal = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
-
-            //noinspection ConstantConditions
-            if ( null == lastVal )
-            {
-                adminTbl.put( SEQPROP_KEY, "1" );
-                return 1L;
-            } else
-            {
-                nextVal = lastVal + 1L;
-                adminTbl.put( SEQPROP_KEY, nextVal.toString() );
-            }
+            lastVal = new Long( adminTbl.get( SEQPROP_KEY ) );
+            nextVal = lastVal + 1L;
+            adminTbl.put( SEQPROP_KEY, nextVal.toString() );
         }
 
         return nextVal;
@@ -237,13 +213,13 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      *
      * @param property the key of the property to get the value of
      * @return the value of the property
-     * @throws NamingException when the underlying admin table cannot be read
+     * @throws Exception when the underlying admin table cannot be read
      */
-    public String getProperty( String property ) throws NamingException
+    public String getProperty( String property ) throws Exception
     {
         synchronized ( adminTbl )
         {
-            return ( String ) adminTbl.get( property );
+            return adminTbl.get( property );
         }
     }
 
@@ -253,9 +229,9 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      *
      * @param property the key of the property to set the value of
      * @param value    the value of the property
-     * @throws NamingException when the underlying admin table cannot be writen
+     * @throws Exception when the underlying admin table cannot be writen
      */
-    public void setProperty( String property, String value ) throws NamingException
+    public void setProperty( String property, String value ) throws Exception
     {
         synchronized ( adminTbl )
         {

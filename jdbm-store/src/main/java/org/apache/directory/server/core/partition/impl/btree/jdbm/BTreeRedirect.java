@@ -32,22 +32,27 @@ public class BTreeRedirect implements Serializable
 {
     private static final long serialVersionUID = -4289810071005184834L;
 
-    private Long recId;
-
-    
-    public BTreeRedirect()
-    {
-    }
+    final long recId;
 
     
     public BTreeRedirect( long recId )
     {
-        this.recId = new Long( recId );
+        this.recId = recId;
     }
     
     
-    public Long getRecId()
+    public long getRecId()
     {
         return recId;
+    }
+    
+    
+    public String toString()
+    {
+        StringBuilder buf = new StringBuilder();
+        buf.append( "BTreeRedirect[" );
+        buf.append( recId );
+        buf.append( "]" );
+        return buf.toString();
     }
 }

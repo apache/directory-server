@@ -27,8 +27,8 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
-import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -209,7 +209,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             initializePartition( schemaDirectory );
         }
-        catch ( NamingException ne )
+        catch ( Exception ne )
         {
             throw new MojoFailureException( "Failed to initialize the root partition :" + ne.getMessage() );
         }
@@ -257,7 +257,7 @@ public class BootstrapPlugin extends AbstractMojo
 
             createSchemaModificationAttributesEntry();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             throw new MojoFailureException( "Failed to add syntaxCheckers to partition: " + e.getMessage() );
         }
@@ -266,7 +266,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             store.sync();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             e.printStackTrace();
         }
@@ -305,7 +305,7 @@ public class BootstrapPlugin extends AbstractMojo
         { "system", "core", "apache", "apachemeta" };
 
 
-    private void createSchemasAndContainers() throws NamingException
+    private void createSchemasAndContainers() throws Exception
     {
         Map<String, Schema> schemaMap = this.registries.getLoadedSchemas();
 
@@ -344,7 +344,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void createSchemaAndContainers( Schema schema ) throws NamingException
+    private void createSchemaAndContainers( Schema schema ) throws Exception
     {
         LdapDN dn = new LdapDN( SchemaConstants.CN_AT + "=" + schema.getSchemaName() + "," + SchemaConstants.OU_AT
             + "=schema" );
@@ -417,7 +417,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addAttributeTypes() throws NamingException
+    private void addAttributeTypes() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding attributeTypes:" );
@@ -449,7 +449,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addObjectClasses() throws NamingException
+    private void addObjectClasses() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding objectClasses:" );
@@ -480,7 +480,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addMatchingRules() throws NamingException
+    private void addMatchingRules() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding matchingRules:" );
@@ -511,7 +511,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addComparators() throws NamingException
+    private void addComparators() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding comparators:" );
@@ -542,7 +542,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addNormalizers() throws NamingException
+    private void addNormalizers() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding normalizers:" );
@@ -574,7 +574,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addSyntaxes() throws NamingException
+    private void addSyntaxes() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding syntaxes:" );
@@ -603,7 +603,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void addSyntaxCheckers() throws NamingException
+    private void addSyntaxCheckers() throws Exception
     {
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( " Adding syntaxCheckers:" );
@@ -638,12 +638,12 @@ public class BootstrapPlugin extends AbstractMojo
      * Creates the configuration and initializes the partition so we can start
      * adding entries into it.
      *
-     * @throws MojoFailureException
+     * @param workingDirectory the working directory for partition resources
+     * @throws Exception when the partition cannot be fired up
      */
-    private void initializePartition( File workingDirectory ) throws MojoFailureException, NamingException
+    private void initializePartition( File workingDirectory ) throws Exception
     {
         store.setCacheSize( 1000 );
-        store.setEnableOptimizer( false );
         store.setName( "schema" );
         store.setSuffixDn( SchemaConstants.OU_AT + "=schema" );
         store.setSyncOnWrite( false );
@@ -670,7 +670,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             store.init( this.registries );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             throw new MojoFailureException( "Failed to initialize parition: " + e.getMessage() );
         }
@@ -685,7 +685,7 @@ public class BootstrapPlugin extends AbstractMojo
      * 
      * @throws NamingException if there is a failure to add the entry 
      */
-    private void createSchemaModificationAttributesEntry() throws NamingException
+    private void createSchemaModificationAttributesEntry() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries );
         entry.put( SchemaConstants.OBJECT_CLASS_AT, ApacheSchemaConstants.SCHEMA_MODIFICATION_ATTRIBUTES_OC,
@@ -713,7 +713,7 @@ public class BootstrapPlugin extends AbstractMojo
      * Loads all the bootstrap schemas into the registries in preparation for
      * loading them into the schema partition.
      *
-     * @throws MojoFailureException
+     * @throws MojoFailureException when the schema cannot be initialized
      */
     private void initializeSchemas() throws MojoFailureException
     {
@@ -759,11 +759,11 @@ public class BootstrapPlugin extends AbstractMojo
 
         ClassLoader cl = new URLClassLoader( urls, parent );
 
-        for ( int ii = 0; ii < bootstrapSchemaClasses.length; ii++ )
+        for ( String bootstrapSchemaClass : bootstrapSchemaClasses )
         {
             try
             {
-                Class<?> schemaClass = cl.loadClass( bootstrapSchemaClasses[ii] );
+                Class<?> schemaClass = cl.loadClass( bootstrapSchemaClass );
                 schema = ( BootstrapSchema ) schemaClass.newInstance();
                 schemas.put( schema.getSchemaName(), schema );
             }
@@ -775,22 +775,23 @@ public class BootstrapPlugin extends AbstractMojo
                         "ClassLoader URLs: "
                             + Arrays.asList( ( ( URLClassLoader ) getClass().getClassLoader() ).getURLs() ) );
                 e.printStackTrace();
-                throw new MojoFailureException( "Could not find BootstrapSchema class: " + bootstrapSchemaClasses[ii] );
+                throw new MojoFailureException( "Could not find BootstrapSchema class: "
+                    + bootstrapSchemaClass );
             }
             catch ( InstantiationException e )
             {
                 e.printStackTrace();
                 throw new MojoFailureException( "Could not instantiate BootstrapSchema class: "
-                    + bootstrapSchemaClasses[ii] );
+                    + bootstrapSchemaClass );
             }
             catch ( IllegalAccessException e )
             {
                 e.printStackTrace();
                 throw new MojoFailureException( "Could not instantiate BootstrapSchema class due to security: "
-                    + bootstrapSchemaClasses[ii] );
+                    + bootstrapSchemaClass );
             }
 
-            getLog().info( "\t" + bootstrapSchemaClasses[ii] );
+            getLog().info( "\t" + bootstrapSchemaClass );
         }
 
         getLog().info( "" );
@@ -812,7 +813,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void checkCreateContainer( LdapDN dn ) throws NamingException
+    private void checkCreateContainer( LdapDN dn ) throws Exception
     {
         LdapDN clonedDn = ( LdapDN ) dn.clone();
 
@@ -828,7 +829,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private LdapDN checkCreateSchema( String schemaName ) throws NamingException
+    private LdapDN checkCreateSchema( String schemaName ) throws Exception
     {
         Schema schema = schemas.get( schemaName );
         LdapDN dn = new LdapDN( SchemaConstants.CN_AT + "=" + schemaName + "," + SchemaConstants.OU_AT + "=schema" );
@@ -846,7 +847,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private void disableSchema( String schemaName ) throws NamingException
+    private void disableSchema( String schemaName ) throws Exception
     {
         LdapDN dn = new LdapDN( SchemaConstants.CN_AT + "=" + schemaName + "," + SchemaConstants.OU_AT + "=schema" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
@@ -861,7 +862,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private final String getNameOrNumericoid( SchemaObject object )
+    private String getNameOrNumericoid( SchemaObject object )
     {
         // first try to use userfriendly name if we can
         if ( object.getName() != null )
@@ -873,7 +874,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private final boolean hasEntry( LdapDN dn ) throws NamingException
+    private boolean hasEntry( LdapDN dn ) throws Exception
     {
         Long id = store.getEntryId( dn.toNormName() );
 
@@ -881,7 +882,7 @@ public class BootstrapPlugin extends AbstractMojo
     }
 
 
-    private final StringBuffer getDbFileListing() throws IndexNotFoundException
+    private StringBuffer getDbFileListing() throws IndexNotFoundException
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "schema/master.db\n" );
@@ -906,58 +907,5 @@ public class BootstrapPlugin extends AbstractMojo
         }
 
         return buf;
-    }
-
-
-    /** A main to be able to debug the plugin */
-    public static void main( String[] args ) throws Exception
-    {
-        BootstrapPlugin bp = new BootstrapPlugin();
-
-        bp.disabledSchemas = new String[]
-            { "nis", "krb5kdc", "samba", "autofs", "apachedns", "corba", "dhcp", "mozilla" };
-
-        bp.indexedAttributes = new String[]
-            { "objectClass", "ou", "cn", "m-oid", "m-disabled" };
-
-        bp.bootstrapSchemaClasses = new String[]
-            { "org.apache.directory.server.schema.bootstrap.ApachednsSchema",
-                "org.apache.directory.server.schema.bootstrap.AutofsSchema",
-                "org.apache.directory.server.schema.bootstrap.CollectiveSchema",
-                "org.apache.directory.server.schema.bootstrap.CorbaSchema",
-                "org.apache.directory.server.schema.bootstrap.CosineSchema",
-                "org.apache.directory.server.schema.bootstrap.DhcpSchema",
-                "org.apache.directory.server.schema.bootstrap.InetorgpersonSchema",
-                "org.apache.directory.server.schema.bootstrap.JavaSchema",
-                "org.apache.directory.server.schema.bootstrap.Krb5kdcSchema",
-                "org.apache.directory.server.schema.bootstrap.MozillaSchema",
-                "org.apache.directory.server.schema.bootstrap.NisSchema",
-                "org.apache.directory.server.schema.bootstrap.SambaSchema" };
-
-        bp.outputDirectory = new File( "/tmp" );
-        bp.outputPackage = "org.apache.directory.server.schema.bootstrap.partition";
-        bp.listingFileName = "DBFILES";
-        bp.classpathElements = Arrays
-            .asList( new String[]
-                {
-                    "/home/elecharny/apacheds/bb/apacheds/bootstrap-partition/target/classes",
-                    "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-jdbm-store/1.5.3-SNAPSHOT/apacheds-jdbm-store-1.5.3-SNAPSHOT.jar",
-                    "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-jdbm/1.5.3-SNAPSHOT/apacheds-jdbm-1.5.3-SNAPSHOT.jar",
-                    "/home/elecharny/.m2/repository/org/apache/directory/shared/shared-ldap/0.9.11-SNAPSHOT/shared-ldap-0.9.11-SNAPSHOT.jar",
-                    "/home/elecharny/.m2/repository/commons-lang/commons-lang/2.3/commons-lang-2.3.jar",
-                    "/home/elecharny/.m2/repository/commons-collections/commons-collections/3.2/commons-collections-3.2.jar",
-                    "/home/elecharny/.m2/repository/org/apache/directory/shared/shared-asn1/0.9.11-SNAPSHOT/shared-asn1-0.9.11-SNAPSHOT.jar",
-                    "/home/elecharny/.m2/repository/org/slf4j/slf4j-api/1.4.3/slf4j-api-1.4.3.jar",
-                    "/home/elecharny/.m2/repository/org/apache/directory/shared/shared-ldap-constants/0.9.11-SNAPSHOT/shared-ldap-constants-0.9.11-SNAPSHOT.jar",
-                    "/home/elecharny/.m2/repository/antlr/antlr/2.7.7/antlr-2.7.7.jar",
-                    "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-core-constants/1.5.3-SNAPSHOT/apacheds-core-constants-1.5.3-SNAPSHOT.jar",
-                    "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-core-entry/1.5.3-SNAPSHOT/apacheds-core-entry-1.5.3-SNAPSHOT.jar",
-                    "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-schema-registries/1.5.3-SNAPSHOT/apacheds-schema-registries-1.5.3-SNAPSHOT.jar",
-                    "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-core-shared/1.5.3-SNAPSHOT/apacheds-core-shared-1.5.3-SNAPSHOT.jar",
-                    "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-btree-base/1.5.3-SNAPSHOT/apacheds-btree-base-1.5.3-SNAPSHOT.jar",
-                    "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-bootstrap-extract/1.5.3-SNAPSHOT/apacheds-bootstrap-extract-1.5.3-SNAPSHOT.jar",
-                    "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-schema-extras/1.5.3-SNAPSHOT/apacheds-schema-extras-1.5.3-SNAPSHOT.jar",
-                    "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-schema-bootstrap/1.5.3-SNAPSHOT/apacheds-schema-bootstrap-1.5.3-SNAPSHOT.jar" } );
-        bp.execute();
     }
 }

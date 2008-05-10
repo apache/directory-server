@@ -67,14 +67,34 @@
 
     <dependency>
       <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-core-avl</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-btree-base</artifactId>
       <version>${pom.version}</version>
     </dependency>
 
     <dependency>
       <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-xdbm-tools</artifactId>
+      <version>${pom.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-schema-registries</artifactId>
       <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-schema-bootstrap</artifactId>
+      <version>${pom.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

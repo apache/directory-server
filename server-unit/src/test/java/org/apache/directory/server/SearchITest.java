@@ -272,7 +272,7 @@ public class SearchITest extends AbstractServerTest
             while ( enm.hasMore() )
             {
                 SearchResult sr = ( SearchResult ) enm.next();
-                Attributes attrs = sr.getAttributes();
+                Attributes attrs = sr.getObject();
                 Attribute sn = attrs.get( "sn" );
                 assertNotNull( sn );
                 assertTrue( sn.contains( "Ferry" ) );

@@ -46,7 +46,7 @@ import org.apache.directory.server.core.interceptor.context.RemoveContextPartiti
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.tree.BranchNode;

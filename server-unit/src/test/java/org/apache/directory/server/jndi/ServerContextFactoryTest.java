@@ -23,7 +23,7 @@ package org.apache.directory.server.jndi;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.unit.AbstractServerTest;
@@ -175,7 +175,7 @@ public class ServerContextFactoryTest extends AbstractServerTest
         InitialContext initialContext = new InitialContext( env );
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
         assertNotNull( appRoot );
-        Attributes attributes = appRoot.getAttributes( "" );
+        Attributes attributes = appRoot.getObject( "" );
         assertNotNull( attributes );
         assertEquals( "example", attributes.get( "dc" ).get() );
         Attribute attribute = attributes.get( "objectClass" );
@@ -199,7 +199,7 @@ public class ServerContextFactoryTest extends AbstractServerTest
         InitialContext initialContext = new InitialContext( env );
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
         assertNotNull( appRoot );
-        Attributes attributes = appRoot.getAttributes( "" );
+        Attributes attributes = appRoot.getObject( "" );
         assertNotNull( attributes );
         assertEquals( "testing", attributes.get( "ou" ).get() );
         Attribute attribute = attributes.get( "objectClass" );
@@ -223,7 +223,7 @@ public class ServerContextFactoryTest extends AbstractServerTest
         InitialContext initialContext = new InitialContext( env );
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
         assertNotNull( appRoot );
-        Attributes attributes = appRoot.getAttributes( "" );
+        Attributes attributes = appRoot.getObject( "" );
         assertNotNull( attributes );
         assertEquals( "MixedCase", attributes.get( "dc" ).get() );
         Attribute attribute = attributes.get( "objectClass" );

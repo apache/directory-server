@@ -26,9 +26,7 @@ import java.awt.Frame;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.regex.Pattern;
 
-import javax.naming.NamingEnumeration;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -46,10 +44,12 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
-import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.NotImplementedException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,9 +61,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class IndexDialog extends JDialog
+public class IndexDialog<K,O> extends JDialog
 {
-    private static final Logger log = LoggerFactory.getLogger( IndexDialog.class );
+    private static final Logger LOG = LoggerFactory.getLogger( IndexDialog.class );
 
     private static final long serialVersionUID = 3689917253680445238L;
 
@@ -87,11 +87,10 @@ public class IndexDialog extends JDialog
     private JLabel jLabel2 = new JLabel();
     private JButton scanBut = new JButton();
 
-    private Index index = null;
+    private Index<K,O> index = null;
 
 
-    /** Creates new form JDialog */
-    public IndexDialog( Frame parent, boolean modal, Index index )
+    public IndexDialog( Frame parent, boolean modal, Index<K,O> index )
     {
         super( parent, modal );
         this.index = index;
@@ -99,7 +98,7 @@ public class IndexDialog extends JDialog
     }
     
     
-    public IndexDialog( Index index )
+    public IndexDialog( Index<K,O> index )
     {
         super();
         this.index = index;
@@ -226,7 +225,8 @@ public class IndexDialog extends JDialog
         {
             public void actionPerformed( ActionEvent e )
             {
-                doScan( keyText.getText(), selectedCursorType );
+                //noinspection unchecked
+                doScan( ( K ) keyText.getText(), selectedCursorType );
             }
         } );
 
@@ -239,23 +239,23 @@ public class IndexDialog extends JDialog
     {
         public void actionPerformed( ActionEvent e )
         {
-            if ( e.getActionCommand() == DEFAULT_CURSOR )
+            if ( e.getActionCommand().equals( DEFAULT_CURSOR ) )
             {
                 selectedCursorType = DEFAULT_CURSOR;
             }
-            else if ( e.getActionCommand() == EQUALITY_CURSOR )
+            else if ( e.getActionCommand().equals( EQUALITY_CURSOR ) )
             {
                 selectedCursorType = EQUALITY_CURSOR;
             }
-            else if ( e.getActionCommand() == GREATER_CURSOR )
+            else if ( e.getActionCommand().equals( GREATER_CURSOR ) )
             {
                 selectedCursorType = GREATER_CURSOR;
             }
-            else if ( e.getActionCommand() == LESS_CURSOR )
+            else if ( e.getActionCommand().equals( LESS_CURSOR ) )
             {
                 selectedCursorType = LESS_CURSOR;
             }
-            else if ( e.getActionCommand() == REGEX_CURSOR )
+            else if ( e.getActionCommand().equals( REGEX_CURSOR ) )
             {
                 selectedCursorType = REGEX_CURSOR;
             }
@@ -270,75 +270,104 @@ public class IndexDialog extends JDialog
     }
 
 
-    public boolean doScan( String key, String scanType )
+    public boolean doScan( K key, String scanType )
     {
-        if ( key == null || key.trim().equals( "" ) )
-        {
-            key = null;
-        }
-
-        if ( key == null && scanType != DEFAULT_CURSOR )
+        if ( key == null && ! scanType.equals( DEFAULT_CURSOR ) )
         {
             JOptionPane.showMessageDialog( null, "Cannot use a " + scanType + " scan type with a null key constraint.",
                 "Missing Key Constraint", JOptionPane.ERROR_MESSAGE );
             return false;
         }
 
+        Object[] cols = new Object[2];
+        Object[] row;
+        cols[0] = "Keys ( Attribute Value )";
+        cols[1] = "Values ( Entry Id )";
+        DefaultTableModel model = new DefaultTableModel( cols, 0 );
+        int count = 0;
+
         try
         {
-            NamingEnumeration<IndexRecord> list = null;
+            Cursor<IndexEntry<K, O>> list;
 
-            if ( scanType == EQUALITY_CURSOR )
+            if ( scanType.equals( EQUALITY_CURSOR ) )
             {
-                list = index.listIndices( key );
-            }
-            else if ( scanType == GREATER_CURSOR )
-            {
-                list = index.listIndices( key, true );
-            }
-            else if ( scanType == LESS_CURSOR )
-            {
-                list = index.listIndices( key, false );
-            }
-            else if ( scanType == REGEX_CURSOR )
-            {
-                Pattern regex = StringTools.getRegex( key );
-                int starIndex = key.indexOf( '*' );
-
-                if ( starIndex > 0 )
+                list = index.forwardCursor( key );
+                list.beforeFirst();
+                while ( list.next() )
                 {
-                    String prefix = key.substring( 0, starIndex );
-
-                    if ( log.isDebugEnabled() )
-                        log.debug( "Regex prefix = " + prefix );
-
-                    list = index.listIndices( regex, prefix );
+                    IndexEntry<K,O> rec = list.get();
+                    row = new Object[2];
+                    row[0] = rec.getValue();
+                    row[1] = rec.getId();
+                    model.addRow( row );
+                    count++;
                 }
-                else
+            }
+            else if ( scanType.equals( GREATER_CURSOR ) )
+            {
+                list = index.forwardCursor();
+                ForwardIndexEntry<K, O> entry = new ForwardIndexEntry<K, O>();
+                entry.setValue( key );
+                list.before( entry );
+                while ( list.next() )
                 {
-                    list = index.listIndices( regex );
+                    IndexEntry<K,O> rec = list.get();
+                    row = new Object[2];
+                    row[0] = rec.getValue();
+                    row[1] = rec.getId();
+                    model.addRow( row );
+                    count++;
                 }
+            }
+            else if ( scanType.equals( LESS_CURSOR ) )
+            {
+                list = index.forwardCursor();
+                ForwardIndexEntry<K, O> entry = new ForwardIndexEntry<K, O>();
+                entry.setValue( key );
+                list.after( entry );
+                while ( list.previous() )
+                {
+                    IndexEntry<K,O> rec = list.get();
+                    row = new Object[2];
+                    row[0] = rec.getValue();
+                    row[1] = rec.getId();
+                    model.addRow( row );
+                    count++;
+                }
+            }
+            else if ( scanType.equals( REGEX_CURSOR ) )
+            {
+//                Pattern regex = StringTools.getRegex( key );
+//                int starIndex = key.indexOf( '*' );
+//
+//                if ( starIndex > 0 )
+//                {
+//                    String prefix = key.substring( 0, starIndex );
+//
+//                    if ( log.isDebugEnabled() )
+//                        log.debug( "Regex prefix = " + prefix );
+//
+//                    list = index.listIndices( regex, prefix );
+//                }
+//                else
+//                {
+//                    list = index.listIndices( regex );
+//                }
+                throw new NotImplementedException();
             }
             else
             {
-                list = index.listIndices();
-            }
-
-            Object[] cols = new Object[2];
-            Object[] row = null;
-            cols[0] = "Keys ( Attribute Value )";
-            cols[1] = "Values ( Entry Id )";
-            DefaultTableModel model = new DefaultTableModel( cols, 0 );
-            int count = 0;
-
-            while ( list.hasMore() )
-            {
-                IndexRecord rec = ( IndexRecord ) list.next();
-                row = new Object[2];
-                row[0] = rec.getIndexKey();
-                row[1] = rec.getEntryId();
-                model.addRow( row );
-                count++;
+                list = index.forwardCursor();
+                while ( list.next() )
+                {
+                    IndexEntry<K,O> rec = list.get();
+                    row = new Object[2];
+                    row[0] = rec.getValue();
+                    row[1] = rec.getId();
+                    model.addRow( row );
+                    count++;
+                }
             }
 
             resultsTbl.setModel( model );
@@ -363,6 +392,7 @@ public class IndexDialog extends JDialog
             msg = "Error while scanning index " + "on attribute " + index.getAttribute() + " using a " + scanType
                 + " cursor type with a key constraint of '" + key + "':\n" + msg;
 
+            LOG.error( msg, e );
             JTextArea area = new JTextArea();
             area.setText( msg );
             JOptionPane.showMessageDialog( null, area, "Index Scan Error", JOptionPane.ERROR_MESSAGE );
@@ -375,6 +405,7 @@ public class IndexDialog extends JDialog
     
     public static void show( Index index )
     {
+        //noinspection unchecked
         IndexDialog dialog = new IndexDialog( index );
         dialog.setVisible( true );
     }

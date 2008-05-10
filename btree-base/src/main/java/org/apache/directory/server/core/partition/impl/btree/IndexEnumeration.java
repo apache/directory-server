@@ -20,6 +20,11 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.Tuple;
+
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
@@ -33,16 +38,16 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class IndexEnumeration<T> implements NamingEnumeration<IndexRecord>
+public class IndexEnumeration<T> implements NamingEnumeration<IndexEntry>
 {
     /** */
     private final Pattern re;
     /** */
-    private final IndexRecord tmp = new IndexRecord();
+    private final ForwardIndexEntry tmp = new ForwardIndexEntry();
     /** */
-    private final IndexRecord returned = new IndexRecord();
+    private final ForwardIndexEntry returned = new ForwardIndexEntry();
     /** */
-    private final IndexRecord prefetched = new IndexRecord();
+    private final ForwardIndexEntry prefetched = new ForwardIndexEntry();
     /** */
     private final boolean swapKeyVal;
     /** */
@@ -93,7 +98,7 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexRecord>
     /**
      * @see javax.naming.NamingEnumeration#next()
      */
-    public IndexRecord next() throws NamingException
+    public IndexEntry next() throws NamingException
     {
         returned.copy( prefetched );
         prefetch();
@@ -104,7 +109,7 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexRecord>
     /**
      * @see java.util.Enumeration#nextElement()
      */
-    public IndexRecord nextElement()
+    public IndexEntry nextElement()
     {
         try
         {
@@ -149,6 +154,7 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexRecord>
     // Private Methods 
     // ------------------------------------------------------------------------
 
+
     private void prefetch() throws NamingException
     {
         while ( underlying.hasMore() )
@@ -157,7 +163,8 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexRecord>
 
             if ( swapKeyVal )
             {
-                tmp.setSwapped( tuple, null );
+                throw new NotImplementedException();
+                // tmp.setSwapped( tuple, null );
             }
             else
             {
@@ -167,7 +174,7 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexRecord>
             // If regex is null just transfer into prefetched from tmp record
             // but if it is not then use it to match.  Successful match shorts
             // while loop.
-            if ( null == re || re.matcher( ( String ) tmp.getIndexKey() ).matches() )
+            if ( null == re || re.matcher( ( String ) tmp.getValue() ).matches() )
             {
                 prefetched.copy( tmp );
                 return;

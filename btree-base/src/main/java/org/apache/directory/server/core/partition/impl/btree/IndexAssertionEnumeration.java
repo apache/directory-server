@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.IndexEntry;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -35,14 +38,14 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class IndexAssertionEnumeration implements NamingEnumeration<IndexRecord>
+public class IndexAssertionEnumeration implements NamingEnumeration<IndexEntry>
 {
     /** The prefetched candidate */
-    private final IndexRecord prefetched = new IndexRecord();
+    private final ForwardIndexEntry prefetched = new ForwardIndexEntry();
     /** The returned candidate */
-    private final IndexRecord candidate = new IndexRecord();
+    private final ForwardIndexEntry candidate = new ForwardIndexEntry();
     /** The iteration cursor */
-    private final NamingEnumeration<IndexRecord> underlying;
+    private final NamingEnumeration<ForwardIndexEntry> underlying;
     /** LUT used to avoid returning duplicates */
     private final Map<Object,Object> candidates;
     /** */
@@ -58,7 +61,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexRecord>
     // ------------------------------------------------------------------------
 
 
-    public IndexAssertionEnumeration( NamingEnumeration<IndexRecord> underlying, IndexAssertion assertion ) 
+    public IndexAssertionEnumeration( NamingEnumeration<ForwardIndexEntry> underlying, IndexAssertion assertion )
         throws NamingException
     {
         this.underlying = underlying;
@@ -69,7 +72,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexRecord>
     }
 
 
-    public IndexAssertionEnumeration( NamingEnumeration<IndexRecord> underlying, IndexAssertion assertion, 
+    public IndexAssertionEnumeration( NamingEnumeration<ForwardIndexEntry> underlying, IndexAssertion assertion,
         boolean enableDupCheck ) throws NamingException
     {
         this.underlying = underlying;
@@ -87,7 +90,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexRecord>
     /**
      * @see java.util.Enumeration#nextElement()
      */
-    public IndexRecord nextElement()
+    public IndexEntry nextElement()
     {
         try
         {
@@ -116,7 +119,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexRecord>
     /**
      * @see javax.naming.NamingEnumeration#next()
      */
-    public IndexRecord next() throws NamingException
+    public IndexEntry next() throws NamingException
     {
         candidate.copy( prefetched );
         prefetch();
@@ -149,7 +152,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexRecord>
 
     private void prefetch() throws NamingException
     {
-        IndexRecord rec = null;
+        IndexEntry rec = null;
 
         /*
          * Scan underlying Cursor until we arrive at the next valid candidate
@@ -160,36 +163,45 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexRecord>
             rec = underlying.next();
 
             // If value is valid then we set it as the next candidate to return
-            if ( assertion.assertCandidate( rec ) )
+            try
             {
-                if ( checkDups )
+                if ( assertion.assertCandidate( rec ) )
                 {
-                    boolean dup = candidates.containsKey( rec.getEntryId() );
+                    if ( checkDups )
+                    {
+                        boolean dup = candidates.containsKey( rec.getId() );
 
-                    if ( dup )
-                    {
-                        /*
-                         * Dup checking is on and candidate is a duplicate that
-                         * has already been seen so we need to skip it.
-                         */
-                        continue;
+                        if ( dup )
+                        {
+                            /*
+                             * Dup checking is on and candidate is a duplicate that
+                             * has already been seen so we need to skip it.
+                             */
+                            continue;
+                        }
+                        else
+                        {
+                            /*
+                             * Dup checking is on and the candidate is not in the
+                             * dup LUT so we need to set it as the next to return
+                             * and add it to the LUT in case we encounter it another
+                             * time.
+                             */
+                            prefetched.copy( rec );
+                            candidates.put( rec.getId(), rec.getId() );
+                            return;
+                        }
                     }
-                    else
-                    {
-                        /*
-                         * Dup checking is on and the candidate is not in the 
-                         * dup LUT so we need to set it as the next to return 
-                         * and add it to the LUT in case we encounter it another
-                         * time.
-                         */
-                        prefetched.copy( rec );
-                        candidates.put( rec.getEntryId(), rec.getEntryId() );
-                        return;
-                    }
+
+                    prefetched.copy( rec );
+                    return;
                 }
-
-                prefetched.copy( rec );
-                return;
+            }
+            catch ( Exception e )
+            {
+                NamingException ne = new NamingException();
+                ne.setRootCause( e );
+                throw ne;
             }
         }
 

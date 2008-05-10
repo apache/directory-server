@@ -33,8 +33,9 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
-import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -79,34 +80,33 @@ public class EntryNode implements TreeNode
 
         try
         {
-            List<IndexRecord> records = new ArrayList<IndexRecord>();
-            NamingEnumeration<IndexRecord> childList = db.list( id );
+            List<ForwardIndexEntry> recordForwards = new ArrayList<ForwardIndexEntry>();
+            NamingEnumeration<IndexEntry> childList = db.list( id );
             
             while ( childList.hasMore() )
             {
-                IndexRecord old = childList.next();
-                IndexRecord newRec = new IndexRecord();
+                IndexEntry old = childList.next();
+                ForwardIndexEntry newRec = new ForwardIndexEntry();
                 newRec.copy( old );
-                records.add( newRec );
+                recordForwards.add( newRec );
             }
             
             childList.close();
 
-            Iterator list = records.iterator();
+            Iterator list = recordForwards.iterator();
 
             while ( list.hasNext() )
             {
-                IndexRecord rec = ( IndexRecord ) list.next();
+                IndexEntry rec = ( IndexEntry ) list.next();
 
                 if ( engine != null && exprNode != null )
                 {
-                    if ( db.getChildCount( (Long)rec.getEntryId() ) == 0 )
+                    if ( db.getChildCount( (Long)rec.getId() ) == 0 )
                     {
-                        if ( engine.evaluate( exprNode, (Long)rec.getEntryId() ) )
+                        if ( engine.evaluate( exprNode, (Long)rec.getId() ) )
                         {
                             ServerEntry newEntry = db.lookup( (Long)rec.getEntryId() );
-                            EntryNode child = new EntryNode( (Long)rec.getEntryId(), this, db, newEntry, map, exprNode,
-                                engine );
+                            EntryNode child = new EntryNode( (Long)rec.getEntryId(), this, db, newEntry, map, exprNode, engine );
                             children.add( child );
                         }
                         else

@@ -342,6 +342,8 @@
     <module>schema-registries</module>
     <module>jdbm-store</module>
     <module>btree-base</module>
+    <module>xdbm-search</module>
+    <module>xdbm-tools</module>
     <module>core</module>
     <!--module>core-jndi</module-->
     <module>core-constants</module>
@@ -350,6 +352,9 @@
     <module>core-unit</module>
     <module>core-integ</module>
     <module>core-entry</module>
+    <module>core-cursor</module>
+    <module>core-splay</module>
+    <module>core-avl</module>
     <module>protocol-shared</module>
     <module>protocol-ntp</module>
     <module>protocol-ldap</module>

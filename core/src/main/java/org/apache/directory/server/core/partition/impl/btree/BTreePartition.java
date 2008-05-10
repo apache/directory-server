@@ -34,10 +34,13 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.xdbm.*;
+import org.apache.directory.server.xdbm.search.Optimizer;
+import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
@@ -66,13 +69,13 @@ public abstract class BTreePartition implements Partition
     static
     {
         Set<String> set = new HashSet<String>();
-        set.add( Oid.ALIAS );
-        set.add( Oid.EXISTANCE );
-        set.add( Oid.HIERARCHY );
-        set.add( Oid.NDN );
-        set.add( Oid.ONEALIAS );
-        set.add( Oid.SUBALIAS );
-        set.add( Oid.UPDN );
+        set.add( Store.ALIAS );
+        set.add( Store.PRESENCE );
+        set.add( Store.ONELEVEL );
+        set.add( Store.NDN );
+        set.add( Store.ONEALIAS );
+        set.add( Store.SUBALIAS );
+        set.add( Store.UPDN );
         SYS_INDEX_OIDS = Collections.unmodifiableSet( set );
     }
 
@@ -279,7 +282,7 @@ public abstract class BTreePartition implements Partition
     {
         SearchControls searchCtls = opContext.getSearchControls();
         String[] attrIds = searchCtls.getReturningAttributes();
-        NamingEnumeration<IndexRecord> underlying;
+        Cursor<IndexEntry> underlying;
 
         underlying = searchEngine.search( 
             opContext.getDn(),
@@ -535,7 +538,7 @@ public abstract class BTreePartition implements Partition
     public abstract void delete( Long id ) throws NamingException;
 
 
-    public abstract NamingEnumeration<IndexRecord> list( Long id ) throws NamingException;
+    public abstract NamingEnumeration<ForwardIndexEntry> list( Long id ) throws NamingException;
 
 
     public abstract int getChildCount( Long id ) throws NamingException;

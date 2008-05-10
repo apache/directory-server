@@ -2,17 +2,18 @@
 #                                Apache Schema
 # =============================================================================
 #
-#              +-----------------------------+-----------------+
-#              |  Apache AttributeType OID   |      name       |
-#              +-----------------------------+-----------------+
-#              | 1.3.6.1.4.1.18060.0.4.1.2.1 | apacheNdn       |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.2 | apacheUpdn      |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.3 | apacheExistance |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.4 | apacheHierarchy |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.5 | apacheOneAlias  |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.6 | apacheSubAlias  |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.7 | apacheAlias     |
-#              +-----------------------------+-----------------+
+#              +------------------------------+-----------------+
+#              |  Apache AttributeType OID    |      name       |
+#              +------------------------------+-----------------+
+#              | 1.3.6.1.4.1.18060.0.4.1.2.1  | apacheNdn       |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.2  | apacheUpdn      |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.3  | apacheExistance |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.4  | apacheHierarchy |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.5  | apacheOneAlias  |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.6  | apacheSubAlias  |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.7  | apacheAlias     |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.43 | apacheSublevel  |
+#              +------------------------------+-----------------+
 # =============================================================================
 
 
@@ -32,7 +33,7 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.2 NAME 'apacheUpdn'
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.3 NAME 'apacheExistance'
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.3 NAME 'apachePresence'
     DESC 'Index attribute used to track the existence of attributes'
     SUP name
     EQUALITY caseIgnoreMatch
@@ -40,7 +41,7 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.3 NAME 'apacheExistance'
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.4 NAME 'apacheHierarchy'
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.4 NAME 'apacheOneLevel'
     DESC 'Index attribute used to track the DIT hierarchy'
     EQUALITY integerMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
@@ -55,6 +56,13 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.5 NAME 'apacheOnealias'
     USAGE dSAOperation )
 
 attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.6 NAME 'apacheSubalias'
+    DESC 'Index attribute used to track single level aliases'
+    EQUALITY integerMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.43 NAME 'apacheSublevel'
     DESC 'Index attribute used to track single level aliases'
     EQUALITY integerMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
@@ -463,4 +471,5 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.1.3.11
 # =================================================
 # END SSL/TLS Key Management for LDAPS and StartTLS 
 # =================================================
-    
+
+# LAST ATTRIBUTE_TYPE WAS = 1.3.6.1.4.1.18060.0.4.1.2.43 START USING 1.3.6.1.4.1.18060.0.4.1.2.44
