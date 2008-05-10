@@ -1,34 +1,12 @@
 $Rev$
 $Date$
 
-This file shows the last time I merged from the big bang branch here as a commit
-number:
+This file shows the last time we merged from the trunk to this branch here :
+
 
    https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang/
 
 
-Sun Jan 20 11:07:38 EST 2008
 ----------------------------
-svn merge -r 604350:613587 https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang .
-Committed revision 613608.
-
-
-Tue Mar 18 01:16:04 EDT 2008
-----------------------------
-svn merge -r 613587:638220 https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang .
-
-
-Fri Mar 28 23:05:00 EDT 2008
-----------------------------
-svn merge -r 638220:642495 https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang .
-
-
-Wed Apr 16 22:45:23 EDT 2008
-----------------------------
-svn merge -r 642495:648929 https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang .
-
-
-Sat May 10 11:39:05 EDT 2008
-----------------------------
-svn merge -r 648929:655116 https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang .
+svn merge -r : https://svn.apache.org/repos/asf/directory/apacheds/trunk .
 
