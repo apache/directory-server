@@ -57,6 +57,10 @@ public class NtlmAuthenticationResult
      */
     public byte[] getResponse()
     {
+        if ( response == null )
+        {
+            return null;
+        }
         byte[] copy = new byte[response.length];
         System.arraycopy( response, 0, copy, 0, response.length );
         return copy;
