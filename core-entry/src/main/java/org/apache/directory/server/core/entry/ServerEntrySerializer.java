@@ -155,12 +155,6 @@ public class ServerEntrySerializer implements Serializer
 
         out.flush();
 
-        if ( IS_DEBUG )
-        {
-            System.out.println( ">------------------------------------------------" );
-            System.out.println( "Serialize " + entry );
-        }
-
         return baos.toByteArray();
     }
 
@@ -365,12 +359,6 @@ public class ServerEntrySerializer implements Serializer
                 }
 
                 serverEntry.put( serverAttribute );
-            }
-
-            if ( IS_DEBUG )
-            {
-                System.out.println( "<------------------------------------------------" );
-                System.out.println( "Deserialize " + serverEntry );
             }
 
             return serverEntry;
