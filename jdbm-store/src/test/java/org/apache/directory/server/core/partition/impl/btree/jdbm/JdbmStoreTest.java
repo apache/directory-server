@@ -676,7 +676,6 @@ public class JdbmStoreTest
     }
         
     
-    @Ignore // this is failing with a ClassCast ex at line 60 of DeepTrimToLowerNormalizer
     @Test
     public void testModifyAddOUAttrib() throws Exception
     {

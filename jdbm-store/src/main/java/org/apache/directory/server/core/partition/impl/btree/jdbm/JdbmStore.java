@@ -1229,7 +1229,11 @@ public class JdbmStore<E> implements Store<E>
         if ( hasUserIndexOn( modsOid ) )
         {
             Index idx = getUserIndex( modsOid );
-            idx.add( ServerEntryUtils.toAttributeImpl( mods ), id );
+
+            for ( Value value : mods )
+            {
+                idx.add( value.get(), id );
+            }
 
             // If the attr didn't exist for this id add it to existance index
             if ( !existanceIdx.forward( modsOid, id ) )
