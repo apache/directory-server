@@ -106,7 +106,7 @@ public class OneLevelScopeTest
         store.setName( "example" );
         store.setCacheSize( 10 );
         store.setWorkingDirectory( wkdir );
-        store.setSyncOnWrite( false );
+        store.setSyncOnWrite( true );
 
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
@@ -651,6 +651,8 @@ public class OneLevelScopeTest
             SchemaConstants.OU_AT_OID + "=board of directors," +
             SchemaConstants.O_AT_OID  + "=good times co."
         );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        
         ServerEntry attrs = new DefaultServerEntry( registries, dn );
         attrs.add( "objectClass", "alias", "extensibleObject" );
         attrs.add( "cn", "jd" );
@@ -662,6 +664,8 @@ public class OneLevelScopeTest
             SchemaConstants.OU_AT_OID + "=board of directors," +
             SchemaConstants.O_AT_OID  + "=good times co."
         );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        
         attrs = new DefaultServerEntry( registries, dn );
         attrs.add( "objectClass", "person" );
         attrs.add( "cn", "jdoe" );

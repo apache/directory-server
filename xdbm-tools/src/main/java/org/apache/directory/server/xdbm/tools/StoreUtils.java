@@ -62,8 +62,11 @@ public class StoreUtils
     public static void loadExampleData( Store store, Registries registries ) throws Exception
     {
         store.setSuffixDn( "o=Good Times Co." );
+
+        LdapDN suffixDn = new LdapDN( "o=Good Times Co." );
+        suffixDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
-        DefaultServerEntry contextEntry = new DefaultServerEntry( registries, new LdapDN( "o=Good Times Co." ) );
+        DefaultServerEntry contextEntry = new DefaultServerEntry( registries, suffixDn );
         contextEntry.add( "objectClass", "organization" );
         contextEntry.add( "o", "Good Times Co." );
         contextEntry.add( "postalCode", "1" );

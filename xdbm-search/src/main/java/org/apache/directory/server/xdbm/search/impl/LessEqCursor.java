@@ -108,7 +108,7 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
              */
             //noinspection unchecked
             int compareValue = lessEqEvaluator.getComparator().compare( element.getValue(),
-                 lessEqEvaluator.getExpression().getValue() );
+                 lessEqEvaluator.getExpression().getValue().get() );
 
             if ( compareValue > 0 )
             {
@@ -139,7 +139,7 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
         {
             //noinspection unchecked
             int comparedValue = lessEqEvaluator.getComparator().compare( element.getValue(),
-                 lessEqEvaluator.getExpression().getValue() );
+                 lessEqEvaluator.getExpression().getValue().get() );
 
             /*
              * First we need to check and make sure this element is within
@@ -190,7 +190,7 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
         if ( userIdxCursor != null )
         {
             IndexEntry<Object,ServerEntry> advanceTo = new ForwardIndexEntry<Object,ServerEntry>();
-            advanceTo.setValue( lessEqEvaluator.getExpression().getValue() );
+            advanceTo.setValue( lessEqEvaluator.getExpression().getValue().get() );
             userIdxCursor.after( advanceTo );
         }
         else
@@ -260,7 +260,8 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
             {
                 IndexEntry<?,ServerEntry> candidate = userIdxCursor.get();
                 //noinspection unchecked
-                if ( lessEqEvaluator.getComparator().compare( candidate.getValue(), lessEqEvaluator.getExpression().getValue() ) <= 0 )
+                if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
+                     lessEqEvaluator.getExpression().getValue().get() ) <= 0 )
                 {
                     return available = true;
                 }

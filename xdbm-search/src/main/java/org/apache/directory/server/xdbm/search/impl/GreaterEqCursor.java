@@ -103,7 +103,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
              */
             //noinspection unchecked
             if ( greaterEqEvaluator.getComparator().compare( element.getValue(),
-                 greaterEqEvaluator.getExpression().getValue() ) <= 0 )
+                 greaterEqEvaluator.getExpression().getValue().get() ) <= 0 )
             {
                 beforeFirst();
                 return;
@@ -125,7 +125,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
         {
             //noinspection unchecked
             int comparedValue = greaterEqEvaluator.getComparator().compare( element.getValue(),
-                 greaterEqEvaluator.getExpression().getValue() );
+                 greaterEqEvaluator.getExpression().getValue().get() );
 
             /*
              * First we need to check and make sure this element is within
@@ -163,7 +163,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
         if ( userIdxCursor != null )
         {
             IndexEntry<Object,ServerEntry> advanceTo = new ForwardIndexEntry<Object,ServerEntry>();
-            advanceTo.setValue( greaterEqEvaluator.getExpression().getValue() );
+            advanceTo.setValue( greaterEqEvaluator.getExpression().getValue().get() );
             userIdxCursor.before( advanceTo );
         }
         else
@@ -218,7 +218,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
             {
                 IndexEntry<?,ServerEntry> candidate = userIdxCursor.get();
                 //noinspection unchecked
-                if ( greaterEqEvaluator.getComparator().compare( candidate.getValue(), greaterEqEvaluator.getExpression().getValue() ) >= 0 )
+                if ( greaterEqEvaluator.getComparator().compare( candidate.getValue(), greaterEqEvaluator.getExpression().getValue().get() ) >= 0 )
                 {
                     return available = true;
                 }

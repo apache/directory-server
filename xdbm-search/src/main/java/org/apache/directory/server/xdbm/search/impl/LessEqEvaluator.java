@@ -124,7 +124,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
     {
         if ( idx != null )
         {
-            return idx.reverseLessOrEq( indexEntry.getId(), node.getValue() );
+            return idx.reverseLessOrEq( indexEntry.getId(), node.getValue().get() );
         }
 
         ServerEntry entry = indexEntry.getObject();

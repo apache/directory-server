@@ -124,7 +124,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, ServerEntry>
     {
         if ( idx != null )
         {
-            return idx.reverseGreaterOrEq( indexEntry.getId(), node.getValue() );
+            return idx.reverseGreaterOrEq( indexEntry.getId(), node.getValue().get() );
         }
 
         ServerEntry entry = indexEntry.getObject();
