@@ -1136,7 +1136,7 @@ public class JdbmStore<E> implements Store<E>
                 // the entry via the enumeration - it's in there as is for sure
                 for ( Value<?> value : attribute )
                 {
-                    index.drop( value, id );
+                    index.drop( value.get(), id );
                 }
 
                 existanceIdx.drop( attributeOid, id );
