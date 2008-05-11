@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -41,8 +42,8 @@ import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.junit.Before;
 import org.junit.Test;
 
+
 /**
- * 
  * Test case for KeyTupleBTreeCursor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -55,7 +56,7 @@ public class KeyTupleBTreeCursorTest
     Comparator<Integer> comparator;
     KeyTupleBTreeCursor<Integer, Integer> cursor;
     
-    private static final Integer KEY = new Integer( 1 );
+    private static final Integer KEY = 1;
     private static final String TEST_OUTPUT_PATH = "test.output.path";
     
     @Before
