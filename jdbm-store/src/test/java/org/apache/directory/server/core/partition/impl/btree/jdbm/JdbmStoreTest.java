@@ -376,7 +376,7 @@ public class JdbmStoreTest
         
     }
     
-    @Ignore // this test fails with NotImplEx due to the dropMovedAliasIndices() method in JdbmStore 
+
     @Test
     public void testSubLevelIndex() throws Exception
     {
