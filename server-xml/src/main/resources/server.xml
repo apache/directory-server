@@ -157,24 +157,12 @@
 
     <!-- The list of supported authentication mechanisms.                   -->
     <saslMechanismHandlers>
-      <s:entry key="SIMPLE">
-        <simpleMechanismHandler/>
-      </s:entry>
-      <s:entry key="CRAM-MD5">
-        <cramMd5MechanismHandler directoryService="#directoryService"/>
-      </s:entry>
-      <s:entry key="DIGEST-MD5">
-        <digestMd5MechanismHandler directoryService="#directoryService" />
-      </s:entry>
-      <s:entry key="GSSAPI">
-        <gssapiMechanismHandler directoryService="#directoryService" />
-      </s:entry>
-      <s:entry key="NTLM">
-        <ntlmMechanismHandler ntlmProviderFqcn="com.foo.Bar" />
-      </s:entry>
-      <s:entry key="GSS-SPNEGO">
-        <ntlmMechanismHandler ntlmProviderFqcn="com.foo.Bar" />
-      </s:entry>
+      <simpleMechanismHandler mech-name="SIMPLE"/>
+      <cramMd5MechanismHandler mech-name="CRAM-MD5" directoryService="#directoryService"/>
+      <digestMd5MechanismHandler mech-name="DIGEST-MD5" directoryService="#directoryService"/>
+      <gssapiMechanismHandler mech-name="GSSAPI" directoryService="#directoryService"/>
+      <ntlmMechanismHandler mech-name="NTLM" ntlmProviderFqcn="com.foo.Bar"/>
+      <ntlmMechanismHandler mech-name="GSS-SPNEGO" ntlmProviderFqcn="com.foo.Bar"/>
     </saslMechanismHandlers>
 
     <!-- The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.  -->

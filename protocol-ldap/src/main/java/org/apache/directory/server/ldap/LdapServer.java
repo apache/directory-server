@@ -801,16 +801,20 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public void setSaslMechanismHandlers( Map<String, MechanismHandler> saslMechanismHandlers )
-    {
-        this.saslMechanismHandlers = saslMechanismHandlers;
-    }
-
-
+    /**
+     * @org.apache.xbean.Map flat="true" dups="replace" keyName="mech-name"
+     */
     public Map<String, MechanismHandler> getSaslMechanismHandlers()
     {
         return saslMechanismHandlers;
     }
+
+    public void setSaslMechanismHandlers( Map<String, MechanismHandler> saslMechanismHandlers )
+    {
+        this.saslMechanismHandlers = saslMechanismHandlers;
+        LOG.warn("saslMechanismHandlers set to: " + saslMechanismHandlers);
+    }
+
 
 
     public MechanismHandler addSaslMechanismHandler( String mechanism, MechanismHandler handler )
