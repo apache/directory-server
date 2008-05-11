@@ -154,11 +154,12 @@ public class JdbmTableWithDuplicatesTest
     public void testCloseReopen() throws Exception
     {
         table.put( 1, 2 );
+        assertTrue( 2 == table.get( 1 ) );
         table.close();
         table = new JdbmTable<Integer,Integer>( "test", SIZE, recman,
                 new SerializableComparator<Integer>( "" ),
                 new SerializableComparator<Integer>( "" ),
-                null, new IntegerSerializer() );
+                new IntegerSerializer(), new IntegerSerializer() );
         assertTrue( 2 == table.get( 1 ) );
     }
 
