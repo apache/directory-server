@@ -831,7 +831,7 @@ public class JdbmStoreTest
         assertNotNull( lookedup.get( "sn" ).get() );
         
         store.modify( dn, mods );
-        assertNull( lookedup.get( "sn" ).get() );
+        assertNull( lookedup.get( "sn" ) );
         
         // testing the store.modify( dn, mod, entry ) API
         ServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -839,10 +839,10 @@ public class JdbmStoreTest
         // add an entry for the sake of testing the remove operation
         entry.add( "sn", "JWalker" );
         store.modify( dn, ModificationOperation.ADD_ATTRIBUTE, entry );
-        assertNotNull( lookedup.get( "sn" ).get() );
+        assertNotNull( lookedup.get( "sn" ) );
         
         store.modify( dn, ModificationOperation.REMOVE_ATTRIBUTE, entry );
-        assertNull( lookedup.get( "sn" ).get() );
+        assertNull( lookedup.get( "sn" ) );
     }
 
 }
