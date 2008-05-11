@@ -37,6 +37,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.schema.*;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -48,9 +49,7 @@ import static org.junit.Assert.fail;
 
 import javax.naming.NamingException;
 import java.io.File;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Comparator;
+import java.util.*;
 
 import jdbm.helper.StringComparator;
 
@@ -663,122 +662,18 @@ public class GreaterEqTest
     @Test ( expected = IllegalStateException.class )
     public void testEvaluatorAttributeNoMatchingRule() throws Exception
     {
-        AttributeType at = new AttributeType()
-        {
-
-            public boolean isSingleValue()
-            {
-                return false;
-            }
-
-
-            public boolean isCanUserModify()
-            {
-                return false;
-            }
-
-
-            public boolean isCollective()
-            {
-                return false;
-            }
-
-
-            public UsageEnum getUsage()
-            {
-                return null;
-            }
-
-
-            public AttributeType getSuperior() throws NamingException
-            {
-                return null;
-            }
-
-
-            public Syntax getSyntax() throws NamingException
-            {
-                return null;
-            }
-
-
-            public int getLength()
-            {
-                return 0;
-            }
-
-
-            public MatchingRule getEquality() throws NamingException
-            {
-                return null;
-            }
-
-
-            public MatchingRule getOrdering() throws NamingException
-            {
-                return null;
-            }
-
-
-            public MatchingRule getSubstr() throws NamingException
-            {
-                return null;
-            }
-
-
-            public boolean isAncestorOf( AttributeType descendant ) throws NamingException
-            {
-                return false;
-            }
-
-
-            public boolean isDescentantOf( AttributeType ancestor ) throws NamingException
-            {
-                return false;
-            }
-
-
-            public boolean isObsolete()
-            {
-                return false;
-            }
-
-
-            public String getOid()
-            {
-                return SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000";
-            }
-
-
-            public String[] getNames()
-            {
-                return new String[] { "bogus" };
-            }
-
-
-            public String getName()
-            {
-                return "bogus";
-            }
-
-
-            public String getDescription()
-            {
-                return "";
-            }
-
-
-            public String getSchema()
-            {
-                return "other";
-            }
-
-
-            public void setSchema( String schemaName )
-            {
-            }
-        };
+        AttributeType at = new NoMatchingRuleAttributeType();
         registries.getAttributeTypeRegistry().register( at );
+        registries.getSyntaxRegistry().register( at.getSyntax() );
+        SyntaxCheckerDescription desc = new SyntaxCheckerDescription();
+        desc.setDescription( "bogus" );
+        desc.setFqcn( BogusSyntax.class.getName() );
+        List<String> names = new ArrayList<String>();
+        names.add( "bogus" );
+        desc.setNames( names );
+        desc.setNumericOid( at.getSyntax().getOid() );
+        desc.setObsolete( false );
+        registries.getSyntaxCheckerRegistry().register( desc, at.getSyntax().getSyntaxChecker() );
 
         GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new GreaterEqEvaluator( node, store, registries );
@@ -789,182 +684,18 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorAttributeOrderingMatchingRule() throws Exception
     {
-        AttributeType at = new AttributeType()
-        {
-
-            public boolean isSingleValue()
-            {
-                return false;
-            }
-
-
-            public boolean isCanUserModify()
-            {
-                return false;
-            }
-
-
-            public boolean isCollective()
-            {
-                return false;
-            }
-
-
-            public UsageEnum getUsage()
-            {
-                return null;
-            }
-
-
-            public AttributeType getSuperior() throws NamingException
-            {
-                return null;
-            }
-
-
-            public Syntax getSyntax() throws NamingException
-            {
-                return null;
-            }
-
-
-            public int getLength()
-            {
-                return 0;
-            }
-
-
-            public MatchingRule getEquality() throws NamingException
-            {
-                return null;
-            }
-
-
-            public MatchingRule getOrdering() throws NamingException
-            {
-                return new MatchingRule()
-                {
-
-                    public Syntax getSyntax() throws NamingException
-                    {
-                        return null;
-                    }
-
-
-                    public Comparator getComparator() throws NamingException
-                    {
-                        return new StringComparator();
-                    }
-
-
-                    public Normalizer getNormalizer() throws NamingException
-                    {
-                        return new NoOpNormalizer();
-                    }
-
-
-                    public boolean isObsolete()
-                    {
-                        return false;
-                    }
-
-
-                    public String getOid()
-                    {
-                        return null;
-                    }
-
-
-                    public String[] getNames()
-                    {
-                        return new String[0];
-                    }
-
-
-                    public String getName()
-                    {
-                        return null;
-                    }
-
-
-                    public String getDescription()
-                    {
-                        return null;
-                    }
-
-
-                    public String getSchema()
-                    {
-                        return null;
-                    }
-
-
-                    public void setSchema( String schemaName )
-                    {
-                    }
-                };
-            }
-
-
-            public MatchingRule getSubstr() throws NamingException
-            {
-                return null;
-            }
-
-
-            public boolean isAncestorOf( AttributeType descendant ) throws NamingException
-            {
-                return false;
-            }
-
-
-            public boolean isDescentantOf( AttributeType ancestor ) throws NamingException
-            {
-                return false;
-            }
-
-
-            public boolean isObsolete()
-            {
-                return false;
-            }
-
-
-            public String getOid()
-            {
-                return SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000";
-            }
-
-
-            public String[] getNames()
-            {
-                return new String[] { "bogus" };
-            }
-
-
-            public String getName()
-            {
-                return "bogus";
-            }
-
-
-            public String getDescription()
-            {
-                return "";
-            }
-
-
-            public String getSchema()
-            {
-                return "other";
-            }
-
-
-            public void setSchema( String schemaName )
-            {
-            }
-        };
+        AttributeType at = new OrderingOnlyMatchingRuleAttributeType();
         registries.getAttributeTypeRegistry().register( at );
+        registries.getSyntaxRegistry().register( at.getSyntax() );
+        SyntaxCheckerDescription desc = new SyntaxCheckerDescription();
+        desc.setDescription( "bogus" );
+        desc.setFqcn( BogusSyntax.class.getName() );
+        List<String> names = new ArrayList<String>();
+        names.add( "bogus" );
+        desc.setNames( names );
+        desc.setNumericOid( at.getSyntax().getOid() );
+        desc.setObsolete( false );
+        registries.getSyntaxCheckerRegistry().register( desc, at.getSyntax().getSyntaxChecker() );
 
         GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new GreaterEqEvaluator( node, store, registries );
