@@ -155,6 +155,12 @@ public class ServerEntrySerializer implements Serializer
 
         out.flush();
 
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">------------------------------------------------" );
+            LOG.debug( "Serialize " + entry );
+        }
+
         return baos.toByteArray();
     }
 
@@ -359,6 +365,12 @@ public class ServerEntrySerializer implements Serializer
                 }
 
                 serverEntry.put( serverAttribute );
+            }
+
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "<------------------------------------------------" );
+                LOG.debug( "Deserialize " + serverEntry );
             }
 
             return serverEntry;
