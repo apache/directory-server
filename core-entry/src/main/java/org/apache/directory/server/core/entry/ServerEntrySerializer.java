@@ -80,7 +80,6 @@ public class ServerEntrySerializer implements Serializer
 
 
     /**
-     * @see Externalizable#writeExternal(ObjectOutput)
      * <p>
      * 
      * This is the place where we serialize entries, and all theirs
