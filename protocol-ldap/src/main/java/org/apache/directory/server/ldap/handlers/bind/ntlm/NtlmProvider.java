@@ -20,13 +20,16 @@
 package org.apache.directory.server.ldap.handlers.bind.ntlm;
 
 
+import org.apache.mina.common.IoSession;
+
+
 /**
  * An NTLM authentication service provider.  Multiple providers may be
  * utilized to conduct the NTLM negotiation over various protocols or by
  * calling native SSPI interfaces.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
+ * @version $Rev$
  */
 public interface NtlmProvider
 {
@@ -34,17 +37,19 @@ public interface NtlmProvider
      * Handles a Type 1 NTLM response from the client to generate an NTLM
      * Type 2 challenge message.
      *
+     * @param session the MINA IoSession to store any state to be thread safe
      * @param type1reponse the Type 1 NTLM response from client
      * @return the NTLM Type 2 message with the challenge
      */
-    byte[] generateChallenge( byte[] type1reponse ) throws Exception;
+    byte[] generateChallenge( IoSession session, byte[] type1reponse ) throws Exception;
 
 
     /**
-     * Handles a Type 3 NTLM reponse from the client.
+     * Handles a Type 3 NTLM response from the client.
      *
-     * @param type3response the Type 3 NTLM reponse from the client
+     * @param session the MINA IoSession to store any state to be thread safe
+     * @param type3response the Type 3 NTLM response from the client
      * @return the result of the successful authentication from the server
      */
-    NtlmAuthenticationResult authenticate( byte[] type3response ) throws Exception;
+    NtlmAuthenticationResult authenticate( IoSession session, byte[] type3response ) throws Exception;
 }

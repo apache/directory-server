@@ -121,7 +121,7 @@ public class NtlmSaslServer implements SaslServer
             case TYPE_1_RECEIVED:
                 try
                 {
-                    retval = provider.generateChallenge( response );
+                    retval = provider.generateChallenge( session, response );
                 }
                 catch ( Exception e )
                 {
@@ -132,7 +132,7 @@ public class NtlmSaslServer implements SaslServer
                 NtlmAuthenticationResult result = null;
                 try
                 {
-                    result = provider.authenticate( response );
+                    result = provider.authenticate( session, response );
                     retval = result.getResponse();
                     session.setAttribute( Context.SECURITY_PRINCIPAL, request.getName().toString() );
                 }

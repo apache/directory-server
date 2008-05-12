@@ -42,6 +42,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -568,14 +569,14 @@ public class SaslBindITest extends AbstractServerTest
         private byte[] type3response;
         
         
-        public NtlmAuthenticationResult authenticate( byte[] type3response ) throws Exception
+        public NtlmAuthenticationResult authenticate( IoSession session, byte[] type3response ) throws Exception
         {
             this.type3response = type3response;
             return new NtlmAuthenticationResult( "results".getBytes(), true );
         }
 
 
-        public byte[] generateChallenge( byte[] type1reponse ) throws Exception
+        public byte[] generateChallenge( IoSession session, byte[] type1reponse ) throws Exception
         {
             this.type1response = type1reponse;
             return "challenge".getBytes();
