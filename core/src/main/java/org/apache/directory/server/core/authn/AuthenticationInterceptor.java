@@ -225,7 +225,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Matching name = '" + opContext.getDn().getUpName() + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( "getMatchedName" );
         return next.getMatchedName( opContext );
     }
 
@@ -237,7 +237,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Getting root DSE" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( "getRootDSE" );
         return next.getRootDSE( opContext );
     }
 
@@ -249,7 +249,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Getting suffix for name = '" + opContext.getDn().getUpName() + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( "getSuffix" );
         return next.getSuffix( opContext );
     }
 
@@ -261,7 +261,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Testing if entry name = '" + opContext.getDn().getUpName() + "' exists" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( "hasEntry" );
         return next.hasEntry( opContext );
     }
 
@@ -273,7 +273,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Listing base = '" + opContext.getDn().getUpName() + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( "list" );
         return next.list( opContext );
     }
 
@@ -285,7 +285,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Listing suffixes" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( "listSuffixes" );
         return next.listSuffixes( opContext );
     }
 
@@ -306,7 +306,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
         }
 
-        checkAuthenticated();
+        checkAuthenticated( "lookup" );
         return next.lookup( opContext );
     }
 
@@ -401,17 +401,15 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         try
         {
-            checkAuthenticated();
+            checkAuthenticated( operation.toString() );
         }
         catch ( IllegalStateException ise )
         {
-            LOG.error( "Attempted operation {} by unauthenticated caller.", operation.name() );
-
             throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
         }
     }
 
-    private void checkAuthenticated() throws NamingException
+    private void checkAuthenticated( String operation ) throws NamingException
     {
         ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
 
@@ -425,7 +423,10 @@ public class AuthenticationInterceptor extends BaseInterceptor
             return;
         }
 
-        throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
+        String principal = (String)ctx.getEnvironment().get( Context.SECURITY_PRINCIPAL ); 
+        String message = "Attempted operation '" + operation + "' by unauthenticated caller '" + principal + "'.";
+        LOG.error( message );
+        throw new IllegalStateException( message );
     }
 
 
