@@ -86,6 +86,7 @@ public class RdnSerializer
         out.flush();
     }
     
+    
     /**
      * Deserialize a RDN instance
      * 

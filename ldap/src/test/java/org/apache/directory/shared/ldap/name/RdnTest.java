@@ -32,22 +32,22 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.name.RdnParser;
 import org.apache.directory.shared.ldap.util.StringTools;
 
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import org.junit.Test;
 
 
 /**
  * Test the class Rdn
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class RdnTest
 {
@@ -65,6 +65,8 @@ public class RdnTest
 
     /**
      * test an empty RDN
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRdnEmpty() throws InvalidNameException
@@ -75,6 +77,8 @@ public class RdnTest
 
     /**
      * test a simple RDN : a = b
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRdnSimple() throws InvalidNameException
@@ -85,6 +89,8 @@ public class RdnTest
 
     /**
      * test a composite RDN : a = b, d = e
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRdnComposite() throws InvalidNameException
@@ -96,6 +102,8 @@ public class RdnTest
     /**
      * test a composite RDN with or without spaces: a=b, a =b, a= b, a = b, a =
      * b
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRdnCompositeWithSpace() throws InvalidNameException
@@ -121,6 +129,8 @@ public class RdnTest
 
     /**
      * test a simple RDN with differents separators : a = b + c = d
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRdnSimpleMultivaluedAttribute() throws InvalidNameException
@@ -133,6 +143,8 @@ public class RdnTest
     /**
      * test a composite RDN with differents separators : a=b+c=d, e=f + g=h +
      * i=j
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRdnCompositeMultivaluedAttribute() throws InvalidNameException
@@ -150,6 +162,8 @@ public class RdnTest
 
     /**
      * test a simple RDN with an oid prefix (uppercase) : OID.12.34.56 = azerty
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRdnOidUpper() throws InvalidNameException
@@ -160,6 +174,8 @@ public class RdnTest
 
     /**
      * test a simple RDN with an oid prefix (lowercase) : oid.12.34.56 = azerty
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRdnOidLower() throws InvalidNameException
@@ -171,6 +187,8 @@ public class RdnTest
     /**
      * test a simple RDN with an oid attribut wiithout oid prefix : 12.34.56 =
      * azerty
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRdnOidWithoutPrefix() throws InvalidNameException
@@ -182,6 +200,8 @@ public class RdnTest
     /**
      * test a composite RDN with an oid attribut wiithout oid prefix : 12.34.56 =
      * azerty; 7.8 = test
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRdnCompositeOidWithoutPrefix() throws InvalidNameException
@@ -193,6 +213,8 @@ public class RdnTest
 
     /**
      * test a simple RDN with pair char attribute value : a = \,\=\+\<\>\#\;\\\"\C3\A9"
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRdnPairCharAttributeValue() throws InvalidNameException
@@ -216,6 +238,8 @@ public class RdnTest
 
     /**
      * test a simple RDN with quoted attribute value : a = "quoted \"value"
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRdnQuotedAttributeValue() throws InvalidNameException
@@ -228,7 +252,7 @@ public class RdnTest
      * Test the clone method for a RDN.
      */
     @Test
-    public void testParseRDNNull() throws InvalidNameException
+    public void testParseRDNNull()
     {
         Rdn rdn = null;
 
@@ -246,6 +270,8 @@ public class RdnTest
 
     /**
      * Test the clone method for a RDN.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCloningOneNameComponent() throws InvalidNameException
@@ -262,6 +288,8 @@ public class RdnTest
 
     /**
      * Test the clone method for a RDN.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCloningTwoNameComponent() throws InvalidNameException
@@ -281,6 +309,8 @@ public class RdnTest
 
     /**
      * Test the compareTo method for a RDN.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCompareToNull() throws InvalidNameException
@@ -293,6 +323,8 @@ public class RdnTest
 
     /**
      * Compares a composite NC to a single NC.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCompareToNCS2NC() throws InvalidNameException
@@ -305,6 +337,8 @@ public class RdnTest
 
     /**
      * Compares a single NC to a composite NC.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCompareToNC2NCS() throws InvalidNameException
@@ -318,6 +352,8 @@ public class RdnTest
 
     /**
      * Compares a composite NCS to a composite NCS in the same order.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCompareToNCS2NCSOrdered() throws InvalidNameException
@@ -331,6 +367,8 @@ public class RdnTest
 
     /**
      * Compares a composite NCS to a composite NCS in a different order.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCompareToNCS2NCSUnordered() throws InvalidNameException
@@ -344,6 +382,8 @@ public class RdnTest
 
     /**
      * Compares a composite NCS to a different composite NCS.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCompareToNCS2NCSNotEquals() throws InvalidNameException
@@ -351,13 +391,16 @@ public class RdnTest
         Rdn rdn1 = new Rdn( " a = f + g = h + c = d " );
         Rdn rdn2 = new Rdn( " c = d + a = h + g = h " );
 
-        assertEquals( -1, rdn1.compareTo( rdn2 ) );
+        assertEquals( 1, rdn1.compareTo( rdn2 ) );
+        assertEquals( 1, rdn2.compareTo( rdn1 ) );
     }
 
 
     /**
      * Test for DIRSHARED-2.
      * The first ATAV is equal, the second or following ATAV differs.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void test_DIRSHARED_2() throws InvalidNameException
@@ -378,8 +421,37 @@ public class RdnTest
         assertTrue( rdn5.compareTo( rdn6 ) != 0 );
     }
     
+
+    /**
+     * Test for DIRSHARED-3.
+     * The compare operation should return a correct value (1 or -1)
+     * depending on the ATAVs, not on their position.
+     * 
+     * @throws InvalidNameException
+     */
+    @Test
+    public void test_DIRSHARED_3() throws InvalidNameException
+    {
+        Rdn rdn1 = new Rdn( " a = b + c = d " );
+        Rdn rdn2 = new Rdn( " c = d + a = b " );
+        assertEquals( 0, rdn1.compareTo( rdn2 ) );
+
+        rdn1 = new Rdn( " a = b + c = e " );
+        rdn2 = new Rdn( " c = d + a = b " );
+        assertEquals( 1, rdn1.compareTo( rdn2 ) );
+        assertEquals( 1, rdn2.compareTo( rdn1 ) );
+
+        rdn1 = new Rdn( " a = b + c = d " );
+        rdn2 = new Rdn( " e = f + g = h " );
+        assertEquals( 1, rdn1.compareTo( rdn2 ) );
+        assertEquals( 1, rdn2.compareTo( rdn1 ) );
+
+    }
+    
     /**
      * Compares with a null RDN.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCompareToNullRdn() throws InvalidNameException
@@ -392,6 +464,8 @@ public class RdnTest
 
     /**
      * Compares with a bad object
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCompareToBadObject() throws InvalidNameException
@@ -404,6 +478,8 @@ public class RdnTest
 
     /**
      * Compares a simple NC to a simple NC.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCompareToNC2NC() throws InvalidNameException
@@ -417,6 +493,8 @@ public class RdnTest
 
     /**
      * Compares a simple NC to a simple NC in UperCase.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCompareToNC2NCUperCase() throws InvalidNameException
@@ -431,6 +509,8 @@ public class RdnTest
 
     /**
      * Compares a simple NC to a different simple NC.
+     * 
+     * @throws InvalidNameException
      */
     @Test
     public void testRDNCompareToNC2NCNotEquals() throws InvalidNameException
@@ -442,6 +522,13 @@ public class RdnTest
     }
 
 
+    /**
+     * 
+     * test the ToAttributes method.
+     *
+     * @throws InvalidNameException
+     * @throws NamingException
+     */
     @Test
     public void testToAttributes() throws InvalidNameException, NamingException
     {
@@ -471,6 +558,12 @@ public class RdnTest
     }
 
 
+    /**
+     * 
+     * Test the getValue method.
+     *
+     * @throws InvalidNameException
+     */
     @Test
     public void testGetValue() throws InvalidNameException
     {
@@ -480,6 +573,12 @@ public class RdnTest
     }
 
 
+    /**
+     * 
+     * Test the getType method.
+     *
+     * @throws InvalidNameException
+     */
     @Test
     public void testGetType() throws InvalidNameException
     {
@@ -489,6 +588,11 @@ public class RdnTest
     }
 
 
+    /**
+     * Test the getSize method.
+     *
+     * @throws InvalidNameException
+     */
     @Test
     public void testGetSize() throws InvalidNameException
     {
@@ -498,6 +602,10 @@ public class RdnTest
     }
 
 
+    /**
+     * Test the getSize method.
+     *
+     */
     @Test
     public void testGetSize0()
     {
@@ -507,6 +615,11 @@ public class RdnTest
     }
 
 
+    /**
+     * Test the equals method
+     *
+     * @throws InvalidNameException
+     */
     @Test
     public void testEquals() throws InvalidNameException
     {
@@ -640,7 +753,7 @@ public class RdnTest
 
 
     @Test
-    public void testEmptyIterator() throws InvalidNameException
+    public void testEmptyIterator()
     {
         Rdn rdn = new Rdn();
         Iterator<AttributeTypeAndValue> iterator = rdn.iterator();
@@ -692,7 +805,7 @@ public class RdnTest
 
 
     @Test
-    public void testEscapedAttributeValue() throws InvalidNameException
+    public void testEscapedAttributeValue()
     {
         // space doesn't need to be escaped in the middle of a string
         assertEquals( "a b", Rdn.escapeValue( "a b" ) );
@@ -749,7 +862,7 @@ public class RdnTest
 
 
     @Test
-    public void testNullRdnSerialization() throws NamingException, IOException, ClassNotFoundException
+    public void testNullRdnSerialization() throws IOException, ClassNotFoundException
     {
         Rdn rdn = new Rdn();
 
@@ -958,7 +1071,7 @@ public class RdnTest
 
 
     @Test
-    public void testNullRdnStaticSerialization() throws NamingException, IOException, ClassNotFoundException
+    public void testNullRdnStaticSerialization() throws IOException, ClassNotFoundException
     {
         Rdn rdn = new Rdn();
 

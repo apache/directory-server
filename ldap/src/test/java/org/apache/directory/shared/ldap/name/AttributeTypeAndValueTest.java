@@ -29,18 +29,19 @@ import java.io.ObjectOutputStream;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
 
 
 /**
  * Test the class AttributeTypeAndValue
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class AttributeTypeAndValueTest
 {

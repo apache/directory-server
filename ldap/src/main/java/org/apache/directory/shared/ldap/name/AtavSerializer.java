@@ -60,6 +60,10 @@ public class AtavSerializer
      * <li>upValue</li> The User Provided value.
      * <li>valueLength</li>
      * <li>value</li> The normalized value.
+     *
+     * @param atav the AttributeTypeAndValue to serialize
+     * @param out the OutputStream in which the atav will be serialized
+     * @throws IOException If we can't serialize the atav
      */
     public static void serialize( AttributeTypeAndValue atav, ObjectOutput out ) throws IOException
     {
@@ -139,8 +143,12 @@ public class AtavSerializer
      * We read back the data to create a new ATAV. The structure 
      * read is exposed in the {@link AttributeTypeAndValue#writeExternal(ObjectOutput)} 
      * method<p>
+     * 
+     * @param in the input stream
+     * @throws IOException If the input stream can't be read
+     * @return The constructed AttributeTypeAndValue
      */
-    public static AttributeTypeAndValue deserialize( ObjectInput in ) throws IOException, ClassNotFoundException
+    public static AttributeTypeAndValue deserialize( ObjectInput in ) throws IOException
     {
         String upName = in.readUTF();
         int start = in.readInt();
@@ -163,11 +171,11 @@ public class AtavSerializer
         {
             int upValueLength = in.readInt();
             byte[] upValue = new byte[upValueLength];
-            in.readFully( (byte[])upValue );
+            in.readFully( upValue );
 
             int valueLength = in.readInt();
             byte[] normValue = new byte[valueLength];
-            in.readFully( (byte[])normValue );
+            in.readFully( normValue );
 
             AttributeTypeAndValue atav = 
                 new AttributeTypeAndValue( upType, normType, upValue, normValue, start, length, upName );

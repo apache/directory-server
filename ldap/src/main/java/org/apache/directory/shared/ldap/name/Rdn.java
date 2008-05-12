@@ -172,10 +172,13 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
    /** CompareTo() results */
    public static final int UNDEFINED = Integer.MAX_VALUE;
 
+   /** Constant used in comparisons */
    public static final int SUPERIOR = 1;
 
+   /** Constant used in comparisons */
    public static final int INFERIOR = -1;
 
+   /** Constant used in comparisons */
    public static final int EQUALS = 0;
 
 
@@ -225,20 +228,17 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
    /**
     * A constructor that constructs a RDN from a type and a value. Constructs
     * an Rdn from the given attribute type and value. The string attribute
-    * values are not interpretted as RFC 2253 formatted RDN strings. That is,
-    * the values are used literally (not parsed) and assumed to be unescaped.
+    * values are not interpreted as RFC 2253 formatted RDN strings. That is,
+    * the values are used literally (not parsed) and assumed to be un-escaped.
     *
-    * @param type
-    *            The type of the RDN
-    * @param value
-    *            The value of the RDN
-    * @throws InvalidNameException
-    *             If the RDN is invalid
+    * @param upType The user provided type of the RDN
+    * @param upValue The user provided value of the RDN
+    * @param normType The normalized provided type of the RDN
+    * @param normValue The normalized provided value of the RDN
+    * @throws InvalidNameException If the RDN is invalid
     */
    public Rdn( String upType, String normType, String upValue, String normValue ) throws InvalidNameException
    {
-       super();
-
        addAttributeTypeAndValue( upType, normType, upValue, normValue );
 
        upName = upType + '=' + upValue;
@@ -252,10 +252,10 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
    /**
     * A constructor that constructs a RDN from a type and a value. Constructs
     * an Rdn from the given attribute type and value. The string attribute
-    * values are not interpretted as RFC 2253 formatted RDN strings. That is,
+    * values are not interpreted as RFC 2253 formatted RDN strings. That is,
     * the values are used literally (not parsed) and assumed to be unescaped.
     *
-    * @param type
+    * @param start 
     *            The type of the RDN
     * @param value
     *            The value of the RDN
@@ -281,7 +281,6 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
    @SuppressWarnings({"unchecked"})
    public Rdn( Rdn rdn )
    {
-       super();
        nbAtavs = rdn.getNbAtavs();
        this.normName = rdn.normName;
        this.upName = rdn.getUpName();
@@ -299,17 +298,16 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
 
            default:
                // We must duplicate the treeSet and the hashMap
-               Iterator<AttributeTypeAndValue> iter = rdn.atavs.iterator();
-
                atavs = new TreeSet<AttributeTypeAndValue>();
                atavTypes = new MultiHashMap();
 
-               while ( iter.hasNext() )
+               for ( AttributeTypeAndValue currentAtav:rdn.atavs )
                {
-                   AttributeTypeAndValue currentAtav = iter.next();
                    atavs.add( (AttributeTypeAndValue)currentAtav.clone() );
                    atavTypes.put( currentAtav.getUpType(), currentAtav );
                }
+               
+               return;
        }
    }
 
@@ -374,18 +372,19 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
    /**
     * Add a AttributeTypeAndValue to the current RDN
     *
-    * @param type
-    *            The type of the added RDN.
-    * @param value
-    *            The value of the added RDN
+    * @param upType The user provided type of the added RDN.
+    * @param type The normalized provided type of the added RDN.
+    * @param upValue The user provided value of the added RDN
+    * @param value The normalized provided value of the added RDN
     * @throws InvalidNameException
     *             If the RDN is invalid
     */
-   // WARNING : The protection level is left unspecified intentionnaly.
+   // WARNING : The protection level is left unspecified intentionally.
    // We need this method to be visible from the DnParser class, but not
    // from outside this package.
    @SuppressWarnings({"unchecked"})
-   /* Unspecified protection */void addAttributeTypeAndValue( String upType, String type, Object upValue, Object value ) throws InvalidNameException
+   /* Unspecified protection */void addAttributeTypeAndValue( String upType, String type, Object upValue, Object value ) 
+       throws InvalidNameException
    {
        // First, let's normalize the type
        String normalizedType = StringTools.lowerCaseAscii(type);
@@ -727,12 +726,12 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
 
    /**
     * Compares two RDNs. They are equals if : 
-    * - their have the same number of NC (AttributeTypeAndValue) 
-    * - each ATAVs are equals 
-    * - comparizon of type are done case insensitive 
-    * - each value is equel, case sensitive 
-    * - Order of ATAV is not important If the RDNs are not equals, a positive number is
-    * returned if the first RDN is greated, negative otherwise
+    * <li>their have the same number of NC (AttributeTypeAndValue) 
+    * <li>each ATAVs are equals 
+    * <li>comparison of type are done case insensitive 
+    * <li>each value is equal, case sensitive 
+    * <li>Order of ATAV is not important If the RDNs are not equals, a positive number is
+    * returned if the first RDN is greater, negative otherwise
     *
     * @param object
     * @return 0 if both rdn are equals. -1 if the current RDN is inferior, 1 if
@@ -775,53 +774,29 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
 
                        if ( rdn.atavTypes.containsKey( type ) )
                        {
-                           List atavLocalList = ( List ) atavTypes.get( type );
-                           List atavParamList = ( List ) rdn.atavTypes.get( type );
+                           List<AttributeTypeAndValue> atavLocalList = ( List<AttributeTypeAndValue> ) atavTypes.get( type );
+                           List<AttributeTypeAndValue> atavParamList = ( List<AttributeTypeAndValue> ) rdn.atavTypes.get( type );
 
-                           if ( atavLocalList.size() == 1 )
+                           // We have to verify that each value of the
+                           // first list are present in
+                           // the second list
+                           for ( AttributeTypeAndValue atavLocal:atavLocalList )
                            {
-                               // We have only one ATAV
-                               AttributeTypeAndValue atavLocal = ( AttributeTypeAndValue ) atavLocalList.get( 0 );
-                               AttributeTypeAndValue atavParam = ( AttributeTypeAndValue ) atavParamList.get( 0 );
+                               boolean found = false;
 
-                               // If the ATAVs are different we are finished.
-                               // It the ATAVs are equal we must compare the remaining ATAVs, too. 
-                               int result = atavLocal.compareTo( atavParam );
-                               if ( result != 0 )
+                               for ( AttributeTypeAndValue atavParam:atavParamList )
                                {
-                                   return result;
+                                   if ( atavLocal.compareTo( atavParam ) == EQUALS )
+                                   {
+                                       found = true;
+                                       break;
+                                   }
                                }
-                           }
-                           else
-                           {
-                               // We have to verify that each value of the
-                               // first list are present in
-                               // the second list
-                               Iterator<AttributeTypeAndValue> atavLocals = atavLocalList.iterator();
 
-                               while ( atavLocals.hasNext() )
+                               if ( !found )
                                {
-                                   AttributeTypeAndValue atavLocal = atavLocals.next();
-
-                                   Iterator<AttributeTypeAndValue> atavParams = atavParamList.iterator();
-                                   boolean found = false;
-
-                                   while ( atavParams.hasNext() )
-                                   {
-                                       AttributeTypeAndValue atavParam = atavParams.next();
-
-                                       if ( atavLocal.compareTo( atavParam ) == EQUALS )
-                                       {
-                                           found = true;
-                                           break;
-                                       }
-                                   }
-
-                                   if ( !found )
-                                   {
-                                       // The ATAV does not exist in the second RDN
-                                       return SUPERIOR;
-                                   }
+                                   // The ATAV does not exist in the second RDN
+                                   return SUPERIOR;
                                }
                            }
                        }
