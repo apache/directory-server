@@ -52,7 +52,7 @@ public class SearchOperationContext extends AbstractOperationContext
      */
     public SearchOperationContext( Registries registries )
     {
-    	super( registries );
+        super( registries );
     }
 
 

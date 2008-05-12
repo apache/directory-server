@@ -19,15 +19,15 @@
 package org.apache.directory.server.core.entry;
 
 
+import java.util.List;
+import java.util.Set;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-
-import javax.naming.NamingException;
-
-import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -550,5 +550,5 @@ public interface ServerEntry extends Entry, Cloneable
     /**
      * A clone method to produce a clone of the current object
      */
-    public Entry clone();
+    Entry clone();
 }

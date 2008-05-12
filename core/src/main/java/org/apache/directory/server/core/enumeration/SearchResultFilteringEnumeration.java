@@ -212,7 +212,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Serve
 
     public ServerSearchResult next() throws NamingException
     {
-    	ServerSearchResult retVal = this.prefetched;
+        ServerSearchResult retVal = this.prefetched;
         prefetch();
         return retVal;
     }
@@ -230,7 +230,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Serve
 
     public ServerSearchResult nextElement()
     {
-    	ServerSearchResult retVal = this.prefetched;
+        ServerSearchResult retVal = this.prefetched;
 
         try
         {
@@ -291,8 +291,8 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Serve
      */
     private void prefetch() throws NamingException
     {
-    	ServerSearchResult tmp;
-    	
+        ServerSearchResult tmp;
+        
         if ( abandoned )
         {
             this.close();
@@ -361,6 +361,6 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Serve
     
     public String toString()
     {
-    	return name;
+        return name;
     }
 }

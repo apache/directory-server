@@ -29,7 +29,7 @@ package org.apache.directory.server.kerberos.shared.messages.value.flags;
  */
 public class TicketFlags extends AbstractKerberosFlags
 {
-    public static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     
    /**

@@ -27,6 +27,14 @@ package org.apache.directory.server.constants;
  */
 public class ServerDNConstants
 {
+    /**
+     * A private constructor to protect this class containing only constants
+     */
+    private ServerDNConstants()
+    {
+        
+    }
+    
     /** The administrators group DN */
     public static final String ADMINISTRATORS_GROUP_DN = "cn=Administrators,ou=groups,ou=system";
 
@@ -34,34 +42,34 @@ public class ServerDNConstants
     public static final String SYSTEM_DN = "ou=system";
     
     /** the default user principal or DN */
-    public final static String ADMIN_SYSTEM_DN = "uid=admin,ou=system";
+    public static final String ADMIN_SYSTEM_DN = "uid=admin,ou=system";
     
     /** the normalized user principal or DN */
-    public final static String ADMIN_SYSTEM_DN_NORMALIZED = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
+    public static final String ADMIN_SYSTEM_DN_NORMALIZED = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
 
     /** the DN for the global schema subentry */
-    public final static String CN_SCHEMA_DN = "cn=schema";
+    public static final String CN_SCHEMA_DN = "cn=schema";
     
     /** The DN for the gloval schema subentry normalized */
     public static final String CN_SCHEMA_DN_NORMALIZED = "2.5.4.3=schema";
    
     /** the DN for the global schema subentry */
-    public final static String OU_SCHEMA_DN = "ou=schema";
+    public static final String OU_SCHEMA_DN = "ou=schema";
     
     /** the base dn under which all users reside */
-    public final static String USERS_SYSTEM_DN = "ou=users,ou=system";
+    public static final String USERS_SYSTEM_DN = "ou=users,ou=system";
     
     /** The default change password base DN. */
-    public final static String USER_EXAMPLE_COM_DN = "ou=users,dc=example,dc=com";
+    public static final String USER_EXAMPLE_COM_DN = "ou=users,dc=example,dc=com";
     
     
     /** the base dn under which all groups reside */
-    public final static String GROUPS_SYSTEM_DN = "ou=groups,ou=system";
+    public static final String GROUPS_SYSTEM_DN = "ou=groups,ou=system";
     
     /** the dn base of the system preference hierarchy */
-    public final static String SYSPREFROOT_SYSTEM_DN = "prefNodeName=sysPrefRoot,ou=system";
+    public static final String SYSPREFROOT_SYSTEM_DN = "prefNodeName=sysPrefRoot,ou=system";
     
     /** The ldifDile base which stores the name of the loaded ldif files */
-    public final static String LDIF_FILES_DN = "ou=loadedLdifFiles,ou=configuration,ou=system";
+    public static final String LDIF_FILES_DN = "ou=loadedLdifFiles,ou=configuration,ou=system";
 
 }

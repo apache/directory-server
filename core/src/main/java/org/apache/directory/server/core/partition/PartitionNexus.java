@@ -84,15 +84,15 @@ public abstract class PartitionNexus implements Partition
         
         try
         {
-        	Map<String, OidNormalizer> oidsMap = new HashMap<String, OidNormalizer>();
-        	
-        	oidsMap.put( SchemaConstants.UID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
-        	oidsMap.put( SchemaConstants.USER_ID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
-        	oidsMap.put( SchemaConstants.UID_AT_OID, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
-        	
-        	oidsMap.put( SchemaConstants.OU_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
-        	oidsMap.put( SchemaConstants.ORGANIZATIONAL_UNIT_NAME_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
-        	oidsMap.put( SchemaConstants.OU_AT_OID, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
+            Map<String, OidNormalizer> oidsMap = new HashMap<String, OidNormalizer>();
+            
+            oidsMap.put( SchemaConstants.UID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
+            oidsMap.put( SchemaConstants.USER_ID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
+            oidsMap.put( SchemaConstants.UID_AT_OID, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
+            
+            oidsMap.put( SchemaConstants.OU_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
+            oidsMap.put( SchemaConstants.ORGANIZATIONAL_UNIT_NAME_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
+            oidsMap.put( SchemaConstants.OU_AT_OID, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
 
             adminDn.normalize( oidsMap );
         }

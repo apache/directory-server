@@ -53,19 +53,19 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
     private static final Collection<String> EMPTY_STRING_COLLECTION = Collections.unmodifiableCollection( new ArrayList<String>() );
     
     private static final Collection<Attribute> EMPTY_ATTRIBUTE_COLLECTION =
-    	Collections.unmodifiableCollection( new ArrayList<Attribute>() );
+        Collections.unmodifiableCollection( new ArrayList<Attribute>() );
     
     private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION =
-    	Collections.unmodifiableCollection( new ArrayList<UserClass>() );
+        Collections.unmodifiableCollection( new ArrayList<UserClass>() );
     
     private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION =
-    	Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
+        Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
     
     private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION =
-    	Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
+        Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
     
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET =
-    	 Collections.unmodifiableSet( new HashSet<MicroOperation>() );
+         Collections.unmodifiableSet( new HashSet<MicroOperation>() );
     
     private static final List<ACITuple> TUPLES_A = new ArrayList<ACITuple>();
     private static final List<ACITuple> TUPLES_B = new ArrayList<ACITuple>();
@@ -98,13 +98,13 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
             allAttributeValues, EMPTY_MICRO_OPERATION_SET, true, 0 );
         
         ACITuple selfValueTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, selfValue, 
-        		EMPTY_MICRO_OPERATION_SET, true, 0 );
+                EMPTY_MICRO_OPERATION_SET, true, 0 );
         
         ACITuple attributeValueTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, attributeValue,
-        		EMPTY_MICRO_OPERATION_SET, true, 0 );
+                EMPTY_MICRO_OPERATION_SET, true, 0 );
         
         ACITuple rangeOfValuesTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, rangeOfValues,
-        		EMPTY_MICRO_OPERATION_SET, true, 0 );
+                EMPTY_MICRO_OPERATION_SET, true, 0 );
         
         ACITuple allUserAttributeTypesTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
             allUserAttributeTypes, EMPTY_MICRO_OPERATION_SET, true, 0 );

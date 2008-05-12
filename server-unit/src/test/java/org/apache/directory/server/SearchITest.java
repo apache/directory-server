@@ -187,7 +187,7 @@ public class SearchITest extends AbstractServerTest
     {
         ctx.unbind( RDN );
         ctx.close();
-    	
+        
         ctx = null;
         super.tearDown();
     }
@@ -1036,7 +1036,7 @@ public class SearchITest extends AbstractServerTest
         }
         catch ( NamingException ne )
         {
-        	assertTrue( true );
+            assertTrue( true );
         }
     }
     

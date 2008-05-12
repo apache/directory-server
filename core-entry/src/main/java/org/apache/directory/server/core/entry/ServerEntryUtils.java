@@ -20,7 +20,6 @@ package org.apache.directory.server.core.entry;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -80,7 +79,7 @@ public class ServerEntryUtils
             EntryAttribute attr = entry.get( attributeType );
             
             // Deal with a special case : an entry without any ObjectClass
-            if ( attributeType.getOid() == SchemaConstants.OBJECT_CLASS_AT_OID )
+            if ( attributeType.getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
             {
                 if ( attr.size() == 0 )
                 {
@@ -91,9 +90,8 @@ public class ServerEntryUtils
             
             Attribute attribute = new AttributeImpl( attributeType.getName() );
             
-            for ( Iterator<Value<?>> iter = attr.iterator(); iter.hasNext();)
+            for ( Value<?> value: attr )
             {
-                Value<?> value = iter.next();
                 attribute.add( value.get() );
             }
             
@@ -114,7 +112,6 @@ public class ServerEntryUtils
      * @throws InvalidAttributeIdentifierException If we had an incorrect attribute
      */
     public static ServerAttribute toServerAttribute( Attribute attribute, AttributeType attributeType )
-            throws InvalidAttributeIdentifierException
     {
         if ( attribute == null )
         {
@@ -370,7 +367,7 @@ public class ServerEntryUtils
      *         arguments
      * @throws NamingException if there are problems accessing attribute values
      */
-    public static ServerAttribute getUnion( ServerAttribute attr0, ServerAttribute attr1 ) throws NamingException
+    public static ServerAttribute getUnion( ServerAttribute attr0, ServerAttribute attr1 )
     {
         if ( attr0 == null && attr1 == null )
         {
@@ -391,12 +388,9 @@ public class ServerEntryUtils
 
         ServerAttribute attr = (ServerAttribute)attr0.clone();
 
-        if ( attr0 != null )
+        for ( Value<?> value:attr1 )
         {
-            for ( Value<?> value:attr1 )
-            {
-                attr.add( value );
-            }
+            attr.add( value );
         }
 
         return attr;
@@ -414,7 +408,7 @@ public class ServerEntryUtils
     }
 
 
-    public static Modification toModification( ModificationItemImpl modificationImpl, AttributeType attributeType ) throws InvalidAttributeIdentifierException
+    public static Modification toModification( ModificationItemImpl modificationImpl, AttributeType attributeType ) 
     {
         Modification modification = new ServerModification( 
             modificationImpl.getModificationOp(),
@@ -445,8 +439,8 @@ public class ServerEntryUtils
     }
     
     
-    public static List<Modification> toServerModification( List<ModificationItemImpl> modificationImpls, AttributeTypeRegistry atRegistry )
-        throws NamingException
+    public static List<Modification> toServerModification( List<ModificationItemImpl> modificationImpls, 
+        AttributeTypeRegistry atRegistry ) throws NamingException
     {
         if ( modificationImpls != null )
         {
@@ -470,48 +464,48 @@ public class ServerEntryUtils
     public static List<Modification> toServerModification( ModificationItem[] modifications, 
         AttributeTypeRegistry atRegistry ) throws NamingException
     {
-	    if ( modifications != null )
-	    {
-	        List<Modification> modificationsList = new ArrayList<Modification>();
-	
-	        for ( ModificationItem modification: modifications )
-	        {
-	            String attributeId = modification.getAttribute().getID();
+        if ( modifications != null )
+        {
+            List<Modification> modificationsList = new ArrayList<Modification>();
+    
+            for ( ModificationItem modification: modifications )
+            {
+                String attributeId = modification.getAttribute().getID();
                 String id = stripOptions( attributeId );
-	            Set<String> options = getOptions( attributeId );
+                Set<String> options = getOptions( attributeId );
 
-	            // -------------------------------------------------------------------
-	            // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
-	            // (deletion) causes an error
-	            // -------------------------------------------------------------------
-	            
-                // TODO - after removing JNDI we need to make the server handle 
-	            // this in the codec
+                // -------------------------------------------------------------------
+                // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
+                // (deletion) causes an error
+                // -------------------------------------------------------------------
                 
-	            if ( ! atRegistry.hasAttributeType( id ) 
-	                 && modification.getAttribute().size() == 0 
-	                 && modification.getModificationOp() == DirContext.REPLACE_ATTRIBUTE )
-	            {
-	                continue;
-	            }
+                // TODO - after removing JNDI we need to make the server handle 
+                // this in the codec
+                
+                if ( ! atRegistry.hasAttributeType( id ) 
+                     && modification.getAttribute().size() == 0 
+                     && modification.getModificationOp() == DirContext.REPLACE_ATTRIBUTE )
+                {
+                    continue;
+                }
 
-	            // -------------------------------------------------------------------
-	            // END DIRSERVER-646 Fix
-	            // -------------------------------------------------------------------
-	            
-	            
-	            // TODO : handle options
-	            AttributeType attributeType = atRegistry.lookup( id );
-	            modificationsList.add( toModification( (ModificationItemImpl)modification, attributeType ) );
-	        }
-	    
-	        return modificationsList;
-	    }
-	    else
-	    {
-	        return null;
-	    }
-	}
+                // -------------------------------------------------------------------
+                // END DIRSERVER-646 Fix
+                // -------------------------------------------------------------------
+                
+                
+                // TODO : handle options
+                AttributeType attributeType = atRegistry.lookup( id );
+                modificationsList.add( toModification( (ModificationItemImpl)modification, attributeType ) );
+            }
+        
+            return modificationsList;
+        }
+        else
+        {
+            return null;
+        }
+    }
 
 
     /**
@@ -564,80 +558,80 @@ public class ServerEntryUtils
      */
     public static NamingEnumeration<SearchResult> toSearchResultEnum( final NamingEnumeration<ServerSearchResult> result )
     {
-    	if ( result instanceof EmptyEnumeration<?> )
-    	{
-    		return new EmptyEnumeration<SearchResult>();
-    	}
-    	
-    	return new NamingEnumeration<SearchResult> ()
-    	{
-    	    public void close() throws NamingException
-    	    {
-    	        result.close();
-    	    }
+        if ( result instanceof EmptyEnumeration<?> )
+        {
+            return new EmptyEnumeration<SearchResult>();
+        }
+        
+        return new NamingEnumeration<SearchResult> ()
+        {
+            public void close() throws NamingException
+            {
+                result.close();
+            }
 
 
-    	    /**
-    	     * @see javax.naming.NamingEnumeration#hasMore()
-    	     */
-    	    public boolean hasMore() throws NamingException
-    	    {
-    	        return result.hasMore();
-    	    }
+            /**
+             * @see javax.naming.NamingEnumeration#hasMore()
+             */
+            public boolean hasMore() throws NamingException
+            {
+                return result.hasMore();
+            }
 
 
-    	    /**
-    	     * @see javax.naming.NamingEnumeration#next()
-    	     */
-    	    public SearchResult next() throws NamingException
-    	    {
-    	        ServerSearchResult rec = result.next();
-    	        
-    	        SearchResult searchResult = new SearchResult( 
-    	        		rec.getDn().getUpName(), 
-    	        		rec.getObject(), 
-    	        		toAttributesImpl( rec.getServerEntry() ), 
-    	        		rec.isRelative() );
-    	        
-    	        return searchResult;
-    	    }
-    	    
-    	    
-    	    /**
-    	     * @see java.util.Enumeration#hasMoreElements()
-    	     */
-    	    public boolean hasMoreElements()
-    	    {
-    	        return result.hasMoreElements();
-    	    }
+            /**
+             * @see javax.naming.NamingEnumeration#next()
+             */
+            public SearchResult next() throws NamingException
+            {
+                ServerSearchResult rec = result.next();
+                
+                SearchResult searchResult = new SearchResult( 
+                        rec.getDn().getUpName(), 
+                        rec.getObject(), 
+                        toAttributesImpl( rec.getServerEntry() ), 
+                        rec.isRelative() );
+                
+                return searchResult;
+            }
+            
+            
+            /**
+             * @see java.util.Enumeration#hasMoreElements()
+             */
+            public boolean hasMoreElements()
+            {
+                return result.hasMoreElements();
+            }
 
 
-    	    /**
-    	     * @see java.util.Enumeration#nextElement()
-    	     */
-    	    public SearchResult nextElement()
-    	    {
-    	    	try
-    	    	{
-	    	    	ServerSearchResult rec = result.next();
-	
-	    	        SearchResult searchResult = new SearchResult( 
-	    	        		rec.getDn().getUpName(), 
-	    	        		rec.getObject(), 
-	    	        		toAttributesImpl( rec.getServerEntry() ), 
-	    	        		rec.isRelative() );
-	    	        
-	    	        return searchResult;
-    	    	}
-    	    	catch ( NamingException ne )
-    	    	{
-    	            NoSuchElementException nsee = 
-    	                new NoSuchElementException( "Encountered NamingException on underlying enumeration." );
-    	            nsee.initCause( ne );
-    	            throw nsee;
-    	    	}
-    	    }
-    	};
+            /**
+             * @see java.util.Enumeration#nextElement()
+             */
+            public SearchResult nextElement()
+            {
+                try
+                {
+                    ServerSearchResult rec = result.next();
+    
+                    SearchResult searchResult = new SearchResult( 
+                            rec.getDn().getUpName(), 
+                            rec.getObject(), 
+                            toAttributesImpl( rec.getServerEntry() ), 
+                            rec.isRelative() );
+                    
+                    return searchResult;
+                }
+                catch ( NamingException ne )
+                {
+                    NoSuchElementException nsee = 
+                        new NoSuchElementException( "Encountered NamingException on underlying enumeration." );
+                    nsee.initCause( ne );
+                    throw nsee;
+                }
+            }
+        };
     }
     
     

@@ -32,265 +32,265 @@ import org.apache.directory.server.dhcp.options.OptionsField;
  * @version $Rev$, $Date$
  */
 public class DhcpMessage {
-	/**
-	 * Flag value: request broadcast answer.
-	 */
-	public static final int FLAG_BROADCAST = 0x01;
+    /**
+     * Flag value: request broadcast answer.
+     */
+    public static final int FLAG_BROADCAST = 0x01;
 
-	/**
-	 * [yiaddr] 'your' (client) IP address.
-	 */
-	private InetAddress assignedClientAddress;
+    /**
+     * [yiaddr] 'your' (client) IP address.
+     */
+    private InetAddress assignedClientAddress;
 
-	/**
-	 * [file] Boot file name, null terminated string; "generic" name or null in
-	 * DHCPDISCOVER, fully qualified directory-path name in DHCPOFFER.
-	 */
-	private String bootFileName;
+    /**
+     * [file] Boot file name, null terminated string; "generic" name or null in
+     * DHCPDISCOVER, fully qualified directory-path name in DHCPOFFER.
+     */
+    private String bootFileName;
 
-	/**
-	 * [ciaddr] Current client IP address; only filled in if client is in BOUND,
-	 * RENEW or REBINDING state and can respond to ARP requests.
-	 */
-	private InetAddress currentClientAddress;
+    /**
+     * [ciaddr] Current client IP address; only filled in if client is in BOUND,
+     * RENEW or REBINDING state and can respond to ARP requests.
+     */
+    private InetAddress currentClientAddress;
 
-	/**
-	 * [flags] Flags. (LSB is broadcast flag)
-	 */
-	private short flags;
+    /**
+     * [flags] Flags. (LSB is broadcast flag)
+     */
+    private short flags;
 
-	/**
-	 * [hops] Client sets to zero, optionally used by relay agents when booting
-	 * via a relay agent.
-	 */
-	private short hopCount;
+    /**
+     * [hops] Client sets to zero, optionally used by relay agents when booting
+     * via a relay agent.
+     */
+    private short hopCount;
 
-	/**
-	 * [op] Message op code. 1 = BOOTREQUEST, 2 = BOOTREPLY, ...
-	 */
-	private byte op;
+    /**
+     * [op] Message op code. 1 = BOOTREQUEST, 2 = BOOTREPLY, ...
+     */
+    private byte op;
 
-	/**
-	 * Operation constant: boot request (client to server).
-	 * 
-	 * @see #op
-	 */
-	public static final byte OP_BOOTREQUEST = 1;
+    /**
+     * Operation constant: boot request (client to server).
+     * 
+     * @see #op
+     */
+    public static final byte OP_BOOTREQUEST = 1;
 
-	/**
-	 * Operation constant: boot reply (server to client).
-	 * 
-	 * @see #op
-	 */
-	public static final byte OP_BOOTREPLY = 2;
+    /**
+     * Operation constant: boot reply (server to client).
+     * 
+     * @see #op
+     */
+    public static final byte OP_BOOTREPLY = 2;
 
-	/**
-	 * [siaddr] IP address of next server to use in bootstrap; returned in
-	 * DHCPOFFER, DHCPACK by server.
-	 */
-	private InetAddress nextServerAddress;
+    /**
+     * [siaddr] IP address of next server to use in bootstrap; returned in
+     * DHCPOFFER, DHCPACK by server.
+     */
+    private InetAddress nextServerAddress;
 
-	/**
-	 * [options] Optional parameters field. See the options documents for a list
-	 * of defined options.
-	 */
-	private OptionsField options = new OptionsField();
+    /**
+     * [options] Optional parameters field. See the options documents for a list
+     * of defined options.
+     */
+    private OptionsField options = new OptionsField();
 
-	/**
-	 * [giaddr] Relay agent IP address, used in booting via a relay agent.
-	 */
-	private InetAddress relayAgentAddress;
+    /**
+     * [giaddr] Relay agent IP address, used in booting via a relay agent.
+     */
+    private InetAddress relayAgentAddress;
 
-	/**
-	 * [secs] Filled in by client, seconds elapsed since client began address
-	 * acquisition or renewal process.
-	 */
-	private int seconds;
+    /**
+     * [secs] Filled in by client, seconds elapsed since client began address
+     * acquisition or renewal process.
+     */
+    private int seconds;
 
-	/**
-	 * [sname] Optional server host name, null terminated string.
-	 */
-	private String serverHostname;
+    /**
+     * [sname] Optional server host name, null terminated string.
+     */
+    private String serverHostname;
 
-	/**
-	 * [xid] Transaction ID, a random number chosen by the client, used by the
-	 * client and server to associate messages and responses between a client and
-	 * a server.
-	 */
-	private int transactionId;
+    /**
+     * [xid] Transaction ID, a random number chosen by the client, used by the
+     * client and server to associate messages and responses between a client and
+     * a server.
+     */
+    private int transactionId;
 
-	/**
-	 * The DHCP message type option.
-	 */
-	private MessageType messageType;
+    /**
+     * The DHCP message type option.
+     */
+    private MessageType messageType;
 
-	private HardwareAddress hardwareAddress;
+    private HardwareAddress hardwareAddress;
 
-	/**
-	 * Create a default dhcp message.
-	 */
-	public DhcpMessage() {
+    /**
+     * Create a default dhcp message.
+     */
+    public DhcpMessage() {
 
-	}
+    }
 
-	/**
-	 * Create a DHCP message based on the supplied values.
-	 * 
-	 * @param messageType
-	 * @param op
-	 * @param hardwareAddress
-	 * @param hops
-	 * @param transactionId
-	 * @param seconds
-	 * @param flags
-	 * @param currentClientAddress
-	 * @param assignedClientAddress
-	 * @param nextServerAddress
-	 * @param relayAgentAddress
-	 * @param serverHostname
-	 * @param bootFileName
-	 * @param options
-	 */
-	public DhcpMessage(MessageType messageType, byte op,
-			HardwareAddress hardwareAddress, short hops, int transactionId,
-			int seconds, short flags, InetAddress currentClientAddress,
-			InetAddress assignedClientAddress, InetAddress nextServerAddress,
-			InetAddress relayAgentAddress, String serverHostname,
-			String bootFileName, OptionsField options) {
-		this.messageType = messageType;
-		this.op = op;
-		this.hardwareAddress = hardwareAddress;
-		this.hopCount = hops;
-		this.transactionId = transactionId;
-		this.seconds = seconds;
-		this.flags = flags;
-		this.currentClientAddress = currentClientAddress;
-		this.assignedClientAddress = assignedClientAddress;
-		this.nextServerAddress = nextServerAddress;
-		this.relayAgentAddress = relayAgentAddress;
-		this.serverHostname = serverHostname;
-		this.bootFileName = bootFileName;
-		this.options = options;
-	}
+    /**
+     * Create a DHCP message based on the supplied values.
+     * 
+     * @param messageType
+     * @param op
+     * @param hardwareAddress
+     * @param hops
+     * @param transactionId
+     * @param seconds
+     * @param flags
+     * @param currentClientAddress
+     * @param assignedClientAddress
+     * @param nextServerAddress
+     * @param relayAgentAddress
+     * @param serverHostname
+     * @param bootFileName
+     * @param options
+     */
+    public DhcpMessage(MessageType messageType, byte op,
+            HardwareAddress hardwareAddress, short hops, int transactionId,
+            int seconds, short flags, InetAddress currentClientAddress,
+            InetAddress assignedClientAddress, InetAddress nextServerAddress,
+            InetAddress relayAgentAddress, String serverHostname,
+            String bootFileName, OptionsField options) {
+        this.messageType = messageType;
+        this.op = op;
+        this.hardwareAddress = hardwareAddress;
+        this.hopCount = hops;
+        this.transactionId = transactionId;
+        this.seconds = seconds;
+        this.flags = flags;
+        this.currentClientAddress = currentClientAddress;
+        this.assignedClientAddress = assignedClientAddress;
+        this.nextServerAddress = nextServerAddress;
+        this.relayAgentAddress = relayAgentAddress;
+        this.serverHostname = serverHostname;
+        this.bootFileName = bootFileName;
+        this.options = options;
+    }
 
-	public InetAddress getAssignedClientAddress() {
-		return assignedClientAddress;
-	}
+    public InetAddress getAssignedClientAddress() {
+        return assignedClientAddress;
+    }
 
-	public String getBootFileName() {
-		return bootFileName;
-	}
+    public String getBootFileName() {
+        return bootFileName;
+    }
 
-	public InetAddress getCurrentClientAddress() {
-		return currentClientAddress;
-	}
+    public InetAddress getCurrentClientAddress() {
+        return currentClientAddress;
+    }
 
-	public short getFlags() {
-		return flags;
-	}
+    public short getFlags() {
+        return flags;
+    }
 
-	public short getHopCount() {
-		return hopCount;
-	}
+    public short getHopCount() {
+        return hopCount;
+    }
 
-	public MessageType getMessageType() {
-		return messageType;
-	}
+    public MessageType getMessageType() {
+        return messageType;
+    }
 
-	public InetAddress getNextServerAddress() {
-		return nextServerAddress;
-	}
+    public InetAddress getNextServerAddress() {
+        return nextServerAddress;
+    }
 
-	public OptionsField getOptions() {
-		return options;
-	}
+    public OptionsField getOptions() {
+        return options;
+    }
 
-	public InetAddress getRelayAgentAddress() {
-		return relayAgentAddress;
-	}
+    public InetAddress getRelayAgentAddress() {
+        return relayAgentAddress;
+    }
 
-	public int getSeconds() {
-		return seconds;
-	}
+    public int getSeconds() {
+        return seconds;
+    }
 
-	public String getServerHostname() {
-		return serverHostname;
-	}
+    public String getServerHostname() {
+        return serverHostname;
+    }
 
-	public int getTransactionId() {
-		return transactionId;
-	}
+    public int getTransactionId() {
+        return transactionId;
+    }
 
-	public void setAssignedClientAddress(InetAddress assignedClientAddress) {
-		this.assignedClientAddress = assignedClientAddress;
-	}
+    public void setAssignedClientAddress(InetAddress assignedClientAddress) {
+        this.assignedClientAddress = assignedClientAddress;
+    }
 
-	public void setBootFileName(String bootFileName) {
-		this.bootFileName = bootFileName;
-	}
+    public void setBootFileName(String bootFileName) {
+        this.bootFileName = bootFileName;
+    }
 
-	public void setCurrentClientAddress(InetAddress currentClientAddress) {
-		this.currentClientAddress = currentClientAddress;
-	}
+    public void setCurrentClientAddress(InetAddress currentClientAddress) {
+        this.currentClientAddress = currentClientAddress;
+    }
 
-	public void setFlags(short flags) {
-		this.flags = flags;
-	}
+    public void setFlags(short flags) {
+        this.flags = flags;
+    }
 
-	public void setHopCount(short hopCount) {
-		this.hopCount = hopCount;
-	}
+    public void setHopCount(short hopCount) {
+        this.hopCount = hopCount;
+    }
 
-	public void setMessageType(MessageType messageType) {
-		this.messageType = messageType;
-	}
+    public void setMessageType(MessageType messageType) {
+        this.messageType = messageType;
+    }
 
-	public void setNextServerAddress(InetAddress nextServerAddress) {
-		this.nextServerAddress = nextServerAddress;
-	}
+    public void setNextServerAddress(InetAddress nextServerAddress) {
+        this.nextServerAddress = nextServerAddress;
+    }
 
-	public void setOptions(OptionsField options) {
-		this.options = options;
-	}
+    public void setOptions(OptionsField options) {
+        this.options = options;
+    }
 
-	public void setRelayAgentAddress(InetAddress relayAgentAddress) {
-		this.relayAgentAddress = relayAgentAddress;
-	}
+    public void setRelayAgentAddress(InetAddress relayAgentAddress) {
+        this.relayAgentAddress = relayAgentAddress;
+    }
 
-	public void setSeconds(int seconds) {
-		this.seconds = seconds;
-	}
+    public void setSeconds(int seconds) {
+        this.seconds = seconds;
+    }
 
-	public void setServerHostname(String serverHostname) {
-		this.serverHostname = serverHostname;
-	}
+    public void setServerHostname(String serverHostname) {
+        this.serverHostname = serverHostname;
+    }
 
-	public void setTransactionId(int transactionId) {
-		this.transactionId = transactionId;
-	}
+    public void setTransactionId(int transactionId) {
+        this.transactionId = transactionId;
+    }
 
-	public byte getOp() {
-		return op;
-	}
+    public byte getOp() {
+        return op;
+    }
 
-	public void setOp(byte op) {
-		this.op = op;
-	}
+    public void setOp(byte op) {
+        this.op = op;
+    }
 
-	public HardwareAddress getHardwareAddress() {
-		return hardwareAddress;
-	}
+    public HardwareAddress getHardwareAddress() {
+        return hardwareAddress;
+    }
 
-	public void setHardwareAddress(HardwareAddress hardwareAddress) {
-		this.hardwareAddress = hardwareAddress;
-	}
+    public void setHardwareAddress(HardwareAddress hardwareAddress) {
+        this.hardwareAddress = hardwareAddress;
+    }
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(messageType).append(": hwAddress=").append(hardwareAddress)
-				.append(", tx=").append(transactionId).append(", options=").append(
-						options);
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(messageType).append(": hwAddress=").append(hardwareAddress)
+                .append(", tx=").append(transactionId).append(", options=").append(
+                        options);
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 }

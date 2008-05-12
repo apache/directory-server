@@ -429,7 +429,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         while ( list.hasMore() )
         {
-        	ServerSearchResult result = list.next();
+            ServerSearchResult result = list.next();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
@@ -530,7 +530,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         while ( list.hasMore() )
         {
-        	ServerSearchResult result = list.next();
+            ServerSearchResult result = list.next();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
@@ -628,7 +628,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         while ( list.hasMore() )
         {
-        	ServerSearchResult result = list.next();
+            ServerSearchResult result = list.next();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
@@ -661,7 +661,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         while ( list.hasMore() )
         {
-        	ServerSearchResult result = list.next();
+            ServerSearchResult result = list.next();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
@@ -693,7 +693,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         while ( list.hasMore() )
         {
-        	ServerSearchResult result = list.next();
+            ServerSearchResult result = list.next();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
@@ -727,7 +727,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         while ( list.hasMore() )
         {
-        	ServerSearchResult result = list.next();
+            ServerSearchResult result = list.next();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
@@ -805,7 +805,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         while ( list.hasMore() )
         {
-        	ServerSearchResult result = list.next();
+            ServerSearchResult result = list.next();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );

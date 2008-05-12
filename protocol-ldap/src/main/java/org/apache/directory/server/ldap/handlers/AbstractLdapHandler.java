@@ -60,24 +60,24 @@ public abstract class AbstractLdapHandler implements MessageHandler
 
 
     /**
-	 * Return an array containing the controls for this message.
-	 *  
-	 * @param context The context in which we will store teh found controls
-	 * @param message The message for which we want to extract the controls
-	 */
-	protected void setRequestControls( LdapContext context, Message message ) throws NamingException
-	{
-		MutableControl[] controls = null;
-		
-		if ( message.getControls() != null )
-		{
-			int nbControls = message.getControls().size();
-			
-			if ( nbControls != 0 )
-			{
-				controls = new MutableControl[ nbControls ];
-				context.setRequestControls( message.getControls().values().toArray( controls ) );
-			}
-		}
-	}
+     * Return an array containing the controls for this message.
+     *  
+     * @param context The context in which we will store teh found controls
+     * @param message The message for which we want to extract the controls
+     */
+    protected void setRequestControls( LdapContext context, Message message ) throws NamingException
+    {
+        MutableControl[] controls = null;
+        
+        if ( message.getControls() != null )
+        {
+            int nbControls = message.getControls().size();
+            
+            if ( nbControls != 0 )
+            {
+                controls = new MutableControl[ nbControls ];
+                context.setRequestControls( message.getControls().values().toArray( controls ) );
+            }
+        }
+    }
 }

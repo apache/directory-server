@@ -366,21 +366,21 @@ public class DefaultPartitionNexus extends PartitionNexus
             }
             else
             {
-            	// Feed the contextEntry with the mandatory ObjectClass values, if they are missing.
-            	if ( !objectClassAttr.contains( SchemaConstants.TOP_OC ) )
-            	{
-            		objectClassAttr.add( SchemaConstants.TOP_OC );
-            	}
-            	
-            	if ( !objectClassAttr.contains( SchemaConstants.ORGANIZATIONAL_UNIT_OC ) )
-            	{
-            		objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            	}
+                // Feed the contextEntry with the mandatory ObjectClass values, if they are missing.
+                if ( !objectClassAttr.contains( SchemaConstants.TOP_OC ) )
+                {
+                    objectClassAttr.add( SchemaConstants.TOP_OC );
+                }
+                
+                if ( !objectClassAttr.contains( SchemaConstants.ORGANIZATIONAL_UNIT_OC ) )
+                {
+                    objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+                }
 
-            	if ( !objectClassAttr.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
-            	{
-            		objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
-            	}
+                if ( !objectClassAttr.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
+                {
+                    objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
+                }
             }
             
             systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
@@ -649,35 +649,35 @@ public class DefaultPartitionNexus extends PartitionNexus
         
         synchronized ( partitionLookupTree )
         {
-        	LdapDN partitionSuffix = partition.getSuffixDn();
-        	
-        	if ( partitionSuffix == null )
-        	{
-        		throw new ConfigurationException( "The current partition does not have any suffix: " + partition.getId() );
-        	}
-        	
+            LdapDN partitionSuffix = partition.getSuffixDn();
+            
+            if ( partitionSuffix == null )
+            {
+                throw new ConfigurationException( "The current partition does not have any suffix: " + partition.getId() );
+            }
+            
             partitions.put( partitionSuffix.toString(), partition );
             partitionLookupTree.recursivelyAddPartition( partitionLookupTree, partition.getSuffixDn(), 0, partition );
 
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
-        	LdapDN partitionUpSuffix = partition.getUpSuffixDn();
-        	
-        	if ( partitionUpSuffix == null )
-        	{
-        		throw new ConfigurationException( "The current partition does not have any user provided suffix: " + partition.getId() );
-        	}
-        	
-        	if ( namingContexts == null )
-        	{
-        	    namingContexts = new DefaultServerAttribute( 
-        	        registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), partitionUpSuffix.getUpName() );
-        	    rootDSE.put( namingContexts );
-        	}
-        	else
-        	{
-        	    namingContexts.add( partitionUpSuffix.getUpName() );
-        	}
+            LdapDN partitionUpSuffix = partition.getUpSuffixDn();
+            
+            if ( partitionUpSuffix == null )
+            {
+                throw new ConfigurationException( "The current partition does not have any user provided suffix: " + partition.getId() );
+            }
+            
+            if ( namingContexts == null )
+            {
+                namingContexts = new DefaultServerAttribute( 
+                    registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), partitionUpSuffix.getUpName() );
+                rootDSE.put( namingContexts );
+            }
+            else
+            {
+                namingContexts.add( partitionUpSuffix.getUpName() );
+            }
         }
     }
 
@@ -904,7 +904,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // -----------------------------------------------------------
                 if ( ( ids == null ) || ( ids.length == 0 ) )
                 {
-                	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
+                    ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
                     ServerSearchResult result = new ServerSearchResult( LdapDN.EMPTY_LDAPDN, null, rootDSE, false );
                     return new SingletonEnumeration<ServerSearchResult>( result );
                 }
@@ -951,7 +951,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // return nothing
                 if ( containsOneDotOne )
                 {
-                	ServerEntry serverEntry = new DefaultServerEntry( registries, base );
+                    ServerEntry serverEntry = new DefaultServerEntry( registries, base );
                     ServerSearchResult result = new ServerSearchResult( LdapDN.EMPTY_LDAPDN, null, serverEntry, false );
                     return new SingletonEnumeration<ServerSearchResult>( result );
                 }
@@ -959,7 +959,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // return everything
                 if ( containsAsterisk && containsPlus )
                 {
-                	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
+                    ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
                     ServerSearchResult result = new ServerSearchResult( LdapDN.EMPTY_LDAPDN, null, rootDSE, false );
                     return new SingletonEnumeration<ServerSearchResult>( result );
                 }

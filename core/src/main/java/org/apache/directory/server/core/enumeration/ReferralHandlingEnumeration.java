@@ -81,7 +81,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<ServerSear
             int scope, 
             boolean doThrow ) throws NamingException
     {
-    	normalizerMap = registries.getAttributeTypeRegistry().getNormalizerMapping();
+        normalizerMap = registries.getAttributeTypeRegistry().getNormalizerMapping();
         this.underlying = underlying;
         this.doThrow = doThrow;
         this.lut = lut;
@@ -96,7 +96,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<ServerSear
     {
         while ( underlying.hasMore() )
         {
-        	ServerSearchResult result = underlying.next();
+            ServerSearchResult result = underlying.next();
             LdapDN dn = new LdapDN( result.getDn() );
             dn.normalize( normalizerMap );
             
@@ -121,7 +121,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<ServerSear
 
     public ServerSearchResult next() throws NamingException
     {
-    	ServerSearchResult retval = prefetched;
+        ServerSearchResult retval = prefetched;
         prefetch();
         return retval;
     }

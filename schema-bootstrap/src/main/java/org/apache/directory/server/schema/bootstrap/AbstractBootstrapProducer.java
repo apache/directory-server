@@ -301,17 +301,17 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
          */
         public MatchingRule getEquality() throws NamingException
         {
-        	if ( equalityMR == null )
-        	{
-	            if ( equalityId != null )
-	            {
-	                equalityMR = this.matchingRuleRegistry.lookup( equalityId );
-	            }
-	            else if ( superiorId != null )
-	            {
-	            	equalityMR = getSuperior().getEquality();
-	            }
-        	}
+            if ( equalityMR == null )
+            {
+                if ( equalityId != null )
+                {
+                    equalityMR = this.matchingRuleRegistry.lookup( equalityId );
+                }
+                else if ( superiorId != null )
+                {
+                    equalityMR = getSuperior().getEquality();
+                }
+            }
 
             return equalityMR;
         }
@@ -397,19 +397,19 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
          */
         public Syntax getSyntax() throws NamingException
         {
-        	if ( syntax == null )
-        	{
-	            if ( syntaxId != null )
-	            {
-	                syntax = syntaxRegistry.lookup( syntaxId );
-	            }
-	            else if ( superiorId != null )
-	            {
-	            	syntax = getSuperior().getSyntax();
-	            }
-        	}
+            if ( syntax == null )
+            {
+                if ( syntaxId != null )
+                {
+                    syntax = syntaxRegistry.lookup( syntaxId );
+                }
+                else if ( superiorId != null )
+                {
+                    syntax = getSuperior().getSyntax();
+                }
+            }
 
-        	return syntax;
+            return syntax;
         }
 
 
@@ -524,17 +524,17 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
 
         public boolean isStructural()
         {
-        	return type == ObjectClassTypeEnum.STRUCTURAL;
+            return type == ObjectClassTypeEnum.STRUCTURAL;
         }
 
         public boolean isAbstract()
         {
-        	return type == ObjectClassTypeEnum.ABSTRACT;
+            return type == ObjectClassTypeEnum.ABSTRACT;
         }
 
         public boolean isAuxiliary()
         {
-        	return type == ObjectClassTypeEnum.AUXILIARY;
+            return type == ObjectClassTypeEnum.AUXILIARY;
         }
 
         public void setSchema( String schema )

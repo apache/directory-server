@@ -20,6 +20,24 @@
 package org.apache.directory.server.core.bootstrap.plugin;
 
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -65,24 +83,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
-
-import javax.naming.NamingException;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -910,7 +910,7 @@ public class BootstrapPlugin extends AbstractMojo
 
 
     /** A main to be able to debug the plugin */
-    public static void main( String[] args ) throws Exception
+    public static void main( String[] args )
     {
         BootstrapPlugin bp = new BootstrapPlugin();
 
@@ -958,6 +958,17 @@ public class BootstrapPlugin extends AbstractMojo
                     "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-bootstrap-extract/1.5.3-SNAPSHOT/apacheds-bootstrap-extract-1.5.3-SNAPSHOT.jar",
                     "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-schema-extras/1.5.3-SNAPSHOT/apacheds-schema-extras-1.5.3-SNAPSHOT.jar",
                     "/home/elecharny/.m2/repository/org/apache/directory/server/apacheds-schema-bootstrap/1.5.3-SNAPSHOT/apacheds-schema-bootstrap-1.5.3-SNAPSHOT.jar" } );
-        bp.execute();
+        try
+        {
+            bp.execute();
+        }
+        catch ( MojoExecutionException mee )
+        {
+            // Do nothing
+        }
+        catch ( MojoFailureException mfe)
+        {
+            // Do nothing
+        }
     }
 }

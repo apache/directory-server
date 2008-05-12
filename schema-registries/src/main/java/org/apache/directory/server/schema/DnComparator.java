@@ -72,7 +72,7 @@ public class DnComparator implements Comparator
         catch ( NamingException e )
         {
             // -- what do we do here ?
-        	return -1;
+            return -1;
         }
         
         return dn0.compareTo( dn1 );

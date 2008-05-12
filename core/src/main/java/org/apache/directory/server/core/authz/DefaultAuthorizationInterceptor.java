@@ -20,6 +20,16 @@
 package org.apache.directory.server.core.authz;
 
 
+import javax.naming.directory.SearchControls;
+import javax.naming.ldap.LdapContext;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -52,15 +62,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.NoPermissionException;
-import javax.naming.directory.SearchControls;
-import javax.naming.ldap.LdapContext;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -173,8 +174,8 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws NamingException
     {
-    	LdapDN name = opContext.getDn();
-    	
+        LdapDN name = opContext.getDn();
+        
         if ( !enabled )
         {
             nextInterceptor.delete( opContext );
@@ -549,7 +550,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         
         if ( !dn.isNormalized() )
         {
-        	dn.normalize( normalizerMapping );
+            dn.normalize( normalizerMapping );
         }
 
         // Admin users gets full access to all entries

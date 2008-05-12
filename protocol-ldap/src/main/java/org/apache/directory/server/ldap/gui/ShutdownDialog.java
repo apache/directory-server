@@ -115,9 +115,9 @@ public class ShutdownDialog extends JDialog
 
 
     /**
-     * This method initializes jPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel    
+     *     
+     * @return javax.swing.JPanel    
      */
     private JPanel getJPanel()
     {
@@ -135,9 +135,9 @@ public class ShutdownDialog extends JDialog
 
 
     /**
-     * This method initializes jPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel    
+     *     
+     * @return javax.swing.JPanel    
      */
     private JPanel getJPanel2()
     {
@@ -152,9 +152,9 @@ public class ShutdownDialog extends JDialog
 
 
     /**
-     * This method initializes jButton	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes jButton    
+     *     
+     * @return javax.swing.JButton    
      */
     private JButton getJButton()
     {
@@ -215,9 +215,9 @@ public class ShutdownDialog extends JDialog
 
 
     /**
-     * This method initializes jButton	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes jButton    
+     *     
+     * @return javax.swing.JButton    
      */
     private JButton getJButton2()
     {
@@ -242,9 +242,9 @@ public class ShutdownDialog extends JDialog
 
 
     /**
-     * This method initializes jPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel    
+     *     
+     * @return javax.swing.JPanel    
      */
     private JPanel getJPanel3()
     {
@@ -263,9 +263,9 @@ public class ShutdownDialog extends JDialog
 
 
     /**
-     * This method initializes jPanel1	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel1    
+     *     
+     * @return javax.swing.JPanel    
      */
     private JPanel getJPanel1()
     {
@@ -284,9 +284,9 @@ public class ShutdownDialog extends JDialog
 
 
     /**
-     * This method initializes jTextField	
-     * 	
-     * @return javax.swing.JTextField	
+     * This method initializes jTextField    
+     *     
+     * @return javax.swing.JTextField    
      */
     private JTextField getJTextField()
     {
@@ -299,9 +299,9 @@ public class ShutdownDialog extends JDialog
 
 
     /**
-     * This method initializes jTextField1	
-     * 	
-     * @return javax.swing.JTextField	
+     * This method initializes jTextField1    
+     *     
+     * @return javax.swing.JTextField    
      */
     private JTextField getJTextField1()
     {

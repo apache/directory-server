@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.util.regex.Pattern;
 import java.io.File;
+import java.util.regex.Pattern;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;

@@ -59,8 +59,8 @@ public abstract class AbstractTestCase extends TestCase
     public static final Logger LOG = LoggerFactory.getLogger( AbstractTestCase.class );
 
     public static final String LDIF = 
-    	"dn: uid=akarasulu,ou=users,ou=system\n" + 
-    	"cn: Alex Karasulu\n" +
+        "dn: uid=akarasulu,ou=users,ou=system\n" + 
+        "cn: Alex Karasulu\n" +
         "sn: Karasulu\n" + 
         "givenname: Alex\n" + 
         "objectclass: top\n" + 
@@ -179,7 +179,7 @@ public abstract class AbstractTestCase extends TestCase
         // -------------------------------------------------------------------
 
         LdifReader reader = new LdifReader();
-    	List<LdifEntry> entries = reader.parseLdif( LDIF );
+        List<LdifEntry> entries = reader.parseLdif( LDIF );
         LdifEntry entry = entries.get(0);
         testEntries.add( entry );
 

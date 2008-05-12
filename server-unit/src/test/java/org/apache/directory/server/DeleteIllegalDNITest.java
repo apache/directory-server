@@ -60,11 +60,11 @@ public class DeleteIllegalDNITest extends AbstractServerTest
         } 
         catch ( NamingException ne )
         {
-        	fail();
+            fail();
         }
         catch( Exception e )
         {
-        	fail();
+            fail();
         }
         
         try
@@ -73,18 +73,18 @@ public class DeleteIllegalDNITest extends AbstractServerTest
             controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
             controls.setTimeLimit( 10 );
             
-        	NamingEnumeration<SearchResult> result = ctx.search( "ou=system", "(objectClass=*)", controls );
+            NamingEnumeration<SearchResult> result = ctx.search( "ou=system", "(objectClass=*)", controls );
 
             assertTrue( result.hasMore() ); 
         } 
         catch ( InvalidNameException ine ) 
         {
-        	fail();
+            fail();
             // Expected.
         } 
         catch ( NamingException ne )
         {
-        	fail();
+            fail();
         }
     }
 }

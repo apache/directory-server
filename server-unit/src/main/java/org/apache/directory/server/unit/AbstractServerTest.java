@@ -20,27 +20,16 @@
 package org.apache.directory.server.unit;
 
 
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
-import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.server.ldap.handlers.bind.*;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.protocol.shared.SocketAcceptor;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.mina.util.AvailablePortFinder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -49,10 +38,34 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+
+import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.handlers.bind.CramMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.GssapiMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.mina.util.AvailablePortFinder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -172,7 +185,7 @@ public abstract class AbstractServerTest extends TestCase
                 if ( ! readAttribute.contains( origAttribute.get( ii ) ) )
                 {
                     LOG.error( "Failed to verify entry addition of {}. {} attribute in original " +
-                    		"entry missing from read entry.", entry.getDn(), id );
+                            "entry missing from read entry.", entry.getDn(), id );
                     throw new AssertionFailedError( "Failed to verify entry addition of " + entry.getDn()  );
                 }
             }

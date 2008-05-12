@@ -43,9 +43,11 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+
 
 /**
  * Test the ServerEntry serialization/deserialization class
@@ -96,14 +98,15 @@ public class ServerEntrySerializerTest
 
         oidOids.put( "dc", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
         oidOids.put( "domaincomponent", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
-        oidOids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+        oidOids.put( "0.9.2342.19200300.100.1.25", 
+            new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
         oidOids.put( "ou", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
         oidOids.put( "organizationalUnitName", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
         oidOids.put( "2.5.4.11", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
     }
 
     
-    @Test public void testSerializeEmtpyServerEntry() throws IOException, NamingException, ClassNotFoundException
+    @Test public void testSerializeEmtpyServerEntry() throws IOException
     {
         LdapDN dn = LdapDN.EMPTY_LDAPDN;
         ServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -117,7 +120,7 @@ public class ServerEntrySerializerTest
         assertEquals( entry, result );
     }
 
-    @Test public void testSerializeDNServerEntry() throws IOException, NamingException, ClassNotFoundException
+    @Test public void testSerializeDNServerEntry() throws IOException, NamingException
     {
         LdapDN dn = new LdapDN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
@@ -134,7 +137,7 @@ public class ServerEntrySerializerTest
     }
 
 
-    @Test public void testSerializeServerEntryOC() throws IOException, NamingException, ClassNotFoundException
+    @Test public void testSerializeServerEntryOC() throws IOException, NamingException
     {
         LdapDN dn = new LdapDN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
@@ -152,7 +155,7 @@ public class ServerEntrySerializerTest
     }
 
 
-    @Test public void testSerializeServerEntry() throws IOException, NamingException, ClassNotFoundException
+    @Test public void testSerializeServerEntry() throws IOException, NamingException
     {
         LdapDN dn = new LdapDN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );

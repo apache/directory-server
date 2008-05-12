@@ -64,7 +64,7 @@ public class ReplicationProtocolHandler implements IoHandler
     }
     
     public ReplicationContextHandler getContextHandler() {
-    	return contextHandler;
+        return contextHandler;
     }
 
 

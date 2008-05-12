@@ -91,7 +91,7 @@ public class ExpressionEnumerator implements Enumerator
      */
     public NamingEnumeration<IndexRecord> enumerate( ExprNode node ) throws NamingException
     {
-    	NamingEnumeration<IndexRecord> list = null;
+        NamingEnumeration<IndexRecord> list = null;
 
         if ( node instanceof ScopeNode )
         {
@@ -192,8 +192,8 @@ public class ExpressionEnumerator implements Enumerator
      */
     private NamingEnumeration<IndexRecord> enumNeg( final BranchNode node ) throws NamingException
     {
-    	NamingEnumeration<IndexRecord> baseEnumeration = null;
-    	NamingEnumeration<IndexRecord> enumeration = null;
+        NamingEnumeration<IndexRecord> baseEnumeration = null;
+        NamingEnumeration<IndexRecord> enumeration = null;
         
         baseEnumeration = db.getNdnIndex().listIndices();
 
@@ -349,8 +349,8 @@ public class ExpressionEnumerator implements Enumerator
      */
     private NamingEnumeration<IndexRecord> nonIndexedScan( final LeafNode node ) throws NamingException
     {
-    	NamingEnumeration<IndexRecord> underlying = db.getNdnIndex().listIndices();
-    	
+        NamingEnumeration<IndexRecord> underlying = db.getNdnIndex().listIndices();
+        
         IndexAssertion assertion = new IndexAssertion()
         {
             public boolean assertCandidate( IndexRecord record ) throws NamingException

@@ -102,7 +102,7 @@ public class RefinementEvaluator
             }
 
             return true;
-        	
+            
         }
         else if ( node instanceof NotNode )
         {
@@ -112,7 +112,7 @@ public class RefinementEvaluator
             }
 
             throw new IllegalArgumentException( "Negation has no child: " + node );
-        	
+            
         }
         else
         {

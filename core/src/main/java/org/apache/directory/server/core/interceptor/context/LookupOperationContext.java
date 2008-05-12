@@ -49,7 +49,7 @@ public class LookupOperationContext extends AbstractOperationContext
      */
     public LookupOperationContext( Registries registries )
     {
-    	super( registries );
+        super( registries );
     }
 
     /**
@@ -69,7 +69,7 @@ public class LookupOperationContext extends AbstractOperationContext
      */
     public LookupOperationContext( Registries registries, String attrsId[] )
     {
-    	super( registries );
+        super( registries );
         this.attrsId = new ArrayList<String>();
         attrsOid = new ArrayList<String>();
         setAttrsId( attrsId );

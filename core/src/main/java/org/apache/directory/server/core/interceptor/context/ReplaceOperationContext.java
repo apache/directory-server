@@ -41,7 +41,7 @@ public class ReplaceOperationContext extends AbstractOperationContext
      */
     public ReplaceOperationContext( Registries registries )
     {
-    	super( registries );
+        super( registries );
     }
 
     /**

@@ -138,15 +138,15 @@ public class Primes
     {
         Tuple         tuple;
         TupleBrowser  browser;
-		Long          largest;
+        Long          largest;
         Long          current;
 
         if ( number.longValue() <= 0L ) {
             throw new IllegalArgumentException( "Number must be greater than zero" );
         }
         if ( number.longValue() == 1 ) {
-	    	return true;
-		}
+            return true;
+        }
         tuple = new Tuple();
         browser = _primes.browse();
         while ( browser.getNext( tuple ) ) {
@@ -223,7 +223,7 @@ public class Primes
         Primes  primes;
         int     count;
         Long    number;
-		Long    largest;
+        Long    largest;
             
         try {
             primes = new Primes( args );
@@ -242,10 +242,10 @@ public class Primes
                     } else {
                         number = new Long( _random.nextLong() );
                     }
-				    largest = primes.getLargestPrime();
-		    		if ( number.longValue() > primes.getLargestPrime().longValue() ) {
-						throw new IllegalArgumentException( "Number is larger than largest known prime in database." );
-		    		}
+                    largest = primes.getLargestPrime();
+                    if ( number.longValue() > primes.getLargestPrime().longValue() ) {
+                        throw new IllegalArgumentException( "Number is larger than largest known prime in database." );
+                    }
                     if ( primes.isPrime( number ) ) {
                         System.out.println( "The number " + number + " is a prime." );
                     } else {

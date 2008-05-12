@@ -20,13 +20,14 @@
 package org.apache.directory.server.core.authn;
 
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.Context;
-import javax.naming.NamingException;
 
 
 /**
@@ -51,21 +52,21 @@ public interface Authenticator
      * Returns the type of this authenticator (e.g. <tt>'simple'</tt>,
      * <tt>'none'</tt>,...).
      */
-    public String getAuthenticatorType();
+    String getAuthenticatorType();
 
 
     /**
      * Called by {@link AuthenticationInterceptor} to indicate that this
      * authenticator is being placed into service.
      */
-    public void init( DirectoryService directoryService ) throws NamingException;
+    void init( DirectoryService directoryService ) throws NamingException;
 
 
     /**
      * Called by {@link AuthenticationInterceptor} to indicate that this
      * authenticator is being removed from service.
      */
-    public void destroy();
+    void destroy();
 
     /**
      * Callback used to respond to password changes by invalidating a password
@@ -75,10 +76,10 @@ public interface Authenticator
      * 
      * @param bindDn the already normalized distinguished name of the bind principal
      */
-    public void invalidateCache( LdapDN bindDn );
+    void invalidateCache( LdapDN bindDn );
 
     /**
      * Performs authentication and returns the principal if succeeded.
      */
-    public LdapPrincipal authenticate( LdapDN bindDn, ServerContext ctx ) throws NamingException;
+    LdapPrincipal authenticate( LdapDN bindDn, ServerContext ctx ) throws NamingException;
 }

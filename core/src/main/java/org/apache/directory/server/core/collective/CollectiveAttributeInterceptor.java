@@ -88,7 +88,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             
             if ( name.isNormalized() == false )
             {
-            	name = LdapDN.normalize( name, atRegistry.getNormalizerMapping() );
+                name = LdapDN.normalize( name, atRegistry.getNormalizerMapping() );
             }
             
             ServerEntry entry = result.getServerEntry();
@@ -128,7 +128,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         if ( ( retAttrs == null ) || ( retAttrs.length != 1 ) || ( retAttrs[0] != SchemaConstants.ALL_USER_ATTRIBUTES ) )
         {
             ServerEntry entryWithCAS = nexus.lookup( new LookupOperationContext( registries, normName, new String[] { 
-            	SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT_OID } ) );
+                SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT_OID } ) );
             caSubentries = entryWithCAS.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         }
         else

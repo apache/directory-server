@@ -20,18 +20,6 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
-import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
-import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,14 +31,27 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
-import jdbm.helper.StringComparator;
+import javax.naming.NamingException;
+import javax.naming.directory.InvalidAttributeValueException;
+
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
+import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import jdbm.helper.StringComparator;
 
 
 /**
@@ -98,9 +99,9 @@ public class ServerStringValueTest
     @Test 
     public void testServerStringValueNullValue()
     {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        AttributeType attribute = TestServerEntryUtils.getIA5StringAttributeType();
         
-        ServerStringValue value = new ServerStringValue( at, null );
+        ServerStringValue value = new ServerStringValue( attribute, null );
         
         assertNull( value.get() );
         assertTrue( value.isNull() );
@@ -110,11 +111,11 @@ public class ServerStringValueTest
     /**
      * Test the getNormalizedValue method
      */
-    @Test public void testGetNormalizedValue() throws NamingException
+    @Test public void testGetNormalizedValue()
     {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        AttributeType attribute = TestServerEntryUtils.getIA5StringAttributeType();
         
-        ServerStringValue value = new ServerStringValue( at, null );
+        ServerStringValue value = new ServerStringValue( attribute, null );
         
         assertFalse( value.isNormalized() );
         assertNull( value.getNormalizedValue() );
@@ -137,11 +138,11 @@ public class ServerStringValueTest
      * 
      * The SyntaxChecker does not accept values longer than 5 chars.
      */
-    @Test public void testIsValid() throws NamingException
+    @Test public void testIsValid()
     {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
+        AttributeType attribute = TestServerEntryUtils.getIA5StringAttributeType();
         
-        ServerStringValue value = new ServerStringValue( at, null );
+        ServerStringValue value = new ServerStringValue( attribute, null );
         assertTrue( value.isValid() );
 
         value.set( "" );
@@ -161,8 +162,8 @@ public class ServerStringValueTest
     @Test
     public void testNormalize() throws NamingException
     {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
-        ServerStringValue ssv = new ServerStringValue( at );
+        AttributeType attribute = TestServerEntryUtils.getIA5StringAttributeType();
+        ServerStringValue ssv = new ServerStringValue( attribute );
 
         ssv.normalize();
         assertEquals( null, ssv.getNormalizedValue() );
@@ -183,14 +184,14 @@ public class ServerStringValueTest
     @Test
     public void testInstanceOf() throws NamingException
     {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
-        ServerStringValue ssv = new ServerStringValue( at );
+        AttributeType attribute = TestServerEntryUtils.getIA5StringAttributeType();
+        ServerStringValue ssv = new ServerStringValue( attribute );
         
-        assertTrue( ssv.instanceOf( at ) );
+        assertTrue( ssv.instanceOf( attribute ) );
         
-        at = TestServerEntryUtils.getBytesAttributeType();
+        attribute = TestServerEntryUtils.getBytesAttributeType();
         
-        assertFalse( ssv.instanceOf( at ) );
+        assertFalse( ssv.instanceOf( attribute ) );
     }    
     
 
@@ -198,12 +199,12 @@ public class ServerStringValueTest
      * Test the getAttributeType method
      */
     @Test
-    public void testgetAttributeType() throws NamingException
+    public void testgetAttributeType()
     {
-        AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
-        ServerStringValue ssv = new ServerStringValue( at );
+        AttributeType attribute = TestServerEntryUtils.getIA5StringAttributeType();
+        ServerStringValue ssv = new ServerStringValue( attribute );
         
-        assertEquals( at, ssv.getAttributeType() );
+        assertEquals( attribute, ssv.getAttributeType() );
     }    
 
     
@@ -260,11 +261,11 @@ public class ServerStringValueTest
         }
         
         // create a AT without any syntax
-        AttributeType at = new TestServerEntryUtils.AT( "1.1.3.1" );
+        AttributeType attribute = new TestServerEntryUtils.AT( "1.1.3.1" );
         
         try
         {
-            new ServerStringValue( at );
+            new ServerStringValue( attribute );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -278,7 +279,7 @@ public class ServerStringValueTest
      * Tests to make sure the hashCode method is working properly.
      * @throws Exception on errors
      */
-    @Test public void testHashCode() throws Exception
+    @Test public void testHashCode()
     {
         AttributeType at1 = TestServerEntryUtils.getCaseIgnoringAttributeNoNumbersType();
         ServerStringValue v0 = new ServerStringValue( at1, "Alex" );
@@ -337,7 +338,7 @@ public class ServerStringValueTest
         AttributeType at1 = TestServerEntryUtils.getCaseIgnoringAttributeNoNumbersType();
         ServerStringValue ssv = new ServerStringValue( at1, "Test" );
         
-        ServerStringValue ssv1 = (ServerStringValue)ssv.clone();
+        ServerStringValue ssv1 = ssv.clone();
         
         assertEquals( ssv, ssv1 );
         
@@ -347,7 +348,7 @@ public class ServerStringValueTest
         assertEquals( "", ssv.get() );
         
         ssv.set(  "  This is    a   TEST  " );
-        ssv1 = (ServerStringValue)ssv.clone();
+        ssv1 = ssv.clone();
         
         assertEquals( ssv, ssv1 );
         
@@ -364,7 +365,7 @@ public class ServerStringValueTest
      *
      * @throws Exception on errors
      */
-    @Test public void testConstrainedString() throws Exception
+    @Test public void testConstrainedString()
     {
         s.setSyntaxChecker( new SyntaxChecker() {
             public String getSyntaxOid() { return "1.1.1.1"; }
@@ -378,7 +379,7 @@ public class ServerStringValueTest
                 return false;
             }
             public void assertSyntax( Object value ) throws NamingException
-            { if ( ! isValidSyntax( value ) ) throw new InvalidAttributeValueException(); }
+            { if ( ! isValidSyntax( value ) ) {throw new InvalidAttributeValueException(); }}
         });
 
         mr.syntax = s;
@@ -405,18 +406,18 @@ public class ServerStringValueTest
                 int i1 = getValue( o1 );
                 int i2 = getValue( o2 );
 
-                if ( i1 == i2 ) return 0;
-                if ( i1 > i2 ) return 1;
-                if ( i1 < i2 ) return -1;
+                if ( i1 == i2 ) { return 0; }
+                if ( i1 > i2 ) { return 1; }
+                if ( i1 < i2 ) { return -1; }
 
                 throw new IllegalStateException( "should not get here at all" );
             }
 
-            int getValue( String val )
+            public int getValue( String val )
             {
-                if ( val.equals( "LOW" ) ) return 0;
-                if ( val.equals( "MEDIUM" ) ) return 1;
-                if ( val.equals( "HIGH" ) ) return 2;
+                if ( val.equals( "LOW" ) ) { return 0; }
+                if ( val.equals( "MEDIUM" ) ) { return 1; }
+                if ( val.equals( "HIGH" ) ) { return 2; }
                 throw new IllegalArgumentException( "Not a valid value" );
             }
         };
@@ -509,7 +510,7 @@ public class ServerStringValueTest
      * is still OK.
      * @throws Exception on errors
      */
-    @Test public void testAcceptAllNoNormalization() throws Exception
+    @Test public void testAcceptAllNoNormalization()
     {
         // check that normalization and syntax checks work as expected
         ServerStringValue value = new ServerStringValue( at, "hello" );
@@ -582,9 +583,9 @@ public class ServerStringValueTest
                 {
                     return mr.getComparator().compare( n1, n2 );
                 }
-                catch ( Exception e )
+                catch ( NamingException ne )
                 {
-                    throw new IllegalStateException( "Normalization and comparison should succeed!", e );
+                    throw new IllegalStateException( "Normalization and comparison should succeed!", ne );
                 }
             }
         };

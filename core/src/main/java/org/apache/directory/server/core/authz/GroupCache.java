@@ -20,6 +20,10 @@
 package org.apache.directory.server.core.authz;
 
 
+import javax.naming.directory.SearchControls;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -52,9 +56,6 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
 
 
 /**

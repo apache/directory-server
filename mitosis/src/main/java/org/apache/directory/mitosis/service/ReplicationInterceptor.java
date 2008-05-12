@@ -357,7 +357,7 @@ public class ReplicationInterceptor extends BaseInterceptor
         {
             while ( e.hasMore() )
             {
-            	ServerSearchResult sr = e.next();
+                ServerSearchResult sr = e.next();
                 LdapDN name = sr.getDn();
                 
                 if ( name.size() > contextName.size() )
@@ -498,11 +498,11 @@ public class ReplicationInterceptor extends BaseInterceptor
     @Override
     public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-    	NamingEnumeration<ServerSearchResult> result = nextInterceptor.search(
-	            new SearchOperationContext(
-	                registries, opContext.getDn(), opContext.getAliasDerefMode(),
-	                new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
-	                new SearchControls() ) );
+        NamingEnumeration<ServerSearchResult> result = nextInterceptor.search(
+                new SearchOperationContext(
+                    registries, opContext.getDn(), opContext.getAliasDerefMode(),
+                    new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
+                    new SearchControls() ) );
 
         return new SearchResultFilteringEnumeration( result, new SearchControls(), InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER, "List replication filter" );
@@ -523,7 +523,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             searchControls.setReturningAttributes( newAttrIds );
         }
 
-    	NamingEnumeration<ServerSearchResult> result = nextInterceptor.search(
+        NamingEnumeration<ServerSearchResult> result = nextInterceptor.search(
             new SearchOperationContext( registries, opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(), searchControls ) );
         return new SearchResultFilteringEnumeration( result, searchControls, InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER, "Search Replication filter" );

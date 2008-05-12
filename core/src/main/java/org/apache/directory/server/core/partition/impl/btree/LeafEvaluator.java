@@ -159,7 +159,7 @@ public class LeafEvaluator implements Evaluator
     private ServerEntry getEntry( IndexRecord rec ) throws NamingException
     {
         // get the attributes associated with the entry 
-    	ServerEntry entry = rec.getEntry();
+        ServerEntry entry = rec.getEntry();
 
         // resuscitate entry if need be
         // TODO Is this really needed ? 
@@ -265,7 +265,7 @@ public class LeafEvaluator implements Evaluator
 
         // get the attribute associated with the node
         EntryAttribute attr = record.getEntry().get( 
-        		registries.getAttributeTypeRegistry().lookup( node.getAttribute() ) );
+                registries.getAttributeTypeRegistry().lookup( node.getAttribute() ) );
 
         // If we do not have the attribute just return false
         if ( null == attr )
@@ -300,7 +300,7 @@ public class LeafEvaluator implements Evaluator
         }
         else
         {
-        	for ( Value<?> value:attr )
+            for ( Value<?> value:attr )
             {
                 Object normValue = normalizer.normalize( value );
 
@@ -358,7 +358,7 @@ public class LeafEvaluator implements Evaluator
 
         // Now, get the AttributeType associated with the Attribute id
         AttributeType type = registries.getAttributeTypeRegistry().lookup( 
-        		registries.getOidRegistry().getOid( attrId ) );
+                registries.getOidRegistry().getOid( attrId ) );
 
         // here, we may have some descendants if the attribute is not found
         if ( entry.get( type ) != null )

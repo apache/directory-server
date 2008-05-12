@@ -18,14 +18,6 @@
  */
 package org.apache.directory.server.core.entry;
 
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -56,8 +48,18 @@ import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 
 /**
  * Tests for the DefaultServerAttribute class
@@ -224,7 +226,7 @@ public class DefaultServerAttributeTest
         assertNull( ((ServerStringValue)value).get() );
     }
     
-    @Test public void testGetAttribute() throws NamingException
+    @Test public void testGetAttribute()
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
@@ -247,7 +249,7 @@ public class DefaultServerAttributeTest
     /**
      * Test the contains() method
      */
-    @Test public void testContains() throws NamingException
+    @Test public void testContains()
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
@@ -1001,7 +1003,7 @@ public class DefaultServerAttributeTest
      * Test method size()
      */
     @Test
-    public void testSize() throws NamingException
+    public void testSize()
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
 
@@ -1165,7 +1167,7 @@ public class DefaultServerAttributeTest
      * Test method put( Value... )
      */
     @Test
-    public void testPutValueArray() throws InvalidAttributeValueException, NamingException
+    public void testPutValueArray()
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
         
@@ -1298,7 +1300,7 @@ public class DefaultServerAttributeTest
      * Test method remove( Value... )
      */
     @Test
-    public void testRemoveValueArray() throws InvalidAttributeValueException, NamingException
+    public void testRemoveValueArray()
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
 
@@ -1368,7 +1370,7 @@ public class DefaultServerAttributeTest
      * Test method remove( byte... )
      */
     @Test
-    public void testRemoveByteArray() throws InvalidAttributeValueException, NamingException
+    public void testRemoveByteArray()
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atPwd );
 
@@ -1398,7 +1400,7 @@ public class DefaultServerAttributeTest
      * Test method remove( String... )
      */
     @Test
-    public void testRemoveStringArray() throws InvalidAttributeValueException, NamingException
+    public void testRemoveStringArray()
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
 
@@ -1501,7 +1503,7 @@ public class DefaultServerAttributeTest
      * Test method setUpId( String, AttributeType )
      */
     @Test
-    public void testSetUpIdStringAttributeType() throws NamingException
+    public void testSetUpIdStringAttributeType()
     {
         ServerAttribute attr = new DefaultServerAttribute( atSN );
         
@@ -1557,7 +1559,7 @@ public class DefaultServerAttributeTest
      * Test method setUpId( String ) inherited from ClientAttribute
      */
     @Test
-    public void testSetUpIdString() throws NamingException
+    public void testSetUpIdString()
     {
         ServerAttribute attr = new DefaultServerAttribute( atCN );
         
@@ -1634,7 +1636,7 @@ public class DefaultServerAttributeTest
      * Test method getAttributeType()
      */
     @Test
-    public void testGetAttributeType() throws NamingException
+    public void testGetAttributeType()
     {
         ServerAttribute attr = new DefaultServerAttribute( atSN );
         
@@ -1694,7 +1696,7 @@ public class DefaultServerAttributeTest
      * Test constructor DefaultServerAttribute( AttributeType, Value... )
      */
     @Test
-    public void testDefaultServerAttributeAttributeTypeValueArray() throws NamingException
+    public void testDefaultServerAttributeAttributeTypeValueArray()
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN, STR_VALUE1, STR_VALUE2, NULL_STRING_VALUE );
         

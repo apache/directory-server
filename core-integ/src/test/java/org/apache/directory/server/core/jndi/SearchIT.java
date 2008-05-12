@@ -443,7 +443,7 @@ public class SearchIT
                 SearchResult result = ( SearchResult ) list.next();
                 
                 // leep 201 ms before fetching the next element ...
-            	Thread.sleep( 201 );
+                Thread.sleep( 201 );
                 map.put( result.getName(), result.getAttributes() );
             }
             

@@ -113,7 +113,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
 
         if ( null == entry )
         {
-        	entry = partition.lookup( (Long)rec.getEntryId() );
+            entry = partition.lookup( (Long)rec.getEntryId() );
             rec.setEntry( entry );
             entry = (ServerEntry)entry.clone();
         }
@@ -140,9 +140,9 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                     continue;
                 }
 
-            	ServerAttribute attr =  ( ServerAttribute ) rec.getEntry().get( attrId ).clone(); 
+                ServerAttribute attr =  ( ServerAttribute ) rec.getEntry().get( attrId ).clone(); 
 
-            	entry.put( attr );
+                entry.put( attr );
             }
 
             // add all operational attributes
@@ -155,7 +155,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                     continue;
                 }
 
-            	ServerAttribute attr = (ServerAttribute)attribute.clone(); 
+                ServerAttribute attr = (ServerAttribute)attribute.clone(); 
                 entry.put( attr );
             }
         }
@@ -177,7 +177,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                 }
 
                 // clone attribute to stuff into the new resultant entry
-            	ServerAttribute attr = ( ServerAttribute ) rec.getEntry().get( attrId ).clone(); 
+                ServerAttribute attr = ( ServerAttribute ) rec.getEntry().get( attrId ).clone(); 
                 entry.put( attr );
             }
 
@@ -188,19 +188,19 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                 
                 if ( attrType.getUsage() == UsageEnum.USER_APPLICATIONS )
                 {
-                	ServerAttribute attr = ( ServerAttribute ) rec.getEntry().get( attrType ).clone(); 
+                    ServerAttribute attr = ( ServerAttribute ) rec.getEntry().get( attrType ).clone(); 
                     entry.put( attr );
                 }
             }
         }
         else
         {
-        	Set<EntryAttribute> entryAttrs = new HashSet<EntryAttribute>(); 
-        	
-        	for ( EntryAttribute entryAttribute:entry )
-        	{
-        		entryAttrs.add( entryAttribute );
-        	}
+            Set<EntryAttribute> entryAttrs = new HashSet<EntryAttribute>(); 
+            
+            for ( EntryAttribute entryAttribute:entry )
+            {
+                entryAttrs.add( entryAttribute );
+            }
             //entry = new DefaultServerEntry( registries, dn );
 
             //ServerEntry attrs = rec.getEntry();
@@ -231,7 +231,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                             // we may have more than one descendant, like sn and cn
                             // for name, so add all of them
                             //entry.put( (ServerAttribute)attr.clone() );
-                        	entryAttrs.remove( attr );
+                            entryAttrs.remove( attr );
                         }
                     }
                 }
@@ -239,13 +239,13 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
                 {
                     // clone attribute to stuff into the new resultant entry
                     //entry.put( (ServerAttribute)attr.clone() );
-                	entryAttrs.remove( attr );
+                    entryAttrs.remove( attr );
                 }
             }
             
             for ( EntryAttribute entryAttribute:entryAttrs )
             {
-            	entry.remove( entryAttribute );
+                entry.remove( entryAttribute );
             }
         }
 

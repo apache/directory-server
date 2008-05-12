@@ -19,6 +19,9 @@
 package org.apache.directory.server.core.entry;
 
 
+import javax.naming.NamingException;
+import javax.naming.directory.InvalidAttributeValueException;
+
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -30,9 +33,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
-
 
 /**
  * A server side entry attribute aware of schema.
@@ -42,59 +42,29 @@ import javax.naming.directory.InvalidAttributeValueException;
  */
 public final class DefaultServerAttribute extends DefaultClientAttribute implements ServerAttribute
 {
-    /** Used for serialization */
-    public static final long serialVersionUID = 2L;
-    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultServerAttribute.class );
     
     /** The associated AttributeType */
-    protected transient AttributeType attributeType;
+    private AttributeType attributeType;
     
     
     // -----------------------------------------------------------------------
     // utility methods
     // -----------------------------------------------------------------------
     /**
-     *  Check the attributeType member. It should not be null, 
-     *  and it should contains a syntax.
-     */
-    protected String getErrorMessage( AttributeType attributeType )
-    {
-        try
-        {
-            if ( attributeType == null )
-            {
-                return "The AttributeType parameter should not be null";
-            }
-            
-            if ( attributeType.getSyntax() == null )
-            {
-                return "There is no Syntax associated with this attributeType";
-            }
-
-            return null;
-        }
-        catch ( NamingException ne )
-        {
-            return "This AttributeType is incorrect";
-        }
-    }
-    
-    
-    /**
      * Private helper method used to set an UpId from an attributeType
      */
-    private String getUpId( AttributeType attributeType )
+    private String getUpId( AttributeType at )
     {
-        String upId = attributeType.getName();
+        String atUpId = at.getName();
         
-        if ( upId == null )
+        if ( atUpId == null )
         {
-            upId = attributeType.getOid();
+            atUpId = at.getOid();
         }
         
-        return upId;
+        return atUpId;
     }
     
     
@@ -190,7 +160,8 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 else
                 {
                     // The id is incorrect : this is not allowed 
-                    throw new IllegalArgumentException( "The ID '" + id + "'is incompatible with the AttributeType's id '" + attributeType.getName() + "'" );
+                    throw new IllegalArgumentException( "The ID '" + id + "'is incompatible with the AttributeType's id '" + 
+                        attributeType.getName() + "'" );
                 }
             }
         }
@@ -239,9 +210,9 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 // In this case, it must be equals to the attributeType OID.
                 String normUpId = StringTools.lowerCaseAscii( StringTools.trim( upId ) );
                 
-                for ( String id:attributeType.getNames() )
+                for ( String atId:attributeType.getNames() )
                 {
-                    if ( id.equalsIgnoreCase( normUpId ) )
+                    if ( atId.equalsIgnoreCase( normUpId ) )
                     {
                         // Found ! We can store the upId and get out
                         super.setUpId( upId );
@@ -317,9 +288,9 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 // In this case, it must be equals to the attributeType OID.
                 String normUpId = StringTools.lowerCaseAscii( StringTools.trim( upId ) );
                 
-                for ( String id:attributeType.getNames() )
+                for ( String atId:attributeType.getNames() )
                 {
-                    if ( id.equalsIgnoreCase( normUpId ) )
+                    if ( atId.equalsIgnoreCase( normUpId ) )
                     {
                         // Found ! We can store the upId and get out
                         super.setUpId( upId );
@@ -444,7 +415,6 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      *
      * @param attributeType the attribute type according to the schema
      * @param vals an initial set of values for this attribute
-     * @throws NamingException if there are problems creating the new attribute
      */
     public DefaultServerAttribute( AttributeType attributeType, Value<?>... vals )
     {
@@ -464,7 +434,6 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      * @param upId
      * @param attributeType the attribute type according to the schema
      * @param vals an initial set of values for this attribute
-     * @throws NamingException if there are problems creating the new attribute
      */
     public DefaultServerAttribute( String upId, AttributeType attributeType, Value<?>... vals )
     {

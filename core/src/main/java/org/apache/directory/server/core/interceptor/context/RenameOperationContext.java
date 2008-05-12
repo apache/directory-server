@@ -48,7 +48,7 @@ public class RenameOperationContext extends AbstractOperationContext
      */
     public RenameOperationContext( Registries registries )
     {
-    	super( registries );
+        super( registries );
     }
 
 
@@ -70,39 +70,39 @@ public class RenameOperationContext extends AbstractOperationContext
     /**
      * @return The delete old DN flag
      */
-	public boolean getDelOldDn() 
-	{
-		return delOldDn;
-	}
+    public boolean getDelOldDn() 
+    {
+        return delOldDn;
+    }
 
 
     /**
-	 * Set the flag to delete the old DN
-	 * @param delOldDn the flag to set
-	 */
-	public void setDelOldDn( boolean delOldDn ) 
-	{
-		this.delOldDn = delOldDn;
-	}
+     * Set the flag to delete the old DN
+     * @param delOldDn the flag to set
+     */
+    public void setDelOldDn( boolean delOldDn ) 
+    {
+        this.delOldDn = delOldDn;
+    }
 
 
     /**
-	 * @return The new RDN
-	 */
-	public Rdn getNewRdn()
-	{
-		return newRdn;
-	}
+     * @return The new RDN
+     */
+    public Rdn getNewRdn()
+    {
+        return newRdn;
+    }
 
 
     /**
-	 * Set the new RDN
-	 * @param newRdn The new RDN
-	 */
-	public void setNewRdn( Rdn newRdn )
-	{
-		this.newRdn = newRdn;
-	}
+     * Set the new RDN
+     * @param newRdn The new RDN
+     */
+    public void setNewRdn( Rdn newRdn )
+    {
+        this.newRdn = newRdn;
+    }
 
 
     /**

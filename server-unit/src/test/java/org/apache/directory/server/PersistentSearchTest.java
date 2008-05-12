@@ -48,6 +48,11 @@ import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControl
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +91,7 @@ public class PersistentSearchTest extends AbstractServerTest
     /**
      * Create context and a person entry.
      */
+    @Before
     public void setUp() throws Exception
     {
         super.setUp();
@@ -110,6 +116,7 @@ public class PersistentSearchTest extends AbstractServerTest
     /**
      * Remove person entry and close context.
      */
+    @After
     public void tearDown() throws Exception
     {
         try
@@ -128,6 +135,7 @@ public class PersistentSearchTest extends AbstractServerTest
     /**
      * Shows correct notifications for modify(4) changes.
      */
+    @Test
     public void testPsearchModify() throws Exception
     {
         PSearchListener listener = new PSearchListener();
@@ -162,6 +170,7 @@ public class PersistentSearchTest extends AbstractServerTest
     /**
      * Shows correct notifications for moddn(8) changes.
      */
+    @Test
     public void testPsearchModifyDn() throws Exception
     {
         PSearchListener listener = new PSearchListener();
@@ -194,6 +203,7 @@ public class PersistentSearchTest extends AbstractServerTest
     /**
      * Shows correct notifications for delete(2) changes.
      */
+    @Test
     public void testPsearchDelete() throws Exception
     {
         PSearchListener listener = new PSearchListener();
@@ -226,6 +236,7 @@ public class PersistentSearchTest extends AbstractServerTest
     /**
      * Shows correct notifications for add(1) changes.
      */
+    @Test
     public void testPsearchAdd() throws Exception
     {
         PSearchListener listener = new PSearchListener();
@@ -259,6 +270,7 @@ public class PersistentSearchTest extends AbstractServerTest
      * Shows correct notifications for modify(4) changes with returned 
      * EntryChangeControl.
      */
+    @Test
     public void testPsearchModifyWithEC() throws Exception
     {
         PersistentSearchControl control = new PersistentSearchControl();
@@ -295,6 +307,7 @@ public class PersistentSearchTest extends AbstractServerTest
      * Shows correct notifications for moddn(8) changes with returned 
      * EntryChangeControl.
      */
+    @Test
     public void testPsearchModifyDnWithEC() throws Exception
     {
         PersistentSearchControl control = new PersistentSearchControl();
@@ -332,6 +345,7 @@ public class PersistentSearchTest extends AbstractServerTest
      * Shows correct notifications for delete(2) changes with returned 
      * EntryChangeControl.
      */
+    @Test
     public void testPsearchDeleteWithEC() throws Exception
     {
         PersistentSearchControl control = new PersistentSearchControl();
@@ -368,6 +382,7 @@ public class PersistentSearchTest extends AbstractServerTest
      * Shows correct notifications for add(1) changes with returned 
      * EntryChangeControl.
      */
+    @Test
     public void testPsearchAddWithEC() throws Exception
     {
         PersistentSearchControl control = new PersistentSearchControl();
@@ -404,6 +419,7 @@ public class PersistentSearchTest extends AbstractServerTest
      * Shows correct notifications for only add(1) and modify(4) registered changes with returned 
      * EntryChangeControl.
      */
+    @Test
     public void testPsearchAddModifyEnabledWithEC() throws Exception
     {
         PersistentSearchControl control = new PersistentSearchControl();
@@ -516,6 +532,7 @@ public class PersistentSearchTest extends AbstractServerTest
      * Shows notifications functioning with the JNDI notification API of the SUN
      * provider.
      */
+    @Test
     public void testPsearchUsingJndiNotifications() throws Exception
     {
         Hashtable<String, Object> env = new Hashtable<String, Object>();
@@ -555,6 +572,7 @@ public class PersistentSearchTest extends AbstractServerTest
      * Shows notifications functioning with the JNDI notification API of the SUN
      * provider.
      */
+    @Test
     public void testPsearchAbandon() throws Exception
     {
         PersistentSearchControl control = new PersistentSearchControl();
@@ -584,7 +602,9 @@ public class PersistentSearchTest extends AbstractServerTest
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
-        listener.result = null;
+        
+        listener = new PSearchListener( control );
+
         t = new Thread( listener );
         t.start();
 
@@ -602,6 +622,10 @@ public class PersistentSearchTest extends AbstractServerTest
 
         // there seems to be a race condition here
         // assertNull( listener.result );
+        assertNotNull( listener.result );
+        assertEquals( "cn=Jack Black", listener.result.getName() );
+        assertEquals( ChangeType.DELETE, listener.result.control.getChangeType() );
+        listener.result = null;
 
         // thread is still waiting for notifications try a modify
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
@@ -616,9 +640,9 @@ public class PersistentSearchTest extends AbstractServerTest
             }
         }
 
-        assertNotNull( listener.result );
-        assertEquals( RDN, listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
+        assertNull( listener.result );
+        //assertEquals( RDN, listener.result.getName() );
+        //assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
     }
 
     class JndiNotificationListener implements NamespaceChangeListener, ObjectChangeListener

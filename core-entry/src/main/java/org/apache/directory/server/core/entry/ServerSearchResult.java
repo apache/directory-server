@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.entry;
 
 
-import javax.naming.InvalidNameException;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -31,11 +30,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerSearchResult // extends SearchResult
+public class ServerSearchResult
 {
-    /** Unique serial UID */
-    public static final long serialVersionUID = 1L;
-
     /** Distinguished name for this result */
     private LdapDN dn;
     
@@ -49,7 +45,7 @@ public class ServerSearchResult // extends SearchResult
     private Object object;
     
 
-    public ServerSearchResult( LdapDN dn, Object obj, ServerEntry serverEntry ) throws InvalidNameException
+    public ServerSearchResult( LdapDN dn, Object obj, ServerEntry serverEntry )
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -57,7 +53,7 @@ public class ServerSearchResult // extends SearchResult
     }
 
 
-    public ServerSearchResult( LdapDN dn, Object obj, ServerEntry serverEntry, boolean isRelative ) throws InvalidNameException
+    public ServerSearchResult( LdapDN dn, Object obj, ServerEntry serverEntry, boolean isRelative )
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -66,7 +62,7 @@ public class ServerSearchResult // extends SearchResult
     }
 
 
-    public ServerSearchResult( LdapDN dn, String className, Object obj, ServerEntry serverEntry ) throws InvalidNameException
+    public ServerSearchResult( LdapDN dn, String className, Object obj, ServerEntry serverEntry )
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -74,7 +70,7 @@ public class ServerSearchResult // extends SearchResult
     }
 
 
-    public ServerSearchResult( LdapDN dn, String className, Object obj, ServerEntry serverEntry, boolean isRelative ) throws InvalidNameException
+    public ServerSearchResult( LdapDN dn, String className, Object obj, ServerEntry serverEntry, boolean isRelative ) 
     {
         this.dn = dn;
         this.serverEntry = serverEntry;
@@ -96,46 +92,46 @@ public class ServerSearchResult // extends SearchResult
      */
     public ServerEntry getServerEntry()
     {
-    	return serverEntry;
+        return serverEntry;
     }
 
 
-	public boolean isRelative() 
-	{
-		return isRelative;
-	}
+    public boolean isRelative() 
+    {
+        return isRelative;
+    }
 
 
-	public void setRelative( boolean isRelative ) 
-	{
-		this.isRelative = isRelative;
-	}
+    public void setRelative( boolean isRelative ) 
+    {
+        this.isRelative = isRelative;
+    }
 
 
-	public void setServerEntry( ServerEntry serverEntry ) 
-	{
-		this.serverEntry = serverEntry;
-	}
+    public void setServerEntry( ServerEntry serverEntry ) 
+    {
+        this.serverEntry = serverEntry;
+    }
 
 
-	public Object getObject() 
-	{
-		return object;
-	}
+    public Object getObject() 
+    {
+        return object;
+    }
 
 
-	public void setObject( Object object ) 
-	{
-		this.object = object;
-	}
-	
-	
-	/**
-	 * @see Object#toString()
-	 */
-	public String toString()
-	{
-		String name = (dn == null ? "null" : ( dn == LdapDN.EMPTY_LDAPDN ? "\"\"" : dn.getUpName() ) );
-		return "ServerSearchResult : " + name + "\n" + serverEntry;
-	}
+    public void setObject( Object object ) 
+    {
+        this.object = object;
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        String name = (dn == null ? "null" : ( dn == LdapDN.EMPTY_LDAPDN ? "\"\"" : dn.getUpName() ) );
+        return "ServerSearchResult : " + name + "\n" + serverEntry;
+    }
 }

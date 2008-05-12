@@ -46,9 +46,9 @@ public class HighestPrecedenceFilter implements ACITupleFilter
 {
     public Collection<ACITuple> filter( 
             Registries registries, 
-    		Collection<ACITuple> tuples, 
-    		OperationScope scope, 
-    		PartitionNexusProxy proxy,
+            Collection<ACITuple> tuples, 
+            OperationScope scope, 
+            PartitionNexusProxy proxy,
             Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
             ServerEntry userEntry, 

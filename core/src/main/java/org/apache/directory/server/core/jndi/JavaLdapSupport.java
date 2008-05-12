@@ -173,10 +173,10 @@ class JavaLdapSupport
          * objectClass: javaSerializedObject
          */
         entry.put( SchemaConstants.OBJECT_CLASS_AT,
-        		SchemaConstants.TOP_OC,
-        		JOBJECT_ATTR,
-        		JCONTAINER_ATTR,
-        		JSERIALIZEDOBJ_ATTR );
+                SchemaConstants.TOP_OC,
+                JOBJECT_ATTR,
+                JCONTAINER_ATTR,
+                JSERIALIZEDOBJ_ATTR );
 
         // Add the javaClassName and javaSerializedData attributes
         entry.put( JCLASSNAME_ATTR, obj.getClass().getName() );

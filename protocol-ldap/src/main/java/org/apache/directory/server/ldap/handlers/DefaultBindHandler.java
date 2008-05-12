@@ -677,7 +677,7 @@ public class DefaultBindHandler extends BindHandler
     {
         if ( LOG.isDebugEnabled() )
         {
-        	LOG.debug( "User {} is binding", bindRequest.getName() );
+            LOG.debug( "User {} is binding", bindRequest.getName() );
 
             if ( bindRequest.isSimple() )
             {

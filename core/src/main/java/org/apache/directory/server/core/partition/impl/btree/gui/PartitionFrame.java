@@ -310,8 +310,7 @@ public class PartitionFrame extends JFrame
         {
             public void actionPerformed( ActionEvent an_event )
             {
-                if ( LOG.isDebugEnabled() )
-                    LOG.debug( "action command = " + an_event.getActionCommand() );
+                LOG.debug( "action command = {}", an_event.getActionCommand() );
 
                 try
                 {

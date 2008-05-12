@@ -23,6 +23,7 @@ package org.apache.directory.server.schema.bootstrap.partition;
 import junit.framework.TestCase;
 
 /**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$ $Date$
  */
 public class UniqueResourceTest extends TestCase

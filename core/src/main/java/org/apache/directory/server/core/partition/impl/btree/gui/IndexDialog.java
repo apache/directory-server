@@ -309,8 +309,7 @@ public class IndexDialog extends JDialog
                 {
                     String prefix = key.substring( 0, starIndex );
 
-                    if ( log.isDebugEnabled() )
-                        log.debug( "Regex prefix = " + prefix );
+                    log.debug( "Regex prefix = {}", prefix );
 
                     list = index.listIndices( regex, prefix );
                 }

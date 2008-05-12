@@ -221,12 +221,12 @@ public class DefaultSearchHandler extends SearchHandler
         LdapServer ldapServer = ( LdapServer )
                 session.getAttribute(  LdapServer.class.toString() );
 
-    	if ( IS_DEBUG )
-    	{
-    		LOG.debug( "Message received:  {}", req.toString() );
-    	}
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Message received:  {}", req.toString() );
+        }
 
-    	ServerLdapContext ctx;
+        ServerLdapContext ctx;
         NamingEnumeration<SearchResult> list = null;
         String[] ids = null;
         Collection<String> retAttrs = new HashSet<String>();

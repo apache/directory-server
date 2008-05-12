@@ -98,9 +98,9 @@ public class ApacheDS
         {
             this.directoryService = new DefaultDirectoryService();
         }
-		else
-		{        
-        	this.directoryService = directoryService;
+        else
+        {        
+            this.directoryService = directoryService;
         }
         
         this.ldapServer = ldapServer;

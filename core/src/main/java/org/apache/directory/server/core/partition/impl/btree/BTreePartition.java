@@ -234,8 +234,8 @@ public abstract class BTreePartition implements Partition
 
     public void delete( DeleteOperationContext opContext ) throws NamingException
     {
-    	LdapDN dn = opContext.getDn();
-    	
+        LdapDN dn = opContext.getDn();
+        
         Long id = getEntryId( dn.getNormName() );
 
         // don't continue if id is null

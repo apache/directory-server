@@ -43,7 +43,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      */
     public MoveAndRenameOperationContext( Registries registries )
     {
-    	super( registries );
+        super( registries );
     }
 
 

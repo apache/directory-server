@@ -306,31 +306,31 @@ objectClassDesc [ObjectClassLiteral objectClass]
         }
         else
         {
-	        String desc = elems[1];
-	        String[] quoted = desc.split( "\"" );
-	
-	        if ( quoted.length == 1 )
-	        {
-	            objectClass.setDescription( desc );
-	        }
-	        else
-	        {
-	            StringBuffer buf = new StringBuffer();
-	            for ( int ii = 0; ii < quoted.length; ii++ )
-	            {
-	                if ( ii < quoted.length - 1 )
-	                {
-	                    buf.append( quoted[ii] ).append( "\\" ).append( "\"" );
-	                }
-	                else
-	                {
-	                    buf.append( quoted[ii] );
-	                }
-	            }
-	
-	            objectClass.setDescription( buf.toString() );
-	        }
-	    }
+            String desc = elems[1];
+            String[] quoted = desc.split( "\"" );
+    
+            if ( quoted.length == 1 )
+            {
+                objectClass.setDescription( desc );
+            }
+            else
+            {
+                StringBuffer buf = new StringBuffer();
+                for ( int ii = 0; ii < quoted.length; ii++ )
+                {
+                    if ( ii < quoted.length - 1 )
+                    {
+                        buf.append( quoted[ii] ).append( "\\" ).append( "\"" );
+                    }
+                    else
+                    {
+                        buf.append( quoted[ii] );
+                    }
+                }
+    
+                objectClass.setDescription( buf.toString() );
+            }
+        }
     }
     ;
 

@@ -40,32 +40,32 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
     private LdapDN oldDN;
     private LdapDN newDN;
 
-	public ModifyDNStoredProcedureParameterInjector( Invocation invocation, boolean deleteOldRn,
+    public ModifyDNStoredProcedureParameterInjector( Invocation invocation, boolean deleteOldRn,
         LdapDN oldRDN, Rdn newRDN, LdapDN oldSuperiorDN, LdapDN newSuperiorDN, LdapDN oldDN, LdapDN newDN)
     {
         super( invocation );
         this.deleteOldRn = deleteOldRn;
-		this.oldRDN = oldRDN;
-		this.newRDN = newRDN;
-		this.oldSuperiorDN = oldSuperiorDN;
-		this.newSuperiorDN = newSuperiorDN;
-		this.oldDN = oldDN;
-		this.newDN = newDN;
-		
-		Map<Class<?>, MicroInjector> injectors = super.getInjectors();
-		injectors.put( StoredProcedureParameter.ModifyDN_ENTRY.class, $entryInjector );
-		injectors.put( StoredProcedureParameter.ModifyDN_NEW_RDN.class, $newrdnInjector );
-		injectors.put( StoredProcedureParameter.ModifyDN_DELETE_OLD_RDN.class, $deleteoldrdnInjector );
-		injectors.put( StoredProcedureParameter.ModifyDN_NEW_SUPERIOR.class, $newSuperiorInjector );
-		injectors.put( StoredProcedureParameter.ModifyDN_OLD_RDN.class, $oldRDNInjector );
-		injectors.put( StoredProcedureParameter.ModifyDN_OLD_SUPERIOR_DN.class, $oldSuperiorDNInjector );
-		injectors.put( StoredProcedureParameter.ModifyDN_NEW_DN.class, $newDNInjector );
-		
+        this.oldRDN = oldRDN;
+        this.newRDN = newRDN;
+        this.oldSuperiorDN = oldSuperiorDN;
+        this.newSuperiorDN = newSuperiorDN;
+        this.oldDN = oldDN;
+        this.newDN = newDN;
+        
+        Map<Class<?>, MicroInjector> injectors = super.getInjectors();
+        injectors.put( StoredProcedureParameter.ModifyDN_ENTRY.class, $entryInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_NEW_RDN.class, $newrdnInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_DELETE_OLD_RDN.class, $deleteoldrdnInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_NEW_SUPERIOR.class, $newSuperiorInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_OLD_RDN.class, $oldRDNInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_OLD_SUPERIOR_DN.class, $oldSuperiorDNInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_NEW_DN.class, $newDNInjector );
+        
     }
-	/**
-	 * Injector for 'entry' parameter of ModifyDNRequest as in RFC4511.
-	 */
-	MicroInjector $entryInjector = new MicroInjector()
+    /**
+     * Injector for 'entry' parameter of ModifyDNRequest as in RFC4511.
+     */
+    MicroInjector $entryInjector = new MicroInjector()
     {
         public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
         {

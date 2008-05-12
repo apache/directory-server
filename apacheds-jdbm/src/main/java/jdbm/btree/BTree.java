@@ -562,7 +562,7 @@ public class BTree
 
     public void setValueSerializer( Serializer valueSerializer )
     {
-    	_valueSerializer = valueSerializer;
+        _valueSerializer = valueSerializer;
     }
     
     

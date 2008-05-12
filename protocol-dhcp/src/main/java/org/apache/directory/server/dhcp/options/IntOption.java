@@ -31,33 +31,33 @@ package org.apache.directory.server.dhcp.options;
  * @version $Rev: 551805 $, $Date: 2007-06-29 00:57:04 -0500 (Fr, 29 Jun 2007) $
  */
 public abstract class IntOption extends DhcpOption {
-	/**
-	 * The int value (represented as a long because of the unsignedness).
-	 */
-	private long intValue;
+    /**
+     * The int value (represented as a long because of the unsignedness).
+     */
+    private long intValue;
 
-	/*
-	 * @see org.apache.directory.server.dhcp.options.DhcpOption#setData(byte[])
-	 */
-	public void setData(byte[] data) {
-		intValue = (data[0] & 0xff) << 24 | (data[1] & 0xff) << 16
-				| (data[2] & 0xff) << 8 | (data[3] & 0xff);
-	}
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#setData(byte[])
+     */
+    public void setData(byte[] data) {
+        intValue = (data[0] & 0xff) << 24 | (data[1] & 0xff) << 16
+                | (data[2] & 0xff) << 8 | (data[3] & 0xff);
+    }
 
-	/*
-	 * @see org.apache.directory.server.dhcp.options.DhcpOption#getData()
-	 */
-	public byte[] getData() {
-		return new byte[]{(byte) (intValue >> 24 & 0xff),
-				(byte) (intValue >> 16 & 0xff), (byte) (intValue >> 8 & 0xff),
-				(byte) (intValue & 0xff)};
-	}
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getData()
+     */
+    public byte[] getData() {
+        return new byte[]{(byte) (intValue >> 24 & 0xff),
+                (byte) (intValue >> 16 & 0xff), (byte) (intValue >> 8 & 0xff),
+                (byte) (intValue & 0xff)};
+    }
 
-	public long getIntValue() {
-		return intValue;
-	}
+    public long getIntValue() {
+        return intValue;
+    }
 
-	public void setIntValue(long intValue) {
-		this.intValue = intValue;
-	}
+    public void setIntValue(long intValue) {
+        this.intValue = intValue;
+    }
 }

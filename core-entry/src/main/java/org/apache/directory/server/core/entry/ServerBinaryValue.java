@@ -19,6 +19,15 @@
 package org.apache.directory.server.core.entry;
 
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Arrays;
+import java.util.Comparator;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
@@ -29,15 +38,6 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
-
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.Arrays;
-import java.util.Comparator;
 
 
 /**
@@ -52,7 +52,7 @@ import java.util.Comparator;
 public class ServerBinaryValue extends ClientBinaryValue
 {
     /** Used for serialization */
-    public static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 2L;
     
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerBinaryValue.class );
@@ -163,7 +163,8 @@ public class ServerBinaryValue extends ClientBinaryValue
      * @param wrapped the value to wrap which can be null
      * @param normalizedValue the normalized value
      */
-    /** No protection */ ServerBinaryValue( AttributeType attributeType, byte[] wrapped, byte[] normalizedValue, boolean same, boolean valid )
+    /** No protection */ 
+    ServerBinaryValue( AttributeType attributeType, byte[] wrapped, byte[] normalizedValue, boolean same, boolean valid )
     {
         super( wrapped );
         this.normalized = true;
@@ -227,7 +228,6 @@ public class ServerBinaryValue extends ClientBinaryValue
      * to the wrapped value result in attempts to normalize the wrapped value.
      *
      * @return a reference to the normalized version of the wrapped value
-     * @throws NamingException with failures to normalize
      */
     public byte[] getNormalizedValueReference()
     {
@@ -263,7 +263,6 @@ public class ServerBinaryValue extends ClientBinaryValue
      * to the wrapped value result in attempts to normalize the wrapped value.
      *
      * @return gets the normalized value
-     * @throws NamingException if the value cannot be properly normalized
      */
     public byte[] getNormalizedValue() 
     {
@@ -297,7 +296,6 @@ public class ServerBinaryValue extends ClientBinaryValue
      * determine how to properly normalize the wrapped value.
      *
      * @return the normalized version of the wrapped value
-     * @throws NamingException if schema entity resolution fails or normalization fails
      */
     public byte[] getNormalizedValueCopy()
     {
@@ -414,7 +412,8 @@ public class ServerBinaryValue extends ClientBinaryValue
                 }
                 else
                 {
-                    return ByteArrayComparator.INSTANCE.compare( getNormalizedValueReference(), binaryValue.getNormalizedValueReference() );
+                    return ByteArrayComparator.INSTANCE.compare( getNormalizedValueReference(), 
+                        binaryValue.getNormalizedValueReference() );
                 }
             }
             catch ( NamingException e )
@@ -687,7 +686,7 @@ public class ServerBinaryValue extends ClientBinaryValue
         else
         {
             int wrappedLength = in.readInt();
-            byte[] wrapped = null;
+            byte[] wrappedBytes = null;
             
             switch ( wrappedLength )
             {
@@ -699,15 +698,15 @@ public class ServerBinaryValue extends ClientBinaryValue
                     
                 case 0 :
                     // Empty value, so is the normalized value
-                    wrapped = StringTools.EMPTY_BYTES;
-                    normalizedValue = wrapped;
+                    wrappedBytes = StringTools.EMPTY_BYTES;
+                    normalizedValue = wrappedBytes;
                     setNormalized( true );
                     same = true;
                     break;
                     
                 default :
-                    wrapped = new byte[wrappedLength];
-                    in.readFully( wrapped );
+                    wrappedBytes = new byte[wrappedLength];
+                    in.readFully( wrappedBytes );
                     
                     int normalizedLength = in.readInt();
                     
@@ -737,7 +736,7 @@ public class ServerBinaryValue extends ClientBinaryValue
                     break;
             }
             
-            set( wrapped );
+            set( wrappedBytes );
         }
     }
 }

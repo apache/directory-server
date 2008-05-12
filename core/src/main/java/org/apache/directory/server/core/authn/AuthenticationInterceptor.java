@@ -20,6 +20,10 @@
 package org.apache.directory.server.core.authn;
 
 
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -59,10 +63,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 
 
 /**
@@ -384,7 +384,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) 
+        throws NamingException
     {
         if ( IS_DEBUG )
         {

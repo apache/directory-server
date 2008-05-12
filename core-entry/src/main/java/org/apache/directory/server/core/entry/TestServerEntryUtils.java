@@ -49,7 +49,7 @@ public class TestServerEntryUtils
      */
     static class AT extends AbstractAttributeType
     {
-        public static final long serialVersionUID = 0L;
+        private static final long serialVersionUID = 0L;
         AttributeType superior;
         Syntax syntax;
         MatchingRule equality;
@@ -126,7 +126,7 @@ public class TestServerEntryUtils
      */
     static class MR extends AbstractMatchingRule
     {
-        public static final long serialVersionUID = 0L;
+        private static final long serialVersionUID = 0L;
         Syntax syntax;
         Comparator comparator;
         Normalizer normalizer;
@@ -177,7 +177,7 @@ public class TestServerEntryUtils
      */
     static class S extends AbstractSyntax
     {
-        public static final long serialVersionUID = 0L;
+        private static final long serialVersionUID = 0L;
         SyntaxChecker checker;
 
         public S( String oid, boolean humanReadible )
@@ -266,7 +266,7 @@ public class TestServerEntryUtils
         
         mr.normalizer = new Normalizer()
         {
-            public static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1L;
 
             public Object normalize( Object value ) throws NamingException
             {
@@ -325,24 +325,6 @@ public class TestServerEntryUtils
         };
         
         mr.normalizer = new DeepTrimToLowerNormalizer();
-        /*{
-            public static final long serialVersionUID = 1L;
-            
-            public Object normalize( Object value ) throws NamingException
-            {
-                if ( value == null )
-                {  
-                    return null;
-                }
-                
-                if ( value instanceof String )
-                {
-                    return ( ( String ) value ).toLowerCase();
-                }
-
-                throw new IllegalStateException( "expected string to normalize" );
-            }
-        };*/
         
         at.setEquality( mr );
         at.setSyntax( s );
@@ -390,7 +372,7 @@ public class TestServerEntryUtils
         
         mr.normalizer = new Normalizer()
         {
-            public static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1L;
             
             public Object normalize( Object value ) throws NamingException
             {
