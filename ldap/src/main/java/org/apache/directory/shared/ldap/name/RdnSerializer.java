@@ -94,7 +94,7 @@ public class RdnSerializer
      * read is exposed in the {@link Rdn#writeExternal(ObjectOutput)} 
      * method<p>
      */
-    public static Rdn deserialize( ObjectInput in ) throws IOException, ClassNotFoundException
+    public static Rdn deserialize( ObjectInput in ) throws IOException
     {
         // Read the ATAV number
         int nbAtavs = in.readInt();

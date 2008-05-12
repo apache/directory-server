@@ -106,6 +106,7 @@ import org.slf4j.LoggerFactory;
  * are not case sensitive, we can say that a = A
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class Rdn implements Cloneable, Comparable, Serializable, Iterable<AttributeTypeAndValue>
 {
@@ -259,8 +260,6 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
     *            The type of the RDN
     * @param value
     *            The value of the RDN
-    * @throws InvalidNameException
-    *             If the RDN is invalid
     */
    /* No protection */ Rdn( int start, int length, String upName, String normName )
    {
@@ -435,8 +434,6 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
     *            The type of the added RDN.
     * @param value
     *            The value of the added RDN
-    * @throws InvalidNameException
-    *             If the RDN is invalid
     */
    // WARNING : The protection level is left unspecified intentionnaly.
    // We need this method to be visible from the DnParser class, but not
@@ -1025,21 +1022,14 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
                break;
 
            default :
-               Iterator types = atavTypes.keySet().iterator();
-
-               while ( types.hasNext() )
+               for ( String type:atavTypes.keySet() )
                {
-                   String type = ( String ) types.next();
-                   List values = ( List ) atavTypes.get( type );
+                   List<AttributeTypeAndValue> values = ( List<AttributeTypeAndValue> ) atavTypes.get( type );
 
                    attribute = new AttributeImpl( type );
 
-                   Iterator<AttributeTypeAndValue> iterValues = values.iterator();
-
-                   while ( iterValues.hasNext() )
+                   for ( AttributeTypeAndValue value:values )
                    {
-                       AttributeTypeAndValue value = iterValues.next();
-
                        attribute.add( value.getNormValue() );
                    }
 

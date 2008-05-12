@@ -84,6 +84,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * <br>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class RdnParser
 {
@@ -104,7 +105,7 @@ public class RdnParser
         pos.end = pos.start;
 
         // <attributType> ::= [0-9] <digits> <oids>
-        if ( StringTools.isDigit( bytes, pos.start ) == false )
+        if ( !StringTools.isDigit( bytes, pos.start ) )
         {
             // Nope... An error
             return null;
@@ -120,7 +121,7 @@ public class RdnParser
             }
 
             // <oids> ::= '.' [0-9] <digits> <oids> | e
-            if ( StringTools.isCharASCII( bytes, pos.end, '.' ) == false )
+            if ( !StringTools.isCharASCII( bytes, pos.end, '.' ) )
             {
                 return null;
             }
@@ -130,7 +131,7 @@ public class RdnParser
                 {
                     pos.end++;
 
-                    if ( StringTools.isDigit( bytes, pos.end ) == false )
+                    if ( !StringTools.isDigit( bytes, pos.end ) )
                     {
                         return null;
                     }
@@ -169,7 +170,7 @@ public class RdnParser
         pos.end = pos.start;
 
         // <attributType> ::= [0-9] <digits> <oids>
-        if ( StringTools.isDigit( bytes, pos.start ) == false )
+        if ( !StringTools.isDigit( bytes, pos.start ) )
         {
             // Nope... An error
             return false;
@@ -185,7 +186,7 @@ public class RdnParser
             }
 
             // <oids> ::= '.' [0-9] <digits> <oids> | e
-            if ( StringTools.isCharASCII( bytes, pos.end, '.' ) == false )
+            if ( !StringTools.isCharASCII( bytes, pos.end, '.' ) )
             {
                 return false;
             }
@@ -195,7 +196,7 @@ public class RdnParser
                 {
                     pos.end++;
 
-                    if ( StringTools.isDigit( bytes, pos.end ) == false )
+                    if ( !StringTools.isDigit( bytes, pos.end ) )
                     {
                         return false;
                     }
@@ -485,7 +486,7 @@ public class RdnParser
                         }
                         else
                         {
-                            if ( hasPairChar == false )
+                            if ( !hasPairChar )
                             {
                                 hasPairChar = true;
                             }
@@ -528,10 +529,11 @@ public class RdnParser
                             //StringTools.trimLeft( string, pos );
 
                             if ( ( DNUtils.isStringChar( bytes, pos.end ) == DNUtils.PARSING_ERROR )
-                                && ( StringTools.isCharASCII( bytes, pos.end, '\\' ) == false ) )
+                                && ( !StringTools.isCharASCII( bytes, pos.end, '\\' ) ) )
                             {
                                 // Ok, we are done with the stringchar.
-                                String result = StringTools.trimRight( StringTools.utf8ToString( bytes, pos.start, pos.start + pos.length ) );
+                                String result = StringTools.trimRight( 
+                                    StringTools.utf8ToString( bytes, pos.start, pos.start + pos.length ) );
                                 
                                 return result;
                             }
@@ -710,7 +712,7 @@ public class RdnParser
                             //StringTools.trimLeft( string, pos );
 
                             if ( ( DNUtils.isStringChar( bytes, pos.end ) == DNUtils.PARSING_ERROR )
-                                && ( StringTools.isCharASCII( bytes, pos.end, '\\' ) == false ) )
+                                && ( !StringTools.isCharASCII( bytes, pos.end, '\\' ) ) )
                             {
                                 // Ok, we are done with the stringchar.
                                 return true;
@@ -930,7 +932,7 @@ public class RdnParser
 
         StringTools.trimLeft( dn, pos );
 
-        if ( StringTools.isCharASCII( dn, pos.start, '=' ) == false )
+        if ( !StringTools.isCharASCII( dn, pos.start, '=' ) )
         {
             return DNUtils.PARSING_ERROR;
         }
@@ -974,11 +976,12 @@ public class RdnParser
      *
      * @param dn The String to parse
      * @param pos The current position in the buffer
+     * @param isFirstRdn a flag set if the RDN is the first for the current DN
      * @return <code>true</code> if the RDN is valid
      */
-    public static boolean isValid( String dn, Position pos, boolean isfirstRdn )
+    public static boolean isValid( String dn, Position pos, boolean isFirstRdn )
     {
-        return isValid( StringTools.getBytesUtf8( dn ), pos, isfirstRdn );
+        return isValid( StringTools.getBytesUtf8( dn ), pos, isFirstRdn );
     }
 
 
@@ -1009,7 +1012,7 @@ public class RdnParser
 
         StringTools.trimLeft( dn, pos );
 
-        if ( StringTools.isCharASCII( dn, pos.start, '=' ) == false )
+        if ( !StringTools.isCharASCII( dn, pos.start, '=' ) )
         {
             return false;
         }

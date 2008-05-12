@@ -24,12 +24,12 @@ import java.util.List;
 
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
+import javax.naming.NameParser;
+
 
 import org.apache.directory.shared.ldap.util.DNUtils;
 import org.apache.directory.shared.ldap.util.Position;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import javax.naming.NameParser;
 
 
 /**
@@ -65,6 +65,7 @@ import javax.naming.NameParser;
  * </p>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LdapDnParser implements NameParser
 {
@@ -144,8 +145,8 @@ public class LdapDnParser implements NameParser
                rdns.add( rdn );
                rdn = new Rdn();
 
-               if ( ( StringTools.isCharASCII( dn, pos.start, ',' ) == false )
-                   && ( StringTools.isCharASCII( dn, pos.start, ';' ) == false ) )
+               if ( ( !StringTools.isCharASCII( dn, pos.start, ',' ) )
+                   && ( !StringTools.isCharASCII( dn, pos.start, ';' ) ) )
                {
 
                    if ( pos.start != dn.length )
@@ -192,8 +193,8 @@ public class LdapDnParser implements NameParser
            // Now, parse the following nameComponents
            do
            {
-               if ( ( StringTools.isCharASCII( dn, pos.start, ',' ) == false )
-                   && ( StringTools.isCharASCII( dn, pos.start, ';' ) == false ) )
+               if ( ( !StringTools.isCharASCII( dn, pos.start, ',' ) )
+                   && ( !StringTools.isCharASCII( dn, pos.start, ';' ) ) )
                {
 
                    if ( pos.start != dn.length )
