@@ -249,8 +249,7 @@ public class DefaultBindHandler extends BindHandler
     }
 
     /**
-     * This method handle a 'simple' authentication. Of course, the 'SIMPLE' mechanism
-     * must have been allowed in the configuration, otherwise an error is thrown.
+     * This method handles 'simple' authentication. 
      *
      * @param bindRequest the bind request
      * @param session the mina IoSession
@@ -258,24 +257,8 @@ public class DefaultBindHandler extends BindHandler
      */
     private void handleSimpleAuth( IoSession session, BindRequest bindRequest ) throws NamingException
     {
-        LdapServer ldapServer = ( LdapServer )
-                session.getAttribute( LdapServer.class.toString() );
-
         @SuppressWarnings( "unchecked" )
-        Set<String> supportedMechanisms = ldapServer.getSupportedMechanisms();
         LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
-
-        // First, deal with Simple Authentication
-        // Guard clause:  Reject SIMPLE mechanism.
-        if ( !supportedMechanisms.contains( SupportedSaslMechanisms.SIMPLE ) )
-        {
-            LOG.error( "Bind error : SIMPLE authentication not supported. Please check the server.xml configuration file (supportedMechanisms field)" );
-
-            bindResult.setResultCode( ResultCodeEnum.STRONG_AUTH_REQUIRED );
-            bindResult.setErrorMessage( "Simple binds are disabled." );
-            session.write( bindRequest.getResultResponse() );
-            return;
-        }
 
         // Initialize the environment which will be used to create the context
         Hashtable<String, Object> env = getEnvironment( bindRequest, AuthenticationLevel.SIMPLE.toString() );
@@ -353,7 +336,7 @@ public class DefaultBindHandler extends BindHandler
     {
         String sessionMechanism = bindRequest.getSaslMechanism();
 
-        if ( sessionMechanism.equals( SupportedSaslMechanisms.SIMPLE ) )
+        if ( sessionMechanism.equals( SupportedSaslMechanisms.PLAIN ) )
         {
             /*
              * This is the principal name that will be used to bind to the DIT.
@@ -676,7 +659,7 @@ public class DefaultBindHandler extends BindHandler
      */
     private String getAuthenticationLevel( String sessionMechanism )
     {
-        if ( sessionMechanism.equals( SupportedSaslMechanisms.SIMPLE ) )
+        if ( sessionMechanism.equals( SupportedSaslMechanisms.PLAIN ) )
         {
             return AuthenticationLevel.SIMPLE.toString();
         }

@@ -207,7 +207,7 @@ public class SaslBindITest extends AbstractServerTest
             assertTrue( result.contains( SupportedSaslMechanisms.DIGEST_MD5 ) );
             assertTrue( result.contains( SupportedSaslMechanisms.CRAM_MD5 ) );
             assertTrue( result.contains( SupportedSaslMechanisms.NTLM ) );
-            assertTrue( result.contains( SupportedSaslMechanisms.SIMPLE ) );
+            assertTrue( result.contains( SupportedSaslMechanisms.PLAIN ) );
             assertTrue( result.contains( SupportedSaslMechanisms.GSS_SPNEGO ) );
         }
         catch ( NamingException e )

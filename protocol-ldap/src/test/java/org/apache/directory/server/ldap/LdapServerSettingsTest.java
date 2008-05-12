@@ -77,11 +77,11 @@ public class LdapServerSettingsTest
         LdapServer server = new LdapServer();
         Map<String, MechanismHandler> handlers = new HashMap<String,MechanismHandler>();
         MechanismHandler handler = new SimpleMechanismHandler();
-        handlers.put( SupportedSaslMechanisms.SIMPLE, handler );
+        handlers.put( SupportedSaslMechanisms.PLAIN, handler );
         server.setSaslMechanismHandlers( handlers );
-        assertEquals( handler, server.getMechanismHandler( SupportedSaslMechanisms.SIMPLE ) );
-        assertTrue( server.getSupportedMechanisms().contains( SupportedSaslMechanisms.SIMPLE ) );
-        server.removeSaslMechanismHandler( SupportedSaslMechanisms.SIMPLE );
-        assertNull( server.getMechanismHandler( SupportedSaslMechanisms.SIMPLE ) );
+        assertEquals( handler, server.getMechanismHandler( SupportedSaslMechanisms.PLAIN ) );
+        assertTrue( server.getSupportedMechanisms().contains( SupportedSaslMechanisms.PLAIN ) );
+        server.removeSaslMechanismHandler( SupportedSaslMechanisms.PLAIN );
+        assertNull( server.getMechanismHandler( SupportedSaslMechanisms.PLAIN ) );
     }
 }

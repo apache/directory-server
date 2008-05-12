@@ -268,7 +268,7 @@ public abstract class AbstractServerTest extends TestCase
     {
         Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
 
-        mechanismHandlerMap.put( SupportedSaslMechanisms.SIMPLE, new SimpleMechanismHandler() );
+        mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
 
         CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
         cramMd5MechanismHandler.setDirectoryService( directoryService );
