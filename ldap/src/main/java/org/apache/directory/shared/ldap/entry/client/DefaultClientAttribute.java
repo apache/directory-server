@@ -19,20 +19,20 @@
 package org.apache.directory.shared.ldap.entry.client;
 
 
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.directory.InvalidAttributeValueException;
+
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
-
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -46,9 +46,6 @@ import java.util.Set;
  */
 public class DefaultClientAttribute implements ClientAttribute
 {
-    /** Used for serialization */
-    public static final long serialVersionUID = 2L;
-    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultClientAttribute.class );
     

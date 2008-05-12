@@ -144,37 +144,37 @@ options    {
 }
 
 {
-	static class Extension
-	{
-	    String key = "";
-	    List<String> values = new ArrayList<String>();
-	    
-	    public void addValue( String value )
-	    {
-	        this.values.add( value );
-	    }
-	}
-	static class NoidLen
-	{
-	    String noid = "";
-	    int len = 0;
-	}
+    static class Extension
+    {
+        String key = "";
+        List<String> values = new ArrayList<String>();
+        
+        public void addValue( String value )
+        {
+            this.values.add( value );
+        }
+    }
+    static class NoidLen
+    {
+        String noid = "";
+        int len = 0;
+    }
     static class ElementTracker
-	{
-	    Map<String, Integer> elementMap = new HashMap<String, Integer>();
-	    void track(String element, Token token) throws SemanticException 
-	    {
-	        if(elementMap.containsKey(element))
-	        {
-	            throw new SemanticException( element + " appears twice.", token.getFilename(), token.getLine() , token.getColumn() );
-	        }
-	        elementMap.put(element, new Integer(1));
-	    }
-	    boolean contains(String element) 
-	    {
-	        return elementMap.containsKey(element);
-	    }
-	}
+    {
+        Map<String, Integer> elementMap = new HashMap<String, Integer>();
+        void track(String element, Token token) throws SemanticException 
+        {
+            if(elementMap.containsKey(element))
+            {
+                throw new SemanticException( element + " appears twice.", token.getFilename(), token.getLine() , token.getColumn() );
+            }
+            elementMap.put(element, new Integer(1));
+        }
+        boolean contains(String element) 
+        {
+            return elementMap.containsKey(element);
+        }
+    }
 
 }
 
@@ -208,31 +208,31 @@ objectClassDescription returns [ObjectClassDescription ocd = new ObjectClassDesc
     :
     ( oid:STARTNUMERICOID { ocd.setNumericOid(numericoid(oid.getText())); } )
     (
-	    ( name:NAME { et.track("NAME", name); ocd.setNames(qdescrs(name.getText())); } )
-	    |
-	    ( desc:DESC { et.track("DESC", desc); ocd.setDescription(qdstring(desc.getText())); } )
-	    |
-	    ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); ocd.setObsolete( true ); } )
-	    |
-	    ( sup:SUP { et.track("SUP", sup); ocd.setSuperiorObjectClasses(oids(sup.getText())); } )
-	    |
-	    ( kind1:ABSTRACT { et.track("KIND", kind1); ocd.setKind( ObjectClassTypeEnum.ABSTRACT ); }
-	      |
-	      kind2:STRUCTURAL { et.track("KIND", kind2); ocd.setKind( ObjectClassTypeEnum.STRUCTURAL ); }
-	      |
-	      kind3:AUXILIARY { et.track("KIND", kind3); ocd.setKind( ObjectClassTypeEnum.AUXILIARY ); } 
-	    )
-	    |
-	    ( must:MUST { et.track("MUST", must); ocd.setMustAttributeTypes(oids(must.getText())); } )
-	    |
-	    ( may:MAY { et.track("MAY", may); ocd.setMayAttributeTypes(oids(may.getText())); } )
-	    |
-	    ( extension:EXTENSION { 
-	        Extension ex = extension(extension.getText());
-	        et.track(ex.key, extension); 
-	        ocd.addExtension(ex.key, ex.values); 
-	     } )
-	)*    
+        ( name:NAME { et.track("NAME", name); ocd.setNames(qdescrs(name.getText())); } )
+        |
+        ( desc:DESC { et.track("DESC", desc); ocd.setDescription(qdstring(desc.getText())); } )
+        |
+        ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); ocd.setObsolete( true ); } )
+        |
+        ( sup:SUP { et.track("SUP", sup); ocd.setSuperiorObjectClasses(oids(sup.getText())); } )
+        |
+        ( kind1:ABSTRACT { et.track("KIND", kind1); ocd.setKind( ObjectClassTypeEnum.ABSTRACT ); }
+          |
+          kind2:STRUCTURAL { et.track("KIND", kind2); ocd.setKind( ObjectClassTypeEnum.STRUCTURAL ); }
+          |
+          kind3:AUXILIARY { et.track("KIND", kind3); ocd.setKind( ObjectClassTypeEnum.AUXILIARY ); } 
+        )
+        |
+        ( must:MUST { et.track("MUST", must); ocd.setMustAttributeTypes(oids(must.getText())); } )
+        |
+        ( may:MAY { et.track("MAY", may); ocd.setMayAttributeTypes(oids(may.getText())); } )
+        |
+        ( extension:EXTENSION { 
+            Extension ex = extension(extension.getText());
+            et.track(ex.key, extension); 
+            ocd.addExtension(ex.key, ex.values); 
+         } )
+    )*    
     RPAR
     ;
 
@@ -274,14 +274,14 @@ attributeTypeDescription returns [AttributeTypeDescription atd = new AttributeTy
     :
     ( oid:STARTNUMERICOID { atd.setNumericOid(numericoid(oid.getText())); } )
     (
-	    ( name:NAME { et.track("NAME", name); atd.setNames(qdescrs(name.getText())); } )
-	    |
-	    ( desc:DESC { et.track("DESC", desc); atd.setDescription(qdstring(desc.getText())); } )
-	    |
-	    ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); atd.setObsolete( true ); } )
-	    |
-	    ( sup:SUP { et.track("SUP", sup); atd.setSuperType(oid(sup.getText())); } )
-	    |
+        ( name:NAME { et.track("NAME", name); atd.setNames(qdescrs(name.getText())); } )
+        |
+        ( desc:DESC { et.track("DESC", desc); atd.setDescription(qdstring(desc.getText())); } )
+        |
+        ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); atd.setObsolete( true ); } )
+        |
+        ( sup:SUP { et.track("SUP", sup); atd.setSuperType(oid(sup.getText())); } )
+        |
         ( equality:EQUALITY { et.track("EQUALITY", equality); atd.setEqualityMatchingRule(oid(equality.getText())); } )
         |
         ( ordering:ORDERING { et.track("ORDERING", ordering); atd.setOrderingMatchingRule(oid(ordering.getText())); } )
@@ -301,21 +301,21 @@ attributeTypeDescription returns [AttributeTypeDescription atd = new AttributeTy
         |
         ( noUserModification:NO_USER_MODIFICATION { et.track("NO_USER_MODIFICATION", noUserModification); atd.setUserModifiable( false ); } )
         |
-	    ( usage1:USAGE (WHSP)* USER_APPLICATIONS { et.track("USAGE", usage1); atd.setUsage( UsageEnum.USER_APPLICATIONS ); }
-	      |
-	      usage2:USAGE DIRECTORY_OPERATION { et.track("USAGE", usage2); atd.setUsage( UsageEnum.DIRECTORY_OPERATION ); }
-	      |
-	      usage3:USAGE DISTRIBUTED_OPERATION { et.track("USAGE", usage3); atd.setUsage( UsageEnum.DISTRIBUTED_OPERATION ); } 
-	      |
-	      usage4:USAGE DSA_OPERATION { et.track("USAGE", usage4); atd.setUsage( UsageEnum.DSA_OPERATION ); } 
-	    )
-	    |
-	    ( extension:EXTENSION { 
-	        Extension ex = extension(extension.getText());
-	        et.track(ex.key, extension); 
-	        atd.addExtension(ex.key, ex.values); 
-	     } )
-	)*    
+        ( usage1:USAGE (WHSP)* USER_APPLICATIONS { et.track("USAGE", usage1); atd.setUsage( UsageEnum.USER_APPLICATIONS ); }
+          |
+          usage2:USAGE DIRECTORY_OPERATION { et.track("USAGE", usage2); atd.setUsage( UsageEnum.DIRECTORY_OPERATION ); }
+          |
+          usage3:USAGE DISTRIBUTED_OPERATION { et.track("USAGE", usage3); atd.setUsage( UsageEnum.DISTRIBUTED_OPERATION ); } 
+          |
+          usage4:USAGE DSA_OPERATION { et.track("USAGE", usage4); atd.setUsage( UsageEnum.DSA_OPERATION ); } 
+        )
+        |
+        ( extension:EXTENSION { 
+            Extension ex = extension(extension.getText());
+            et.track(ex.key, extension); 
+            atd.addExtension(ex.key, ex.values); 
+         } )
+    )*    
     RPAR
     {
         // semantic check: required elements
@@ -357,13 +357,13 @@ ldapSyntaxDescription returns [LdapSyntaxDescription lsd = new LdapSyntaxDescrip
     :
     ( oid:STARTNUMERICOID { lsd.setNumericOid(numericoid(oid.getText())); } )
     (
-	    ( desc:DESC { et.track("DESC", desc); lsd.setDescription(qdstring(desc.getText())); } )
-	    |
-	    ( extension:EXTENSION { 
-	        Extension ex = extension(extension.getText());
-	        et.track(ex.key, extension); 
-	        lsd.addExtension(ex.key, ex.values); 
-	     } )
+        ( desc:DESC { et.track("DESC", desc); lsd.setDescription(qdstring(desc.getText())); } )
+        |
+        ( extension:EXTENSION { 
+            Extension ex = extension(extension.getText());
+            et.track(ex.key, extension); 
+            lsd.addExtension(ex.key, ex.values); 
+         } )
     )*
     RPAR
     ;
@@ -391,19 +391,19 @@ matchingRuleDescription returns [MatchingRuleDescription mrd = new MatchingRuleD
     :
     ( oid:STARTNUMERICOID { mrd.setNumericOid(numericoid(oid.getText())); } )
     (
-	    ( name:NAME { et.track("NAME", name); mrd.setNames(qdescrs(name.getText())); } )
-	    |
-	    ( desc:DESC { et.track("DESC", desc); mrd.setDescription(qdstring(desc.getText())); } )
-	    |
-	    ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); mrd.setObsolete( true ); } )
-	    |
+        ( name:NAME { et.track("NAME", name); mrd.setNames(qdescrs(name.getText())); } )
+        |
+        ( desc:DESC { et.track("DESC", desc); mrd.setDescription(qdstring(desc.getText())); } )
+        |
+        ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); mrd.setObsolete( true ); } )
+        |
         ( syntax:SYNTAX { et.track("SYNTAX", syntax); mrd.setSyntax(numericoid(syntax.getText())); } )
-	    |
-	    ( extension:EXTENSION { 
-	        Extension ex = extension(extension.getText());
-	        et.track(ex.key, extension); 
-	        mrd.addExtension(ex.key, ex.values); 
-	     } )
+        |
+        ( extension:EXTENSION { 
+            Extension ex = extension(extension.getText());
+            et.track(ex.key, extension); 
+            mrd.addExtension(ex.key, ex.values); 
+         } )
     )*
     RPAR
     {
@@ -436,19 +436,19 @@ matchingRuleUseDescription returns [MatchingRuleUseDescription mrud = new Matchi
     :
     ( oid:STARTNUMERICOID { mrud.setNumericOid(numericoid(oid.getText())); } )
     (
-	    ( name:NAME { et.track("NAME", name); mrud.setNames(qdescrs(name.getText())); } )
-	    |
-	    ( desc:DESC { et.track("DESC", desc); mrud.setDescription(qdstring(desc.getText())); } )
-	    |
-	    ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); mrud.setObsolete( true ); } )
-	    |
+        ( name:NAME { et.track("NAME", name); mrud.setNames(qdescrs(name.getText())); } )
+        |
+        ( desc:DESC { et.track("DESC", desc); mrud.setDescription(qdstring(desc.getText())); } )
+        |
+        ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); mrud.setObsolete( true ); } )
+        |
         ( applies:APPLIES { et.track("APPLIES", applies); mrud.setApplicableAttributes(oids(applies.getText())); } )
-	    |
-	    ( extension:EXTENSION { 
-	        Extension ex = extension(extension.getText());
-	        et.track(ex.key, extension); 
-	        mrud.addExtension(ex.key, ex.values); 
-	     } )
+        |
+        ( extension:EXTENSION { 
+            Extension ex = extension(extension.getText());
+            et.track(ex.key, extension); 
+            mrud.addExtension(ex.key, ex.values); 
+         } )
     )*
     RPAR
     {
@@ -484,25 +484,25 @@ ditContentRuleDescription returns [DITContentRuleDescription dcrd = new DITConte
     :
     ( oid:STARTNUMERICOID { dcrd.setNumericOid(numericoid(oid.getText())); } )
     (
-	    ( name:NAME { et.track("NAME", name); dcrd.setNames(qdescrs(name.getText())); } )
-	    |
-	    ( desc:DESC { et.track("DESC", desc); dcrd.setDescription(qdstring(desc.getText())); } )
-	    |
-	    ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); dcrd.setObsolete( true ); } )
-	    |
-	    ( aux:AUX { et.track("AUX", aux); dcrd.setAuxiliaryObjectClasses(oids(aux.getText())); } )
-	    |
-	    ( must:MUST { et.track("MUST", must); dcrd.setMustAttributeTypes(oids(must.getText())); } )
-	    |
-	    ( may:MAY { et.track("MAY", may); dcrd.setMayAttributeTypes(oids(may.getText())); } )
-	    |
-	    ( not:NOT { et.track("NOT", not); dcrd.setNotAttributeTypes(oids(not.getText())); } )
-	    |
-	    ( extension:EXTENSION { 
-	        Extension ex = extension(extension.getText());
-	        et.track(ex.key, extension); 
-	        dcrd.addExtension(ex.key, ex.values); 
-	     } )
+        ( name:NAME { et.track("NAME", name); dcrd.setNames(qdescrs(name.getText())); } )
+        |
+        ( desc:DESC { et.track("DESC", desc); dcrd.setDescription(qdstring(desc.getText())); } )
+        |
+        ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); dcrd.setObsolete( true ); } )
+        |
+        ( aux:AUX { et.track("AUX", aux); dcrd.setAuxiliaryObjectClasses(oids(aux.getText())); } )
+        |
+        ( must:MUST { et.track("MUST", must); dcrd.setMustAttributeTypes(oids(must.getText())); } )
+        |
+        ( may:MAY { et.track("MAY", may); dcrd.setMayAttributeTypes(oids(may.getText())); } )
+        |
+        ( not:NOT { et.track("NOT", not); dcrd.setNotAttributeTypes(oids(not.getText())); } )
+        |
+        ( extension:EXTENSION { 
+            Extension ex = extension(extension.getText());
+            et.track(ex.key, extension); 
+            dcrd.addExtension(ex.key, ex.values); 
+         } )
     )*
     RPAR
     ;
@@ -534,21 +534,21 @@ ditStructureRuleDescription returns [DITStructureRuleDescription dsrd = new DITS
     :
     ( ruleid:STARTNUMERICOID { dsrd.setRuleId(ruleid(ruleid.getText())); } )
     (
-	    ( name:NAME { et.track("NAME", name); dsrd.setNames(qdescrs(name.getText())); } )
-	    |
-	    ( desc:DESC { et.track("DESC", desc); dsrd.setDescription(qdstring(desc.getText())); } )
-	    |
-	    ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); dsrd.setObsolete( true ); } )
-	    |
-	    ( form:FORM { et.track("FORM", form); dsrd.setForm(oid(form.getText())); } )
-	    |
-	    ( sup:SUP { et.track("SUP", sup); dsrd.setSuperRules(ruleids(sup.getText())); } )
-	    |
-	    ( extension:EXTENSION { 
-	        Extension ex = extension(extension.getText());
-	        et.track(ex.key, extension); 
-	        dsrd.addExtension(ex.key, ex.values); 
-	     } )
+        ( name:NAME { et.track("NAME", name); dsrd.setNames(qdescrs(name.getText())); } )
+        |
+        ( desc:DESC { et.track("DESC", desc); dsrd.setDescription(qdstring(desc.getText())); } )
+        |
+        ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); dsrd.setObsolete( true ); } )
+        |
+        ( form:FORM { et.track("FORM", form); dsrd.setForm(oid(form.getText())); } )
+        |
+        ( sup:SUP { et.track("SUP", sup); dsrd.setSuperRules(ruleids(sup.getText())); } )
+        |
+        ( extension:EXTENSION { 
+            Extension ex = extension(extension.getText());
+            et.track(ex.key, extension); 
+            dsrd.addExtension(ex.key, ex.values); 
+         } )
     )*
     RPAR
     {
@@ -583,23 +583,23 @@ nameFormDescription returns [NameFormDescription nfd = new NameFormDescription()
     :
     ( oid:STARTNUMERICOID { nfd.setNumericOid(numericoid(oid.getText())); } )
     (
-	    ( name:NAME { et.track("NAME", name); nfd.setNames(qdescrs(name.getText())); } )
-	    |
-	    ( desc:DESC { et.track("DESC", desc); nfd.setDescription(qdstring(desc.getText())); } )
-	    |
-	    ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); nfd.setObsolete( true ); } )
-	    |
-	    ( oc:OC { et.track("OC", oc); nfd.setStructuralObjectClass(oid(oc.getText())); } )
-	    |
-	    ( must:MUST { et.track("MUST", must); nfd.setMustAttributeTypes(oids(must.getText())); } )
-	    |
-	    ( may:MAY { et.track("MAY", may); nfd.setMayAttributeTypes(oids(may.getText())); } )
-	    |
-	    ( extension:EXTENSION { 
-	        Extension ex = extension(extension.getText());
-	        et.track(ex.key, extension); 
-	        nfd.addExtension(ex.key, ex.values); 
-	     } )
+        ( name:NAME { et.track("NAME", name); nfd.setNames(qdescrs(name.getText())); } )
+        |
+        ( desc:DESC { et.track("DESC", desc); nfd.setDescription(qdstring(desc.getText())); } )
+        |
+        ( obsolete:OBSOLETE { et.track("OBSOLETE", obsolete); nfd.setObsolete( true ); } )
+        |
+        ( oc:OC { et.track("OC", oc); nfd.setStructuralObjectClass(oid(oc.getText())); } )
+        |
+        ( must:MUST { et.track("MUST", must); nfd.setMustAttributeTypes(oids(must.getText())); } )
+        |
+        ( may:MAY { et.track("MAY", may); nfd.setMayAttributeTypes(oids(may.getText())); } )
+        |
+        ( extension:EXTENSION { 
+            Extension ex = extension(extension.getText());
+            et.track(ex.key, extension); 
+            nfd.addExtension(ex.key, ex.values); 
+         } )
     )*
     RPAR
     {
@@ -647,17 +647,17 @@ comparatorDescription returns [ComparatorDescription cd = new ComparatorDescript
     :
     ( oid:STARTNUMERICOID { cd.setNumericOid(numericoid(oid.getText())); } )
     (
-	    ( desc:DESC { et.track("DESC", desc); cd.setDescription(qdstring(desc.getText())); } )
-	    |
-	    ( fqcn:FQCN { et.track("FQCN", fqcn); cd.setFqcn(fqcn.getText()); } )
-	    |
-	    ( bytecode:BYTECODE { et.track("BYTECODE", bytecode); cd.setBytecode(bytecode.getText()); } )
-	    |
-	    ( extension:EXTENSION { 
-	        Extension ex = extension(extension.getText());
-	        et.track(ex.key, extension); 
-	        cd.addExtension(ex.key, ex.values); 
-	     } )
+        ( desc:DESC { et.track("DESC", desc); cd.setDescription(qdstring(desc.getText())); } )
+        |
+        ( fqcn:FQCN { et.track("FQCN", fqcn); cd.setFqcn(fqcn.getText()); } )
+        |
+        ( bytecode:BYTECODE { et.track("BYTECODE", bytecode); cd.setBytecode(bytecode.getText()); } )
+        |
+        ( extension:EXTENSION { 
+            Extension ex = extension(extension.getText());
+            et.track(ex.key, extension); 
+            cd.addExtension(ex.key, ex.values); 
+         } )
     )*
     RPAR
     {
@@ -699,17 +699,17 @@ normalizerDescription returns [NormalizerDescription nd = new NormalizerDescript
     :
     ( oid:STARTNUMERICOID { nd.setNumericOid(numericoid(oid.getText())); } )
     (
-	    ( desc:DESC { et.track("DESC", desc); nd.setDescription(qdstring(desc.getText())); } )
-	    |
-	    ( fqcn:FQCN { et.track("FQCN", fqcn); nd.setFqcn(fqcn.getText()); } )
-	    |
-	    ( bytecode:BYTECODE { et.track("BYTECODE", bytecode); nd.setBytecode(bytecode.getText()); } )
-	    |
-	    ( extension:EXTENSION { 
-	        Extension ex = extension(extension.getText());
-	        et.track(ex.key, extension); 
-	        nd.addExtension(ex.key, ex.values); 
-	     } )
+        ( desc:DESC { et.track("DESC", desc); nd.setDescription(qdstring(desc.getText())); } )
+        |
+        ( fqcn:FQCN { et.track("FQCN", fqcn); nd.setFqcn(fqcn.getText()); } )
+        |
+        ( bytecode:BYTECODE { et.track("BYTECODE", bytecode); nd.setBytecode(bytecode.getText()); } )
+        |
+        ( extension:EXTENSION { 
+            Extension ex = extension(extension.getText());
+            et.track(ex.key, extension); 
+            nd.addExtension(ex.key, ex.values); 
+         } )
     )*
     RPAR
     {
@@ -751,17 +751,17 @@ syntaxCheckerDescription returns [SyntaxCheckerDescription scd = new SyntaxCheck
     :
     ( oid:STARTNUMERICOID { scd.setNumericOid(numericoid(oid.getText())); } )
     (
-	    ( desc:DESC { et.track("DESC", desc); scd.setDescription(qdstring(desc.getText())); } )
-	    |
-	    ( fqcn:FQCN { et.track("FQCN", fqcn); scd.setFqcn(fqcn.getText()); } )
-	    |
-	    ( bytecode:BYTECODE { et.track("BYTECODE", bytecode); scd.setBytecode(bytecode.getText()); } )
-	    |
-	    ( extension:EXTENSION { 
-	        Extension ex = extension(extension.getText());
-	        et.track(ex.key, extension); 
-	        scd.addExtension(ex.key, ex.values); 
-	     } )
+        ( desc:DESC { et.track("DESC", desc); scd.setDescription(qdstring(desc.getText())); } )
+        |
+        ( fqcn:FQCN { et.track("FQCN", fqcn); scd.setFqcn(fqcn.getText()); } )
+        |
+        ( bytecode:BYTECODE { et.track("BYTECODE", bytecode); scd.setBytecode(bytecode.getText()); } )
+        |
+        ( extension:EXTENSION { 
+            Extension ex = extension(extension.getText());
+            et.track(ex.key, extension); 
+            scd.addExtension(ex.key, ex.values); 
+         } )
     )*
     RPAR
     {
@@ -802,7 +802,7 @@ extension [String s] returns [Extension extension]
 
 numericoid [String s] returns [String numericoid]
     {
-    	AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
+        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         numericoid = parser.numericoid();
     }
@@ -811,7 +811,7 @@ numericoid [String s] returns [String numericoid]
 
 oid [String s] returns [String oid]
     {
-    	AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
+        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         oid = parser.oid();
     }
@@ -820,7 +820,7 @@ oid [String s] returns [String oid]
 
 oids [String s] returns [List<String> oids]
     {
-    	AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
+        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         oids = parser.oids();
     }
@@ -829,7 +829,7 @@ oids [String s] returns [List<String> oids]
 
 qdescr [String s] returns [String qdescr]
     {
-    	AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
+        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         qdescr = parser.qdescr();
     }
@@ -838,7 +838,7 @@ qdescr [String s] returns [String qdescr]
 
 qdescrs [String s] returns [List<String> qdescrs]
     {
-    	AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
+        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         qdescrs = parser.qdescrs();
     }
@@ -847,7 +847,7 @@ qdescrs [String s] returns [List<String> qdescrs]
 
 qdstring [String s] returns [String qdstring]
     {
-    	AntlrSchemaQdstringLexer lexer = new AntlrSchemaQdstringLexer(new StringReader(s));
+        AntlrSchemaQdstringLexer lexer = new AntlrSchemaQdstringLexer(new StringReader(s));
         AntlrSchemaQdstringParser parser = new AntlrSchemaQdstringParser(lexer);
         qdstring = parser.qdstring();
     }
@@ -856,7 +856,7 @@ qdstring [String s] returns [String qdstring]
 
 qdstrings [String s] returns [List<String> qdstrings]
     {
-    	AntlrSchemaQdstringLexer lexer = new AntlrSchemaQdstringLexer(new StringReader(s));
+        AntlrSchemaQdstringLexer lexer = new AntlrSchemaQdstringLexer(new StringReader(s));
         AntlrSchemaQdstringParser parser = new AntlrSchemaQdstringParser(lexer);
         qdstrings = parser.qdstrings();
     }
@@ -865,7 +865,7 @@ qdstrings [String s] returns [List<String> qdstrings]
 
 ruleid [String s] returns [Integer ruleid]
     {
-    	AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
+        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         ruleid = parser.ruleid();
     }
@@ -874,7 +874,7 @@ ruleid [String s] returns [Integer ruleid]
 
 ruleids [String s] returns [List<Integer> ruleids]
     {
-    	AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
+        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         ruleids = parser.ruleids();
     }

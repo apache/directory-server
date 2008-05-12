@@ -604,7 +604,7 @@ public class FilterParser
         // StringTools.trimLeft( filter, pos );
 
         // Check for the left '('
-        if ( StringTools.isCharASCII( filter, pos.start, '(' ) == false )
+        if ( !StringTools.isCharASCII( filter, pos.start, '(' ) )
         {
             // No more node, get out
             if ( ( pos.start == 0 ) && ( pos.length != 0 ) )
@@ -634,7 +634,7 @@ public class FilterParser
         // StringTools.trimLeft( filter, pos );
 
         // Check that we have a right ')'
-        if ( StringTools.isCharASCII( filter, pos.start, ')' ) == false )
+        if ( !StringTools.isCharASCII( filter, pos.start, ')' ) )
         {
             throw new ParseException( "The filter has no right parenthese", pos.start );
         }

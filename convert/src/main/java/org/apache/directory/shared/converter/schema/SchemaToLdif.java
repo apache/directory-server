@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.util.List;
 
-import org.apache.directory.shared.converter.schema.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +31,7 @@ import org.slf4j.LoggerFactory;
  * with the Apache DS meta schema format
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class SchemaToLdif
 {

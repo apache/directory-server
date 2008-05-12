@@ -24,12 +24,12 @@ package org.apache.directory.shared.asn1.codec.stateful;
  * Document me.
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
- *         $Rev$
+ * @version $Rev$, $Date$
  */
 public interface EncoderMonitor
 {
     /** Use this if you don't want to recreate this as just a NOOP monitor */
-    public EncoderMonitor INSTANCE = new EncoderMonitorAdapter();
+    EncoderMonitor INSTANCE = new EncoderMonitorAdapter();
 
 
     /**

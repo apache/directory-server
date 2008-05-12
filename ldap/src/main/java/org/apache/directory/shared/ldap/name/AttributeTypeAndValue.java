@@ -608,7 +608,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
     {
         if ( normValue instanceof String )
         {
-        	// The result will be gathered in a stringBuilder
+            // The result will be gathered in a stringBuilder
             StringBuilder sb = new StringBuilder();
             
             // First, store the type and the '=' char
@@ -620,93 +620,93 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
             
             if ( normalizedValue.length() > 0 )
             {
-            	char[] chars = normalizedValue.toCharArray();
+                char[] chars = normalizedValue.toCharArray();
 
-            	// Loop first assuming the DN won't contain any
-            	// char needing to be escaped. This is the case
-            	// for 99.99% of all DN (blind bet, of course ...) 
-            	for ( char c:chars )
-            	{
+                // Loop first assuming the DN won't contain any
+                // char needing to be escaped. This is the case
+                // for 99.99% of all DN (blind bet, of course ...) 
+                for ( char c:chars )
+                {
                     if ( ( c < 0) || ( c > 128 ) )
                     {
-                    	escaped = true;
-                    	break;
+                        escaped = true;
+                        break;
                     }
                     else if ( DN_ESCAPED_CHARS[ c ] )
                     {
-                    	escaped = true;
-                    	break;
+                        escaped = true;
+                        break;
                     }
-            	}
+                }
 
-            	// Here, we have a char to escape. Start again the loop...
-            	if ( escaped )
-            	{
-	                for ( int i = 0; i < valueLength; i++ )
-	                {
-	                    char c = chars[i];
-	                    
-	                    if ( ( c < 0) || ( c > 128 ) )
-	                    {
-		                    // For chars which are not ASCII, use their hexa value prefixed by an '\'
-	                        byte[] bb = StringTools.getBytesUtf8( normalizedValue.substring( i, i + 1 ) );
-	                        
-	                        for ( byte b:bb )
-	                        {
-	                            sb.append( '\\' ).
-	                                append( StringTools.dumpHex( (byte)(( b & 0x00F0 ) >> 4) ) ).
-	                                append( StringTools.dumpHex( b ) );
-	                        }
-	                    }
-	                    else if ( DN_ESCAPED_CHARS[ c ] ) 
-	                    {
-	                    	// Some chars need to be escaped even if they are US ASCII
-	                    	// Just prefix them with a '\'
-	                    	// Special cases are ' ' (space), '#') which need a special
-	                    	// treatment.
-	                        if ( c == ' ' )
-	                        {
-	                            if ( ( i == 0 ) || ( i == valueLength - 1 ) )
-	                            {
-	                                sb.append( '\\' ).append(  c  );
-	                            }
-	                            else
-	                            {
-	                                sb.append( ' ' );
-	                            }
-	
-	                            continue;
-	                        }
-	                        else if ( c == '#' )
-	                        {
-	                            if ( i == 0 )
-	                            {
-	                                sb.append( "\\#" );
-	                                continue;
-	                            }
-	                            else
-	                            {
-	                                sb.append( '#' );
-	                            }
-	                            
-	                            continue;
-	                        }
-	
-	                        sb.append( '\\' ).append( c );
-	                    }
-	                    else
-	                    {
-	                    	// Standard ASCII chars are just appended
-	                        sb.append( c );
-	                    }
-	                }
-	            }
-            	else
-            	{
-            		// The String does not contain any escaped char : 
-            		// just append it. 
-            		sb.append( normalizedValue );
-            	}
+                // Here, we have a char to escape. Start again the loop...
+                if ( escaped )
+                {
+                    for ( int i = 0; i < valueLength; i++ )
+                    {
+                        char c = chars[i];
+                        
+                        if ( ( c < 0) || ( c > 128 ) )
+                        {
+                            // For chars which are not ASCII, use their hexa value prefixed by an '\'
+                            byte[] bb = StringTools.getBytesUtf8( normalizedValue.substring( i, i + 1 ) );
+                            
+                            for ( byte b:bb )
+                            {
+                                sb.append( '\\' ).
+                                    append( StringTools.dumpHex( (byte)(( b & 0x00F0 ) >> 4) ) ).
+                                    append( StringTools.dumpHex( b ) );
+                            }
+                        }
+                        else if ( DN_ESCAPED_CHARS[ c ] ) 
+                        {
+                            // Some chars need to be escaped even if they are US ASCII
+                            // Just prefix them with a '\'
+                            // Special cases are ' ' (space), '#') which need a special
+                            // treatment.
+                            if ( c == ' ' )
+                            {
+                                if ( ( i == 0 ) || ( i == valueLength - 1 ) )
+                                {
+                                    sb.append( '\\' ).append(  c  );
+                                }
+                                else
+                                {
+                                    sb.append( ' ' );
+                                }
+    
+                                continue;
+                            }
+                            else if ( c == '#' )
+                            {
+                                if ( i == 0 )
+                                {
+                                    sb.append( "\\#" );
+                                    continue;
+                                }
+                                else
+                                {
+                                    sb.append( '#' );
+                                }
+                                
+                                continue;
+                            }
+    
+                            sb.append( '\\' ).append( c );
+                        }
+                        else
+                        {
+                            // Standard ASCII chars are just appended
+                            sb.append( c );
+                        }
+                    }
+                }
+                else
+                {
+                    // The String does not contain any escaped char : 
+                    // just append it. 
+                    sb.append( normalizedValue );
+                }
             }
             
             return sb.toString();

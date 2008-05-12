@@ -20,12 +20,12 @@
 package org.apache.directory.shared.ldap.filter;
 
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Comparator;
-import java.io.IOException;
-import java.text.ParseException;
 
 
 /**
@@ -68,16 +68,16 @@ public class BranchNormalizedVisitor implements FilterVisitor
         {
             if ( !child.isLeaf() )
             {
-            	ExprNode newChild = (ExprNode)visit( child );
-            	
-            	if ( newChild != null )
-            	{
-            		set.add( newChild );
-            	}
+                ExprNode newChild = (ExprNode)visit( child );
+                
+                if ( newChild != null )
+                {
+                    set.add( newChild );
+                }
             }
             else
             {
-            	set.add( child );
+                set.add( child );
             }
         }
 
@@ -153,7 +153,7 @@ public class BranchNormalizedVisitor implements FilterVisitor
     {
         public int compare( ExprNode o1, ExprNode o2 )
         {
-        	StringBuilder buf = new StringBuilder();
+            StringBuilder buf = new StringBuilder();
 
             buf.setLength( 0 );
 

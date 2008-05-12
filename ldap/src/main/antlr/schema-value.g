@@ -120,11 +120,11 @@ oid returns [String oid=null]
     : 
     (
         (SP)? 
-	    (
-	        n:NUMERICOID { oid = n.getText(); }
-	    | 
-	        d:DESCR { oid = d.getText(); }
-	    )
+        (
+            n:NUMERICOID { oid = n.getText(); }
+        | 
+            d:DESCR { oid = d.getText(); }
+        )
         (SP)?
     )
     ;
@@ -142,17 +142,17 @@ oids returns [List<String> oids]
     :
     (
         ( 
-        	oid=oid { oids.add(oid); } 
-    	)
+            oid=oid { oids.add(oid); } 
+        )
     |
         ( 
-        	LPAR 
-        	oid=oid { oids.add(oid); } 
-        	( 
-        		DOLLAR 
-        		oid=oid { oids.add(oid); } 
-        	)* 
-        	RPAR 
+            LPAR 
+            oid=oid { oids.add(oid); } 
+            ( 
+                DOLLAR 
+                oid=oid { oids.add(oid); } 
+            )* 
+            RPAR 
         )
     )
     ;
@@ -164,7 +164,7 @@ oids returns [List<String> oids]
 qdescr returns [String qdescr=null]
     : 
     ( 
-		(SP)?
+        (SP)?
         QUOTE 
         d:DESCR { qdescr = d.getText(); } 
         QUOTE
@@ -178,25 +178,25 @@ qdescr returns [String qdescr=null]
      */
 qdescrs returns [List<String> qdescrs]
     {
-    	qdescrs = new ArrayList<String>();
+        qdescrs = new ArrayList<String>();
         String qdescr = null;
     }
     :
     (
         ( 
-        	qdescr=qdescr { qdescrs.add(qdescr); } 
-    	)
+            qdescr=qdescr { qdescrs.add(qdescr); } 
+        )
     |
         ( 
-        	LPAR 
-        	qdescr=qdescr { qdescrs.add(qdescr); } 
-        	(
-        		SP
-        		qdescr=qdescr { qdescrs.add(qdescr); } 
-    		)* 
-    		(SP)?
-    		RPAR 
-		)
+            LPAR 
+            qdescr=qdescr { qdescrs.add(qdescr); } 
+            (
+                SP
+                qdescr=qdescr { qdescrs.add(qdescr); } 
+            )* 
+            (SP)?
+            RPAR 
+        )
     )
     ;
     
@@ -226,18 +226,18 @@ ruleids returns [List<Integer> ruleids]
     :
     (
         ( 
-        	ruleid=ruleid { ruleids.add(ruleid); } 
-    	)
+            ruleid=ruleid { ruleids.add(ruleid); } 
+        )
     |
         ( 
-        	LPAR 
-        	ruleid=ruleid { ruleids.add(ruleid); } 
-        	( 
-        		SP
-        		ruleid=ruleid { ruleids.add(ruleid); } 
-        	)* 
-        	(SP)?
-        	RPAR 
+            LPAR 
+            ruleid=ruleid { ruleids.add(ruleid); } 
+            ( 
+                SP
+                ruleid=ruleid { ruleids.add(ruleid); } 
+            )* 
+            (SP)?
+            RPAR 
         )
     )
     ;

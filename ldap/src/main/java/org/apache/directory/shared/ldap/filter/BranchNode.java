@@ -170,7 +170,7 @@ public abstract class BranchNode extends AbstractExprNode
             }
             else
             {
-            	return null;
+                return null;
             }
         }
     }
@@ -217,7 +217,7 @@ public abstract class BranchNode extends AbstractExprNode
         
         if ( other.getClass() != this.getClass() )
         {
-        	return false;
+            return false;
         }
 
         BranchNode otherExprNode = ( BranchNode ) other;
@@ -231,18 +231,18 @@ public abstract class BranchNode extends AbstractExprNode
 
         if ( children.size() != otherChildren.size() )
         {
-        	return false;
+            return false;
         }
         
         for ( int i = 0; i < children.size(); i++ )
         {
-        	ExprNode child = children.get( i );
-        	ExprNode otherChild = children.get( i );
-        	
-        	if ( !child.equals( otherChild ) )
-        	{
-        		return false;
-        	}
+            ExprNode child = children.get( i );
+            ExprNode otherChild = children.get( i );
+            
+            if ( !child.equals( otherChild ) )
+            {
+                return false;
+            }
         }
         
         return true;

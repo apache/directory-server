@@ -58,6 +58,7 @@ import org.apache.directory.shared.asn1.util.Asn1StringUtils;
  * .2    -> 0x02
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class OID implements Serializable
 {
@@ -83,7 +84,7 @@ public class OID implements Serializable
     {
         // We should not create this kind of object directly, it must
         // be created through the factory.
-    	hash = 0;
+        hash = 0;
     }
 
 
@@ -531,17 +532,17 @@ public class OID implements Serializable
      */
     private int computeHashCode()
     {
-    	int h = 37;
-    	
-    	for ( long val:oidValues )
-    	{
-    		int low = (int)(val & 0x0000FFFFL);
-    		int high = (int)(val >> 32);
-    		h = h*17 + high;
-    		h = h*17 + low;
-    	}
-    	
-    	return h;
+        int h = 37;
+        
+        for ( long val:oidValues )
+        {
+            int low = (int)(val & 0x0000FFFFL);
+            int high = (int)(val >> 32);
+            h = h*17 + high;
+            h = h*17 + low;
+        }
+        
+        return h;
     }
     
     /**
@@ -600,9 +601,10 @@ public class OID implements Serializable
         {
 
             case '0': // itu-t
+                // fallthrough
             case '1': // iso
                 ituOrIso = true;
-            // fallthrough
+                // fallthrough
 
             case '2': // joint-iso-itu-t
                 break;
@@ -690,7 +692,7 @@ public class OID implements Serializable
      */
     public int hashCode()
     {
-    	return hash;
+        return hash;
     }
     
     public boolean equals( Object oid )
@@ -711,15 +713,15 @@ public class OID implements Serializable
         }
         
         OID instance = (OID)oid;
-   	
-    	if ( instance.hash != hash )
-    	{
-    		return false;
-    	}
-    	else
-    	{
-    		return Arrays.equals( instance.oidValues, oidValues );
-    	}
+       
+        if ( instance.hash != hash )
+        {
+            return false;
+        }
+        else
+        {
+            return Arrays.equals( instance.oidValues, oidValues );
+        }
     }
     
 }

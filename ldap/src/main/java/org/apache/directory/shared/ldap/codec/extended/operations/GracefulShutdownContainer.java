@@ -27,6 +27,7 @@ import org.apache.directory.shared.asn1.ber.AbstractContainer;
  * A container for the GracefulShutdown codec.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class GracefulShutdownContainer extends AbstractContainer
 {

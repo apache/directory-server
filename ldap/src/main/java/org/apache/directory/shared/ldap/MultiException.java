@@ -20,12 +20,12 @@
 package org.apache.directory.shared.ldap;
 
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Collection;
-
-import java.io.PrintWriter;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 
 /**

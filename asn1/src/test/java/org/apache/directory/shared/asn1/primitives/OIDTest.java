@@ -374,10 +374,10 @@ public class OIDTest extends TestCase
      */
     public void testOidEqualsPerf() throws DecoderException
     {
-    	String s1 = "1.2.840.113554.1.2.2.1.2.840.113554.1.2.2.1.2.840.113554.1.2.2";
-    	String s2 = "1.2.840.113554.1.2.2.1.2.840.113554.1.2.2.1.2.840.113554.1.2.2";
-    	String s3 = "1.3.6.1.5.5.2";
-    	
+        String s1 = "1.2.840.113554.1.2.2.1.2.840.113554.1.2.2.1.2.840.113554.1.2.2";
+        String s2 = "1.2.840.113554.1.2.2.1.2.840.113554.1.2.2.1.2.840.113554.1.2.2";
+        String s3 = "1.3.6.1.5.5.2";
+        
         OID oid1 = new OID( s1 );
         OID oid2 = new OID( s2 );
         OID oid3 = new OID( s3 );

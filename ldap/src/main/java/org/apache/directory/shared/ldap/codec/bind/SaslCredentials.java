@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
  * A ldapObject which stores the SASL authentication of a BindRequest.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class SaslCredentials extends LdapAuthentication
 {

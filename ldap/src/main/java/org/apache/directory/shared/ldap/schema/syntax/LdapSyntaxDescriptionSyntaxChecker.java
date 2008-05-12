@@ -46,7 +46,7 @@ public class LdapSyntaxDescriptionSyntaxChecker extends AbstractSyntaxChecker
     /** The Syntax OID, according to RFC 4517, par. 3.3.18 */
     private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.54";
 
-	/** The schema parser used to parse the LdapSyntaxDescription Syntax */
+    /** The schema parser used to parse the LdapSyntaxDescription Syntax */
     private LdapSyntaxDescriptionSchemaParser schemaParser = new LdapSyntaxDescriptionSchemaParser();
 
 

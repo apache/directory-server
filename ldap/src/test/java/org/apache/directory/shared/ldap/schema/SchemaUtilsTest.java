@@ -182,7 +182,7 @@ public class SchemaUtilsTest extends TestCase
     static class SyntaxImpl extends AbstractSyntax
     {
         @SuppressWarnings ( { "AnalyzingVariableNaming" } )
-        public static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
         
         protected SyntaxImpl(String oid)
         {

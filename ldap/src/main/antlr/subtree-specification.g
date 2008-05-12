@@ -100,19 +100,19 @@ options
      */
     public void init( Map<String, OidNormalizer> oidsMap )
     {
-    	this.oidsMap = oidsMap;
+        this.oidsMap = oidsMap;
     }
     
     
     public void setNormalizerMappingResolver( NormalizerMappingResolver resolver )
     {
-    	this.resolver = resolver;
+        this.resolver = resolver;
     }
     
     
     public boolean isNormalizing()
     {
-    	return this.resolver != null;
+        return this.resolver != null;
     }
     
 
@@ -319,12 +319,12 @@ ss_specificationFilter
     
 filter returns [ ExprNode filterExpr = null ]
 {
-	log.debug( "entered filter()" );
+    log.debug( "entered filter()" );
 }
-	:
-	( filterToken:FILTER { filterExpr=FilterParser.parse( filterToken.getText() ); } )
-	;
-	exception
+    :
+    ( filterToken:FILTER { filterExpr=FilterParser.parse( filterToken.getText() ); } )
+    ;
+    exception
     catch [Exception e]
     {
         throw new RecognitionException( "filterParser failed. " + e.getMessage() );
@@ -342,7 +342,7 @@ distinguishedName returns [ LdapDN name ]
         
         if ( isNormalizing() )
         {
-        	name.normalize( oidsMap );
+            name.normalize( oidsMap );
         }
         
         log.debug( "recognized a DistinguishedName: " + token.getText() );

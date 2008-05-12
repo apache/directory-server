@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * The action used to store a match value
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class StoreMatchValueAction extends GrammarAction
 {

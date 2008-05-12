@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * this class. As it is a singleton, these declaration are only done once.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class EntryChangeControlGrammar extends AbstractGrammar
 {

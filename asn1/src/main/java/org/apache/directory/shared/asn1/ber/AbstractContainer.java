@@ -32,7 +32,8 @@ import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
  * the informations needed to decode a PDU.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- */
+  * @version $Rev$, $Date$
+*/
 public class AbstractContainer implements IAsn1Container
 {
     // ~ Instance fields

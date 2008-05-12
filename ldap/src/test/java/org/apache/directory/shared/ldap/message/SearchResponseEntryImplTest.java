@@ -46,9 +46,9 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class SearchResponseEntryImplTest extends TestCase
 {
-	private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
+    private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
-	/**
+    /**
      * Creates and populates a AttributeImpl with a specific id.
      * 
      * @param id

@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class DeepTrimToLowerNormalizer implements Normalizer
 {
-    public static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     public Object normalize( Object value ) throws NamingException
     {

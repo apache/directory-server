@@ -789,7 +789,7 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
                                int result = atavLocal.compareTo( atavParam );
                                if ( result != 0 )
                                {
-                            	   return result;
+                                   return result;
                                }
                            }
                            else

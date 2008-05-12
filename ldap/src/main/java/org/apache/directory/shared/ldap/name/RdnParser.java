@@ -907,11 +907,11 @@ public class RdnParser
      */
     public static int parse( byte[] dn, Position pos, Rdn rdn ) throws InvalidNameException
     {
-    	if ( rdn == null )
-    	{
-    		throw new InvalidNameException( "Cannot feed a null RDN structure" );
-    	}
-    	
+        if ( rdn == null )
+        {
+            throw new InvalidNameException( "Cannot feed a null RDN structure" );
+        }
+        
         String type = null;
         Object value = null;
         int start = pos.start;

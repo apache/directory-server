@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.codec.search;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -49,6 +48,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * final = value
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class SubstringFilter extends Filter
 {
@@ -247,11 +247,8 @@ public class SubstringFilter extends Filter
 
         if ( anySubstrings != null )
         {
-            Iterator<String> anyIterator = anySubstrings.iterator();
-
-            while ( anyIterator.hasNext() )
+            for ( String any:anySubstrings )
             {
-                String any = anyIterator.next();
                 int anyLength = StringTools.getBytesUtf8( any ).length; 
                 substringsFilterSequenceLength += 1 + TLV.getNbBytes( anyLength ) + anyLength;
             }
@@ -329,11 +326,8 @@ public class SubstringFilter extends Filter
             // The any substrings
             if ( anySubstrings != null )
             {
-                Iterator<String> anyIterator = anySubstrings.iterator();
-
-                while ( anyIterator.hasNext() )
+                for ( String any:anySubstrings )
                 {
-                    String any = anyIterator.next();
                     byte[] anyBytes = StringTools.getBytesUtf8( any );
                     buffer.put( ( byte ) LdapConstants.SUBSTRINGS_FILTER_ANY_TAG );
                     buffer.put( TLV.getBytes( anyBytes.length ) );

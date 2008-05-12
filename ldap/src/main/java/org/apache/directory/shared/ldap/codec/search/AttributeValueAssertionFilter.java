@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * Object to store the filter. A filter is seen as a tree with a root.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class AttributeValueAssertionFilter extends Filter
 {

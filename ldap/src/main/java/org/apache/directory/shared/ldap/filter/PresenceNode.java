@@ -45,8 +45,8 @@ public final class PresenceNode extends LeafNode
      */
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
+        StringBuilder buf = new StringBuilder();
+        
         buf.append( '(' ).append( getAttribute() ).append( "=*" );
 
         buf.append( super.toString() );

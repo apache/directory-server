@@ -422,7 +422,7 @@ name
         OPEN_CURLY ( SP )*
             distinguishedName ( SP )*
                 ( SEP ( SP )* distinguishedName ( SP )*
-			)*
+            )*
         CLOSE_CURLY
     ;
 

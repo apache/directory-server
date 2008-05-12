@@ -28,6 +28,7 @@ import java.io.Serializable;
  * an array of int.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class BitString implements Serializable
 {

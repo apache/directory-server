@@ -191,8 +191,8 @@ public class ExtensibleNode extends LeafNode
      */
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
+        StringBuilder buf = new StringBuilder();
+        
         buf.append( '(' ).append( getAttribute() );
         buf.append( "-" );
         buf.append( dnAttributes );

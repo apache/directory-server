@@ -21,12 +21,12 @@
 package org.apache.directory.shared.ldap;
 
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Collection;
-
-import java.io.PrintWriter;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 
 /**
@@ -37,7 +37,7 @@ import java.io.PrintStream;
  */
 public class RuntimeMultiException extends RuntimeException
 {
-    static final long serialVersionUID = 8582253398936366771L;
+    private static final long serialVersionUID = 8582253398936366771L;
 
     /** Collection of nested exceptions. */
     private Collection<Throwable> nestedExceptions = new ArrayList<Throwable>();

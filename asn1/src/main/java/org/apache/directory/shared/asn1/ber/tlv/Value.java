@@ -20,25 +20,25 @@
 package org.apache.directory.shared.asn1.ber.tlv;
 
 
-import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
+import java.io.Serializable;
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.primitives.BitString;
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
-
-import java.io.Serializable;
-import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
 
 
 /**
  * This class stores the data decoded from a TLV.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class Value implements Cloneable, Serializable
 {
-    public static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     // ~ Instance fields
     // ----------------------------------------------------------------------------

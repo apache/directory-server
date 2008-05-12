@@ -126,12 +126,12 @@ public abstract class ProtectedItem implements Serializable
          */
         public String toString()
         {
-        	StringBuilder buf = new StringBuilder();
-        	
-        	buf.append( "classes " );
-        	classes.printRefinementToBuffer( buf );
-        	
-        	return buf.toString();
+            StringBuilder buf = new StringBuilder();
+            
+            buf.append( "classes " );
+            classes.printRefinementToBuffer( buf );
+            
+            return buf.toString();
         }
     }
 
@@ -254,8 +254,8 @@ public abstract class ProtectedItem implements Serializable
          */
         public String toString()
         {
-        	StringBuilder buf = new StringBuilder();
-        	
+            StringBuilder buf = new StringBuilder();
+            
             buf.append( "{ " );
             boolean isFirst = true;
             
@@ -274,8 +274,8 @@ public abstract class ProtectedItem implements Serializable
             }
             
             buf.append( " }" );
-        	
-        	return buf.toString();
+            
+            return buf.toString();
         }
     }
 
@@ -411,8 +411,8 @@ public abstract class ProtectedItem implements Serializable
 
         public String toString()
         {
-        	StringBuilder buf = new StringBuilder();
-        	
+            StringBuilder buf = new StringBuilder();
+            
             buf.append( "attributeValue {" );
             
             for ( Iterator<Attribute> it = attributes.iterator(); it.hasNext(); )
@@ -498,23 +498,23 @@ public abstract class ProtectedItem implements Serializable
 
         public String toString()
         {
-        	StringBuilder buf = new StringBuilder();
-        	
-        	buf.append( "maxValueCount {" );
+            StringBuilder buf = new StringBuilder();
+            
+            buf.append( "maxValueCount {" );
 
-        	boolean isFirst = true;
-        	
+            boolean isFirst = true;
+            
             for ( MaxValueCountItem item:items )
             {
-            	if ( isFirst )
-            	{
-            		isFirst = false;
-            	}
-            	else
-            	{
-            		buf.append( ", " );
-            	}
-            	
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    buf.append( ", " );
+                }
+                
                 buf.append( item.toString() );
             }
             
@@ -580,7 +580,7 @@ public abstract class ProtectedItem implements Serializable
 
         public String toString()
         {
-        	StringBuilder buf = new StringBuilder();
+            StringBuilder buf = new StringBuilder();
             
             buf.append( "rangeOfValues " );
             buf.append( filter.toString() );
@@ -705,23 +705,23 @@ public abstract class ProtectedItem implements Serializable
 
         public String toString()
         {
-        	StringBuilder buf = new StringBuilder();
-        	
+            StringBuilder buf = new StringBuilder();
+            
             buf.append( "restrictedBy {" );
 
             boolean isFirst = true;
             
             for ( RestrictedByItem item:items )
             {
-            	if ( isFirst )
-            	{
-            		isFirst = false;
-            	}
-            	else
-            	{
-            		buf.append( ", " );
-            	}
-            	
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    buf.append( ", " );
+                }
+                
                 buf.append( item.toString() );
             }
             

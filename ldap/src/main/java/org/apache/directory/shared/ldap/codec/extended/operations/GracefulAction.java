@@ -28,6 +28,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
  * A common class for graceful Disconnect and Shutdown extended operations.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public abstract class GracefulAction extends AbstractAsn1Object
 {

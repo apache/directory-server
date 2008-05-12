@@ -20,6 +20,17 @@
 package org.apache.directory.shared.ldap.codec.add;
 
 
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.List;
+
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
@@ -35,16 +46,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
 
 /**
  * An AddRequest Message. Its syntax is : 
@@ -59,6 +60,7 @@ import javax.naming.directory.Attributes;
  *   AttributeValue ::= OCTET STRING
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class AddRequest extends LdapMessage
 {
@@ -250,7 +252,7 @@ public class AddRequest extends LdapMessage
             // Compute the attributes length
             while ( attributeIterator.hasMoreElements() )
             {
-                Attribute attribute = ( Attribute ) attributeIterator.nextElement();
+                Attribute attribute = attributeIterator.nextElement();
                 int localAttributeLength = 0;
                 int localValuesLength = 0;
 
@@ -368,7 +370,7 @@ public class AddRequest extends LdapMessage
                 // Compute the attributes length
                 while ( attributeIterator.hasMoreElements() )
                 {
-                    Attribute attribute = ( Attribute ) attributeIterator.nextElement();
+                    Attribute attribute = attributeIterator.nextElement();
 
                     // The attributes list sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );

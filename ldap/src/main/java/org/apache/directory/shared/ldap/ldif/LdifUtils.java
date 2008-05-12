@@ -45,7 +45,7 @@ import java.util.List;
  */
 public class LdifUtils
 {
-	/** The array that will be used to match the first char.*/
+    /** The array that will be used to match the first char.*/
     private static boolean[] LDIF_SAFE_STARTING_CHAR_ALPHABET = new boolean[128];
     
     /** The array that will be used to match the other chars.*/
@@ -56,28 +56,28 @@ public class LdifUtils
     
     static
     {
-    	// Initialization of the array that will be used to match the first char.
-    	for (int i = 0; i < 128; i++) 
+        // Initialization of the array that will be used to match the first char.
+        for (int i = 0; i < 128; i++) 
         {
-    		LDIF_SAFE_STARTING_CHAR_ALPHABET[i] = true;
-		}
-    	
+            LDIF_SAFE_STARTING_CHAR_ALPHABET[i] = true;
+        }
+        
         LDIF_SAFE_STARTING_CHAR_ALPHABET[0] = false; // 0 (NUL)
-    	LDIF_SAFE_STARTING_CHAR_ALPHABET[10] = false; // 10 (LF)
-    	LDIF_SAFE_STARTING_CHAR_ALPHABET[13] = false; // 13 (CR)
-    	LDIF_SAFE_STARTING_CHAR_ALPHABET[32] = false; // 32 (SPACE)
-    	LDIF_SAFE_STARTING_CHAR_ALPHABET[58] = false; // 58 (:)
-    	LDIF_SAFE_STARTING_CHAR_ALPHABET[60] = false; // 60 (>)
-    	
-    	// Initialization of the array that will be used to match the other chars.
-    	for (int i = 0; i < 128; i++) 
+        LDIF_SAFE_STARTING_CHAR_ALPHABET[10] = false; // 10 (LF)
+        LDIF_SAFE_STARTING_CHAR_ALPHABET[13] = false; // 13 (CR)
+        LDIF_SAFE_STARTING_CHAR_ALPHABET[32] = false; // 32 (SPACE)
+        LDIF_SAFE_STARTING_CHAR_ALPHABET[58] = false; // 58 (:)
+        LDIF_SAFE_STARTING_CHAR_ALPHABET[60] = false; // 60 (>)
+        
+        // Initialization of the array that will be used to match the other chars.
+        for (int i = 0; i < 128; i++) 
         {
-    		LDIF_SAFE_OTHER_CHARS_ALPHABET[i] = true;
-		}
-    	
+            LDIF_SAFE_OTHER_CHARS_ALPHABET[i] = true;
+        }
+        
         LDIF_SAFE_OTHER_CHARS_ALPHABET[0] = false; // 0 (NUL)
-    	LDIF_SAFE_OTHER_CHARS_ALPHABET[10] = false; // 10 (LF)
-    	LDIF_SAFE_OTHER_CHARS_ALPHABET[13] = false; // 13 (CR)
+        LDIF_SAFE_OTHER_CHARS_ALPHABET[10] = false; // 10 (LF)
+        LDIF_SAFE_OTHER_CHARS_ALPHABET[13] = false; // 13 (CR)
     }
 
     /**
@@ -87,19 +87,19 @@ public class LdifUtils
      * The data does not need to be encoded if all the following are true:
      * 
      * The data cannot start with the following char values:
-     * 		00 (NUL)
-     * 		10 (LF)
-     * 		13 (CR)
-     * 		32 (SPACE)
-     * 		58 (:)
-     * 		60 (<)
-     * 		Any character with value greater than 127
+     *         00 (NUL)
+     *         10 (LF)
+     *         13 (CR)
+     *         32 (SPACE)
+     *         58 (:)
+     *         60 (<)
+     *         Any character with value greater than 127
      * 
      * The data cannot contain any of the following char values:
-     * 		00 (NUL)
-     * 		10 (LF)
-     * 		13 (CR)
-     * 		Any character with value greater than 127
+     *         00 (NUL)
+     *         10 (LF)
+     *         13 (CR)
+     *         Any character with value greater than 127
      * 
      * The data cannot end with a space.
      * 
@@ -108,27 +108,27 @@ public class LdifUtils
      */
     public static boolean isLDIFSafe( String str )
     {
-    	// Checking the first char
-    	char currentChar = str.charAt(0);
+        // Checking the first char
+        char currentChar = str.charAt(0);
         
-    	if ( ( currentChar > 127 ) || !LDIF_SAFE_STARTING_CHAR_ALPHABET[currentChar] )
-    	{
-    		return false;
-    	}
-    	
-    	// Checking the other chars
-    	for (int i = 1; i < str.length(); i++)
-    	{
-        	currentChar = str.charAt(i);
-        	
-        	if ( ( currentChar > 127 ) || !LDIF_SAFE_OTHER_CHARS_ALPHABET[currentChar] )
-        	{
-        		return false;
-        	}
-		}
-    	
-    	// The String cannot end with a space
-    	return ( currentChar != ' ' );
+        if ( ( currentChar > 127 ) || !LDIF_SAFE_STARTING_CHAR_ALPHABET[currentChar] )
+        {
+            return false;
+        }
+        
+        // Checking the other chars
+        for (int i = 1; i < str.length(); i++)
+        {
+            currentChar = str.charAt(i);
+            
+            if ( ( currentChar > 127 ) || !LDIF_SAFE_OTHER_CHARS_ALPHABET[currentChar] )
+            {
+                return false;
+            }
+        }
+        
+        // The String cannot end with a space
+        return ( currentChar != ' ' );
     }
     
     /**
@@ -165,22 +165,22 @@ public class LdifUtils
      */
     public static String convertToLdif( Attributes attrs, int length ) throws NamingException
     {
-		StringBuilder sb = new StringBuilder();
-		
-		NamingEnumeration<? extends Attribute> ne = attrs.getAll();
-		
-		while ( ne.hasMore() )
-		{
-			Object attribute = ne.next();
+        StringBuilder sb = new StringBuilder();
+        
+        NamingEnumeration<? extends Attribute> ne = attrs.getAll();
+        
+        while ( ne.hasMore() )
+        {
+            Object attribute = ne.next();
             
-			if ( attribute instanceof Attribute ) 
+            if ( attribute instanceof Attribute ) 
             {
-				sb.append( convertToLdif( (Attribute) attribute, length ) );
-			}			
-		}
-		
-		return sb.toString();
-	}
+                sb.append( convertToLdif( (Attribute) attribute, length ) );
+            }            
+        }
+        
+        return sb.toString();
+    }
     
     /**
      * Convert an Entry to LDIF
@@ -356,74 +356,74 @@ public class LdifUtils
      * @return the corresponding LDIF code as a String
      * @throws NamingException If a naming exception is encountered.
      */
-	public static String convertToLdif( Attribute attr, int length ) throws NamingException
-	{
-		StringBuilder sb = new StringBuilder();
-		
-		// iterating on the attribute's values
-		for ( int i = 0; i < attr.size(); i++ )
+    public static String convertToLdif( Attribute attr, int length ) throws NamingException
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        // iterating on the attribute's values
+        for ( int i = 0; i < attr.size(); i++ )
         {
-			StringBuilder lineBuffer = new StringBuilder();
-			
-            lineBuffer.append( attr.getID() );
-			
-			Object value = attr.get( i );
+            StringBuilder lineBuffer = new StringBuilder();
             
-			// First, deal with null value (which is valid)
-			if ( value == null )
-			{
-                lineBuffer.append( ':' );
-			}
-			else if ( value instanceof byte[] )
+            lineBuffer.append( attr.getID() );
+            
+            Object value = attr.get( i );
+            
+            // First, deal with null value (which is valid)
+            if ( value == null )
             {
-            	// It is binary, so we have to encode it using Base64 before adding it
-            	char[] encoded = Base64.encode( ( byte[] ) value );
-            	
-            	lineBuffer.append( ":: " + new String( encoded ) );                        	
+                lineBuffer.append( ':' );
+            }
+            else if ( value instanceof byte[] )
+            {
+                // It is binary, so we have to encode it using Base64 before adding it
+                char[] encoded = Base64.encode( ( byte[] ) value );
+                
+                lineBuffer.append( ":: " + new String( encoded ) );                            
             }
             else if ( value instanceof String )
             {
-            	// It's a String but, we have to check if encoding isn't required
-            	String str = (String) value;
+                // It's a String but, we have to check if encoding isn't required
+                String str = (String) value;
                 
-            	if ( !LdifUtils.isLDIFSafe( str ) )
-            	{
+                if ( !LdifUtils.isLDIFSafe( str ) )
+                {
                     lineBuffer.append( ":: " + encodeBase64( (String)value ) );
-            	}
-            	else
-            	{
-            		lineBuffer.append( ": " + value );
-            	}
+                }
+                else
+                {
+                    lineBuffer.append( ": " + value );
+                }
             }
             
             lineBuffer.append( "\n" );
             sb.append( stripLineToNChars( lineBuffer.toString(), length ) );
         }
-		
-		return sb.toString();
-	}
-	
-	
-	/**
-	 * Strips the String every n specified characters
-	 * @param str the string to strip
-	 * @param nbChars the number of characters
-	 * @return the stripped String
-	 */
-	public static String stripLineToNChars( String str, int nbChars)
-	{
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * Strips the String every n specified characters
+     * @param str the string to strip
+     * @param nbChars the number of characters
+     * @return the stripped String
+     */
+    public static String stripLineToNChars( String str, int nbChars)
+    {
         int strLength = str.length();
 
         if ( strLength <= nbChars )
-		{
-			return str;
-		}
+        {
+            return str;
+        }
         
         if ( nbChars < 2 )
         {
             throw new IllegalArgumentException( "The length of each line must be at least 2 chars long" );
         }
-		
+        
         // We will first compute the new size of the LDIF result
         // It's at least nbChars chars plus one for \n
         int charsPerLine = nbChars - 1;
@@ -460,9 +460,9 @@ public class LdifUtils
         System.arraycopy( orig, posSrc, buffer, posDst, remaining == 0 ? charsPerLine : remaining );
         
         return new String( buffer );
-	}
-	
-	
+    }
+    
+    
     /**
      * Compute a reverse LDIF of an AddRequest. It's simply a delete request
      * of the added entry

@@ -90,7 +90,7 @@ qdstrings [String s] returns [List<String> qdstrings]
     {
         try 
         {
-    	    AntlrSchemaQdstringLexer lexer = new AntlrSchemaQdstringLexer(new StringReader(s));
+            AntlrSchemaQdstringLexer lexer = new AntlrSchemaQdstringLexer(new StringReader(s));
             AntlrSchemaQdstringParser parser = new AntlrSchemaQdstringParser(lexer);
             qdstrings = parser.qdstrings();
         }

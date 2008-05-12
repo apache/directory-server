@@ -29,6 +29,7 @@ import java.io.Writer;
  * in which the ldif file will be dumped.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class Schema
 {

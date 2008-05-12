@@ -19,7 +19,7 @@
  */
 
 /*
- * @(#)UnixCrypt.java	0.9 96/11/25
+ * @(#)UnixCrypt.java    0.9 96/11/25
  *
  * Copyright (c) 1996 Aki Yoshida. All rights reserved.
  *
@@ -32,8 +32,8 @@
 /**
  * Unix crypt(3C) utility
  *
- * @version 	0.9, 11/25/96
- * @author 	Aki Yoshida
+ * @version     0.9, 11/25/96
+ * @author     Aki Yoshida
  */
 
 /**

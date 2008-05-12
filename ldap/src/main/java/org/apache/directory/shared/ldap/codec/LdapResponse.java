@@ -29,6 +29,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
  * A generic LdapResponse Object. It will contain the LdapResult.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class LdapResponse extends LdapMessage
 {

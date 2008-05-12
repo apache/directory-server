@@ -128,7 +128,7 @@ public class ScopeNode extends AbstractExprNode
         }
         else
         {
-        	return null;
+            return null;
         }
     }
     
@@ -154,9 +154,9 @@ public class ScopeNode extends AbstractExprNode
      */
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
-    	buf.append( "(#{" );
+        StringBuilder buf = new StringBuilder();
+        
+        buf.append( "(#{" );
 
         switch ( scope )
         {
@@ -178,15 +178,15 @@ public class ScopeNode extends AbstractExprNode
             default:
                 buf.append( "UNKNOWN" );
         }
-    	
-    	buf.append( ", '" );
-    	buf.append( baseDn );
-    	buf.append( "', " );
-    	buf.append( aliasDerefAliases );
-    	buf.append( "}" );
-    	buf.append( super.toString() );
-    	buf.append( ')' );
-    	
-    	return buf.toString();
+        
+        buf.append( ", '" );
+        buf.append( baseDn );
+        buf.append( "', " );
+        buf.append( aliasDerefAliases );
+        buf.append( "}" );
+        buf.append( super.toString() );
+        buf.append( ')' );
+        
+        return buf.toString();
     }
 }

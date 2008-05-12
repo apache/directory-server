@@ -28,6 +28,7 @@ import org.apache.directory.shared.asn1.util.Asn1StringUtils;
  * state, and the action to execute while transiting.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class GrammarTransition
 {

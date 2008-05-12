@@ -234,12 +234,12 @@ public class RdnTest
 
         try
         {
-        	RdnParser.parse( "c=d", rdn );
-        	fail();
+            RdnParser.parse( "c=d", rdn );
+            fail();
         }
         catch ( InvalidNameException ine )
         {
-        	assertTrue( true );
+            assertTrue( true );
         }
     }
 

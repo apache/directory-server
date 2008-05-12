@@ -27,16 +27,16 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
  * The StatefulEncoder interface.
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
- *         $Rev$
+ * @version $Rev$, $Date$
  */
 public interface StatefulEncoder
 {
-    public void encode( Object obj ) throws EncoderException;
+    void encode( Object obj ) throws EncoderException;
 
 
-    public void setCallback( EncoderCallback cb );
+    void setCallback( EncoderCallback cb );
 
 
-    public void setEncoderMonitor( EncoderMonitor monitor );
+    void setEncoderMonitor( EncoderMonitor monitor );
 
 }

@@ -20,18 +20,17 @@
 package org.apache.directory.shared.ldap.codec.search;
 
 
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
-
-import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -40,6 +39,7 @@ import java.util.List;
  * SearchResultReference ::= [APPLICATION 19] SEQUENCE OF LDAPURL
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class SearchResultReference extends LdapMessage
 {
@@ -123,12 +123,10 @@ public class SearchResultReference extends LdapMessage
     {
         searchResultReferenceLength = 0;
 
-        Iterator<LdapURL> referencesIterator = searchResultReferences.iterator();
-
         // We may have more than one reference.
-        while ( referencesIterator.hasNext() )
+        for ( LdapURL url:searchResultReferences )
         {
-            int ldapUrlLength = referencesIterator.next().getNbBytes();
+            int ldapUrlLength = url.getNbBytes();
             searchResultReferenceLength += 1 + TLV.getNbBytes( ldapUrlLength ) + ldapUrlLength;
         }
 
@@ -162,13 +160,8 @@ public class SearchResultReference extends LdapMessage
             buffer.put( TLV.getBytes( searchResultReferenceLength ) );
 
             // The references. We must at least have one reference
-            Iterator<LdapURL> referencesIterator = searchResultReferences.iterator();
-
-            // We may have more than one reference.
-            while ( referencesIterator.hasNext() )
+            for ( LdapURL reference:searchResultReferences )
             {
-                LdapURL reference = referencesIterator.next();
-
                 // Encode the reference
                 Value.encode( buffer, reference.getString() );
             }

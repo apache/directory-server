@@ -30,6 +30,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
  * An abstract class which implements basic TLV operations.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public interface Asn1Object
 {
@@ -85,7 +86,7 @@ public interface Asn1Object
      * @param expectedLength
      *            The expectedLength to set.
      */
-    public void setExpectedLength( int expectedLength );
+    void setExpectedLength( int expectedLength );
 
 
     /**
@@ -94,7 +95,7 @@ public interface Asn1Object
      * @param currentLength
      *            The currentLength to set.
      */
-    public void setCurrentLength( int currentLength );
+    void setCurrentLength( int currentLength );
 
 
     /**
@@ -102,5 +103,5 @@ public interface Asn1Object
      * 
      * @return Returns the parent.
      */
-    public Asn1Object getParent();
+    Asn1Object getParent();
 }

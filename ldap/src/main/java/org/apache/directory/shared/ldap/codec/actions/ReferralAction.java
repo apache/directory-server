@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.codec.actions;
 
 
-import java.util.Iterator;
-
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -43,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * The action used to add a referral to a LdapTresult
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class ReferralAction extends GrammarAction
 {
@@ -100,12 +99,10 @@ public class ReferralAction extends GrammarAction
 
         if ( IS_DEBUG )
         {
-            Iterator<LdapURL> urls = ldapResult.getReferrals().iterator();
-
             StringBuffer sb = new StringBuffer();
             boolean isFirst = true;
 
-            while ( urls.hasNext() )
+            for ( LdapURL url:ldapResult.getReferrals() )
             {
                 if ( isFirst )
                 {
@@ -116,7 +113,7 @@ public class ReferralAction extends GrammarAction
                     sb.append( ", " );
                 }
 
-                sb.append( urls.next() );
+                sb.append( url );
             }
 
             log.debug( "The referral error message is set to " + sb.toString() );

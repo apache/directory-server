@@ -20,11 +20,6 @@
 package org.apache.directory.shared.ldap.codec.util;
 
 
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.StringTools;
-
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
@@ -39,6 +34,11 @@ import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.SearchControls;
+
+import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.ldap.filter.FilterParser;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -62,6 +62,7 @@ import javax.naming.directory.SearchControls;
  * xtoken     = ("X-" / "x-") token
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class LdapURL
 {
@@ -178,7 +179,7 @@ public class LdapURL
         }
 
         // An optional '/'
-        if ( StringTools.isCharASCII( chars, pos, '/' ) == false )
+        if ( !StringTools.isCharASCII( chars, pos, '/' ) )
         {
             throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
                 + "', '/' expected" );
@@ -203,7 +204,7 @@ public class LdapURL
         }
 
         // Optionals attributes
-        if ( StringTools.isCharASCII( chars, pos, '?' ) == false )
+        if ( !StringTools.isCharASCII( chars, pos, '?' ) )
         {
             throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
                 + "', '?' expected" );
@@ -222,7 +223,7 @@ public class LdapURL
         }
 
         // Optional scope
-        if ( StringTools.isCharASCII( chars, pos, '?' ) == false )
+        if ( !StringTools.isCharASCII( chars, pos, '?' ) )
         {
             throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
                 + "', '?' expected" );
@@ -241,7 +242,7 @@ public class LdapURL
         }
 
         // Optional filter
-        if ( StringTools.isCharASCII( chars, pos, '?' ) == false )
+        if ( !StringTools.isCharASCII( chars, pos, '?' ) )
         {
             throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
                 + "', '?' expected" );
@@ -265,7 +266,7 @@ public class LdapURL
         }
 
         // Optional extensions
-        if ( StringTools.isCharASCII( chars, pos, '?' ) == false )
+        if ( !StringTools.isCharASCII( chars, pos, '?' ) )
         {
             throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
                 + "', '?' expected" );
@@ -517,7 +518,7 @@ public class LdapURL
     private int parsePort( char[] chars, int pos )
     {
 
-        if ( StringTools.isDigit( chars, pos ) == false )
+        if ( !StringTools.isDigit( chars, pos ) )
         {
             return -1;
         }
@@ -816,7 +817,7 @@ public class LdapURL
 
                         String decodedAttr = decode( attribute );
 
-                        if ( hAttributes.contains( decodedAttr ) == false )
+                        if ( !hAttributes.contains( decodedAttr ) )
                         {
                             attributes.add( decodedAttr );
                             hAttributes.add( decodedAttr );
@@ -863,7 +864,7 @@ public class LdapURL
 
                 String decodedAttr = decode( attribute );
 
-                if ( hAttributes.contains( decodedAttr ) == false )
+                if ( !hAttributes.contains( decodedAttr ) )
                 {
                     attributes.add( decodedAttr );
                     hAttributes.add( decodedAttr );
@@ -1093,7 +1094,7 @@ public class LdapURL
                 else if ( StringTools.isCharASCII( chars, i, '!' ) )
                 {
 
-                    if ( isNewExtension == false )
+                    if ( !isNewExtension )
                     {
 
                         // '!' must appears first
@@ -1180,6 +1181,7 @@ public class LdapURL
 
                 default:
                     sb.append( c );
+                break;
             }
         }
 
@@ -1209,8 +1211,8 @@ public class LdapURL
             sb.append( '/' ).append( urlEncode( dn.toString(), false ) );
 
             if ( ( attributes.size() != 0 )
-                || ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || ( extensions.size() != 0 ) || ( criticalExtensions
-                    .size() != 0 ) ) )
+                || ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || 
+                    ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) ) )
             {
                 sb.append( '?' );
 
@@ -1273,7 +1275,7 @@ public class LdapURL
                             for ( String key:extensions.keySet() )
                             {
 
-                                if ( isFirst == false )
+                                if ( !isFirst )
                                 {
                                     sb.append( ',' );
                                 }
@@ -1294,7 +1296,7 @@ public class LdapURL
                             for ( String key:criticalExtensions.keySet() )
                             {
 
-                                if ( isFirst == false )
+                                if ( !isFirst )
                                 {
                                     sb.append( ",!" );
                                 }

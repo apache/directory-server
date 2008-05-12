@@ -36,6 +36,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * A Asn1Object to store a Control.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class Control extends AbstractAsn1Object
 {

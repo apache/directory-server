@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * The action used to initialize the AND filter
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class InitAndFilterAction extends GrammarAction
 {

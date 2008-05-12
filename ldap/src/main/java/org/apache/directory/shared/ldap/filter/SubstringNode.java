@@ -116,10 +116,10 @@ public class SubstringNode extends LeafNode
      * Set the initial pattern
      * @param initialPattern The initial pattern
      */
-	public void setInitial( String initialPattern ) 
-	{
-		this.initialPattern = initialPattern;
-	}
+    public void setInitial( String initialPattern ) 
+    {
+        this.initialPattern = initialPattern;
+    }
 
     /**
      * Gets the final fragment or suffix.
@@ -136,10 +136,10 @@ public class SubstringNode extends LeafNode
      * Set the final pattern
      * @param finalPattern The final pattern
      */
-	public void setFinal( String finalPattern ) 
-	{
-		this.finalPattern = finalPattern;
-	}
+    public void setFinal( String finalPattern ) 
+    {
+        this.finalPattern = finalPattern;
+    }
 
 
     /**
@@ -157,10 +157,10 @@ public class SubstringNode extends LeafNode
      * Set the any patterns
      * @param anyPattern The any patterns
      */
-	public void setAny( List<String> anyPattern ) 
-	{
-		this.anyPattern = anyPattern;
-	}
+    public void setAny( List<String> anyPattern ) 
+    {
+        this.anyPattern = anyPattern;
+    }
 
 
     /**
@@ -259,8 +259,8 @@ public class SubstringNode extends LeafNode
      */
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
+        StringBuilder buf = new StringBuilder();
+        
         buf.append( '(' ).append( getAttribute() ).append( '=' );
 
         if ( null != initialPattern )
@@ -274,11 +274,11 @@ public class SubstringNode extends LeafNode
 
         if ( null != anyPattern )
         {
-	        for ( String any:anyPattern )
-	        {
-	            buf.append( any );
-	            buf.append( '*' );
-	        }
+            for ( String any:anyPattern )
+            {
+                buf.append( any );
+                buf.append( '*' );
+            }
         }
 
         if ( null != finalPattern )

@@ -76,14 +76,14 @@ public final class MessageDecoder implements ProviderDecoder
         {
             public void decodeOccurred( StatefulDecoder decoder, Object decoded )
             {
-            	if ( decoded instanceof Asn1Object )
-            	{
-            		cb.decodeOccurred( decoder, transformer.transform( decoded ) );
-            	}
-            	else
-            	{
-            		cb.decodeOccurred( decoder, decoded );
-            	}
+                if ( decoded instanceof Asn1Object )
+                {
+                    cb.decodeOccurred( decoder, transformer.transform( decoded ) );
+                }
+                else
+                {
+                    cb.decodeOccurred( decoder, decoded );
+                }
             }
         } );
     }
@@ -161,8 +161,8 @@ public final class MessageDecoder implements ProviderDecoder
             }
             else
             {
-            	// TODO : this is certainly not the way we should handle such an exception !
-            	throw new ResponseCarryingMessageException( e.getMessage() );
+                // TODO : this is certainly not the way we should handle such an exception !
+                throw new ResponseCarryingMessageException( e.getMessage() );
             }
         }
     }

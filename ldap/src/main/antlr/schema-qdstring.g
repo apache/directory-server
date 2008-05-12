@@ -72,23 +72,23 @@ options    {
      */
 qdstrings returns [List<String> qdstrings]
     {
-    	qdstrings = new ArrayList<String>();
+        qdstrings = new ArrayList<String>();
         String qdstring = null;
     }
     :
     (
         ( 
-	        q:QDSTRING 
-	        { 
-	            qdstring = q.getText(); 
-	            if(qdstring.startsWith("'")) {
-	    			qdstring = qdstring.substring(1, qdstring.length());
-	    		}
-	    		if(qdstring.endsWith("'")) {
-	    			qdstring = qdstring.substring(0, qdstring.length()-1);
-	    		}
-	    		qdstrings.add(qdstring);
-	        } 
+            q:QDSTRING 
+            { 
+                qdstring = q.getText(); 
+                if(qdstring.startsWith("'")) {
+                    qdstring = qdstring.substring(1, qdstring.length());
+                }
+                if(qdstring.endsWith("'")) {
+                    qdstring = qdstring.substring(0, qdstring.length()-1);
+                }
+                qdstrings.add(qdstring);
+            } 
         )
     |
         ( LPAR qdstring=qdstring { qdstrings.add(qdstring); } ( qdstring=qdstring { qdstrings.add(qdstring); } )* RPAR )
@@ -116,14 +116,14 @@ qdstring returns [String qdstring=null]
         { 
             qdstring = q.getText(); 
             if(qdstring.startsWith("'")) {
-    			qdstring = qdstring.substring(1, qdstring.length());
-    		}
-    		if(qdstring.endsWith("'")) {
-    			qdstring = qdstring.substring(0, qdstring.length()-1);
-    		}
-    		qdstring = qdstring.replaceAll("\\\\5C", "\\\\");
-    		qdstring = qdstring.replaceAll("\\\\5c", "\\\\");
-    		qdstring = qdstring.replaceAll("\\\\27", "'");
+                qdstring = qdstring.substring(1, qdstring.length());
+            }
+            if(qdstring.endsWith("'")) {
+                qdstring = qdstring.substring(0, qdstring.length()-1);
+            }
+            qdstring = qdstring.replaceAll("\\\\5C", "\\\\");
+            qdstring = qdstring.replaceAll("\\\\5c", "\\\\");
+            qdstring = qdstring.replaceAll("\\\\27", "'");
         } 
     )
     ; 

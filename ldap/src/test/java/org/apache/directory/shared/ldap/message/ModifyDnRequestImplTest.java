@@ -46,9 +46,9 @@ import org.apache.directory.shared.ldap.name.Rdn;
  */
 public class ModifyDnRequestImplTest extends TestCase
 {
-	private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
+    private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
-	/**
+    /**
      * Constructs a ModifyDnrequest to test.
      * 
      * @return the request

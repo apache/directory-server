@@ -111,7 +111,7 @@ public abstract class LeafNode extends AbstractExprNode
 
         if ( other.getClass() != this.getClass() )
         {
-        	return false;
+            return false;
         }
             
         return attribute.equals( ( ( LeafNode ) other ).getAttribute() );
@@ -130,7 +130,7 @@ public abstract class LeafNode extends AbstractExprNode
         }
         else
         {
-        	return null;
+            return null;
         }
     }
 }

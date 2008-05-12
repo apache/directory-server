@@ -42,10 +42,10 @@ public class NotNode extends BranchNode
     {
         super( AssertionType.NOT );
         
-    	if ( this.children.size() > 1 )
-    	{
-    		throw new IllegalStateException( "Cannot add more than one element to a negation node." );    		
-    	}
+        if ( this.children.size() > 1 )
+        {
+            throw new IllegalStateException( "Cannot add more than one element to a negation node." );            
+        }
     }
 
 
@@ -64,11 +64,11 @@ public class NotNode extends BranchNode
      */
     public void addNode( ExprNode node )
     {
-    	if ( children.size() >= 1 )
-    	{
-    		throw new IllegalStateException( "Cannot add more than one element to a negation node." );    		
-    	}
-    	
+        if ( children.size() >= 1 )
+        {
+            throw new IllegalStateException( "Cannot add more than one element to a negation node." );            
+        }
+        
         children.add( node );
     }
 
@@ -80,11 +80,11 @@ public class NotNode extends BranchNode
      */
     public void addNodeToHead( ExprNode node )
     {
-    	if ( children.size() >= 1 )
-    	{
-    		throw new IllegalStateException( "Cannot add more than one element to a negation node." );    		
-    	}
-    	
+        if ( children.size() >= 1 )
+        {
+            throw new IllegalStateException( "Cannot add more than one element to a negation node." );            
+        }
+        
         children.add( node );
     }
 
@@ -96,12 +96,12 @@ public class NotNode extends BranchNode
      */
     public void setChildren( List<ExprNode> list )
     {
-    	if ( ( list != null ) && ( list.size() > 1 ) )
-    	{
-    		throw new IllegalStateException( "Cannot add more than one element to a negation node." );    		
-    	}
+        if ( ( list != null ) && ( list.size() > 1 ) )
+        {
+            throw new IllegalStateException( "Cannot add more than one element to a negation node." );            
+        }
 
-    	children = list;
+        children = list;
     }
 
     
@@ -159,15 +159,15 @@ public class NotNode extends BranchNode
         
         for ( ExprNode node:children )
         {
-        	if ( isFirst )
-        	{
-        		isFirst = false;
-        	}
-        	else
-        	{
-        		buf.append( ", " );
-        	}
-        	
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buf.append( ", " );
+            }
+            
             node.printRefinementToBuffer( buf );
         }
         

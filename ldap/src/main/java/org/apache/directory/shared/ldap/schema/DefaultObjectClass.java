@@ -109,19 +109,19 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
 
     public boolean isStructural()
     {
-    	return type == ObjectClassTypeEnum.STRUCTURAL;
+        return type == ObjectClassTypeEnum.STRUCTURAL;
     }
 
 
     public boolean isAbstract()
     {
-    	return type == ObjectClassTypeEnum.ABSTRACT;
+        return type == ObjectClassTypeEnum.ABSTRACT;
     }
 
     
     public boolean isAuxiliary()
     {
-    	return type == ObjectClassTypeEnum.AUXILIARY;
+        return type == ObjectClassTypeEnum.AUXILIARY;
     }
 
     

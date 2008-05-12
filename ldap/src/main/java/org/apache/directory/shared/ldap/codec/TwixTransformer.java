@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.codec;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
@@ -123,7 +122,7 @@ import org.slf4j.LoggerFactory;
  * A Twix to Snickers Message transformer.
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
- *         $Rev$
+ * @version $Rev$, $Date$, 
  */
 public class TwixTransformer implements TransformerSpi
 {
@@ -438,12 +437,10 @@ public class TwixTransformer implements TransformerSpi
         // Twix : ArrayList modifications -> Snickers : ArrayList mods
         if ( modifyRequest.getModifications() != null )
         {
-            Iterator<ModificationItemImpl> modifications = modifyRequest.getModifications().iterator();
-
             // Loop through the modifications
-            while ( modifications.hasNext() )
+            for ( ModificationItemImpl modification:modifyRequest.getModifications() )
             {
-                snickersMessage.addModification( modifications.next() );
+                snickersMessage.addModification( modification );
             }
         }
 
@@ -484,11 +481,9 @@ public class TwixTransformer implements TransformerSpi
                 // Loop on all AND/OR children
                 if ( filtersSet != null )
                 {
-                    Iterator<Filter> filters = filtersSet.iterator();
-
-                    while ( filters.hasNext() )
+                    for ( Filter filter:filtersSet )
                     {
-                        branch.addNode( transformFilter( filters.next() ) );
+                        branch.addNode( transformFilter( filter ) );
                     }
                 }
 
@@ -790,13 +785,9 @@ public class TwixTransformer implements TransformerSpi
 
         if ( twixControls != null )
         {
-            Iterator<org.apache.directory.shared.ldap.codec.Control> controls = 
-                twixControls.iterator();
-
-            while ( controls.hasNext() )
+            for ( final Control twixControl:twixControls )
             {
                 AbstractMutableControlImpl neutralControl = null;
-                final org.apache.directory.shared.ldap.codec.Control twixControl = controls.next();
 
                 if ( twixControl.getControlValue() instanceof 
                     org.apache.directory.shared.ldap.codec.controls.CascadeControlCodec )
@@ -826,10 +817,6 @@ public class TwixTransformer implements TransformerSpi
                 {
                     neutralControl = new AbstractMutableControlImpl()
                     {
-                        // Just to avoid a compilation warning !!!
-                        public static final long serialVersionUID = 1L;
-
-
                         public byte[] getEncodedValue()
                         {
                             return ( byte[] ) twixControl.getControlValue();
@@ -847,10 +834,6 @@ public class TwixTransformer implements TransformerSpi
                 {
                     neutralControl = new AbstractMutableControlImpl()
                     {
-                        // Just to avoid a compilation warning !!!
-                        public static final long serialVersionUID = 1L;
-
-
                         public byte[] getEncodedValue()
                         {
                             return ( byte[] ) twixControl.getControlValue();
@@ -896,17 +879,14 @@ public class TwixTransformer implements TransformerSpi
         twixLdapResult.setMatchedDN( snickersLdapResult.getMatchedDn() );
 
         // Snickers : Referral referral -> Twix : ArrayList referrals
-        ReferralImpl snisckersReferrals = ( ReferralImpl ) snickersLdapResult.getReferral();
+        ReferralImpl snickersReferrals = ( ReferralImpl ) snickersLdapResult.getReferral();
 
-        if ( snisckersReferrals != null )
+        if ( snickersReferrals != null )
         {
-            Iterator<String> referrals = snisckersReferrals.getLdapUrls().iterator();
             twixLdapResult.initReferrals();
 
-            while ( referrals.hasNext() )
+            for ( String referral:snickersReferrals.getLdapUrls() )
             {
-                String referral = referrals.next();
-
                 try
                 {
                     LdapURL ldapUrl = new LdapURL( referral.getBytes() );
@@ -1190,19 +1170,15 @@ public class TwixTransformer implements TransformerSpi
 
             if ( urls != null )
             {
-                Iterator<String> url = urls.iterator();
-
-                while ( url.hasNext() )
+                for ( String url:urls)
                 {
-                    String urlValue = ( String ) url.next();
-
                     try
                     {
-                        searchResultReference.addSearchResultReference( new LdapURL( urlValue ) );
+                        searchResultReference.addSearchResultReference( new LdapURL( url ) );
                     }
                     catch ( LdapURLEncodingException luee )
                     {
-                        log.warn( "The LdapURL " + urlValue + " is incorrect : " + luee.getMessage() );
+                        log.warn( "The LdapURL " + url + " is incorrect : " + luee.getMessage() );
                     }
                 }
             }
@@ -1307,11 +1283,9 @@ public class TwixTransformer implements TransformerSpi
             return;
         }
         
-        Iterator<Control> list = twixMessage.getControls().iterator();
-        
-        while ( list.hasNext() )
+        for ( Control control:twixMessage.getControls() )
         {
-            log.debug( "Not decoding response control: {}", list.next() );
+            log.debug( "Not decoding response control: {}", control );
         }
     }
     
@@ -1323,11 +1297,8 @@ public class TwixTransformer implements TransformerSpi
      */
     private void transformControls( LdapMessage twixMessage, Message msg )
     {
-        Iterator<javax.naming.ldap.Control> list = msg.getControls().values().iterator();
-        
-        while ( list.hasNext() )
+        for ( javax.naming.ldap.Control control:msg.getControls().values() )
         {
-            javax.naming.ldap.Control control = list.next();
             org.apache.directory.shared.ldap.codec.Control twixControl = new org.apache.directory.shared.ldap.codec.Control();
             twixMessage.addControl( twixControl );
             twixControl.setCriticality( control.isCritical() );

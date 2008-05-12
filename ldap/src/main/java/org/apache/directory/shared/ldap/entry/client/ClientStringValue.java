@@ -24,14 +24,14 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.AbstractValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
 
 
 /**
@@ -46,7 +46,7 @@ import javax.naming.NamingException;
 public class ClientStringValue extends AbstractValue<String>
 {
     /** Used for serialization */
-    public static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 2L;
     
     
     /** logger for reporting errors that might not be handled properly upstream */

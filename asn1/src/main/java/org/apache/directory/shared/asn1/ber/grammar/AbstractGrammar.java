@@ -23,9 +23,9 @@ package org.apache.directory.shared.asn1.ber.grammar;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
-import org.slf4j.LoggerFactory;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -33,6 +33,7 @@ import org.slf4j.Logger;
  * the transitions table.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public abstract class AbstractGrammar implements IGrammar
 {

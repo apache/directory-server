@@ -38,6 +38,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  *              requestValue     [1] OCTET STRING OPTIONAL }
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class ExtendedRequest extends LdapMessage
 {

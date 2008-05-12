@@ -22,13 +22,13 @@ package org.apache.directory.shared.asn1.ber.tlv;
 
 import java.util.Arrays;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
  * This class is used to test the Length class
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LengthTest extends TestCase
 {
@@ -38,17 +38,17 @@ public class LengthTest extends TestCase
      */
     public void testLengthGetNbBytes()
     {
-        Assert.assertEquals( 1, TLV.getNbBytes( 0 ) );
-        Assert.assertEquals( 1, TLV.getNbBytes( 1 ) );
-        Assert.assertEquals( 1, TLV.getNbBytes( 127 ) );
-        Assert.assertEquals( 2, TLV.getNbBytes( 128 ) );
-        Assert.assertEquals( 2, TLV.getNbBytes( 255 ) );
-        Assert.assertEquals( 3, TLV.getNbBytes( 256 ) );
-        Assert.assertEquals( 3, TLV.getNbBytes( 65535 ) );
-        Assert.assertEquals( 4, TLV.getNbBytes( 65536 ) );
-        Assert.assertEquals( 4, TLV.getNbBytes( 16777215 ) );
-        Assert.assertEquals( 5, TLV.getNbBytes( 16777216 ) );
-        Assert.assertEquals( 5, TLV.getNbBytes( 0xFFFFFFFF ) );
+        assertEquals( "1 expected", 1, TLV.getNbBytes( 0 ) );
+        assertEquals( "1 expected", 1, TLV.getNbBytes( 1 ) );
+        assertEquals( "1 expected", 1, TLV.getNbBytes( 127 ) );
+        assertEquals( "2 expected", 2, TLV.getNbBytes( 128 ) );
+        assertEquals( "2 expected", 2, TLV.getNbBytes( 255 ) );
+        assertEquals( "3 expected", 3, TLV.getNbBytes( 256 ) );
+        assertEquals( "3 expected", 3, TLV.getNbBytes( 65535 ) );
+        assertEquals( "4 expected", 4, TLV.getNbBytes( 65536 ) );
+        assertEquals( "4 expected", 4, TLV.getNbBytes( 16777215 ) );
+        assertEquals( "5 expected", 5, TLV.getNbBytes( 16777216 ) );
+        assertEquals( "5 expected", 5, TLV.getNbBytes( 0xFFFFFFFF ) );
     }
 
 

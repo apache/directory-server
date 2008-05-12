@@ -29,6 +29,7 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
  * Every ASN1 container must implement this interface.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public interface IAsn1Container
 {
@@ -57,7 +58,7 @@ public interface IAsn1Container
      * 
      * @param tlv The current TLV
      */
-    public void setCurrentTLV( TLV tlv );
+    void setCurrentTLV( TLV tlv );
 
 
     /**
@@ -65,7 +66,7 @@ public interface IAsn1Container
      * 
      * @return Returns the current TLV being decoded
      */
-    public TLV getCurrentTLV();
+    TLV getCurrentTLV();
 
 
     /**
@@ -73,7 +74,7 @@ public interface IAsn1Container
      * 
      * @return Returns the grammar used to decode a LdapMessage.
      */
-    public IGrammar getGrammar();
+    IGrammar getGrammar();
 
 
     /**
@@ -81,7 +82,7 @@ public interface IAsn1Container
      * 
      * @return Returns the transition from the previous state to the new state
      */
-    public int getTransition();
+    int getTransition();
 
 
     /**
@@ -89,18 +90,18 @@ public interface IAsn1Container
      * 
      * @param transition The transition to set
      */
-    public void setTransition( int transition );
+    void setTransition( int transition );
 
     /**
      * @return Returns the states.
      */
-    public IStates getStates();
+    IStates getStates();
 
 
     /**
      * @return get the parent TLV.
      */
-    public TLV getParentTLV();
+    TLV getParentTLV();
 
 
     /**
@@ -108,7 +109,7 @@ public interface IAsn1Container
      * 
      * @param parentTLV The new parent TLV
      */
-    public void setParentTLV( TLV parentTLV );
+    void setParentTLV( TLV parentTLV );
 
 
     /**
@@ -116,7 +117,7 @@ public interface IAsn1Container
      * 
      * @return true if this can be the last transition
      */
-    public boolean isGrammarEndAllowed();
+    boolean isGrammarEndAllowed();
 
 
     /**
@@ -125,17 +126,17 @@ public interface IAsn1Container
      * @param grammarEndAllowed true or false, depending on the next transition
      * being an end or not.
      */
-    public void grammarEndAllowed( boolean grammarEndAllowed );
+    void grammarEndAllowed( boolean grammarEndAllowed );
     
     /**
      * Get a new TLV id
      * @return a unique value representing the current TLV id
      */
-    public int getNewTlvId();
+    int getNewTlvId();
 
     /**
      * Get the current TLV id
      * @return a unique value representing the current TLV id
      */
-    public int getTlvId();
+    int getTlvId();
 }

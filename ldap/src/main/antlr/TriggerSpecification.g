@@ -79,9 +79,9 @@ options
     
     private String triggerStoredProcedureName;
     
-	private List<StoredProcedureParameter> triggerStoredProcedureParameters;
-	
-	private List<StoredProcedureOption> triggerStoredProcedureOptions;
+    private List<StoredProcedureParameter> triggerStoredProcedureParameters;
+    
+    private List<StoredProcedureOption> triggerStoredProcedureOptions;
     
     private List<SPSpec> spSpecs;   
     
@@ -165,7 +165,7 @@ modifyOperationAndStoredProcedureCalls
         ( modifyStoredProcedureParameterList )?
     CLOSE_PARAN ( SP )* SEMI ( SP )*
     {
-    	spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
+        spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
     })+
     ;
 
@@ -180,7 +180,7 @@ addOperationAndStoredProcedureCalls
         ( addStoredProcedureParameterList )?
     CLOSE_PARAN ( SP )* SEMI ( SP )*
     {
-    	spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
+        spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
     }
     )+
     ;
@@ -196,7 +196,7 @@ deleteOperationAndStoredProcedureCalls
         ( deleteStoredProcedureParameterList )?
     CLOSE_PARAN ( SP )* SEMI ( SP )*
     {
-    	spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
+        spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
     }
     )+
     ;
@@ -215,7 +215,7 @@ modifyDNOperationAndStoredProcedureCalls
         ( modifyDNStoredProcedureParameterList )?
     CLOSE_PARAN ( SP )* SEMI ( SP )*
     {
-    	spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
+        spSpecs.add( new SPSpec(triggerStoredProcedureName, triggerStoredProcedureOptions, triggerStoredProcedureParameters ) );
     }
     )+
     ;
@@ -236,9 +236,9 @@ theCompositeRuleForCallAndSPNameAndSPOptionList
     :
     ID_CALL
     {
-    	triggerStoredProcedureName = null;
-    	triggerStoredProcedureParameters = new ArrayList<StoredProcedureParameter>();
-		triggerStoredProcedureOptions = new ArrayList<StoredProcedureOption>();
+        triggerStoredProcedureName = null;
+        triggerStoredProcedureParameters = new ArrayList<StoredProcedureParameter>();
+        triggerStoredProcedureOptions = new ArrayList<StoredProcedureOption>();
     }
     ( SP )+ triggerStoredProcedureName=fullyQualifiedStoredProcedureName ( SP )*
         ( genericStoredProcedureOptionList ( SP )* )?
@@ -349,7 +349,7 @@ ldapContextStoredProcedureParameter
 }
     : ID_ldapContext ( SP )+ ldapContext=distinguishedName
     { triggerStoredProcedureParameters.add( StoredProcedureParameter.Generic_LDAP_CONTEXT.instance( ldapContext ) ); }
-	;
+    ;
 
 // -----------------------------------------------------------------------------
 

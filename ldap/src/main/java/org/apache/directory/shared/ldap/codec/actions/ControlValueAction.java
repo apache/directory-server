@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
  * hard code controls.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class ControlValueAction extends GrammarAction
 {

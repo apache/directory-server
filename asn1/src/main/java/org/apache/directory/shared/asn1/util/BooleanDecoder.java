@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * Parse and decode a Boolean value.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class BooleanDecoder
 {

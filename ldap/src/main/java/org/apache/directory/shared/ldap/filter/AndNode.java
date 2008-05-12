@@ -105,15 +105,15 @@ public class AndNode extends BranchNode
         
         for ( ExprNode node:children )
         {
-        	if ( isFirst )
-        	{
-        		isFirst = false;
-        	}
-        	else
-        	{
-        		buf.append( ", " );
-        	}
-        	
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buf.append( ", " );
+            }
+            
             node.printRefinementToBuffer( buf );
         }
         
@@ -137,7 +137,7 @@ public class AndNode extends BranchNode
 
         for ( ExprNode child:getChildren() )
         {
-        	buf.append( child );
+            buf.append( child );
         }
         
         buf.append( ')' );
@@ -186,18 +186,18 @@ public class AndNode extends BranchNode
 
         if ( children.size() != otherChildren.size() )
         {
-        	return false;
+            return false;
         }
         
         for ( int i = 0; i < children.size(); i++ )
         {
-        	ExprNode child = children.get( i );
-        	ExprNode otherChild = children.get( i );
-        	
-        	if ( !child.equals( otherChild ) )
-        	{
-        		return false;
-        	}
+            ExprNode child = children.get( i );
+            ExprNode otherChild = children.get( i );
+            
+            if ( !child.equals( otherChild ) )
+            {
+                return false;
+            }
         }
         
         return true;

@@ -20,6 +20,8 @@
 package org.apache.directory.shared.asn1.ber;
 
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.grammar.IStates;
 import org.apache.directory.shared.asn1.ber.tlv.ITLVBerDecoderMBean;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -30,8 +32,6 @@ import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
-
 
 /**
  * A BER TLV Tag component decoder. This decoder instanciate a Tag. The tag
@@ -39,7 +39,8 @@ import java.nio.ByteBuffer;
  * delivered but should copy the data if they need it over the long term.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- */
+ * @version $Rev$, $Date$
+*/
 public class Asn1Decoder implements ITLVBerDecoderMBean
 {
     // ~ Static fields/initializers
@@ -288,7 +289,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
                 tlv.incLengthBytesRead();
                 length = ( length << 8 ) | ( octet & 0x00FF );
                 
-                if ( stream.hasRemaining() == false )
+                if ( !stream.hasRemaining() )
                 {
                     tlv.setLength( length );
                     

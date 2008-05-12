@@ -140,13 +140,13 @@ public class AssertionNode extends AbstractExprNode
      */
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
-    	buf.append( "(@" );
-    	buf.append( desc );
-    	buf.append( super.toString() );
-    	buf.append( ')' );
-    	
+        StringBuilder buf = new StringBuilder();
+        
+        buf.append( "(@" );
+        buf.append( desc );
+        buf.append( super.toString() );
+        buf.append( ')' );
+        
         return buf.toString();
     }
 }

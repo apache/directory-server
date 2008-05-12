@@ -31,6 +31,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * Thrown when a Decoder has encountered a failure condition during a decode.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class ResponseCarryingException extends DecoderException
 {
@@ -63,7 +64,8 @@ public class ResponseCarryingException extends DecoderException
      * @param message A message with meaning to a human
      * @param cause The Exception which caused the error
      */
-    public ResponseCarryingException(String message, ResultResponse response, ResultCodeEnum code, LdapDN matchedDn, Throwable cause)
+    public ResponseCarryingException(String message, ResultResponse response, ResultCodeEnum code, 
+        LdapDN matchedDn, Throwable cause)
     {
         super( message, cause );
 

@@ -27,6 +27,7 @@ import org.apache.directory.shared.asn1.util.Asn1StringUtils;
  * This class is used to store Tag, Length and Value decoded from a PDU.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class TLV
 {

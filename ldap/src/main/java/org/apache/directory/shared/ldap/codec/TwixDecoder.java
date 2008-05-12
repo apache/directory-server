@@ -20,6 +20,9 @@
 package org.apache.directory.shared.ldap.codec;
 
 
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -33,14 +36,12 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-
 
 /**
  * The TwixDecoder decodes ASN.1 BER encoded PDUs.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class TwixDecoder implements ProviderDecoder
 {
@@ -115,12 +116,12 @@ public class TwixDecoder implements ProviderDecoder
                     int size = buf.position();
                     buf.flip();
                     
-                	byte[] array = new byte[ size - position ];
-                	
-                	for ( int i = position; i < size; i++ )
-                	{
-                		array[ i ] = buf.get();
-                	}
+                    byte[] array = new byte[ size - position ];
+                    
+                    for ( int i = position; i < size; i++ )
+                    {
+                        array[ i ] = buf.get();
+                    }
     
                     position = size;
                     
@@ -141,9 +142,9 @@ public class TwixDecoder implements ProviderDecoder
             }
             catch ( DecoderException de )
             {
-            	buf.clear();
-            	ldapMessageContainer.clean();
-            	throw de;
+                buf.clear();
+                ldapMessageContainer.clean();
+                throw de;
             }
         }
     }

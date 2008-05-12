@@ -20,6 +20,12 @@
 package org.apache.directory.shared.ldap.codec;
 
 
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -47,18 +53,13 @@ import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
 import org.apache.directory.shared.ldap.codec.search.SearchResultReference;
 import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
 
-import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
-
-import java.util.ArrayList;
-import java.util.List;
-
 
 /**
  * The main ldapObject : every Ldap Message are encapsulated in it. It contains
  * a message Id, a operation (protocolOp) and one ore more Controls.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class LdapMessage extends AbstractAsn1Object
 {

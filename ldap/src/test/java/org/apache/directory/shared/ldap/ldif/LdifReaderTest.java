@@ -139,7 +139,7 @@ public class LdifReaderTest extends TestCase
             " is is still a comment\n" + 
             "\n" + 
             "version:\n" + 
-	    " 1\n" + 
+            " 1\n" + 
             "# end";
 
         LdifReader reader = new LdifReader();

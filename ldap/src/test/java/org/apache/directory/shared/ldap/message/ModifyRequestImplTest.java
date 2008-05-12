@@ -51,9 +51,9 @@ import java.util.Map;
  */
 public class ModifyRequestImplTest extends TestCase
 {
-	private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
+    private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
-	/**
+    /**
      * Builds a ModifyRequest for testing purposes.
      * 
      * @return the ModifyRequest to use for tests

@@ -1216,13 +1216,13 @@ public class LdapDN implements Name, Externalizable
         // RDN normalized name. The very same for upName.
         if (rdns.size() == 1 )
         {
-        	normName = newRdn.toString();
-        	upName = newRdn.getUpName();
+            normName = newRdn.toString();
+            upName = newRdn.getUpName();
         }
         else
         {
-        	normName = newRdn + "," + normName;
-        	upName = newRdn.getUpName() + "," + upName;
+            normName = newRdn + "," + normName;
+            upName = newRdn.getUpName() + "," + upName;
         }
         
         bytes = StringTools.getBytesUtf8( normName );
@@ -1450,8 +1450,8 @@ public class LdapDN implements Name, Externalizable
                 if ( oidNormalizer != null )
                 {
                     return new AttributeTypeAndValue( atav.getUpType(), oidNormalizer.getAttributeTypeOid(), 
-                    		atav.getUpValue(),
-                    		oidNormalizer.getNormalizer().normalize( atav.getNormValue() ) );
+                            atav.getUpValue(),
+                            oidNormalizer.getNormalizer().normalize( atav.getNormValue() ) );
 
                 }
                 else
@@ -1513,7 +1513,7 @@ public class LdapDN implements Name, Externalizable
 
             while ( atavs.hasNext() )
             {
-            	AttributeTypeAndValue val = atavs.next();
+                AttributeTypeAndValue val = atavs.next();
                 AttributeTypeAndValue newAtav = atavOidToName( val, oidsMap );
                 rdn.addAttributeTypeAndValue( val.getUpType(), newAtav.getNormType(), val.getUpValue(), newAtav.getNormValue() );
             }

@@ -20,8 +20,8 @@
 package org.apache.directory.shared.ldap.filter;
 
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -124,7 +124,7 @@ public abstract class AbstractExprNode implements ExprNode
         }
         else 
         {
-        	return "";
+            return "";
         }
     }
 }

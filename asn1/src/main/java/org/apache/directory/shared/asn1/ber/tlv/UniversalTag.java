@@ -166,6 +166,7 @@ package org.apache.directory.shared.asn1.ber.tlv;
  * </table>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class UniversalTag
 {
@@ -271,13 +272,13 @@ public class UniversalTag
     /** String representation of the tags */
     private static final String[] UNIVERSAL_TAG_STRING =
         { 
-    		"RESERVED_0", 
-    	    "BOOLEAN", 
-    	    "INTEGER", 
-    	    "BIT_STRING", 
-    	    "OCTET_STRING", 
-    	    "NULL", 
-    	    "OBJECT_IDENTIFIER",
+            "RESERVED_0", 
+            "BOOLEAN", 
+            "INTEGER", 
+            "BIT_STRING", 
+            "OCTET_STRING", 
+            "NULL", 
+            "OBJECT_IDENTIFIER",
             "OBJECT_DESCRIPTOR", 
             "EXTERNAL_INSTANCE_OF", 
             "REAL", 
