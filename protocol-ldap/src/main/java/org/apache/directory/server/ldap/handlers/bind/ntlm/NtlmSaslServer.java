@@ -129,11 +129,10 @@ public class NtlmSaslServer implements SaslServer
                 }
                 break;
             case TYPE_3_RECEIVED:
-                NtlmAuthenticationResult result = null;
+                boolean result;
                 try
                 {
                     result = provider.authenticate( session, response );
-                    retval = result.getResponse();
                     session.setAttribute( Context.SECURITY_PRINCIPAL, request.getName().toString() );
                 }
                 catch ( Exception e )
@@ -141,7 +140,7 @@ public class NtlmSaslServer implements SaslServer
                     throw new SaslException( "There was a failure during NTLM Type 3 message handling.", e );
                 }
 
-                if ( ! result.isSuccess() )
+                if ( ! result )
                 {
                     throw new SaslException( "Authentication occurred but the credentials were invalid." );
                 }

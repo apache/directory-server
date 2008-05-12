@@ -28,7 +28,6 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmAuthenticationResult;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmProvider;
 import org.apache.directory.server.unit.AbstractServerTest;
@@ -539,7 +538,6 @@ public class SaslBindITest extends AbstractServerTest
         assertEquals( 2, finalResponse.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
         assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
-        assertTrue( ArrayUtils.isEquals( "results".getBytes(), finalResponse.getServerSaslCreds() ) );
     }
 
 
@@ -559,7 +557,6 @@ public class SaslBindITest extends AbstractServerTest
         assertEquals( 2, finalResponse.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
         assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
-        assertTrue( ArrayUtils.isEquals( "results".getBytes(), finalResponse.getServerSaslCreds() ) );
     }
 
 
@@ -569,10 +566,10 @@ public class SaslBindITest extends AbstractServerTest
         private byte[] type3response;
         
         
-        public NtlmAuthenticationResult authenticate( IoSession session, byte[] type3response ) throws Exception
+        public boolean authenticate( IoSession session, byte[] type3response ) throws Exception
         {
             this.type3response = type3response;
-            return new NtlmAuthenticationResult( "results".getBytes(), true );
+            return true;
         }
 
 

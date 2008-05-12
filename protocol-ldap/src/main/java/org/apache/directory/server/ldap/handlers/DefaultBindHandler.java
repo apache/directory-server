@@ -398,12 +398,15 @@ public class DefaultBindHandler extends BindHandler
 
                     if ( ss.isComplete() )
                     {
-                        /*
-                         * There may be a token to return to the client.  We set it here
-                         * so it will be returned in a SUCCESS message, after an LdapContext
-                         * has been initialized for the client.
-                         */
-                        session.setAttribute( "saslCreds", tokenBytes );
+                        if ( tokenBytes != null )
+                        {
+                            /*
+                             * There may be a token to return to the client.  We set it here
+                             * so it will be returned in a SUCCESS message, after an LdapContext
+                             * has been initialized for the client.
+                             */
+                            session.setAttribute( "saslCreds", tokenBytes );
+                        }
 
                         /*
                          * If we got here, we're ready to try getting an initial LDAP context.

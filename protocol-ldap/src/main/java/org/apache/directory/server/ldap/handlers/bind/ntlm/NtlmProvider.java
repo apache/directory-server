@@ -49,7 +49,7 @@ public interface NtlmProvider
      *
      * @param session the MINA IoSession to store any state to be thread safe
      * @param type3response the Type 3 NTLM response from the client
-     * @return the result of the successful authentication from the server
+     * @return the result of the authentication from the server
      */
-    NtlmAuthenticationResult authenticate( IoSession session, byte[] type3response ) throws Exception;
+    boolean authenticate( IoSession session, byte[] type3response ) throws Exception;
 }
