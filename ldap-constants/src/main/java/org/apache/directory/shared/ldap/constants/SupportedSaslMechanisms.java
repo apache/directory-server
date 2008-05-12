@@ -31,7 +31,7 @@ public interface SupportedSaslMechanisms
     String CRAM_MD5 = "CRAM-MD5";
     String DIGEST_MD5 = "DIGEST-MD5";
     String GSSAPI = "GSSAPI";
-    String SIMPLE = "SIMPLE";
+    String PLAIN = "PLAIN";
 
     /** Not a SASL JDK supported mechanism */
     String NTLM = "NTLM";
