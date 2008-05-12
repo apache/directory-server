@@ -20,6 +20,24 @@
 package org.apache.directory.server.ldap.handlers;
 
 
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import javax.naming.spi.InitialContextFactory;
+import javax.security.auth.Subject;
+import javax.security.auth.kerberos.KerberosKey;
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.sasl.Sasl;
+import javax.security.sasl.SaslException;
+import javax.security.sasl.SaslServer;
+
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
@@ -49,25 +67,6 @@ import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-import javax.naming.spi.InitialContextFactory;
-import javax.security.auth.Subject;
-import javax.security.auth.kerberos.KerberosKey;
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.sasl.Sasl;
-import javax.security.sasl.SaslException;
-import javax.security.sasl.SaslServer;
-
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 
 /**
  * A single reply handler for {@link BindRequest}s.
@@ -81,7 +80,7 @@ public class DefaultBindHandler extends BindHandler
 {
     private static final Logger LOG = LoggerFactory.getLogger( BindHandler.class );
 
-    /** An empty Contol array used to get back the controls if any */
+    /** An empty Control array used to get back the controls if any */
     private static final MutableControl[] EMPTY_CONTROL = new MutableControl[0];
 
     private DirContext ctx;
@@ -99,15 +98,28 @@ public class DefaultBindHandler extends BindHandler
      */
     public DefaultBindHandler()
     {
+        registry = null;
+        handlers = null;
+        ctx = null;
     }
 
 
+    /**
+     * Set the mechanisms handler map.
+     * 
+     * @param handlers The associations btween a machanism and its handler
+     */
     public void setSaslMechanismHandlers( Map<String, MechanismHandler> handlers )
     {
         this.handlers = handlers;
     }
 
 
+    /**
+     * Associated a Registry to the handler
+     *
+     * @param registry The registry to attach
+     */
     public void setSessionRegistry( SessionRegistry registry )
     {
         this.registry = registry;
@@ -126,6 +138,7 @@ public class DefaultBindHandler extends BindHandler
      *  - the credentials : principal's password, if auth level is 'simple'
      *  - the authentication level : either 'simple' or 'strong'
      *  - how to handle referral : either 'ignore' or 'throw'
+     *  
      * @param bindRequest the bind request object
      * @param authenticationLevel the level of the authentication
      * @return the environment for the session
@@ -185,7 +198,7 @@ public class DefaultBindHandler extends BindHandler
     private LdapContext getLdapContext( IoSession session, BindRequest bindRequest, Hashtable<String, Object> env )
     {
         LdapResult result = bindRequest.getResultResponse().getLdapResult();
-        LdapContext ctx;
+        LdapContext context = null;
 
         try
         {
@@ -200,18 +213,18 @@ public class DefaultBindHandler extends BindHandler
                 }
 
                 // Bind is a special case where we have to use the referral property to deal
-                ctx = ( LdapContext ) factory.getInitialContext( env );
+                context = ( LdapContext ) factory.getInitialContext( env );
             }
             else
             {
                 //noinspection SuspiciousToArrayCall
                 MutableControl[] connCtls = bindRequest.getControls().values().toArray( EMPTY_CONTROL );
-                ctx = new InitialLdapContext( env, connCtls );
+                context = new InitialLdapContext( env, connCtls );
             }
         }
         catch ( NamingException e )
         {
-            ResultCodeEnum code;
+            ResultCodeEnum code = null;
 
             if ( e instanceof LdapException )
             {
@@ -242,10 +255,10 @@ public class DefaultBindHandler extends BindHandler
 
             result.setErrorMessage( msg );
             session.write( bindRequest.getResultResponse() );
-            ctx = null;
+            context = null;
         }
 
-        return ctx;
+        return context;
     }
 
     /**
@@ -257,19 +270,18 @@ public class DefaultBindHandler extends BindHandler
      */
     private void handleSimpleAuth( IoSession session, BindRequest bindRequest ) throws NamingException
     {
-        @SuppressWarnings( "unchecked" )
         LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
 
         // Initialize the environment which will be used to create the context
         Hashtable<String, Object> env = getEnvironment( bindRequest, AuthenticationLevel.SIMPLE.toString() );
 
         // Now, get the context
-        LdapContext ctx = getLdapContext( session, bindRequest, env );
+        LdapContext context = getLdapContext( session, bindRequest, env );
 
         // Test that we successfully got one. If not, an error has already been returned.
-        if ( ctx != null )
+        if ( context != null )
         {
-            ServerLdapContext newCtx = ( ServerLdapContext ) ctx.lookup( "" );
+            ServerLdapContext newCtx = ( ServerLdapContext ) context.lookup( "" );
             setRequestControls( newCtx, bindRequest );
             getSessionRegistry().setLdapContext( session, newCtx );
             bindResult.setResultCode( ResultCodeEnum.SUCCESS );
@@ -281,6 +293,13 @@ public class DefaultBindHandler extends BindHandler
     }
 
     
+    /**
+     * Handle the SASL authentication.
+     *
+     * @param session The associated Session
+     * @param message The BindRequest received
+     * @throws Exception If the authentication cannot be done
+     */
     public void handleSaslAuth( IoSession session, Object message ) throws Exception
     {
         LdapServer ldapServer = ( LdapServer )
@@ -315,7 +334,8 @@ public class DefaultBindHandler extends BindHandler
         // Guard clause:  Reject unsupported SASL mechanisms.
         if ( !ldapServer.getSupportedMechanisms().contains( bindRequest.getSaslMechanism() ) )
         {
-            LOG.error( "Bind error : {} mechanism not supported. Please check the server.xml configuration file (supportedMechanisms field)", 
+            LOG.error( "Bind error : {} mechanism not supported. Please check the server.xml " + 
+                "configuration file (supportedMechanisms field)", 
                 bindRequest.getSaslMechanism() );
 
             LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
@@ -331,6 +351,11 @@ public class DefaultBindHandler extends BindHandler
     
     /**
      * Deal with a SASL bind request
+     * 
+     * @param session The IoSession for this Bind Request
+     * @param bindRequest The BindRequest received
+     * 
+     * @exception Exception if the mechanism cannot handle the authentication
      */
     public void handleSasl( IoSession session, BindRequest bindRequest ) throws Exception
     {
@@ -420,6 +445,9 @@ public class DefaultBindHandler extends BindHandler
     
     /**
      * Create a list of all the configured realms.
+     * 
+     * @param ldapServer the LdapServer for which we want to get the realms
+     * @return a list of relms, separated by spaces
      */
     private String getActiveRealms( LdapServer ldapServer )
     {
@@ -444,24 +472,24 @@ public class DefaultBindHandler extends BindHandler
     }
 
 
-    private Subject getSubject( LdapServer ldapServer ) throws ServiceConfigurationException
+    private Subject getSubject( LdapServer ldapServer ) //throws ServiceConfigurationException
     {
         String servicePrincipalName = ldapServer.getSaslPrincipal();
 
         KerberosPrincipal servicePrincipal = new KerberosPrincipal( servicePrincipalName );
         GetPrincipal getPrincipal = new GetPrincipal( servicePrincipal );
 
-        PrincipalStoreEntry entry;
+        PrincipalStoreEntry entry = null;
 
         try
         {
             entry = findPrincipal( ldapServer, getPrincipal );
         }
-        catch ( Exception e )
+        catch ( ServiceConfigurationException sce )
         {
             String message = "Service principal " + servicePrincipalName + " not found at search base DN "
                 + ldapServer.getSearchBaseDn() + ".";
-            throw new ServiceConfigurationException( message, e );
+            throw new ServiceConfigurationException( message, sce );
         }
 
         if ( entry == null )
@@ -473,11 +501,9 @@ public class DefaultBindHandler extends BindHandler
 
         Subject subject = new Subject();
 
-        Iterator<EncryptionType> it = entry.getKeyMap().keySet().iterator();
-
-        while ( it.hasNext() )
+        for ( EncryptionType encryptionType:entry.getKeyMap().keySet() )
         {
-            EncryptionKey key = entry.getKeyMap().get( it.next() );
+            EncryptionKey key = entry.getKeyMap().get( encryptionType );
 
             byte[] keyBytes = key.getKeyValue();
             int type = key.getKeyType().getOrdinal();
@@ -491,14 +517,18 @@ public class DefaultBindHandler extends BindHandler
         return subject;
     }
     
-    private PrincipalStoreEntry findPrincipal( LdapServer ldapServer, GetPrincipal getPrincipal ) throws Exception
+    
+    private PrincipalStoreEntry findPrincipal( LdapServer ldapServer, GetPrincipal getPrincipal )
     {
         if ( ctx == null )
         {
             try
             {
-                LdapPrincipal principal = new LdapPrincipal(
-                        new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN ), AuthenticationLevel.SIMPLE );
+                LdapDN adminDN = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
+                
+                adminDN.normalize( 
+                    ldapServer.getDirectoryService().getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+                LdapPrincipal principal = new LdapPrincipal( adminDN, AuthenticationLevel.SIMPLE );
                 ctx = ldapServer.getDirectoryService().getJndiContext( principal, ldapServer.getSearchBaseDn() );
             }
             catch ( NamingException ne )
@@ -552,27 +582,27 @@ public class DefaultBindHandler extends BindHandler
     }
     
     
-    private void getLdapContext( IoSession session, BindRequest bindRequest ) throws Exception
+    private void getLdapContext( IoSession session, BindRequest bindRequest ) //throws Exception
     {
         Hashtable<String, Object> env = getEnvironment( session, bindRequest );
         LdapResult result = bindRequest.getResultResponse().getLdapResult();
-        LdapContext ctx;
+        LdapContext context = null;
 
         try
         {
             MutableControl[] connCtls = bindRequest.getControls().values().toArray( EMPTY_CONTROL );
-            ctx = new InitialLdapContext( env, connCtls );
+            context = new InitialLdapContext( env, connCtls );
 
-            registry.setLdapContext( session, ctx );
+            registry.setLdapContext( session, context );
             
             // add the bind response controls 
-            bindRequest.getResultResponse().addAll( ctx.getResponseControls() );
+            bindRequest.getResultResponse().addAll( context.getResponseControls() );
             
             returnSuccess( session, bindRequest );
         }
         catch ( NamingException e )
         {
-            ResultCodeEnum code;
+            ResultCodeEnum code = null;
 
             if ( e instanceof LdapException )
             {
@@ -602,13 +632,11 @@ public class DefaultBindHandler extends BindHandler
 
             result.setErrorMessage( msg );
             session.write( bindRequest.getResultResponse() );
-
-            ctx = null;
         }
     }
 
     
-    private void returnSuccess( IoSession session, BindRequest bindRequest ) throws Exception
+    private void returnSuccess( IoSession session, BindRequest bindRequest ) //throws Exception
     {
         /*
          * We have now both authenticated the client and retrieved a JNDI context for them.
@@ -654,7 +682,7 @@ public class DefaultBindHandler extends BindHandler
     /**
      * Convert a SASL mechanism to an Authentication level
      *
-     * @param sessionMechanism The resquested mechanism
+     * @param sessionMechanism The requested mechanism
      * @return The corresponding authentication level
      */
     private String getAuthenticationLevel( String sessionMechanism )
@@ -672,6 +700,10 @@ public class DefaultBindHandler extends BindHandler
     
     /**
      * Deal with a received BindRequest
+     * 
+     * @param session The current session
+     * @param bindRequest The received BindRequest
+     * @throws Exception If the euthentication cannot be handled
      */
     protected void bindMessageReceived( IoSession session, BindRequest bindRequest ) throws Exception
     {
@@ -701,7 +733,7 @@ public class DefaultBindHandler extends BindHandler
             return;
         }
 
-        // Deal with the two kinds of authen :
+        // Deal with the two kinds of authent :
         // - if it's simple, handle it in this class for speed
         // - for sasl, we go through a chain right now (but it may change in the near future)
         if ( bindRequest.isSimple() )
