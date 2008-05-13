@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;

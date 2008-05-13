@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -94,22 +95,8 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
     }
 
 
-    public boolean evaluate( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
+    public boolean evaluate( ServerEntry entry ) throws Exception
     {
-        if ( idx != null )
-        {
-            return idx.forward( ( Number ) indexEntry.getValue(), indexEntry.getId() );
-        }
-
-        ServerEntry entry = indexEntry.getObject();
-
-        // resuscitate the entry if it has not been and set entry in IndexEntry
-        if ( null == entry )
-        {
-            entry = db.lookup( indexEntry.getId() );
-            indexEntry.setObject( entry );
-        }
-
         // get the attribute
         ServerAttribute attr = ( ServerAttribute ) entry.get( type );
 
@@ -148,6 +135,37 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
     }
 
 
+    public boolean evaluate( Long id ) throws Exception
+    {
+        if ( idx != null )
+        {
+            return idx.reverse( id );
+        }
+
+        return evaluate( db.lookup( id ) );
+    }
+
+
+    public boolean evaluate( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
+    {
+        if ( idx != null )
+        {
+            return idx.forward( ( Number ) indexEntry.getValue(), indexEntry.getId() );
+        }
+
+        ServerEntry entry = indexEntry.getObject();
+
+        // resuscitate the entry if it has not been and set entry in IndexEntry
+        if ( null == entry )
+        {
+            entry = db.lookup( indexEntry.getId() );
+            indexEntry.setObject( entry );
+        }
+
+        return evaluate( entry );
+    }
+
+
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
     private boolean evaluate( ServerAttribute attribute ) throws Exception
@@ -163,6 +181,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
         {
             value.normalize( normalizer );
 
+            //noinspection unchecked
             if ( comparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) == 0 )
             {
                 return true;

@@ -27,6 +27,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -128,6 +129,36 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
     }
 
 
+    public boolean evaluate( Long id ) throws Exception
+    {
+
+        if ( idx == null )
+        {
+            //noinspection unchecked
+            return evaluateWithoutIndex( id );
+        }
+        else
+        {
+            return evaluateWithIndex( id );
+        }
+    }
+
+
+    public boolean evaluate( ServerEntry entry ) throws Exception
+    {
+
+        if ( idx == null )
+        {
+            //noinspection unchecked
+            return evaluateWithoutIndex( entry );
+        }
+        else
+        {
+            return evaluateWithIndex( entry );
+        }
+    }
+
+
     public Pattern getPattern()
     {
         return regex;
@@ -168,6 +199,127 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
     }
 
 
+    @SuppressWarnings( { "UnusedDeclaration" } )
+    private boolean evaluateWithIndex( ServerEntry entry ) throws Exception
+    {
+        throw new UnsupportedOperationException( "This is too inefficient without getId() on ServerEntry" );
+    }
+
+
+    private boolean evaluateWithIndex( Long id ) throws Exception
+    {
+        /*
+         * Note that this is using the reverse half of the index giving a
+         * considerable performance improvement on this kind of operation.
+         * Otherwise we would have to scan the entire index if there were
+         * no reverse lookups.
+         */
+        Cursor<IndexEntry<String,ServerEntry>> entries = idx.reverseCursor( id );
+
+        // cycle through the attribute values testing for a match
+        while ( entries.next() )
+        {
+            IndexEntry rec = entries.get();
+
+            // once match is found cleanup and return true
+            if ( regex.matcher( ( String ) rec.getValue() ).matches() )
+            {
+                entries.close();
+                return true;
+            }
+        }
+
+        // we fell through so a match was not found - assertion was false.
+        return false;
+    }
+
+
+    // TODO - determine if comaparator and index entry should have the Value
+    // wrapper or the raw normalized value
+    private boolean evaluateWithoutIndex( Long id ) throws Exception
+    {
+        return evaluateWithoutIndex ( db.lookup( id ) );
+    }
+
+
+    // TODO - determine if comaparator and index entry should have the Value
+    // wrapper or the raw normalized value
+    private boolean evaluateWithoutIndex( ServerEntry entry ) throws Exception
+    {
+        // get the attribute
+        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
+
+        // if the attribute exists and the pattern matches return true
+        if ( attr != null )
+        {
+            /*
+             * Cycle through the attribute values testing normalized version
+             * obtained from using the substring matching rule's normalizer.
+             * The test uses the comparator obtained from the appropriate
+             * substring matching rule.
+             */
+            for ( Value value : attr )
+            {
+                value.normalize( normalizer );
+                String strValue = ( String ) value.getNormalizedValue();
+
+                // Once match is found cleanup and return true
+                if ( regex.matcher( strValue ).matches() )
+                {
+                    return true;
+                }
+            }
+
+            // Fall through as we didn't find any matching value for this attribute.
+            // We will have to check in the potential descendant, if any.
+        }
+
+        // If we do not have the attribute, loop through the descendant
+        // May be the node Attribute has descendant ?
+        if ( registries.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
+        {
+            // TODO check to see if descendant handling is necessary for the
+            // index so we can match properly even when for example a name
+            // attribute is used instead of more specific commonName
+            Iterator<AttributeType> descendants =
+                registries.getAttributeTypeRegistry().descendants( node.getAttribute() );
+
+            while ( descendants.hasNext() )
+            {
+                AttributeType descendant = descendants.next();
+
+                attr = ( ServerAttribute ) entry.get( descendant );
+
+                if ( null != attr )
+                {
+
+
+                    /*
+                     * Cycle through the attribute values testing normalized version
+                     * obtained from using the substring matching rule's normalizer.
+                     * The test uses the comparator obtained from the appropriate
+                     * substring matching rule.
+                     */
+                    for ( Value value : attr )
+                    {
+                        value.normalize( normalizer );
+                        String strValue = ( String ) value.getNormalizedValue();
+
+                        // Once match is found cleanup and return true
+                        if ( regex.matcher( strValue ).matches() )
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // we fell through so a match was not found - assertion was false.
+        return false;
+    }
+
+
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
     private boolean evaluateWithoutIndex( IndexEntry<String,ServerEntry> indexEntry ) throws Exception
@@ -180,6 +332,12 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
             entry = db.lookup( indexEntry.getId() );
             indexEntry.setObject( entry );
         }
+
+        /*
+         * Don't make a call here to evaluateWithoutIndex( ServerEntry ) for
+         * code reuse since we do want to set the value on the indexEntry on
+         * matches.
+         */
 
         // get the attribute
         ServerAttribute attr = ( ServerAttribute ) entry.get( type );
@@ -217,7 +375,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
         {
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
-            // attribute is used instead of more specific commonName 
+            // attribute is used instead of more specific commonName
             Iterator<AttributeType> descendants =
                 registries.getAttributeTypeRegistry().descendants( node.getAttribute() );
 

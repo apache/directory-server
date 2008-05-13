@@ -27,6 +27,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.NotImplementedException;

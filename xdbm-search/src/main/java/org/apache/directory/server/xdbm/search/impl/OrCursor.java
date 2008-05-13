@@ -25,6 +25,7 @@ import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 
 import java.util.*;

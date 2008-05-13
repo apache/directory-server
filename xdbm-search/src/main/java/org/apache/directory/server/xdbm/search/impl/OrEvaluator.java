@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.impl;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.core.entry.ServerEntry;
 
 import java.util.List;
@@ -104,6 +105,34 @@ public class OrEvaluator implements Evaluator<OrNode, ServerEntry>
         for ( Evaluator<?,ServerEntry> evaluator : evaluators )
         {
             if ( evaluator.evaluate( indexEntry ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    public boolean evaluate( Long id ) throws Exception
+    {
+        for ( Evaluator<?,ServerEntry> evaluator : evaluators )
+        {
+            if ( evaluator.evaluate( id ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    public boolean evaluate( ServerEntry entry ) throws Exception
+    {
+        for ( Evaluator<?,ServerEntry> evaluator : evaluators )
+        {
+            if ( evaluator.evaluate( entry ) )
             {
                 return true;
             }

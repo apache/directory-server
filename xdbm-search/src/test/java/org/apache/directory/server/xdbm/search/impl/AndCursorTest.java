@@ -50,6 +50,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AndNode;

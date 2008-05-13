@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.impl;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.core.entry.ServerEntry;
 
 import java.util.List;
@@ -96,6 +97,34 @@ public class AndEvaluator implements Evaluator<AndNode, ServerEntry>
         });
 
         return optimized;
+    }
+
+
+    public boolean evaluate( Long id ) throws Exception
+    {
+        for ( Evaluator<?,ServerEntry> evaluator : evaluators )
+        {
+            if ( ! evaluator.evaluate( id ) )
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    public boolean evaluate( ServerEntry entry ) throws Exception
+    {
+        for ( Evaluator<?,ServerEntry> evaluator : evaluators )
+        {
+            if ( ! evaluator.evaluate( entry ) )
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 

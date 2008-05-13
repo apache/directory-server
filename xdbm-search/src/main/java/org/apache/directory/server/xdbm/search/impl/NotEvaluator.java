@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.impl;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.core.entry.ServerEntry;
 
 
@@ -42,6 +43,18 @@ public class NotEvaluator implements Evaluator<NotNode, ServerEntry>
     {
         this.node = node;
         this.childEvaluator = childEvaluator;
+    }
+
+
+    public boolean evaluate( Long id ) throws Exception
+    {
+        return ! childEvaluator.evaluate( id );
+    }
+
+
+    public boolean evaluate( ServerEntry entry ) throws Exception
+    {
+        return ! childEvaluator.evaluate( entry );
     }
 
 

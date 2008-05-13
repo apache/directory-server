@@ -25,6 +25,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -97,6 +98,27 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, ServerEntry>
             indexEntry.setObject( entry );
         }
 
+        return evaluate( entry );
+    }
+
+
+    // TODO - determine if comaparator and index entry should have the Value
+    // wrapper or the raw normalized value
+    public boolean evaluate( Long id ) throws Exception
+    {
+        if ( idx != null )
+        {
+            return idx.forward( type.getOid(), id );
+        }
+
+        return evaluate( db.lookup( id ) );
+    }
+
+
+    // TODO - determine if comaparator and index entry should have the Value
+    // wrapper or the raw normalized value
+    public boolean evaluate( ServerEntry entry ) throws Exception
+    {
         // get the attribute
         ServerAttribute attr = ( ServerAttribute ) entry.get( type );
 

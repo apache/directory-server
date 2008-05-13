@@ -26,6 +26,7 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ServerEntry;
 
 import javax.naming.directory.SearchControls;
 
@@ -84,19 +85,18 @@ public interface SearchEngine<E>
      * @return enumeration over SearchResults
      * @throws Exception if the search fails
      */
-    Cursor<IndexEntry<?,E>> search( LdapDN base,
-                                       AliasDerefMode aliasDerefMode,
-                                       ExprNode filter,
-                                       SearchControls searchCtls ) throws Exception;
+    Cursor<IndexEntry<?,E>> cursor( LdapDN base,
+                                    AliasDerefMode aliasDerefMode,
+                                    ExprNode filter,
+                                    SearchControls searchCtls ) throws Exception;
 
 
     /**
-     * Evaluates a filter on an entry with a id.
+     * Builds an Evaluator for a filter expression.
      * 
      * @param filter the filter root AST node
-     * @param id the id of the entry to test
      * @return true if the filter passes the entry, false otherwise
      * @throws Exception if something goes wrong while accessing the db
      */
-    boolean evaluate( ExprNode filter, Long id ) throws Exception;
+    Evaluator<? extends ExprNode, ServerEntry> evaluator( ExprNode filter ) throws Exception;
 }

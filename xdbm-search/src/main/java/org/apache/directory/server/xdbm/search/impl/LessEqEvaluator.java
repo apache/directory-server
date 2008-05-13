@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -120,6 +121,17 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
     }
 
 
+    public boolean evaluate( Long id ) throws Exception
+    {
+        if ( idx != null )
+        {
+            return idx.reverseLessOrEq( id, node.getValue().get() );
+        }
+
+        return evaluate( db.lookup( id ) );
+    }
+
+
     public boolean evaluate( IndexEntry<?,ServerEntry> indexEntry ) throws Exception
     {
         if ( idx != null )
@@ -140,6 +152,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
         ServerAttribute attr = ( ServerAttribute ) entry.get( type );
 
         // if the attribute does not exist just return false
+        //noinspection unchecked
         if ( attr != null && evaluate( ( IndexEntry<Object,ServerEntry> ) indexEntry, attr ) )
         {
             return true;
@@ -162,7 +175,48 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
 
                 attr = ( ServerAttribute ) entry.get( descendant );
 
+                //noinspection unchecked
                 if ( attr != null && evaluate( ( IndexEntry<Object,ServerEntry> ) indexEntry, attr ) )
+                {
+                    return true;
+                }
+            }
+        }
+
+        // we fell through so a match was not found - assertion was false.
+        return false;
+    }
+
+
+    public boolean evaluate( ServerEntry entry ) throws Exception
+    {
+        // get the attribute
+        ServerAttribute attr = ( ServerAttribute ) entry.get( type );
+
+        // if the attribute does not exist just return false
+        if ( attr != null && evaluate( null, attr ) )
+        {
+            return true;
+        }
+
+        // If we do not have the attribute, loop through the sub classes of
+        // the attributeType.  Perhaps the entry has an attribute value of a
+        // subtype (descendant) that will produce a match
+        if ( registries.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
+        {
+            // TODO check to see if descendant handling is necessary for the
+            // index so we can match properly even when for example a name
+            // attribute is used instead of more specific commonName
+            Iterator<AttributeType> descendants =
+                registries.getAttributeTypeRegistry().descendants( node.getAttribute() );
+
+            while ( descendants.hasNext() )
+            {
+                AttributeType descendant = descendants.next();
+
+                attr = ( ServerAttribute ) entry.get( descendant );
+
+                if ( attr != null && evaluate( null, attr ) )
                 {
                     return true;
                 }
@@ -188,9 +242,13 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
         {
             value.normalize( normalizer );
 
+            //noinspection unchecked
             if ( comparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) <= 0 )
             {
-                indexEntry.setValue( value.getNormalizedValue() );
+                if ( indexEntry != null )
+                {
+                    indexEntry.setValue( value.getNormalizedValue() );
+                }
                 return true;
             }
         }

@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.impl;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.search.Evaluator;
 
 import javax.naming.directory.SearchControls;
 
@@ -129,6 +130,82 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
          * candidate is rejected with a false return because it is not in scope.
          */
         return db.getSubAliasIndex().forward( baseId, candidate.getId() );
+    }
+
+
+    /**
+     * Asserts whether or not a candidate has one level scope while taking
+     * alias dereferencing into account.
+     *
+     * @param id the id of the entry tested to see if it is in subtree scope
+     * @return true if the candidate is within one level scope whether or not
+     * alias dereferencing is enabled.
+     * @throws Exception if the index lookups fail.
+     * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
+     */
+    public boolean evaluate( Long id ) throws Exception
+    {
+        boolean isDescendant = db.getSubLevelIndex().forward( baseId, id );
+
+        /*
+         * The candidate id could be any entry in the db.  If search
+         * dereferencing is not enabled then we return the results of the
+         * descendant test.
+         */
+        if ( ! isDereferencing() )
+        {
+            return isDescendant;
+        }
+
+        /*
+         * From here down alias dereferencing is enabled.  We determine if the
+         * candidate id is an alias, if so we reject it since aliases should
+         * not be returned.
+         */
+        if ( null != db.getAliasIndex().reverseLookup( id ) )
+        {
+            return false;
+        }
+
+        /*
+         * The candidate is NOT an alias at this point.  So if it is a
+         * descendant we just return true since it is in normal subtree scope.
+         */
+        if ( isDescendant )
+        {
+            return true;
+        }
+
+        /*
+         * At this point the candidate is not a descendant and it is not an
+         * alias.  We need to check if the candidate is in extended subtree
+         * scope by performing a lookup on the subtree alias index.  This index
+         * stores a tuple mapping the baseId to the ids of objects brought
+         * into subtree scope of the base by an alias:
+         *
+         * ( baseId, aliasedObjId )
+         *
+         * If the candidate id is an object brought into subtree scope then
+         * the lookup returns true accepting the candidate.  Otherwise the
+         * candidate is rejected with a false return because it is not in scope.
+         */
+        return db.getSubAliasIndex().forward( baseId, id );
+    }
+
+
+    /**
+     * Asserts whether or not a candidate has one level scope while taking
+     * alias dereferencing into account.
+     *
+     * @param candidate the entry tested to see if it is in subtree scope
+     * @return true if the candidate is within one level scope whether or not
+     * alias dereferencing is enabled.
+     * @throws Exception if the index lookups fail.
+     * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
+     */
+    public boolean evaluate( E candidate ) throws Exception
+    {
+        throw new UnsupportedOperationException( "This is too inefficient without getId() on ServerEntry" );
     }
 
 

@@ -20,11 +20,11 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.filter.*;
 import org.apache.directory.shared.ldap.NotImplementedException;

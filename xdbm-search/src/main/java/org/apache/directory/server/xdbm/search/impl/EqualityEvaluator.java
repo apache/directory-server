@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -110,6 +111,12 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, ServerEntry>
             indexEntry.setObject( entry );
         }
 
+        return evaluate( entry );
+    }
+
+
+    public boolean evaluate( ServerEntry entry ) throws Exception
+    {
         // get the attribute
         ServerAttribute attr = ( ServerAttribute ) entry.get( type );
 
@@ -148,6 +155,17 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, ServerEntry>
     }
 
 
+    public boolean evaluate( Long id ) throws Exception
+    {
+        if ( idx != null )
+        {
+            return idx.reverse( id );
+        }
+
+        return evaluate ( db.lookup( id ) );
+    }
+
+
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
     private boolean evaluate( ServerAttribute attribute ) throws Exception
@@ -162,6 +180,7 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, ServerEntry>
         {
             value.normalize( normalizer );
 
+            //noinspection unchecked
             if ( comparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) == 0 )
             {
                 return true;
