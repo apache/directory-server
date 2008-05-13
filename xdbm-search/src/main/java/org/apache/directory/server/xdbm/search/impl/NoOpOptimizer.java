@@ -39,19 +39,19 @@ public class NoOpOptimizer implements Optimizer
     /** the maximum size for a count Integer.MAX_VALUE as a BigInteger */
     private static final Long MAX = Long.MAX_VALUE;
     
-    public void annotate( ExprNode node ) throws NamingException
+    public Long annotate( ExprNode node ) throws NamingException
     {
         if ( node.isLeaf() )
         {
             node.set( "count", MAX );
-            return;
+            return MAX;
         }
         
         BranchNode bnode = ( BranchNode ) node;
         if ( bnode.getChildren().size() == 0 )
         {
             bnode.set( "count", MAX );
-            return;
+            return MAX;
         }
         
         final int limit = bnode.getChildren().size();
@@ -69,5 +69,6 @@ public class NoOpOptimizer implements Optimizer
         }
 
         bnode.set( "count", MAX );
+        return MAX;
     }
 }

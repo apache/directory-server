@@ -73,8 +73,8 @@ public class OrEvaluator implements Evaluator<OrNode, ServerEntry>
         {
             public int compare( Evaluator<? extends ExprNode, ServerEntry> e1, Evaluator<? extends ExprNode, ServerEntry> e2 )
             {
-                int scanCount1 = ( Integer ) e1.getExpression().get( "count" );
-                int scanCount2 = ( Integer ) e2.getExpression().get( "count" );
+                long scanCount1 = ( Long ) e1.getExpression().get( "count" );
+                long scanCount2 = ( Long ) e2.getExpression().get( "count" );
 
                 if ( scanCount1 == scanCount2 )
                 {

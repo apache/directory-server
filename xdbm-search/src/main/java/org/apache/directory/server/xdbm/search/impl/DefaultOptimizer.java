@@ -75,7 +75,7 @@ public class DefaultOptimizer<E> implements Optimizer
      *
      * @see org.apache.directory.server.xdbm.search.Optimizer#annotate(ExprNode)
      */
-    public void annotate( ExprNode node ) throws Exception
+    public Long annotate( ExprNode node ) throws Exception
     {
         // Start off with the worst case unless scan count says otherwise.
         Long count = Long.MAX_VALUE;
@@ -160,6 +160,8 @@ public class DefaultOptimizer<E> implements Optimizer
             }
             else if ( node instanceof NotNode )
             {
+                annotate( ( ( NotNode ) node ).getFirstChild() );
+
                 /*
                  * A negation filter is always worst case since we will have
                  * to retrieve all entries from the master table then test
@@ -181,6 +183,7 @@ public class DefaultOptimizer<E> implements Optimizer
         }
 
         node.set( "count", count );
+        return count;
     }
 
 
@@ -248,7 +251,7 @@ public class DefaultOptimizer<E> implements Optimizer
         {
             //noinspection unchecked
             Index<Object,E> idx = db.getUserIndex( node.getAttribute() );
-            return idx.count( node.getValue() );
+            return idx.count( node.getValue().get() );
         }
 
         // count for non-indexed attribute is unknown so we presume da worst
@@ -273,11 +276,11 @@ public class DefaultOptimizer<E> implements Optimizer
             Index<Object, E> idx = db.getUserIndex( node.getAttribute() );
             if ( isGreaterThan )
             {
-                return idx.greaterThanCount( node.getValue() );
+                return idx.greaterThanCount( node.getValue().get() );
             }
             else
             {
-                return idx.lessThanCount( node.getValue() );
+                return idx.lessThanCount( node.getValue().get() );
             }
         }
 

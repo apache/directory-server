@@ -142,7 +142,6 @@ public class NestedFilterTest
     }
 
     
-    @Ignore ( "fails with ClassCast ex at line 59 in DeepTrimToLowerNormalizer" )
     @Test
     public void testNestedAndnOr() throws Exception
     {
@@ -172,7 +171,6 @@ public class NestedFilterTest
     }
     
     
-    @Ignore ( "fails with ClassCast ex at line 102 in EqualityEvaluator" )
     @Test
     public void testNestedAndnNot() throws Exception
     {
@@ -192,7 +190,6 @@ public class NestedFilterTest
     }
     
 
-    @Ignore ( "fails with ClassCast ex at line 102 in EqualityEvaluator" )
     @Test
     public void testNestedNotnOrnAnd() throws Exception
     {
@@ -210,14 +207,13 @@ public class NestedFilterTest
         
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( 8, ( long ) cursor.get().getId() );
         assertEquals( "2.5.4.3=jack daniels,2.5.4.11=engineering,2.5.4.10=good times co.", cursor.get().getValue() );
         
         assertFalse( cursor.next() );
     }
 
     
-    @Ignore    
     @Test
     public void testNestedOrnNot() throws Exception
     {

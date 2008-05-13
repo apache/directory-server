@@ -130,7 +130,7 @@ public interface Index<K, O>
      * @return the normalized value.
      * @throws Exception if something goes wrong.
      */
-    K getNormalized( K attrVal ) throws Exception;
+    <K> K getNormalized( K attrVal ) throws Exception;
 
 
     /**
@@ -150,28 +150,28 @@ public interface Index<K, O>
      * @return the number of key/value pairs in this index with the value value
      * @throws Exception on failure to access index db files
      */
-    int count( K attrVal ) throws Exception;
+    <K> int count( K attrVal ) throws Exception;
 
 
-    int greaterThanCount( K attrVal ) throws Exception;
+    <K> int greaterThanCount( K attrVal ) throws Exception;
 
 
-    int lessThanCount( K attrVal ) throws Exception;
+    <K> int lessThanCount( K attrVal ) throws Exception;
 
 
-    Long forwardLookup( K attrVal ) throws Exception;
+    <K> Long forwardLookup( K attrVal ) throws Exception;
 
 
     K reverseLookup( Long id ) throws Exception;
 
 
-    void add( K attrVal, Long id ) throws Exception;
+    <K> void add( K attrVal, Long id ) throws Exception;
 
 
     void drop( Long id ) throws Exception;
 
 
-    void drop( K attrVal, Long id ) throws Exception;
+    <K> void drop( K attrVal, Long id ) throws Exception;
 
 
     IndexCursor<K, O> reverseCursor() throws Exception;
@@ -183,49 +183,49 @@ public interface Index<K, O>
     IndexCursor<K, O> reverseCursor( Long id ) throws Exception;
 
 
-    IndexCursor<K, O> forwardCursor( K key ) throws Exception;
+    <K> IndexCursor<K, O> forwardCursor( K key ) throws Exception;
 
 
     Cursor<K> reverseValueCursor( Long id ) throws Exception;
 
 
-    Cursor<Long> forwardValueCursor( K key ) throws Exception;
+    <K> Cursor<Long> forwardValueCursor( K key ) throws Exception;
 
 
-    boolean forward( K attrVal ) throws Exception;
+    <K> boolean forward( K attrVal ) throws Exception;
 
 
-    boolean forward( K attrVal, Long id ) throws Exception;
+    <K> boolean forward( K attrVal, Long id ) throws Exception;
 
 
     boolean reverse( Long id ) throws Exception;
 
 
-    boolean reverse( Long id, K attrVal ) throws Exception;
+    <K> boolean reverse( Long id, K attrVal ) throws Exception;
 
 
-    boolean forwardGreaterOrEq( K attrVal ) throws Exception;
+    <K> boolean forwardGreaterOrEq( K attrVal ) throws Exception;
 
 
-    boolean forwardGreaterOrEq( K attrVal, Long id ) throws Exception;
+    <K> boolean forwardGreaterOrEq( K attrVal, Long id ) throws Exception;
 
 
     boolean reverseGreaterOrEq( Long id ) throws Exception;
 
 
-    boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception;
+    <K> boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception;
 
 
-    boolean forwardLessOrEq( K attrVal ) throws Exception;
+    <K> boolean forwardLessOrEq( K attrVal ) throws Exception;
 
 
-    boolean forwardLessOrEq( K attrVal, Long id ) throws Exception;
+    <K> boolean forwardLessOrEq( K attrVal, Long id ) throws Exception;
 
 
     boolean reverseLessOrEq( Long id ) throws Exception;
 
 
-    boolean reverseLessOrEq( Long id, K attrVal ) throws Exception;
+    <K> boolean reverseLessOrEq( Long id, K attrVal ) throws Exception;
 
 
     void close() throws Exception;

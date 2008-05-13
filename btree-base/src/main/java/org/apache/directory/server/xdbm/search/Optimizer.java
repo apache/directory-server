@@ -42,5 +42,5 @@ public interface Optimizer
      * @param node the root of the expression node tree
      * @throws Exception if there are failures while optimizing
      */
-    void annotate( ExprNode node ) throws Exception;
+    Long annotate( ExprNode node ) throws Exception;
 }

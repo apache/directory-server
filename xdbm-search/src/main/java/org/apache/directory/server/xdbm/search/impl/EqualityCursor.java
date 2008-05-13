@@ -61,7 +61,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         this.equalityEvaluator = equalityEvaluator;
 
         String attribute = equalityEvaluator.getExpression().getAttribute();
-        Object value = equalityEvaluator.getExpression().getValue();
+        Object value = equalityEvaluator.getExpression().getValue().get();
         if ( db.hasUserIndexOn( attribute ) )
         {
             //noinspection unchecked

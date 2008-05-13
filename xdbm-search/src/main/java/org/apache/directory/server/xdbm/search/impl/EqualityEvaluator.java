@@ -52,7 +52,7 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, ServerEntry>
     private final AttributeType type;
     private final Normalizer normalizer;
     private final Comparator comparator;
-    private final Index<Number,ServerEntry> idx;
+    private final Index<?,ServerEntry> idx;
 
 
     public EqualityEvaluator( EqualityNode node, Store<ServerEntry> db, Registries registries )
@@ -99,7 +99,7 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, ServerEntry>
     {
         if ( idx != null )
         {
-            return idx.forward( ( Number ) indexEntry.getValue(), indexEntry.getId() );
+            return idx.forward( indexEntry.getValue(), indexEntry.getId() );
         }
 
         ServerEntry entry = indexEntry.getObject();
