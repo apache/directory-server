@@ -22,9 +22,9 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.AbstractIndexCursor;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.core.cursor.AbstractCursor;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -36,11 +36,11 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class NotCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
+public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
     private static final String UNSUPPORTED_MSG =
         "NotCursors are not ordered and do not support positioning by element.";
-    private final Cursor<IndexEntry<String,ServerEntry>> ndnCursor;
+    private final IndexCursor<V,ServerEntry> ndnCursor;
     private final Evaluator<? extends ExprNode, ServerEntry> childEvaluator;
     private boolean available = false;
 
@@ -49,7 +49,8 @@ public class NotCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
                       Evaluator<? extends ExprNode, ServerEntry> childEvaluator ) throws Exception
     {
         this.childEvaluator = childEvaluator;
-        this.ndnCursor = db.getNdnIndex().forwardCursor();
+        //noinspection unchecked
+        this.ndnCursor = ( IndexCursor<V,ServerEntry> ) db.getNdnIndex().forwardCursor();
     }
 
 
@@ -59,13 +60,25 @@ public class NotCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void beforeValue( Long id, V value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void before( IndexEntry<V, ServerEntry> element ) throws Exception
+    {
+        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+    }
+
+
+    public void after( IndexEntry<V, ServerEntry> element ) throws Exception
+    {
+        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+    }
+
+
+    public void afterValue( Long id, V value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -129,7 +142,7 @@ public class NotCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public IndexEntry<?, ServerEntry> get() throws Exception
+    public IndexEntry<V, ServerEntry> get() throws Exception
     {
         if ( available )
         {

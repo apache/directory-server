@@ -19,9 +19,9 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.server.xdbm.AbstractTupleCursor;
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
 
@@ -34,7 +34,7 @@ import org.apache.directory.server.core.avltree.AvlTreeCursor;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KeyTupleAvlCursor<K,V> extends AbstractCursor<Tuple<K,V>>
+public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
 {
     private final AvlTreeCursor<V> wrapped;
     private final K key;
@@ -67,6 +67,42 @@ public class KeyTupleAvlCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     public boolean available()
     {
         return valueAvailable;
+    }
+
+
+    public void beforeKey( K key ) throws Exception
+    {
+        throw new UnsupportedOperationException( "This cursor locks down the key so keywise advances are not allowed." );
+    }
+
+
+    public void afterKey( K key ) throws Exception
+    {
+        throw new UnsupportedOperationException( "This cursor locks down the key so keywise advances are not allowed." );
+    }
+
+
+    public void beforeValue( K key, V value ) throws Exception
+    {
+        if ( key != null && ! key.equals( this.key ) )
+        {
+            throw new UnsupportedOperationException( "This cursor locks down the key so keywise advances are not allowed." );
+        }
+
+        wrapped.before( value );
+        clearValue();
+    }
+
+
+    public void afterValue( K key, V value ) throws Exception
+    {
+        if ( key != null && ! key.equals( this.key ) )
+        {
+            throw new UnsupportedOperationException( "This cursor locks down the key so keywise advances are not allowed." );
+        }
+
+        wrapped.after( value );
+        clearValue();
     }
 
 

@@ -35,6 +35,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -479,12 +480,12 @@ public class JdbmStoreTest
 
             public void drop( Object attrVal, Long id ) throws Exception { }
 
-            public Cursor forwardCursor() throws Exception
+            public IndexCursor forwardCursor() throws Exception
             {
                 return null;
             }
 
-            public Cursor forwardCursor( Object key ) throws Exception
+            public IndexCursor forwardCursor( Object key ) throws Exception
             {
                 return null;
             }
@@ -612,12 +613,12 @@ public class JdbmStoreTest
                 return 0;
             }
 
-            public Cursor reverseCursor() throws Exception
+            public IndexCursor reverseCursor() throws Exception
             {
                 return null;
             }
 
-            public Cursor reverseCursor( Long id ) throws Exception
+            public IndexCursor reverseCursor( Long id ) throws Exception
             {
                 return null;
             }

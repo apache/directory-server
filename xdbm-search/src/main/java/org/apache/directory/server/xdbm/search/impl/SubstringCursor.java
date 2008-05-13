@@ -20,13 +20,9 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.server.core.cursor.AbstractCursor;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.*;
 
 
 /**
@@ -35,12 +31,12 @@ import org.apache.directory.server.xdbm.ForwardIndexEntry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubstringCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
+public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
 {
     private static final String UNSUPPORTED_MSG =
         "SubstringCursors may not be ordered and do not support positioning by element.";
     private final boolean hasIndex;
-    private final Cursor<IndexEntry<String,ServerEntry>> wrapped;
+    private final IndexCursor<String,ServerEntry> wrapped;
     private final SubstringEvaluator evaluator;
     private final ForwardIndexEntry<String,ServerEntry> indexEntry =
         new ForwardIndexEntry<String,ServerEntry>();
@@ -82,13 +78,25 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void beforeValue( Long id, String value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void afterValue( Long id, String value ) throws Exception
+    {
+        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+    }
+
+
+    public void before( IndexEntry<String, ServerEntry> element ) throws Exception
+    {
+        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+    }
+
+
+    public void after( IndexEntry<String, ServerEntry> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -197,7 +205,7 @@ public class SubstringCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public IndexEntry<?, ServerEntry> get() throws Exception
+    public IndexEntry<String, ServerEntry> get() throws Exception
     {
         if ( available )
         {

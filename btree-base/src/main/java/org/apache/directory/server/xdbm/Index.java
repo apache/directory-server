@@ -174,16 +174,16 @@ public interface Index<K, O>
     void drop( K attrVal, Long id ) throws Exception;
 
 
-    Cursor<IndexEntry<K, O>> reverseCursor() throws Exception;
+    IndexCursor<K, O> reverseCursor() throws Exception;
 
 
-    Cursor<IndexEntry<K, O>> forwardCursor() throws Exception;
+    IndexCursor<K, O> forwardCursor() throws Exception;
 
 
-    Cursor<IndexEntry<K, O>> reverseCursor( Long id ) throws Exception;
+    IndexCursor<K, O> reverseCursor( Long id ) throws Exception;
 
 
-    Cursor<IndexEntry<K, O>> forwardCursor( K key ) throws Exception;
+    IndexCursor<K, O> forwardCursor( K key ) throws Exception;
 
 
     Cursor<K> reverseValueCursor( Long id ) throws Exception;

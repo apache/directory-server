@@ -49,6 +49,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -159,7 +160,7 @@ public class OrCursorTest
 
         ExprNode exprNode = FilterParser.parse( filter );
         
-        Cursor<IndexEntry<?,ServerEntry>> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?,ServerEntry> cursor = cursorBuilder.build( exprNode );
 
         cursor.afterLast();
 

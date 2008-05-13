@@ -30,7 +30,6 @@ import java.util.ArrayList;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -49,7 +48,7 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -155,7 +154,7 @@ public class AndCursorTest
 
         ExprNode exprNode = FilterParser.parse( filter );
         
-        Cursor<IndexEntry<?,ServerEntry>> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?,ServerEntry> cursor = cursorBuilder.build( exprNode );
         
         cursor.beforeFirst();
 
@@ -192,7 +191,7 @@ public class AndCursorTest
         
         ExprNode exprNode = new SubstringNode( "cn", "J*", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, registries );
-        Cursor<IndexEntry<?,ServerEntry>> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        IndexCursor<?,ServerEntry> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
         
         /* adding this results in NPE  adding Presence evaluator not 
          Substring evaluator but adding Substring cursor as wrapped cursor */
@@ -206,7 +205,7 @@ public class AndCursorTest
         
         andNode.addNode( exprNode );
         
-        Cursor<IndexEntry<?,ServerEntry>> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
+        IndexCursor<?,ServerEntry> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
         
         cursor.beforeFirst();
 

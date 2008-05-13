@@ -32,7 +32,6 @@ import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 
 
@@ -92,7 +91,7 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
     /**
      * @see SearchEngine#cursor(LdapDN, AliasDerefMode, ExprNode, SearchControls)
      */
-    public Cursor<IndexEntry<?,ServerEntry>> cursor( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public IndexCursor<?,ServerEntry> cursor( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter,
                                                      SearchControls searchCtls ) throws Exception
     {
         LdapDN effectiveBase;

@@ -34,9 +34,9 @@ import java.util.Iterator;
  * IndexEntry objects rather than tuples.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
+ * @version $Rev$
  */
-public class IndexCursor<K,O> implements Cursor<IndexEntry<K,O>>
+public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
 {
     final Cursor<Tuple> wrappedCursor;
     final ForwardIndexEntry<K, O> forwardEntry;
@@ -44,14 +44,14 @@ public class IndexCursor<K,O> implements Cursor<IndexEntry<K,O>>
 
 
     /**
-     * Creates an IndexCursor which wraps and adapts a Cursor from a table to
+     * Creates an IndexCursorAdaptor which wraps and adapts a Cursor from a table to
      * one which returns an IndexEntry.
      *
      * @param wrappedCursor the Cursor being adapted
      * @param forwardIndex true for a cursor over a forward index, false for
      * one over a reverse index
      */
-    public IndexCursor( Cursor<Tuple> wrappedCursor, boolean forwardIndex )
+    public IndexCursorAdaptor( Cursor<Tuple> wrappedCursor, boolean forwardIndex )
     {
         this.wrappedCursor = wrappedCursor;
         if ( forwardIndex )
@@ -70,6 +70,20 @@ public class IndexCursor<K,O> implements Cursor<IndexEntry<K,O>>
     public boolean available()
     {
         return wrappedCursor.available();
+    }
+
+
+    public void beforeValue( Long id, K key ) throws Exception
+    {
+        //noinspection unchecked
+        ( ( TupleCursor ) wrappedCursor ).beforeKey( key );
+    }
+
+
+    public void afterValue( Long id, K key ) throws Exception
+    {
+        //noinspection unchecked
+        ( ( TupleCursor ) wrappedCursor ).afterKey( key );
     }
 
 

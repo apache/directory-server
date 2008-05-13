@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.server.xdbm.AbstractTupleCursor;
 
 import java.io.IOException;
 
@@ -37,7 +38,7 @@ import jdbm.helper.TupleBrowser;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-class NoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
+class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
 {
     private final JdbmTable<K,V> table;
 
@@ -75,22 +76,16 @@ class NoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     }
 
 
-    /**
-     * Positions this Cursor before the key of the supplied tuple.
-     *
-     * @param element the tuple who's key is used to position this Cursor
-     * @throws IOException if there are failures to position the Cursor
-     */
-    public void before( Tuple<K,V> element ) throws IOException
+    public void beforeKey( K key ) throws Exception
     {
-        browser = table.getBTree().browse( element.getKey() );
+        browser = table.getBTree().browse( key );
         clearValue();
     }
 
 
-    public void after( Tuple<K,V> element ) throws IOException
+    public void afterKey( K key ) throws Exception
     {
-        browser = table.getBTree().browse( element.getKey() );
+        browser = table.getBTree().browse( key );
 
         /*
          * While the next value is less than or equal to the element keep
@@ -104,7 +99,7 @@ class NoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
             //noinspection unchecked
             K next = ( K ) jdbmTuple.getKey();
 
-            int nextCompared = table.getKeyComparator().compare( next, element.getKey() );
+            int nextCompared = table.getKeyComparator().compare( next, key );
 
             if ( nextCompared > 0 )
             {
@@ -115,6 +110,36 @@ class NoDupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         }
 
         clearValue();
+    }
+
+
+    public void beforeValue( K key, V value ) throws Exception
+    {
+        throw new UnsupportedOperationException( "This Cursor does not support duplicate keys." );
+    }
+
+
+    public void afterValue( K key, V value ) throws Exception
+    {
+        throw new UnsupportedOperationException( "This Cursor does not support duplicate keys." );
+    }
+
+
+    /**
+     * Positions this Cursor before the key of the supplied tuple.
+     *
+     * @param element the tuple who's key is used to position this Cursor
+     * @throws IOException if there are failures to position the Cursor
+     */
+    public void before( Tuple<K,V> element ) throws Exception
+    {
+        beforeKey( element.getKey() );
+    }
+
+
+    public void after( Tuple<K,V> element ) throws Exception
+    {
+        afterKey( element.getKey() );
     }
 
 

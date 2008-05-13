@@ -22,8 +22,8 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.core.cursor.AbstractCursor;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.xdbm.AbstractIndexCursor;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -35,12 +35,12 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class PresenceCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
+public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 {
     private static final String UNSUPPORTED_MSG =
         "PresenceCursors do not support positioning by element without a user index on the presence attribute.";
-    private final Cursor<IndexEntry<String,ServerEntry>> ndnCursor;
-    private final Cursor<IndexEntry<String,ServerEntry>> presenceCursor;
+    private final IndexCursor<String,ServerEntry> ndnCursor;
+    private final IndexCursor<String,ServerEntry> presenceCursor;
     private final PresenceEvaluator presenceEvaluator;
     private boolean available = false;
 
@@ -74,12 +74,11 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void beforeValue( Long id, String value ) throws Exception
     {
         if ( presenceCursor != null )
         {
-            //noinspection unchecked
-            presenceCursor.before( ( IndexEntry<String,ServerEntry> ) element );
+            presenceCursor.beforeValue( id, value );
             return;
         }
 
@@ -87,12 +86,35 @@ public class PresenceCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void before( IndexEntry<String, ServerEntry> element ) throws Exception
     {
         if ( presenceCursor != null )
         {
-            //noinspection unchecked
-            presenceCursor.after( ( IndexEntry<String,ServerEntry> ) element );
+            presenceCursor.before( element );
+            return;
+        }
+
+        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+    }
+
+
+    public void afterValue( Long id, String value ) throws Exception
+    {
+        if ( presenceCursor != null )
+        {
+            presenceCursor.afterValue( id, value );
+            return;
+        }
+
+        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+    }
+
+
+    public void after( IndexEntry<String, ServerEntry> element ) throws Exception
+    {
+        if ( presenceCursor != null )
+        {
+            presenceCursor.after( element );
             return;
         }
 

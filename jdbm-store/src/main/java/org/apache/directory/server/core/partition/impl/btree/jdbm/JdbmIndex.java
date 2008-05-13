@@ -28,8 +28,8 @@ import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 
@@ -459,31 +459,31 @@ public class JdbmIndex<K,O> implements Index<K,O>
     // ------------------------------------------------------------------------
 
 
-    public Cursor<IndexEntry<K, O>> reverseCursor() throws Exception
+    public IndexCursor<K, O> reverseCursor() throws Exception
     {
         //noinspection unchecked
-        return new IndexCursor<K, O>( ( Cursor ) reverse.cursor(), false );
+        return new IndexCursorAdaptor<K, O>( ( Cursor ) reverse.cursor(), false );
     }
 
 
-    public Cursor<IndexEntry<K, O>> forwardCursor() throws Exception
+    public IndexCursor<K, O> forwardCursor() throws Exception
     {
         //noinspection unchecked
-        return new IndexCursor<K, O>( ( Cursor ) forward.cursor(), true );
+        return new IndexCursorAdaptor<K, O>( ( Cursor ) forward.cursor(), true );
     }
 
 
-    public Cursor<IndexEntry<K, O>> reverseCursor( Long id ) throws Exception
+    public IndexCursor<K, O> reverseCursor( Long id ) throws Exception
     {
         //noinspection unchecked
-        return new IndexCursor<K, O>( ( Cursor ) reverse.cursor( id ), false );
+        return new IndexCursorAdaptor<K, O>( ( Cursor ) reverse.cursor( id ), false );
     }
 
 
-    public Cursor<IndexEntry<K, O>> forwardCursor( K key ) throws Exception
+    public IndexCursor<K, O> forwardCursor( K key ) throws Exception
     {
         //noinspection unchecked
-        return new IndexCursor<K, O>( ( Cursor ) forward.cursor( key ), true );
+        return new IndexCursorAdaptor<K, O>( ( Cursor ) forward.cursor( key ), true );
     }
 
 

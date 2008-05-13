@@ -20,12 +20,12 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.server.core.cursor.AbstractCursor;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.AbstractIndexCursor;
+import org.apache.directory.server.xdbm.IndexCursor;
 
 
 /**
@@ -35,7 +35,7 @@ import org.apache.directory.server.xdbm.Store;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
+public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
 {
     private static final String UNSUPPORTED_MSG =
         "Scope Cursors are not ordered and do not support positioning by element.";
@@ -47,13 +47,13 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, ServerEntry
     private final SubtreeScopeEvaluator evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final Cursor<IndexEntry<Long,ServerEntry>> scopeCursor;
+    private final IndexCursor<Long,ServerEntry> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final Cursor<IndexEntry<Long,ServerEntry>> dereferencedCursor;
+    private final IndexCursor<Long,ServerEntry> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private Cursor<IndexEntry<Long,ServerEntry>> cursor;
+    private IndexCursor<Long,ServerEntry> cursor;
 
     /** Whether or not this Cursor is positioned so an entry is available */
     private boolean available = false;
@@ -89,13 +89,25 @@ public class SubtreeScopeCursor extends AbstractCursor<IndexEntry<?, ServerEntry
     }
 
 
-    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void beforeValue( Long id, Long value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void before( IndexEntry<Long, ServerEntry> element ) throws Exception
+    {
+        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+    }
+
+
+    public void afterValue( Long id, Long value ) throws Exception
+    {
+        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+    }
+
+
+    public void after( IndexEntry<Long, ServerEntry> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }

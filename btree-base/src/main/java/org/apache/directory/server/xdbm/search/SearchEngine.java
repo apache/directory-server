@@ -25,6 +25,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 
@@ -85,10 +86,10 @@ public interface SearchEngine<E>
      * @return enumeration over SearchResults
      * @throws Exception if the search fails
      */
-    Cursor<IndexEntry<?,E>> cursor( LdapDN base,
-                                    AliasDerefMode aliasDerefMode,
-                                    ExprNode filter,
-                                    SearchControls searchCtls ) throws Exception;
+    IndexCursor<?,E> cursor( LdapDN base,
+                             AliasDerefMode aliasDerefMode,
+                             ExprNode filter,
+                             SearchControls searchCtls ) throws Exception;
 
 
     /**

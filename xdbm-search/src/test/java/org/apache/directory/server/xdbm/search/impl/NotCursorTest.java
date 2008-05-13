@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
@@ -46,8 +45,8 @@ import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -152,7 +151,7 @@ public class NotCursorTest
 
         ExprNode exprNode = FilterParser.parse( filter );
         
-        Cursor<IndexEntry<?, ServerEntry>> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, ServerEntry> cursor = cursorBuilder.build( exprNode );
         
         assertFalse( cursor.available() );
         
@@ -200,7 +199,7 @@ public class NotCursorTest
         Evaluator<? extends ExprNode, ServerEntry> eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, registries );
         notNode.addNode( exprNode );
         
-        Cursor<IndexEntry<?,ServerEntry>> cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
+        NotCursor cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
         
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -274,14 +273,14 @@ public class NotCursorTest
         
         try
         {
-            cursor.after( new ForwardIndexEntry() );
+            cursor.after( new ForwardIndexEntry<Object,ServerEntry>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch( UnsupportedOperationException uoe ) {}
         
         try
         {
-            cursor.before( new ForwardIndexEntry() );
+            cursor.before( new ForwardIndexEntry<Object,ServerEntry>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch( UnsupportedOperationException uoe ) {}

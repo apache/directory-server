@@ -5,10 +5,10 @@ import jdbm.btree.BTree;
 
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
-import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.server.xdbm.AbstractTupleCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
+class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 {
     private static final Logger LOG = LoggerFactory.getLogger( DupsCursor.class.getSimpleName() );
     
@@ -77,10 +77,16 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     }
 
 
-    public void before( Tuple<K,V> element ) throws Exception
+    public void beforeKey( K key ) throws Exception
     {
-        containerCursor.before( new Tuple<K,DupsContainer<V>>( element.getKey(), null ) );
-        
+        beforeValue( key, null );
+    }
+
+
+    public void beforeValue( K key, V value ) throws Exception
+    {
+        containerCursor.before( new Tuple<K,DupsContainer<V>>( key, null ) );
+
         if ( containerCursor.next() )
         {
             containerTuple.setBoth( containerCursor.get() );
@@ -97,15 +103,15 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 dupsCursor = new KeyBTreeCursor<V>( tree, table.getValueComparator() );
             }
 
-            if ( element.getValue() == null )
+            if ( value == null )
             {
                 return;
             }
 
             // advance the dupsCursor only if we're on same key
-            if ( table.getKeyComparator().compare( containerTuple.getKey(), element.getKey() ) == 0 )
+            if ( table.getKeyComparator().compare( containerTuple.getKey(), key ) == 0 )
             {
-                dupsCursor.before( element.getValue() );
+                dupsCursor.before( value );
             }
 
             return;
@@ -117,7 +123,13 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
     }
 
 
-    public void after( Tuple<K,V> element ) throws Exception
+    public void afterKey( K key ) throws Exception
+    {
+        afterValue( key, null );
+    }
+
+
+    public void afterValue( K key, V value ) throws Exception
     {
         /*
          * There is a subtle difference between after and before handling
@@ -140,13 +152,13 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
          * go right before this key instead of after it.
          */
 
-        if ( element.getValue() == null )
+        if ( value == null )
         {
-            containerCursor.after( new Tuple<K,DupsContainer<V>>( element.getKey(), null ) );
+            containerCursor.after( new Tuple<K,DupsContainer<V>>( key, null ) );
         }
         else
         {
-            containerCursor.before( new Tuple<K,DupsContainer<V>>( element.getKey(), null ) );
+            containerCursor.before( new Tuple<K,DupsContainer<V>>( key, null ) );
         }
 
         if ( containerCursor.next() )
@@ -165,15 +177,15 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
                 dupsCursor = new KeyBTreeCursor<V>( tree, table.getValueComparator() );
             }
 
-            if ( element.getValue() == null )
+            if ( value == null )
             {
                 return;
             }
 
             // only advance the dupsCursor if we're on same key
-            if ( table.getKeyComparator().compare( containerTuple.getKey(), element.getKey() ) == 0 )
+            if ( table.getKeyComparator().compare( containerTuple.getKey(), key ) == 0 )
             {
-                dupsCursor.after( element.getValue() );
+                dupsCursor.after( value );
             }
 
             return;
@@ -182,6 +194,18 @@ class DupsCursor<K,V> extends AbstractCursor<Tuple<K,V>>
         clearValue();
         containerTuple.setKey( null );
         containerTuple.setValue( null );
+    }
+
+
+    public void before( Tuple<K,V> element ) throws Exception
+    {
+        beforeValue( element.getKey(), element.getValue() );
+    }
+
+
+    public void after( Tuple<K,V> element ) throws Exception
+    {
+        afterValue( element.getKey(), element.getValue() );
     }
 
 

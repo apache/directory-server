@@ -21,8 +21,8 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
-import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.server.xdbm.AbstractTupleCursor;
 import jdbm.helper.TupleBrowser;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ import java.io.IOException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContainer<V>>>
+public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContainer<V>>
 {
     private final JdbmTable<K,V> table;
 
@@ -80,23 +80,17 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
     }
 
 
-    /**
-     * Positions this Cursor before the key of the supplied tuple.
-     *
-     * @param element the tuple who's key is used to position this Cursor
-     * @throws IOException if there are failures to position the Cursor
-     */
-    public void before( Tuple<K,DupsContainer<V>> element ) throws IOException
+    public void beforeKey( K key ) throws Exception
     {
-        browser = table.getBTree().browse( element.getKey() );
+        browser = table.getBTree().browse( key );
         forwardDirection = null;
         clearValue();
     }
 
 
-    public void after( Tuple<K,DupsContainer<V>> element ) throws IOException
+    public void afterKey( K key ) throws Exception
     {
-        browser = table.getBTree().browse( element.getKey() );
+        browser = table.getBTree().browse( key );
         forwardDirection = null;
 
         /*
@@ -111,7 +105,7 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
             //noinspection unchecked
             K next = ( K ) jdbmTuple.getKey();
 
-            int nextCompared = table.getKeyComparator().compare( next, element.getKey() );
+            int nextCompared = table.getKeyComparator().compare( next, key );
 
             if ( nextCompared > 0 )
             {
@@ -128,6 +122,38 @@ public class DupsContainerCursor<K,V> extends AbstractCursor<Tuple<K, DupsContai
         }
 
         clearValue();
+    }
+
+
+    @SuppressWarnings( { "UnusedDeclaration" } )
+    public void beforeValue( K key, DupsContainer<V> value ) throws Exception
+    {
+        throw new UnsupportedOperationException( "Value based advances not supported." );
+    }
+
+
+    @SuppressWarnings( { "UnusedDeclaration" } )
+    public void afterValue( K key, DupsContainer<V> value ) throws Exception
+    {
+        throw new UnsupportedOperationException( "Value based advances not supported." );
+    }
+
+
+    /**
+     * Positions this Cursor before the key of the supplied tuple.
+     *
+     * @param element the tuple who's key is used to position this Cursor
+     * @throws IOException if there are failures to position the Cursor
+     */
+    public void before( Tuple<K,DupsContainer<V>> element ) throws Exception
+    {
+        beforeKey( element.getKey() );
+    }
+
+
+    public void after( Tuple<K,DupsContainer<V>> element ) throws Exception
+    {
+        afterKey( element.getKey() );
     }
 
 

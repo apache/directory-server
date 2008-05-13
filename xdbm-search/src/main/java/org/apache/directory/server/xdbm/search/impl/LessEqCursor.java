@@ -20,11 +20,7 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.core.cursor.AbstractCursor;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.entry.ServerEntry;
 
@@ -39,7 +35,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class LessEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
+public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
     private static final String UNSUPPORTED_MSG =
         "LessEqCursors only support positioning by element when a user index exists on the asserted attribute.";
@@ -48,17 +44,17 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     private final LessEqEvaluator lessEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final Cursor<IndexEntry<?,ServerEntry>> userIdxCursor;
+    private final IndexCursor<V,ServerEntry> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final Cursor<IndexEntry<String,ServerEntry>> ndnIdxCursor;
+    private final IndexCursor<V,ServerEntry> ndnIdxCursor;
 
     /**
      * Used to store indexEntry from ndnCandidate so it can be saved after
      * call to evaluate() which changes the value so it's not referring to
      * the NDN but to the value of the attribute instead.
      */
-    IndexEntry<String, ServerEntry> ndnCandidate;
+    IndexEntry<V, ServerEntry> ndnCandidate;
 
     /** used in both modes */
     private boolean available = false;
@@ -77,7 +73,8 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
         }
         else
         {
-            ndnIdxCursor = db.getNdnIndex().forwardCursor();
+            //noinspection unchecked
+            ndnIdxCursor = ( IndexCursor<V,ServerEntry> ) db.getNdnIndex().forwardCursor();
             userIdxCursor = null;
         }
     }
@@ -89,7 +86,51 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void beforeValue( Long id, V value ) throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            /*
+             * First we need to check and make sure this element is within
+             * bounds as mandated by the assertion node.  To do so we compare
+             * it's value with the value of the expression node.  If the
+             * element's value is greater than this upper bound then we
+             * position the userIdxCursor after the last node.
+             *
+             * If the element's value is equal to this upper bound then we
+             * position the userIdxCursor right before the last node.
+             *
+             * If the element's value is smaller, then we delegate to the
+             * before() method of the userIdxCursor.
+             */
+            //noinspection unchecked
+            int compareValue = lessEqEvaluator.getComparator().compare( value,
+                 lessEqEvaluator.getExpression().getValue().get() );
+
+            if ( compareValue > 0 )
+            {
+                afterLast();
+                return;
+            }
+            else if ( compareValue == 0 )
+            {
+                last();
+                previous();
+                available = false;
+                return;
+            }
+
+            userIdxCursor.beforeValue( id, value );
+            available = false;
+        }
+        else
+        {
+            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        }
+    }
+
+
+    public void before( IndexEntry<V, ServerEntry> element ) throws Exception
     {
         if ( userIdxCursor != null )
         {
@@ -133,7 +174,43 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void afterValue( Long id, V value ) throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            //noinspection unchecked
+            int comparedValue = lessEqEvaluator.getComparator().compare( value,
+                 lessEqEvaluator.getExpression().getValue().get() );
+
+            /*
+             * First we need to check and make sure this element is within
+             * bounds as mandated by the assertion node.  To do so we compare
+             * it's value with the value of the expression node.
+             *
+             * If the element's value is equal to or greater than this upper
+             * bound then we position the userIdxCursor after the last node.
+             *
+             * If the element's value is smaller, then we delegate to the
+             * after() method of the userIdxCursor.
+             */
+            if ( comparedValue >= 0 )
+            {
+                afterLast();
+                return;
+            }
+
+            // Element is in the valid range as specified by assertion
+            userIdxCursor.afterValue( id, value );
+            available = false;
+        }
+        else
+        {
+            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        }
+    }
+
+
+    public void after( IndexEntry<V, ServerEntry> element ) throws Exception
     {
         if ( userIdxCursor != null )
         {
@@ -189,8 +266,9 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     {
         if ( userIdxCursor != null )
         {
-            IndexEntry<Object,ServerEntry> advanceTo = new ForwardIndexEntry<Object,ServerEntry>();
-            advanceTo.setValue( lessEqEvaluator.getExpression().getValue().get() );
+            IndexEntry<V,ServerEntry> advanceTo = new ForwardIndexEntry<V,ServerEntry>();
+            //noinspection unchecked
+            advanceTo.setValue( ( V ) lessEqEvaluator.getExpression().getValue().get() );
             userIdxCursor.after( advanceTo );
         }
         else
@@ -287,7 +365,7 @@ public class LessEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public IndexEntry<?, ServerEntry> get() throws Exception
+    public IndexEntry<V, ServerEntry> get() throws Exception
     {
         if ( userIdxCursor != null )
         {

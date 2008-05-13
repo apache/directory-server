@@ -20,11 +20,7 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.core.cursor.AbstractCursor;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.entry.ServerEntry;
 
@@ -37,9 +33,9 @@ import org.apache.directory.server.core.entry.ServerEntry;
  * of these cases where the other remains null.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
+ * @version $Rev$
  */
-public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
+public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
     private static final String UNSUPPORTED_MSG =
         "GreaterEqCursors only support positioning by element when a user index exists on the asserted attribute.";
@@ -48,10 +44,10 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     private final GreaterEqEvaluator greaterEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final Cursor<IndexEntry<?,ServerEntry>> userIdxCursor;
+    private final IndexCursor<V,ServerEntry> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final Cursor<IndexEntry<String,ServerEntry>> ndnIdxCursor;
+    private final IndexCursor<String,ServerEntry> ndnIdxCursor;
 
     /**
      * Used to store indexEntry from ndnCandidate so it can be saved after
@@ -89,7 +85,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void beforeValue( Long id, V value ) throws Exception
     {
         if ( userIdxCursor != null )
         {
@@ -98,7 +94,76 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
              * bounds as mandated by the assertion node.  To do so we compare
              * it's value with the value of the node.  If it is smaller or
              * equal to this lower bound then we simply position the
-             * userIdxCursor before the first node.  Otherwise we let the
+             * userIdxCursor before the first element.  Otherwise we let the
+             * underlying userIdx Cursor position the element.
+             */
+            //noinspection unchecked
+            if ( greaterEqEvaluator.getComparator().compare( value,
+                 greaterEqEvaluator.getExpression().getValue().get() ) <= 0 )
+            {
+                beforeFirst();
+                return;
+            }
+
+            userIdxCursor.beforeValue( id, value );
+            available = false;
+        }
+        else
+        {
+            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        }
+    }
+
+
+    public void afterValue( Long id, V value ) throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            //noinspection unchecked
+            int comparedValue = greaterEqEvaluator.getComparator().compare( value,
+                 greaterEqEvaluator.getExpression().getValue().get() );
+
+            /*
+             * First we need to check and make sure this element is within
+             * bounds as mandated by the assertion node.  To do so we compare
+             * it's value with the value of the node.  If it is equal to this
+             * lower bound then we simply position the userIdxCursor after
+             * this first node.  If it is less than this value then we
+             * position the Cursor before the first entry.
+             */
+            if ( comparedValue == 0 )
+            {
+                userIdxCursor.afterValue( id, value );
+                available = false;
+                return;
+            }
+            else if ( comparedValue < 0 )
+            {
+                beforeFirst();
+                return;
+            }
+
+            // Element is in the valid range as specified by assertion
+            userIdxCursor.afterValue( id, value );
+            available = false;
+        }
+        else
+        {
+            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        }
+    }
+
+
+    public void before( IndexEntry<V, ServerEntry> element ) throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            /*
+             * First we need to check and make sure this element is within
+             * bounds as mandated by the assertion node.  To do so we compare
+             * it's value with the value of the node.  If it is smaller or
+             * equal to this lower bound then we simply position the
+             * userIdxCursor before the first element.  Otherwise we let the
              * underlying userIdx Cursor position the element.
              */
             //noinspection unchecked
@@ -119,7 +184,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void after( IndexEntry<V, ServerEntry> element ) throws Exception
     {
         if ( userIdxCursor != null )
         {
@@ -162,8 +227,9 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     {
         if ( userIdxCursor != null )
         {
-            IndexEntry<Object,ServerEntry> advanceTo = new ForwardIndexEntry<Object,ServerEntry>();
-            advanceTo.setValue( greaterEqEvaluator.getExpression().getValue().get() );
+            IndexEntry<V,ServerEntry> advanceTo = new ForwardIndexEntry<V,ServerEntry>();
+            //noinspection unchecked
+            advanceTo.setValue( ( V ) greaterEqEvaluator.getExpression().getValue().get() );
             userIdxCursor.before( advanceTo );
         }
         else
@@ -264,7 +330,7 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public IndexEntry<?, ServerEntry> get() throws Exception
+    public IndexEntry<V, ServerEntry> get() throws Exception
     {
         if ( userIdxCursor != null )
         {
@@ -278,7 +344,8 @@ public class GreaterEqCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
 
         if ( available )
         {
-            return ndnCandidate;
+            //noinspection unchecked
+            return ( IndexEntry<V, ServerEntry> ) ndnCandidate;
         }
 
         throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );

@@ -21,10 +21,11 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.AbstractIndexCursor;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 
@@ -35,13 +36,13 @@ import java.util.*;
  * A Cursor returning candidates satisfying a logical disjunction expression.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $$Rev$$
+ * @version $Rev$
  */
-public class OrCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
+public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
     private static final String UNSUPPORTED_MSG =
         "OrCursors are not ordered and do not support positioning by element.";
-    private final List<Cursor<IndexEntry<?,ServerEntry>>> cursors;
+    private final List<IndexCursor<V,ServerEntry>> cursors;
     private final List<Evaluator<? extends ExprNode,ServerEntry>> evaluators;
     private final List<Set<Long>> blacklists;
     private int cursorIndex = -1;
@@ -49,7 +50,7 @@ public class OrCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
 
 
     // TODO - do same evaluator fail fast optimization that we do in AndCursor
-    public OrCursor( List<Cursor<IndexEntry<?, ServerEntry>>> cursors, List<Evaluator<? extends ExprNode,ServerEntry>> evaluators )
+    public OrCursor( List<IndexCursor<V, ServerEntry>> cursors, List<Evaluator<? extends ExprNode,ServerEntry>> evaluators )
     {
         if ( cursors.size() <= 1 )
         {
@@ -75,13 +76,25 @@ public class OrCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void before( IndexEntry<V, ServerEntry> element ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
 
 
-    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void after( IndexEntry<V, ServerEntry> element ) throws Exception
+    {
+        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+    }
+
+
+    public void beforeValue( Long id, V value ) throws Exception
+    {
+        throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+    }
+
+
+    public void afterValue( Long id, V value ) throws Exception
     {
         throw new UnsupportedOperationException( UNSUPPORTED_MSG );
     }
@@ -212,7 +225,7 @@ public class OrCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public IndexEntry<?, ServerEntry> get() throws Exception
+    public IndexEntry<V, ServerEntry> get() throws Exception
     {
         if ( available )
         {

@@ -22,8 +22,8 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.core.cursor.AbstractCursor;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.xdbm.AbstractIndexCursor;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.entry.ServerEntry;
 
@@ -38,7 +38,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class EqualityCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
+public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 {
     private static final String UNSUPPORTED_MSG =
         "EqualityCursors only support positioning by element when a user index exists on the asserted attribute.";
@@ -47,10 +47,10 @@ public class EqualityCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     private final EqualityEvaluator equalityEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final Cursor<IndexEntry<?,ServerEntry>> userIdxCursor;
+    private final IndexCursor<V,ServerEntry> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final Cursor<IndexEntry<String,ServerEntry>> ndnIdxCursor;
+    private final IndexCursor<String,ServerEntry> ndnIdxCursor;
 
     /** used only when ndnIdxCursor is used (no index on attribute) */
     private boolean available = false;
@@ -87,7 +87,20 @@ public class EqualityCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public void before( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void beforeValue( Long id, V value ) throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            userIdxCursor.beforeValue( id, value );
+        }
+        else
+        {
+            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        }
+    }
+
+
+    public void before( IndexEntry<V, ServerEntry> element ) throws Exception
     {
         if ( userIdxCursor != null )
         {
@@ -100,7 +113,20 @@ public class EqualityCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public void after( IndexEntry<?, ServerEntry> element ) throws Exception
+    public void afterValue( Long id, V key ) throws Exception
+    {
+        if ( userIdxCursor != null )
+        {
+            userIdxCursor.afterValue( id, key );
+        }
+        else
+        {
+            throw new UnsupportedOperationException( UNSUPPORTED_MSG );
+        }
+    }
+
+
+    public void after( IndexEntry<V, ServerEntry> element ) throws Exception
     {
         if ( userIdxCursor != null )
         {
@@ -195,7 +221,7 @@ public class EqualityCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
     }
 
 
-    public IndexEntry<?, ServerEntry> get() throws Exception
+    public IndexEntry<V, ServerEntry> get() throws Exception
     {
         if ( userIdxCursor != null )
         {
@@ -204,7 +230,8 @@ public class EqualityCursor extends AbstractCursor<IndexEntry<?, ServerEntry>>
 
         if ( available )
         {
-            return ndnIdxCursor.get();
+            //noinspection unchecked
+            return ( IndexEntry<V, ServerEntry> )ndnIdxCursor.get();
         }
 
         throw new InvalidCursorPositionException( "Cursor has not been positioned yet." );

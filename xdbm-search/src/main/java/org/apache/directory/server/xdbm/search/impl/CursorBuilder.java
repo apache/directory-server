@@ -25,10 +25,9 @@ import java.util.ArrayList;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.filter.*;
@@ -62,7 +61,7 @@ public class CursorBuilder
     }
 
 
-    public Cursor<IndexEntry<?,ServerEntry>> build( ExprNode node ) throws Exception
+    public IndexCursor<?,ServerEntry> build( ExprNode node ) throws Exception
     {
         switch ( node.getAssertionType() )
         {
@@ -118,10 +117,10 @@ public class CursorBuilder
      * @return Cursor over candidates satisfying disjunction expression
      * @throws Exception on db access failures
      */
-    private Cursor<IndexEntry<?,ServerEntry>> buildOrCursor( OrNode node ) throws Exception
+    private IndexCursor<?,ServerEntry> buildOrCursor( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Cursor<IndexEntry<?,ServerEntry>>> childCursors = new ArrayList<Cursor<IndexEntry<?,ServerEntry>>>(children.size());
+        List<IndexCursor<?,ServerEntry>> childCursors = new ArrayList<IndexCursor<?,ServerEntry>>( children.size() );
         List<Evaluator<? extends ExprNode, ServerEntry>> childEvaluators
             = new ArrayList<Evaluator<? extends ExprNode, ServerEntry>>( children.size() );
 
@@ -144,7 +143,7 @@ public class CursorBuilder
      * @return Cursor over the conjunction expression
      * @throws Exception on db access failures
      */
-    private Cursor<IndexEntry<?,ServerEntry>> buildAndCursor( AndNode node ) throws Exception
+    private IndexCursor<?,ServerEntry> buildAndCursor( AndNode node ) throws Exception
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
@@ -190,7 +189,7 @@ public class CursorBuilder
         }
 
         // Do recursive call to build min child Cursor then create AndCursor
-        Cursor<IndexEntry<?,ServerEntry>> childCursor = build( minChild );
+        IndexCursor<?,ServerEntry> childCursor = build( minChild );
         return new AndCursor( childCursor, childEvaluators );
     }
 }
