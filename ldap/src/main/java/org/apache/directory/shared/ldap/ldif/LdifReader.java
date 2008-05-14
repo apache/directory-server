@@ -37,7 +37,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
@@ -57,12 +56,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <pre>
- *  &lt;ldif-file&gt; ::= &quot;version:&quot; &lt;fill&gt; &lt;number&gt; &lt;seps&gt; &lt;dn-spec&gt; &lt;sep&gt; &lt;ldif-content-change&gt;
+ *  &lt;ldif-file&gt; ::= &quot;version:&quot; &lt;fill&gt; &lt;number&gt; &lt;seps&gt; &lt;dn-spec&gt; &lt;sep&gt; 
+ *  &lt;ldif-content-change&gt;
  *  
  *  &lt;ldif-content-change&gt; ::= 
- *    &lt;number&gt; &lt;oid&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; &lt;ldif-attrval-record-e&gt; | 
- *    &lt;alpha&gt; &lt;chars-e&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; &lt;ldif-attrval-record-e&gt; | 
- *    &quot;control:&quot; &lt;fill&gt; &lt;number&gt; &lt;oid&gt; &lt;spaces-e&gt; &lt;criticality&gt; &lt;value-spec-e&gt; &lt;sep&gt; &lt;controls-e&gt; 
+ *    &lt;number&gt; &lt;oid&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; 
+ *    &lt;attrval-specs-e&gt; &lt;ldif-attrval-record-e&gt; | 
+ *    &lt;alpha&gt; &lt;chars-e&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; 
+ *    &lt;attrval-specs-e&gt; &lt;ldif-attrval-record-e&gt; | 
+ *    &quot;control:&quot; &lt;fill&gt; &lt;number&gt; &lt;oid&gt; &lt;spaces-e&gt; 
+ *    &lt;criticality&gt; &lt;value-spec-e&gt; &lt;sep&gt; &lt;controls-e&gt; 
  *        &quot;changetype:&quot; &lt;fill&gt; &lt;changerecord-type&gt; &lt;ldif-change-record-e&gt; |
  *    &quot;changetype:&quot; &lt;fill&gt; &lt;changerecord-type&gt; &lt;ldif-change-record-e&gt;
  *                              
@@ -82,7 +85,8 @@ import org.slf4j.LoggerFactory;
  *                              
  *  &lt;oid&gt; ::= '.' &lt;number&gt; &lt;oid&gt; | e
  *                              
- *  &lt;attrval-specs-e&gt; ::= &lt;number&gt; &lt;oid&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; | 
+ *  &lt;attrval-specs-e&gt; ::= &lt;number&gt; &lt;oid&gt; &lt;options-e&gt; &lt;value-spec&gt; 
+ *  &lt;sep&gt; &lt;attrval-specs-e&gt; | 
  *    &lt;alpha&gt; &lt;chars-e&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; | e
  *                              
  *  &lt;value-spec-e&gt; ::= &lt;value-spec&gt; | e
@@ -97,11 +101,15 @@ import org.slf4j.LoggerFactory;
  *                              
  *  &lt;chars-e&gt; ::= &lt;char&gt; &lt;chars-e&gt; |  e
  *  
- *  &lt;changerecord-type&gt; ::= &quot;add&quot; &lt;sep&gt; &lt;attributeType&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; | 
+ *  &lt;changerecord-type&gt; ::= &quot;add&quot; &lt;sep&gt; &lt;attributeType&gt; 
+ *  &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; | 
  *    &quot;delete&quot; &lt;sep&gt; | 
- *    &quot;modify&quot; &lt;sep&gt; &lt;mod-type&gt; &lt;fill&gt; &lt;attributeType&gt; &lt;options-e&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; &lt;sep&gt; '-' &lt;sep&gt; &lt;mod-specs-e&gt; | 
- *    &quot;moddn&quot; &lt;sep&gt; &lt;newrdn&gt; &lt;sep&gt; &quot;deleteoldrdn:&quot; &lt;fill&gt; &lt;0-1&gt; &lt;sep&gt; &lt;newsuperior-e&gt; &lt;sep&gt; |
- *    &quot;modrdn&quot; &lt;sep&gt; &lt;newrdn&gt; &lt;sep&gt; &quot;deleteoldrdn:&quot; &lt;fill&gt; &lt;0-1&gt; &lt;sep&gt; &lt;newsuperior-e&gt; &lt;sep&gt;
+ *    &quot;modify&quot; &lt;sep&gt; &lt;mod-type&gt; &lt;fill&gt; &lt;attributeType&gt; 
+ *    &lt;options-e&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; &lt;sep&gt; '-' &lt;sep&gt; &lt;mod-specs-e&gt; | 
+ *    &quot;moddn&quot; &lt;sep&gt; &lt;newrdn&gt; &lt;sep&gt; &quot;deleteoldrdn:&quot; 
+ *    &lt;fill&gt; &lt;0-1&gt; &lt;sep&gt; &lt;newsuperior-e&gt; &lt;sep&gt; |
+ *    &quot;modrdn&quot; &lt;sep&gt; &lt;newrdn&gt; &lt;sep&gt; &quot;deleteoldrdn:&quot; 
+ *    &lt;fill&gt; &lt;0-1&gt; &lt;sep&gt; &lt;newsuperior-e&gt; &lt;sep&gt;
  *  
  *  &lt;newrdn&gt; ::= ':' &lt;fill&gt; &lt;safe-string&gt; | &quot;::&quot; &lt;fill&gt; &lt;base64-chars&gt;
  *  
@@ -151,27 +159,45 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LdifReader implements Iterator<LdifEntry>
 {
     /** A logger */
     private static final Logger LOG = LoggerFactory.getLogger( LdifReader.class );
 
-    /** A private class to track the current position in a line */
+    /** 
+     * A private class to track the current position in a line 
+     * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+     * @version $Rev$, $Date$
+     */
     protected class Position
     {
-        public int pos;
+        /** The current position */
+        protected int pos;
 
+        /**
+         * Creates a new instance of Position.
+         */
         public Position()
         {
             pos = 0;
         }
 
+        /**
+         * Increment the current position by one
+         *
+         */
         public void inc()
         {
             pos++;
         }
 
+        /**
+         * Increment the current position by the given value
+         *
+         * @param val The value to add to the current position
+         */
         public void inc( int val )
         {
             pos += val;
@@ -263,13 +289,13 @@ public class LdifReader implements Iterator<LdifEntry>
     {
         File inf = new File( ldifFileName );
 
-        if ( inf.exists() == false )
+        if ( !inf.exists() )
         {
             LOG.error( "File {} cannot be found", inf.getAbsoluteFile() );
             throw new NamingException( "Cannot find file " + inf.getAbsoluteFile() );
         }
 
-        if ( inf.canRead() == false )
+        if ( !inf.canRead() )
         {
             LOG.error( "File {} cannot be read", inf.getName() );
             throw new NamingException( "Cannot read file " + inf.getName() );
@@ -335,13 +361,13 @@ public class LdifReader implements Iterator<LdifEntry>
      */
     public LdifReader( File in ) throws NamingException
     {
-        if ( in.exists() == false )
+        if ( !in.exists() )
         {
             LOG.error( "File {} cannot be found", in.getAbsoluteFile() );
             throw new NamingException( "Cannot find file " + in.getAbsoluteFile() );
         }
 
-        if ( in.canRead() == false )
+        if ( !in.canRead() )
         {
             LOG.error( "File {} cannot be read", in.getName() );
             throw new NamingException( "Cannot read file " + in.getName() );
@@ -402,6 +428,10 @@ public class LdifReader implements Iterator<LdifEntry>
      * ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
      * 
      * Check that the number is in the interval
+     * 
+     * @param document The document containing the number to parse
+     * @param position The current position in the document
+     * @return a String representing the parsed number
      */
     private static String parseNumber( char[] document, Position position )
     {
@@ -611,7 +641,7 @@ public class LdifReader implements Iterator<LdifEntry>
 
                         File file = new File( fileName );
 
-                        if ( file.exists() == false )
+                        if ( !file.exists() )
                         {
                             LOG.error( "File {} not found", fileName );
                             throw new NamingException( "Bad URL, file not found" );
@@ -652,17 +682,14 @@ public class LdifReader implements Iterator<LdifEntry>
                                 }
                                 finally
                                 {
-                                    if ( inf != null )
+                                    try
                                     {
-                                        try
-                                        {
-                                            inf.close();
-                                        }
-                                        catch ( IOException ioe )
-                                        {
-                                            LOG.error( "Error while closing the stream : {}", ioe.getMessage() );
-                                            // Just do nothing ...
-                                        }
+                                        inf.close();
+                                    }
+                                    catch ( IOException ioe )
+                                    {
+                                        LOG.error( "Error while closing the stream : {}", ioe.getMessage() );
+                                        // Just do nothing ...
                                     }
                                 }
                             }
@@ -702,9 +729,10 @@ public class LdifReader implements Iterator<LdifEntry>
      * "false") ] [ ":" &lt;fill&gt; &lt;SAFE-STRING-e&gt; | "::" &lt;fill&gt; &lt;BASE64-STRING&gt; | ":<"
      * &lt;fill&gt; &lt;url&gt; ]
      * 
-     * @param line
-     *            The line containing the control
+     * @param line The line containing the control
      * @return A control
+     * @exception NamingException If the control has no OID or if the OID is incorrect,
+     * of if the criticality is not set when it's mandatory.
      */
     private Control parseControl( String line ) throws NamingException
     {
@@ -824,6 +852,7 @@ public class LdifReader implements Iterator<LdifEntry>
      * Parse an AttributeType/AttributeValue
      * 
      * @param line The line to parse
+     * @return the parsed Attribute
      */
     public static Attribute parseAttributeValue( String line )
     {
@@ -950,10 +979,9 @@ public class LdifReader implements Iterator<LdifEntry>
      * ATTRIBUTE-DESCRIPTION SEP &lt;attrval-specs-e&gt; "-" SEP &lt;attrval-specs-e&gt; ::=
      * ATTRVAL-SPEC &lt;attrval-specs&gt; | e *
      * 
-     * @param entry
-     *            The entry to feed
-     * @param iter
-     *            The lines
+     * @param entry The entry to feed
+     * @param iter The lines
+     * @exception NamingException If the modify operation is invalid
      */
     private void parseModify( LdifEntry entry, Iterator<String> iter ) throws NamingException
     {
@@ -1050,7 +1078,7 @@ public class LdifReader implements Iterator<LdifEntry>
 
                 String attributeType = line.substring( 0, colonIndex );
 
-                if ( attributeType.equalsIgnoreCase( modified ) == false )
+                if ( !attributeType.equalsIgnoreCase( modified ) )
                 {
                     LOG.error( "The modified attribute and the attribute value spec must be equal" );
                     throw new NamingException( "Bad modify attribute" );
@@ -1095,17 +1123,12 @@ public class LdifReader implements Iterator<LdifEntry>
      * ::= FILL ATTRIBUTE-DESCRIPTION SEP ATTRVAL-SPEC &lt;attrval-specs-e&gt; "-" SEP
      * &lt;attrval-specs-e&gt; ::= ATTRVAL-SPEC &lt;attrval-specs&gt; | e
      * 
-     * @param entry
-     *            The entry to feed
-     * @param iter
-     *            The lines iterator
-     * @param operation
-     *            The change operation (add, modify, delete, moddn or modrdn)
-     * @param control
-     *            The associated control, if any
-     * @return A modification entry
+     * @param entry The entry to feed
+     * @param iter The lines iterator
+     * @param operation The change operation (add, modify, delete, moddn or modrdn)
+     * @exception NamingException If the change operation is invalid
      */
-    private void parseChange( LdifEntry entry, Iterator<String> iter, ChangeType operation, Control control ) throws NamingException
+    private void parseChange( LdifEntry entry, Iterator<String> iter, ChangeType operation ) throws NamingException
     {
         // The changetype and operation has already been parsed.
         entry.setChangeType( operation );
@@ -1186,6 +1209,9 @@ public class LdifReader implements Iterator<LdifEntry>
      * &lt;dn-spec&gt; &lt;sep&gt; &lt;controls-e&gt; &lt;changerecord&gt; &lt;dn-spec&gt; ::= "dn:" &lt;fill&gt;
      * &lt;distinguishedName&gt; | "dn::" &lt;fill&gt; &lt;base64-distinguishedName&gt;
      * &lt;changerecord&gt; ::= "changetype:" &lt;fill&gt; &lt;change-op&gt;
+     * 
+     * @return the parsed ldifEntry
+     * @exception NamingException If the ldif file does not contain a valid entry 
      */
     private LdifEntry parseEntry() throws NamingException
     {
@@ -1279,7 +1305,7 @@ public class LdifReader implements Iterator<LdifEntry>
                 operation = parseChangeType( line );
 
                 // Parse the change operation in a separate function
-                parseChange( entry, iter, operation, control );
+                parseChange( entry, iter, operation );
                 changeTypeSeen = true;
             }
             else if ( line.indexOf( ':' ) > 0 )
@@ -1527,26 +1553,25 @@ public class LdifReader implements Iterator<LdifEntry>
 
         File file = new File( fileName );
 
-        if ( file.exists() == false )
+        if ( !file.exists() )
         {
             LOG.error( "Cannot parse the file {}, it does not exist", fileName );
             throw new NamingException( "Filename " + fileName + " not found." );
         }
 
         // Open the file and then get a channel from the stream
-        BufferedReader inf;
-
         try
         {
-            inf = new BufferedReader( new InputStreamReader( new FileInputStream( file ), Charset.forName( encoding ) ) );
+            BufferedReader inf = new BufferedReader( new InputStreamReader( new FileInputStream( file ), 
+                Charset.forName( encoding ) ) );
+
+            return parseLdif( inf );
         }
         catch (FileNotFoundException fnfe)
         {
             LOG.error( "Cannot find file {}", fileName );
             throw new NamingException( "Filename " + fileName + " not found." );
         }
-
-        return parseLdif( inf );
     }
 
     /**
@@ -1597,7 +1622,7 @@ public class LdifReader implements Iterator<LdifEntry>
      * 
      * @return the next LDIF as a String.
      */
-    public LdifEntry next() throws NoSuchElementException
+    public LdifEntry next()
     {
         try
         {
@@ -1627,6 +1652,7 @@ public class LdifReader implements Iterator<LdifEntry>
         }
     }
 
+    
     /**
      * Tests to see if another LDIF is on the input channel.
      * 
@@ -1639,6 +1665,7 @@ public class LdifReader implements Iterator<LdifEntry>
         return null != prefetched;
     }
 
+    
     /**
      * Always throws UnsupportedOperationException!
      * 

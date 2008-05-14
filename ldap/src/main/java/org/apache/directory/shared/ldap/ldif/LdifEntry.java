@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * - DN modified entries
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LdifEntry implements Cloneable, Serializable
 {
@@ -171,14 +172,12 @@ public class LdifEntry implements Cloneable, Serializable
     /**
      * Add a modification item (used by modify operations)
      * 
-     * @param modOp
-     *            The operation. One of : DirContext.ADD_ATTRIBUTE
+     * @param modOp The operation. One of : DirContext.ADD_ATTRIBUTE
      *            DirContext.REMOVE_ATTRIBUTE DirContext.REPLACE_ATTRIBUTE
      * 
-     * @param attr
-     *            The attribute to be added
+     * @param attr The attribute to be added
      */
-    public void addModificationItem( int modOp, Attribute attr ) throws NamingException
+    public void addModificationItem( int modOp, Attribute attr )
     {
         if ( changeType == ChangeType.Modify )
         {
@@ -198,9 +197,8 @@ public class LdifEntry implements Cloneable, Serializable
      * @param modOp The modification operation value
      * @param id The attribute's ID
      * @param value The attribute's value
-     * @throws NamingException if the modification can't be added 
      */
-    public void addModificationItem( int modOp, String id, Object value ) throws NamingException
+    public void addModificationItem( int modOp, String id, Object value )
     {
         if ( changeType == ChangeType.Modify )
         {
@@ -480,6 +478,8 @@ public class LdifEntry implements Cloneable, Serializable
 
     /**
      * Clone method
+     * @return a clone of the current instance
+     * @exception CloneNotSupportedException If there is some problem while cloning the instance
      */
     public LdifEntry clone() throws CloneNotSupportedException
     {
@@ -517,23 +517,26 @@ public class LdifEntry implements Cloneable, Serializable
     
     /**
      * Dumps the attributes
+     * @return A String representing the attributes
      */
     private String dumpAttributes()
     {
         StringBuffer sb = new StringBuffer();
+        Attribute attribute = null;
         
         try
         {
-            for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
+            for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); 
+                  attrs.hasMoreElements(); 
+                  attribute = attrs.nextElement())
             {
-                Attribute attribute = attrs.nextElement();
-    
                 sb.append( "        ").append( attribute.getID() ).append( ":\n" );
-    
-                for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
+                Object value = null;
+                
+                for ( NamingEnumeration<?> values = attribute.getAll(); 
+                      values.hasMoreElements(); 
+                      value = values.nextElement())
                 {
-                    Object value = values.nextElement();
-                    
                     if ( value instanceof String )
                     {
                         sb.append(  "            " ).append( (String)value ).append('\n' );
@@ -555,6 +558,7 @@ public class LdifEntry implements Cloneable, Serializable
     
     /**
      * Dumps the modifications
+     * @return A String representing the modifications
      */
     private String dumpModificationItems()
     {
@@ -577,6 +581,9 @@ public class LdifEntry implements Cloneable, Serializable
                 case DirContext.REPLACE_ATTRIBUTE :
                     sb.append( "REPLACE \n" );
                     break;
+                    
+                default :
+                    break; // Do nothing
             }
             
             Attribute attribute = modif.getAttribute();
@@ -587,10 +594,11 @@ public class LdifEntry implements Cloneable, Serializable
             {
                 try
                 {
-                    for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
+                    Object value = null;
+                    for ( NamingEnumeration<?> values = attribute.getAll(); 
+                          values.hasMoreElements(); 
+                          value = values.nextElement() )
                     {
-                        Object value = values.nextElement();
-    
                         if ( value instanceof String )
                         {
                             sb.append(  "                " ).append( (String)value ).append('\n' );
@@ -613,7 +621,7 @@ public class LdifEntry implements Cloneable, Serializable
 
     
     /**
-     * Return a String representing the Entry
+     * @return a String representing the Entry
      */
     public String toString()
     {
@@ -655,6 +663,9 @@ public class LdifEntry implements Cloneable, Serializable
                 }
 
                 break;
+                
+            default :
+                break; // Do nothing
         }
         
         return sb.toString();
@@ -663,6 +674,7 @@ public class LdifEntry implements Cloneable, Serializable
     
     /**
      * @see Object#equals(Object)
+     * @return <code>true</code> if both values are equal
      */
     public boolean equals( Object o )
     {
@@ -826,6 +838,9 @@ public class LdifEntry implements Cloneable, Serializable
                 }
                 
                 break;
+                
+            default :
+                break; // do nothing
         }
         
         if ( control != null )

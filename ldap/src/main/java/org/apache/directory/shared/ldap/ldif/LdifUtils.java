@@ -19,6 +19,18 @@
  */
 package org.apache.directory.shared.ldap.ldif;
 
+import java.io.UnsupportedEncodingException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -27,21 +39,13 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.StringTools;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
  * Some LDIF useful methods
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LdifUtils
 {
@@ -148,6 +152,7 @@ public class LdifUtils
      * 
      * @param ldif The LDIF string containing an attribute value
      * @return An Attributes instance
+     * @exception NamingException If the LDIF String cannot be converted to an Attributes
      */
     public static Attributes convertAttributesFromLdif( String ldif ) throws NamingException
     {
@@ -196,6 +201,7 @@ public class LdifUtils
     /**
      * Convert an Entry to LDIF
      * @param entry the entry to convert
+     * @param length The maximum line's length 
      * @return the corresponding LDIF as a String
      * @throws NamingException If a naming exception is encountered.
      */
@@ -299,6 +305,9 @@ public class LdifUtils
                             sb.append( "replace: " );
                             break;
                             
+                        default :
+                            break; // Do nothing
+                            
                     }
                     
                     sb.append( modification.getAttribute().getID() );
@@ -309,6 +318,9 @@ public class LdifUtils
                 }
                 break;
                 
+            default :
+                break; // Do nothing
+                
         }
         
         sb.append( '\n' );
@@ -317,20 +329,22 @@ public class LdifUtils
     }
     
     /**
-     * Base64 encode a String  
+     * Base64 encode a String
+     * @param str The string to encode
+     * @return the base 64 encoded string
      */
     private static String encodeBase64( String str )
     {
-        char[] encoded;
+        char[] encoded =null;
         
         try
         {
             // force encoding using UTF-8 charset, as required in RFC2849 note 7
-            encoded = Base64.encode( ( ( String ) str ).getBytes( "UTF-8" ) );
+            encoded = Base64.encode( str.getBytes( "UTF-8" ) );
         }
         catch ( UnsupportedEncodingException e )
         {
-            encoded = Base64.encode( ( ( String ) str ).getBytes() );
+            encoded = Base64.encode( str.getBytes() );
         }
         
         return new String( encoded );
@@ -469,9 +483,8 @@ public class LdifUtils
      *
      * @param dn the dn of the added entry
      * @return a reverse LDIF
-     * @throws NamingException If something went wrong
      */
-    public static LdifEntry reverseAdd( LdapDN dn ) throws NamingException
+    public static LdifEntry reverseAdd( LdapDN dn )
     {
         LdifEntry entry = new LdifEntry();
         entry.setChangeType( ChangeType.Delete );
@@ -487,9 +500,8 @@ public class LdifUtils
      * @param dn The deleted entry DN
      * @param deletedEntry The entry which has been deleted
      * @return A reverse LDIF
-     * @throws NamingException If something went wrong
      */
-    public static LdifEntry reverseDel( LdapDN dn, Attributes deletedEntry ) throws NamingException
+    public static LdifEntry reverseDel( LdapDN dn, Attributes deletedEntry )
     {
         LdifEntry entry = new LdifEntry();
         
@@ -519,8 +531,8 @@ public class LdifUtils
     public static LdifEntry reverseModifyDn( LdapDN newSuperiorDn, LdapDN modifiedDn ) throws NamingException
     {
         LdifEntry entry = new LdifEntry();
-        LdapDN currentParent;
-        LdapDN newDn;
+        LdapDN currentParent = null;
+        LdapDN newDn = null;
 
         if ( newSuperiorDn == null )
         {
@@ -551,11 +563,20 @@ public class LdifUtils
     }
 
 
+    /**
+     * Revert a DN to it's previous version by removing the first RDN and adding the given RDN
+     *
+     * @param t0 The initial Attributes
+     * @param t0_dn The initial DN
+     * @param t1_rdn The new RDN
+     * @return A new LDIF entry with a reverted DN
+     * @throws NamingException If the name reverting failed
+     */
     public static LdifEntry reverseRename( Attributes t0, LdapDN t0_dn, Rdn t1_rdn ) throws NamingException
     {
         LdifEntry entry = new LdifEntry();
-        LdapDN parent;
-        LdapDN newDn;
+        LdapDN parent = null;
+        LdapDN newDn = null;
 
         if ( t1_rdn == null )
         {
@@ -659,7 +680,7 @@ public class LdifUtils
     }
 
 
-    private static boolean reverseDoDeleteOldRdn( Attributes t0_entry, Rdn t1_rdn ) throws NamingException
+    private static boolean reverseDoDeleteOldRdn( Attributes t0_entry, Rdn t1_rdn )
     {
         // Consider simple example changes (rename or move does not matter)
         // -------------------------------------------------------------------
@@ -790,6 +811,10 @@ public class LdifUtils
                     reverseModification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, previous );
                     reverseModifications.add( 0, reverseModification );
                     break;
+                    
+                default :
+                    break; // Do nothing
+                    
             }
 
             AttributeUtils.applyModification( clonedEntry, modification );
