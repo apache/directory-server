@@ -70,6 +70,7 @@ public class LoginMessage extends BaseMessage
 
     /**
      * @see java.lang.Object#hashCode()
+     * @return the instance's hashcode 
      */
     public int hashCode()
     {

@@ -60,6 +60,7 @@ public class LogEntryAckMessage extends ResponseMessage
 
     /**
      * @see java.lang.Object#hashCode()
+     * @return the instance's hashcode 
      */
     public int hashCode()
     {

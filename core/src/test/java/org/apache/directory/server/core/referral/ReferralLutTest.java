@@ -22,10 +22,9 @@ package org.apache.directory.server.core.referral;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.referral.ReferralLut;
-import org.apache.directory.shared.ldap.name.LdapDN;
-
 import junit.framework.TestCase;
+
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**

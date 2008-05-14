@@ -121,6 +121,7 @@ public class ServerModification implements Modification
     
     /**
      * Compute the modification @see Object#hashCode
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

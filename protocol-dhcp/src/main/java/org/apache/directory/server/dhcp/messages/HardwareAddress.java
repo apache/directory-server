@@ -82,8 +82,9 @@ public final class HardwareAddress
     }
 
 
-    /*
+    /**
      * @see java.lang.Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

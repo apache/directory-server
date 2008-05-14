@@ -1052,7 +1052,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      *  
      * @see Object#hashCode()
      * 
-     * @return the instance's hashcode 
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

@@ -513,6 +513,7 @@ public class ServerStringValue extends ClientStringValue
      * @see Object#hashCode()
      * @throws IllegalStateException on failures to extract the comparator, or the
      * normalizers needed to perform the required comparisons based on the schema
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

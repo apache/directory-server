@@ -2288,6 +2288,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     * Gets the hashCode of this ServerEntry.
     *
     * @see java.lang.Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

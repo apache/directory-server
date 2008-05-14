@@ -176,6 +176,10 @@ public class ResourceRecordImpl implements ResourceRecord
     }
 
 
+    /**
+     * Compute the instance hash code
+     * @return the instance's hash code 
+     */
     public int hashCode()
     {
         return domainName.hashCode() + recordType.hashCode() + recordClass.hashCode();
