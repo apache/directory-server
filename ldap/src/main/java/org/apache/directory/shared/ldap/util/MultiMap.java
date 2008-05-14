@@ -53,7 +53,7 @@ import java.util.Map;
  * @version $Revision$ $Date$
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface MultiMap extends Map
+public interface MultiMap<K,V> extends Map<K,V>
 {
 
     /**
@@ -78,7 +78,7 @@ public interface MultiMap extends Map
      * @throws NullPointerException
      *             if the key or value is null and null is invalid
      */
-    public Object remove( Object key, Object item );
+    Object remove( K key, V item );
 
 
     // -----------------------------------------------------------------------
@@ -117,7 +117,7 @@ public interface MultiMap extends Map
      * @throws NullPointerException
      *             if the key is null and null keys are invalid
      */
-    Object get( Object key );
+    V get( K key );
 
 
     /**
@@ -135,7 +135,7 @@ public interface MultiMap extends Map
      * @throws NullPointerException
      *             if the value is null and null value are invalid
      */
-    boolean containsValue( Object value );
+    boolean containsValue( V value );
 
 
     /**
@@ -161,7 +161,7 @@ public interface MultiMap extends Map
      * @throws IllegalArgumentException
      *             if the key or value is invalid
      */
-    Object put( Object key, Object value );
+    V put( K key, V value );
 
 
     /**
@@ -183,7 +183,7 @@ public interface MultiMap extends Map
      * @throws NullPointerException
      *             if the key is null and null keys are invalid
      */
-    Object remove( Object key );
+    V remove( K key );
 
 
     /**
@@ -195,6 +195,5 @@ public interface MultiMap extends Map
      * 
      * @return a collection view of the values contained in this map
      */
-    Collection values();
-
+    Collection<V> values();
 }

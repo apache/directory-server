@@ -689,10 +689,11 @@ public class AttributeImpl implements Attribute
     
     
     /**
-     * Compute the hashcode for this attribute. It's a combinaison
-     * of the ID and all the values' hashcodes.
+     * Compute the hash code for this attribute. It's a combinaison
+     * of the ID and all the values' hash codes.
      * 
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

@@ -368,6 +368,7 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
     
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

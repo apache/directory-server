@@ -1216,6 +1216,7 @@ public class DefaultClientAttribute implements ClientAttribute
      * on the internal values.
      *  
      * @see Object#hashCode()
+     * @return the instance's hashcode 
      */
     public int hashCode()
     {

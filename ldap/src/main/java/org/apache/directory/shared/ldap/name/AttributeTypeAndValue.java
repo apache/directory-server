@@ -202,10 +202,13 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
      * Note that the upValue should <b>not</b> be null or empty, or resolved
      * to an empty string after having trimmed it. 
      *
-     * @param upType The Usrr Provided type
+     * @param upType The User Provided type
      * @param normType The normalized type
      * @param upValue The User Provided value
      * @param normValue The normalized value
+     * @param start Start of this ATAV in the RDN
+     * @param length Length of this ATAV
+     * @param upName The user provided name
      */
     /**No protection*/ AttributeTypeAndValue( 
                             String upType, 
@@ -345,8 +348,8 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
     /**
      * Store the value of a AttributeTypeAndValue.
      *
-     * @param value
-     *            The value of the AttributeTypeAndValue
+     * @param value The user provided value of the AttributeTypeAndValue
+     * @param normValue The normalized value
      */
     public void setValue( Object upValue, Object normValue )
     {
@@ -539,11 +542,11 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
     /**
      * Compare two values
      *
-     * @param val1
-     *            First String
-     * @param val2
-     *            Second String
-     * @return true if both strings are equals or null.
+     * @param val1 First value
+     * @param val2 Second value
+     * @param sensitivity A flag to define the case sensitivity
+     * @return -1 if the first value is inferior to the second one, +1 if
+     * its superior, 0 if both values are equal
      */
     private int compareValue( Object val1, Object val2, boolean sensitivity )
     {
@@ -724,6 +727,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
      * Gets the hashcode of this object.
      *
      * @see java.lang.Object#hashCode()
+     * @return The instance hash code
      */
     public int hashCode()
     {

@@ -65,6 +65,7 @@ public class AbstractRequest extends AbstractMessage implements Request
     
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

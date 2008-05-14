@@ -1323,10 +1323,11 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
    }
 
    /**
-    * Gets the hashcode of this rdn.
-    *
-    * @see java.lang.Object#hashCode()
-    */
+     * Gets the hashcode of this rdn.
+     *
+     * @see java.lang.Object#hashCode()
+     * @return the instance's hash code 
+     */
    public int hashCode()
    {
        int result = 37;

@@ -80,6 +80,7 @@ public abstract class LeafNode extends AbstractExprNode
     
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

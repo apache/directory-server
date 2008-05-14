@@ -1535,6 +1535,10 @@ public class LdapDNTest
            }
 
 
+           /**
+            * Compute the instance's hash code
+            * @return the instance's hash code 
+            */
            public int hashCode()
            {
                return super.hashCode();

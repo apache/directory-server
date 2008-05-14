@@ -198,6 +198,7 @@ public class NotNode extends BranchNode
 
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

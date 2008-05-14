@@ -180,6 +180,7 @@ public abstract class BranchNode extends AbstractExprNode
      * (non-Javadoc)
      * 
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

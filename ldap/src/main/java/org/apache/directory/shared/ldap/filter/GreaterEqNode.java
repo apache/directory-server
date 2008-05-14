@@ -45,6 +45,7 @@ public class GreaterEqNode extends SimpleNode
 
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

@@ -100,6 +100,10 @@ public class TriggerSpecification
         }
 
         @Override
+        /**
+         * Compute the instance's hash code
+         * @return the instance's hash code 
+         */
         public int hashCode() {
             int h = 37;
             

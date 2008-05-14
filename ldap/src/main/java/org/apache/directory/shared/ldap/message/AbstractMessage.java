@@ -229,6 +229,7 @@ public abstract class AbstractMessage implements Message
     
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

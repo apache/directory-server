@@ -233,6 +233,10 @@ public class AttributeTypeLiteral
     // Object overrides
     // ------------------------------------------------------------------------
 
+    /**
+     * Compute the instance's hash code
+     * @return the instance's hash code 
+     */
     public int hashCode()
     {
         return getOid().hashCode();

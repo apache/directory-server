@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.ldif;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -35,12 +34,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <pre>
- *  &lt;ldif-file&gt; ::= &quot;version:&quot; &lt;fill&gt; &lt;number&gt; &lt;seps&gt; &lt;dn-spec&gt; &lt;sep&gt; &lt;ldif-content-change&gt;
+ *  &lt;ldif-file&gt; ::= &quot;version:&quot; &lt;fill&gt; &lt;number&gt; &lt;seps&gt; &lt;dn-spec&gt; &lt;sep&gt; 
+ *  &lt;ldif-content-change&gt;
  *  
  *  &lt;ldif-content-change&gt; ::= 
- *    &lt;number&gt; &lt;oid&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; &lt;ldif-attrval-record-e&gt; | 
- *    &lt;alpha&gt; &lt;chars-e&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; &lt;ldif-attrval-record-e&gt; | 
- *    &quot;control:&quot; &lt;fill&gt; &lt;number&gt; &lt;oid&gt; &lt;spaces-e&gt; &lt;criticality&gt; &lt;value-spec-e&gt; &lt;sep&gt; &lt;controls-e&gt; 
+ *    &lt;number&gt; &lt;oid&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; 
+ *    &lt;ldif-attrval-record-e&gt; | 
+ *    &lt;alpha&gt; &lt;chars-e&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; 
+ *    &lt;ldif-attrval-record-e&gt; | 
+ *    &quot;control:&quot; &lt;fill&gt; &lt;number&gt; &lt;oid&gt; &lt;spaces-e&gt; &lt;criticality&gt; 
+ *    &lt;value-spec-e&gt; &lt;sep&gt; &lt;controls-e&gt; 
  *        &quot;changetype:&quot; &lt;fill&gt; &lt;changerecord-type&gt; &lt;ldif-change-record-e&gt; |
  *    &quot;changetype:&quot; &lt;fill&gt; &lt;changerecord-type&gt; &lt;ldif-change-record-e&gt;
  *                              
@@ -60,7 +63,8 @@ import org.slf4j.LoggerFactory;
  *                              
  *  &lt;oid&gt; ::= '.' &lt;number&gt; &lt;oid&gt; | e
  *                              
- *  &lt;attrval-specs-e&gt; ::= &lt;number&gt; &lt;oid&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; | 
+ *  &lt;attrval-specs-e&gt; ::= &lt;number&gt; &lt;oid&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; 
+ *  &lt;attrval-specs-e&gt; | 
  *    &lt;alpha&gt; &lt;chars-e&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; | e
  *                              
  *  &lt;value-spec-e&gt; ::= &lt;value-spec&gt; | e
@@ -75,11 +79,15 @@ import org.slf4j.LoggerFactory;
  *                              
  *  &lt;chars-e&gt; ::= &lt;char&gt; &lt;chars-e&gt; |  e
  *  
- *  &lt;changerecord-type&gt; ::= &quot;add&quot; &lt;sep&gt; &lt;attributeType&gt; &lt;options-e&gt; &lt;value-spec&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; | 
+ *  &lt;changerecord-type&gt; ::= &quot;add&quot; &lt;sep&gt; &lt;attributeType&gt; &lt;options-e&gt; &lt;value-spec&gt; 
+ *  &lt;sep&gt; &lt;attrval-specs-e&gt; | 
  *    &quot;delete&quot; &lt;sep&gt; | 
- *    &quot;modify&quot; &lt;sep&gt; &lt;mod-type&gt; &lt;fill&gt; &lt;attributeType&gt; &lt;options-e&gt; &lt;sep&gt; &lt;attrval-specs-e&gt; &lt;sep&gt; '-' &lt;sep&gt; &lt;mod-specs-e&gt; | 
- *    &quot;moddn&quot; &lt;sep&gt; &lt;newrdn&gt; &lt;sep&gt; &quot;deleteoldrdn:&quot; &lt;fill&gt; &lt;0-1&gt; &lt;sep&gt; &lt;newsuperior-e&gt; &lt;sep&gt; |
- *    &quot;modrdn&quot; &lt;sep&gt; &lt;newrdn&gt; &lt;sep&gt; &quot;deleteoldrdn:&quot; &lt;fill&gt; &lt;0-1&gt; &lt;sep&gt; &lt;newsuperior-e&gt; &lt;sep&gt;
+ *    &quot;modify&quot; &lt;sep&gt; &lt;mod-type&gt; &lt;fill&gt; &lt;attributeType&gt; &lt;options-e&gt; &lt;sep&gt; 
+ *    &lt;attrval-specs-e&gt; &lt;sep&gt; '-' &lt;sep&gt; &lt;mod-specs-e&gt; | 
+ *    &quot;moddn&quot; &lt;sep&gt; &lt;newrdn&gt; &lt;sep&gt; &quot;deleteoldrdn:&quot; &lt;fill&gt; &lt;0-1&gt; &lt;sep&gt; 
+ *    &lt;newsuperior-e&gt; &lt;sep&gt; |
+ *    &quot;modrdn&quot; &lt;sep&gt; &lt;newrdn&gt; &lt;sep&gt; &quot;deleteoldrdn:&quot; &lt;fill&gt; &lt;0-1&gt; &lt;sep&gt; 
+ *    &lt;newsuperior-e&gt; &lt;sep&gt;
  *  
  *  &lt;newrdn&gt; ::= ':' &lt;fill&gt; &lt;safe-string&gt; | &quot;::&quot; &lt;fill&gt; &lt;base64-chars&gt;
  *  
@@ -129,6 +137,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LdifAttributesReader extends LdifReader
 {
@@ -149,11 +158,10 @@ public class LdifAttributesReader extends LdifReader
     /**
      * Parse an AttributeType/AttributeValue
      * 
-     * @param entry The entry where to store the value
+     * @param attributes The entry where to store the value
      * @param line The line to parse
      * @param lowerLine The same line, lowercased
-     * @throws NamingException
-     *             If anything goes wrong
+     * @throws NamingException If anything goes wrong
      */
     private void parseAttribute( Attributes attributes, String line, String lowerLine ) throws NamingException
     {
@@ -192,6 +200,9 @@ public class LdifAttributesReader extends LdifReader
      * &lt;dn-spec&gt; &lt;sep&gt; &lt;controls-e&gt; &lt;changerecord&gt; &lt;dn-spec&gt; ::= "dn:" &lt;fill&gt;
      * &lt;distinguishedName&gt; | "dn::" &lt;fill&gt; &lt;base64-distinguishedName&gt;
      * &lt;changerecord&gt; ::= "changetype:" &lt;fill&gt; &lt;change-op&gt;
+     * 
+     * @return The read entry
+     * @throws NamingException If the entry can't be read or is invalid
      */
     private Attributes parseAttributes() throws NamingException
     {
@@ -201,21 +212,14 @@ public class LdifAttributesReader extends LdifReader
             return null;
         }
 
-        String line = lines.get( 0 );
-
         Attributes attributes = new BasicAttributes( true );
 
         // Now, let's iterate through the other lines
-        Iterator<String> iter = lines.iterator();
-
-        String lowerLine = null;
-
-        while ( iter.hasNext() )
+        for ( String line:lines )
         {
             // Each line could start either with an OID, an attribute type, with
             // "control:" or with "changetype:"
-            line = iter.next();
-            lowerLine = line.toLowerCase();
+            String lowerLine = line.toLowerCase();
 
             // We have three cases :
             // 1) The first line after the DN is a "control:" -> this is an error

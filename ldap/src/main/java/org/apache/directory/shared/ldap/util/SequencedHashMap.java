@@ -119,6 +119,10 @@ public class SequencedHashMap implements Map, Cloneable, Externalizable
         }
 
 
+        /**
+         * Compute the instance's hash code
+         * @return the instance's hash code 
+         */
         public int hashCode()
         {
             // implemented per api docs for Map.Entry.hashCode()
@@ -622,6 +626,7 @@ public class SequencedHashMap implements Map, Cloneable, Externalizable
 
     /**
      * Implements {@link Map#hashCode()}.
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

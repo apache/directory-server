@@ -1444,6 +1444,10 @@ public class LdapURL
         return string;
     }
 
+    /**
+     * Compute the instance's hash code
+     * @return the instance's hash code 
+     */
     public int hashCode()
     {
         return this.toString().hashCode();

@@ -43,6 +43,7 @@ public class ApproximateNode extends EqualityNode
 
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

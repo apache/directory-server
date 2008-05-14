@@ -112,6 +112,10 @@ public class AbstractSchemaDescription
     }
 
 
+    /**
+     * Compute the instance's hash code
+     * @return the instance's hash code 
+     */
     public int hashCode()
     {
         return numericOid.hashCode();

@@ -20,12 +20,11 @@
 
 package org.apache.directory.shared.ldap.ldif;
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.util.StringTools;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
@@ -34,11 +33,13 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.Control;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -55,6 +56,8 @@ import java.util.Map;
  */
 public class LdifEntry implements Cloneable, Serializable
 {
+    private static final long serialVersionUID = 2L;
+    
     /** Used in toArray() */
     public static final ModificationItemImpl[] EMPTY_MODS = new ModificationItemImpl[0];
 
@@ -192,10 +195,10 @@ public class LdifEntry implements Cloneable, Serializable
      *            The operation. One of : DirContext.ADD_ATTRIBUTE
      *            DirContext.REMOVE_ATTRIBUTE DirContext.REPLACE_ATTRIBUTE
      * 
-     * @param id
-     *            The attribute's ID
-     * @param value
-     *            The attribute's value
+     * @param modOp The modification operation value
+     * @param id The attribute's ID
+     * @param value The attribute's value
+     * @throws NamingException if the modification can't be added 
      */
     public void addModificationItem( int modOp, String id, Object value ) throws NamingException
     {
@@ -446,6 +449,11 @@ public class LdifEntry implements Cloneable, Serializable
         return changeType == ChangeType.Modify;
     }
 
+    /**
+     * Tells if the current entry is a added one
+     *
+     * @return <code>true</code> if the entry is added
+     */
     public boolean isEntry()
     {
         return changeType == ChangeType.Add;
@@ -481,8 +489,8 @@ public class LdifEntry implements Cloneable, Serializable
         {
             for ( ModificationItemImpl modif:modificationList )
             {
-                ModificationItemImpl modifClone = new ModificationItemImpl( modif.getModificationOp(), (Attribute) modif.getAttribute()
-                        .clone() );
+                ModificationItemImpl modifClone = new ModificationItemImpl( modif.getModificationOp(), 
+                    (Attribute) modif.getAttribute().clone() );
                 clone.modificationList.add( modifClone );
             }
         }
@@ -492,8 +500,8 @@ public class LdifEntry implements Cloneable, Serializable
             for ( String key:modificationItems.keySet() )
             {
                 ModificationItemImpl modif = modificationItems.get( key );
-                ModificationItemImpl modifClone = new ModificationItemImpl( modif.getModificationOp(), (Attribute) modif.getAttribute()
-                        .clone() );
+                ModificationItemImpl modifClone = new ModificationItemImpl( modif.getModificationOp(), 
+                    (Attribute) modif.getAttribute().clone() );
                 clone.modificationItems.put( key, modifClone );
             }
 
@@ -641,7 +649,7 @@ public class LdifEntry implements Cloneable, Serializable
                 sb.append( "    Delete old RDN : " ).append( deleteOldRdn ? "true\n" : "false\n" );
                 sb.append( "    New RDN : " ).append( newRdn ).append( '\n' );
                 
-                if ( StringTools.isEmpty( newSuperior ) == false )
+                if ( !StringTools.isEmpty( newSuperior ) )
                 {
                     sb.append( "    New superior : " ).append( newSuperior ).append( '\n' );
                 }

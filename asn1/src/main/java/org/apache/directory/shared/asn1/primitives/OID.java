@@ -689,6 +689,7 @@ public class OID implements Serializable
 
     /**
      * @see Object#hashCode()
+     * @return the instance's hashcode 
      */
     public int hashCode()
     {

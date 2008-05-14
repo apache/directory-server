@@ -30,10 +30,11 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * file.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LdifControl implements Control
 {
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /** The control OID */
     private OID oid;

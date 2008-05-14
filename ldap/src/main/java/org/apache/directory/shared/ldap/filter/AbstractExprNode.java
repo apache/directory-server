@@ -58,6 +58,7 @@ public abstract class AbstractExprNode implements ExprNode
     
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

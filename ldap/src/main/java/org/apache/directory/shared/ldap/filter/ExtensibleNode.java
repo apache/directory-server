@@ -172,6 +172,7 @@ public class ExtensibleNode extends LeafNode
 
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

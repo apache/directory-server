@@ -1042,9 +1042,10 @@ public final class DefaultClientEntry extends AbstractEntry<String> implements C
     
     
     /**
-    * Get the hashcode of this ClientEntry.
-    *
-    * @see java.lang.Object#hashCode()
+     * Get the hash code of this ClientEntry.
+     *
+     * @see java.lang.Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {
