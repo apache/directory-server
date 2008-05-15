@@ -20,6 +20,11 @@
 package org.apache.directory.server.core.normalization;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
@@ -40,11 +45,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -67,7 +67,7 @@ import java.util.List;
 public class NormalizingVisitor implements FilterVisitor
 {
     /** logger used by this class */
-    private final static Logger log = LoggerFactory.getLogger( NormalizingVisitor.class );
+    private static final Logger log = LoggerFactory.getLogger( NormalizingVisitor.class );
 
     /** the name component normalizer used by this visitor */
     private final NameComponentNormalizer ncn;
@@ -76,6 +76,13 @@ public class NormalizingVisitor implements FilterVisitor
     private final Registries registries;
 
 
+    /**
+     * 
+     * Creates a new instance of NormalizingVisitor.
+     *
+     * @param ncn The name component normalizer to use
+     * @param registries The global registries
+     */
     public NormalizingVisitor( NameComponentNormalizer ncn, Registries registries )
     {
         this.ncn = ncn;
@@ -85,13 +92,16 @@ public class NormalizingVisitor implements FilterVisitor
 
     /**
      * A private method used to normalize a value
-     * @return
+     * 
+     * @param attribute The attribute's ID
+     * @param value The value to normalize
+     * @return the normalized value
      */
     private Value<?> normalizeValue( String attribute, Value<?> value )
     {
         try
         {
-            Value<?> normalized;
+            Value<?> normalized = null;
 
             AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute );
 
@@ -137,6 +147,9 @@ public class NormalizingVisitor implements FilterVisitor
     /**
      * Visit a PresenceNode. If the attribute exists, the node is returned, otherwise
      * null is returned.
+     * 
+     * @param node the node to visit
+     * @return The visited node
      */
     private ExprNode visitPresenceNode( PresenceNode node )
     {
@@ -160,6 +173,9 @@ public class NormalizingVisitor implements FilterVisitor
      *  - EqualityNode
      *  - GreaterEqNode
      *  - LesserEqNode
+     *  
+     * @param node the node to visit
+     * @return the visited node
      */
     private ExprNode visitSimpleNode( SimpleNode node )
     {
@@ -196,6 +212,9 @@ public class NormalizingVisitor implements FilterVisitor
      * null is returned. 
      * 
      * Normalizing substring value is pretty complex. It's not currently implemented...
+     * 
+     * @param node the node to visit
+     * @return the visited node
      */
     private ExprNode visitSubstringNode( SubstringNode node )
     {
@@ -291,6 +310,9 @@ public class NormalizingVisitor implements FilterVisitor
      * null is returned. 
      * 
      * TODO implement the logic for ExtensibleNode
+     * 
+     * @param node the node to visit
+     * @return the visited node
      */
     private ExprNode visitExtensibleNode( ExtensibleNode node )
     {
@@ -312,6 +334,9 @@ public class NormalizingVisitor implements FilterVisitor
      *  - AndNode
      *  - NotNode
      *  - OrNode
+     *  
+     * @param node the node to visit
+     * @return the visited node
      */
     private ExprNode visitBranchNode( BranchNode node )
     {
@@ -346,7 +371,7 @@ public class NormalizingVisitor implements FilterVisitor
         else
         {
             // Manage AND and OR nodes.
-            BranchNode branchNode = ( BranchNode ) node;
+            BranchNode branchNode = node;
             List<ExprNode> children = node.getChildren();
 
             // For AND and OR, we may have more than one children.
@@ -409,6 +434,9 @@ public class NormalizingVisitor implements FilterVisitor
      * 
      * The PresencNode is managed differently from other nodes, as it just check
      * for the attribute, not the value.
+     * 
+     * @param node the node to visit
+     * @return the visited node
      */
     public Object visit( ExprNode node )
     {

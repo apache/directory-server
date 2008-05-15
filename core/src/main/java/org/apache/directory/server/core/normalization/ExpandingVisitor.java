@@ -52,6 +52,12 @@ public class ExpandingVisitor implements FilterVisitor
     private final AttributeTypeRegistry attrRegistry;
 
 
+    /**
+     * 
+     * Creates a new instance of ExpandingVisitor.
+     *
+     * @param attrRegistry The AttributeType registry
+     */
     public ExpandingVisitor( AttributeTypeRegistry attrRegistry )
     {
         this.attrRegistry = attrRegistry;
