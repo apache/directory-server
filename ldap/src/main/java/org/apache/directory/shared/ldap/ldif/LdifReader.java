@@ -37,6 +37,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
@@ -161,7 +162,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LdifReader implements Iterator<LdifEntry>
+public class LdifReader implements Iterable<LdifEntry>
 {
     /** A logger */
     private static final Logger LOG = LoggerFactory.getLogger( LdifReader.class );
@@ -171,10 +172,10 @@ public class LdifReader implements Iterator<LdifEntry>
      * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
      * @version $Rev$, $Date$
      */
-    protected class Position
+    public class Position
     {
         /** The current position */
-        protected int pos;
+        private int pos;
 
         /**
          * Creates a new instance of Position.
@@ -875,14 +876,10 @@ public class LdifReader implements Iterator<LdifEntry>
     /**
      * Parse an AttributeType/AttributeValue
      * 
-     * @param entry
-     *            The entry where to store the value
-     * @param line
-     *            The line to parse
-     * @param lowerLine
-     *            The same line, lowercased
-     * @throws NamingException
-     *             If anything goes wrong
+     * @param entry The entry where to store the value
+     * @param line The line to parse
+     * @param lowerLine The same line, lowercased
+     * @throws NamingException If anything goes wrong
      */
     public void parseAttributeValue( LdifEntry entry, String line, String lowerLine ) throws NamingException
     {
@@ -1621,8 +1618,9 @@ public class LdifReader implements Iterator<LdifEntry>
      * Gets the next LDIF on the channel.
      * 
      * @return the next LDIF as a String.
+     * @exception NoSuchElementException If we can't read the next entry
      */
-    public LdifEntry next()
+    private LdifEntry nextInternal()
     {
         try
         {
@@ -1638,6 +1636,7 @@ public class LdifReader implements Iterator<LdifEntry>
             catch (NamingException ne)
             {
                 error = ne;
+                throw new NoSuchElementException( ne.getMessage() );
             }
 
             LOG.debug( "next(): -- returning ldif {}\n", entry );
@@ -1654,6 +1653,29 @@ public class LdifReader implements Iterator<LdifEntry>
 
     
     /**
+     * Gets the next LDIF on the channel.
+     * 
+     * @return the next LDIF as a String.
+     * @exception NoSuchElementException If we can't read the next entry
+     */
+    public LdifEntry next()
+    {
+        return nextInternal();
+    }
+
+
+    /**
+     * Tests to see if another LDIF is on the input channel.
+     * 
+     * @return true if another LDIF is available false otherwise.
+     */
+    private boolean hasNextInternal()
+    {
+        return null != prefetched;
+    }
+
+    
+    /**
      * Tests to see if another LDIF is on the input channel.
      * 
      * @return true if another LDIF is available false otherwise.
@@ -1662,7 +1684,18 @@ public class LdifReader implements Iterator<LdifEntry>
     {
         LOG.debug( "hasNext(): -- returning {}", ( prefetched != null ) ? Boolean.TRUE : Boolean.FALSE );
 
-        return null != prefetched;
+        return hasNextInternal();
+    }
+
+
+    /**
+     * Always throws UnsupportedOperationException!
+     * 
+     * @see java.util.Iterator#remove()
+     */
+    private void removeInternal()
+    {
+        throw new UnsupportedOperationException();
     }
 
     
@@ -1673,7 +1706,7 @@ public class LdifReader implements Iterator<LdifEntry>
      */
     public void remove()
     {
-        throw new UnsupportedOperationException();
+        removeInternal();
     }
 
     /**
@@ -1681,7 +1714,23 @@ public class LdifReader implements Iterator<LdifEntry>
      */
     public Iterator<LdifEntry> iterator()
     {
-        return this;
+        return new Iterator<LdifEntry>() 
+        {
+            public boolean hasNext() 
+            {
+                return hasNextInternal();
+            }
+          
+            public LdifEntry next() 
+            {
+                return nextInternal();
+            }
+          
+            public void remove() 
+            {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
     /**
@@ -1722,18 +1771,19 @@ public class LdifReader implements Iterator<LdifEntry>
         prefetched = parseEntry();
 
         // When done, get the entries one by one.
-        while ( hasNext() )
+        try
         {
-            LdifEntry entry = next();
-
-            if ( error != null )
+            for ( LdifEntry entry:this )
             {
-                throw new NamingException( "Error while parsing ldif : " + error.getMessage() );
+                if ( entry != null )
+                {
+                    entries.add( entry );
+                }
             }
-            else if ( entry != null )
-            {
-                entries.add( entry );
-            }
+        }
+        catch ( NoSuchElementException nsee )
+        {
+            throw new NamingException( "Error while parsing ldif : " + error.getMessage() );
         }
 
         return entries;

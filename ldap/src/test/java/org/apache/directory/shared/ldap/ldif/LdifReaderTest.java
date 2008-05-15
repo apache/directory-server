@@ -259,7 +259,7 @@ public class LdifReaderTest extends TestCase
         testReaderAttrIdCaseInsensitive( ldif );
     }
 
-    private void testReaderAttrIdCaseInsensitive( String ldif )
+    public void testReaderAttrIdCaseInsensitive( String ldif )
             throws NamingException
     {
         LdifReader reader = new LdifReader();
