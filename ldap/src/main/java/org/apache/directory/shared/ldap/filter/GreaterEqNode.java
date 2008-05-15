@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.entry.Value;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision: 519266 $
  */
-public class GreaterEqNode extends SimpleNode
+public class GreaterEqNode<T> extends SimpleNode<T>
 {
     /**
      * Creates a new GreaterOrEqual object.
@@ -37,7 +37,7 @@ public class GreaterEqNode extends SimpleNode
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    public GreaterEqNode( String attribute, Value<?> value )
+    public GreaterEqNode( String attribute, Value<T> value )
     {
         super( attribute, value, AssertionType.GREATEREQ );
     }

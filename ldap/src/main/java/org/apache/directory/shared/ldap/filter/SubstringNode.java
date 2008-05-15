@@ -70,8 +70,6 @@ public class SubstringNode extends LeafNode
      * Creates a new SubstringNode object without any value
      * 
      * @param attribute the name of the attribute to substring assert
-     * @param initialPattern the initial fragment
-     * @param finalPattern the final fragment
      */
     public SubstringNode( String attribute )
     {
@@ -176,8 +174,10 @@ public class SubstringNode extends LeafNode
     /**
      * Gets the compiled regular expression for the substring expression.
      * 
+     * @param normalizer the normalizer to use for pattern component normalization
      * @return the equivalent compiled regular expression
-     * @throws RESyntaxException if the regular expression is invalid
+     * @throws PatternSyntaxException if the regular expression is invalid
+     * @throws NamingException if there are problems while normalizing
      */
     public final Pattern getRegex( Normalizer normalizer ) throws PatternSyntaxException, NamingException
     {

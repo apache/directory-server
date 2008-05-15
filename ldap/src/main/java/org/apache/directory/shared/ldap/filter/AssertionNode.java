@@ -43,6 +43,7 @@ public class AssertionNode extends AbstractExprNode
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
+
     /**
      * Creates an AssertionNode using an arbitrary candidate assertion.
      * 
@@ -88,9 +89,10 @@ public class AssertionNode extends AbstractExprNode
 
 
     // ------------------------------------------------------------------------
-    // A B S T R A C T M E T H O D I M P L E M E N T A T I O N S
+    // A B S T R A C T    M E T H O D    I M P L E M E N T A T I O N S
     // ------------------------------------------------------------------------
 
+    
     /**
      * Always returns true since an AssertionNode has no children.
      * 
@@ -103,7 +105,7 @@ public class AssertionNode extends AbstractExprNode
 
 
     /**
-     * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     * @see ExprNode#printRefinementToBuffer(StringBuilder) 
      */
     public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
     {
@@ -134,6 +136,7 @@ public class AssertionNode extends AbstractExprNode
     {
         return visitor.visit( this );
     }
+
 
     /**
      * @see Object#toString

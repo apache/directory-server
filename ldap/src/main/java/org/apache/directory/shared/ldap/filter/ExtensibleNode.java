@@ -45,6 +45,8 @@ public class ExtensibleNode extends LeafNode
 
     /**
      * Creates a new emptyExtensibleNode object.
+     * 
+     * @param attribute the attribute associated with this node
      */
     public ExtensibleNode( String attribute )
     {
