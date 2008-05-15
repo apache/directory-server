@@ -36,9 +36,9 @@ public class OrNode extends BranchNode
      * 
      * @param childList the child nodes under this branch node.
      */
-    public OrNode( List<ExprNode> children)
+    public OrNode( List<ExprNode> childList)
     {
-        super( children, AssertionType.OR );
+        super( childList, AssertionType.OR );
     }
 
 
@@ -99,8 +99,11 @@ public class OrNode extends BranchNode
 
     /**
      * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     * 
+     * @return The buffer in which the refinement has been appended
+     * @throws UnsupportedOperationException if this node isn't a part of a refinement.
      */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
+    public StringBuilder printRefinementToBuffer( StringBuilder buf )
     {
         buf.append( "or: {" );
         boolean isFirst = true;
@@ -129,6 +132,7 @@ public class OrNode extends BranchNode
      * down.
      * 
      * @see java.lang.Object#toString()
+     * @return A string representing the AndNode
      */
     public String toString()
     {

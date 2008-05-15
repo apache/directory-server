@@ -38,13 +38,13 @@ public class NotNode extends BranchNode
      * 
      * @param childList the child nodes under this branch node.
      */
-    public NotNode( List<ExprNode> children )
+    public NotNode( List<ExprNode> childList )
     {
         super( AssertionType.NOT );
-        
-        if ( this.children.size() > 1 )
+
+        if ( childList != null )
         {
-            throw new IllegalStateException( "Cannot add more than one element to a negation node." );            
+            setChildren( childList );
         }
     }
 
@@ -64,9 +64,9 @@ public class NotNode extends BranchNode
      */
     public void addNode( ExprNode node )
     {
-        if ( children.size() >= 1 )
+        if ( ( children != null ) && ( children.size() >= 1 ) )
         {
-            throw new IllegalStateException( "Cannot add more than one element to a negation node." );            
+            throw new IllegalStateException( "Cannot add more than one element to a negation node." );
         }
         
         children.add( node );
@@ -92,16 +92,16 @@ public class NotNode extends BranchNode
     /**
      * Sets the list of children under this node.
      * 
-     * @param list the list of children to set.
+     * @param childList the list of children to set.
      */
-    public void setChildren( List<ExprNode> list )
+    public void setChildren( List<ExprNode> childList )
     {
-        if ( ( list != null ) && ( list.size() > 1 ) )
+        if ( ( childList != null ) && ( childList.size() > 1 ) )
         {
             throw new IllegalStateException( "Cannot add more than one element to a negation node." );            
         }
 
-        children = list;
+        children = childList;
     }
 
     
@@ -151,8 +151,11 @@ public class NotNode extends BranchNode
 
     /**
      * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     * 
+     * @return The buffer in which the refinement has been appended
+     * @throws UnsupportedOperationException if this node isn't a part of a refinement.
      */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
+    public StringBuilder printRefinementToBuffer( StringBuilder buf )
     {
         buf.append( "not: {" );
         boolean isFirst = true;
@@ -181,6 +184,7 @@ public class NotNode extends BranchNode
      * down.
      * 
      * @see java.lang.Object#toString()
+     * @return A string representing the AndNode
      */
     public String toString()
     {
@@ -193,18 +197,5 @@ public class NotNode extends BranchNode
         buf.append( ')' );
         
         return buf.toString();
-    }
-
-
-    /**
-     * @see Object#hashCode()
-     * @return the instance's hash code 
-     */
-    public int hashCode()
-    {
-        int hash = 37;
-        hash = hash*17 + AssertionType.NOT.hashCode();
-        hash = hash*17 + ( annotations == null ? 0 : annotations.hashCode() );
-        return hash;
     }
 }

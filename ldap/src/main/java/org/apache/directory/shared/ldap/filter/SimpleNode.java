@@ -30,14 +30,16 @@ import org.apache.directory.shared.ldap.entry.Value;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public abstract class SimpleNode extends LeafNode
+public class SimpleNode extends LeafNode
 {
     /** the value */
     protected Value<?> value;
 
-    /** Constants for comparisons */
-    public final static boolean EVAL_GREATER = true;
-    public final static boolean EVAL_LESSER = false;
+    /** Constants for comparisons : > */
+    public static final boolean EVAL_GREATER = true;
+    
+    /** Constants for comparisons : < */
+    public static final boolean EVAL_LESSER = false;
 
 
     /**
@@ -45,6 +47,7 @@ public abstract class SimpleNode extends LeafNode
      * 
      * @param attribute the attribute name
      * @param value the value to test for
+     * @param assertionType the node's type
      */
     protected SimpleNode( String attribute, Value<?> value, AssertionType assertionType )
     {
@@ -76,28 +79,11 @@ public abstract class SimpleNode extends LeafNode
 
 
     /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(
-     *      java.lang.StringBuilder)
-     */
-    public StringBuilder printToBuffer( StringBuilder buf )
-    {
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( ":[" );
-            buf.append( getAnnotations().get( "count" ).toString() );
-            buf.append( "] " );
-        }
-
-        buf.append( ')' );
-
-        return buf;
-    }
-
-
-    /**
      * @see ExprNode#printRefinementToBuffer(StringBuilder)
+     * @return The buffer in which the refinement has been appended
+     * @throws UnsupportedOperationException if this node isn't a part of a refinement.
      */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
+    public StringBuilder printRefinementToBuffer( StringBuilder buf )
     {
         if ( getAttribute() == null || !SchemaConstants.OBJECT_CLASS_AT.equalsIgnoreCase( getAttribute() ) )
         {

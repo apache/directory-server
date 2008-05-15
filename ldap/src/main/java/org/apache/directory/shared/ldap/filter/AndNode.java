@@ -36,9 +36,9 @@ public class AndNode extends BranchNode
      * 
      * @param childList the child nodes under this branch node.
      */
-    public AndNode( List<ExprNode> children )
+    public AndNode( List<ExprNode> childList )
     {
-        super( children, AssertionType.AND );
+        super( childList, AssertionType.AND );
     }
 
 
@@ -97,8 +97,12 @@ public class AndNode extends BranchNode
     
     /**
      * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     * 
+     * @param buf the buffer to append to.
+     * @return The buffer in which the refinement has been appended
+     * @throws UnsupportedOperationException if this node isn't a part of a refinement.
      */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
+    public StringBuilder printRefinementToBuffer( StringBuilder buf )
     {
         buf.append( "and: {" );
         boolean isFirst = true;
@@ -127,6 +131,7 @@ public class AndNode extends BranchNode
      * down.
      * 
      * @see java.lang.Object#toString()
+     * @return A string representing the AndNode
      */
     public String toString()
     {

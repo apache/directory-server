@@ -41,18 +41,10 @@ public class ApproximateNode extends EqualityNode
     }
 
 
-    /**
-     * @see Object#hashCode()
-     * @return the instance's hash code 
-     */
-    public int hashCode()
-    {
-        return super.hashCode();
-    }
-
     
     /**
      * @see Object#toString()
+     * @return A string representing the AndNode
      */
     public String toString()
     {

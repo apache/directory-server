@@ -47,6 +47,7 @@ public class EqualityNode extends SimpleNode
      * 
      * @param attribute the attribute name
      * @param value the value to test for
+     * @param assertionType The node's type
      */
     protected EqualityNode( String attribute, Value<?> value, AssertionType assertionType )
     {
@@ -55,17 +56,8 @@ public class EqualityNode extends SimpleNode
 
 
     /**
-     * @see Object#hashCode()
-     * @return the instance's hash code 
-     */
-    public int hashCode()
-    {
-        return super.hashCode();
-    }
-
-    
-    /**
      * @see Object#toString()
+     * @return A string representing the AndNode
      */
     public String toString()
     {

@@ -95,19 +95,11 @@ public class AssertionNode extends AbstractExprNode
      * Always returns true since an AssertionNode has no children.
      * 
      * @see org.apache.directory.shared.ldap.filter.ExprNode#isLeaf()
+     * @return true if the node is a leaf,false otherwise
      */
     public boolean isLeaf()
     {
         return true;
-    }
-
-
-    /**
-     * @see ExprNode#printRefinementToBuffer(StringBuffer)
-     */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
-    {
-        throw new UnsupportedOperationException( "AssertionNode can't be part of a refinement" );
     }
 
 
@@ -138,6 +130,7 @@ public class AssertionNode extends AbstractExprNode
 
     /**
      * @see Object#toString
+     * @return A string representing the AndNode
      */
     public String toString()
     {

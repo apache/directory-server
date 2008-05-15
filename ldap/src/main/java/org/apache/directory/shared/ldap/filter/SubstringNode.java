@@ -70,8 +70,7 @@ public class SubstringNode extends LeafNode
      * Creates a new SubstringNode object without any value
      * 
      * @param attribute the name of the attribute to substring assert
-     * @param initialPattern the initial fragment
-     * @param finalPattern the final fragment
+     * @param attribute The attribute's ID
      */
     public SubstringNode( String attribute )
     {
@@ -177,9 +176,11 @@ public class SubstringNode extends LeafNode
      * Gets the compiled regular expression for the substring expression.
      * 
      * @return the equivalent compiled regular expression
-     * @throws RESyntaxException if the regular expression is invalid
+     * @param normalizer The normalizer to use for the substring expressions
+     * @exception NamingException If the substring can't be normalized
+     * @exception PatternSyntaxException If the regexp is invalid
      */
-    public final Pattern getRegex( Normalizer normalizer ) throws PatternSyntaxException, NamingException
+    public final Pattern getRegex( Normalizer normalizer ) throws NamingException
     {
         if ( ( anyPattern != null ) && ( anyPattern.size() > 0 ) )
         {
@@ -257,6 +258,7 @@ public class SubstringNode extends LeafNode
 
     /**
      * @see java.lang.Object#toString()
+     * @return A string representing the AndNode
      */
     public String toString()
     {
@@ -292,14 +294,5 @@ public class SubstringNode extends LeafNode
         buf.append( ')' );
         
         return buf.toString();
-    }
-
-
-    /**
-     * @see ExprNode#printRefinementToBuffer(StringBuilder)
-     */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
-    {
-        throw new UnsupportedOperationException( "SubstringNode can't be part of a refinement" );
     }
 }

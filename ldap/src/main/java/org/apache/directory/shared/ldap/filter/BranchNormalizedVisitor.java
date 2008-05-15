@@ -20,7 +20,6 @@
 package org.apache.directory.shared.ldap.filter;
 
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.Comparator;
 import java.util.List;
@@ -119,12 +118,10 @@ public class BranchNormalizedVisitor implements FilterVisitor
      * @param filter
      *            the filter to normalize
      * @return the normalized version of the filter
-     * @throws java.io.IOException
-     *             if filter parser cannot be created
      * @throws java.text.ParseException
      *             if the filter is malformed
      */
-    public static String getNormalizedFilter( String filter ) throws IOException, ParseException
+    public static String getNormalizedFilter( String filter ) throws ParseException
     {
         ExprNode originalNode = FilterParser.parse( filter );
 

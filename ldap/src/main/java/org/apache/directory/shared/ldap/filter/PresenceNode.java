@@ -42,6 +42,7 @@ public final class PresenceNode extends LeafNode
 
     /**
      * @see java.lang.Object#toString()
+     * @return A string representing the AndNode
      */
     public String toString()
     {
@@ -54,14 +55,5 @@ public final class PresenceNode extends LeafNode
         buf.append( ')' );
         
         return buf.toString();
-    }
-
-    
-    /**
-     * @see ExprNode#printRefinementToBuffer(StringBuilder)
-     */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
-    {
-        throw new UnsupportedOperationException( "PresenceNode can't be part of a refinement" );
     }
 }
