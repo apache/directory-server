@@ -44,18 +44,18 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EqualityEvaluator implements Evaluator<EqualityNode, ServerEntry>
+public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEntry>
 {
-    private final EqualityNode node;
+    private final EqualityNode<T> node;
     private final Store<ServerEntry> db;
     private final Registries registries;
     private final AttributeType type;
     private final Normalizer normalizer;
     private final Comparator comparator;
-    private final Index<?,ServerEntry> idx;
+    private final Index<T,ServerEntry> idx;
 
 
-    public EqualityEvaluator( EqualityNode node, Store<ServerEntry> db, Registries registries )
+    public EqualityEvaluator( EqualityNode<T> node, Store<ServerEntry> db, Registries registries )
         throws Exception
     {
         this.db = db;
@@ -89,7 +89,7 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, ServerEntry>
     }
 
 
-    public EqualityNode getExpression()
+    public EqualityNode<T> getExpression()
     {
         return node;
     }
@@ -99,7 +99,7 @@ public class EqualityEvaluator implements Evaluator<EqualityNode, ServerEntry>
     {
         if ( idx != null )
         {
-            return idx.forward( indexEntry.getValue(), indexEntry.getId() );
+            return idx.forward( ( T ) indexEntry.getValue(), indexEntry.getId() );
         }
 
         ServerEntry entry = indexEntry.getObject();

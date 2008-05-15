@@ -63,7 +63,7 @@ public interface Evaluator<N extends ExprNode,E>
      * @return true if filter selects the candidate false otherwise
      * @throws Exception if there are faults during evaluation
      */
-    boolean evaluate( IndexEntry<?,E> entry ) throws Exception;
+    boolean evaluate( IndexEntry<?, E> entry ) throws Exception;
 
 
     /**
