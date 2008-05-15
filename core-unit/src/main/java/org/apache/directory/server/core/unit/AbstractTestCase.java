@@ -214,12 +214,9 @@ public abstract class AbstractTestCase extends TestCase
 
         if ( in != null )
         {
-            Iterator<LdifEntry> list = new LdifReader( in );
-            
-            while ( list.hasNext() )
+            for ( LdifEntry ldifEntry:new LdifReader( in ) )
             {
-                entry = list.next();
-                testEntries.add( entry );
+                testEntries.add( ldifEntry );
             }
         }
 

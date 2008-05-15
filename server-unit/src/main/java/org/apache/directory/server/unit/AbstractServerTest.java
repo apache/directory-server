@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -141,9 +140,9 @@ public abstract class AbstractServerTest extends TestCase
         
         LdifReader ldifReader = new LdifReader( in );
         List<LdifEntry> entries = new ArrayList<LdifEntry>();
-        while ( ldifReader.hasNext() )
+
+        for ( LdifEntry entry:ldifReader )
         {
-            LdifEntry entry = ldifReader.next();
             rootDSE.createSubcontext( entry.getDn(), entry.getAttributes() );
             
             if ( verifyEntries )
@@ -430,13 +429,10 @@ public abstract class AbstractServerTest extends TestCase
     {
         try
         {
-            Iterator<LdifEntry> iterator = new LdifReader( in );
-
-            while ( iterator.hasNext() )
+            for ( LdifEntry ldifEntry:new LdifReader( in ) )
             {
-                LdifEntry entry = iterator.next();
-                LdapDN dn = new LdapDN( entry.getDn() );
-                rootDSE.createSubcontext( dn, entry.getAttributes() );
+                LdapDN dn = new LdapDN( ldifEntry.getDn() );
+                rootDSE.createSubcontext( dn, ldifEntry.getAttributes() );
             }
         }
         catch ( Exception e )

@@ -173,23 +173,20 @@ public class LdifFileLoader
      */
     public int execute()
     {
-        Name rdn;
+        Name rdn = null;
         InputStream in = null;
 
         try
         {
             in = getLdifStream();
-            LdifReader ldifIterator = new LdifReader( new BufferedReader( new InputStreamReader( in ) ) );
 
-            while ( ldifIterator.hasNext() )
+            for ( LdifEntry ldifEntry:new LdifReader( new BufferedReader( new InputStreamReader( in ) ) ) )
             {
-                LdifEntry entry = ldifIterator.next();
+                String dn = ldifEntry.getDn();
 
-                String dn = entry.getDn();
-
-                if ( entry.isEntry() )
+                if ( ldifEntry.isEntry() )
                 {
-                    Attributes attributes = entry.getAttributes();
+                    Attributes attributes = ldifEntry.getAttributes();
                     boolean filterAccepted = applyFilters( dn, attributes );
 
                     if ( !filterAccepted )
@@ -219,7 +216,7 @@ public class LdifFileLoader
                 } else
                 {
                     //modify
-                    List<ModificationItemImpl> items = entry.getModificationItems();
+                    List<ModificationItemImpl> items = ldifEntry.getModificationItems();
                     try
                     {
                         ctx.modifyAttributes( dn, items.toArray( new ModificationItem[items.size()] ) );
