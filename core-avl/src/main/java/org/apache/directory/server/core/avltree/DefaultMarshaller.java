@@ -61,7 +61,7 @@ public class DefaultMarshaller implements Marshaller
         }
         catch ( ClassNotFoundException e )
         {
-            throw new IOException( "Could not find class", e );
+            throw new IOException( "Could not find class" );
         }
 
         return object;

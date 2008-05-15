@@ -176,7 +176,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
         }
         catch ( NamingException e )
         {
-            throw new IOException( "Failed to find an equality matching rule for attribute type", e );
+            throw new IOException( "Failed to find an equality matching rule for attribute type" );
         }
 
         /*
