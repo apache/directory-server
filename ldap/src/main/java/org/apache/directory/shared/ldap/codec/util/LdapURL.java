@@ -65,6 +65,13 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class LdapURL
 {
+    
+    /** The constant for "ldaps://" scheme. */
+    private static final String LDAPS_SCHEME = "ldaps://";
+
+    /** The constant for "ldap://" scheme. */
+    private static final String LDAP_SCHEME = "ldap://";
+
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
 
@@ -115,6 +122,7 @@ public class LdapURL
      */
     public LdapURL()
     {
+        scheme = LDAP_SCHEME;
         host = null;
         port = -1;
         dn = null;
@@ -132,6 +140,7 @@ public class LdapURL
      */
     public void parse( char[] chars ) throws LdapURLEncodingException
     {
+        scheme = LDAP_SCHEME;
         host = null;
         port = -1;
         dn = null;
@@ -155,8 +164,8 @@ public class LdapURL
         int pos = 0;
 
         // The scheme
-        if ( ( ( pos = StringTools.areEquals( chars, 0, "ldap://" ) ) == StringTools.NOT_EQUAL )
-            && ( ( pos = StringTools.areEquals( chars, 0, "ldaps://" ) ) == StringTools.NOT_EQUAL ) )
+        if ( ( ( pos = StringTools.areEquals( chars, 0, LDAP_SCHEME ) ) == StringTools.NOT_EQUAL )
+            && ( ( pos = StringTools.areEquals( chars, 0, LDAPS_SCHEME ) ) == StringTools.NOT_EQUAL ) )
         {
             throw new LdapURLEncodingException( "A LdapUrl must start with \"ldap://\" or \"ldaps://\"" );
         }
@@ -1194,8 +1203,9 @@ public class LdapURL
      */
     public String toString()
     {
+        StringBuffer sb = new StringBuffer();
 
-        StringBuffer sb = new StringBuffer( "ldap://" );
+        sb.append( scheme );
 
         sb.append( ( host == null ) ? "" : host );
 
@@ -1389,6 +1399,9 @@ public class LdapURL
 
 
     /**
+     * Returns the scope, one of {@link SearchControls.OBJECT_SCOPE}, 
+     * {@link SearchControls.ONELEVEL_SCOPE} or {@link SearchControls.SUBTREE_SCOPE}.
+     * 
      * @return Returns the scope.
      */
     public int getScope()
@@ -1473,4 +1486,149 @@ public class LdapURL
         final LdapURL other = ( LdapURL ) obj;
         return this.toString().equals( other.toString() );
     }
+
+    
+    /**
+     * Sets the scheme. Must be "ldap://" or "ldaps://", otherwise "ldap://" is assumed as default.
+     * 
+     * @param scheme the new scheme
+     */
+    public void setScheme( String scheme )
+    {
+        if ( scheme != null && LDAP_SCHEME.equals( scheme ) || LDAPS_SCHEME.equals( scheme ) )
+        {
+            this.scheme = scheme;
+        }
+        else
+        {
+            this.scheme = LDAP_SCHEME;
+        }
+
+    }
+
+
+    /**
+     * Sets the host.
+     * 
+     * @param host the new host
+     */
+    public void setHost( String host )
+    {
+        this.host = host;
+    }
+
+
+    /**
+     * Sets the port. Must be between 1 and 65535, otherwise -1 is assumed as default.
+     * 
+     * @param port the new port
+     */
+    public void setPort( int port )
+    {
+        if ( port < 1 || port > 65535 )
+        {
+            this.port = -1;
+        }
+        else
+        {
+            this.port = port;
+        }
+    }
+
+
+    /**
+     * Sets the dn.
+     * 
+     * @param dn the new dn
+     */
+    public void setDn( LdapDN dn )
+    {
+        this.dn = dn;
+    }
+
+
+    /**
+     * Sets the attributes, null removes all existing attributes.
+     * 
+     * @param attributes the new attributes
+     */
+    public void setAttributes( List<String> attributes )
+    {
+        if ( attributes == null )
+        {
+            this.attributes.clear();
+        }
+        else
+        {
+            this.attributes = attributes;
+        }
+    }
+
+
+    /**
+     * Sets the scope. Must be one of {@link SearchControls.OBJECT_SCOPE}, 
+     * {@link SearchControls.ONELEVEL_SCOPE} or {@link SearchControls.SUBTREE_SCOPE},
+     * otherwise {@link SearchControls.OBJECT_SCOPE} is assumed as default.
+     * 
+     * @param scope the new scope
+     */
+    public void setScope( int scope )
+    {
+        if ( scope == SearchControls.ONELEVEL_SCOPE || scope == SearchControls.SUBTREE_SCOPE )
+        {
+            this.scope = scope;
+        }
+        else
+        {
+            this.scope = SearchControls.OBJECT_SCOPE;
+        }
+    }
+
+
+    /**
+     * Sets the filter.
+     * 
+     * @param filter the new filter
+     */
+    public void setFilter( String filter )
+    {
+        this.filter = filter;
+    }
+
+
+    /**
+     * Sets the extensions, null removes all existing extensions.
+     * 
+     * @param extensions the extensions
+     */
+    public void setExtensions( Map<String, String> extensions )
+    {
+        if ( extensions == null )
+        {
+            this.extensions.clear();
+        }
+        else
+        {
+            this.extensions = extensions;
+        }
+    }
+
+
+    /**
+     * Sets the critical extensions, null removes all existing critical extensions.
+     * 
+     * @param criticalExtensions the critical extensions
+     */
+    public void setCriticalExtensions( Map<String, String> criticalExtensions )
+    {
+        if ( criticalExtensions == null )
+        {
+            this.criticalExtensions.clear();
+        }
+        else
+        {
+            this.criticalExtensions = criticalExtensions;
+        }
+    }
+
 }

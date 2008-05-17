@@ -20,11 +20,18 @@
 package org.apache.directory.shared.ldap.codec.util;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.naming.InvalidNameException;
+import javax.naming.directory.SearchControls;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -600,4 +607,184 @@ public class LdapUrlTest extends TestCase
         Assert.assertEquals( "ldap:///??sub??!bindname=cn=Manager%2co=Foo", new LdapURL(
             "ldap:///??sub??!bindname=cn=Manager%2co=Foo" ).toString() );
     }
+
+
+    /**
+     * test an empty ldaps:// LdapURL
+     */
+    public void testLdapDNEmptyLdaps() throws LdapURLEncodingException
+    {
+        Assert.assertEquals( "ldaps:///", new LdapURL( "ldaps:///" ).toString() );
+    }
+
+
+    /**
+     * test an simple ldaps:// LdapURL
+     */
+    public void testLdapDNSimpleLdaps() throws LdapURLEncodingException
+    {
+        Assert.assertEquals( "ldaps://directory.apache.org:80/", new LdapURL( "ldaps://directory.apache.org:80/" )
+            .toString() );
+    }
+
+
+    /**
+     * test the setScheme() method
+     */
+    public void testLdapDNSetScheme() throws LdapURLEncodingException
+    {
+        LdapURL url = new LdapURL();
+        Assert.assertEquals( "ldap://", url.getScheme() );
+
+        url.setScheme( "invalid" );
+        Assert.assertEquals( "ldap://", url.getScheme() );
+
+        url.setScheme( "ldap://" );
+        Assert.assertEquals( "ldap://", url.getScheme() );
+
+        url.setScheme( "ldaps://" );
+        Assert.assertEquals( "ldaps://", url.getScheme() );
+
+        url.setScheme( null );
+        Assert.assertEquals( "ldap://", url.getScheme() );
+    }
+
+
+    /**
+     * test the setHost() method
+     */
+    public void testLdapDNSetHost() throws LdapURLEncodingException
+    {
+        LdapURL url = new LdapURL();
+        Assert.assertNull( url.getHost() );
+
+        url.setHost( "ldap.apache.org" );
+        Assert.assertEquals( "ldap.apache.org", url.getHost() );
+        Assert.assertEquals( "ldap://ldap.apache.org/", url.toString() );
+
+        url.setHost( null );
+        Assert.assertNull( url.getHost() );
+        Assert.assertEquals( "ldap:///", url.toString() );
+    }
+
+
+    /**
+     * test the setPort() method
+     */
+    public void testLdapDNSetPort() throws LdapURLEncodingException
+    {
+        LdapURL url = new LdapURL();
+        Assert.assertEquals( -1, url.getPort() );
+
+        url.setPort( 389 );
+        Assert.assertEquals( 389, url.getPort() );
+        Assert.assertEquals( "ldap://:389/", url.toString() );
+
+        url.setPort( 0 );
+        Assert.assertEquals( -1, url.getPort() );
+        Assert.assertEquals( "ldap:///", url.toString() );
+
+        url.setPort( 65536 );
+        Assert.assertEquals( -1, url.getPort() );
+        Assert.assertEquals( "ldap:///", url.toString() );
+    }
+
+
+    /**
+     * test the setDn() method
+     */
+    public void testLdapDNSetDn() throws LdapURLEncodingException, InvalidNameException
+    {
+        LdapURL url = new LdapURL();
+        Assert.assertNull( url.getDn() );
+
+        LdapDN dn = new LdapDN( "dc=example,dc=com" );
+        url.setDn( dn );
+        Assert.assertEquals( dn, url.getDn() );
+        Assert.assertEquals( "ldap:///dc=example,dc=com", url.toString() );
+
+        url.setDn( null );
+        Assert.assertNull( url.getDn() );
+        Assert.assertEquals( "ldap:///", url.toString() );
+    }
+
+
+    /**
+     * test the setAttributes() method
+     */
+    public void testLdapDNSetAttributes() throws LdapURLEncodingException, InvalidNameException
+    {
+        LdapURL url = new LdapURL();
+        Assert.assertNotNull( url.getAttributes() );
+        Assert.assertTrue( url.getAttributes().isEmpty() );
+
+        List<String> attributes = new ArrayList<String>();
+        url.setDn( new LdapDN( "dc=example,dc=com" ) );
+
+        url.setAttributes( null );
+        Assert.assertNotNull( url.getAttributes() );
+        Assert.assertTrue( url.getAttributes().isEmpty() );
+        Assert.assertEquals( "ldap:///dc=example,dc=com", url.toString() );
+
+        attributes.add( "cn" );
+        url.setAttributes( attributes );
+        Assert.assertNotNull( url.getAttributes() );
+        Assert.assertEquals( 1, url.getAttributes().size() );
+        Assert.assertEquals( "ldap:///dc=example,dc=com?cn", url.toString() );
+
+        attributes.add( "userPassword;binary" );
+        url.setAttributes( attributes );
+        Assert.assertNotNull( url.getAttributes() );
+        Assert.assertEquals( 2, url.getAttributes().size() );
+        Assert.assertEquals( "ldap:///dc=example,dc=com?cn,userPassword;binary", url.toString() );
+    }
+
+
+    /**
+     * test the setScope() method
+     */
+    public void testLdapDNSetScope() throws LdapURLEncodingException, InvalidNameException
+    {
+        LdapURL url = new LdapURL();
+        Assert.assertEquals( SearchControls.OBJECT_SCOPE, url.getScope() );
+
+        url.setDn( new LdapDN( "dc=example,dc=com" ) );
+
+        url.setScope( SearchControls.ONELEVEL_SCOPE );
+        Assert.assertEquals( SearchControls.ONELEVEL_SCOPE, url.getScope() );
+        Assert.assertEquals( "ldap:///dc=example,dc=com??one", url.toString() );
+
+        url.setScope( SearchControls.SUBTREE_SCOPE );
+        Assert.assertEquals( SearchControls.SUBTREE_SCOPE, url.getScope() );
+        Assert.assertEquals( "ldap:///dc=example,dc=com??sub", url.toString() );
+
+        url.setScope( -1 );
+        Assert.assertEquals( SearchControls.OBJECT_SCOPE, url.getScope() );
+        Assert.assertEquals( "ldap:///dc=example,dc=com", url.toString() );
+    }
+
+
+    /**
+     * test the setFilter() method
+     */
+    public void testLdapDNSetFilter() throws LdapURLEncodingException, InvalidNameException
+    {
+        LdapURL url = new LdapURL();
+        Assert.assertNull( url.getFilter() );
+
+        url.setDn( new LdapDN( "dc=example,dc=com" ) );
+
+        url.setFilter( "(objectClass=person)" );
+        Assert.assertEquals( "(objectClass=person)", url.getFilter() );
+        Assert.assertEquals( "ldap:///dc=example,dc=com???(objectClass=person)", url.toString() );
+
+        url.setFilter( "(cn=Babs Jensen)" );
+        Assert.assertEquals( "(cn=Babs Jensen)", url.getFilter() );
+        Assert.assertEquals( "ldap:///dc=example,dc=com???(cn=Babs%20Jensen)", url.toString() );
+
+        url.setFilter( null );
+        Assert.assertNull( url.getFilter() );
+        Assert.assertEquals( "ldap:///dc=example,dc=com", url.toString() );
+    }
+
 }
