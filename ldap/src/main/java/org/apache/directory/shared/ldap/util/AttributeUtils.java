@@ -63,7 +63,7 @@ public class AttributeUtils
         
         if ( attr == null )
         {
-            String[] aliases = type.getNames();
+            String[] aliases = type.getNamesRef();
             
             for ( String alias:aliases )
             {
@@ -246,9 +246,9 @@ public class AttributeUtils
         }
 
         // optimization bypass to avoid cost of the loop below
-        if ( type.getNames().length == 1 )
+        if ( type.getNamesRef().length == 1 )
         {
-            attr = attrs.get( type.getNames()[0] );
+            attr = attrs.get( type.getNamesRef()[0] );
             
             if ( attr != null )
             {
@@ -257,7 +257,7 @@ public class AttributeUtils
         }
         
         // iterate through aliases
-        for ( String alias:type.getNames() )
+        for ( String alias:type.getNamesRef() )
         {
             attr = attrs.get( alias );
             
@@ -281,11 +281,11 @@ public class AttributeUtils
     public static final ModificationItem getModificationItem( List<ModificationItemImpl> mods, AttributeType type )
     {
         // optimization bypass to avoid cost of the loop below
-        if ( type.getNames().length == 1 )
+        if ( type.getNamesRef().length == 1 )
         {
             for ( ModificationItem mod:mods )
             {
-                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNames()[0] ) )
+                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNamesRef()[0] ) )
                 {
                     return mod;
                 }
@@ -302,11 +302,11 @@ public class AttributeUtils
         }
         
         // iterate through aliases
-        for ( int ii = 0; ii < type.getNames().length; ii++ )
+        for ( int ii = 0; ii < type.getNamesRef().length; ii++ )
         {
             for ( ModificationItem mod:mods )
             {
-                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNames()[ii] ) )
+                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNamesRef()[ii] ) )
                 {
                     return mod;
                 }

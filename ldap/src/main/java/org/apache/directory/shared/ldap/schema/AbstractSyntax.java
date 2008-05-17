@@ -100,6 +100,7 @@ public abstract class AbstractSyntax extends AbstractSchemaObject implements Syn
 
     /**
      * @see org.apache.directory.shared.ldap.schema.Syntax#isHumanReadable()
+     * @return true if the syntax can be interpreted by humans, false otherwise
      */
     public final boolean isHumanReadable()
     {

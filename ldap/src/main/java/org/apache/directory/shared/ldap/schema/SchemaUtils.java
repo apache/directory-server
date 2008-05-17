@@ -420,10 +420,10 @@ public class SchemaUtils
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( oc.getOid() );
 
-        if ( oc.getNames() != null && oc.getNames().length > 0 )
+        if ( oc.getNamesRef() != null && oc.getNamesRef().length > 0 )
         {
             buf.append( " NAME " );
-            render( buf, oc.getNames() ).append( " " );
+            render( buf, oc.getNamesRef() ).append( " " );
         }
         else
         {
@@ -539,10 +539,10 @@ public class SchemaUtils
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( at.getOid() );
 
-        if ( at.getNames() != null && at.getNames().length > 0 )
+        if ( at.getNamesRef() != null && at.getNamesRef().length > 0 )
         {
             buf.append( " NAME " );
-            render( buf, at.getNames() ).append( " " );
+            render( buf, at.getNamesRef() ).append( " " );
         }
         else
         {
@@ -862,10 +862,10 @@ public class SchemaUtils
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( mr.getOid() );
 
-        if ( mr.getNames() != null && mr.getNames().length > 0 )
+        if ( mr.getNamesRef() != null && mr.getNamesRef().length > 0 )
         {
             buf.append( " NAME " );
-            render( buf, mr.getNames() ).append( " " );
+            render( buf, mr.getNamesRef() ).append( " " );
         }
         else
         {
@@ -961,7 +961,7 @@ public class SchemaUtils
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( mru.getOid() ).append( " NAME " );
-        render( buf, mru.getNames() ).append( " " );
+        render( buf, mru.getNamesRef() ).append( " " );
 
         if ( mru.getDescription() != null )
         {
@@ -988,7 +988,7 @@ public class SchemaUtils
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( dcr.getOid() ).append( " NAME " );
-        render( buf, dcr.getNames() ).append( " " );
+        render( buf, dcr.getNamesRef() ).append( " " );
 
         if ( dcr.getDescription() != null )
         {
@@ -1015,7 +1015,7 @@ public class SchemaUtils
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( dsr.getOid() ).append( " NAME " );
-        render( buf, dsr.getNames() ).append( " " );
+        render( buf, dsr.getNamesRef() ).append( " " );
 
         if ( dsr.getDescription() != null )
         {
@@ -1037,7 +1037,7 @@ public class SchemaUtils
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( nf.getOid() ).append( " NAME " );
-        render( buf, nf.getNames() ).append( " " );
+        render( buf, nf.getNamesRef() ).append( " " );
 
         if ( nf.getDescription() != null )
         {

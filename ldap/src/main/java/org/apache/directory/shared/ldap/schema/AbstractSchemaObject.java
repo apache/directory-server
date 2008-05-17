@@ -156,7 +156,8 @@ public abstract class AbstractSchemaObject implements SchemaObject
 
         if ( names != null )
         {
-            this.names = names;
+            this.names = new String[names.length];
+            System.arraycopy( names, 0, this.names, 0, names.length );
         }
     }
 
@@ -167,6 +168,8 @@ public abstract class AbstractSchemaObject implements SchemaObject
 
     /**
      * @see SchemaObject#getOid()
+     * @return an OID for this SchemaObject or its MatchingRule if this
+     *         SchemaObject is a MatchingRuleUse object
      */
     public String getOid()
     {
@@ -176,6 +179,7 @@ public abstract class AbstractSchemaObject implements SchemaObject
 
     /**
      * @see SchemaObject#isObsolete()
+     * @return true if inactive, false if active
      */
     public boolean isObsolete()
     {
@@ -185,8 +189,9 @@ public abstract class AbstractSchemaObject implements SchemaObject
 
     /**
      * @see SchemaObject#getNames()
+     * @return the names for this SchemaObject
      */
-    public String[] getNames()
+    public String[] getNamesRef()
     {
         return names;
     }
@@ -194,6 +199,7 @@ public abstract class AbstractSchemaObject implements SchemaObject
 
     /**
      * @see SchemaObject#getSchema()
+     * @return the name of the schema associated with this schemaObject
      */
     public String getSchema()
     {
@@ -203,6 +209,8 @@ public abstract class AbstractSchemaObject implements SchemaObject
     
     /**
      * @see SchemaObject#getName()
+     * @return the first of the names for this SchemaObject or null if one does
+     *         not exist
      */
     public String getName()
     {
@@ -212,6 +220,7 @@ public abstract class AbstractSchemaObject implements SchemaObject
 
     /**
      * @see SchemaObject#getDescription()
+     * @return a short description about this SchemaObject
      */
     public String getDescription()
     {
@@ -255,7 +264,8 @@ public abstract class AbstractSchemaObject implements SchemaObject
      */
     protected void setNames( String[] names )
     {
-        this.names = names;
+        this.names = new String[names.length];
+        System.arraycopy( names, 0, this.names, 0, names.length );
     }
 
 
@@ -302,7 +312,6 @@ public abstract class AbstractSchemaObject implements SchemaObject
             return true;
         }
 
-        //noinspection SimplifiableIfStatement
         if ( obj instanceof SchemaObject )
         {
             return oid.equals( ( ( SchemaObject ) obj ).getOid() );

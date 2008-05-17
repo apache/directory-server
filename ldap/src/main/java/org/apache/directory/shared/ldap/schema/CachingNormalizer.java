@@ -77,6 +77,10 @@ public class CachingNormalizer implements Normalizer
 
     /**
      * @see org.apache.directory.shared.ldap.schema.Normalizer#normalize(java.lang.Object)
+     * 
+     * @param value the value to normalize. It must *not* be null !
+     * @return the normalized form for a value
+     * @throws NamingException if an error results during normalization
      */
     public Object normalize( Object value ) throws NamingException
     {
