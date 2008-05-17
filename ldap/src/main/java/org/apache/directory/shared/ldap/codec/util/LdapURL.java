@@ -35,7 +35,6 @@ import java.util.Set;
 import javax.naming.InvalidNameException;
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -116,7 +115,6 @@ public class LdapURL
      */
     public LdapURL()
     {
-        super();
         host = null;
         port = -1;
         dn = null;
@@ -666,7 +664,7 @@ public class LdapURL
      * 
      * @param bytes array of URL safe characters
      * @return array of original bytes
-     * @throws DecoderException Thrown if URL decoding is unsuccessful
+     * @throws UrlDecoderException Thrown if URL decoding is unsuccessful
      */
     private static final byte[] decodeUrl( byte[] bytes ) throws UrlDecoderException
     {
@@ -1005,7 +1003,7 @@ public class LdapURL
      * extensions ::= extension [ ',' extension ]* 
      * extension ::= [ '!' ] ( token | ( 'x-' | 'X-' ) token ) ) [ '=' exvalue ]
      * 
-     * @param char The char array to be checked
+     * @param chars The char array to be checked
      * @param pos the starting position
      * @return -1 if the char array does not contains valid extensions or
      *         critical extensions
@@ -1252,6 +1250,10 @@ public class LdapURL
 
                     case SearchControls.SUBTREE_SCOPE:
                         sb.append( "sub" );
+                        break;
+                        
+                        
+                    default :
                         break;
                 }
 
