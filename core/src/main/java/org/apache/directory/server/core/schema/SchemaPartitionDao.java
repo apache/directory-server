@@ -667,9 +667,11 @@ public class SchemaPartitionDao
         or.addNode( new EqualityNode( M_EQUALITY_OID, new ClientStringValue( mr.getOid() ) ) );
         filter.addNode( or );
 
-        if ( mr.getNames() != null || mr.getNames().length > 0 )
+        String[] names = mr.getNamesRef();
+        
+        if ( ( names != null ) || ( names.length > 0 ) )
         {
-            for ( String name : mr.getNames() )
+            for ( String name : names )
             {
                 or.addNode( new EqualityNode( M_ORDERING_OID, new ClientStringValue( name.toLowerCase() ) ) );
                 or.addNode( new EqualityNode( M_SUBSTRING_OID, new ClientStringValue( name.toLowerCase() ) ) );

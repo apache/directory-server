@@ -1424,8 +1424,8 @@ public class SubschemaSubentryIT
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );
-        assertEquals( "bogus", at.getNames()[0] );
-        assertEquals( "bogusName", at.getNames()[1] );
+        assertEquals( "bogus", at.getNamesRef()[0] );
+        assertEquals( "bogusName", at.getNamesRef()[1] );
         assertEquals( true, at.isCanUserModify() );
         assertEquals( false, at.isCollective() );
         assertEquals( false, at.isObsolete() );
@@ -1486,8 +1486,8 @@ public class SubschemaSubentryIT
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );
-        assertEquals( "bogus", at.getNames()[0] );
-        assertEquals( "bogusName", at.getNames()[1] );
+        assertEquals( "bogus", at.getNamesRef()[0] );
+        assertEquals( "bogusName", at.getNamesRef()[1] );
         assertEquals( true, at.isCanUserModify() );
         assertEquals( false, at.isCollective() );
         assertEquals( false, at.isObsolete() );

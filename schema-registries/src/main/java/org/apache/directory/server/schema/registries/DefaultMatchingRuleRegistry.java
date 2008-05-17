@@ -103,7 +103,8 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
                 + " has already been registered!" );
         }
 
-        String[] names = matchingRule.getNames();
+        String[] names = matchingRule.getNamesRef();
+        
         for ( String name : names )
         {
             oidRegistry.register( name, matchingRule.getOid() );

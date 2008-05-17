@@ -588,7 +588,7 @@ public class MetaSyntaxCheckerHandlerIT
             return "dummy";
         }
 
-        public String[] getNames()
+        public String[] getNamesRef()
         {
             return new String[] { "dummy" };
         }

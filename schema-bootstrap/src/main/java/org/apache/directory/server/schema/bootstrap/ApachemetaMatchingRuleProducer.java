@@ -125,7 +125,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
             return NAMES[0];
         }
 
-        public String[] getNames()
+        public String[] getNamesRef()
         {
             return NAMES;
         }
@@ -191,7 +191,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
             return NAMES[0];
         }
 
-        public String[] getNames()
+        public String[] getNamesRef()
         {
             return NAMES;
         }
@@ -257,7 +257,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
             return NAMES[0];
         }
 
-        public String[] getNames()
+        public String[] getNamesRef()
         {
             return NAMES;
         }
@@ -320,7 +320,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
             return NAMES[0];
         }
 
-        public String[] getNames()
+        public String[] getNamesRef()
         {
             return NAMES;
         }

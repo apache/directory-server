@@ -106,7 +106,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
             return NAMES[0];
         }
 
-        public final String[] getNames()
+        public final String[] getNamesRef()
         {
             return NAMES;
         }
@@ -160,7 +160,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
             return NAMES[0];
         }
 
-        public final String[] getNames()
+        public final String[] getNamesRef()
         {
             return NAMES;
         }
@@ -214,7 +214,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
             return NAMES[0];
         }
 
-        public final String[] getNames()
+        public final String[] getNamesRef()
         {
             return NAMES;
         }
@@ -268,7 +268,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
             return NAMES[0];
         }
 
-        public final String[] getNames()
+        public final String[] getNamesRef()
         {
             return NAMES;
         }
@@ -321,7 +321,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
             return NAMES[0];
         }
 
-        public final String[] getNames()
+        public final String[] getNamesRef()
         {
             return NAMES;
         }

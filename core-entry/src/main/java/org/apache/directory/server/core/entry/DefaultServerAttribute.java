@@ -96,7 +96,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
         
         String normId = StringTools.lowerCaseAscii( trimmedId );
         
-        for ( String name:attributeType.getNames() )
+        for ( String name:attributeType.getNamesRef() )
         {
             if ( normId.equalsIgnoreCase( name ) )
             {
@@ -144,7 +144,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 // In this case, it must be equals to the attributeType OID.
                 String normId = StringTools.lowerCaseAscii( StringTools.trim( id ) );
                 
-                for ( String atName:attributeType.getNames() )
+                for ( String atName:attributeType.getNamesRef() )
                 {
                     if ( atName.equalsIgnoreCase( normId ) )
                     {
@@ -213,7 +213,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 // In this case, it must be equals to the attributeType OID.
                 String normUpId = StringTools.lowerCaseAscii( StringTools.trim( upId ) );
                 
-                for ( String atId:attributeType.getNames() )
+                for ( String atId:attributeType.getNamesRef() )
                 {
                     if ( atId.equalsIgnoreCase( normUpId ) )
                     {
@@ -291,7 +291,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 // In this case, it must be equals to the attributeType OID.
                 String normUpId = StringTools.lowerCaseAscii( StringTools.trim( upId ) );
                 
-                for ( String atId:attributeType.getNames() )
+                for ( String atId:attributeType.getNamesRef() )
                 {
                     if ( atId.equalsIgnoreCase( normUpId ) )
                     {

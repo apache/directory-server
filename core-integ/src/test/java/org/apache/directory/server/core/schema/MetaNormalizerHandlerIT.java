@@ -584,7 +584,7 @@ public class MetaNormalizerHandlerIT
             return "dummy";
         }
 
-        public String[] getNames()
+        public String[] getNamesRef()
         {
             return new String[] { "dummy" };
         }
