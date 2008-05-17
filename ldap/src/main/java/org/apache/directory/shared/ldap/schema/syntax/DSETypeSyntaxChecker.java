@@ -55,7 +55,7 @@ public class DSETypeSyntaxChecker extends AbstractSyntaxChecker
     
     
     /** The Set which contains the DESBits */
-    private final static Set<String> DSE_BITS = new HashSet<String>();
+    private static final Set<String> DSE_BITS = new HashSet<String>();
     
     /** Initialization of the country set */
     static
@@ -95,7 +95,7 @@ public class DSETypeSyntaxChecker extends AbstractSyntaxChecker
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {
@@ -158,7 +158,7 @@ public class DSETypeSyntaxChecker extends AbstractSyntaxChecker
             String keyword = strValue.substring( i, pos );
             i = pos;
             
-            if ( DSE_BITS.contains( keyword ) == false )
+            if ( !DSE_BITS.contains( keyword ) )
             {
                 // Unkown keyword
                 return false;

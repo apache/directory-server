@@ -85,7 +85,7 @@ public class DITStructureRuleDescriptionSyntaxChecker extends AbstractSyntaxChec
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {

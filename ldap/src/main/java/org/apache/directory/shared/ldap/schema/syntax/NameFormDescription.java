@@ -29,6 +29,7 @@ import java.util.List;
  * RFC 4512 - 4.1.7.2.  Name Form Description
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class NameFormDescription extends AbstractSchemaDescription
 {

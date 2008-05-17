@@ -24,13 +24,11 @@ import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 
 
 /**
- * Document me.
+ * The abstrcat class implementing common operations for the syntax checking.
  *
- * @todo put me into shared-ldap
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 485042 $
  */

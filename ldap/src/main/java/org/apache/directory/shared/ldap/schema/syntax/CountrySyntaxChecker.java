@@ -58,7 +58,8 @@ public class CountrySyntaxChecker extends AbstractSyntaxChecker
         "JE", "JM", "JO", "JP",
         "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ",
         "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY",
-        "MA", "MC", "MD", "ME", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ",
+        "MA", "MC", "MD", "ME", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", 
+        "MY", "MZ",
         "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ",
         "OM",
         "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY",
@@ -74,7 +75,7 @@ public class CountrySyntaxChecker extends AbstractSyntaxChecker
         };
     
     /** The Set which contains the countries */
-    private final static Set<String> COUNTRIES = new HashSet<String>();
+    private static final Set<String> COUNTRIES = new HashSet<String>();
     
     /** Initialization of the country set */
     static
@@ -113,7 +114,7 @@ public class CountrySyntaxChecker extends AbstractSyntaxChecker
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {

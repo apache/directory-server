@@ -33,6 +33,7 @@ import antlr.TokenStreamException;
  * A parser for RFC 4512 attribute type descriptions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class AttributeTypeDescriptionSchemaParser extends AbstractSchemaParser
 {
@@ -42,7 +43,6 @@ public class AttributeTypeDescriptionSchemaParser extends AbstractSchemaParser
      */
     public AttributeTypeDescriptionSchemaParser()
     {
-        super();
     }
     
 

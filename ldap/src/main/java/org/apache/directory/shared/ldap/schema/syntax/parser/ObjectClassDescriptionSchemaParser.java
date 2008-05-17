@@ -33,6 +33,7 @@ import antlr.TokenStreamException;
  * A parser for RFC 4512 object class descriptons
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class ObjectClassDescriptionSchemaParser extends AbstractSchemaParser
 {
@@ -42,7 +43,6 @@ public class ObjectClassDescriptionSchemaParser extends AbstractSchemaParser
      */
     public ObjectClassDescriptionSchemaParser()
     {
-        super();
     }
 
 

@@ -63,7 +63,7 @@ public class ObjectClassTypeSyntaxChecker extends AbstractSyntaxChecker
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {
@@ -97,10 +97,8 @@ public class ObjectClassTypeSyntaxChecker extends AbstractSyntaxChecker
                 {
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             
             case( 'S' ):
                 return "STRUCTURAL".equals( strValue );

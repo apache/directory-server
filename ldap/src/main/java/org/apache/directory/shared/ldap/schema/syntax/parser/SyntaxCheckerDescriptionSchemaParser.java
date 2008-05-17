@@ -33,6 +33,7 @@ import antlr.TokenStreamException;
  * A parser for ApacheDS syntax checker descriptions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class SyntaxCheckerDescriptionSchemaParser extends AbstractSchemaParser
 {
@@ -42,7 +43,6 @@ public class SyntaxCheckerDescriptionSchemaParser extends AbstractSchemaParser
      */
     public SyntaxCheckerDescriptionSchemaParser()
     {
-        super();
     }
 
 

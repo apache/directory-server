@@ -32,6 +32,7 @@ import antlr.TokenStream;
  * a Antlr Interest Group mail</a> .
  * 
  * @see <a href="http://www.faqs.org/rfcs/rfc3672.html">RFC 3672</a>
+ * @version $Rev$, $Date$
  */
 class ReusableAntlrSchemaParser extends AntlrSchemaParser
 {

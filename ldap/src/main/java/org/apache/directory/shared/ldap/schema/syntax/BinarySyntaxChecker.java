@@ -58,6 +58,9 @@ public class BinarySyntaxChecker extends AbstractSyntaxChecker
     
     /**
      * @see org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker#isValidSyntax(Object)
+     * 
+     * @param value the value of some attribute with the syntax
+     * @return true if the value is in the valid syntax, false otherwise
      */
     public boolean isValidSyntax( Object value )
     {

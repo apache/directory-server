@@ -82,7 +82,7 @@ public class MatchingRuleUseDescriptionSyntaxChecker extends AbstractSyntaxCheck
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {

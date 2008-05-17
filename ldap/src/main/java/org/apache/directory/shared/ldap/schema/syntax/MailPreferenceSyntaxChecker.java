@@ -67,7 +67,7 @@ public class MailPreferenceSyntaxChecker extends AbstractSyntaxChecker
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue =null;
 
         if ( value == null )
         {
@@ -92,6 +92,7 @@ public class MailPreferenceSyntaxChecker extends AbstractSyntaxChecker
             return false;
         }
         
-        return ( ( "NO-LISTS".equals( strValue ) ) || ( "ANY-LIST".equals( strValue ) ) || ( "PROFESSIONAL-LISTS".equals( strValue ) ) );
+        return ( ( "NO-LISTS".equals( strValue ) ) || ( "ANY-LIST".equals( strValue ) ) || 
+            ( "PROFESSIONAL-LISTS".equals( strValue ) ) );
     }
 }
