@@ -65,15 +65,15 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class LdapURL
 {
-    
-    /** The constant for "ldaps://" scheme. */
-    private static final String LDAPS_SCHEME = "ldaps://";
-
-    /** The constant for "ldap://" scheme. */
-    private static final String LDAP_SCHEME = "ldap://";
 
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
+
+    /** The constant for "ldaps://" scheme. */
+    public static final String LDAPS_SCHEME = "ldaps://";
+
+    /** The constant for "ldap://" scheme. */
+    public static final String LDAP_SCHEME = "ldap://";
 
     /** A null LdapURL */
     public static final LdapURL EMPTY_URL = new LdapURL();
