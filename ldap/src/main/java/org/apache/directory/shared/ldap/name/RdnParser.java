@@ -747,11 +747,18 @@ public class RdnParser
      *
      * @param bytes The byte buffer to parse
      * @param pos The current position in the byte buffer
+     * @param rdn The rdn to generate
      * @return The new position in the byte buffer, or PARSING_ERROR if the rule
      *         does not apply to the byte buffer
+     * @throws InvalidNameException If the NameComponent is invalid
      */
     private static int parseNameComponents( byte[] bytes, Position pos, Rdn rdn ) throws InvalidNameException
     {
+        if ( rdn == null )
+        {
+            throw new InvalidNameException( "The RDN should not be null" );
+        }
+        
         int newStart = 0;
         String type = null;
         Object value = null;
@@ -821,6 +828,7 @@ public class RdnParser
      *
      * @param bytes The byte buffer to parse
      * @param pos The current position in the byte buffer
+     * @param isFirstRdn A flag set if the RDN is the first one
      * @return <code>true</code> if the rule is valid
      */
     private static boolean isValidNameComponents( byte[] bytes, Position pos, boolean isFirstRdn )
@@ -887,6 +895,7 @@ public class RdnParser
      * @param rdn The constructed RDN
      * @return The new position in the char array, or PARSING_ERROR if the rule
      *         does not apply to the char array
+     * @throws InvalidNameException If the NameComponent is invalid
      */
     public static int parse( String dn, Position pos, Rdn rdn ) throws InvalidNameException
     {
@@ -906,6 +915,7 @@ public class RdnParser
      * @param rdn The constructed RDN
      * @return The new position in the byte array, or PARSING_ERROR if the rule
      *         does not apply to the byte array
+     * @throws InvalidNameException If the NameComponent is invalid
      */
     public static int parse( byte[] dn, Position pos, Rdn rdn ) throws InvalidNameException
     {
@@ -974,29 +984,12 @@ public class RdnParser
      * &lt;spaces&gt; &lt;attributeValue&gt; &lt;nameComponents&gt;
      * </p>
      *
-     * @param dn The String to parse
+     * @param dn The byte array to parse
      * @param pos The current position in the buffer
      * @param isFirstRdn a flag set if the RDN is the first for the current DN
      * @return <code>true</code> if the RDN is valid
      */
-    public static boolean isValid( String dn, Position pos, boolean isFirstRdn )
-    {
-        return isValid( StringTools.getBytesUtf8( dn ), pos, isFirstRdn );
-    }
-
-
-    /**
-     * Validate a NameComponent : <br>
-     * <p>
-     * &lt;name-component&gt; ::= &lt;attributeType&gt; &lt;spaces&gt; '='
-     * &lt;spaces&gt; &lt;attributeValue&gt; &lt;nameComponents&gt;
-     * </p>
-     *
-     * @param dn The byte array to parse
-     * @param pos The current position in the buffer
-     * @return <code>true</code> if the RDN is valid
-     */
-    public static boolean isValid( byte[] dn, Position pos, boolean isfirstRdn )
+    public static boolean isValid( byte[] dn, Position pos, boolean isFirstRdn )
     {
         StringTools.trimLeft( dn, pos );
 
@@ -1033,7 +1026,7 @@ public class RdnParser
         pos.start = pos.end;
         pos.length = 0;
 
-        if ( !isValidNameComponents( dn, pos, isfirstRdn )  )
+        if ( !isValidNameComponents( dn, pos, isFirstRdn )  )
         {
             return false;
         }
@@ -1053,6 +1046,7 @@ public class RdnParser
      * @param dn The String to parse
      * @param rdn The RDN to fill. Beware that if the RDN is not empty, the new
      *            AttributeTypeAndValue will be added.
+     * @throws InvalidNameException If the NameComponent is invalid
      */
     public static void parse( String dn, Rdn rdn ) throws InvalidNameException
     {

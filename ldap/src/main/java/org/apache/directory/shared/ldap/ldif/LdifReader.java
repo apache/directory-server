@@ -218,7 +218,7 @@ public class LdifReader implements Iterable<LdifEntry>
     protected int version;
 
     /** Type of element read */
-    protected static final int ENTRY = 0;
+    protected static final int LDIF_ENTRY = 0;
 
     protected static final int CHANGE = 1;
 
@@ -1322,7 +1322,7 @@ public class LdifReader implements Iterable<LdifEntry>
                 }
 
                 parseAttributeValue( entry, line, lowerLine );
-                type = ENTRY;
+                type = LDIF_ENTRY;
             }
             else
             {
@@ -1332,7 +1332,7 @@ public class LdifReader implements Iterable<LdifEntry>
             }
         }
 
-        if ( type == ENTRY )
+        if ( type == LDIF_ENTRY )
         {
             LOG.debug( "Read an entry : {}", entry );
         }

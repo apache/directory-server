@@ -50,6 +50,10 @@ public class LdapDNSerializer
      * 
      * for each rdn :
      * <li>call the RDN write method</li>
+     * 
+     * @param dn The DN to serialize
+     * @param out the stream in which the DN will be serialized
+     * @throws IOException If we can't write in this stream
      */
     public static void serialize( LdapDN dn, ObjectOutput out ) throws IOException
     {
@@ -104,8 +108,12 @@ public class LdapDNSerializer
      * We read back the data to create a new LdapDN. The structure 
      * read is exposed in the {@link LdapDNSerializer#serialize(LdapDN, ObjectOutput)} 
      * method<p>
+     * 
+     * @param in The input stream from which the DN is read
+     * @return a deserialized DN
+     * @throws IOException If the stream can't be read
      */
-    public static LdapDN deserialize( ObjectInput in ) throws IOException, ClassNotFoundException
+    public static LdapDN deserialize( ObjectInput in ) throws IOException
     {
         // Read the UPName
         String upName = in.readUTF();

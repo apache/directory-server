@@ -20,11 +20,6 @@
 package org.apache.directory.shared.ldap.schema.parser;
 
 
-import org.apache.directory.shared.ldap.schema.parser.antlrOpenLdapSchemaLexer;
-import org.apache.directory.shared.ldap.schema.parser.antlrOpenLdapSchemaParser;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
-
-import java.util.List;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +28,9 @@ import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.text.ParseException;
+import java.util.List;
+
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -48,8 +46,10 @@ public class OpenLdapSchemaParser
 {
     /** the monitor to use for this parser */
     private ParserMonitor monitor = new ParserMonitorAdapter();
+    
     /** The antlr generated parser */
     private antlrOpenLdapSchemaParser parser = null;
+    
     /** A pipe into the parser */
     private PipedOutputStream parserIn = null;
 
@@ -80,12 +80,19 @@ public class OpenLdapSchemaParser
     }
 
 
+    /**
+     * Reset the parser 
+     *
+     */
     public synchronized void clear()
     {
         parser.clear();
     }
 
 
+    /**
+     * @return the AttributeTypes list
+     */
     public List getAttributeTypes()
     {
         return parser.getAttributeTypes();
@@ -102,6 +109,8 @@ public class OpenLdapSchemaParser
      * Thread safe method parses an OpenLDAP schemaObject element/object.
      *
      * @param schemaObject the String image of a complete schema object
+     * @throws IOException If the schemaObject can't be transformed to a byteArrayInputStream
+     * @throws ParseException If the schemaObject can't be parsed
      */
     public synchronized void parse( String schemaObject ) throws IOException, ParseException
     {
@@ -155,6 +164,8 @@ public class OpenLdapSchemaParser
      * Thread safe method parses a stream of OpenLDAP schemaObject elements/objects.
      *
      * @param schemaIn a stream of schema objects
+     * @throws IOException If the schemaObject can't be transformed to a byteArrayInputStream
+     * @throws ParseException If the schemaObject can't be parsed
      */
     public synchronized void parse( InputStream schemaIn ) throws IOException, ParseException
     {
@@ -174,6 +185,8 @@ public class OpenLdapSchemaParser
      * Thread safe method parses a file of OpenLDAP schemaObject elements/objects.
      *
      * @param schemaFile a file of schema objects
+     * @throws IOException If the schemaObject can't be transformed to a byteArrayInputStream
+     * @throws ParseException If the schemaObject can't be parsed
      */
     public synchronized void parse( File schemaFile ) throws IOException, ParseException
     {

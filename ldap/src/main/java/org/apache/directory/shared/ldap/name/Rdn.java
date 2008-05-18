@@ -180,7 +180,7 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
    public static final int INFERIOR = -1;
 
    /** Constant used in comparisons */
-   public static final int EQUALS = 0;
+   public static final int EQUAL = 0;
 
 
    /**
@@ -743,7 +743,7 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
            switch ( nbAtavs )
            {
                case 0:
-                   return EQUALS;
+                   return EQUAL;
 
                case 1:
                    return atav.compareTo( rdn.atav );
@@ -770,7 +770,7 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
 
                                for ( AttributeTypeAndValue atavParam:atavParamList )
                                {
-                                   if ( atavLocal.compareTo( atavParam ) == EQUALS )
+                                   if ( atavLocal.compareTo( atavParam ) == EQUAL )
                                    {
                                        found = true;
                                        break;
@@ -792,7 +792,7 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
                        }
                    }
 
-                   return EQUALS;
+                   return EQUAL;
            }
        }
        else
@@ -973,7 +973,7 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
            return false;
        }
 
-       return compareTo( rdn ) == EQUALS;
+       return compareTo( rdn ) == EQUAL;
    }
 
 

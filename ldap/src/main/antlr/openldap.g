@@ -117,7 +117,7 @@ options    {
 {
     public static final String[] EMPTY = new String[0];
 
-    private List attributeTypes = new ArrayList();
+    private List<AttributeTypeLiteral> attributeTypes = new ArrayList<AttributeTypeLiteral>();
     private List objectClasses = new ArrayList();
     private ParserMonitor monitor = null;
 
@@ -126,7 +126,9 @@ options    {
     // Public Methods
     // ------------------------------------------------------------------------
 
-
+    /**
+     * Clear the ObjectClass and AttributeType lists
+     */
     public void clear()
     {
         attributeTypes.clear();
@@ -134,7 +136,11 @@ options    {
     }
 
 
-    public List getAttributeTypes()
+    /**
+     * Return the list of parsed AttributeTypes
+     * @return The parsed AttributeTypeLiteral
+     */
+    public List<AttributeTypeLiteral> getAttributeTypes()
     {
         return Collections.unmodifiableList( attributeTypes );
     }
@@ -495,7 +501,7 @@ ordering [AttributeTypeLiteral type]
 names [AttributeTypeLiteral type]
 {
     matchedProduction( "names(AttributeTypeLiteral)" ) ;
-    ArrayList list = new ArrayList();
+    List<String> list = new ArrayList<String>();
 }
     :
         "NAME"

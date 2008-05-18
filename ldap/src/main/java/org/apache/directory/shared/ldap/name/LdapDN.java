@@ -76,10 +76,10 @@ public class LdapDN implements Name, Externalizable
     private static final long serialVersionUID = 1L;
 
     /** Value returned by the compareTo method if values are not equals */
-    public static final int NOT_EQUALS = -1;
+    public static final int NOT_EQUAL = -1;
 
     /** Value returned by the compareTo method if values are equals */
-    public static final int EQUALS = 0;
+    public static final int EQUAL = 0;
 
     /** A flag used to tell if the DN has been normalized */
     private boolean normalized;
@@ -1423,7 +1423,7 @@ public class LdapDN implements Name, Externalizable
                 }
             }
 
-            return EQUALS;
+            return EQUAL;
         }
         else
         {

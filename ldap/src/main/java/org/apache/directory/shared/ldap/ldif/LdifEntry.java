@@ -32,6 +32,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -530,6 +531,12 @@ public class LdifEntry implements Cloneable, Serializable
                   attrs.hasMoreElements(); 
                   attribute = attrs.nextElement())
             {
+                if ( attribute == null )
+                {
+                    sb.append( "        Null attribute\n" );
+                    continue;
+                }
+                
                 sb.append( "        ").append( attribute.getID() ).append( ":\n" );
                 Object value = null;
                 
@@ -673,6 +680,82 @@ public class LdifEntry implements Cloneable, Serializable
     
     
     /**
+     * @see Object#hashCode()
+     * 
+     * @return the instance's hash code
+     */
+    public int hashCode()
+    {
+        int result = 37;
+
+        if ( dn != null )
+        {
+            result = result*17 + dn.hashCode();
+        }
+        
+        if ( changeType != null )
+        {
+            result = result*17 + changeType.hashCode();
+            
+            // Check each different cases
+            switch ( changeType )
+            {
+                case Add :
+                    // Checks the attributes
+                    if ( attributes != null )
+                    {
+                        result = result * 17 + attributes.hashCode();
+                    }
+                    
+                    break;
+
+                case Delete :
+                    // Nothing to compute
+                    break;
+                    
+                case Modify :
+                    if ( modificationList != null )
+                    {
+                        result = result * 17 + modificationList.hashCode();
+                        
+                        for ( ModificationItem modification:modificationList )
+                        {
+                            result = result * 17 + modification.hashCode();
+                        }
+                    }
+                    
+                    break;
+                    
+                case ModDn :
+                case ModRdn :
+                    result = result * 17 + ( deleteOldRdn ? 1 : -1 ); 
+                    
+                    if ( newRdn != null )
+                    {
+                        result = result*17 + newRdn.hashCode();
+                    }
+                    
+                    if ( newSuperior != null )
+                    {
+                        result = result*17 + newSuperior.hashCode();
+                    }
+                    
+                    break;
+                    
+                default :
+                    break; // do nothing
+            }
+        }
+
+        if ( control != null )
+        {
+            result = result * 17 + control.hashCode();
+        }
+
+        return result;
+    }
+    
+    /**
      * @see Object#equals(Object)
      * @return <code>true</code> if both values are equal
      */
@@ -686,7 +769,7 @@ public class LdifEntry implements Cloneable, Serializable
         
         if ( o == null )
         {
-            return false;
+           return false;
         }
         
         if ( ! (o instanceof LdifEntry ) )
