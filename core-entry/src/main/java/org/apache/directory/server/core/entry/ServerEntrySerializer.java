@@ -373,11 +373,6 @@ public class ServerEntrySerializer implements Serializer
 
             return serverEntry;
         }
-        catch ( ClassNotFoundException cnfe )
-        {
-            // TODO Handle this exception
-            return null;
-        }
         catch ( NamingException ne )
         {
             // TODO Handle this exception
