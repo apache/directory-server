@@ -102,7 +102,7 @@ public final class RecordManagerFactory
                                         "jdbm.recman.Provider" );
 
         try {
-            clazz = Class.forName( provider );
+            clazz = Thread.currentThread().getContextClassLoader().loadClass( provider );
             factory = (RecordManagerProvider) clazz.newInstance();
         } catch ( Exception except ) {
             throw new IllegalArgumentException( "Invalid record manager provider: "
