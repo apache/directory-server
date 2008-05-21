@@ -24,14 +24,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
@@ -45,10 +43,9 @@ import org.apache.commons.cli.Options;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -66,6 +63,9 @@ import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -121,8 +121,12 @@ public class DumpCommand extends ToolCommand
 
         if ( !errors.isEmpty() )
         {
-            NamingException e = new NamingException();
-            e.setRootCause( ( Throwable ) errors.get( 0 ) );
+            MultiException e = new MultiException();
+            for ( Throwable t : errors )
+            {
+                e.addThrowable( t );
+            }
+            
             throw e;
         }
 
@@ -155,7 +159,7 @@ public class DumpCommand extends ToolCommand
                 ResultCodeEnum.OTHER );
         }
 
-        Set<Index> indexedAttributes = new HashSet<Index>();
+        Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
 
         for ( String attributeId : listing.getIndexedAttributes() )
         {
@@ -243,7 +247,7 @@ public class DumpCommand extends ToolCommand
         base.disableTransactions();
         CacheRecordManager recMan = new CacheRecordManager( base, new MRU( 1000 ) );
 
-        JdbmMasterTable master = new JdbmMasterTable( recMan, bootstrapRegistries );
+        JdbmMasterTable<ServerEntry> master = new JdbmMasterTable<ServerEntry>( recMan, bootstrapRegistries );
         AttributeType attributeType = bootstrapRegistries.getAttributeTypeRegistry().lookup( "apacheUpdn" );
         JdbmIndex idIndex = new JdbmIndex();
         idIndex.setAttributeId( attributeType.getName() );
@@ -253,12 +257,12 @@ public class DumpCommand extends ToolCommand
         idIndex.init( attributeType, partitionDirectory );
 
         out.println( "#---------------------" );
-        NamingEnumeration list = master.listTuples();
+        Cursor<Tuple<Long,ServerEntry>> list = master.cursor();
         StringBuffer buf = new StringBuffer();
-        while ( list.hasMore() )
+        while ( list.next() )
         {
-            Tuple tuple = ( Tuple ) list.next();
-            BigInteger id = ( BigInteger ) tuple.getKey();
+            Tuple<Long,ServerEntry> tuple = list.get();
+            Long id = tuple.getKey();
             String dn = ( String ) idIndex.reverseLookup( id );
             Attributes entry = ( Attributes ) tuple.getValue();
 
@@ -276,7 +280,7 @@ public class DumpCommand extends ToolCommand
                 buf.append( "dn: " ).append( dn );
             }
             buf.append( "\n" ).append( LdifUtils.convertToLdif( entry ) );
-            if ( list.hasMore() )
+            if ( list.next() )
             {
                 buf.append( "\n\n#---------------------\n" );
             }
@@ -287,7 +291,7 @@ public class DumpCommand extends ToolCommand
     }
 
 
-    private void filterAttributes( String dn, Attributes entry ) throws NamingException
+    private void filterAttributes( String dn, Attributes entry ) throws Exception
     {
         List toRemove = new ArrayList();
         AttributeTypeRegistry registry = bootstrapRegistries.getAttributeTypeRegistry();
