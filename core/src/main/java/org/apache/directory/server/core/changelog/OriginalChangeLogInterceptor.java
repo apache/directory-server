@@ -88,7 +88,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
     // -----------------------------------------------------------------------
 
     
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
         super.init( directoryService );
 

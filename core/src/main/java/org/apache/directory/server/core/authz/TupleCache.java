@@ -21,9 +21,9 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
@@ -50,7 +50,6 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import java.text.ParseException;
@@ -99,7 +98,7 @@ public class TupleCache
      * @param directoryService the context factory configuration for the server
      * @throws NamingException if initialization fails
      */
-    public TupleCache( DirectoryService directoryService ) throws NamingException
+    public TupleCache( DirectoryService directoryService ) throws Exception
     {
         normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         this.nexus = directoryService.getPartitionNexus();
@@ -120,7 +119,7 @@ public class TupleCache
     }
 
 
-    private void initialize( Registries registries ) throws NamingException
+    private void initialize( Registries registries ) throws Exception
     {
         // search all naming contexts for access control subentenries
         // generate ACITuple Arrays for each subentry
@@ -135,15 +134,14 @@ public class TupleCache
                 SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration<ServerSearchResult> results = nexus.search( new SearchOperationContext( registries,
+            Cursor<ServerEntry> results = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, ctls ) );
 
-            while ( results.hasMore() )
+            while ( results.next() )
             {
-                ServerSearchResult result = results.next();
+                ServerEntry result = results.get();
                 LdapDN subentryDn = result.getDn().normalize( normalizerMap );
-                ServerEntry serverEntry = result.getServerEntry();
-                EntryAttribute aci = serverEntry.get( prescriptiveAciAT );
+                EntryAttribute aci = result.get( prescriptiveAciAT );
 
                 if ( aci == null )
                 {
@@ -152,7 +150,7 @@ public class TupleCache
                     continue;
                 }
 
-                subentryAdded( subentryDn, serverEntry );
+                subentryAdded( subentryDn, result );
             }
 
             results.close();

@@ -82,7 +82,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
         public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-            throws NamingException
+            throws Exception
         {
             LdapDN name = ((ServerSearchResult)result).getDn();
             
@@ -99,7 +99,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         }
     };
 
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
@@ -120,7 +120,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
      * @throws NamingException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( LdapDN normName, ServerEntry entry, String[] retAttrs ) throws NamingException
+    private void addCollectiveAttributes( LdapDN normName, ServerEntry entry, String[] retAttrs ) throws Exception
     {
         EntryAttribute caSubentries;
 
@@ -307,7 +307,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     // ------------------------------------------------------------------------
     // Interceptor Method Overrides
     // ------------------------------------------------------------------------
-    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
         ServerEntry result = nextInterceptor.lookup( opContext );
         
@@ -351,7 +351,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     // Partial Schema Checking
     // ------------------------------------------------------------------------
     
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         collectiveAttributesSchemaChecker.checkAdd( opContext.getDn(), opContext.getEntry() );
         
@@ -359,7 +359,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         collectiveAttributesSchemaChecker.checkModify( opContext.getRegistries(),opContext.getDn(), opContext.getModItems() );
 

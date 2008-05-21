@@ -60,7 +60,7 @@ public class CollectiveAttributesSchemaChecker
         this.attrTypeRegistry = attrTypeRegistry;
     }
     
-    /* package scope*/ void checkAdd( LdapDN normName, ServerEntry entry ) throws LdapSchemaViolationException, NamingException
+    /* package scope*/ void checkAdd( LdapDN normName, ServerEntry entry ) throws Exception
     {
         if ( entry.hasObjectClass( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
@@ -78,7 +78,7 @@ public class CollectiveAttributesSchemaChecker
         }
     }
     
-    public void checkModify( Registries registries, LdapDN normName, List<Modification> mods ) throws NamingException
+    public void checkModify( Registries registries, LdapDN normName, List<Modification> mods ) throws Exception
     {
         ServerEntry originalEntry = nexus.lookup( new LookupOperationContext( registries, normName ) );
         ServerEntry targetEntry = ServerEntryUtils.toServerEntry( 

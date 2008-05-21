@@ -23,7 +23,6 @@ package org.apache.directory.server.core.enumeration;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.invocation.Invocation;
 
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 
@@ -47,6 +46,7 @@ public interface SearchResultFilter
      * @param controls search controls associated with the invocation
      * @return true if the result is to be returned, false if it is to be
      * discarded from the result set
+     * @throws Exception 
      */
-    boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls ) throws NamingException;
+    boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls ) throws Exception;
 }
