@@ -66,7 +66,7 @@ public class JdbmPartition extends BTreePartition
 {
     private JdbmStore<ServerEntry> store;
     private boolean optimizerEnabled = true;
-    private Set<Index<Object,ServerEntry>> indexedAttributes;
+    private Set<Index<?,ServerEntry>> indexedAttributes;
 
     
     // ------------------------------------------------------------------------
@@ -80,7 +80,7 @@ public class JdbmPartition extends BTreePartition
     public JdbmPartition()
     {
         store = new JdbmStore<ServerEntry>();
-        indexedAttributes = new HashSet<Index<Object,ServerEntry>>();
+        indexedAttributes = new HashSet<Index<?,ServerEntry>>();
     }
 
 
@@ -101,13 +101,13 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public void setIndexedAttributes( Set<Index<Object,ServerEntry>> indexedAttributes )
+    public void setIndexedAttributes( Set<Index<?,ServerEntry>> indexedAttributes )
     {
         this.indexedAttributes = indexedAttributes;
     }
 
 
-    public Set<Index<Object,ServerEntry>> getIndexedAttributes()
+    public Set<Index<?,ServerEntry>> getIndexedAttributes()
     {
         return indexedAttributes;
     }

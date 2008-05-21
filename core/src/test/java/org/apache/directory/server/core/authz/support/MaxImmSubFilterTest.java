@@ -24,9 +24,9 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -170,25 +170,27 @@ public class MaxImmSubFilterTest
         final int count;
 
 
-        public MockProxy(int count) throws NamingException 
+        public MockProxy(int count) throws Exception 
         {
             super( new DeadContext(), new MockDirectoryService() );
             this.count = count;
         }
 
 
-        public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
+        public Cursor<ServerEntry> search( SearchOperationContext opContext )
             throws NamingException
         {
-            //noinspection unchecked
-            return new BogusEnumeration( count );
+            //TODO FixMe
+            //return new BogusEnumeration( count );
+            return null;
         }
 
 
-        public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext, Collection bypass ) throws NamingException
+        public Cursor<ServerEntry> search( SearchOperationContext opContext, Collection bypass ) throws NamingException
         {
-            //noinspection unchecked
-            return new BogusEnumeration( count );
+            //// TODO FixMe
+            //return new BogusEnumeration( count );
+            return null;
         }
     }
 

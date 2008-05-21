@@ -28,7 +28,6 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -405,7 +404,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             // add all attribute oids of index configs to a hashset
             if ( override instanceof JdbmPartition )
             {
-                Set<Index<Object,ServerEntry>> indices = ( ( JdbmPartition ) override ).getIndexedAttributes();
+                Set<Index<?,ServerEntry>> indices = ( ( JdbmPartition ) override ).getIndexedAttributes();
                 Set<String> indexOids = new HashSet<String>();
                 OidRegistry registry = registries.getOidRegistry();
 
@@ -437,7 +436,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             system.setSuffix( ServerDNConstants.SYSTEM_DN );
     
             // Add objectClass attribute for the system partition
-            Set<Index<Object,ServerEntry>> indexedAttrs = new HashSet<Index<Object,ServerEntry>>();
+            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
             indexedAttrs.add( new JdbmIndex( SchemaConstants.OBJECT_CLASS_AT ) );
             ( ( JdbmPartition ) system ).setIndexedAttributes( indexedAttrs );
     

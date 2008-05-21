@@ -91,7 +91,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    public void testNoBypass() throws NamingException
+    public void testNoBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
@@ -116,7 +116,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    public void testSingleBypass() throws NamingException
+    public void testSingleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
@@ -141,7 +141,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    public void testAdjacentDoubleBypass() throws NamingException
+    public void testAdjacentDoubleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
@@ -169,7 +169,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    public void testFrontAndBackDoubleBypass() throws NamingException
+    public void testFrontAndBackDoubleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
@@ -196,7 +196,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    public void testDoubleBypass() throws NamingException
+    public void testDoubleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();
@@ -223,7 +223,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    public void testCompleteBypass() throws NamingException
+    public void testCompleteBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
         Context ctx = new DeadContext();

@@ -1325,7 +1325,7 @@ public class DefaultDirectoryService implements DirectoryService
                 ResultCodeEnum.OTHER );
         }
 
-        Set<Index<Object,ServerEntry>> indexedAttributes = new HashSet<Index<Object,ServerEntry>>();
+        Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
         
         for ( String attributeId : listing.getIndexedAttributes() )
         {

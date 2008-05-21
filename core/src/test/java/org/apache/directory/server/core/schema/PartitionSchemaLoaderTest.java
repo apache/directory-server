@@ -136,7 +136,7 @@ public class PartitionSchemaLoaderTest
         schemaPartition.setId( "schema" );
         schemaPartition.setCacheSize( 1000 );
 
-        Set<Index> indexedAttributes = new HashSet<Index>();
+        Set<Index<?, ServerEntry>> indexedAttributes = new HashSet<Index<?, ServerEntry>>();
         for ( String attributeId : extractor.getDbFileListing().getIndexedAttributes() )
         {
             indexedAttributes.add( new JdbmIndex( attributeId ) );
@@ -153,7 +153,7 @@ public class PartitionSchemaLoaderTest
     }
     
     
-    @Test public void testGetSchemas() throws NamingException
+    @Test public void testGetSchemas() throws Exception
     {
         PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, registries );
         Map<String,Schema> schemas = loader.getSchemas();
@@ -272,7 +272,7 @@ public class PartitionSchemaLoaderTest
     }
     
     
-    @Test public void testGetSchemaNames() throws NamingException
+    @Test public void testGetSchemaNames() throws Exception
     {
         PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, registries );
         Set<String> schemaNames = loader.getSchemaNames();

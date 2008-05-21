@@ -21,8 +21,8 @@ package org.apache.directory.server.core.interceptor;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -44,7 +44,6 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import java.util.Iterator;
 
@@ -84,28 +83,28 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException
+    public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.getRootDSE( opContext );
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.getMatchedName( opContext );
     }
 
 
-    public LdapDN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws NamingException
+    public LdapDN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.getSuffix( opContext );
     }
 
 
-    public Iterator listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException
+    public Iterator listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.listSuffixes( opContext );
@@ -113,28 +112,28 @@ public class MockInterceptor implements Interceptor
 
 
     public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         test.interceptors.add( this );
         next.addContextPartition( opContext );
     }
 
 
-    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws NamingException
+    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         next.removeContextPartition( opContext );
     }
 
 
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws NamingException
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.compare( opContext );
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         next.delete( opContext );
@@ -142,42 +141,42 @@ public class MockInterceptor implements Interceptor
 
 
     public void add( NextInterceptor next, AddOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         test.interceptors.add( this );
         next.add( opContext );
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         next.modify( opContext );
     }
 
 
-    public NamingEnumeration list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.list( opContext );
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.search( opContext );
     }
 
 
-    public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.lookup( opContext );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.hasEntry( opContext );
@@ -185,14 +184,14 @@ public class MockInterceptor implements Interceptor
 
 
     public void rename( NextInterceptor next, RenameOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         test.interceptors.add( this );
         next.rename( opContext );
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         next.move( opContext );
@@ -200,7 +199,7 @@ public class MockInterceptor implements Interceptor
 
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         test.interceptors.add( this );
         next.moveAndRename( opContext );
@@ -208,14 +207,14 @@ public class MockInterceptor implements Interceptor
 
 
     public void bind( NextInterceptor next, BindOperationContext opContext )
-    throws NamingException
+    throws Exception
     {
         test.interceptors.add( this );
         next.bind( opContext );
     }
 
 
-    public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws NamingException
+    public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         next.unbind( opContext );
