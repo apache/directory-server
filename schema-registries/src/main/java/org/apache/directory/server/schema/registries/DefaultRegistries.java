@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -231,7 +229,7 @@ public class DefaultRegistries implements Registries
             syntax.getSyntaxChecker();
             return true;
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             errors.add( e );
             return false;
@@ -258,7 +256,7 @@ public class DefaultRegistries implements Registries
                 isSuccess = false;
             }
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             errors.add( e );
             isSuccess = false;
@@ -274,7 +272,7 @@ public class DefaultRegistries implements Registries
                 isSuccess = false;
             }
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             errors.add( e );
             isSuccess = false;
@@ -292,7 +290,7 @@ public class DefaultRegistries implements Registries
                 isSuccess = false;
             }
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             errors.add( e );
             isSuccess = false;
@@ -317,10 +315,9 @@ public class DefaultRegistries implements Registries
         {
             isSuccess &= resolve( at.getSuperior(), errors );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             errors.add( e );
-
             isSuccess = false;
         }
 
@@ -333,10 +330,9 @@ public class DefaultRegistries implements Registries
                 hasMatchingRule |= true;
             }
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             errors.add( e );
-
             isSuccess = false;
         }
 
@@ -349,10 +345,9 @@ public class DefaultRegistries implements Registries
                 hasMatchingRule |= true;
             }
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             errors.add( e );
-
             isSuccess = false;
         }
 
@@ -365,10 +360,9 @@ public class DefaultRegistries implements Registries
                 hasMatchingRule |= true;
             }
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             errors.add( e );
-
             isSuccess = false;
         }
 
@@ -386,10 +380,9 @@ public class DefaultRegistries implements Registries
                 isSuccess = false;
             }
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             errors.add( e );
-
             isSuccess = false;
         }
 
@@ -429,7 +422,7 @@ public class DefaultRegistries implements Registries
         {
             superiors = oc.getSuperClasses();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             superiors = new ObjectClass[0];
             isSuccess = false;
@@ -447,7 +440,7 @@ public class DefaultRegistries implements Registries
         {
             mayList = oc.getMayList();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             mayList = new AttributeType[0];
             isSuccess = false;
@@ -465,7 +458,7 @@ public class DefaultRegistries implements Registries
         {
             mustList = oc.getMustList();
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             mustList = new AttributeType[0];
             isSuccess = false;
@@ -491,19 +484,19 @@ public class DefaultRegistries implements Registries
     }
 
 
-    public void load( String schemaName ) throws NamingException
+    public void load( String schemaName ) throws Exception
     {
         load( schemaName, new Properties() );
     }
 
 
-    public void load( String schemaName, Properties schemaProperties ) throws NamingException
+    public void load( String schemaName, Properties schemaProperties ) throws Exception
     {
         Schema schema = schemaLoader.getSchema( schemaName, schemaProperties );
         
         if ( schema.isDisabled() )
         {
-            throw new NamingException( "Disabled schemas cannot be loaded into registries." );
+            throw new Exception( "Disabled schemas cannot be loaded into registries." );
         }
         
         loadedByName.put( schema.getSchemaName(), schema );
@@ -511,7 +504,7 @@ public class DefaultRegistries implements Registries
     }
     
     
-    public void unload( String schemaName ) throws NamingException
+    public void unload( String schemaName ) throws Exception
     {
         disableSchema( ditStructureRuleRegistry, schemaName );
         disableSchema( ditContentRuleRegistry, schemaName );
@@ -529,7 +522,7 @@ public class DefaultRegistries implements Registries
     }
 
 
-    private void disableSchema( SchemaObjectRegistry registry, String schemaName ) throws NamingException
+    private void disableSchema( SchemaObjectRegistry registry, String schemaName ) throws Exception
     {
         Iterator<? extends SchemaObject> objects = registry.iterator();
         List<String> unregistered = new ArrayList<String>();

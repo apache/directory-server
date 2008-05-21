@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.schema.bootstrap.Schema;
 
 
@@ -41,11 +39,11 @@ public interface Registries
     
     Map<String,Schema> getLoadedSchemas();
     
-    void load( String schemaName ) throws NamingException;
+    void load( String schemaName ) throws Exception;
     
-    void load( String schemaName, Properties props ) throws NamingException;
+    void load( String schemaName, Properties props ) throws Exception;
 
-    void unload( String schemaName ) throws NamingException;
+    void unload( String schemaName ) throws Exception;
     
     SchemaLoader setSchemaLoader();
     

@@ -84,7 +84,7 @@ public abstract class AbstractSchemaLoader implements SchemaLoader
      * failure results while loading, producing and or registering schema objects
      */
     protected final void loadDepsFirst( Schema rootAncestor, Stack<String> beenthere, Map<String,Schema> notLoaded, Schema schema,
-        Registries registries, Properties props ) throws NamingException
+        Registries registries, Properties props ) throws Exception
     {
         if ( registries.getLoadedSchemas().containsKey( schema.getSchemaName() ) )
         {
