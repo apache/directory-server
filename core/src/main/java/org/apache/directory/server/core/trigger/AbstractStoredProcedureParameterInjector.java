@@ -73,7 +73,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         this.invocation = invocation;
     }
     
-    public final List<Object> getArgumentsToInject( Registries registries, List<StoredProcedureParameter> parameterList ) throws NamingException
+    public final List<Object> getArgumentsToInject( Registries registries, List<StoredProcedureParameter> parameterList ) throws Exception
     {
         List<Object> arguments = new ArrayList<Object>();
         

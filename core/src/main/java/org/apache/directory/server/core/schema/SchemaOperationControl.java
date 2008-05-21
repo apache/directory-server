@@ -933,7 +933,7 @@ public class SchemaOperationControl
      * 
      * @throws NamingException if the update fails
      */
-    private void updateSchemaModificationAttributes() throws NamingException
+    private void updateSchemaModificationAttributes() throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();

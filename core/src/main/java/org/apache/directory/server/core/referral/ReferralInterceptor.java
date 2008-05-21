@@ -31,6 +31,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
@@ -250,7 +251,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
         nexus = directoryService.getPartitionNexus();
         registries = directoryService.getRegistries();
@@ -349,7 +350,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
@@ -401,7 +402,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws NamingException
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
     {
         LdapDN name = opContext.getDn();
 
@@ -445,7 +446,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         LdapDN name = opContext.getDn();
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -515,7 +516,7 @@ public class ReferralInterceptor extends BaseInterceptor
      * -----------------------------------------------------------------------
      */
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
         LdapDN oldName = opContext.getDn();
 
@@ -589,7 +590,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws NamingException
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
     {
         LdapDN oldName = opContext.getDn();
 
@@ -662,7 +663,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
         LdapDN oldName = opContext.getDn();
 
@@ -811,7 +812,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
@@ -872,7 +873,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
 
     public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         next.addContextPartition( opContext );
 
@@ -880,7 +881,7 @@ public class ReferralInterceptor extends BaseInterceptor
         Partition partition = opContext.getPartition();
         LdapDN suffix = partition.getSuffixDn();
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration<ServerSearchResult> list = invocation.getProxy().search(
+        Cursor<ServerEntry> list = invocation.getProxy().search(
             new SearchOperationContext( registries, suffix, AliasDerefMode.DEREF_ALWAYS, getReferralFilter(),
                 getControls() ), SEARCH_BYPASS );
         addReferrals( list, suffix );
@@ -888,11 +889,11 @@ public class ReferralInterceptor extends BaseInterceptor
 
 
     public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         // remove referrals immediately before removing the partition
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration<ServerSearchResult> list = invocation.getProxy().search(
+        Cursor<ServerEntry> list = invocation.getProxy().search(
             new SearchOperationContext( registries, opContext.getDn(), AliasDerefMode.DEREF_ALWAYS,
                 getReferralFilter(), getControls() ), SEARCH_BYPASS );
 
@@ -901,20 +902,20 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    private void addReferrals( NamingEnumeration<ServerSearchResult> referrals, LdapDN base ) throws NamingException
+    private void addReferrals( Cursor<ServerEntry> referrals, LdapDN base ) throws Exception
     {
-        while ( referrals.hasMore() )
+        while ( referrals.next() )
         {
-            ServerSearchResult r = referrals.next();
+            ServerEntry r = referrals.get();
             LdapDN referral;
             LdapDN result = new LdapDN( r.getDn() );
             result.normalize( atRegistry.getNormalizerMapping() );
 
-            if ( r.isRelative() )
+            /*if ( r.isRelative() )
             {
                 referral = ( LdapDN ) base.clone();
                 referral.addAll( result );
-            }
+            }*/
 
             // Now, add the referral to the cache
             lut.referralAdded( result );
@@ -922,20 +923,20 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    private void deleteReferrals( NamingEnumeration<ServerSearchResult> referrals, LdapDN base ) throws NamingException
+    private void deleteReferrals( Cursor<ServerEntry> referrals, LdapDN base ) throws Exception
     {
-        while ( referrals.hasMore() )
+        while ( referrals.next() )
         {
-            ServerSearchResult r = referrals.next();
+            ServerEntry r = referrals.get();
             LdapDN referral;
             LdapDN result = new LdapDN( r.getDn() );
             result.normalize( atRegistry.getNormalizerMapping() );
 
-            if ( r.isRelative() )
+            /*if ( r.isRelative() )
             {
                 referral = ( LdapDN ) base.clone();
                 referral.addAll( result );
-            }
+            }*/
 
             // Now, remove the referral from the cache
             lut.referralDeleted( result );
@@ -943,8 +944,8 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext )
-        throws NamingException
+    public Cursor<ServerEntry> search( NextInterceptor next, SearchOperationContext opContext )
+        throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
@@ -1003,8 +1004,10 @@ public class ReferralInterceptor extends BaseInterceptor
             if ( farthest == null )
             {
                 SearchResultFilteringEnumeration srfe = ( SearchResultFilteringEnumeration ) next.search( opContext );
-                return new ReferralHandlingEnumeration( srfe, lut, opContext.getRegistries(), nexus, controls
-                    .getSearchScope(), true );
+                // TODO FixMe
+                //return new ReferralHandlingEnumeration( srfe, lut, opContext.getRegistries(), nexus, controls
+                //    .getSearchScope(), true );
+                return null;
             }
 
             ServerEntry referral = invocation.getProxy().lookup( new LookupOperationContext( registries, farthest ),

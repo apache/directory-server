@@ -155,7 +155,7 @@ public class SchemaSubentryModifier
     }
 
 
-    public void deleteSchemaObject( Registries registries, SchemaObject obj ) throws NamingException
+    public void deleteSchemaObject( Registries registries, SchemaObject obj ) throws Exception
     {
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = getDn( obj );
@@ -163,7 +163,7 @@ public class SchemaSubentryModifier
     }
 
     
-    public void delete( Registries registries, NormalizerDescription normalizerDescription ) throws NamingException
+    public void delete( Registries registries, NormalizerDescription normalizerDescription ) throws Exception
     {
         String schemaName = getSchema( normalizerDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
@@ -173,7 +173,7 @@ public class SchemaSubentryModifier
     }
 
 
-    public void delete( Registries registries, SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
+    public void delete( Registries registries, SyntaxCheckerDescription syntaxCheckerDescription ) throws Exception
     {
         String schemaName = getSchema( syntaxCheckerDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
@@ -183,7 +183,7 @@ public class SchemaSubentryModifier
     }
 
 
-    public void delete( Registries registries, ComparatorDescription comparatorDescription ) throws NamingException
+    public void delete( Registries registries, ComparatorDescription comparatorDescription ) throws Exception
     {
         String schemaName = getSchema( comparatorDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
@@ -193,7 +193,7 @@ public class SchemaSubentryModifier
     }
 
 
-    public void add( Registries registries, ComparatorDescription comparatorDescription ) throws NamingException
+    public void add( Registries registries, ComparatorDescription comparatorDescription ) throws Exception
     {
         String schemaName = getSchema( comparatorDescription );   
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
@@ -229,7 +229,7 @@ public class SchemaSubentryModifier
     }
 
 
-    public void add( Registries registries, NormalizerDescription normalizerDescription ) throws NamingException
+    public void add( Registries registries, NormalizerDescription normalizerDescription ) throws Exception
     {
         String schemaName = getSchema( normalizerDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
@@ -265,7 +265,7 @@ public class SchemaSubentryModifier
     }
 
 
-    public void add( Registries registries, SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
+    public void add( Registries registries, SyntaxCheckerDescription syntaxCheckerDescription ) throws Exception
     {
         String schemaName = getSchema( syntaxCheckerDescription );
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();

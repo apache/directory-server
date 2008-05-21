@@ -43,7 +43,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     private ServerEntry oldEntry;
     
     
-    public ModifyStoredProcedureParameterInjector( Invocation invocation, ModifyOperationContext opContext ) throws NamingException
+    public ModifyStoredProcedureParameterInjector( Invocation invocation, ModifyOperationContext opContext ) throws Exception
     {
         super( invocation );
         modifiedEntryName = opContext.getDn();
@@ -90,13 +90,13 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     
     MicroInjector $newEntryInjector = new MicroInjector()
     {
-        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
+        public Object inject( Registries registries, StoredProcedureParameter param ) throws Exception
         {
             return getEntry( registries );
         }
     };
     
-    private ServerEntry getEntry( Registries registries ) throws NamingException
+    private ServerEntry getEntry( Registries registries ) throws Exception
     {
         PartitionNexusProxy proxy = getInvocation().getProxy();
         /**

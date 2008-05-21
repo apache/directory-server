@@ -39,7 +39,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     private LdapDN deletedEntryName;
     private ServerEntry deletedEntry;
     
-    public DeleteStoredProcedureParameterInjector( Registries registries, Invocation invocation, LdapDN deletedEntryName ) throws NamingException
+    public DeleteStoredProcedureParameterInjector( Registries registries, Invocation invocation, LdapDN deletedEntryName ) throws Exception
     {
         super( invocation );
         this.deletedEntryName = deletedEntryName;
@@ -66,7 +66,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         }
     };
     
-    private ServerEntry getDeletedEntry( Registries registries ) throws NamingException
+    private ServerEntry getDeletedEntry( Registries registries ) throws Exception
     {
         PartitionNexusProxy proxy = getInvocation().getProxy();
         /**
