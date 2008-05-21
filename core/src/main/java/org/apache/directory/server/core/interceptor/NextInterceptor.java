@@ -22,11 +22,8 @@ package org.apache.directory.server.core.interceptor;
 
 import java.util.Iterator;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -63,112 +60,111 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#compare( NextInterceptor, CompareOperationContext )}.
      */
-    boolean compare( CompareOperationContext opContext ) throws NamingException;
+    boolean compare( CompareOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#getRootDSE( NextInterceptor, GetRootDSEOperationContext )}.
      */
-    ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException;
+    ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#getMatchedName( NextInterceptor, GetMatchedNameOperationContext )}.
      */
-    LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws NamingException;
+    LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#getSuffix( NextInterceptor, GetSuffixOperationContext )}.
      */
-    LdapDN getSuffix( GetSuffixOperationContext opContext ) throws NamingException;
+    LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#listSuffixes( NextInterceptor, ListSuffixOperationContext )}.
      */
-    Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws NamingException;
+    Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link PartitionNexus#addContextPartition( AddContextPartitionOperationContext )}.
      */
-    void addContextPartition( AddContextPartitionOperationContext opContext ) throws NamingException;
+    void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link PartitionNexus#removeContextPartition( RemoveContextPartitionOperationContext )}.
      */
-    void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws NamingException;
+    void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#delete(NextInterceptor, DeleteOperationContext )}.
      */
-    void delete( DeleteOperationContext opContext ) throws NamingException;
+    void delete( DeleteOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#add( NextInterceptor, AddOperationContext )}.
      */
-    void add( AddOperationContext opContext ) throws NamingException;
+    void add( AddOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#modify( NextInterceptor, ModifyOperationContext )}.
      */
-    void modify( ModifyOperationContext opContext ) throws NamingException;
+    void modify( ModifyOperationContext opContext ) throws Exception;
 
     /**
      * Calls the next interceptor's {@link Interceptor#list( NextInterceptor, ListOperationContext )}.
      */
-    NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException;
+    Cursor<ServerEntry> list( ListOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#search( NextInterceptor, SearchOperationContext opContext )}.
      */
-    NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
-        throws NamingException;
+    Cursor<ServerEntry> search( SearchOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#lookup( NextInterceptor, LookupOperationContext )}.
      */
-    ServerEntry lookup( LookupOperationContext opContext ) throws NamingException;
+    ServerEntry lookup( LookupOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#hasEntry( NextInterceptor, EntryOperationContext )}.
      */
-    boolean hasEntry( EntryOperationContext opContext ) throws NamingException;
+    boolean hasEntry( EntryOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#rename( NextInterceptor, RenameOperationContext )}.
      */
-    void rename( RenameOperationContext opContext ) throws NamingException;
+    void rename( RenameOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#move( NextInterceptor, MoveOperationContext )}.
      */
-    void move( MoveOperationContext opContext ) throws NamingException;
+    void move( MoveOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#moveAndRename( NextInterceptor, MoveAndRenameOperationContext )}.
      */
-    void moveAndRename( MoveAndRenameOperationContext opContext ) throws NamingException;
+    void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#bind( NextInterceptor, BindOperationContext )}
      */
-    void bind( BindOperationContext opContext ) throws NamingException;
+    void bind( BindOperationContext opContext ) throws Exception;
 
     /**
      * Calls the next interceptor's {@link Interceptor#unbind( NextInterceptor, UnbindOperationContext )}
      */
-    void unbind( UnbindOperationContext opContext ) throws NamingException;
+    void unbind( UnbindOperationContext opContext ) throws Exception;
 }

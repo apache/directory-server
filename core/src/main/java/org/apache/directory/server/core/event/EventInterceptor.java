@@ -63,7 +63,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Binding;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamespaceChangeListener;
@@ -92,7 +91,7 @@ public class EventInterceptor extends BaseInterceptor
     private NormalizingVisitor visitor;
 
 
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
         super.init( directoryService );
 
@@ -113,10 +112,10 @@ public class EventInterceptor extends BaseInterceptor
      * @param filter the filter to use for evaluating event triggering
      * @param searchControls the search controls to use when evaluating triggering
      * @param namingListener the naming listener to register
-     * @throws NamingException if there are failures adding the naming listener
+     * @throws Exception if there are failures adding the naming listener
      */
     public void addNamingListener( EventContext ctx, LdapDN name, ExprNode filter, SearchControls searchControls,
-        NamingListener namingListener ) throws NamingException
+        NamingListener namingListener ) throws Exception
     {
         LdapDN normalizedBaseDn = new LdapDN( name );
         normalizedBaseDn.normalize( attributeRegistry.getNormalizerMapping() );
@@ -238,7 +237,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         next.add( opContext );
         //super.add( next, opContext );
@@ -271,7 +270,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         LdapDN name = opContext.getDn();
         ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getRegistries(), name ) );
@@ -305,7 +304,7 @@ public class EventInterceptor extends BaseInterceptor
 
 
     private void notifyOnModify( Registries registries, LdapDN name, List<Modification> mods, ServerEntry oriEntry )
-        throws NamingException
+        throws Exception
     {
         ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
         Set<EventSourceRecord> selecting = getSelectingSources( name, entry );
@@ -334,7 +333,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
@@ -348,7 +347,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    private void notifyOnNameChange( Registries registries, LdapDN oldName, LdapDN newName ) throws NamingException
+    private void notifyOnNameChange( Registries registries, LdapDN oldName, LdapDN newName ) throws Exception
     {
         ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, newName ) );
         Set<EventSourceRecord> selecting = getSelectingSources( oldName, entry );
@@ -377,7 +376,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
         next.rename( opContext );
         //super.rename( next, opContext );
@@ -390,7 +389,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws NamingException
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
     {
         next.moveAndRename( opContext );
         //super.moveAndRename( next, opContext );
@@ -401,7 +400,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
         next.move( opContext );
         //super.move( next, opContext );
@@ -414,7 +413,7 @@ public class EventInterceptor extends BaseInterceptor
     }
 
 
-    Set<EventSourceRecord> getSelectingSources( LdapDN name, ServerEntry entry ) throws NamingException
+    Set<EventSourceRecord> getSelectingSources( LdapDN name, ServerEntry entry ) throws Exception
     {
         if ( sources.isEmpty() )
         {

@@ -21,8 +21,8 @@ package org.apache.directory.server.core.interceptor;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -46,7 +46,6 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.NamingEnumeration;
 import java.util.Iterator;
 
 
@@ -199,13 +198,13 @@ public interface Interceptor
     /**
      * Filters {@link Partition#list( ListOperationContext )} call.
      */
-    NamingEnumeration<ServerSearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws Exception;
+    Cursor<ServerEntry> list( NextInterceptor next, ListOperationContext opContext ) throws Exception;
 
 
     /**
      * Filters {@link Partition#search( SearchOperationContext )} call.
      */
-    NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws Exception;
+    Cursor<ServerEntry> search( NextInterceptor next, SearchOperationContext opContext ) throws Exception;
 
 
     /**
