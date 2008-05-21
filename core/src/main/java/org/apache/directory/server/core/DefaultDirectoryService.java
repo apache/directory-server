@@ -523,7 +523,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public void removePartition( Partition partition ) throws NamingException
+    public void removePartition( Partition partition ) throws Exception
     {
         partitions.remove( partition );
 
@@ -539,7 +539,7 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     // ------------------------------------------------------------------------
-    // BackendSubsystem Interface Method Implemetations
+    // BackendSubsystem Interface Method Implementations
     // ------------------------------------------------------------------------
 
 
@@ -628,7 +628,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public long revert() throws NamingException
+    public long revert() throws Exception
     {
         if ( changeLog == null || ! changeLog.isEnabled() )
         {
@@ -653,7 +653,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public long revert( long revision ) throws NamingException
+    public long revert( long revision ) throws Exception
     {
         if ( changeLog == null || ! changeLog.isEnabled() )
         {
@@ -739,7 +739,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * @throws NamingException if the LDAP server cannot be started
      */
-    public synchronized void startup() throws NamingException
+    public synchronized void startup() throws Exception
     {
         if ( started )
         {
@@ -1277,7 +1277,7 @@ public class DefaultDirectoryService implements DirectoryService
      *
      * @throws javax.naming.NamingException if there are problems along the way
      */
-    private void initialize() throws NamingException
+    private void initialize() throws Exception
     {
         if ( LOG.isDebugEnabled() )
         {
@@ -1325,7 +1325,7 @@ public class DefaultDirectoryService implements DirectoryService
                 ResultCodeEnum.OTHER );
         }
 
-        Set<Index> indexedAttributes = new HashSet<Index>();
+        Set<Index<Object,ServerEntry>> indexedAttributes = new HashSet<Index<Object,ServerEntry>>();
         
         for ( String attributeId : listing.getIndexedAttributes() )
         {

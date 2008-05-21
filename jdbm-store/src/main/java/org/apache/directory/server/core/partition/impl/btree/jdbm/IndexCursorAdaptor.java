@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.apache.directory.server.xdbm.Tuple;
-import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.CursorIterator;
@@ -75,15 +73,19 @@ public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
 
     public void beforeValue( Long id, K key ) throws Exception
     {
-        //noinspection unchecked
-        ( ( TupleCursor ) wrappedCursor ).beforeKey( key );
+        if ( wrappedCursor instanceof TupleCursor )
+        {
+            ( ( TupleCursor ) wrappedCursor ).beforeValue( key, id );
+        }
     }
 
 
     public void afterValue( Long id, K key ) throws Exception
     {
-        //noinspection unchecked
-        ( ( TupleCursor ) wrappedCursor ).afterKey( key );
+        if ( wrappedCursor instanceof TupleCursor )
+        {
+            ( ( TupleCursor ) wrappedCursor ).afterValue( key, id );
+        }
     }
 
 

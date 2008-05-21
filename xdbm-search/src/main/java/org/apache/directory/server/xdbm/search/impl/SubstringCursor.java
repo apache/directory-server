@@ -52,7 +52,8 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
         if ( hasIndex )
         {
             //noinspection unchecked
-            wrapped = db.getUserIndex( evaluator.getExpression().getAttribute() ).forwardCursor();
+            wrapped = ( ( Index<String,ServerEntry> ) db.getUserIndex( evaluator.getExpression().getAttribute() ) )
+                .forwardCursor();
         }
         else
         {

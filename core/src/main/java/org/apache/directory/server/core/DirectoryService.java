@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 import java.io.File;
@@ -62,13 +61,13 @@ public interface DirectoryService extends ServerEntryFactory
      * @param revision the revision number to revert to
      * @return the new revision reached by applying all changes needed to revert to the
      * original state
-     * @throws NamingException if there are problems reverting back to the earlier state
+     * @throws Exception if there are problems reverting back to the earlier state
      * @throws IllegalArgumentException if the revision provided is greater than the current
      * revision or less than 0
      * @throws UnsupportedOperationException if this feature is not supported by the
      * change log
      */
-    long revert( long revision ) throws NamingException;
+    long revert( long revision ) throws Exception;
 
 
     /**
@@ -81,11 +80,11 @@ public interface DirectoryService extends ServerEntryFactory
      * @return the new revision reached by applying all changes needed to revert
      * to the new state or the same version before this call if no revert actually
      * took place
-     * @throws NamingException if there are problems reverting back to the earlier state
+     * @throws Exception if there are problems reverting back to the earlier state
      * @throws UnsupportedOperationException if this feature is not supported by the
      * change log
      */
-    long revert() throws NamingException;
+    long revert() throws Exception;
 
 
     PartitionNexus getPartitionNexus();
@@ -94,10 +93,10 @@ public interface DirectoryService extends ServerEntryFactory
     InterceptorChain getInterceptorChain();
 
 
-    void addPartition( Partition partition ) throws NamingException;
+    void addPartition( Partition partition ) throws Exception;
     
 
-    void removePartition( Partition partition ) throws NamingException;
+    void removePartition( Partition partition ) throws Exception;
 
 
     Registries getRegistries();
@@ -115,24 +114,24 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * Starts up this service.
      * 
-     * @throws NamingException if failed to start up
+     * @throws Exception if failed to start up
      */
-    void startup() throws NamingException;
+    void startup() throws Exception;
 
 
     /**
      * Shuts down this service.
      * 
-     * @throws NamingException if failed to shut down
+     * @throws Exception if failed to shut down
      */
-    void shutdown() throws NamingException;
+    void shutdown() throws Exception;
 
 
     /**
      * Calls {@link Partition#sync()} for all registered {@link Partition}s.
-     * @throws NamingException if synchronization failed
+     * @throws Exception if synchronization failed
      */
-    void sync() throws NamingException;
+    void sync() throws Exception;
 
 
     /**
@@ -147,9 +146,9 @@ public interface DirectoryService extends ServerEntryFactory
      * This bypasses authentication within the server.
      *
      * @return a JNDI context to the RootDSE
-     * @throws NamingException if failed to create a context
+     * @throws Exception if failed to create a context
      */
-    LdapContext getJndiContext() throws NamingException;
+    LdapContext getJndiContext() throws Exception;
 
 
     /**
@@ -158,9 +157,9 @@ public interface DirectoryService extends ServerEntryFactory
      *
      * @param dn the distinguished name of the entry
      * @return a JNDI context to the entry at the specified DN
-     * @throws NamingException if failed to create a context
+     * @throws Exception if failed to create a context
      */
-    LdapContext getJndiContext( String dn ) throws NamingException;
+    LdapContext getJndiContext( String dn ) throws Exception;
 
 
     /**
@@ -169,9 +168,9 @@ public interface DirectoryService extends ServerEntryFactory
      *
      * @param principal the user to associate with the context
      * @return a JNDI context to the RootDSE as a specific user
-     * @throws NamingException if failed to create a context
+     * @throws Exception if failed to create a context
      */
-    LdapContext getJndiContext( LdapPrincipal principal ) throws NamingException;
+    LdapContext getJndiContext( LdapPrincipal principal ) throws Exception;
 
 
     /**
@@ -181,9 +180,9 @@ public interface DirectoryService extends ServerEntryFactory
      * @param principal the user to associate with the context
      * @param dn the distinguished name of the entry
      * @return a JNDI context to the specified entry as a specific user
-     * @throws NamingException if failed to create a context
+     * @throws Exception if failed to create a context
      */
-    LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException;
+    LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws Exception;
 
 
     /**
@@ -197,10 +196,10 @@ public interface DirectoryService extends ServerEntryFactory
      * @param authentication {@link Context#SECURITY_AUTHENTICATION} value
      * @param dn the distinguished name of the entry
      * @return a JNDI context to the specified entry as a specific user
-     * @throws NamingException if failed to create a context
+     * @throws Exception if failed to create a context
      */
     LdapContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
-        String authentication, String dn ) throws NamingException;
+        String authentication, String dn ) throws Exception;
 
 
     void setInstanceId( String instanceId );

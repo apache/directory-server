@@ -20,10 +20,7 @@
 package org.apache.directory.server.xdbm;
 
 
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -117,7 +114,7 @@ public interface Store<E>
     void setUserIndices( Set<Index<?,E>> userIndices );
 
 
-    Set<Index> getUserIndices();
+    Set<Index<?,E>> getUserIndices();
 
 
     void setContextEntry( ServerEntry contextEntry );
@@ -186,7 +183,7 @@ public interface Store<E>
     void sync() throws Exception;
 
 
-    void addIndex( Index index ) throws Exception;
+    void addIndex( Index<?,E> index ) throws Exception;
 
 
     Index<String,E> getPresenceIndex();
@@ -249,10 +246,10 @@ public interface Store<E>
     boolean hasSystemIndexOn( String id ) throws Exception;
 
 
-    Index getUserIndex( String id ) throws IndexNotFoundException;
+    Index<?,E> getUserIndex( String id ) throws IndexNotFoundException;
 
 
-    Index getSystemIndex( String id ) throws IndexNotFoundException;
+    Index<?,E> getSystemIndex( String id ) throws IndexNotFoundException;
 
 
     Long getEntryId( String dn ) throws Exception;
@@ -302,7 +299,7 @@ public interface Store<E>
      * @return an IndexEntry Cursor over the child entries
      * @throws Exception on failures to access the underlying store
      */
-    Cursor<IndexEntry<Long,E>> list( Long id ) throws Exception;
+    IndexCursor<Long,E> list( Long id ) throws Exception;
 
 
     int getChildCount( Long id ) throws Exception;

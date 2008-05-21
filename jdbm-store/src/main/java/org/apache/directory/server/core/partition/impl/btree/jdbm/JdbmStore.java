@@ -29,13 +29,11 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.*;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -81,11 +79,14 @@ public class JdbmStore<E> implements Store<E>
     /** the working directory to use for files */
     private File workingDirectory;
     /** the master table storing entries by primary key */
-    private JdbmMasterTable<E> master;
-    /** a map of attributeType numeric ids to user userIndices */
-    private Map<String, JdbmIndex> userIndices = new HashMap<String, JdbmIndex>();
-    /** a map of attributeType numeric ids to system userIndices */
-    private Map<String, JdbmIndex> systemIndices = new HashMap<String, JdbmIndex>();
+    private JdbmMasterTable<ServerEntry> master;
+    
+    /** a map of attributeType numeric ID to user userIndices */
+    private Map<String, Index<?,E>> userIndices = new HashMap<String, Index<?,E>>();
+    
+    /** a map of attributeType numeric ID to system userIndices */
+    private Map<String, Index<?,E>> systemIndices = new HashMap<String, Index<?,E>>();
+    
     /** true if initialized */
     private boolean initialized;
     /** true if we sync disks on every write operation */
@@ -95,26 +96,23 @@ public class JdbmStore<E> implements Store<E>
     private JdbmIndex<String,E> ndnIdx;
     /** the user provided distinguished name index */
     private JdbmIndex<String,E> updnIdx;
-    /** the attribute existance index */
-    private JdbmIndex<String,E> existanceIdx;
+    /** the attribute existence index */
+    private JdbmIndex<String,E> existenceIdx;
+    /** a system index on aliasedObjectName attribute */
+    private JdbmIndex<String,E> aliasIdx;
+
+    /** a system index on the entries of descendants of root DN*/
+    private JdbmIndex<Long,E> subLevelIdx;
     /** the parent child relationship index */
     private JdbmIndex<Long,E> oneLevelIdx;
     /** the one level scope alias index */
     private JdbmIndex<Long,E> oneAliasIdx;
     /** the subtree scope alias index */
     private JdbmIndex<Long,E> subAliasIdx;
-    /** a system index on aliasedObjectName attribute */
-    private JdbmIndex<String,E> aliasIdx;
-
-    /** a system index on the entries of descendants of root DN*/
-    private JdbmIndex<Long,E> subLevelIdx;
     
     /** Two static declaration to avoid lookup all over the code */
     private static AttributeType OBJECT_CLASS_AT;
     private static AttributeType ALIASED_OBJECT_NAME_AT;
-
-    /** A pointer on the global registries */
-    private Registries registries;
 
     /** A pointer on the AT registry */
     private AttributeTypeRegistry attributeTypeRegistry;
@@ -247,7 +245,6 @@ public class JdbmStore<E> implements Store<E>
      */
     public synchronized void init( Registries registries ) throws Exception
     {
-        this.registries = registries;
         this.oidRegistry = registries.getOidRegistry();
         this.attributeTypeRegistry = registries.getAttributeTypeRegistry();
 
@@ -277,7 +274,7 @@ public class JdbmStore<E> implements Store<E>
         recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
         // Create the master table (the table wcontaining all the entries)
-        master = new JdbmMasterTable<E>( recMan, registries );
+        master = new JdbmMasterTable<ServerEntry>( recMan, registries );
 
         // -------------------------------------------------------------------
         // Initializes the user and system indices
@@ -299,12 +296,13 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( systemIndices.size() > 0 )
         {
-            HashMap<String, JdbmIndex> tmp = new HashMap<String, JdbmIndex>();
-            for ( JdbmIndex index : systemIndices.values() )
+            HashMap<String, Index<?,E>> tmp = new HashMap<String, Index<?,E>>();
+            
+            for ( Index<?,E> index : systemIndices.values() )
             {
                 String oid = oidRegistry.getOid( index.getAttributeId() );
                 tmp.put( oid, index );
-                index.init( attributeTypeRegistry.lookup( oid ), workingDirectory );
+                ( ( JdbmIndex ) index ).init( attributeTypeRegistry.lookup( oid ), workingDirectory );
             }
             systemIndices = tmp;
         }
@@ -325,12 +323,12 @@ public class JdbmStore<E> implements Store<E>
             updnIdx.init( attributeTypeRegistry.lookup( UPDN ), workingDirectory );
         }
 
-        if ( existanceIdx == null )
+        if ( existenceIdx == null )
         {
-            existanceIdx = new JdbmIndex<String,E>();
-            existanceIdx.setAttributeId( PRESENCE );
-            systemIndices.put( PRESENCE, existanceIdx );
-            existanceIdx.init( attributeTypeRegistry.lookup( PRESENCE ), workingDirectory );
+            existenceIdx = new JdbmIndex<String,E>();
+            existenceIdx.setAttributeId( PRESENCE );
+            systemIndices.put( PRESENCE, existenceIdx );
+            existenceIdx.init( attributeTypeRegistry.lookup( PRESENCE ), workingDirectory );
         }
 
         if ( oneLevelIdx == null )
@@ -379,18 +377,19 @@ public class JdbmStore<E> implements Store<E>
     {
         if ( userIndices != null && userIndices.size() > 0 )
         {
-            HashMap<String, JdbmIndex> tmp = new HashMap<String, JdbmIndex>();
-            for ( JdbmIndex index : userIndices.values() )
+            Map<String, Index<?,E>> tmp = new HashMap<String, Index<?,E>>();
+            
+            for ( Index<?,E> index : userIndices.values() )
             {
                 String oid = oidRegistry.getOid( index.getAttributeId() );
                 tmp.put( oid, index );
-                index.init( attributeTypeRegistry.lookup( oid ), workingDirectory );
+                ( ( JdbmIndex ) index ).init( attributeTypeRegistry.lookup( oid ), workingDirectory );
             }
             userIndices = tmp;
         }
         else
         {
-            userIndices = new HashMap<String, JdbmIndex>();
+            userIndices = new HashMap<String, Index<?,E>>();
         }
     }
 
@@ -433,12 +432,12 @@ public class JdbmStore<E> implements Store<E>
             return;
         }
 
-        List<JdbmIndex> array = new ArrayList<JdbmIndex>();
+        List<Index<?,E>> array = new ArrayList<Index<?,E>>();
         array.addAll( userIndices.values() );
         array.addAll( systemIndices.values() );
         MultiException errors = new MultiException( "Errors encountered on destroy()" );
 
-        for ( JdbmIndex index : array )
+        for ( Index<?,E> index : array )
         {
             try
             {
@@ -507,7 +506,7 @@ public class JdbmStore<E> implements Store<E>
             return;
         }
 
-        List<Index> array = new ArrayList<Index>();
+        List<Index<?,E>> array = new ArrayList<Index<?,E>>();
         array.addAll( userIndices.values() );
         array.add( ndnIdx );
         array.add( updnIdx );
@@ -515,11 +514,11 @@ public class JdbmStore<E> implements Store<E>
         array.add( oneAliasIdx );
         array.add( subAliasIdx );
         array.add( oneLevelIdx );
-        array.add( existanceIdx );
+        array.add( existenceIdx );
         array.add( subLevelIdx );
         
         // Sync all user defined userIndices
-        for ( Index idx : array )
+        for ( Index<?,E> idx : array )
         {
             idx.sync();
         }
@@ -534,16 +533,16 @@ public class JdbmStore<E> implements Store<E>
     // ------------------------------------------------------------------------
 
 
-    private JdbmIndex<?, E> convertIndex( Index<?,E> index )
+    private<K> JdbmIndex<K, E> convertIndex( Index<K,E> index )
     {
         if ( index instanceof JdbmIndex )
         {
-            return ( JdbmIndex<?,E> ) index;
+            return ( JdbmIndex<K,E> ) index;
         }
 
         LOG.warn( "Supplied index {} is not a JdbmIndex.  " +
             "Will create new JdbmIndex using copied configuration parameters.", index );
-        JdbmIndex<?,E> jdbmIndex = new JdbmIndex<Object, E>( index.getAttributeId() );
+        JdbmIndex<K,E> jdbmIndex = new JdbmIndex<K, E>( index.getAttributeId() );
         jdbmIndex.setCacheSize( index.getCacheSize() );
         jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
         jdbmIndex.setWkDirPath( index.getWkDirPath() );
@@ -554,19 +553,19 @@ public class JdbmStore<E> implements Store<E>
     public void setUserIndices( Set<Index<?,E>> userIndices )
     {
         protect( "userIndices" );
-        for ( Index index : userIndices )
+        for ( Index<?,E> index : userIndices )
         {
             this.userIndices.put( index.getAttributeId(), convertIndex( index ) );
         }
     }
 
 
-    public Set<Index> getUserIndices()
+    public Set<Index<?,E>> getUserIndices()
     {
-        return new HashSet<Index>( userIndices.values() );
+        return new HashSet<Index<?,E>>( userIndices.values() );
     }
 
-    public void addIndex( Index index ) throws NamingException
+    public void addIndex( Index<?,E> index ) throws Exception
     {
         userIndices.put( index.getAttributeId(), convertIndex( index ) );
     }
@@ -574,15 +573,15 @@ public class JdbmStore<E> implements Store<E>
 
     public Index<String,E> getPresenceIndex()
     {
-        return existanceIdx;
+        return existenceIdx;
     }
 
 
-    public void setPresenceIndex( Index<String,E> index ) throws NamingException
+    public void setPresenceIndex( Index<String,E> index ) throws Exception
     {
         protect( "existanceIndex" );
-        existanceIdx = ( JdbmIndex<String,E> ) convertIndex( index );
-        systemIndices.put( index.getAttributeId(), existanceIdx );
+        existenceIdx = convertIndex( index );
+        systemIndices.put( index.getAttributeId(), existenceIdx );
     }
 
 
@@ -592,10 +591,10 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public void setOneLevelIndex( Index<Long,E> index ) throws NamingException
+    public void setOneLevelIndex( Index<Long,E> index ) throws Exception
     {
         protect( "hierarchyIndex" );
-        oneLevelIdx = ( JdbmIndex<Long,E> ) convertIndex( index );
+        oneLevelIdx = convertIndex( index );
         systemIndices.put( index.getAttributeId(), oneLevelIdx );
     }
 
@@ -609,7 +608,7 @@ public class JdbmStore<E> implements Store<E>
     public void setAliasIndex( Index<String,E> index ) throws NamingException
     {
         protect( "aliasIndex" );
-        aliasIdx = ( JdbmIndex<String,E> ) convertIndex( index );
+        aliasIdx = convertIndex( index );
         systemIndices.put( index.getAttributeId(), aliasIdx );
     }
 
@@ -623,7 +622,7 @@ public class JdbmStore<E> implements Store<E>
     public void setOneAliasIndex( Index<Long,E> index ) throws NamingException
     {
         protect( "oneAliasIndex" );
-        oneAliasIdx = ( JdbmIndex<Long,E> ) convertIndex( index );
+        oneAliasIdx = convertIndex( index );
         systemIndices.put( index.getAttributeId(), oneAliasIdx );
     }
 
@@ -637,7 +636,7 @@ public class JdbmStore<E> implements Store<E>
     public void setSubAliasIndex( Index<Long,E> index ) throws NamingException
     {
         protect( "subAliasIndex" );
-        subAliasIdx = ( JdbmIndex<Long,E> ) convertIndex( index );
+        subAliasIdx = convertIndex( index );
         systemIndices.put( index.getAttributeId(), subAliasIdx );
     }
 
@@ -651,7 +650,7 @@ public class JdbmStore<E> implements Store<E>
     public void setUpdnIndex( Index<String,E> index ) throws NamingException
     {
         protect( "updnIndex" );
-        updnIdx = ( JdbmIndex<String,E> ) convertIndex( index );
+        updnIdx = convertIndex( index );
         systemIndices.put( index.getAttributeId(), updnIdx );
     }
 
@@ -665,7 +664,7 @@ public class JdbmStore<E> implements Store<E>
     public void setNdnIndex( Index<String,E> index ) throws NamingException
     {
         protect( "ndnIndex" );
-        ndnIdx = ( JdbmIndex<String,E> ) convertIndex( index );
+        ndnIdx = convertIndex( index );
         systemIndices.put( index.getAttributeId(), ndnIdx );
     }
 
@@ -679,7 +678,7 @@ public class JdbmStore<E> implements Store<E>
     public void setSubLevelIndex( Index<Long,E> index ) throws NamingException
     {
         protect( "subLevelIndex" );
-        subLevelIdx = ( JdbmIndex<Long,E> ) convertIndex( index );
+        subLevelIdx = convertIndex( index );
         systemIndices.put( index.getAttributeId(), subLevelIdx );
     }
     
@@ -708,7 +707,7 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Index getUserIndex( String id ) throws IndexNotFoundException
+    public Index<?,E> getUserIndex( String id ) throws IndexNotFoundException
     {
         try
         {
@@ -730,7 +729,7 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public Index getSystemIndex( String id ) throws IndexNotFoundException
+    public Index<?,E> getSystemIndex( String id ) throws IndexNotFoundException
     {
         try
         {
@@ -766,12 +765,12 @@ public class JdbmStore<E> implements Store<E>
 
     /**
      * Gets the Long id of an entry's parent using the child entry's
-     * normalized dn. Note that the suffix entry returns 0, which does not
+     * normalized DN. Note that the suffix entry returns 0, which does not
      * map to any entry.
      *
      * @param dn the normalized distinguished name of the child
      * @return the id of the parent entry or zero if the suffix entry the
-     * normalized suffix dn string is used
+     * normalized suffix DN string is used
      * @throws Exception on failures to access the underlying store
      */
     public Long getParentId( String dn ) throws Exception
@@ -1061,9 +1060,9 @@ public class JdbmStore<E> implements Store<E>
 
             if ( hasUserIndexOn( attributeOid ) )
             {
-                Index idx = getUserIndex( attributeOid );
+                Index<Object,E> idx = ( Index<Object,E> ) getUserIndex( attributeOid );
 
-                // here lookup by attributeId is ok since we got attributeId from 
+                // here lookup by attributeId is OK since we got attributeId from 
                 // the entry via the enumeration - it's in there as is for sure
 
                 for ( Value<?> value : attribute )
@@ -1072,11 +1071,11 @@ public class JdbmStore<E> implements Store<E>
                 }
 
                 // Adds only those attributes that are indexed
-                existanceIdx.add( attributeOid, id );
+                existenceIdx.add( attributeOid, id );
             }
         }
 
-        master.put( id, ( E ) entry );
+        master.put( id, entry );
 
         if ( isSyncOnWrite )
         {
@@ -1130,16 +1129,16 @@ public class JdbmStore<E> implements Store<E>
 
             if ( hasUserIndexOn( attributeOid ) )
             {
-                Index index = getUserIndex( attributeOid );
+                Index<?,E> index = getUserIndex( attributeOid );
 
                 // here lookup by attributeId is ok since we got attributeId from 
                 // the entry via the enumeration - it's in there as is for sure
                 for ( Value<?> value : attribute )
                 {
-                    index.drop( value.get(), id );
+                    ( ( JdbmIndex ) index ).drop( value.get(), id );
                 }
 
-                existanceIdx.drop( attributeOid, id );
+                existenceIdx.drop( attributeOid, id );
             }
         }
 
@@ -1159,12 +1158,10 @@ public class JdbmStore<E> implements Store<E>
      * @return an IndexEntry Cursor over the child entries
      * @throws Exception on failures to access the underlying store
      */
-    public Cursor<IndexEntry<Long,E>> list( Long id ) throws Exception
+    public IndexCursor<Long,E> list( Long id ) throws Exception
     {
-        Cursor<IndexEntry<Long,E>> cursor = oneLevelIdx.forwardCursor( id );
-        ForwardIndexEntry<Long,E> recordForward = new ForwardIndexEntry<Long,E>();
-        recordForward.setId( id );
-        cursor.before( recordForward );
+        IndexCursor<Long,E> cursor = oneLevelIdx.forwardCursor( id );
+        cursor.beforeValue( id, null );
         return cursor;
     }
 
@@ -1228,17 +1225,17 @@ public class JdbmStore<E> implements Store<E>
 
         if ( hasUserIndexOn( modsOid ) )
         {
-            Index idx = getUserIndex( modsOid );
+            Index<?,E> index = getUserIndex( modsOid );
 
-            for ( Value value : mods )
+            for ( Value<?> value : mods )
             {
-                idx.add( value.get(), id );
+                ( ( JdbmIndex ) index ).add( value.get(), id );
             }
 
-            // If the attr didn't exist for this id add it to existance index
-            if ( !existanceIdx.forward( modsOid, id ) )
+            // If the attr didn't exist for this id add it to existence index
+            if ( !existenceIdx.forward( modsOid, id ) )
             {
-                existanceIdx.add( modsOid, id );
+                existenceIdx.add( modsOid, id );
             }
         }
 
@@ -1277,16 +1274,16 @@ public class JdbmStore<E> implements Store<E>
 
         if ( hasUserIndexOn( modsOid ) )
         {
-            Index idx = getUserIndex( modsOid );
-            idx.drop( ServerEntryUtils.toAttributeImpl( mods ), id );
+            Index<?,E> index = getUserIndex( modsOid );
+            ( ( JdbmIndex ) index ).drop( ServerEntryUtils.toAttributeImpl( mods ), id );
 
             /* 
              * If no attribute values exist for this entryId in the index then
              * we remove the existance index entry for the removed attribute.
              */
-            if ( null == idx.reverseLookup( id ) )
+            if ( null == index.reverseLookup( id ) )
             {
-                existanceIdx.drop( modsOid, id );
+                existenceIdx.drop( modsOid, id );
             }
         }
 
@@ -1350,19 +1347,19 @@ public class JdbmStore<E> implements Store<E>
 
         if ( hasUserIndexOn( modsOid ) )
         {
-            Index idx = getUserIndex( modsOid );
+            Index<?,E> index = getUserIndex( modsOid );
 
             // Drop all existing attribute value index entries and add new ones
-            idx.drop( id );
-            idx.add( ServerEntryUtils.toAttributeImpl( mods ), id );
+            ( ( JdbmIndex ) index ).drop( id );
+            ( ( JdbmIndex ) index ).add( ServerEntryUtils.toAttributeImpl( mods ), id );
 
             /* 
              * If no attribute values exist for this entryId in the index then
              * we remove the existance index entry for the removed attribute.
              */
-            if ( null == idx.reverseLookup( id ) )
+            if ( null == index.reverseLookup( id ) )
             {
-                existanceIdx.drop( modsOid, id );
+                existenceIdx.drop( modsOid, id );
             }
         }
 
@@ -1421,7 +1418,7 @@ public class JdbmStore<E> implements Store<E>
             }
         }
 
-        master.put( id, ( E ) entry );
+        master.put( id, entry );
 
         if ( isSyncOnWrite )
         {
@@ -1458,7 +1455,7 @@ public class JdbmStore<E> implements Store<E>
             }
         }
 
-        master.put( id, ( E ) entry );
+        master.put( id, entry );
 
         if ( isSyncOnWrite )
         {
@@ -1485,7 +1482,7 @@ public class JdbmStore<E> implements Store<E>
      */
     public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
     {
-        String newRdnAttr = newRdn.getNormType();
+//        String newRdnAttr = newRdn.getNormType();
         String newRdnValue = ( String ) newRdn.getValue();
         Long id = getEntryId( dn.getNormName() );
         ServerEntry entry = lookup( id );
@@ -1518,13 +1515,13 @@ public class JdbmStore<E> implements Store<E>
 
         if ( hasUserIndexOn( newRdn.getNormType() ) )
         {
-            Index idx = getUserIndex( newRdn.getNormType() );
-            idx.add( newRdnValue, id );
+            Index<?,E> index = getUserIndex( newRdn.getNormType() );
+            ( ( JdbmIndex ) index ).add( newRdnValue, id );
 
-            // Make sure the altered entry shows the existance of the new attrib
-            if ( !existanceIdx.forward( newRdn.getNormType(), id ) )
+            // Make sure the altered entry shows the existence of the new attrib
+            if ( !existenceIdx.forward( newRdn.getNormType(), id ) )
             {
-                existanceIdx.add( newRdn.getNormType(), id );
+                existenceIdx.add( newRdn.getNormType(), id );
             }
         }
 
@@ -1552,16 +1549,16 @@ public class JdbmStore<E> implements Store<E>
 
             if ( hasUserIndexOn( oldRdn.getNormType() ) )
             {
-                Index idx = getUserIndex( oldRdn.getNormType() );
-                idx.drop( oldRdn.getValue(), id );
+                Index<?,E> index = getUserIndex( oldRdn.getNormType() );
+                ( ( JdbmIndex ) index ).drop( oldRdn.getValue(), id );
 
                 /*
                  * If there is no value for id in this index due to our
                  * drop above we remove the oldRdnAttr from the existance idx
                  */
-                if ( null == idx.reverseLookup( id ) )
+                if ( null == index.reverseLookup( id ) )
                 {
-                    existanceIdx.drop( oldRdn.getNormType(), id );
+                    existenceIdx.drop( oldRdn.getNormType(), id );
                 }
             }
         }
@@ -1588,7 +1585,7 @@ public class JdbmStore<E> implements Store<E>
 
         // Update the current entry
         entry.setDn( newUpdn );
-        master.put( id, ( E ) entry );
+        master.put( id, entry );
 
         if ( isSyncOnWrite )
         {
@@ -1654,11 +1651,11 @@ public class JdbmStore<E> implements Store<E>
         while ( children.next() )
         {
             // Get the child and its id
-            IndexEntry rec = children.get();
+            IndexEntry<Long,E> rec = children.get();
             Long childId = rec.getId();
 
             /* 
-             * Calculate the Dn for the child's new name by copying the parents
+             * Calculate the DN for the child's new name by copying the parents
              * new name and adding the child's old upRdn to new name as its Rdn
              */
             LdapDN childUpdn = ( LdapDN ) updn.clone();
@@ -1672,7 +1669,7 @@ public class JdbmStore<E> implements Store<E>
             // Modify the child
             ServerEntry entry = lookup( childId );
             entry.setDn( childUpdn );
-            master.put( childId, ( E ) entry );
+            master.put( childId, entry );
 
             // Recursively change the names of the children below
             modifyDn( childId, childUpdn, isMove );
@@ -1831,15 +1828,15 @@ public class JdbmStore<E> implements Store<E>
      */
     private void dropMovedAliasIndices( final LdapDN movedBase ) throws Exception
     {
-        // Find all the aliases from movedBase down
-        IndexAssertion isBaseDescendant = new IndexAssertion()
-        {
-            public boolean assertCandidate( IndexEntry rec ) throws Exception
-            {
-                String dn = getEntryDn( rec.getId() );
-                return dn.endsWith( movedBase.toString() );
-            }
-        };
+//        // Find all the aliases from movedBase down
+//        IndexAssertion<Object,E> isBaseDescendant = new IndexAssertion<Object,E>()
+//        {
+//            public boolean assertCandidate( IndexEntry<Object,E> rec ) throws Exception
+//            {
+//                String dn = getEntryDn( rec.getId() );
+//                return dn.endsWith( movedBase.toString() );
+//            }
+//        };
 
         Long movedBaseId = getEntryId( movedBase.toString() );
 

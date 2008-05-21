@@ -22,8 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
@@ -78,7 +76,7 @@ public abstract class BTreePartition implements Partition
     }
 
     /** the search engine used to search the database */
-    protected SearchEngine searchEngine;
+    protected SearchEngine<ServerEntry> searchEngine;
     protected Optimizer optimizer;
 
     protected Registries registries;
@@ -208,8 +206,9 @@ public abstract class BTreePartition implements Partition
      * since the registries are used by elements in the search engine.
      * 
      * @param registries the schema entity registries
+     * @throws Exception 
      */
-    public abstract void setRegistries( Registries registries );
+    public abstract void setRegistries( Registries registries ) throws Exception;
 
     
     // ------------------------------------------------------------------------
@@ -222,7 +221,7 @@ public abstract class BTreePartition implements Partition
      *
      * @return the search engine
      */
-    public SearchEngine getSearchEngine()
+    public SearchEngine<ServerEntry> getSearchEngine()
     {
         return searchEngine;
     }
@@ -263,23 +262,16 @@ public abstract class BTreePartition implements Partition
     public abstract void modify( ModifyOperationContext opContext ) throws Exception;
 
 
-    private static final String[] ENTRY_DELETED_ATTRS = new String[] { "entrydeleted" };
-
-
-    public Cursor<ServerSearchResult> list( ListOperationContext opContext ) throws Exception
+    public Cursor<ServerEntry> list( ListOperationContext opContext ) throws Exception
     {
-        SearchResultEnumeration list;
-        list = new BTreeSearchResultEnumeration( ENTRY_DELETED_ATTRS, list( getEntryId( opContext.getDn().getNormName() ) ),
-            this, registries );
-        return list;
+        return new ServerEntryCursorAdaptor( this, list( getEntryId( opContext.getDn().getNormName() ) ) );
     }
 
 
-    public Cursor<ServerSearchResult> search( SearchOperationContext opContext ) throws Exception
+    public Cursor<ServerEntry> search( SearchOperationContext opContext ) throws Exception
     {
         SearchControls searchCtls = opContext.getSearchControls();
-        String[] attrIds = searchCtls.getReturningAttributes();
-        Cursor<IndexEntry> underlying;
+        IndexCursor<Long,ServerEntry> underlying;
 
         underlying = searchEngine.cursor( 
             opContext.getDn(),
@@ -287,7 +279,7 @@ public abstract class BTreePartition implements Partition
             opContext.getFilter(), 
             searchCtls );
 
-        return new BTreeSearchResultEnumeration( attrIds, underlying, this, registries );
+        return new ServerEntryCursorAdaptor( this, underlying );
     }
 
 
@@ -334,7 +326,7 @@ public abstract class BTreePartition implements Partition
     public abstract void sync() throws Exception;
 
 
-    public abstract void destroy();
+    public abstract void destroy() throws Exception;
 
 
     public abstract boolean isInitialized();
@@ -354,7 +346,7 @@ public abstract class BTreePartition implements Partition
     // Index Operations 
     // ------------------------------------------------------------------------
 
-    public abstract void addIndexOn( Index index ) throws Exception;
+    public abstract void addIndexOn( Index<Long,ServerEntry> index ) throws Exception;
 
 
     public abstract boolean hasUserIndexOn( String attribute ) throws Exception;
@@ -363,16 +355,25 @@ public abstract class BTreePartition implements Partition
     public abstract boolean hasSystemIndexOn( String attribute ) throws Exception;
 
 
-    public abstract Index getExistanceIndex();
+    public abstract Index<String,ServerEntry> getPresenceIndex();
 
 
     /**
-     * Gets the Index mapping the BigInteger primary keys of parents to the 
-     * BigInteger primary keys of their children.
+     * Gets the Index mapping the Long primary keys of parents to the 
+     * Long primary keys of their children.
      *
-     * @return the hierarchy Index
+     * @return the one level Index
      */
-    public abstract Index getHierarchyIndex();
+    public abstract Index<Long,ServerEntry> getOneLevelIndex();
+
+
+    /**
+     * Gets the Index mapping the Long primary keys of ancestors to the 
+     * Long primary keys of their descendants.
+     *
+     * @return the sub tree level Index
+     */
+    public abstract Index<Long,ServerEntry> getSubLevelIndex();
 
 
     /**
@@ -381,7 +382,7 @@ public abstract class BTreePartition implements Partition
      *
      * @return the user provided distinguished name Index
      */
-    public abstract Index getUpdnIndex();
+    public abstract Index<String,ServerEntry> getUpdnIndex();
 
 
     /**
@@ -390,7 +391,7 @@ public abstract class BTreePartition implements Partition
      *
      * @return the normalized distinguished name Index
      */
-    public abstract Index getNdnIndex();
+    public abstract Index<String,ServerEntry> getNdnIndex();
 
 
     /**
@@ -400,7 +401,7 @@ public abstract class BTreePartition implements Partition
      * 
      * @return the one alias index
      */
-    public abstract Index getOneAliasIndex();
+    public abstract Index<Long,ServerEntry> getOneAliasIndex();
 
 
     /**
@@ -410,7 +411,7 @@ public abstract class BTreePartition implements Partition
      * 
      * @return the sub alias index
      */
-    public abstract Index getSubAliasIndex();
+    public abstract Index<Long,ServerEntry> getSubAliasIndex();
 
 
     /**
@@ -419,7 +420,7 @@ public abstract class BTreePartition implements Partition
      * 
      * @return the index on the ALIAS_ATTRIBUTE
      */
-    public abstract Index getAliasIndex();
+    public abstract Index<String,ServerEntry> getAliasIndex();
 
 
     /**
@@ -429,7 +430,7 @@ public abstract class BTreePartition implements Partition
      * @param index the index on the ALIAS_ATTRIBUTE
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setAliasIndexOn( Index index ) throws Exception;
+    public abstract void setAliasIndexOn( Index<String,ServerEntry> index ) throws Exception;
 
 
     /**
@@ -438,17 +439,18 @@ public abstract class BTreePartition implements Partition
      * @param index the attribute existance Index
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setExistanceIndexOn( Index index ) throws Exception;
+    public abstract void setPresenceIndexOn( Index<String,ServerEntry> index ) throws Exception;
 
 
     /**
-     * Sets the hierarchy Index.
+     * Sets the one level Index.
      *
-     * @param index the hierarchy Index
+     * @param index the one level Index
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setHierarchyIndexOn( Index index ) throws Exception;
+    public abstract void setOneLevelIndexOn( Index<Long,ServerEntry> index ) throws Exception;
 
+    // TODO - add sub level index setter
 
     /**
      * Sets the user provided distinguished name Index.
@@ -456,7 +458,7 @@ public abstract class BTreePartition implements Partition
      * @param index the updn Index
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setUpdnIndexOn( Index index ) throws Exception;
+    public abstract void setUpdnIndexOn( Index<String,ServerEntry> index ) throws Exception;
 
 
     /**
@@ -465,7 +467,7 @@ public abstract class BTreePartition implements Partition
      * @param index the ndn Index
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setNdnIndexOn( Index index ) throws Exception;
+    public abstract void setNdnIndexOn( Index<String,ServerEntry> index ) throws Exception;
 
 
     /**
@@ -476,7 +478,7 @@ public abstract class BTreePartition implements Partition
      * @param index a one level alias index
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setOneAliasIndexOn( Index index ) throws Exception;
+    public abstract void setOneAliasIndexOn( Index<Long,ServerEntry> index ) throws Exception;
 
 
     /**
@@ -487,13 +489,13 @@ public abstract class BTreePartition implements Partition
      * @param index a subtree alias index
      * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setSubAliasIndexOn( Index index ) throws Exception;
+    public abstract void setSubAliasIndexOn( Index<Long,ServerEntry> index ) throws Exception;
 
 
-    public abstract Index getUserIndex( String attribute ) throws Exception;
+    public abstract Index<?,ServerEntry> getUserIndex( String attribute ) throws Exception;
 
 
-    public abstract Index getSystemIndex( String attribute ) throws Exception;
+    public abstract Index<?,ServerEntry> getSystemIndex( String attribute ) throws Exception;
 
 
     public abstract Long getEntryId( String dn ) throws Exception;
@@ -534,7 +536,7 @@ public abstract class BTreePartition implements Partition
     public abstract void delete( Long id ) throws Exception;
 
 
-    public abstract IndexCursor<Long,ForwardIndexEntry> list( Long id ) throws Exception;
+    public abstract IndexCursor<Long,ServerEntry> list( Long id ) throws Exception;
 
 
     public abstract int getChildCount( Long id ) throws Exception;

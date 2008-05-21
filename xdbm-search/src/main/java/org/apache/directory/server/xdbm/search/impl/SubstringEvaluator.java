@@ -105,7 +105,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
-            idx = db.getUserIndex( node.getAttribute() );
+            idx = ( Index<String,ServerEntry> ) db.getUserIndex( node.getAttribute() );
         }
         else
         {

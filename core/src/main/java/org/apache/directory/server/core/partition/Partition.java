@@ -153,7 +153,7 @@ public interface Partition
     /**
      * Deinitialized this partition.
      */
-    void destroy();
+    void destroy() throws Exception;
 
 
     /**
@@ -239,7 +239,7 @@ public interface Partition
      * @return a NamingEnumeration containing objects of type {@link ServerSearchResult}
      * @throws Exception if there are any problems
      */
-    Cursor<ServerSearchResult> list( ListOperationContext opContext ) throws Exception;
+    Cursor<ServerEntry> list( ListOperationContext opContext ) throws Exception;
 
 
     /**
@@ -256,7 +256,7 @@ public interface Partition
      * <a href="http://java.sun.com/j2se/1.4.2/docs/api/
      * javax/naming/directory/SearchResult.html">SearchResult</a>.
      */
-    Cursor<ServerSearchResult> search( SearchOperationContext opContext )
+    Cursor<ServerEntry> search( SearchOperationContext opContext )
         throws Exception;
 
 
@@ -273,6 +273,10 @@ public interface Partition
      * @throws Exception if there are any problems
      */
     ServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
+    
+    
+    ServerEntry lookup( Long id ) throws Exception;
+    
 
     /**
      * Fast operation to check and see if a particular entry exists.
