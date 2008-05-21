@@ -65,7 +65,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
-            idx = db.getUserIndex( node.getAttribute() );
+            idx = ( Index<T, ServerEntry> ) db.getUserIndex( node.getAttribute() );
             type = null;
             normalizer = null;
             comparator = null;

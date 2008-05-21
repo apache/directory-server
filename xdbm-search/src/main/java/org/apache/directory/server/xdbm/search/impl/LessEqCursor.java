@@ -68,7 +68,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         if ( db.hasUserIndexOn( attribute ) )
         {
             //noinspection unchecked
-            userIdxCursor = db.getUserIndex( attribute ).forwardCursor();
+            userIdxCursor = ( ( Index<V,ServerEntry> ) db.getUserIndex( attribute ) ).forwardCursor();
             ndnIdxCursor = null;
         }
         else

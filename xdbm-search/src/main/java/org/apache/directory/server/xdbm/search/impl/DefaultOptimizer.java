@@ -245,12 +245,12 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return the worst case
      * @throws Exception if there is an error accessing an index
      */
-    private long getEqualityScan( SimpleNode node ) throws Exception
+    private<V> long getEqualityScan( SimpleNode<V> node ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
-            Index<Object,E> idx = db.getUserIndex( node.getAttribute() );
+            Index<V,E> idx = ( Index<V, E> ) db.getUserIndex( node.getAttribute() );
             return idx.count( node.getValue().get() );
         }
 
@@ -268,12 +268,12 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return the scan count of all nodes satisfying the AVA
      * @throws Exception if there is an error accessing an index
      */
-    private long getGreaterLessScan( SimpleNode node, boolean isGreaterThan ) throws Exception
+    private<V> long getGreaterLessScan( SimpleNode<V> node, boolean isGreaterThan ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
-            Index<Object, E> idx = db.getUserIndex( node.getAttribute() );
+            Index<V, E> idx = ( Index<V, E> ) db.getUserIndex( node.getAttribute() );
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue().get() );

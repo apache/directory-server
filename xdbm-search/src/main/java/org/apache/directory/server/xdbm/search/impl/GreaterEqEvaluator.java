@@ -66,7 +66,7 @@ public class GreaterEqEvaluator implements Evaluator<GreaterEqNode, ServerEntry>
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
-            idx = db.getUserIndex( node.getAttribute() );
+            idx = ( Index<Object,ServerEntry> ) db.getUserIndex( node.getAttribute() );
         }
         else
         {

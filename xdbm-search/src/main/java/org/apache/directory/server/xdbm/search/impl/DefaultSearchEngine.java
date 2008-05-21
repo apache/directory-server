@@ -91,7 +91,7 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
     /**
      * @see SearchEngine#cursor(LdapDN, AliasDerefMode, ExprNode, SearchControls)
      */
-    public IndexCursor<?,ServerEntry> cursor( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public IndexCursor<Long,ServerEntry> cursor( LdapDN base, AliasDerefMode aliasDerefMode, ExprNode filter,
                                                      SearchControls searchCtls ) throws Exception
     {
         LdapDN effectiveBase;

@@ -20,12 +20,14 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Value;
 
 
 /**
@@ -63,11 +65,12 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         this.approximateEvaluator = approximateEvaluator;
 
         String attribute = approximateEvaluator.getExpression().getAttribute();
-        Object value = approximateEvaluator.getExpression().getValue();
+        Value<V> value = approximateEvaluator.getExpression().getValue();
         if ( db.hasUserIndexOn( attribute ) )
         {
             //noinspection unchecked
-            userIdxCursor = db.getUserIndex( attribute ).forwardCursor( value );
+            Index<V,ServerEntry> index = ( Index<V, ServerEntry> ) db.getUserIndex( attribute );
+            userIdxCursor = index.forwardCursor( value.get() );
             ndnIdxCursor = null;
         }
         else

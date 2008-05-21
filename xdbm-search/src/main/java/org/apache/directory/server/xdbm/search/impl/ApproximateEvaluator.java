@@ -46,13 +46,13 @@ import java.util.Comparator;
  */
 public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEntry>
 {
-    private final ApproximateNode node;
+    private final ApproximateNode<Object> node;
     private final Store<ServerEntry> db;
     private final Registries registries;
     private final AttributeType type;
     private final Normalizer normalizer;
     private final Comparator comparator;
-    private final Index<Number,ServerEntry> idx;
+    private final Index<Object,ServerEntry> idx;
 
 
     public ApproximateEvaluator( ApproximateNode node, Store<ServerEntry> db, Registries registries )
@@ -65,7 +65,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             //noinspection unchecked
-            idx = db.getUserIndex( node.getAttribute() );
+            idx = ( Index<Object,ServerEntry> ) db.getUserIndex( node.getAttribute() );
             type = null;
             normalizer = null;
             comparator = null;
@@ -150,7 +150,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
     {
         if ( idx != null )
         {
-            return idx.forward( ( Number ) indexEntry.getValue(), indexEntry.getId() );
+            return idx.forward( indexEntry.getValue(), indexEntry.getId() );
         }
 
         ServerEntry entry = indexEntry.getObject();
