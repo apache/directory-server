@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -212,7 +210,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * @throws NamingException
      */
     void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext )
-        throws NamingException
+        throws Exception
     {
         List<Modification> mods = modContext.getModItems();
 
@@ -286,7 +284,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * @throws NamingException
      */
     void lookupPrincipalAttributes( ModifyOperationContext modContext, ModifySubContext subContext )
-        throws NamingException
+        throws Exception
     {
         LdapDN principalDn = modContext.getDn();
 
@@ -357,7 +355,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * @param modContext
      * @param subContext
      */
-    void deriveKeys( ModifyOperationContext modContext, ModifySubContext subContext ) throws NamingException
+    void deriveKeys( ModifyOperationContext modContext, ModifySubContext subContext ) throws Exception
     {
         List<Modification> mods = modContext.getModItems();
 
@@ -403,7 +401,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     }
 
 
-    private ServerAttribute getKeyAttribute( Registries registries, Map<EncryptionType, EncryptionKey> keys ) throws NamingException
+    private ServerAttribute getKeyAttribute( Registries registries, Map<EncryptionType, EncryptionKey> keys ) throws Exception
     {
         ServerAttribute keyAttribute = 
             new DefaultServerAttribute( KerberosAttribute.KRB5_KEY_AT, 
