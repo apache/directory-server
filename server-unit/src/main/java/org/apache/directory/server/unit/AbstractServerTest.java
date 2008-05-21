@@ -33,7 +33,6 @@ import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtende
 import org.apache.directory.server.ldap.handlers.bind.*;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -44,7 +43,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
@@ -102,7 +100,7 @@ public abstract class AbstractServerTest extends TestCase
      * @return a list of entries added to the server in the order they were added
      * @throws NamingException of the load fails
      */
-    protected List<LdifEntry> loadTestLdif( boolean verifyEntries ) throws NamingException
+    protected List<LdifEntry> loadTestLdif( boolean verifyEntries ) throws Exception
     {
         return loadLdif( getClass().getResourceAsStream( getClass().getSimpleName() + ".ldif" ), verifyEntries );
     }
@@ -119,7 +117,7 @@ public abstract class AbstractServerTest extends TestCase
      * @return a list of entries added to the server in the order they were added
      * @throws NamingException of the load fails
      */
-    protected List<LdifEntry> loadLdif( InputStream in, boolean verifyEntries ) throws NamingException
+    protected List<LdifEntry> loadLdif( InputStream in, boolean verifyEntries ) throws Exception
     {
         if ( in == null )
         {
@@ -157,7 +155,7 @@ public abstract class AbstractServerTest extends TestCase
      * @param entry the entry to verify
      * @throws NamingException if there are problems accessing the entry
      */
-    protected void verify( LdifEntry entry ) throws NamingException
+    protected void verify( LdifEntry entry ) throws Exception
     {
         Attributes readAttributes = rootDSE.getAttributes( entry.getDn() );
         NamingEnumeration<String> readIds = entry.getAttributes().getIDs();
@@ -189,7 +187,7 @@ public abstract class AbstractServerTest extends TestCase
      * @return an LDAP context as the the administrator to the rootDSE
      * @throws NamingException if the server cannot be contacted
      */
-    protected LdapContext getWiredContext() throws NamingException
+    protected LdapContext getWiredContext() throws Exception
     {
         return getWiredContext( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
@@ -206,7 +204,7 @@ public abstract class AbstractServerTest extends TestCase
      * @return an LDAP context as the the administrator to the rootDSE
      * @throws NamingException if the server cannot be contacted
      */
-    protected LdapContext getWiredContext( String bindPrincipalDn, String password ) throws NamingException
+    protected LdapContext getWiredContext( String bindPrincipalDn, String password ) throws Exception
     {
 //        if ( ! apacheDS.isStarted() )
 //        {
@@ -294,7 +292,7 @@ public abstract class AbstractServerTest extends TestCase
     }
 
 
-    protected void configureDirectoryService() throws NamingException
+    protected void configureDirectoryService() throws Exception
     {
     }
 
@@ -342,7 +340,7 @@ public abstract class AbstractServerTest extends TestCase
      * @param passwd the password of the user
      * @throws NamingException if there is a failure of any kind
      */
-    protected void setContexts( String user, String passwd ) throws NamingException
+    protected void setContexts( String user, String passwd ) throws Exception
     {
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, directoryService );
@@ -361,7 +359,7 @@ public abstract class AbstractServerTest extends TestCase
      * @param env an environment to use while setting up the system root.
      * @throws NamingException if there is a failure of any kind
      */
-    protected void setContexts( Hashtable<String, Object> env ) throws NamingException
+    protected void setContexts( Hashtable<String, Object> env ) throws Exception
     {
         Hashtable<String, Object> envFinal = new Hashtable<String, Object>( env );
         envFinal.put( Context.PROVIDER_URL, ServerDNConstants.SYSTEM_DN );
@@ -413,27 +411,18 @@ public abstract class AbstractServerTest extends TestCase
      * adding those entries to the system partition
      * @param in the input stream with the ldif
      */
-    protected void importLdif( InputStream in ) throws NamingException
+    protected void importLdif( InputStream in ) throws Exception
     {
-        try
-        {
-            Iterator<LdifEntry> iterator = new LdifReader( in );
+        Iterator<LdifEntry> iterator = new LdifReader( in );
 
-            while ( iterator.hasNext() )
-            {
-                LdifEntry entry = iterator.next();
-                LdapDN dn = new LdapDN( entry.getDn() );
-                rootDSE.createSubcontext( dn, entry.getAttributes() );
-            }
-        }
-        catch ( Exception e )
+        while ( iterator.hasNext() )
         {
-            String msg = "failed while trying to parse system ldif file";
-            NamingException ne = new LdapConfigurationException( msg );
-            ne.setRootCause( e );
-            throw ne;
+            LdifEntry entry = iterator.next();
+            LdapDN dn = new LdapDN( entry.getDn() );
+            rootDSE.createSubcontext( dn, entry.getAttributes() );
         }
     }
+
     
     /**
      * Inject an ldif String into the server. DN must be relative to the
@@ -441,7 +430,7 @@ public abstract class AbstractServerTest extends TestCase
      * @param ldif the entries to inject
      * @throws NamingException if the entries cannot be added
      */
-    protected void injectEntries( String ldif ) throws NamingException
+    protected void injectEntries( String ldif ) throws Exception
     {
         LdifReader reader = new LdifReader();
         List<LdifEntry> entries = reader.parseLdif( ldif );
@@ -451,6 +440,4 @@ public abstract class AbstractServerTest extends TestCase
             rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
         }
     }
-    
-    
 }

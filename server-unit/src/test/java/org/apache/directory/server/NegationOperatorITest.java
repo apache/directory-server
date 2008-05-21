@@ -84,7 +84,7 @@ public class NegationOperatorITest extends AbstractServerTest
             system.setSuffix( "ou=system" );
 
             // Add indexed attributes for system partition
-            Set<Index> indexedAttrs = new HashSet<Index>();
+            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
             indexedAttrs.add( new JdbmIndex( SchemaConstants.OBJECT_CLASS_AT ) );
             indexedAttrs.add( new JdbmIndex( SchemaConstants.OU_AT ) );
             system.setIndexedAttributes( indexedAttrs );

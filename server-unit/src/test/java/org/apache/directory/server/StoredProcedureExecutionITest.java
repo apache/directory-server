@@ -33,7 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
@@ -103,7 +102,7 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
     }
     
 
-    public void testExecuteProcedureWithReturnValue() throws NamingException
+    public void testExecuteProcedureWithReturnValue() throws Exception
     {
         String procedureName = HelloWorldProcedure.class.getName() + ":sayHello";
         
@@ -115,7 +114,7 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
     }
     
 
-    public void testExecuteProcedureWithParametersAndReturnValue() throws NamingException
+    public void testExecuteProcedureWithParametersAndReturnValue() throws Exception
     {
         String procedureName = HelloWorldProcedure.class.getName() + ":sayHelloTo";
         
@@ -127,7 +126,7 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
     }
     
     
-    @Test public void testSPDeleteSubtree() throws NamingException
+    @Test public void testSPDeleteSubtree() throws Exception
     {
         String ldif =
             "version: 1\n" +

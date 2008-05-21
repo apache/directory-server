@@ -31,7 +31,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -66,7 +65,7 @@ public class DIRSERVER951ITest extends AbstractServerTest
 
 
     @Override
-    protected void configureDirectoryService() throws NamingException
+    protected void configureDirectoryService() throws Exception
     {
         JdbmPartition systemCfg = new JdbmPartition();
         systemCfg.setId( "system" );
@@ -77,7 +76,7 @@ public class DIRSERVER951ITest extends AbstractServerTest
         systemCfg.setSuffix( "ou=system" );
 
         // Add indexed attributes for system partition
-        Set<Index> indexedAttrs = new HashSet<Index>();
+        Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
         indexedAttrs.add( new JdbmIndex( Store.ALIAS ) );
         indexedAttrs.add( new JdbmIndex( Store.PRESENCE ) );
         indexedAttrs.add( new JdbmIndex( Store.ONELEVEL ) );
@@ -144,7 +143,7 @@ public class DIRSERVER951ITest extends AbstractServerTest
     }
     
     
-    Set<SearchResult> getResults( String filter ) throws NamingException
+    Set<SearchResult> getResults( String filter ) throws Exception
     {
         Set<SearchResult> results = new HashSet<SearchResult>();
         SearchControls controls = new SearchControls();

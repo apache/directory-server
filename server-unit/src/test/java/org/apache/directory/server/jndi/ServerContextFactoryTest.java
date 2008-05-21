@@ -29,7 +29,6 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -46,17 +45,15 @@ import java.util.Set;
  */
 public class ServerContextFactoryTest extends AbstractServerTest
 {
-    public ServerContextFactoryTest() throws NamingException
+    public ServerContextFactoryTest() 
     {
     }
-
-    private DirContext ctx = null;
 
 
     public void setUp() throws Exception
     {
         super.setUp();
-        Set<Index> indexedAttrs;
+        Set<Index<?,ServerEntry>> indexedAttrs;
         Set<Partition> partitions = new HashSet<Partition>();
 
         // Add partition 'testing'
@@ -64,7 +61,7 @@ public class ServerContextFactoryTest extends AbstractServerTest
         partition.setId( "testing" );
         partition.setSuffix( "ou=testing" );
 
-        indexedAttrs = new HashSet<Index>();
+        indexedAttrs = new HashSet<Index<?,ServerEntry>>();
         indexedAttrs.add( new JdbmIndex( "ou" ) );
         indexedAttrs.add( new JdbmIndex( "objectClass" ) );
         partition.setIndexedAttributes( indexedAttrs );
@@ -81,7 +78,7 @@ public class ServerContextFactoryTest extends AbstractServerTest
         partition.setId( "example" );
         partition.setSuffix( "dc=example" );
 
-        indexedAttrs = new HashSet<Index>();
+        indexedAttrs = new HashSet<Index<?,ServerEntry>>();
         indexedAttrs.add( new JdbmIndex( "ou" ) );
         indexedAttrs.add( new JdbmIndex( "dc" ) );
         indexedAttrs.add( new JdbmIndex( "objectClass" ) );
@@ -99,7 +96,7 @@ public class ServerContextFactoryTest extends AbstractServerTest
         partition.setId( "mixedcase" );
         partition.setSuffix( "dc=MixedCase" );
 
-        indexedAttrs = new HashSet<Index>();
+        indexedAttrs = new HashSet<Index<?,ServerEntry>>();
         indexedAttrs.add( new JdbmIndex( "dc" ) );
         indexedAttrs.add( new JdbmIndex( "objectClass" ) );
         partition.setIndexedAttributes( indexedAttrs );
@@ -122,7 +119,7 @@ public class ServerContextFactoryTest extends AbstractServerTest
      *
      * @throws NamingException if there are failures
      */
-    public void testSystemContext() throws NamingException
+    public void testSystemContext() throws Exception
     {
         assertNotNull( sysRoot );
 
@@ -147,7 +144,7 @@ public class ServerContextFactoryTest extends AbstractServerTest
      *
      * @throws NamingException if there are failures
      */
-    public void testSetupTeardown() throws NamingException
+    public void testSetupTeardown() throws Exception
     {
         assertNotNull( sysRoot );
         Attributes attributes = sysRoot.getAttributes( "" );

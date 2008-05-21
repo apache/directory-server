@@ -110,7 +110,7 @@ public class MiscTest extends AbstractServerTest
 
             partition.setId( "apache" );
             partition.setContextEntry( serverEntry );
-            Set<Index> indexedAttributes = new HashSet<Index>();
+            Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
             indexedAttributes.add( new JdbmIndex( "dc" ) );
             partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
@@ -131,7 +131,7 @@ public class MiscTest extends AbstractServerTest
             
             partition.setId( "apache" );
             partition.setContextEntry( serverEntry );
-            Set<Index> indexedAttributes = new HashSet<Index>();
+            Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
             indexedAttributes.add( new JdbmIndex( "dc" ) );
             partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );

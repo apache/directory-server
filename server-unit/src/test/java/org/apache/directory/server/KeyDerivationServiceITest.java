@@ -127,7 +127,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         partition.setId( "example" );
         partition.setSuffix( "dc=example,dc=com" );
 
-        Set<Index> indexedAttrs = new HashSet<Index>();
+        Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
         indexedAttrs.add( new JdbmIndex( "ou" ) );
         indexedAttrs.add( new JdbmIndex( "dc" ) );
         indexedAttrs.add( new JdbmIndex( "objectClass" ) );
