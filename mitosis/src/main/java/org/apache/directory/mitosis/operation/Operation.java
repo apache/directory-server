@@ -22,7 +22,6 @@ package org.apache.directory.mitosis.operation;
 
 import java.io.Serializable;
 
-import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
 
 import org.apache.directory.mitosis.common.CSN;
@@ -101,7 +100,7 @@ public class Operation implements Serializable
      * Executes this operation on the specified nexus.
      */
     public final void execute( PartitionNexus nexus, ReplicationStore store, Registries registries ) 
-        throws NamingException
+        throws Exception
     {
         synchronized ( nexus )
         {
@@ -112,7 +111,7 @@ public class Operation implements Serializable
 
     @SuppressWarnings("unused")
     protected void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries ) 
-        throws NamingException
+        throws Exception
     {
         throw new OperationNotSupportedException( nexus.getSuffixDn().toString() );
     }

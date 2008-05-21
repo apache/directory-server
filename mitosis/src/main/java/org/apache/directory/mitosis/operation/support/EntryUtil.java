@@ -21,7 +21,6 @@ package org.apache.directory.mitosis.operation.support;
 
 
 import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -43,7 +42,8 @@ import org.apache.directory.mitosis.common.DefaultCSN;
 public class EntryUtil
 {
     @SuppressWarnings("unchecked")
-    public static boolean isEntryUpdatable( Registries registries, PartitionNexus nexus, LdapDN name, CSN newCSN ) throws NamingException
+    public static boolean isEntryUpdatable( Registries registries, PartitionNexus nexus, LdapDN name, CSN newCSN ) 
+        throws Exception
     {
         ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
 
@@ -86,7 +86,7 @@ public class EntryUtil
 
 
     public static void createGlueEntries( Registries registries, PartitionNexus nexus, LdapDN name, boolean includeLeaf )
-        throws NamingException
+        throws Exception
     {
         assert name.size() > 0;
 
@@ -102,7 +102,8 @@ public class EntryUtil
     }
 
 
-    private static void createGlueEntry( Registries registries, PartitionNexus nexus, LdapDN name ) throws NamingException
+    private static void createGlueEntry( Registries registries, PartitionNexus nexus, LdapDN name ) 
+        throws Exception
     {
         try
         {

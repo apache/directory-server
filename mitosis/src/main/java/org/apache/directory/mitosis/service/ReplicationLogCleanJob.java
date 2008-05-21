@@ -27,7 +27,6 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import javax.naming.NamingException;
 import java.util.Map;
 
 
@@ -83,7 +82,7 @@ public class ReplicationLogCleanJob implements Job
                 {
                     ( ( ReplicationInterceptor ) interceptor ).purgeAgedData();
                 }
-                catch ( NamingException e )
+                catch ( Exception e )
                 {
                     throw new JobExecutionException( e );
                 }

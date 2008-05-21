@@ -20,16 +20,14 @@
 package org.apache.directory.mitosis.operation;
 
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -72,7 +70,7 @@ public class AddEntryOperation extends Operation
 
 
     protected void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries )
-        throws NamingException
+        throws Exception
     {
         if ( !EntryUtil.isEntryUpdatable( registries, nexus, dn, getCSN() ) )
         {
@@ -93,19 +91,19 @@ public class AddEntryOperation extends Operation
 
     @SuppressWarnings("unchecked")
     private void recursiveDelete( PartitionNexus nexus, LdapDN normalizedName, Registries registries )
-        throws NamingException
+        throws Exception
     {
-        NamingEnumeration<ServerSearchResult> ne = nexus.list( new ListOperationContext( registries, normalizedName ) );
+        Cursor<ServerEntry> ne = nexus.list( new ListOperationContext( registries, normalizedName ) );
         
-        if ( !ne.hasMore() )
+        if ( !ne.available() )
         {
             nexus.delete( new DeleteOperationContext( registries, normalizedName ) );
             return;
         }
 
-        while ( ne.hasMore() )
+        while ( ne.next() )
         {
-            ServerSearchResult sr = ne.next();
+            ServerEntry sr = ne.get();
             LdapDN dn = sr.getDn();
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             recursiveDelete( nexus, dn, registries );

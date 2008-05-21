@@ -31,7 +31,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.NamingException;
 import java.util.List;
 
 
@@ -64,7 +63,7 @@ public class ReplaceAttributeOperation extends AttributeOperation
     }
 
 
-    protected void execute1( PartitionNexus nexus, Registries registries ) throws NamingException
+    protected void execute1( PartitionNexus nexus, Registries registries ) throws Exception
     {
         ServerEntry serverEntry = new DefaultServerEntry( registries, LdapDN.EMPTY_LDAPDN );
         ServerAttribute attribute = getAttribute( registries.getAttributeTypeRegistry() );

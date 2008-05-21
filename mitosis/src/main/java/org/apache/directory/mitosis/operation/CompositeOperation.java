@@ -32,7 +32,6 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.Registries;
 
 import javax.naming.Name;
-import javax.naming.NamingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -161,7 +160,7 @@ public class CompositeOperation extends Operation
 
 
     protected void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries ) 
-        throws NamingException
+        throws Exception
     {
         for ( Operation op : children )
         {

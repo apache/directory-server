@@ -96,7 +96,7 @@ public abstract class AttributeOperation extends Operation
 
 
     protected final void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries ) 
-        throws NamingException
+        throws Exception
     {
         if ( !EntryUtil.isEntryUpdatable( registries, nexus, name, getCSN() ) )
         {
@@ -108,7 +108,7 @@ public abstract class AttributeOperation extends Operation
     }
 
 
-    protected abstract void execute1( PartitionNexus nexus, Registries registries ) throws NamingException;
+    protected abstract void execute1( PartitionNexus nexus, Registries registries ) throws Exception;
 
 
     /**

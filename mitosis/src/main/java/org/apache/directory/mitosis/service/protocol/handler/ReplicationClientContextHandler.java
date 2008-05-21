@@ -42,8 +42,8 @@ import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -57,8 +57,6 @@ import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.WriteFuture;
 import org.apache.mina.util.SessionLog;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -296,7 +294,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
 
     private void onBeginLogEntriesAck( ReplicationContext ctx, BeginLogEntriesAckMessage message )
-        throws NamingException
+        throws Exception
     {
         // Start transaction only when the server says OK.
         if ( message.getResponseCode() != Constants.OK )
@@ -343,7 +341,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     }
 
 
-    private void sendAllEntries( ReplicationContext ctx ) throws NamingException
+    private void sendAllEntries( ReplicationContext ctx ) throws Exception
     {
         ServerEntry rootDSE = ctx.getDirectoryService().getPartitionNexus().getRootDSE( null );
 
@@ -375,24 +373,23 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     }
 
 
-    private void sendAllEntries( ReplicationContext ctx, LdapDN contextName ) throws NamingException
+    private void sendAllEntries( ReplicationContext ctx, LdapDN contextName ) throws Exception
     {
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration<ServerSearchResult> e = ctx.getDirectoryService().getPartitionNexus().search(
+        Cursor<ServerEntry> e = ctx.getDirectoryService().getPartitionNexus().search(
             new SearchOperationContext( ctx.getDirectoryService().getRegistries(), contextName,
                 AliasDerefMode.DEREF_ALWAYS, new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         try
         {
-            while ( e.hasMore() )
+            while ( e.next() )
             {
-                ServerSearchResult sr = e.next();
-                ServerEntry attrs = sr.getServerEntry();
+                ServerEntry entry = e.get();
 
                 // Skip entries without entryCSN attribute.
-                EntryAttribute entryCSNAttr = attrs.get( org.apache.directory.mitosis.common.Constants.ENTRY_CSN );
+                EntryAttribute entryCSNAttr = entry.get( org.apache.directory.mitosis.common.Constants.ENTRY_CSN );
 
                 if ( entryCSNAttr == null )
                 {
@@ -417,15 +414,15 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 }
                 catch ( IllegalArgumentException ex )
                 {
-                    SessionLog.warn( ctx.getSession(), "An entry with improper entryCSN: " + sr.getDn() );
+                    SessionLog.warn( ctx.getSession(), "An entry with improper entryCSN: " + entry.getDn() );
                     continue;
                 }
 
                 // Convert the entry into AddEntryOperation log.
-                LdapDN dn = sr.getDn();
+                LdapDN dn = entry.getDn();
                 dn.normalize( ctx.getDirectoryService().getRegistries().getAttributeTypeRegistry()
                     .getNormalizerMapping() );
-                Operation op = new AddEntryOperation( csn, attrs );
+                Operation op = new AddEntryOperation( csn, entry );
 
                 // Send a LogEntry message for the entry.
                 writeTimeLimitedMessage( ctx, new LogEntryMessage( ctx.getNextSequence(), op ) );
