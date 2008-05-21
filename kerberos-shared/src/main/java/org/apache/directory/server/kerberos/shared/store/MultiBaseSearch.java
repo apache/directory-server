@@ -145,7 +145,8 @@ class MultiBaseSearch implements PrincipalStore
         return operation.execute( ctx, null );
     }
 
-    private DirContext getDirContext( String name ) throws NamingException
+    
+    private DirContext getDirContext( String name ) throws Exception
     {
         return directoryService.getJndiContext(catalog.getBaseDn( name ));
     }

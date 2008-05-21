@@ -19,13 +19,12 @@
  */
 package org.apache.directory.server.core.entry;
 
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
@@ -47,6 +46,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
+
 /**
  * Test the ServerEntry serialization/deserialization class
  *
@@ -65,7 +65,7 @@ public class ServerEntrySerializerTest
      * Initialize the registries once for the whole test suite
      */
     @BeforeClass
-    public static void setup() throws NamingException
+    public static void setup() throws Exception
     {
         loader = new BootstrapSchemaLoader();
         oidRegistry = new DefaultOidRegistry();
@@ -103,7 +103,7 @@ public class ServerEntrySerializerTest
     }
 
     
-    @Test public void testSerializeEmtpyServerEntry() throws IOException, NamingException, ClassNotFoundException
+    @Test public void testSerializeEmtpyServerEntry() throws IOException, Exception, ClassNotFoundException
     {
         LdapDN dn = LdapDN.EMPTY_LDAPDN;
         ServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -117,7 +117,7 @@ public class ServerEntrySerializerTest
         assertEquals( entry, result );
     }
 
-    @Test public void testSerializeDNServerEntry() throws IOException, NamingException, ClassNotFoundException
+    @Test public void testSerializeDNServerEntry() throws IOException, Exception, ClassNotFoundException
     {
         LdapDN dn = new LdapDN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
@@ -134,7 +134,7 @@ public class ServerEntrySerializerTest
     }
 
 
-    @Test public void testSerializeServerEntryOC() throws IOException, NamingException, ClassNotFoundException
+    @Test public void testSerializeServerEntryOC() throws IOException, Exception, ClassNotFoundException
     {
         LdapDN dn = new LdapDN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
@@ -152,7 +152,7 @@ public class ServerEntrySerializerTest
     }
 
 
-    @Test public void testSerializeServerEntry() throws IOException, NamingException, ClassNotFoundException
+    @Test public void testSerializeServerEntry() throws IOException, Exception, ClassNotFoundException
     {
         LdapDN dn = new LdapDN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
