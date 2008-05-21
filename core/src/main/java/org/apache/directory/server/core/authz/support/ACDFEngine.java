@@ -140,7 +140,7 @@ public class ACDFEngine
         Collection<MicroOperation> microOperations, 
         Collection<ACITuple> aciTuples, 
         ServerEntry entry, 
-        ServerEntry entryView ) throws NamingException
+        ServerEntry entryView ) throws Exception
     {
         if ( !hasPermission( registries, proxy, userGroupNames, username, authenticationLevel, entryName, attrId, attrValue,
             microOperations, aciTuples, entry, entryView ) )
@@ -198,7 +198,7 @@ public class ACDFEngine
         Collection<MicroOperation> microOperations, 
         Collection<ACITuple> aciTuples, 
         ServerEntry entry, 
-        ServerEntry entryView ) throws NamingException
+        ServerEntry entryView ) throws Exception
     {
         if ( entryName == null )
         {

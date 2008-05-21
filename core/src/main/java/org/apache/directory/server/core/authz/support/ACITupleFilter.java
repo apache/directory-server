@@ -79,5 +79,5 @@ public interface ACITupleFilter
             ServerEntry entry, 
             Collection<MicroOperation> microOperations,
             ServerEntry entryView )
-        throws NamingException;
+        throws Exception;
 }

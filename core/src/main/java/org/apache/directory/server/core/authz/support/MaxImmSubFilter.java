@@ -23,6 +23,7 @@ package org.apache.directory.server.core.authz.support;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.event.EventInterceptor;
@@ -89,7 +90,7 @@ public class MaxImmSubFilter implements ACITupleFilter
             ServerEntry entry, 
             Collection<MicroOperation> microOperations,
             ServerEntry entryView )
-        throws NamingException
+        throws Exception
     {
         if ( entryName.size() == 0 )
         {
@@ -158,19 +159,19 @@ public class MaxImmSubFilter implements ACITupleFilter
     }
 
 
-    private int getImmSubCount( Registries registries, PartitionNexusProxy proxy, LdapDN entryName ) throws NamingException
+    private int getImmSubCount( Registries registries, PartitionNexusProxy proxy, LdapDN entryName ) throws Exception
     {
         int cnt = 0;
-        NamingEnumeration<ServerSearchResult> e = null;
+        Cursor<ServerEntry> e = null;
         
         try
         {
             e = proxy.search( new SearchOperationContext( registries, ( LdapDN ) entryName.getPrefix( 1 ),
                     AliasDerefMode.DEREF_ALWAYS, childrenFilter, childrenSearchControls ), SEARCH_BYPASS );
 
-            while ( e.hasMore() )
+            while ( e.next() )
             {
-                e.next();
+                e.get();
                 cnt++;
             }
 
