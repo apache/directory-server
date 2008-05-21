@@ -25,7 +25,6 @@ import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
@@ -45,8 +44,6 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import java.util.Collection;
 import java.util.Collections;
