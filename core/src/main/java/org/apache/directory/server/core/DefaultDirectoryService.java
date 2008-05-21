@@ -193,7 +193,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             loader.loadWithDependencies( bootstrapSchemas, registries );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             throw new IllegalStateException( ILLEGAL_STATE_MSG, e );
         }

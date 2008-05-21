@@ -71,13 +71,13 @@ public class SchemaCheckerTest extends TestCase
     Registries registries = null;
 
 
-    public SchemaCheckerTest() throws NamingException
+    public SchemaCheckerTest() throws Exception
     {
         this( "SchemaCheckerTest" );
     }
 
 
-    public SchemaCheckerTest(String name) throws NamingException
+    public SchemaCheckerTest(String name) throws Exception
     {
         super( name );
 

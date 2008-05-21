@@ -803,7 +803,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             loader.loadWithDependencies( schemas.values(), registries );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             e.printStackTrace();
             throw new MojoFailureException( "Failed to load bootstrap registries with schemas: " + e.getMessage() );

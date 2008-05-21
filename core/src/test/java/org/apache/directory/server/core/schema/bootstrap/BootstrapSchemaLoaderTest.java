@@ -26,8 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import junit.framework.TestCase;
 
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
@@ -66,7 +64,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
-    public void testLoadAll() throws NamingException
+    public void testLoadAll() throws Exception
     {
         Set<Schema> schemas = new HashSet<Schema>();
         schemas.add( new CoreSchema() );
@@ -90,7 +88,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
-    public void testSystemSchemaLoad() throws NamingException
+    public void testSystemSchemaLoad() throws Exception
     {
         SystemSchema systemSchema = new SystemSchema();
         loader.load( systemSchema, registries, false );
@@ -107,7 +105,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
-    public void testApacheSchemaLoad() throws NamingException
+    public void testApacheSchemaLoad() throws Exception
     {
         testSystemSchemaLoad();
         ApacheSchema apacheSchema = new ApacheSchema();
@@ -125,7 +123,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
-    public void testEveDepsSchemaLoad() throws NamingException
+    public void testEveDepsSchemaLoad() throws Exception
     {
         Set<Schema> schemas = new HashSet<Schema>();
         schemas.add( new ApacheSchema() );
@@ -144,7 +142,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
-    public void testCoreSchemaLoad() throws NamingException
+    public void testCoreSchemaLoad() throws Exception
     {
         testSystemSchemaLoad();
         CoreSchema coreSchema = new CoreSchema();
@@ -162,7 +160,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
-    public void testCoreDepsSchemaLoad() throws NamingException
+    public void testCoreDepsSchemaLoad() throws Exception
     {
         Set<Schema> schemas = new HashSet<Schema>();
         schemas.add( new CoreSchema() );
@@ -187,7 +185,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
      *
      * @throws NamingException if there are problems.
      */
-    public void testReferentialIntegrity() throws NamingException
+    public void testReferentialIntegrity() throws Exception
     {
         if ( System.getProperties().containsKey( "ignore.ref.integ.test" ) )
         {

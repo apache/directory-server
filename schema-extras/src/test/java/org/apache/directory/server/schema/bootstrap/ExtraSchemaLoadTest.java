@@ -64,7 +64,7 @@ public class ExtraSchemaLoadTest extends TestCase
     }
 
 
-    public void testLoadAll() throws NamingException
+    public void testLoadAll() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         Set<Schema> schemas = new HashSet<Schema>();
@@ -130,7 +130,7 @@ public class ExtraSchemaLoadTest extends TestCase
     }
 
 
-    public void testApacheSchemaLoad() throws NamingException
+    public void testApacheSchemaLoad() throws Exception
     {
         ApacheSchema apacheSchema = new ApacheSchema();
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
@@ -149,7 +149,7 @@ public class ExtraSchemaLoadTest extends TestCase
     }
 
 
-    public void testDepsSchemaLoad() throws NamingException
+    public void testDepsSchemaLoad() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
 
@@ -189,7 +189,7 @@ public class ExtraSchemaLoadTest extends TestCase
     }
 
 
-    public void testJavaSchemaLoad() throws NamingException
+    public void testJavaSchemaLoad() throws Exception
     {
         testCoreSchemaLoad();
 
@@ -209,7 +209,7 @@ public class ExtraSchemaLoadTest extends TestCase
     }
 
 
-    public void testJavaDepsSchemaLoad() throws NamingException
+    public void testJavaDepsSchemaLoad() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
 
@@ -231,7 +231,7 @@ public class ExtraSchemaLoadTest extends TestCase
     }
 
 
-    public void testApacheAndJavaDepsSchemaLoad() throws NamingException
+    public void testApacheAndJavaDepsSchemaLoad() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
 
@@ -260,7 +260,7 @@ public class ExtraSchemaLoadTest extends TestCase
      *
      * @throws NamingException if there are problems.
      */
-    public void testReferentialIntegrity() throws NamingException
+    public void testReferentialIntegrity() throws Exception
     {
         if ( System.getProperties().containsKey( "ignore.ref.integ.test" ) )
         {
