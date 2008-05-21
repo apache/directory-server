@@ -23,7 +23,6 @@ package org.apache.directory.server.dns.store.jndi;
 
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.DirectoryService;
@@ -59,7 +58,7 @@ public class SingleBaseSearch implements SearchStrategy
         try
         {
             ctx = directoryService.getJndiContext( searchBaseDn );
-        } catch ( NamingException e )
+        } catch ( Exception e )
         {
             throw new ServiceConfigurationException( "Can't get context at" + searchBaseDn, e );
         }
