@@ -61,7 +61,6 @@ import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -117,11 +116,11 @@ public class TriggerInterceptor extends BaseInterceptor
      * @param triggerSpecs the collection of trigger specifications to add to
      * @param dn the normalized distinguished name of the entry
      * @param entry the target entry that is considered as the trigger source
-     * @throws NamingException if there are problems accessing attribute values
+     * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy 
      */
     private void addPrescriptiveTriggerSpecs( List<TriggerSpecification> triggerSpecs, PartitionNexusProxy proxy,
-        LdapDN dn, ServerEntry entry ) throws NamingException
+        LdapDN dn, ServerEntry entry ) throws Exception
     {
         
         /*
@@ -161,9 +160,9 @@ public class TriggerInterceptor extends BaseInterceptor
      *
      * @param triggerSpecs the collection of trigger specifications to add to
      * @param entry the target entry that is considered as the trigger source
-     * @throws NamingException if there are problems accessing attribute values
+     * @throws Exception if there are problems accessing attribute values
      */
-    private void addEntryTriggerSpecs( List<TriggerSpecification> triggerSpecs, ServerEntry entry ) throws NamingException
+    private void addEntryTriggerSpecs( List<TriggerSpecification> triggerSpecs, ServerEntry entry ) throws Exception
     {
         EntryAttribute entryTrigger = entry.get( ENTRY_TRIGGER_ATTR );
         
@@ -230,7 +229,7 @@ public class TriggerInterceptor extends BaseInterceptor
     // Interceptor Overrides
     ////////////////////////////////////////////////////////////////////////////
     
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
         super.init( directoryService );
         registries = directoryService.getRegistries();
@@ -240,7 +239,7 @@ public class TriggerInterceptor extends BaseInterceptor
         triggerParser = new TriggerSpecificationParser
             ( new NormalizerMappingResolver()
                 {
-                    public Map<String, OidNormalizer> getNormalizerMapping() throws NamingException
+                    public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
                     {
                         return attrRegistry.getNormalizerMapping();
                     }
@@ -259,7 +258,7 @@ public class TriggerInterceptor extends BaseInterceptor
         this.enabled = true; // TODO: Get this from the configuration if needed.
     }
 
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
     	LdapDN name = addContext.getDn();
     	ServerEntry entry = addContext.getEntry();
@@ -295,7 +294,7 @@ public class TriggerInterceptor extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
 
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws Exception
     {
     	LdapDN name = deleteContext.getDn();
     	
@@ -329,7 +328,7 @@ public class TriggerInterceptor extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -364,7 +363,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
     
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
     {
         LdapDN name = renameContext.getDn();
         Rdn newRdn = renameContext.getNewRdn();
@@ -410,7 +409,7 @@ public class TriggerInterceptor extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws NamingException
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws Exception
     {
         LdapDN oriChildName = moveAndRenameContext.getDn();
         LdapDN parent = moveAndRenameContext.getParent();
@@ -487,7 +486,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
     
     
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws Exception
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -566,7 +565,7 @@ public class TriggerInterceptor extends BaseInterceptor
     // Utility Methods
     ////////////////////////////////////////////////////////////////////////////
     
-    private Object executeTriggers( List<TriggerSpecification> triggerSpecs, StoredProcedureParameterInjector injector, ServerLdapContext callerRootCtx ) throws NamingException
+    private Object executeTriggers( List<TriggerSpecification> triggerSpecs, StoredProcedureParameterInjector injector, ServerLdapContext callerRootCtx ) throws Exception
     {
         Object result = null;
 
@@ -590,7 +589,7 @@ public class TriggerInterceptor extends BaseInterceptor
         return result;
     }
 
-    private Object executeTrigger( TriggerSpecification tsec, StoredProcedureParameterInjector injector, ServerLdapContext callerRootCtx ) throws NamingException
+    private Object executeTrigger( TriggerSpecification tsec, StoredProcedureParameterInjector injector, ServerLdapContext callerRootCtx ) throws Exception
     {
     	List<Object> returnValues = new ArrayList<Object>();
     	List<SPSpec> spSpecs = tsec.getSPSpecs();
@@ -607,7 +606,7 @@ public class TriggerInterceptor extends BaseInterceptor
     }
 
     
-    private Object executeProcedure( ServerLdapContext ctx, String procedure, Object[] values ) throws NamingException
+    private Object executeProcedure( ServerLdapContext ctx, String procedure, Object[] values ) throws Exception
     {
         
         try
@@ -616,7 +615,7 @@ public class TriggerInterceptor extends BaseInterceptor
             StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
             return engine.invokeProcedure( ctx, procedure, values );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             LdapNamingException lne = new LdapNamingException( ResultCodeEnum.OTHER );
             lne.setRootCause( e );

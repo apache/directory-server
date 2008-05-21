@@ -24,6 +24,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -31,7 +32,6 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
-import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -73,8 +73,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
@@ -134,7 +132,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private AttributeType objectClassType;
 
 
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
@@ -147,7 +145,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         ssParser = new SubtreeSpecificationParser( new NormalizerMappingResolver()
         {
-            public Map<String, OidNormalizer> getNormalizerMapping() throws NamingException
+            public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
             {
                 return atRegistry.getNormalizerMapping();
             }
@@ -170,15 +168,14 @@ public class SubentryInterceptor extends BaseInterceptor
             //suffix = LdapDN.normalize( suffix, registry.getNormalizerMapping() );
             suffix.normalize( atRegistry.getNormalizerMapping() );
 
-            NamingEnumeration<ServerSearchResult> subentries = nexus.search( new SearchOperationContext( registries,
+            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
                 suffix, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
-            while ( subentries.hasMore() )
+            while ( subentries.next() )
             {
-                ServerSearchResult result = subentries.next();
-                LdapDN dnName = new LdapDN( result.getDn() );
+                ServerEntry subentry = subentries.get();
+                LdapDN dnName = subentry.getDn();
 
-                ServerEntry subentry = result.getServerEntry();
                 String subtree = subentry.get( SchemaConstants.SUBTREE_SPECIFICATION_AT ).getString();
                 SubtreeSpecification ss;
 
@@ -199,7 +196,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    private int getSubentryTypes( ServerEntry subentry ) throws NamingException
+    private int getSubentryTypes( ServerEntry subentry ) throws Exception
     {
         int types = 0;
 
@@ -239,26 +236,27 @@ public class SubentryInterceptor extends BaseInterceptor
     // Methods/Code dealing with Subentry Visibility
     // -----------------------------------------------------------------------
 
-    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext )
-        throws NamingException
+    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext )
+        throws Exception
     {
-        NamingEnumeration<ServerSearchResult> result = nextInterceptor.list( opContext );
+        Cursor<ServerEntry> result = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
 
         if ( !isSubentryVisible( invocation ) )
         {
-            return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation,
-                new HideSubentriesFilter(), "List Subentry filter" );
+            // TODO FixMe
+            //return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation,
+            //    new HideSubentriesFilter(), "List Subentry filter" );
         }
 
         return result;
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor,
-        SearchOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor,
+        SearchOperationContext opContext ) throws Exception
     {
-        NamingEnumeration<ServerSearchResult> result = nextInterceptor.search( opContext );
+        Cursor<ServerEntry> result = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         SearchControls searchCtls = opContext.getSearchControls();
 
@@ -271,13 +269,17 @@ public class SubentryInterceptor extends BaseInterceptor
         // for subtree and one level scope we filter
         if ( !isSubentryVisible( invocation ) )
         {
-            return new SearchResultFilteringEnumeration( result, searchCtls, invocation, new HideSubentriesFilter(),
-                "Search Subentry filter hide subentries" );
+            // TODO FixMe
+            //return new SearchResultFilteringEnumeration( result, searchCtls, invocation, new HideSubentriesFilter(),
+            //    "Search Subentry filter hide subentries" );
+            return null;
         }
         else
         {
-            return new SearchResultFilteringEnumeration( result, searchCtls, invocation, new HideEntriesFilter(),
-                "Search Subentry filter hide entries" );
+            // TODO FixMe
+            //return new SearchResultFilteringEnumeration( result, searchCtls, invocation, new HideEntriesFilter(),
+            //    "Search Subentry filter hide entries" );
+            return null;
         }
     }
 
@@ -288,9 +290,9 @@ public class SubentryInterceptor extends BaseInterceptor
      *
      * @param invocation the invocation object to use for determining subentry visibility
      * @return true if subentries should be visible, false otherwise
-     * @throws NamingException if there are problems accessing request controls
+     * @throws Exception if there are problems accessing request controls
      */
-    private boolean isSubentryVisible( Invocation invocation ) throws NamingException
+    private boolean isSubentryVisible( Invocation invocation ) throws Exception
     {
         Control[] reqControls = ( ( LdapContext ) invocation.getCaller() ).getRequestControls();
 
@@ -326,9 +328,9 @@ public class SubentryInterceptor extends BaseInterceptor
      * @param dn the normalized distinguished name of the entry
      * @param entryAttrs the entry attributes are generated for
      * @return the set of subentry op attrs for an entry
-     * @throws NamingException if there are problems accessing entry information
+     * @throws Exception if there are problems accessing entry information
      */
-    public ServerEntry getSubentryAttributes( LdapDN dn, ServerEntry entryAttrs ) throws NamingException
+    public ServerEntry getSubentryAttributes( LdapDN dn, ServerEntry entryAttrs ) throws Exception
     {
         ServerEntry subentryAttrs = new DefaultServerEntry( registries, dn );
         Iterator<String> list = subentryCache.nameIterator();
@@ -405,7 +407,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
         LdapDN name = addContext.getDn();
         ServerEntry entry = addContext.getEntry();
@@ -483,15 +485,14 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-            NamingEnumeration<ServerSearchResult> subentries = nexus.search( new SearchOperationContext( registries,
+            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
-            while ( subentries.hasMore() )
+            while ( subentries.next() )
             {
-                ServerSearchResult result = subentries.next();
-                LdapDN dn = result.getDn();
+                ServerEntry candidate = subentries.get();
+                LdapDN dn = candidate.getDn();
                 dn.normalize( atRegistry.getNormalizerMapping() );
-                ServerEntry candidate = result.getServerEntry();
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -588,7 +589,7 @@ public class SubentryInterceptor extends BaseInterceptor
     // Methods dealing subentry deletion
     // -----------------------------------------------------------------------
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         LdapDN name = opContext.getDn();
         ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
@@ -618,15 +619,14 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-            NamingEnumeration<ServerSearchResult> subentries = nexus.search( new SearchOperationContext( registries,
+            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
-            while ( subentries.hasMore() )
+            while ( subentries.next() )
             {
-                ServerSearchResult result = subentries.next();
-                LdapDN dn = new LdapDN( result.getDn() );
+                ServerEntry candidate = subentries.get();
+                LdapDN dn = new LdapDN( candidate.getDn() );
                 dn.normalize( atRegistry.getNormalizerMapping() );
-                ServerEntry candidate = result.getServerEntry();
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -653,17 +653,17 @@ public class SubentryInterceptor extends BaseInterceptor
      * @param name the name of the entry which is used as the search base
      * @return true if name is an administrative point or one of its descendants
      * are, false otherwise
-     * @throws NamingException if there are errors while searching the directory
+     * @throws Exception if there are errors while searching the directory
      */
-    private boolean hasAdministrativeDescendant( LdapDN name ) throws NamingException
+    private boolean hasAdministrativeDescendant( LdapDN name ) throws Exception
     {
         ExprNode filter = new PresenceNode( "administrativeRole" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration<ServerSearchResult> aps = nexus.search( new SearchOperationContext( registries, name,
+        Cursor<ServerEntry> aps = nexus.search( new SearchOperationContext( registries, name,
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
-        if ( aps.hasMore() )
+        if ( aps.next() )
         {
             aps.close();
             return true;
@@ -674,7 +674,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
 
     private List<Modification> getModsOnEntryRdnChange( Name oldName, Name newName, ServerEntry entry )
-        throws NamingException
+        throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();
 
@@ -747,7 +747,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
         LdapDN name = opContext.getDn();
 
@@ -778,16 +778,15 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            NamingEnumeration<ServerSearchResult> subentries = nexus.search( new SearchOperationContext( registries,
+            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
-            while ( subentries.hasMore() )
+            while ( subentries.next() )
             {
-                ServerSearchResult result = subentries.next();
-                LdapDN dn = result.getDn();
+                ServerEntry candidate = subentries.get();
+                LdapDN dn = candidate.getDn();
                 dn.normalize( atRegistry.getNormalizerMapping() );
 
-                ServerEntry candidate = result.getServerEntry();
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -823,7 +822,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws NamingException
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
     {
         LdapDN oriChildName = opContext.getDn();
         LdapDN parent = opContext.getParent();
@@ -856,15 +855,14 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            NamingEnumeration<ServerSearchResult> subentries = nexus.search( new SearchOperationContext( registries,
+            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
-            while ( subentries.hasMore() )
+            while ( subentries.next() )
             {
-                ServerSearchResult result = subentries.next();
-                LdapDN dn = result.getDn();
+                ServerEntry candidate = subentries.get();
+                LdapDN dn = candidate.getDn();
                 dn.normalize( atRegistry.getNormalizerMapping() );
-                ServerEntry candidate = result.getServerEntry();
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -899,7 +897,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
         LdapDN oriChildName = opContext.getDn();
         LdapDN newParentName = opContext.getParent();
@@ -931,15 +929,14 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            NamingEnumeration<ServerSearchResult> subentries = nexus.search( new SearchOperationContext( registries,
+            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
-            while ( subentries.hasMore() )
+            while ( subentries.next() )
             {
-                ServerSearchResult result = subentries.next();
-                LdapDN dn = result.getDn();
+                ServerEntry candidate = subentries.get();
+                LdapDN dn = candidate.getDn();
                 dn.normalize( atRegistry.getNormalizerMapping() );
-                ServerEntry candidate = result.getServerEntry();
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -977,7 +974,7 @@ public class SubentryInterceptor extends BaseInterceptor
     // Methods dealing subentry modification
     // -----------------------------------------------------------------------
 
-    private int getSubentryTypes( ServerEntry entry, List<Modification> mods ) throws NamingException
+    private int getSubentryTypes( ServerEntry entry, List<Modification> mods ) throws Exception
     {
         ServerAttribute ocFinalState = ( ServerAttribute ) entry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
 
@@ -1016,7 +1013,7 @@ public class SubentryInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         LdapDN name = opContext.getDn();
         List<Modification> mods = opContext.getModItems();
@@ -1066,15 +1063,14 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            NamingEnumeration<ServerSearchResult> subentries = nexus.search( new SearchOperationContext( registries,
+            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
                 oldBaseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
-            while ( subentries.hasMore() )
+            while ( subentries.next() )
             {
-                ServerSearchResult result = subentries.next();
-                LdapDN dn = result.getDn();
+                ServerEntry candidate = subentries.get();
+                LdapDN dn = candidate.getDn();
                 dn.normalize( atRegistry.getNormalizerMapping() );
-                ServerEntry candidate = result.getServerEntry();
 
                 if ( evaluator.evaluate( ssOld, apName, dn, candidate ) )
                 {
@@ -1090,12 +1086,12 @@ public class SubentryInterceptor extends BaseInterceptor
             newBaseDn.addAll( ssNew.getBase() );
             subentries = nexus.search( new SearchOperationContext( registries, newBaseDn,
                 AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
-            while ( subentries.hasMore() )
+            
+            while ( subentries.next() )
             {
-                ServerSearchResult result = subentries.next();
-                LdapDN dn = result.getDn();
+                ServerEntry candidate = subentries.get();
+                LdapDN dn = candidate.getDn();
                 dn.normalize( atRegistry.getNormalizerMapping() );
-                ServerEntry candidate = result.getServerEntry();
 
                 if ( evaluator.evaluate( ssNew, apName, dn, candidate ) )
                 {
@@ -1128,7 +1124,7 @@ public class SubentryInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
 
     private List<Modification> getOperationalModsForReplace( Name oldName, Name newName, Subentry subentry,
-        ServerEntry entry ) throws NamingException
+        ServerEntry entry ) throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();
 
@@ -1222,7 +1218,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @param subentry the subentry to get attributes from
      * @return the set of attributes to be added or removed from entries
      */
-    private ServerEntry getSubentryOperatationalAttributes( LdapDN name, Subentry subentry ) throws NamingException
+    private ServerEntry getSubentryOperatationalAttributes( LdapDN name, Subentry subentry ) throws Exception
     {
         ServerEntry operational = new DefaultServerEntry( registries, name );
 
@@ -1289,7 +1285,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * a subentry
      */
     private List<Modification> getOperationalModsForRemove( LdapDN subentryDn, ServerEntry candidate )
-        throws NamingException
+        throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();
         String dn = subentryDn.toNormName();
@@ -1323,10 +1319,10 @@ public class SubentryInterceptor extends BaseInterceptor
      * @param operational the set of operational attributes supported by the AP
      * of the subentry
      * @return the set of modifications needed to update the entry
-     * @throws NamingException if there are probelms accessing modification items
+     * @throws Exception if there are probelms accessing modification items
      */
     public List<Modification> getOperationalModsForAdd( ServerEntry entry, ServerEntry operational )
-        throws NamingException
+        throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();
 
@@ -1366,7 +1362,7 @@ public class SubentryInterceptor extends BaseInterceptor
     public class HideSubentriesFilter implements SearchResultFilter
     {
         public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-            throws NamingException
+            throws Exception
         {
             String dn = result.getDn().getNormName();
 
@@ -1409,7 +1405,7 @@ public class SubentryInterceptor extends BaseInterceptor
     public class HideEntriesFilter implements SearchResultFilter
     {
         public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-            throws NamingException
+            throws Exception
         {
             String dn = result.getDn().getNormName();
 
@@ -1446,7 +1442,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
 
     private List<Modification> getModsOnEntryModification( LdapDN name, ServerEntry oldEntry, ServerEntry newEntry )
-        throws NamingException
+        throws Exception
     {
         List<Modification> modList = new ArrayList<Modification>();
 
