@@ -35,7 +35,6 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -79,7 +78,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     }
 
 
-    private ServerEntry getTlsEntry() throws NamingException
+    private ServerEntry getTlsEntry() throws Exception
     {
         LdapDN adminDn = PartitionNexus.getAdminName();
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE );
@@ -141,7 +140,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
                 ServerEntry entry = getTlsEntry();
                 return TlsKeyGenerator.getCertificate( entry );
             }
-            catch ( NamingException e )
+            catch ( Exception e )
             {
                 LOG.error( "Failed to access certificate in DIT.", e );
             }
