@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.schema.*;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;import static org.junit.Assert.assertTrue;import static org.junit.Assert.assertFalse;
@@ -50,10 +49,6 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.*;
-
-import jdbm.helper.StringComparator;
-
-import javax.naming.NamingException;
 
 
 /**
