@@ -31,6 +31,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.jndi.JndiUtils;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.referral.ReferralLut;
 import org.apache.directory.server.schema.registries.Registries;
@@ -189,7 +190,14 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<ServerSear
         {
             LdapDN prefetchedDn = new LdapDN( prefetched.getDn() );
             prefetchedDn.normalize( normalizerMap );
-            refs = nexus.lookup( new LookupOperationContext( registries, prefetchedDn ) ).get( SchemaConstants.REF_AT );
+            try
+            {
+                refs = nexus.lookup( new LookupOperationContext( registries, prefetchedDn ) ).get( SchemaConstants.REF_AT );
+            }
+            catch ( Exception e )
+            {
+                JndiUtils.wrap( e );
+            }
         }
 
         if ( refs == null )

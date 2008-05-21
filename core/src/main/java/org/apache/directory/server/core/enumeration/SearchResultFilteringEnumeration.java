@@ -37,6 +37,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.invocation.Invocation;
+import org.apache.directory.server.core.jndi.JndiUtils;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
@@ -313,7 +314,14 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Serve
             }
             else if ( filters.size() == 1 )
             {
-                accepted = filters.get( 0 ).accept( invocation, tmp, searchControls );
+                try
+                {
+                    accepted = filters.get( 0 ).accept( invocation, tmp, searchControls );
+                }
+                catch ( Exception e )
+                {
+                    JndiUtils.wrap( e );
+                }
                 if ( accepted )
                 {
                     this.prefetched = tmp;
@@ -328,7 +336,14 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Serve
             for ( int ii = 0; ii < filters.size(); ii++ )
             {
                 SearchResultFilter filter = filters.get( ii );
-                accepted &= filter.accept( invocation, tmp, searchControls );
+                try
+                {
+                    accepted &= filter.accept( invocation, tmp, searchControls );
+                }
+                catch ( Exception e )
+                {
+                    JndiUtils.wrap( e );
+                }
 
                 if ( !accepted )
                 {

@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.changelog;
 
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
@@ -42,7 +43,6 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -215,7 +215,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
     // Overridden (only change inducing) intercepted methods
     // -----------------------------------------------------------------------
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         StringBuilder buf;
         next.add( opContext );
@@ -247,7 +247,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
      * The delete operation has to be stored with a way to restore the deleted element.
      * There is no way to do that but reading the entry and dump it into the LOG.
      */
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         next.delete( opContext );
 
@@ -278,7 +278,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
     }
 
     
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         StringBuilder buf;
         next.modify( opContext );
@@ -323,7 +323,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
     // -----------------------------------------------------------------------
 
     
-    public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws NamingException
+    public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
     {
         next.rename( renameContext );
         
@@ -360,7 +360,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
 
     
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameOperationContext )
-        throws NamingException
+        throws Exception
     {
         next.moveAndRename( moveAndRenameOperationContext );
         
@@ -397,7 +397,7 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
     }
 
     
-    public void move ( NextInterceptor next, MoveOperationContext moveOperationContext ) throws NamingException
+    public void move ( NextInterceptor next, MoveOperationContext moveOperationContext ) throws Exception
     {
         next.move( moveOperationContext );
         
@@ -444,9 +444,9 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
      * @param buf the buffer written to and returned (for chaining)
      * @param attr the attribute written to the buffer
      * @return the buffer argument to allow for call chaining.
-     * @throws NamingException if the attribute is not identified by the registry
+     * @throws Exception if the attribute is not identified by the registry
      */
-    private StringBuilder append( StringBuilder buf, ServerAttribute attr ) throws NamingException
+    private StringBuilder append( StringBuilder buf, ServerAttribute attr ) throws Exception
     {
         String id = attr.getId();
         boolean isBinary = ! atRegistry.lookup( id ).getSyntax().isHumanReadable();
@@ -500,9 +500,9 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
      * the user is anonymous "" is returned.
      * 
      * @return the DN of the user executing the current intercepted operation
-     * @throws NamingException if we cannot access the interceptor stack
+     * @throws Exception if we cannot access the interceptor stack
      */
-    private String getPrincipalName() throws NamingException
+    private String getPrincipalName() throws Exception
     {
         ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
         return ctx.getPrincipal().getName();
@@ -522,9 +522,9 @@ public class OriginalChangeLogInterceptor extends BaseInterceptor implements Run
      * @param mod the modified values if any for that attribute
      * @param modOp the modification operation as a string followd by ": "
      * @return the buffer argument provided for chaining
-     * @throws NamingException if the modification attribute id is undefined
+     * @throws Exception if the modification attribute id is undefined
      */
-    private StringBuilder append( StringBuilder buf, ServerAttribute mod, String modOp ) throws NamingException
+    private StringBuilder append( StringBuilder buf, ServerAttribute mod, String modOp ) throws Exception
     {
         buf.append( "\n" );
         buf.append( modOp );

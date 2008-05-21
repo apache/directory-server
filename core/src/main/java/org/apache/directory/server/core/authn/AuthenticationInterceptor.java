@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -61,8 +61,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 
 
 /**
@@ -94,7 +92,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
      */
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
 
         if ( authenticators == null )
@@ -153,9 +151,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
      *
      * @param authenticator Authenticator to initialize and register by type
      * @param directoryService configuration info to supply to the Authenticator during initialization
-     * @throws javax.naming.NamingException if initialization fails.
+     * @throws javax.naming.Exception if initialization fails.
      */
-    private void register( Authenticator authenticator, DirectoryService directoryService ) throws NamingException
+    private void register( Authenticator authenticator, DirectoryService directoryService ) throws Exception
     {
         authenticator.init( directoryService );
 
@@ -191,7 +189,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -205,7 +203,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -218,7 +216,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public LdapDN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws NamingException
+    public LdapDN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -230,7 +228,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException
+    public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -242,7 +240,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public LdapDN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws NamingException
+    public LdapDN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -254,7 +252,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -266,7 +264,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<ServerSearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -278,7 +276,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public Iterator<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException
+    public Iterator<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -290,7 +288,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -325,7 +323,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -338,7 +336,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -354,7 +352,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
-            throws NamingException
+            throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -370,7 +368,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -384,7 +382,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -396,7 +394,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    private void checkAuthenticated( MessageTypeEnum operation ) throws NamingException
+    private void checkAuthenticated( MessageTypeEnum operation ) throws Exception
     {
         try
         {
@@ -410,7 +408,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
     }
 
-    private void checkAuthenticated() throws NamingException
+    private void checkAuthenticated() throws Exception
     {
         ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
 
@@ -428,8 +426,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void bind( NextInterceptor next, BindOperationContext opContext )
-            throws NamingException
+    public void bind( NextInterceptor next, BindOperationContext opContext ) throws Exception
     {
         // The DN is always normalized here
         LdapDN normBindDn = opContext.getDn();

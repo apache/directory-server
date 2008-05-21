@@ -49,8 +49,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
-
 
 /**
  * An interceptor which intercepts write operations to the directory and
@@ -90,7 +88,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     // Overridden (only change inducing) intercepted methods
     // -----------------------------------------------------------------------
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         next.add( opContext );
 
@@ -121,7 +119,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
      * The delete operation has to be stored with a way to restore the deleted element.
      * There is no way to do that but reading the entry and dump it into the LOG.
      */
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         // @todo make sure we're not putting in operational attributes that cannot be user modified
         // must save the entry if change log is enabled
@@ -152,9 +150,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
      *
      * @param dn the dn of the entry to get
      * @return the entry's attributes (may be immutable if the schema subentry)
-     * @throws NamingException on error accessing the entry's attributes
+     * @throws Exception on error accessing the entry's attributes
      */
-    private ServerEntry getAttributes( OperationContext opContext ) throws NamingException
+    private ServerEntry getAttributes( OperationContext opContext ) throws Exception
     {
         LdapDN dn = opContext.getDn();
         ServerEntry serverEntry;
@@ -176,7 +174,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         ServerEntry serverEntry = null;
         Modification modification = ServerEntryUtils.getModificationItem( opContext.getModItems(), entryDeleted );
@@ -224,7 +222,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
 
 
-    public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws NamingException
+    public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
     {
         ServerEntry serverEntry = null;
         
@@ -254,7 +252,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opCtx )
-        throws NamingException
+        throws Exception
     {
         ServerEntry serverEntry = null;
         
@@ -287,7 +285,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     }
 
 
-    public void move ( NextInterceptor next, MoveOperationContext opCtx ) throws NamingException
+    public void move ( NextInterceptor next, MoveOperationContext opCtx ) throws Exception
     {
         next.move( opCtx );
 

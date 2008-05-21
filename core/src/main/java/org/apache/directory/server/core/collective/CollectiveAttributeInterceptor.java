@@ -20,12 +20,13 @@
 package org.apache.directory.server.core.collective;
 
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
-import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -44,7 +45,6 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import java.util.HashSet;
@@ -329,22 +329,28 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        NamingEnumeration<ServerSearchResult> result = nextInterceptor.list( opContext );
+        Cursor<ServerEntry> result = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         
-        return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, SEARCH_FILTER, "List collective Filter" );
+//        return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, SEARCH_FILTER, "List collective Filter" );
+        
+        // TODO not implemented
+        throw new NotImplementedException();
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
-        NamingEnumeration<ServerSearchResult> result = nextInterceptor.search( opContext );
+        Cursor<ServerEntry> result = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         
-        return new SearchResultFilteringEnumeration( 
-            result, opContext.getSearchControls(), invocation, SEARCH_FILTER, "Search collective Filter" );
+//        return new SearchResultFilteringEnumeration( 
+//            result, opContext.getSearchControls(), invocation, SEARCH_FILTER, "Search collective Filter" );
+        
+        // TODO not implemented
+        throw new NotImplementedException();
     }
     
     // ------------------------------------------------------------------------

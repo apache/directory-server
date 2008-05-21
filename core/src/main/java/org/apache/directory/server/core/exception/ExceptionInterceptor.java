@@ -22,9 +22,10 @@ package org.apache.directory.server.core.exception;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.EmptyCursor;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -58,10 +59,6 @@ import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedExcep
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
-import org.apache.directory.shared.ldap.util.EmptyEnumeration;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 
 import java.util.List;
 import java.util.Map;
@@ -156,7 +153,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         // check if the entry already exists
         if ( nextInterceptor.hasEntry( new EntryOperationContext( registries, name ) ) )
         {
-            NamingException ne = new LdapNameAlreadyBoundException( name.getUpName() + " already exists!" );
+            LdapNameAlreadyBoundException ne = new LdapNameAlreadyBoundException( name.getUpName() + " already exists!" );
             ne.setResolvedName( new LdapDN( name.getUpName() ) );
             throw ne;
         }
@@ -196,7 +193,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             {
                 String msg = "Attempt to add entry to alias '" + name.getUpName() + "' not allowed.";
                 ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
-                NamingException e = new LdapNamingException( msg, rc );
+                LdapNamingException e = new LdapNamingException( msg, rc );
                 e.setResolvedName( new LdapDN( parentDn.getUpName() ) );
                 throw e;
             }
@@ -235,9 +232,9 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         // check if entry to delete has children (only leaves can be deleted)
         boolean hasChildren = false;
-        NamingEnumeration<ServerSearchResult> list = nextInterceptor.list( new ListOperationContext( registries, name ) );
+        Cursor<ServerEntry> list = nextInterceptor.list( new ListOperationContext( registries, name ) );
         
-        if ( list.hasMore() )
+        if ( list.next() )
         {
             hasChildren = true;
         }
@@ -266,12 +263,12 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
         if ( opContext.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
             // there is nothing under the schema subentry
-            return new EmptyEnumeration<ServerSearchResult>();
+            return new EmptyCursor<ServerEntry>();
         }
         
         // check if entry to search exists
@@ -519,15 +516,15 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the entry being searched exists, otherwise throws the appropriate LdapException.
      */
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
+    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
         LdapDN base = opContext.getDn();
 
         try
         {
-	        NamingEnumeration<ServerSearchResult> result =  nextInterceptor.search( opContext );
+            Cursor<ServerEntry> result =  nextInterceptor.search( opContext );
 	        
-	        if ( ! result.hasMoreElements() )
+	        if ( ! result.next() )
 	        {
 	            if ( !base.isEmpty() && !( subschemSubentryDn.toNormName() ).equalsIgnoreCase( base.toNormName() ) )
 	            {

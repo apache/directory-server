@@ -20,16 +20,17 @@
 package org.apache.directory.server.core.authz;
 
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
-import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -71,8 +72,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import java.text.ParseException;
@@ -197,7 +196,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * the tupe and group membership caches and the ACIItem parser and the ACDF engine.
      *
      * @param directoryService the directory service core
-     * @throws NamingException if there are problems during initialization
+     * @throws Exception if there are problems during initialization
      */
     public void init( DirectoryService directoryService ) throws Exception
     {
@@ -233,7 +232,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectCriticalEntries( LdapDN dn ) throws NamingException
+    private void protectCriticalEntries( LdapDN dn ) throws Exception
     {
         LdapDN principalDn = getPrincipal().getJndiName();
 
@@ -267,11 +266,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param tuples the collection of tuples to add to
      * @param dn the normalized distinguished name of the protected entry
      * @param entry the target entry that access to is being controled
-     * @throws NamingException if there are problems accessing attribute values
+     * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */
     private void addPerscriptiveAciTuples( PartitionNexusProxy proxy, Collection<ACITuple> tuples, LdapDN dn,
-        ServerEntry entry ) throws NamingException
+        ServerEntry entry ) throws Exception
     {
         EntryAttribute oc = entry.get( objectClassType );
         
@@ -312,9 +311,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      *
      * @param tuples the collection of tuples to add to
      * @param entry the target entry that access to is being regulated
-     * @throws NamingException if there are problems accessing attribute values
+     * @throws Exception if there are problems accessing attribute values
      */
-    private void addEntryAciTuples( Collection<ACITuple> tuples, ServerEntry entry ) throws NamingException
+    private void addEntryAciTuples( Collection<ACITuple> tuples, ServerEntry entry ) throws Exception
     {
         EntryAttribute entryAci = entry.get( entryAciType );
         
@@ -351,11 +350,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param tuples the collection of tuples to add to
      * @param dn the normalized distinguished name of the protected entry
      * @param entry the target entry that access to is being regulated
-     * @throws NamingException if there are problems accessing attribute values
+     * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */
     private void addSubentryAciTuples( PartitionNexusProxy proxy, Collection<ACITuple> tuples, LdapDN dn, ServerEntry entry )
-        throws NamingException
+        throws Exception
     {
         // only perform this for subentries
         if ( !entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
@@ -425,7 +424,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * -------------------------------------------------------------------------------
      */
 
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -502,7 +501,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws Exception
     {
     	LdapDN name = deleteContext.getDn();
     	
@@ -548,7 +547,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -669,7 +668,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         groupCache.groupModified( name, mods, entry, registries );
     }
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext entryContext ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext entryContext ) throws Exception
     {
         LdapDN name = entryContext.getDn();
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -714,9 +713,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param principal the user associated with the call
      * @param dn the name of the entry being looked up
      * @param entry the raw entry pulled from the nexus
-     * @throws NamingException if undlying access to the DIT fails
+     * @throws Exception if undlying access to the DIT fails
      */
-    private void checkLookupAccess( LdapPrincipal principal, LdapDN dn, ServerEntry entry ) throws NamingException
+    private void checkLookupAccess( LdapPrincipal principal, LdapDN dn, ServerEntry entry ) throws Exception
     {
         // no permissions checks on the RootDSE
         if ( dn.toString().trim().equals( "" ) )
@@ -760,7 +759,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public ServerEntry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
@@ -783,7 +782,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         return next.lookup( lookupContext );
     }
 
-    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
     {
         LdapDN name = renameContext.getDn();
 
@@ -837,7 +836,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
-        throws NamingException
+        throws Exception
     {
         LdapDN oriChildName = moveAndRenameContext.getDn();
         LdapDN newParentName = moveAndRenameContext.getParent();
@@ -918,7 +917,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws Exception
     {
         LdapDN oriChildName = moveContext.getDn();
         LdapDN newParentName = moveContext.getParent();
@@ -996,12 +995,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
     
-    public NamingEnumeration<ServerSearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
-        NamingEnumeration<ServerSearchResult> e = next.list( opContext );
+        Cursor<ServerEntry> e = next.list( opContext );
         
         if ( isPrincipalAnAdministrator( user.getJndiName() ) || !enabled )
         {
@@ -1009,17 +1008,19 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
         
         AuthorizationFilter authzFilter = new AuthorizationFilter();
-        return new SearchResultFilteringEnumeration( e, DEFAULT_SEARCH_CONTROLS, invocation, authzFilter, "List authorization Filter" );
+//        return new SearchResultFilteringEnumeration( e, DEFAULT_SEARCH_CONTROLS, invocation, authzFilter, "List authorization Filter" );
+        // TODO NotImplementedException
+        throw new NotImplementedException();
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
         LdapDN principalDn = user.getJndiName();
-        NamingEnumeration<ServerSearchResult> e = next.search( opContext );
+        Cursor<ServerEntry> e = next.search( opContext );
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( opContext.getDn().getNormName() );
         SearchControls searchCtls = opContext.getSearchControls();
@@ -1031,7 +1032,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
         
         AuthorizationFilter authzFilter = new AuthorizationFilter();
-        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, authzFilter, "Search authorization Filter" );
+//        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, authzFilter, "Search authorization Filter" );
+        // TODO NotImplementedException
+        throw new NotImplementedException();
     }
 
     
@@ -1041,7 +1044,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
     
 
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws NamingException
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
     {
     	LdapDN name = opContext.getDn();
     	String oid = opContext.getOid();
@@ -1077,7 +1080,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -1120,13 +1123,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void cacheNewGroup( LdapDN name, ServerEntry entry ) throws NamingException
+    public void cacheNewGroup( LdapDN name, ServerEntry entry ) throws Exception
     {
         groupCache.groupAdded( name, entry );
     }
 
 
-    private boolean filter( Invocation invocation, LdapDN normName, ServerSearchResult result ) throws NamingException
+    private boolean filter( Invocation invocation, LdapDN normName, ServerSearchResult result ) throws Exception
     {
         ServerEntry resultEntry = result.getServerEntry();
 
@@ -1246,8 +1249,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      */
     class AuthorizationFilter implements SearchResultFilter
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-            throws NamingException
+        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls ) 
+            throws Exception
         {
             LdapDN normName = result.getDn().normalize( atRegistry.getNormalizerMapping() );
             return filter( invocation, normName, result );

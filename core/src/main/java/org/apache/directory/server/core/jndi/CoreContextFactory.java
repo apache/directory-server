@@ -71,8 +71,16 @@ public class CoreContextFactory implements InitialContextFactory
             return new DeadContext();
         }
 
-        ServerLdapContext ctx = ( ServerLdapContext ) service.getJndiContext( principalDn, principal, credential,
-                authentication, providerUrl );
+        ServerLdapContext ctx = null;
+        try
+        {
+            ctx = ( ServerLdapContext ) service.getJndiContext( principalDn, principal, credential,
+                    authentication, providerUrl );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+        }
 
         // check to make sure we have access to the specified dn in provider URL
         ctx.lookup( "" );

@@ -20,12 +20,12 @@
 package org.apache.directory.server.core.authz;
 
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.enumeration.SearchResultFilter;
-import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -53,10 +53,7 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
-import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
 import java.util.HashSet;
 import java.util.Map;
@@ -171,7 +168,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
 
-    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws Exception
     {
     	LdapDN name = opContext.getDn();
     	
@@ -280,7 +277,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectModifyAlterations( LdapDN dn ) throws NamingException
+    private void protectModifyAlterations( LdapDN dn ) throws Exception
     {
         LdapDN principalDn = getPrincipal().getJndiName();
 
@@ -344,7 +341,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     // ------------------------------------------------------------------------
 
     public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         if ( enabled )
         {
@@ -355,7 +352,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws Exception
     {
         if ( enabled )
         {
@@ -366,7 +363,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext ) throws NamingException
+    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext ) throws Exception
     {
         if ( enabled )
         {
@@ -377,7 +374,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectDnAlterations( LdapDN dn ) throws NamingException
+    private void protectDnAlterations( LdapDN dn ) throws Exception
     {
         LdapDN principalDn = getPrincipal().getJndiName();
 
@@ -425,7 +422,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
         ServerEntry serverEntry = nextInterceptor.lookup( opContext );
         
@@ -439,7 +436,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private void protectLookUp( LdapDN normalizedDn ) throws NamingException
+    private void protectLookUp( LdapDN normalizedDn ) throws Exception
     {
         LdapContext ctx = ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
         LdapDN principalDn = ( ( ServerContext ) ctx ).getPrincipal().getJndiName();
@@ -497,9 +494,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
-        NamingEnumeration<ServerSearchResult> e = nextInterceptor.search( opContext );
+        Cursor<ServerEntry> e = nextInterceptor.search( opContext );
 
         if ( !enabled )
         {
@@ -508,21 +505,23 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         Invocation invocation = InvocationStack.getInstance().peek();
 
-        return new SearchResultFilteringEnumeration( e, opContext.getSearchControls(), invocation, 
-            new SearchResultFilter()
-        {
-            public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-                throws NamingException
-            {
-                return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
-            }
-        }, "Search Default Authorization filter" );
+//        return new SearchResultFilteringEnumeration( e, opContext.getSearchControls(), invocation, 
+//            new SearchResultFilter()
+//        {
+//            public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
+//                throws Exception
+//            {
+//                return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
+//            }
+//        }, "Search Default Authorization filter" );
+        // TODO not implemented
+        throw new NotImplementedException();
     }
 
 
-    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        NamingEnumeration<ServerSearchResult> result = nextInterceptor.list( opContext );
+        Cursor<ServerEntry> result = nextInterceptor.list( opContext );
         
         if ( !enabled )
         {
@@ -531,18 +530,21 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         Invocation invocation = InvocationStack.getInstance().peek();
         
-        return new SearchResultFilteringEnumeration( result, null, invocation, new SearchResultFilter()
-        {
-            public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-                throws NamingException
-            {
-                return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
-            }
-        }, "List Default Authorization filter" );
+//        return new SearchResultFilteringEnumeration( result, null, invocation, new SearchResultFilter()
+//        {
+//            public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
+//                throws Exception
+//            {
+//                return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
+//            }
+//        }, "List Default Authorization filter" );
+        
+        // TODO not implemented
+        throw new NotImplementedException();
     }
 
 
-    private boolean isSearchable( Invocation invocation, ServerSearchResult result ) throws NamingException
+    private boolean isSearchable( Invocation invocation, ServerSearchResult result ) throws Exception
     {
         LdapDN principalDn = ( ( ServerContext ) invocation.getCaller() ).getPrincipal().getJndiName();
         LdapDN dn = result.getDn();

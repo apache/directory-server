@@ -61,7 +61,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param env the JNDI environment parameters
      * @throws NamingException the context cannot be created
      */
-    public ServerLdapContext( DirectoryService service, Hashtable<String, Object> env ) throws NamingException
+    public ServerLdapContext( DirectoryService service, Hashtable<String, Object> env ) throws Exception
     {
         super( service, env );
         refService = ( ( ReferralInterceptor ) service.getInterceptorChain().get( ReferralInterceptor.class.getName() ) );
@@ -234,7 +234,14 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         LdapDN principalDn = super.getPrincipal().getJndiName();
         UnbindOperationContext opCtx = new UnbindOperationContext( registries, principalDn );
         opCtx.addRequestControls( requestControls );
-        super.getNexusProxy().unbind( opCtx );
+        try
+        {
+            super.getNexusProxy().unbind( opCtx );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+        }
         responseControls = opCtx.getResponseControls();
         requestControls = EMPTY_CONTROLS;
     }

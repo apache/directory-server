@@ -566,13 +566,13 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public LdapContext getJndiContext() throws NamingException
+    public LdapContext getJndiContext() throws Exception
     {
         return this.getJndiContext( null, null, null, AuthenticationLevel.NONE.toString(), "" );
     }
 
 
-    public LdapContext getJndiContext( String dn ) throws NamingException
+    public LdapContext getJndiContext( String dn ) throws Exception
     {
         return this.getJndiContext( null, null, null, AuthenticationLevel.NONE.toString(), dn );
     }
@@ -591,7 +591,7 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     public synchronized LdapContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
-        String authentication, String rootDN ) throws NamingException
+        String authentication, String rootDN ) throws Exception
     {
         checkSecuritySettings( principal, credential, authentication );
 
@@ -961,7 +961,7 @@ public class DefaultDirectoryService implements DirectoryService
      * @return true if the bootstrap entries had to be created, false otherwise
      * @throws javax.naming.NamingException if entries cannot be created
      */
-    private boolean createBootstrapEntries() throws NamingException
+    private boolean createBootstrapEntries() throws Exception
     {
         boolean firstStart = false;
         
