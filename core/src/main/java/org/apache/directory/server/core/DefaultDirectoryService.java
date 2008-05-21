@@ -578,13 +578,13 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public LdapContext getJndiContext( LdapPrincipal principal ) throws NamingException
+    public LdapContext getJndiContext( LdapPrincipal principal ) throws Exception
     {
         return new ServerLdapContext( this, principal, new LdapDN() );
     }
 
 
-    public LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException
+    public LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws Exception
     {
         return new ServerLdapContext( this, principal, new LdapDN( dn ) );
     }
