@@ -128,7 +128,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * the special keyword 'randomKey', set random keys for the principal.  Set the key version number (kvno)
      * to '0'.
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
         LdapDN normName = addContext.getDn();
 
@@ -183,7 +183,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * 
      * If the 'userPassword' is the special keyword 'randomKey', set random keys for the principal.
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws Exception
     {
         ModifySubContext subContext = new ModifySubContext();
 

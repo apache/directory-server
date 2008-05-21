@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 import javax.swing.JFrame;
 
@@ -50,6 +49,7 @@ import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiReque
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoSession;
+
 
 /**
  * @org.apache.xbean.XBean
@@ -77,7 +77,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 
 
     public void handleExtendedOperation( IoSession requestor, SessionRegistry registry, ExtendedRequest req )
-        throws NamingException
+        throws Exception
     {
         LdapContext ctx = registry.getLdapContext( requestor, null, false );
         ctx = ( LdapContext ) ctx.lookup( "" );

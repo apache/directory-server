@@ -118,7 +118,6 @@ import org.slf4j.LoggerFactory;
  */
 public class LdapServer extends DirectoryBackedService
 {
-    @SuppressWarnings( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 3757127143811666817L;
 
     /** logger for this class */
@@ -298,7 +297,7 @@ public class LdapServer extends DirectoryBackedService
      * @throws IOException if we cannot bind to the specified port
      * @throws NamingException if the LDAP server cannot be started
      */
-    public void start() throws NamingException, IOException
+    public void start() throws Exception
     {
         if ( ! isEnabled() )
         {
@@ -400,7 +399,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     private void startLDAP0( int port, IoFilterChainBuilder chainBuilder )
-        throws NamingException
+        throws Exception
     {
         PartitionNexus nexus = getDirectoryService().getPartitionNexus();
 
@@ -475,7 +474,7 @@ public class LdapServer extends DirectoryBackedService
      * @param eoh an extended operation handler
      * @throws NamingException on failure to add the handler
      */
-    public void addExtendedOperationHandler( ExtendedOperationHandler eoh ) throws NamingException
+    public void addExtendedOperationHandler( ExtendedOperationHandler eoh ) throws Exception
     {
         if ( started )
         {

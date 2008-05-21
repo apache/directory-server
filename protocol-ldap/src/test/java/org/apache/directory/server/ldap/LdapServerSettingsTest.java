@@ -30,7 +30,6 @@ import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 
-import javax.naming.NamingException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -46,7 +45,7 @@ import java.util.HashMap;
 public class LdapServerSettingsTest
 {
     @Test
-    public void testAddExtendedOperationHandler() throws NamingException
+    public void testAddExtendedOperationHandler() throws Exception
     {
         LdapServer server = new LdapServer();
         StartTlsHandler handler = new StartTlsHandler();

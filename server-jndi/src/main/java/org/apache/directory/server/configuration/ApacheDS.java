@@ -40,7 +40,6 @@ import org.apache.mina.common.SimpleByteBufferAllocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
@@ -119,7 +118,7 @@ public class ApacheDS
      * @throws NamingException If the server cannot be started
      * @throws IOException If an IO error occured while reading some file
      */
-    public void startup() throws NamingException, IOException
+    public void startup() throws Exception
     {
         LOG.debug( "Starting the server" );
         
@@ -163,7 +162,7 @@ public class ApacheDS
     }
     
 
-    public void shutdown() throws NamingException
+    public void shutdown() throws Exception
     {
         if ( ldapServer != null && ldapServer.isStarted() )
         {
@@ -271,7 +270,7 @@ public class ApacheDS
             root.createSubcontext( ServerDNConstants.LDIF_FILES_DN, entry );
             LOG.info( "Creating " + ServerDNConstants.LDIF_FILES_DN );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             LOG.info( ServerDNConstants.LDIF_FILES_DN + " exists" );
         }
@@ -297,7 +296,7 @@ public class ApacheDS
     }
 
     
-    private void addFileEntry( DirContext root, File ldif ) throws NamingException
+    private void addFileEntry( DirContext root, File ldif ) throws Exception
     {
         String rdnAttr = File.separatorChar == '\\' ? 
             ApacheSchemaConstants.WINDOWS_FILE_AT : 
@@ -324,7 +323,7 @@ public class ApacheDS
             return root.getAttributes( buildProtectedFileEntry( ldif ), new String[]
                 { SchemaConstants.CREATE_TIMESTAMP_AT } );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             return null;
         }
@@ -356,7 +355,7 @@ public class ApacheDS
      * @param ldifFile The ldif file to read
      * @throws NamingException If something went wrong while loading the entries
      */
-    private void loadLdif( DirContext root, File ldifFile ) throws NamingException
+    private void loadLdif( DirContext root, File ldifFile ) throws Exception
     {
         Attributes fileEntry = getLdifFileEntry( root, ldifFile );
 
@@ -379,7 +378,7 @@ public class ApacheDS
     /**
      * Load the ldif files if there are some
      */
-    public void loadLdifs() throws NamingException
+    public void loadLdifs() throws Exception
     {
         // LOG and bail if property not set
         if ( ldifDirectory == null )
@@ -422,7 +421,7 @@ public class ApacheDS
             {
                 loadLdif( root, ldifDirectory );
             }
-            catch ( NamingException ne )
+            catch ( Exception ne )
             {
                 // If the file can't be read, log the error, and stop
                 // loading LDIFs.
@@ -460,7 +459,7 @@ public class ApacheDS
                     LOG.info(  "Loading LDIF file '{}'", ldifFile.getName() );
                     loadLdif( root, ldifFile );
                 }
-                catch ( NamingException ne )
+                catch ( Exception ne )
                 {
                     // If the file can't be read, log the error, and stop
                     // loading LDIFs.
