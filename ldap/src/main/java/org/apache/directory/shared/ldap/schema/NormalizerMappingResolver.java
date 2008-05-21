@@ -21,8 +21,6 @@ package org.apache.directory.shared.ldap.schema;
 
 import java.util.Map;
 
-import javax.naming.NamingException;
-
 
 /**
  * A class is used to resolve the normalizer mapping hash used for normalization.
@@ -44,5 +42,5 @@ import javax.naming.NamingException;
  */
 public interface NormalizerMappingResolver
 {
-    Map getNormalizerMapping() throws NamingException;
+    Map getNormalizerMapping() throws Exception;
 }
