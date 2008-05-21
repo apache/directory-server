@@ -74,7 +74,7 @@ public class StartedPristineState implements TestServiceState
     }
 
 
-    public void shutdown() throws NamingException
+    public void shutdown() throws Exception
     {
         LOG.debug( "calling shutdown()" );
         context.getService().shutdown();

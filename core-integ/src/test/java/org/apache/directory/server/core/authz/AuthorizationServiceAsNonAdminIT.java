@@ -64,7 +64,7 @@ public class AuthorizationServiceAsNonAdminIT
      * @throws NamingException if there are problems
      */
     @Test
-    public void testNoDeleteOnAdminByNonAdmin() throws NamingException
+    public void testNoDeleteOnAdminByNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
@@ -87,7 +87,7 @@ public class AuthorizationServiceAsNonAdminIT
      * @throws NamingException if there are problems
      */
     @Test
-    public void testNoRdnChangesOnAdminByNonAdmin() throws NamingException
+    public void testNoRdnChangesOnAdminByNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
@@ -111,7 +111,7 @@ public class AuthorizationServiceAsNonAdminIT
      * @throws NamingException on error
      */
     @Test
-    public void testModifyOnAdminByNonAdmin() throws NamingException
+    public void testModifyOnAdminByNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
@@ -138,7 +138,7 @@ public class AuthorizationServiceAsNonAdminIT
      * @throws NamingException if there are problems
      */
     @Test
-    public void testSearchSubtreeByNonAdmin() throws NamingException
+    public void testSearchSubtreeByNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );

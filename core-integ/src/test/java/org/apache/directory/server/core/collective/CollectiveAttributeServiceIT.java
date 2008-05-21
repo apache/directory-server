@@ -119,7 +119,7 @@ public class CollectiveAttributeServiceIT
     }
 
 
-    public void addAdministrativeRole( String role ) throws NamingException
+    public void addAdministrativeRole( String role ) throws Exception
     {
         Attribute attribute = new AttributeImpl( "administrativeRole" );
         attribute.add( role );
@@ -128,7 +128,7 @@ public class CollectiveAttributeServiceIT
     }
 
 
-    public Map<String, Attributes> getAllEntries() throws NamingException
+    public Map<String, Attributes> getAllEntries() throws Exception
     {
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
@@ -146,7 +146,7 @@ public class CollectiveAttributeServiceIT
     }
 
 
-    public SearchResult getEntry( String name ) throws NamingException
+    public SearchResult getEntry( String name ) throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -164,7 +164,7 @@ public class CollectiveAttributeServiceIT
     }
 
 
-    public Map<String, Attributes> getAllEntriesRestrictAttributes() throws NamingException
+    public Map<String, Attributes> getAllEntriesRestrictAttributes() throws Exception
     {
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
@@ -181,7 +181,7 @@ public class CollectiveAttributeServiceIT
     }
     
     
-    public Map<String, Attributes> getAllEntriesCollectiveAttributesOnly() throws NamingException
+    public Map<String, Attributes> getAllEntriesCollectiveAttributesOnly() throws Exception
     {
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
@@ -474,7 +474,7 @@ public class CollectiveAttributeServiceIT
             getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );
             fail( "Entry addition with collective attribute should have failed." );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             // Intended execution point
         }
@@ -482,7 +482,7 @@ public class CollectiveAttributeServiceIT
     
     
     @Test
-    public void testModifyRegularEntryAddingCollectiveAttribute() throws NamingException
+    public void testModifyRegularEntryAddingCollectiveAttribute() throws Exception
     {
         Attributes entry = getTestEntry( "Ersin Er" );
         getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );
@@ -501,7 +501,7 @@ public class CollectiveAttributeServiceIT
     
     
     @Test
-    public void testModifyRegularEntryAddingCollectiveAttribute2() throws NamingException
+    public void testModifyRegularEntryAddingCollectiveAttribute2() throws Exception
     {
         Attributes entry = getTestEntry( "Ersin Er" );
         getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );

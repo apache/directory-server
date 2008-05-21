@@ -27,8 +27,6 @@ import org.junit.runner.notification.RunNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
-
 
 /**
  * The state of a test service where it has been started and has been used for
@@ -81,7 +79,7 @@ public class StartedDirtyState implements TestServiceState
     }
 
 
-    public void shutdown() throws NamingException
+    public void shutdown() throws Exception
     {
         LOG.debug( "calling shutdown() " );
         context.getService().shutdown();
@@ -199,7 +197,7 @@ public class StartedDirtyState implements TestServiceState
     }
 
 
-    public void revert() throws NamingException
+    public void revert() throws Exception
     {
         LOG.debug( "calling revert()" );
         context.getService().revert();

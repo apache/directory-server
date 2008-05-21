@@ -138,7 +138,7 @@ public class TestServiceContext
      *
      * @throws NamingException on failures to start the core directory service
      */
-    public static void startup() throws NamingException
+    public static void startup() throws Exception
     {
         get().state.startup();
     }
@@ -149,7 +149,7 @@ public class TestServiceContext
      *
      * @throws NamingException on failures to stop the core directory service
      */
-    public static void shutdown() throws NamingException
+    public static void shutdown() throws Exception
     {
         get().state.shutdown();
     }
@@ -179,7 +179,7 @@ public class TestServiceContext
      * @throws NamingException on failures to revert the state of the core
      * directory service
      */
-    public static void revert() throws NamingException
+    public static void revert() throws Exception
     {
         get().state.revert();
     }

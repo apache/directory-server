@@ -65,7 +65,7 @@ public class AuthorizationServiceAsAdminIT
      * @throws NamingException if there are problems
      */
     @Test
-    public void testNoDeleteOnAdminByAdmin() throws NamingException
+    public void testNoDeleteOnAdminByAdmin() throws Exception
     {
         try
         {
@@ -85,7 +85,7 @@ public class AuthorizationServiceAsAdminIT
      * @throws NamingException if there are problems
      */
     @Test
-    public void testNoRdnChangesOnAdminByAdmin() throws NamingException
+    public void testNoRdnChangesOnAdminByAdmin() throws Exception
     {
         try
         {
@@ -105,7 +105,7 @@ public class AuthorizationServiceAsAdminIT
      * @throws NamingException if there are problems
      */
     @Test
-    public void testModifyOnAdminByAdmin() throws NamingException
+    public void testModifyOnAdminByAdmin() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Attributes attributes = new AttributesImpl();
@@ -122,7 +122,7 @@ public class AuthorizationServiceAsAdminIT
      * @throws NamingException if there are problems
      */
     @Test
-    public void testSearchSubtreeByAdmin() throws NamingException
+    public void testSearchSubtreeByAdmin() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         SearchControls controls = new SearchControls();

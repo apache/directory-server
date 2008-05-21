@@ -273,7 +273,7 @@ public class UniqueMemberIT
     
 
     @Test
-    public void testSearchUniqueMemberFilter() throws NamingException
+    public void testSearchUniqueMemberFilter() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -325,7 +325,7 @@ public class UniqueMemberIT
 
 
     @Test
-    public void testSearchUniqueMemberFilterWithSpaces() throws NamingException
+    public void testSearchUniqueMemberFilterWithSpaces() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -377,7 +377,7 @@ public class UniqueMemberIT
 
 
     @Test
-    public void testSearchUniqueMemberFilterWithBadDN() throws NamingException
+    public void testSearchUniqueMemberFilterWithBadDN() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -416,7 +416,7 @@ public class UniqueMemberIT
 
 
     @Test
-    public void testSearchUniqueMemberFilterWithUID() throws NamingException
+    public void testSearchUniqueMemberFilterWithUID() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 

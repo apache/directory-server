@@ -85,7 +85,7 @@ public class MetaSchemaHandlerIT
 
 
     @Before
-    public void checkSambaSchema() throws NamingException
+    public void checkSambaSchema() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
 
@@ -352,7 +352,7 @@ public class MetaSchemaHandlerIT
     // -----------------------------------------------------------------------
 
     
-    private void enableSchema( String schemaName ) throws NamingException
+    private void enableSchema( String schemaName ) throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
 
@@ -364,7 +364,7 @@ public class MetaSchemaHandlerIT
     }
     
     
-    private void disableSchema( String schemaName ) throws NamingException
+    private void disableSchema( String schemaName ) throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
 

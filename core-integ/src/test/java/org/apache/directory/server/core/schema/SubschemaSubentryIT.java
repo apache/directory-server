@@ -124,7 +124,7 @@ public class SubschemaSubentryIT
      * @throws NamingException on error
      */
     @Test
-    public void testRootDSEsSubschemaSubentry() throws NamingException
+    public void testRootDSEsSubschemaSubentry() throws Exception
     {
         assertEquals( GLOBAL_SUBSCHEMA_DN, getSubschemaSubentryDN() );
         Attributes subschemaSubentryAttrs = getSubschemaSubentryAttributes();
@@ -138,7 +138,7 @@ public class SubschemaSubentryIT
      * @throws NamingException on error
      */
     @Test
-    public void testSSSEDeleteRejection() throws NamingException
+    public void testSSSEDeleteRejection() throws Exception
     {
         try
         {
@@ -158,7 +158,7 @@ public class SubschemaSubentryIT
      * @throws NamingException on error
      */
     @Test
-    public void testSSSEAddRejection() throws NamingException
+    public void testSSSEAddRejection() throws Exception
     {
         try
         {
@@ -178,7 +178,7 @@ public class SubschemaSubentryIT
      * @throws NamingException on error
      */
     @Test
-    public void testSSSERenameRejection() throws NamingException
+    public void testSSSERenameRejection() throws Exception
     {
         try
         {
@@ -198,7 +198,7 @@ public class SubschemaSubentryIT
      * @throws NamingException on error
      */
     @Test
-    public void testSSSEMoveRejection() throws NamingException
+    public void testSSSEMoveRejection() throws Exception
     {
         try
         {
@@ -1847,7 +1847,7 @@ public class SubschemaSubentryIT
      */
     @Test
     @Ignore ( "Don't know why but this is causing intermittant failures in assertions" )
-    public void testTimestampAndModifierUpdates() throws NamingException, InterruptedException
+    public void testTimestampAndModifierUpdates() throws Exception, InterruptedException
     {
         TimeZone tz = TimeZone.getTimeZone( "GMT" );
         
@@ -1988,7 +1988,7 @@ public class SubschemaSubentryIT
     }
     
     
-    private void enableSchema( String schemaName ) throws NamingException
+    private void enableSchema( String schemaName ) throws Exception
     {
         // now enable the test schema
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
@@ -1998,7 +1998,7 @@ public class SubschemaSubentryIT
     }
     
     
-    private void disableSchema( String schemaName ) throws NamingException
+    private void disableSchema( String schemaName ) throws Exception
     {
         // now enable the test schema
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
@@ -2027,7 +2027,7 @@ public class SubschemaSubentryIT
      * @return the subschemaSubentry distinguished name
      * @throws NamingException if there are problems accessing the RootDSE
      */
-    private String getSubschemaSubentryDN() throws NamingException
+    private String getSubschemaSubentryDN() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -2048,7 +2048,7 @@ public class SubschemaSubentryIT
      * @return all operational attributes of the subschemaSubentry
      * @throws NamingException if there are problems accessing this entry
      */
-    private Attributes getSubschemaSubentryAttributes() throws NamingException
+    private Attributes getSubschemaSubentryAttributes() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );

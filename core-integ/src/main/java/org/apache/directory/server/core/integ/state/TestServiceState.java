@@ -71,7 +71,7 @@ public interface TestServiceState
      *
      * @throws NamingException on failures to start the core directory service
      */
-    void startup() throws NamingException;
+    void startup() throws Exception;
 
 
     /**
@@ -79,7 +79,7 @@ public interface TestServiceState
      *
      * @throws NamingException on failures to stop the core directory service
      */
-    void shutdown() throws NamingException;
+    void shutdown() throws Exception;
 
 
     /**
@@ -105,5 +105,5 @@ public interface TestServiceState
      * @throws NamingException on failures to revert the state of the core
      * directory service
      */
-    void revert() throws NamingException;
+    void revert() throws Exception;
 }

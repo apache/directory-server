@@ -61,7 +61,7 @@ public class DIRSERVER169IT
      *
      * @throws NamingException on error
      */
-    protected void createData() throws NamingException
+    protected void createData() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 

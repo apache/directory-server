@@ -103,7 +103,7 @@ public class OperationalAttributeServiceIT
 
 
     @Test
-    public void testBinaryAttributeFilterExtension() throws NamingException
+    public void testBinaryAttributeFilterExtension() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -164,7 +164,7 @@ public class OperationalAttributeServiceIT
 
 
     @Test
-    public void testModifyOperationalOpAttrs() throws NamingException
+    public void testModifyOperationalOpAttrs() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -225,7 +225,7 @@ public class OperationalAttributeServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testSystemContextRoot() throws NamingException
+    public void testSystemContextRoot() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -267,7 +267,7 @@ public class OperationalAttributeServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testConfirmNonAdminUserDnIsCreatorsName() throws NamingException
+    public void testConfirmNonAdminUserDnIsCreatorsName() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
@@ -288,7 +288,7 @@ public class OperationalAttributeServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testModifyShouldLeadToModifiersAttributes() throws NamingException
+    public void testModifyShouldLeadToModifiersAttributes() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -320,7 +320,7 @@ public class OperationalAttributeServiceIT
      * @throws InterruptedException on error
      */
     @Test
-    public void testModifyShouldChangeModifyTimestamp() throws NamingException, InterruptedException
+    public void testModifyShouldChangeModifyTimestamp() throws Exception, InterruptedException
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -372,7 +372,7 @@ public class OperationalAttributeServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testModifyOperationalAttributeAdd() throws NamingException
+    public void testModifyOperationalAttributeAdd() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -403,7 +403,7 @@ public class OperationalAttributeServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testModifyOperationalAttributeRemove() throws NamingException
+    public void testModifyOperationalAttributeRemove() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -434,7 +434,7 @@ public class OperationalAttributeServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testModifyOperationalAttributeReplace() throws NamingException
+    public void testModifyOperationalAttributeReplace() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );

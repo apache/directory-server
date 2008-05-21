@@ -50,7 +50,7 @@ public final class NormalizationServiceIT
 
 
     @Test
-    public void testDireve308Example() throws NamingException
+    public void testDireve308Example() throws Exception
     {
         /*
 

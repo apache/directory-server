@@ -75,7 +75,7 @@ public class StoppedDirtyState implements TestServiceState
     }
 
 
-    public void startup() throws NamingException
+    public void startup() throws Exception
     {
         LOG.debug( "calling startup" );
         context.getService().startup();

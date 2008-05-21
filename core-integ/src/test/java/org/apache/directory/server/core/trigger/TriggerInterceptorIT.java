@@ -66,7 +66,7 @@ public class TriggerInterceptorIT
     
 
     @Test
-    public void testAfterDeleteBackupDeletedEntryEntryTrigger() throws NamingException
+    public void testAfterDeleteBackupDeletedEntryEntryTrigger() throws Exception
     {
         String ldif  = 
             "version: 1\n" +
@@ -109,7 +109,7 @@ public class TriggerInterceptorIT
     }
     
     
-    public void testAfterDeleteBackupDeletedEntryPrescriptiveTrigger() throws NamingException
+    public void testAfterDeleteBackupDeletedEntryPrescriptiveTrigger() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -170,7 +170,7 @@ public class TriggerInterceptorIT
     }
     
     
-    public void testAfterAddSubscribeUserToSomeGroupsPrescriptiveTrigger() throws NamingException
+    public void testAfterAddSubscribeUserToSomeGroupsPrescriptiveTrigger() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );

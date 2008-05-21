@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -130,7 +129,7 @@ public class BadSubentryServiceIT
     }
 
 
-    public void addAdministrativeRoles() throws NamingException
+    public void addAdministrativeRoles() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Attribute attribute = new AttributeImpl( "administrativeRole" );
@@ -142,7 +141,7 @@ public class BadSubentryServiceIT
     }
 
 
-    public Map<String, Attributes> getAllEntries() throws NamingException
+    public Map<String, Attributes> getAllEntries() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
@@ -165,7 +164,7 @@ public class BadSubentryServiceIT
      * FIXME: The test fails badly.
      */
     @Test
-    public void testTrackingOfSubentryOperationals() throws NamingException
+    public void testTrackingOfSubentryOperationals() throws Exception
     {
         
         LdapContext sysRoot = getSystemContext( service );

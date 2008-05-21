@@ -63,7 +63,7 @@ public class EventServiceIT
      * @throws NamingException on failures
      */
     @Test
-    public void testRemoveNamingListener() throws NamingException
+    public void testRemoveNamingListener() throws Exception
     {
         TestListener listener = new TestListener();
         EventDirContext ctx = ( EventDirContext ) getSystemContext( service ).lookup( "" );
@@ -103,7 +103,7 @@ public class EventServiceIT
      * @throws NamingException on failures
      */
     @Test
-    public void testContextClose() throws NamingException
+    public void testContextClose() throws Exception
     {
         TestListener listener = new TestListener();
         EventDirContext ctx = ( EventDirContext ) getSystemContext( service ).lookup( "" );

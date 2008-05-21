@@ -63,7 +63,7 @@ public class ModifyContextIT
      *
      * @throws NamingException on error
      */
-    protected void createData() throws NamingException
+    protected void createData() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
@@ -171,7 +171,7 @@ public class ModifyContextIT
      * 
      * @throws NamingException on error
      */
-    public void testIllegalModifyAdd() throws NamingException
+    public void testIllegalModifyAdd() throws Exception
     {
         createData();
 
@@ -199,7 +199,7 @@ public class ModifyContextIT
 
 
     @Test
-    public void testModifyOperation() throws NamingException
+    public void testModifyOperation() throws Exception
     {
         createData();
 
@@ -227,7 +227,7 @@ public class ModifyContextIT
 
 
     @Test
-    public void testRemoveNonExistingValue() throws NamingException
+    public void testRemoveNonExistingValue() throws Exception
     {
         createData();
 

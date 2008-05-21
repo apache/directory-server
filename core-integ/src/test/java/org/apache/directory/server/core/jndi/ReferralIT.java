@@ -92,7 +92,7 @@ public class ReferralIT
     }
 
 
-    private void addReferralEntry() throws NamingException
+    private void addReferralEntry() throws Exception
     {
         String ref0 = "ldap://fermi:10389/ou=users,ou=system";
         String ref1 = "ldap://hertz:10389/ou=users,dc=example,dc=com";

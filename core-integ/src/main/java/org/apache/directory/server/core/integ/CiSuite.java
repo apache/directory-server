@@ -29,8 +29,6 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
 
-import javax.naming.NamingException;
-import java.io.IOException;
 import java.util.List;
 
 
@@ -122,11 +120,7 @@ public class CiSuite extends Suite
                 cleanup();
                 destroy();
             }
-            catch ( NamingException e )
-            {
-                notifier.fireTestFailure( new Failure( getDescription(), e ) );
-            }
-            catch ( IOException e )
+            catch ( Exception e )
             {
                 notifier.fireTestFailure( new Failure( getDescription(), e ) );
             }

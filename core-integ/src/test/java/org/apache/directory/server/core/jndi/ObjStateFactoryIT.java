@@ -61,7 +61,7 @@ public class ObjStateFactoryIT
 
 
     @Test
-    public void testObjectFactory() throws NamingException
+    public void testObjectFactory() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
@@ -82,7 +82,7 @@ public class ObjStateFactoryIT
 
 
     @Test
-    public void testStateFactory() throws NamingException
+    public void testStateFactory() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 

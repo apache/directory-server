@@ -109,7 +109,7 @@ public class SearchAuthorizationIT
 
 
     private void recursivelyAddSearchData( Name parent, Attributes[] children, final int sizeLimit, int[] count )
-        throws NamingException
+        throws Exception
     {
         Name[] childRdns = new Name[children.length];
         for ( int ii = 0; ii < children.length && count[0] < sizeLimit; ii++ )
@@ -146,7 +146,7 @@ public class SearchAuthorizationIT
      * @return the immediate child node created under parent which contains the subtree
      * @throws NamingException on error
      */
-    private Name addSearchData( Name parent, int branchingFactor, int sizelimit ) throws NamingException
+    private Name addSearchData( Name parent, int branchingFactor, int sizelimit ) throws Exception
     {
         parent = ( Name ) parent.clone();
         parent.add( "ou=tests" );
@@ -163,7 +163,7 @@ public class SearchAuthorizationIT
      * @param rdn the relative dn from ou=system of the entry to delete recursively
      * @throws NamingException if there are problems deleting entries
      */
-    private void recursivelyDelete( Name rdn ) throws NamingException
+    private void recursivelyDelete( Name rdn ) throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         NamingEnumeration<SearchResult> results = sysRoot.search( rdn, "(objectClass=*)", new SearchControls() );
@@ -188,7 +188,7 @@ public class SearchAuthorizationIT
      * @return true if the search succeeds as expected, false otherwise
      * @throws NamingException if there are problems conducting the search
      */
-    private boolean checkCanSearchAs( String uid, String password ) throws NamingException
+    private boolean checkCanSearchAs( String uid, String password ) throws Exception
     {
         return checkCanSearchAs( uid, password, "(objectClass=*)", null, 3 );
     }
@@ -205,7 +205,7 @@ public class SearchAuthorizationIT
      * @return true if the search succeeds as expected, false otherwise
      * @throws NamingException if there are problems conducting the search
      */
-    private boolean checkCanSearchAs( String uid, String password, int resultSetSz ) throws NamingException
+    private boolean checkCanSearchAs( String uid, String password, int resultSetSz ) throws Exception
     {
         return checkCanSearchAs( uid, password, "(objectClass=*)", null, resultSetSz );
     }
@@ -224,7 +224,7 @@ public class SearchAuthorizationIT
      * @throws NamingException if there are problems conducting the search
      */
     private boolean checkCanSearchAs( String uid, String password, SearchControls cons, int resultSetSz )
-        throws NamingException
+        throws Exception
     {
         return checkCanSearchAs( uid, password, "(objectClass=*)", cons, resultSetSz );
     }
@@ -243,7 +243,7 @@ public class SearchAuthorizationIT
      * @throws NamingException if there are problems conducting the search
      */
     private boolean checkCanSearchAs( String uid, String password, String filter, SearchControls cons, int resultSetSz )
-        throws NamingException
+        throws Exception
     {
         if ( cons == null )
         {
@@ -292,7 +292,7 @@ public class SearchAuthorizationIT
      * @throws NamingException if there are problems conducting the search
      */
     private boolean checkSearchAsWithEntryACI( String uid, String password, SearchControls cons, Name rdn, String aci,
-        int resultSetSz ) throws NamingException
+        int resultSetSz ) throws Exception
     {
         if ( cons == null )
         {
@@ -336,7 +336,7 @@ public class SearchAuthorizationIT
      * these utility functions
      */
     @Test
-    public void testAddSearchData() throws NamingException
+    public void testAddSearchData() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Name base = addSearchData( new LdapDN(), 3, 10 );
@@ -375,7 +375,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantAdministrators() throws NamingException
+    public void testGrantAdministrators() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -409,7 +409,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantSearchByName() throws NamingException
+    public void testGrantSearchByName() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -436,7 +436,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantSearchByNameUserDnCase() throws NamingException
+    public void testGrantSearchByNameUserDnCase() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -462,7 +462,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantSearchBySubtree() throws NamingException
+    public void testGrantSearchBySubtree() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -488,7 +488,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantSearchAllUsers() throws NamingException
+    public void testGrantSearchAllUsers() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -519,7 +519,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testSelectiveGrantsAllUsers() throws NamingException
+    public void testSelectiveGrantsAllUsers() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -550,7 +550,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testHidingAttributes() throws NamingException
+    public void testHidingAttributes() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -608,7 +608,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testHidingAttributeValues() throws NamingException
+    public void testHidingAttributeValues() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -672,7 +672,7 @@ public class SearchAuthorizationIT
      * @throws NamingException if the test is broken
      */
     @Test
-    public void testPerscriptiveGrantWithEntryDenial() throws NamingException
+    public void testPerscriptiveGrantWithEntryDenial() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -716,7 +716,7 @@ public class SearchAuthorizationIT
      * @throws NamingException if the test is broken
      */
     @Test
-    public void testPerscriptiveGrantWithEntryDenialWithPrecidence() throws NamingException
+    public void testPerscriptiveGrantWithEntryDenialWithPrecidence() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -773,7 +773,7 @@ public class SearchAuthorizationIT
      * @return the single search result if access is allowed or null
      * @throws NamingException if the search fails w/ exception other than no permission
      */
-    private SearchResult checkCanSearhSubentryAs( String uid, String password, Name rdn ) throws NamingException
+    private SearchResult checkCanSearhSubentryAs( String uid, String password, Name rdn ) throws Exception
     {
         DirContext userCtx = getContextAs( new LdapDN( "uid=" + uid + ",ou=users,ou=system" ), password );
         SearchControls cons = new SearchControls();
@@ -808,7 +808,7 @@ public class SearchAuthorizationIT
 
 
     @Test
-    public void testSubentryAccess() throws NamingException
+    public void testSubentryAccess() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -834,7 +834,7 @@ public class SearchAuthorizationIT
 
 
     @Test
-    public void testGetMatchedName() throws NamingException
+    public void testGetMatchedName() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );

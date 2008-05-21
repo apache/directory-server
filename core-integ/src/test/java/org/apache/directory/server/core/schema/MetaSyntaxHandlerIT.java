@@ -98,9 +98,9 @@ public class MetaSyntaxHandlerIT
      *
      * @param schemaName the name of the schema
      * @return the dn of the container for the syntax entities
-     * @throws NamingException on error
+     * @throws Exception on error
      */
-    private LdapDN getSyntaxContainer( String schemaName ) throws NamingException
+    private LdapDN getSyntaxContainer( String schemaName ) throws Exception
     {
         return new LdapDN( "ou=syntaxes,cn=" + schemaName );
     }
@@ -112,7 +112,7 @@ public class MetaSyntaxHandlerIT
 
     
     @Test
-    public void testAddSyntax() throws NamingException
+    public void testAddSyntax() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -133,7 +133,7 @@ public class MetaSyntaxHandlerIT
     
     
     @Test
-    public void testDeleteSyntax() throws NamingException
+    public void testDeleteSyntax() throws Exception
     {
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -157,7 +157,7 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
-    public void testRenameSyntax() throws NamingException
+    public void testRenameSyntax() throws Exception
     {
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -185,7 +185,7 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
-    public void testMoveSyntax() throws NamingException
+    public void testMoveSyntax() throws Exception
     {
         testAddSyntax();
         
@@ -206,7 +206,7 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
-    public void testMoveSyntaxAndChangeRdn() throws NamingException
+    public void testMoveSyntaxAndChangeRdn() throws Exception
     {
         testAddSyntax();
         
@@ -230,7 +230,7 @@ public class MetaSyntaxHandlerIT
 
     
     @Test
-    public void testModifySyntaxWithModificationItems() throws NamingException
+    public void testModifySyntaxWithModificationItems() throws Exception
     {
         testAddSyntax();
         
@@ -257,7 +257,7 @@ public class MetaSyntaxHandlerIT
 
     
     @Test
-    public void testModifySyntaxWithAttributes() throws NamingException
+    public void testModifySyntaxWithAttributes() throws Exception
     {
         testAddSyntax();
         
@@ -288,7 +288,7 @@ public class MetaSyntaxHandlerIT
 
     
     @Test
-    public void testDeleteSyntaxWhenInUse() throws NamingException
+    public void testDeleteSyntaxWhenInUse() throws Exception
     {
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -311,7 +311,7 @@ public class MetaSyntaxHandlerIT
     
     
     @Test
-    public void testMoveSyntaxWhenInUse() throws NamingException
+    public void testMoveSyntaxWhenInUse() throws Exception
     {
         testAddSyntax();
         addDependeeMatchingRule( OID );
@@ -338,7 +338,7 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
-    public void testMoveSyntaxAndChangeRdnWhenInUse() throws NamingException
+    public void testMoveSyntaxAndChangeRdnWhenInUse() throws Exception
     {
         testAddSyntax();
         addDependeeMatchingRule( OID );
@@ -369,15 +369,15 @@ public class MetaSyntaxHandlerIT
      *
      * @param schemaName the name of the schmea
      * @return the dn of the container entry holding matchingRules
-     * @throws NamingException on parse errors
+     * @throws Exception on parse errors
      */
-    private LdapDN getMatchingRuleContainer( String schemaName ) throws NamingException
+    private LdapDN getMatchingRuleContainer( String schemaName ) throws Exception
     {
         return new LdapDN( "ou=matchingRules,cn=" + schemaName );
     }
     
     
-    private void addDependeeMatchingRule( String oid ) throws NamingException
+    private void addDependeeMatchingRule( String oid ) throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -398,7 +398,7 @@ public class MetaSyntaxHandlerIT
 
     
     @Test
-    public void testRenameNormalizerWhenInUse() throws NamingException
+    public void testRenameNormalizerWhenInUse() throws Exception
     {
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -429,7 +429,7 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
-    public void testMoveSyntaxToTop() throws NamingException
+    public void testMoveSyntaxToTop() throws Exception
     {
         testAddSyntax();
         
@@ -455,7 +455,7 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
-    public void testMoveSyntaxToComparatorContainer() throws NamingException
+    public void testMoveSyntaxToComparatorContainer() throws Exception
     {
         testAddSyntax();
         
@@ -481,7 +481,7 @@ public class MetaSyntaxHandlerIT
     
     
     @Test
-    public void testAddSyntaxToDisabledSchema() throws NamingException
+    public void testAddSyntaxToDisabledSchema() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -503,7 +503,7 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
-    public void testMoveSyntaxToDisabledSchema() throws NamingException
+    public void testMoveSyntaxToDisabledSchema() throws Exception
     {
         testAddSyntax();
         
@@ -522,7 +522,7 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
-    public void testMoveSyntaxToEnabledSchema() throws NamingException
+    public void testMoveSyntaxToEnabledSchema() throws Exception
     {
         testAddSyntaxToDisabledSchema();
         
@@ -546,7 +546,7 @@ public class MetaSyntaxHandlerIT
     }
 
 
-    private void createDummySyntaxChecker( String oid, String schema ) throws NamingException
+    private void createDummySyntaxChecker( String oid, String schema ) throws Exception
     {
         List<String> descriptions = new ArrayList<String>();
         descriptions.add( "( " + oid + " DESC 'bogus desc' FQCN " + AcceptAllSyntaxChecker.class.getName() 
@@ -555,7 +555,7 @@ public class MetaSyntaxHandlerIT
     }
     
     
-    private void modify( int op, List<String> descriptions, String opAttr ) throws NamingException
+    private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
     {
         LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
         Attribute attr = new AttributeImpl( opAttr );
@@ -575,9 +575,9 @@ public class MetaSyntaxHandlerIT
      * Get's the subschemaSubentry attribute value from the rootDSE.
      * 
      * @return the subschemaSubentry distinguished name
-     * @throws NamingException if there are problems accessing the RootDSE
+     * @throws Exception if there are problems accessing the RootDSE
      */
-    private String getSubschemaSubentryDN() throws NamingException
+    private String getSubschemaSubentryDN() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );

@@ -77,9 +77,9 @@ public class MetaObjectClassHandlerIT
      *
      * @param schemaName the name of the schema
      * @return the dn of the container which contains objectClasses
-     * @throws NamingException on error
+     * @throws Exception on error
      */
-    private LdapDN getObjectClassContainer( String schemaName ) throws NamingException
+    private LdapDN getObjectClassContainer( String schemaName ) throws Exception
     {
         return new LdapDN( "ou=objectClasses,cn=" + schemaName );
     }
@@ -97,7 +97,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
-    public void testAddObjectClass() throws NamingException
+    public void testAddObjectClass() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -121,7 +121,7 @@ public class MetaObjectClassHandlerIT
     
     
     @Test
-    public void testDeleteAttributeType() throws NamingException
+    public void testDeleteAttributeType() throws Exception
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -145,7 +145,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
-    public void testRenameAttributeType() throws NamingException
+    public void testRenameAttributeType() throws Exception
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -173,7 +173,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
-    public void testMoveAttributeType() throws NamingException
+    public void testMoveAttributeType() throws Exception
     {
         testAddObjectClass();
         
@@ -194,7 +194,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
-    public void testMoveObjectClassAndChangeRdn() throws NamingException
+    public void testMoveObjectClassAndChangeRdn() throws Exception
     {
         testAddObjectClass();
         
@@ -218,7 +218,7 @@ public class MetaObjectClassHandlerIT
 
     
     @Test
-    public void testModifyAttributeTypeWithModificationItems() throws NamingException
+    public void testModifyAttributeTypeWithModificationItems() throws Exception
     {
         testAddObjectClass();
         
@@ -249,7 +249,7 @@ public class MetaObjectClassHandlerIT
 
     
     @Test
-    public void testModifyAttributeTypeWithAttributes() throws NamingException
+    public void testModifyAttributeTypeWithAttributes() throws Exception
     {
         testAddObjectClass();
         
@@ -282,7 +282,7 @@ public class MetaObjectClassHandlerIT
     // ----------------------------------------------------------------------
 
     
-    private void addDependeeObjectClass() throws NamingException
+    private void addDependeeObjectClass() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -307,7 +307,7 @@ public class MetaObjectClassHandlerIT
 
     
     @Test
-    public void testDeleteObjectClassWhenInUse() throws NamingException
+    public void testDeleteObjectClassWhenInUse() throws Exception
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -330,7 +330,7 @@ public class MetaObjectClassHandlerIT
     
     
     @Test
-    public void testMoveObjectClassWhenInUse() throws NamingException
+    public void testMoveObjectClassWhenInUse() throws Exception
     {
         testAddObjectClass();
         addDependeeObjectClass();
@@ -357,7 +357,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
-    public void testMoveObjectClassAndChangeRdnWhenInUse() throws NamingException
+    public void testMoveObjectClassAndChangeRdnWhenInUse() throws Exception
     {
         testAddObjectClass();
         addDependeeObjectClass();
@@ -384,7 +384,7 @@ public class MetaObjectClassHandlerIT
 
     
     @Test
-    public void testRenameObjectClassWhenInUse() throws NamingException
+    public void testRenameObjectClassWhenInUse() throws Exception
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -415,7 +415,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
-    public void testMoveObjectClassToTop() throws NamingException
+    public void testMoveObjectClassToTop() throws Exception
     {
         testAddObjectClass();
         
@@ -441,7 +441,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
-    public void testMoveObjectClassToComparatorContainer() throws NamingException
+    public void testMoveObjectClassToComparatorContainer() throws Exception
     {
         testAddObjectClass();
         
@@ -467,7 +467,7 @@ public class MetaObjectClassHandlerIT
     
     
     @Test
-    public void testAddObjectClassToDisabledSchema() throws NamingException
+    public void testAddObjectClassToDisabledSchema() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -491,7 +491,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
-    public void testMoveObjectClassToDisabledSchema() throws NamingException
+    public void testMoveObjectClassToDisabledSchema() throws Exception
     {
         testAddObjectClass();
         
@@ -510,7 +510,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
-    public void testMoveObjectClassToEnabledSchema() throws NamingException
+    public void testMoveObjectClassToEnabledSchema() throws Exception
     {
         testAddObjectClassToDisabledSchema();
         

@@ -78,9 +78,9 @@ public class MetaComparatorHandlerIT
      *
      * @param schemaName the name of the schema
      * @return the dn to the ou underwhich comparators are found for a schmea
-     * @throws NamingException if there are dn construction issues
+     * @throws Exception if there are dn construction issues
      */
-    private LdapDN getComparatorContainer( String schemaName ) throws NamingException
+    private LdapDN getComparatorContainer( String schemaName ) throws Exception
     {
         return new LdapDN( "ou=comparators,cn=" + schemaName );
     }
@@ -110,7 +110,7 @@ public class MetaComparatorHandlerIT
 
 
     @Test
-    public void testAddComparator() throws NamingException
+    public void testAddComparator() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -164,7 +164,7 @@ public class MetaComparatorHandlerIT
     
 
     @Test
-    public void testDeleteComparator() throws NamingException
+    public void testDeleteComparator() throws Exception
     {
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -187,7 +187,7 @@ public class MetaComparatorHandlerIT
 
 
     @Test
-    public void testRenameComparator() throws NamingException
+    public void testRenameComparator() throws Exception
     {
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -216,7 +216,7 @@ public class MetaComparatorHandlerIT
 
 
     @Test
-    public void testMoveComparator() throws NamingException
+    public void testMoveComparator() throws Exception
     {
         testAddComparator();
         
@@ -240,7 +240,7 @@ public class MetaComparatorHandlerIT
 
 
     @Test
-    public void testMoveComparatorAndChangeRdn() throws NamingException
+    public void testMoveComparatorAndChangeRdn() throws Exception
     {
         testAddComparator();
         
@@ -267,7 +267,7 @@ public class MetaComparatorHandlerIT
 
 
     @Test
-    public void testModifyComparatorWithModificationItems() throws NamingException
+    public void testModifyComparatorWithModificationItems() throws Exception
     {
         testAddComparator();
         
@@ -291,7 +291,7 @@ public class MetaComparatorHandlerIT
 
 
     @Test
-    public void testModifyComparatorWithAttributes() throws NamingException
+    public void testModifyComparatorWithAttributes() throws Exception
     {
         testAddComparator();
         
@@ -319,7 +319,7 @@ public class MetaComparatorHandlerIT
 
     
     @Test
-    public void testDeleteComparatorWhenInUse() throws NamingException
+    public void testDeleteComparatorWhenInUse() throws Exception
     {
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -344,7 +344,7 @@ public class MetaComparatorHandlerIT
     
     
     @Test
-    public void testMoveComparatorWhenInUse() throws NamingException
+    public void testMoveComparatorWhenInUse() throws Exception
     {
         testAddComparator();
         getMatchingRuleRegistry().register( new DummyMR() );
@@ -373,7 +373,7 @@ public class MetaComparatorHandlerIT
 
 
     @Test
-    public void testMoveComparatorAndChangeRdnWhenInUse() throws NamingException
+    public void testMoveComparatorAndChangeRdnWhenInUse() throws Exception
     {
         testAddComparator();
         getMatchingRuleRegistry().register( new DummyMR() );
@@ -402,7 +402,7 @@ public class MetaComparatorHandlerIT
 
     
     @Test
-    public void testRenameComparatorWhenInUse() throws NamingException
+    public void testRenameComparatorWhenInUse() throws Exception
     {
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -435,7 +435,7 @@ public class MetaComparatorHandlerIT
 
 
     @Test
-    public void testMoveComparatorToTop() throws NamingException
+    public void testMoveComparatorToTop() throws Exception
     {
         testAddComparator();
         
@@ -461,7 +461,7 @@ public class MetaComparatorHandlerIT
 
 
     @Test
-    public void testMoveComparatorToNormalizers() throws NamingException
+    public void testMoveComparatorToNormalizers() throws Exception
     {
         testAddComparator();
         
@@ -487,7 +487,7 @@ public class MetaComparatorHandlerIT
     
     
     @Test
-    public void testAddComparatorToDisabledSchema() throws NamingException
+    public void testAddComparatorToDisabledSchema() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -509,7 +509,7 @@ public class MetaComparatorHandlerIT
 
 
     @Test
-    public void testMoveComparatorToDisabledSchema() throws NamingException
+    public void testMoveComparatorToDisabledSchema() throws Exception
     {
         testAddComparator();
         
@@ -528,7 +528,7 @@ public class MetaComparatorHandlerIT
 
 
     @Test
-    public void testMoveComparatorToEnabledSchema() throws NamingException
+    public void testMoveComparatorToEnabledSchema() throws Exception
     {
         testAddComparatorToDisabledSchema();
         

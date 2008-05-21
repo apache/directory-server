@@ -87,7 +87,7 @@ public class MixedCaseITest
             partition.setId( "apache" );
             partition.setSuffix( SUFFIX_DN );
 
-            HashSet<Index> indexedAttributes = new HashSet<Index>();
+            HashSet<Index<?, ServerEntry>> indexedAttributes = new HashSet<Index<?, ServerEntry>>();
             indexedAttributes.add( new JdbmIndex( "objectClass" ) );
             indexedAttributes.add( new JdbmIndex( "ou" ) );
             indexedAttributes.add( new JdbmIndex( "uid" ) );
@@ -109,7 +109,7 @@ public class MixedCaseITest
 
     
     @Test
-    public void testSearch() throws NamingException
+    public void testSearch() throws Exception
     {
         LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX_DN );
 
@@ -126,7 +126,7 @@ public class MixedCaseITest
 
 
     @Test
-    public void testAdd() throws NamingException
+    public void testAdd() throws Exception
     {
         LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX_DN );
 
@@ -155,7 +155,7 @@ public class MixedCaseITest
 
 
     @Test
-    public void testModify() throws NamingException
+    public void testModify() throws Exception
     {
         LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX_DN );
 
@@ -196,7 +196,7 @@ public class MixedCaseITest
 
 
     @Test
-    public void testDelete() throws NamingException
+    public void testDelete() throws Exception
     {
         LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX_DN );
 

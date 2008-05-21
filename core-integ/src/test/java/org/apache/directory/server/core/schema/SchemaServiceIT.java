@@ -73,10 +73,10 @@ public class SchemaServiceIT
     /**
      * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-925">DIRSERVER-925</a>.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testNoStructuralObjectClass() throws NamingException
+    public void testNoStructuralObjectClass() throws Exception
     {
         Attributes attrs = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         attrs.get( SchemaConstants.OBJECT_CLASS_AT ).add( "uidObject" );
@@ -96,9 +96,9 @@ public class SchemaServiceIT
     /**
      * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-925">DIRSERVER-925</a>.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
-    public void testMultipleStructuralObjectClasses() throws NamingException
+    public void testMultipleStructuralObjectClasses() throws Exception
     {
         Attributes attrs = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         attrs.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
@@ -121,9 +121,9 @@ public class SchemaServiceIT
     /**
      * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-904">DIRSERVER-904</a>.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
-    public void testAddingTwoDifferentEntitiesWithSameOid() throws NamingException
+    public void testAddingTwoDifferentEntitiesWithSameOid() throws Exception
     {
         String numberOfGunsAttrLdif = "dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.999,ou=attributeTypes,cn=other,ou=schema\n" +
             "m-usage: USER_APPLICATIONS\n" +
@@ -176,7 +176,7 @@ public class SchemaServiceIT
     }
     
     
-    public void testFillInObjectClasses() throws NamingException
+    public void testFillInObjectClasses() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Attribute ocs = sysRoot.getAttributes( "cn=person0" ).get( "objectClass" );
@@ -199,7 +199,7 @@ public class SchemaServiceIT
     }
 
 
-    public void testSearchForPerson() throws NamingException
+    public void testSearchForPerson() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         SearchControls controls = new SearchControls();
@@ -245,7 +245,7 @@ public class SchemaServiceIT
     }
 
 
-    public void testSearchForOrgPerson() throws NamingException
+    public void testSearchForOrgPerson() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         SearchControls controls = new SearchControls();
@@ -284,7 +284,7 @@ public class SchemaServiceIT
     }
 
 
-    public void testSearchForInetOrgPerson() throws NamingException
+    public void testSearchForInetOrgPerson() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         SearchControls controls = new SearchControls();
@@ -314,7 +314,7 @@ public class SchemaServiceIT
         assertTrue( ocs.contains( "inetOrgPerson" ) );
     }
     
-    public void testSearchForSubSchemaSubEntryUserAttrsOnly() throws NamingException
+    public void testSearchForSubSchemaSubEntryUserAttrsOnly() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -346,7 +346,7 @@ public class SchemaServiceIT
         assertNotNull( attrs.get( "objectClass" ) );
     }
 
-    public void testSearchForSubSchemaSubEntryAllAttrs() throws NamingException
+    public void testSearchForSubSchemaSubEntryAllAttrs() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -408,7 +408,7 @@ public class SchemaServiceIT
         assertNotNull( attrs.get( "subtreeSpecification" ) );
     }
 
-    public void testSearchForSubSchemaSubEntrySingleAttributeSelected() throws NamingException
+    public void testSearchForSubSchemaSubEntrySingleAttributeSelected() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -452,7 +452,7 @@ public class SchemaServiceIT
         assertNull( attrs.get( "objectClasses" ) );
     }
 
-    public void testSearchForSubSchemaSubEntryBadFilter() throws NamingException
+    public void testSearchForSubSchemaSubEntryBadFilter() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -472,7 +472,7 @@ public class SchemaServiceIT
         assertEquals( 0, subSchemaEntry.size() );
     }
 
-    public void testSearchForSubSchemaSubEntryFilterEqualTop() throws NamingException
+    public void testSearchForSubSchemaSubEntryFilterEqualTop() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -520,7 +520,7 @@ public class SchemaServiceIT
         assertNotNull( attrs.get( "objectClasses" ) );
     }
 
-    public void testSearchForSubSchemaSubEntryFilterEqualSubSchema() throws NamingException
+    public void testSearchForSubSchemaSubEntryFilterEqualSubSchema() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -568,7 +568,7 @@ public class SchemaServiceIT
         assertNotNull( attrs.get( "objectClasses" ) );
     }
 
-    public void testSearchForSubSchemaSubEntryNotObjectScope() throws NamingException
+    public void testSearchForSubSchemaSubEntryNotObjectScope() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -588,7 +588,7 @@ public class SchemaServiceIT
         assertEquals( 0, subSchemaEntry.size() );
     }
 
-    public void testSearchForSubSchemaSubEntryComposedFilters() throws NamingException
+    public void testSearchForSubSchemaSubEntryComposedFilters() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -611,9 +611,9 @@ public class SchemaServiceIT
     /**
      * Test for DIRSERVER-844: storing of base 64 encoded values into H-R attributes
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
-    public void testSearchSeeAlso() throws NamingException
+    public void testSearchSeeAlso() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -651,9 +651,9 @@ public class SchemaServiceIT
      * Doing a search with filtering attributes should work even if the attribute
      * is not valid 
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
-    public void testSearchForUnknownAttributes() throws NamingException
+    public void testSearchForUnknownAttributes() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -699,9 +699,9 @@ public class SchemaServiceIT
      * Check that if we request a Attribute which is not an AttributeType,
      * we still get a result
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
-    public void testSearchAttributesOIDObjectClass() throws NamingException
+    public void testSearchAttributesOIDObjectClass() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -747,9 +747,9 @@ public class SchemaServiceIT
     /**
      * Check that if we request a Attribute which is an ObjectClass.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
-    public void testSearchAttributesOIDObjectClassName() throws NamingException
+    public void testSearchAttributesOIDObjectClassName() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );

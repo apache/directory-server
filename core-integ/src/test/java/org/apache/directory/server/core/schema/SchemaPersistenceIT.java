@@ -139,7 +139,7 @@ public class SchemaPersistenceIT
     }
 
 
-    private void enableSchema( String schemaName ) throws NamingException
+    private void enableSchema( String schemaName ) throws Exception
     {
         // now enable the test schema
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
@@ -155,7 +155,7 @@ public class SchemaPersistenceIT
      * @return the subschemaSubentry distinguished name
      * @throws NamingException if there are problems accessing the RootDSE
      */
-    private String getSubschemaSubentryDN() throws NamingException
+    private String getSubschemaSubentryDN() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -176,7 +176,7 @@ public class SchemaPersistenceIT
      * @return all operational attributes of the subschemaSubentry 
      * @throws NamingException if there are problems accessing this entry
      */
-    private Attributes getSubschemaSubentryAttributes() throws NamingException
+    private Attributes getSubschemaSubentryAttributes() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );

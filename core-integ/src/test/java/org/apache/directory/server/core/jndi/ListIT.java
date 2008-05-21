@@ -35,7 +35,6 @@ import org.junit.runner.RunWith;
 
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 import java.util.HashSet;
 
@@ -55,7 +54,7 @@ public class ListIT
 
 
     @Test
-    public void testListSystemAsNonAdmin() throws NamingException
+    public void testListSystemAsNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
@@ -77,7 +76,7 @@ public class ListIT
 
 
     @Test
-    public void testListUsersAsNonAdmin() throws NamingException
+    public void testListUsersAsNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
@@ -98,7 +97,7 @@ public class ListIT
 
 
     @Test
-    public void testListSystemAsAdmin() throws NamingException
+    public void testListSystemAsAdmin() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         HashSet<String> set = new HashSet<String>();
@@ -117,7 +116,7 @@ public class ListIT
 
 
     @Test
-    public void testListUsersAsAdmin() throws NamingException
+    public void testListUsersAsAdmin() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         HashSet<String> set = new HashSet<String>();

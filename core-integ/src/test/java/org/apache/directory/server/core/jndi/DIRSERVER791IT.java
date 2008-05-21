@@ -87,7 +87,7 @@ public class DIRSERVER791IT
      *
      * @throws NamingException on error
      */
-    protected void createData() throws NamingException
+    protected void createData() throws Exception
     {
         Attributes entry = this.getTestEntryAttributes();
         getSystemContext( service ).createSubcontext("cn=test", entry);
@@ -101,7 +101,7 @@ public class DIRSERVER791IT
      * @throws NamingException on error
      */
     @Test
-    public void testDefect1a() throws NamingException 
+    public void testDefect1a() throws Exception 
     {
         createData();
         Hashtable<String,Object> env = new Hashtable<String,Object>();
@@ -130,7 +130,7 @@ public class DIRSERVER791IT
      * @throws NamingException on error
      */
     @Test
-    public void testDefect1b() throws NamingException
+    public void testDefect1b() throws Exception
     {
         createData();
         Hashtable<String,Object> env = new Hashtable<String,Object>();
@@ -161,7 +161,7 @@ public class DIRSERVER791IT
      * @throws NamingException on error
      */
     @Test
-    public void testDefect2() throws NamingException
+    public void testDefect2() throws Exception
     {
         createData();
         Hashtable<String,Object> env = new Hashtable<String,Object>();
@@ -212,7 +212,7 @@ public class DIRSERVER791IT
      * @throws NamingException on error
      */
     @Test
-    public void testDefect3() throws NamingException
+    public void testDefect3() throws Exception
     {
         createData();
         Hashtable<String,Object> env = new Hashtable<String,Object>();

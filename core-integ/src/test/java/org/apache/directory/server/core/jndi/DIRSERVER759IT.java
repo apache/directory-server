@@ -59,7 +59,7 @@ public class DIRSERVER759IT
      *
      * @throws NamingException on errors
      */
-    protected void createData() throws NamingException
+    protected void createData() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -163,7 +163,7 @@ public class DIRSERVER759IT
 
 
     @Test
-    public void testSearchBadDN() throws NamingException
+    public void testSearchBadDN() throws Exception
     {
         createData();
         LdapContext sysRoot = getSystemContext( service );

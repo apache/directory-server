@@ -39,7 +39,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -108,7 +107,7 @@ public class SubentryServiceIT
     }
 
 
-    public void addAdministrativeRole( String role ) throws NamingException
+    public void addAdministrativeRole( String role ) throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Attribute attribute = new AttributeImpl( "administrativeRole" );
@@ -119,7 +118,7 @@ public class SubentryServiceIT
     }
 
 
-    public Map<String, Attributes> getAllEntries() throws NamingException
+    public Map<String, Attributes> getAllEntries() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
@@ -140,7 +139,7 @@ public class SubentryServiceIT
 
 
     @Test
-    public void testEntryAdd() throws NamingException
+    public void testEntryAdd() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
@@ -170,7 +169,7 @@ public class SubentryServiceIT
 
 
     @Test
-    public void testSubentryAdd() throws NamingException
+    public void testSubentryAdd() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         try
@@ -238,7 +237,7 @@ public class SubentryServiceIT
 
 
     @Test
-    public void testSubentryModify() throws NamingException
+    public void testSubentryModify() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
@@ -356,7 +355,7 @@ public class SubentryServiceIT
 
 
     @Test
-    public void testSubentryModify2() throws NamingException
+    public void testSubentryModify2() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
@@ -473,7 +472,7 @@ public class SubentryServiceIT
 
 
     @Test
-    public void testSubentryDelete() throws NamingException
+    public void testSubentryDelete() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
@@ -532,7 +531,7 @@ public class SubentryServiceIT
 
 
     @Test
-    public void testSubentryModifyRdn() throws NamingException
+    public void testSubentryModifyRdn() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
@@ -592,7 +591,7 @@ public class SubentryServiceIT
 
 
     @Test
-    public void testEntryModifyRdn() throws NamingException
+    public void testEntryModifyRdn() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
@@ -689,7 +688,7 @@ public class SubentryServiceIT
 
 
     @Test
-    public void testEntryMoveWithRdnChange() throws NamingException
+    public void testEntryMoveWithRdnChange() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
@@ -786,7 +785,7 @@ public class SubentryServiceIT
 
 
     @Test
-    public void testEntryMove() throws NamingException
+    public void testEntryMove() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );

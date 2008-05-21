@@ -57,7 +57,7 @@ public class DestroyContextIT
      *
      * @throws NamingException on error
      */
-    public void createEntries() throws NamingException
+    public void createEntries() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -164,7 +164,7 @@ public class DestroyContextIT
      * @throws NamingException if there are failures
      */
     @Test
-    public void testDestroyContext() throws NamingException
+    public void testDestroyContext() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 

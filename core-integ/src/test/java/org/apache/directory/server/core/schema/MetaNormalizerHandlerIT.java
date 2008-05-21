@@ -79,9 +79,9 @@ public class MetaNormalizerHandlerIT
      *
      * @param schemaName the name of the schema
      * @return  the name of the container with normalizer entries in it
-     * @throws NamingException on error
+     * @throws Exception on error
      */
-    private LdapDN getNormalizerContainer( String schemaName ) throws NamingException
+    private LdapDN getNormalizerContainer( String schemaName ) throws Exception
     {
         return new LdapDN( "ou=normalizers,cn=" + schemaName );
     }
@@ -111,7 +111,7 @@ public class MetaNormalizerHandlerIT
 
 
     @Test
-    public void testAddNormalizer() throws NamingException
+    public void testAddNormalizer() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -165,7 +165,7 @@ public class MetaNormalizerHandlerIT
     
     
     @Test
-    public void testDeleteNormalizer() throws NamingException
+    public void testDeleteNormalizer() throws Exception
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -189,7 +189,7 @@ public class MetaNormalizerHandlerIT
 
 
     @Test
-    public void testRenameNormalizer() throws NamingException
+    public void testRenameNormalizer() throws Exception
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -219,7 +219,7 @@ public class MetaNormalizerHandlerIT
 
 
     @Test
-    public void testMoveNormalizer() throws NamingException
+    public void testMoveNormalizer() throws Exception
     {
         testAddNormalizer();
         
@@ -243,7 +243,7 @@ public class MetaNormalizerHandlerIT
 
 
     @Test
-    public void testMoveNormalizerAndChangeRdn() throws NamingException
+    public void testMoveNormalizerAndChangeRdn() throws Exception
     {
         testAddNormalizer();
         
@@ -270,7 +270,7 @@ public class MetaNormalizerHandlerIT
 
     
     @Test
-    public void testModifyNormalizerWithModificationItems() throws NamingException
+    public void testModifyNormalizerWithModificationItems() throws Exception
     {
         testAddNormalizer();
         
@@ -294,7 +294,7 @@ public class MetaNormalizerHandlerIT
 
     
     @Test
-    public void testModifyNormalizerWithAttributes() throws NamingException
+    public void testModifyNormalizerWithAttributes() throws Exception
     {
         testAddNormalizer();
         
@@ -322,7 +322,7 @@ public class MetaNormalizerHandlerIT
 
     
     @Test
-    public void testDeleteNormalizerWhenInUse() throws NamingException
+    public void testDeleteNormalizerWhenInUse() throws Exception
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -347,7 +347,7 @@ public class MetaNormalizerHandlerIT
     
     
     @Test
-    public void testMoveNormalizerWhenInUse() throws NamingException
+    public void testMoveNormalizerWhenInUse() throws Exception
     {
         testAddNormalizer();
         getMatchingRuleRegistry().register( new DummyMR() );
@@ -376,7 +376,7 @@ public class MetaNormalizerHandlerIT
 
 
     @Test
-    public void testMoveNormalizerAndChangeRdnWhenInUse() throws NamingException
+    public void testMoveNormalizerAndChangeRdnWhenInUse() throws Exception
     {
         testAddNormalizer();
         getMatchingRuleRegistry().register( new DummyMR() );
@@ -405,7 +405,7 @@ public class MetaNormalizerHandlerIT
 
     
     @Test
-    public void testRenameNormalizerWhenInUse() throws NamingException
+    public void testRenameNormalizerWhenInUse() throws Exception
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -438,7 +438,7 @@ public class MetaNormalizerHandlerIT
 
 
     @Test
-    public void testMoveNormalizerToTop() throws NamingException
+    public void testMoveNormalizerToTop() throws Exception
     {
         testAddNormalizer();
         
@@ -464,7 +464,7 @@ public class MetaNormalizerHandlerIT
 
 
     @Test
-    public void testMoveNormalizerToComparatorContainer() throws NamingException
+    public void testMoveNormalizerToComparatorContainer() throws Exception
     {
         testAddNormalizer();
         
@@ -490,7 +490,7 @@ public class MetaNormalizerHandlerIT
     
     
     @Test
-    public void testAddNormalizerToDisabledSchema() throws NamingException
+    public void testAddNormalizerToDisabledSchema() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -512,7 +512,7 @@ public class MetaNormalizerHandlerIT
 
 
     @Test
-    public void testMoveNormalizerToDisabledSchema() throws NamingException
+    public void testMoveNormalizerToDisabledSchema() throws Exception
     {
         testAddNormalizer();
         
@@ -531,7 +531,7 @@ public class MetaNormalizerHandlerIT
 
 
     @Test
-    public void testMoveNormalizerToEnabledSchema() throws NamingException
+    public void testMoveNormalizerToEnabledSchema() throws Exception
     {
         testAddNormalizerToDisabledSchema();
         

@@ -85,7 +85,7 @@ public class IntegrationUtils
      * @param ldif the ldif containing entries to add to the server.
      * @throws NamingException if there is a problem adding the entries from the LDIF
      */
-    public static void injectEntries( DirectoryService service, String ldif ) throws NamingException
+    public static void injectEntries( DirectoryService service, String ldif ) throws Exception
     {
         LdapContext rootDSE = getRootContext( service );
         LdifReader reader = new LdifReader();
@@ -105,7 +105,7 @@ public class IntegrationUtils
 
 
     public static LdapContext getContext( String principalDn, DirectoryService service, String dn )
-            throws NamingException
+            throws Exception
     {
         if ( principalDn == null )
         {
@@ -125,19 +125,19 @@ public class IntegrationUtils
     }
 
 
-    public static LdapContext getSystemContext( DirectoryService service ) throws NamingException
+    public static LdapContext getSystemContext( DirectoryService service ) throws Exception
     {
         return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, ServerDNConstants.SYSTEM_DN );
     }
 
 
-    public static LdapContext getSchemaContext( DirectoryService service ) throws NamingException
+    public static LdapContext getSchemaContext( DirectoryService service ) throws Exception
     {
         return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, ServerDNConstants.OU_SCHEMA_DN );
     }
 
 
-    public static LdapContext getRootContext( DirectoryService service ) throws NamingException
+    public static LdapContext getRootContext( DirectoryService service ) throws Exception
     {
         return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "" );
     }

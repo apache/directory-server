@@ -73,7 +73,7 @@ public class SearchIT
      * @param sysRoot the system root to add entries to
      * @throws NamingException on errors
      */
-    protected void createData( LdapContext sysRoot ) throws NamingException
+    protected void createData( LdapContext sysRoot ) throws Exception
     {
         /*
          * create ou=testing00,ou=system
@@ -221,7 +221,7 @@ public class SearchIT
     }
 
 
-    private DirContext addNisPosixGroup( String name, int gid ) throws NamingException
+    private DirContext addNisPosixGroup( String name, int gid ) throws Exception
     {
         Attributes attrs = new AttributesImpl( "objectClass", "top", true );
         attrs.get( "objectClass" ).add( "posixGroup" );
@@ -232,7 +232,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchOneLevel() throws NamingException
+    public void testSearchOneLevel() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -260,7 +260,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchSubTreeLevel() throws NamingException
+    public void testSearchSubTreeLevel() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -290,7 +290,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchSubTreeLevelNoAttributes() throws NamingException
+    public void testSearchSubTreeLevelNoAttributes() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -321,7 +321,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchSubstringSubTreeLevel() throws NamingException
+    public void testSearchSubstringSubTreeLevel() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -360,7 +360,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchFilterArgs() throws NamingException
+    public void testSearchFilterArgs() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -388,7 +388,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchSizeLimit() throws NamingException
+    public void testSearchSizeLimit() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -421,7 +421,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchTimeLimit() throws NamingException, InterruptedException
+    public void testSearchTimeLimit() throws Exception, InterruptedException
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -692,7 +692,7 @@ public class SearchIT
 
 
     @Test
-    public void testBinaryAttributesInFilter() throws NamingException
+    public void testBinaryAttributesInFilter() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -728,7 +728,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchOperationalAttr() throws NamingException
+    public void testSearchOperationalAttr() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -761,7 +761,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchUserAttr() throws NamingException
+    public void testSearchUserAttr() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -794,7 +794,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchUserAttrAndOpAttr() throws NamingException
+    public void testSearchUserAttrAndOpAttr() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -827,7 +827,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchUserAttrAndNoAttr() throws NamingException
+    public void testSearchUserAttrAndNoAttr() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -860,7 +860,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchNoAttr() throws NamingException
+    public void testSearchNoAttr() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -893,7 +893,7 @@ public class SearchIT
 
 
     @Test
-    public void testSearchAllAttr() throws NamingException
+    public void testSearchAllAttr() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -931,7 +931,7 @@ public class SearchIT
      * @throws NamingException if there are errors
      */
     @Test
-    public void testSearchFetchNonExistingAttributeOption() throws NamingException
+    public void testSearchFetchNonExistingAttributeOption() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -969,7 +969,7 @@ public class SearchIT
      * @throws NamingException if there are errors
      */
     @Test
-    public void testSearchFetchTwiceSameAttribute() throws NamingException
+    public void testSearchFetchTwiceSameAttribute() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -1042,7 +1042,7 @@ public class SearchIT
      * @return the set of groups
      * @throws NamingException if there are problems conducting the search
      */
-    public Set<String> searchGroups( String filter, SearchControls controls ) throws NamingException
+    public Set<String> searchGroups( String filter, SearchControls controls ) throws Exception
     {
         if ( controls == null )
         {
@@ -1070,7 +1070,7 @@ public class SearchIT
      * @return the set of group names
      * @throws NamingException if there are problems conducting the search
      */
-    public Set<String> searchGroups( String filter ) throws NamingException
+    public Set<String> searchGroups( String filter ) throws Exception
     {
         return searchGroups( filter, null );
     }
@@ -1181,7 +1181,7 @@ public class SearchIT
 
 
     @Test
-    public void testNotOperator() throws NamingException
+    public void testNotOperator() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
@@ -1197,7 +1197,7 @@ public class SearchIT
 
 
     @Test
-    public void testNotOperatorSubtree() throws NamingException
+    public void testNotOperatorSubtree() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );

@@ -56,7 +56,7 @@ public class SimpleAuthenticationIT
     public static DirectoryService service;
 
 
-    public static LdapContext getRootDSE() throws NamingException
+    public static LdapContext getRootDSE() throws Exception
     {
         if ( service.isStarted() )
         {
@@ -69,7 +69,7 @@ public class SimpleAuthenticationIT
     }
 
 
-    public static LdapContext getRootDSE( String bindDn ) throws NamingException
+    public static LdapContext getRootDSE( String bindDn ) throws Exception
     {
         if ( service.isStarted() )
         {
@@ -82,7 +82,7 @@ public class SimpleAuthenticationIT
     }
 
 
-    public static LdapContext getSystemRoot() throws NamingException
+    public static LdapContext getSystemRoot() throws Exception
     {
         if ( service.isStarted() )
         {
@@ -96,7 +96,7 @@ public class SimpleAuthenticationIT
     }
 
 
-    public static LdapContext getSystemRoot( String bindDn ) throws NamingException
+    public static LdapContext getSystemRoot( String bindDn ) throws Exception
     {
         if ( service.isStarted() )
         {
@@ -131,7 +131,7 @@ public class SimpleAuthenticationIT
      * @throws NamingException if there are failures
      */
     @Test
-    public void testAdminAccountCreation() throws NamingException
+    public void testAdminAccountCreation() throws Exception
     {
         String userDn = "uid=admin,ou=system";
         LdapContext ctx = service.getJndiContext( new LdapDN( userDn ), userDn,
@@ -154,7 +154,7 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    public void test3UseAkarasulu() throws NamingException
+    public void test3UseAkarasulu() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
@@ -213,7 +213,7 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    public void test11InvalidateCredentialCache() throws NamingException
+    public void test11InvalidateCredentialCache() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
@@ -284,7 +284,7 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    public void testSHA() throws NamingException
+    public void testSHA() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
@@ -337,7 +337,7 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    public void testSSHA() throws NamingException
+    public void testSSHA() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
@@ -389,7 +389,7 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    public void testMD5() throws NamingException
+    public void testMD5() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
@@ -441,7 +441,7 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    public void testSMD5() throws NamingException
+    public void testSMD5() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
@@ -493,7 +493,7 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    public void testCRYPT() throws NamingException
+    public void testCRYPT() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
@@ -545,7 +545,7 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    public void testInvalidateCredentialCacheForUpdatingAnotherUsersPassword() throws NamingException
+    public void testInvalidateCredentialCacheForUpdatingAnotherUsersPassword() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
 
