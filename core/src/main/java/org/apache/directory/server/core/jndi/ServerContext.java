@@ -181,7 +181,7 @@ public abstract class ServerContext implements EventContext
      * @param service the directory service core
      * @throws NamingException if there is a problem creating the new context
      */
-    public ServerContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws NamingException
+    public ServerContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws Exception
     {
         this.service = service;
         this.dn = ( LdapDN ) dn.clone();
@@ -539,7 +539,14 @@ public abstract class ServerContext implements EventContext
     {
         for ( NamingListener listener : listeners )
         {
-            ( ( PartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, listener );
+            try
+            {
+                ( ( PartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, listener );
+            }
+            catch ( Exception e )
+            {
+                JndiUtils.wrap( e );
+            }
         }
     }
 
@@ -639,7 +646,19 @@ public abstract class ServerContext implements EventContext
         {
             JndiUtils.wrap( e );
         }
-        return new ServerLdapContext( service, principal, target );
+        
+        ServerLdapContext ctx = null;
+        
+        try
+        {
+            ctx = new ServerLdapContext( service, principal, target );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+        }
+        
+        return ctx;
     }
 
 
@@ -1029,7 +1048,18 @@ public abstract class ServerContext implements EventContext
         }
 
         // Initialize and return a context since the entry is not a java object
-        return new ServerLdapContext( service, principal, target );
+        ServerLdapContext ctx = null;
+        
+        try
+        {
+            ctx = new ServerLdapContext( service, principal, target );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+        }
+        
+        return ctx;
     }
 
 
@@ -1215,8 +1245,15 @@ public abstract class ServerContext implements EventContext
         ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( scope );
-        ( ( PartitionNexusProxy ) this.nexusProxy ).addNamingListener( this, buildTarget( name ), filter, controls,
-            namingListener );
+        try
+        {
+            ( ( PartitionNexusProxy ) this.nexusProxy ).addNamingListener( this, buildTarget( name ), filter, controls,
+                namingListener );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+        }
         listeners.add( namingListener );
     }
 
@@ -1229,7 +1266,14 @@ public abstract class ServerContext implements EventContext
 
     public void removeNamingListener( NamingListener namingListener ) throws NamingException
     {
-        ( ( PartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, namingListener );
+        try
+        {
+            ( ( PartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, namingListener );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+        }
         listeners.remove( namingListener );
     }
 

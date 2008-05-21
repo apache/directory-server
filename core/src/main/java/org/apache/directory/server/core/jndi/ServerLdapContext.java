@@ -77,7 +77,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param service the directory service core
      * @throws NamingException if there are problems instantiating 
      */
-    public ServerLdapContext( DirectoryService service, LdapPrincipal principal, LdapDN dn ) throws NamingException
+    public ServerLdapContext( DirectoryService service, LdapPrincipal principal, LdapDN dn ) throws Exception
     {
         super( service, principal, dn );
         refService = ( ( ReferralInterceptor ) service.getInterceptorChain().get( ReferralInterceptor.class.getName() ) );
@@ -100,7 +100,15 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public LdapContext newInstance( Control[] requestControls ) throws NamingException
     {
-        ServerLdapContext ctx = new ServerLdapContext( getService(), getPrincipal(), ( LdapDN ) getDn() );
+        ServerLdapContext ctx = null;
+        try
+        {
+            ctx = new ServerLdapContext( getService(), getPrincipal(), ( LdapDN ) getDn() );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+        }
         ctx.setRequestControls( requestControls );
         return ctx;
     }
@@ -265,6 +273,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     {
         return refService.isReferral( name );
     }
+    
 
     /**
      * Check if a Name is a referral
@@ -277,8 +286,20 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         return refService.isReferral( name );
     }
 
+    
     public ServerContext getRootContext() throws NamingException
     {
-        return new ServerLdapContext( getService(), getPrincipal(), new LdapDN() );
+        ServerContext ctx = null;
+        
+        try
+        {
+            ctx = new ServerLdapContext( getService(), getPrincipal(), new LdapDN() );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+        }
+        
+        return ctx;
     }
 }

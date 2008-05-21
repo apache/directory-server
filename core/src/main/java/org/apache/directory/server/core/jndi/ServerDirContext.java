@@ -104,7 +104,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @param principal the principal which is propagated
      * @param dn the distinguished name of this context
      */
-    public ServerDirContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws NamingException
+    public ServerDirContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws Exception
     {
         super( service, principal, dn );
     }
@@ -539,7 +539,19 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
 
         // Initialize the new context
-        return new ServerLdapContext( getService(), getPrincipal(), target );
+        ServerLdapContext ctx = null;
+        
+        try
+        {
+            ctx = new ServerLdapContext( getService(), getPrincipal(), target );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+        }
+        
+        
+        return ctx;
     }
 
 
@@ -882,8 +894,15 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             throw e2;
         }
 
-        ( ( PartitionNexusProxy ) getNexusProxy() ).addNamingListener( this, buildTarget( name ), filter,
-            searchControls, namingListener );
+        try
+        {
+            ( ( PartitionNexusProxy ) getNexusProxy() ).addNamingListener( this, buildTarget( name ), filter,
+                searchControls, namingListener );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+        }
         getListeners().add( namingListener );
     }
 
