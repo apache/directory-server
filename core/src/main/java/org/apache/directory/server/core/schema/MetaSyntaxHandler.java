@@ -26,7 +26,6 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
@@ -53,7 +52,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
 
     
     public MetaSyntaxHandler( Registries targetRegistries, PartitionSchemaLoader loader, SchemaPartitionDao dao ) 
-        throws NamingException
+        throws Exception
     {
         super( targetRegistries, loader );
 
@@ -63,7 +62,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
 
     
     protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
-        boolean cascade ) throws NamingException
+        boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         Schema schema = getSchema( name );
@@ -77,7 +76,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     }
 
     
-    public void add( LdapDN name, ServerEntry entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws Exception
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
@@ -90,11 +89,11 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         
-        Set<ServerSearchResult> dependees = dao.listSyntaxDependents( oid );
+        Set<ServerEntry> dependees = dao.listSyntaxDependents( oid );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -112,7 +111,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( Syntax syntax, boolean cascade ) throws NamingException
+    public void delete( Syntax syntax, boolean cascade ) throws Exception
     {
         Schema schema = loader.getSchema( syntax.getSchema() );
         if ( ! schema.isDisabled() )
@@ -125,11 +124,11 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     }
 
     
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String oldOid = getOid( entry );
 
-        Set<ServerSearchResult> dependees = dao.listSyntaxDependents( oldOid );
+        Set<ServerEntry> dependees = dao.listSyntaxDependents( oldOid );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -165,12 +164,12 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
-        ServerEntry entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
 
-        Set<ServerSearchResult> dependees = dao.listSyntaxDependents( oldOid );
+        Set<ServerEntry> dependees = dao.listSyntaxDependents( oldOid );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -210,12 +209,12 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
 
 
     public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
-        throws NamingException
+        throws Exception
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );
         
-        Set<ServerSearchResult> dependees = dao.listSyntaxDependents( oid );
+        Set<ServerEntry> dependees = dao.listSyntaxDependents( oid );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -276,7 +275,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
      * @param syntax the syntax that is to be added to this handler's registries
      * @throws NamingException if there are problems access schema data
      */
-    public void add( Syntax syntax ) throws NamingException
+    public void add( Syntax syntax ) throws Exception
     {
         Schema schema = loader.getSchema( syntax.getSchema() );
         

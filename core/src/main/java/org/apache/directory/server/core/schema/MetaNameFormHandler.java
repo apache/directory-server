@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 public class MetaNameFormHandler extends AbstractSchemaChangeHandler
 {
 
-    protected MetaNameFormHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws NamingException
+    protected MetaNameFormHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws Exception
     {
         super( targetRegistries, loader );
         // TODO Auto-generated constructor stub

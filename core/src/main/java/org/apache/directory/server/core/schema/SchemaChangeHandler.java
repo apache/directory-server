@@ -26,7 +26,6 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
-import javax.naming.NamingException;
 import java.util.List;
 
 
@@ -39,20 +38,20 @@ import java.util.List;
  */
 public interface SchemaChangeHandler
 {
-    void add( LdapDN name, ServerEntry entry ) throws NamingException;
+    void add( LdapDN name, ServerEntry entry ) throws Exception;
     
-    void delete( LdapDN name, ServerEntry entry, boolean cascaded ) throws NamingException;
+    void delete( LdapDN name, ServerEntry entry, boolean cascaded ) throws Exception;
     
-    void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascaded ) throws NamingException;
+    void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascaded ) throws Exception;
     
     void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded ) 
-        throws NamingException;
+        throws Exception;
     
     void modify( LdapDN name, List<Modification> mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded )
-        throws NamingException;
+        throws Exception;
     
     void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn, ServerEntry entry,
-        boolean cascaded ) throws NamingException;
+        boolean cascaded ) throws Exception;
     
-    void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascaded ) throws NamingException;
+    void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascaded ) throws Exception;
 }

@@ -235,7 +235,7 @@ public class DescriptionParsers
      * @return the set of attributeType objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public AttributeType[] parseAttributeTypes( EntryAttribute attr ) throws NamingException
+    public AttributeType[] parseAttributeTypes( EntryAttribute attr ) throws Exception
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -370,7 +370,7 @@ public class DescriptionParsers
      * @return the set of objectClass objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public ObjectClass[] parseObjectClasses( EntryAttribute attr ) throws NamingException
+    public ObjectClass[] parseObjectClasses( EntryAttribute attr ) throws Exception
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -518,7 +518,7 @@ public class DescriptionParsers
      * @return the set of Syntax objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public Syntax[] parseSyntaxes( EntryAttribute attr ) throws NamingException
+    public Syntax[] parseSyntaxes( EntryAttribute attr ) throws Exception
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -572,7 +572,7 @@ public class DescriptionParsers
      * @return the set of matchingRule objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public MatchingRule[] parseMatchingRules( EntryAttribute attr ) throws NamingException
+    public MatchingRule[] parseMatchingRules( EntryAttribute attr ) throws Exception
     {
         if ( attr == null || attr.size() == 0 )
         {

@@ -88,7 +88,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param entry the entry after the modifications have been applied
      */
     public void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, 
-        ServerEntry targetEntry, boolean cascade ) throws NamingException
+        ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         EntryAttribute disabledInMods = mods.get( disabledAT );
         
@@ -129,7 +129,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param entry the entry after the modifications have been applied
      */
     public void modify( LdapDN name, List<Modification> mods, ServerEntry entry,
-        ServerEntry targetEntry, boolean cascade ) throws NamingException
+        ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         EntryAttribute disabledInEntry = entry.get( disabledAT );
         Modification disabledModification = ServerEntryUtils.getModificationItem( mods, disabledAT );
@@ -176,7 +176,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param name the dn of the new metaSchema object
      * @param entry the attributes of the new metaSchema object
      */
-    public void add( LdapDN name, ServerEntry entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws Exception
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
@@ -243,7 +243,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param name the dn of the metaSchema object being deleted
      * @param entry the attributes of the metaSchema object 
      */
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
     {
         EntryAttribute cn = entry.get( cnAT );
         String schemaName = cn.getString();
@@ -274,7 +274,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param entry the entry of the metaSchema object before the rename
      * @param newRdn the new commonName of the metaSchema object
      */
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String rdnAttribute = newRdn.getUpType();
         String rdnAttributeOid = globalRegistries.getOidRegistry().getOid( rdnAttribute );
@@ -381,7 +381,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
 
     
     private void disable( LdapDN name, ModificationOperation modOp, EntryAttribute disabledInMods, EntryAttribute disabledInEntry )
-        throws NamingException
+        throws Exception
     {
         switch ( modOp )
         {
@@ -446,7 +446,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     }
 
 
-    private void disableSchema( String schemaName ) throws NamingException
+    private void disableSchema( String schemaName ) throws Exception
     {
         Set<String> dependents = loader.listEnabledDependentSchemaNames( schemaName );
         if ( ! dependents.isEmpty() )
@@ -464,7 +464,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * TODO - for now we're just going to add the schema to the global 
      * registries ... we may need to add it to more than that though later.
      */
-    private void enableSchema( String schemaName ) throws NamingException
+    private void enableSchema( String schemaName ) throws Exception
     {
         if ( globalRegistries.getLoadedSchemas().containsKey( schemaName ) )
         {
@@ -486,7 +486,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @throws NamingException if the dependencies do not resolve or are not
      * loaded (enabled)
      */
-    private void checkForDependencies( boolean isEnabled, ServerEntry entry ) throws NamingException
+    private void checkForDependencies( boolean isEnabled, ServerEntry entry ) throws Exception
     {
         EntryAttribute dependencies = entry.get( this.dependenciesAT );
 

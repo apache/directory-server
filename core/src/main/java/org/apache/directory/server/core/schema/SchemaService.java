@@ -380,7 +380,7 @@ public class SchemaService
      * @return the schemaSubentry
      * @throws NamingException if there is a failure to access schema timestamps
      */
-    public ServerEntry getSubschemaEntryImmutable() throws NamingException
+    public ServerEntry getSubschemaEntryImmutable() throws Exception
     {
         if ( schemaSubentry == null )
         {
@@ -398,7 +398,7 @@ public class SchemaService
      * @return the schemaSubentry
      * @throws NamingException if there is a failure to access schema timestamps
      */
-    public ServerEntry getSubschemaEntryCloned() throws NamingException
+    public ServerEntry getSubschemaEntryCloned() throws Exception
     {
         if ( schemaSubentry == null )
         {
@@ -418,7 +418,7 @@ public class SchemaService
      * @return the subschema entry with the ids provided
      * @throws NamingException if there are failures during schema info access
      */
-    public ServerEntry getSubschemaEntry( String[] ids ) throws NamingException
+    public ServerEntry getSubschemaEntry( String[] ids ) throws Exception
     {
         if ( ids == null )
         {

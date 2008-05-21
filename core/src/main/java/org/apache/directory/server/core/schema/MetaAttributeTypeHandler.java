@@ -26,7 +26,6 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -54,7 +53,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     
 
     public MetaAttributeTypeHandler( Registries targetRegistries, PartitionSchemaLoader loader, SchemaPartitionDao dao ) 
-        throws NamingException
+        throws Exception
     {
         super( targetRegistries, loader );
         
@@ -64,7 +63,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 
 
     protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
-        throws NamingException
+        throws Exception
     {
         String oid = getOid( entry );
         Schema schema = getSchema( name );
@@ -78,7 +77,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     }
     
     
-    public void add( AttributeType at ) throws NamingException
+    public void add( AttributeType at ) throws Exception
     {
         Schema schema = dao.getSchema( at.getSchema() );
         if ( ! schema.isDisabled() )
@@ -92,7 +91,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( LdapDN name, ServerEntry entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws Exception
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
@@ -105,11 +104,11 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( name );
         AttributeType at = factory.getAttributeType( entry, targetRegistries, schemaName );
-        Set<ServerSearchResult> dependees = dao.listAttributeTypeDependents( at );
+        Set<ServerEntry> dependees = dao.listAttributeTypeDependents( at );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -124,7 +123,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( AttributeType at, boolean cascade ) throws NamingException
+    public void delete( AttributeType at, boolean cascade ) throws Exception
     {
         Schema schema = loader.getSchema( at.getSchema() );
         if ( ! schema.isDisabled() )
@@ -135,11 +134,11 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         Schema schema = getSchema( name );
         AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, schema.getSchemaName() );
-        Set<ServerSearchResult> dependees = dao.listAttributeTypeDependents( oldAt );
+        Set<ServerEntry> dependees = dao.listAttributeTypeDependents( oldAt );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -171,12 +170,12 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
-        ServerEntry entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<ServerSearchResult> dependees = dao.listAttributeTypeDependents( oldAt );
+        Set<ServerEntry> dependees = dao.listAttributeTypeDependents( oldAt );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -212,12 +211,12 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 
 
     public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
-        throws NamingException
+        throws Exception
     {
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<ServerSearchResult> dependees = dao.listAttributeTypeDependents( oldAt );
+        Set<ServerEntry> dependees = dao.listAttributeTypeDependents( oldAt );
         
         if ( dependees != null && dependees.size() > 0 )
         {

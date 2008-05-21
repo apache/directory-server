@@ -26,7 +26,6 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -53,7 +52,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
 
 
     public MetaObjectClassHandler( Registries targetRegistries, PartitionSchemaLoader loader, SchemaPartitionDao dao ) 
-        throws NamingException
+        throws Exception
     {
         super( targetRegistries, loader );
         
@@ -63,7 +62,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
 
 
     protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
-        boolean cascade ) throws NamingException
+        boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         Schema schema = getSchema( name );
@@ -77,7 +76,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( LdapDN name, ServerEntry entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws Exception
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
@@ -90,11 +89,11 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( name );
         ObjectClass oc = factory.getObjectClass( entry, targetRegistries, schemaName );
-        Set<ServerSearchResult> dependees = dao.listObjectClassDependents( oc );
+        Set<ServerEntry> dependees = dao.listObjectClassDependents( oc );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -109,7 +108,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( ObjectClass oc, boolean cascade ) throws NamingException
+    public void delete( ObjectClass oc, boolean cascade ) throws Exception
     {
         Schema schema = loader.getSchema( oc.getSchema() );
         
@@ -122,11 +121,11 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         Schema schema = getSchema( name );
         ObjectClass oldOc = factory.getObjectClass( entry, targetRegistries, schema.getSchemaName() );
-        Set<ServerSearchResult> dependees = dao.listObjectClassDependents( oldOc );
+        Set<ServerEntry> dependees = dao.listObjectClassDependents( oldOc );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -158,12 +157,12 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
-        ServerEntry entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         ObjectClass oldOc = factory.getObjectClass( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<ServerSearchResult> dependees = dao.listObjectClassDependents( oldOc );
+        Set<ServerEntry> dependees = dao.listObjectClassDependents( oldOc );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -199,12 +198,12 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
 
 
     public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
-        throws NamingException
+        throws Exception
     {
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         ObjectClass oldAt = factory.getObjectClass( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<ServerSearchResult> dependees = dao.listObjectClassDependents( oldAt );
+        Set<ServerEntry> dependees = dao.listObjectClassDependents( oldAt );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -255,7 +254,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( ObjectClass oc ) throws NamingException
+    public void add( ObjectClass oc ) throws Exception
     {
         Schema schema = loader.getSchema( oc.getSchema() );
         if ( ! schema.isDisabled() )

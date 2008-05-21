@@ -194,7 +194,7 @@ public class SchemaOperationControl
 
 
     public SchemaOperationControl( Registries registries, PartitionSchemaLoader loader, SchemaPartitionDao dao )
-        throws NamingException
+        throws Exception
     {
         this.registries = registries;
         this.objectClassAT = this.registries.getAttributeTypeRegistry()
@@ -287,7 +287,7 @@ public class SchemaOperationControl
     }
 
 
-    public void add( LdapDN name, ServerEntry entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws Exception
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -336,7 +336,7 @@ public class SchemaOperationControl
     }
     
 
-    public void delete( LdapDN name, ServerEntry entry, boolean doCascadeDelete ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean doCascadeDelete ) throws Exception
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -385,7 +385,7 @@ public class SchemaOperationControl
     
 
     public void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, 
-        ServerEntry targetEntry, boolean cascade ) throws NamingException
+        ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -414,7 +414,7 @@ public class SchemaOperationControl
 
 
     public void modify( LdapDN name, List<Modification> mods, ServerEntry entry, ServerEntry targetEntry,
-        boolean doCascadeModify ) throws NamingException
+        boolean doCascadeModify ) throws Exception
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -445,7 +445,7 @@ public class SchemaOperationControl
 
 
     public void modifyRn( LdapDN name, Rdn newRdn, boolean deleteOldRn, ServerEntry entry, boolean doCascadeModify ) 
-        throws NamingException
+        throws Exception
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -474,7 +474,7 @@ public class SchemaOperationControl
 
 
     public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, 
-        boolean cascade ) throws NamingException
+        boolean cascade ) throws Exception
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -503,7 +503,7 @@ public class SchemaOperationControl
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
-        ServerEntry entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws Exception
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -545,7 +545,7 @@ public class SchemaOperationControl
      * @throws NamingException if the operation fails
      */
     public void modifySchemaSubentry( LdapDN name, List<Modification> mods, ServerEntry subentry, 
-        ServerEntry targetSubentry, boolean doCascadeModify ) throws NamingException 
+        ServerEntry targetSubentry, boolean doCascadeModify ) throws Exception 
     {
         for ( Modification mod : mods )
         {
@@ -599,7 +599,7 @@ public class SchemaOperationControl
      * @throws NamingException if the modify fails
      */
     public void modifySchemaSubentry( LdapDN name, int modOp, ServerEntry mods, ServerEntry subentry, 
-        ServerEntry targetSubentry, boolean doCascadeModify ) throws NamingException
+        ServerEntry targetSubentry, boolean doCascadeModify ) throws Exception
     {
         Set<AttributeType> attributeTypes = mods.getAttributeTypes();
         
@@ -661,7 +661,7 @@ public class SchemaOperationControl
      * schema partition
      */
     private void modifyRemoveOperation( String opAttrOid, EntryAttribute mods, boolean doCascadeModify ) 
-        throws NamingException
+        throws Exception
     {
         int index = opAttr2handlerIndex.get( opAttrOid );
         SchemaChangeHandler handler = opAttr2handlerMap.get( opAttrOid );
@@ -794,7 +794,7 @@ public class SchemaOperationControl
      * @throws NamingException if there are problems updating the registries and the
      * schema partition
      */
-    private void modifyAddOperation( String opAttrOid, EntryAttribute mods, boolean doCascadeModify ) throws NamingException
+    private void modifyAddOperation( String opAttrOid, EntryAttribute mods, boolean doCascadeModify ) throws Exception
     {
         if ( doCascadeModify )
         {

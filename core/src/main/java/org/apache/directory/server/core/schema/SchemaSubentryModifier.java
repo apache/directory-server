@@ -143,7 +143,7 @@ public class SchemaSubentryModifier
     }
     
 
-    public void addSchemaObject( Registries registries, SchemaObject obj ) throws NamingException
+    public void addSchemaObject( Registries registries, SchemaObject obj ) throws Exception
     {
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         Schema schema = dao.getSchema( obj.getSchema() );
