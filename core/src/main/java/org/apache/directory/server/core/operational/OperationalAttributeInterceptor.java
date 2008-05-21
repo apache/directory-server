@@ -25,8 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -34,7 +36,6 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
-import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -62,8 +63,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 
@@ -83,7 +82,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     private final SearchResultFilter DENORMALIZING_SEARCH_FILTER = new SearchResultFilter()
     {
         public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls ) 
-            throws NamingException
+            throws Exception
         {
             ServerEntry serverEntry = result.getServerEntry(); 
             
@@ -106,7 +105,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
     {
         public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-            throws NamingException
+            throws Exception
         {
             ServerEntry serverEntry = result.getServerEntry(); 
             
@@ -132,7 +131,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
         service = directoryService;
         registries = directoryService.getRegistries();
@@ -155,7 +154,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * Adds extra operational attributes to the entry before it is added.
      */
     public void add( NextInterceptor nextInterceptor, AddOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         String principal = getPrincipal().getName();
         
@@ -169,7 +168,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
 
     public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         nextInterceptor.modify( opContext );
         
@@ -214,7 +213,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
 
     public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         nextInterceptor.rename( opContext );
 
@@ -236,7 +235,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws Exception
     {
         nextInterceptor.move( opContext );
 
@@ -256,7 +255,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
 
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         nextInterceptor.moveAndRename( opContext );
 
@@ -275,7 +274,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
         ServerEntry result = nextInterceptor.lookup( opContext );
         
@@ -297,32 +296,38 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        NamingEnumeration<ServerSearchResult> result = nextInterceptor.list( opContext );
+        Cursor<ServerEntry> result = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         
-        return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, SEARCH_FILTER, "List Operational Filter" );
+//        return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, SEARCH_FILTER, "List Operational Filter" );
+        // TODO not implemented
+        throw new NotImplementedException();
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration<ServerSearchResult> result = nextInterceptor.search( opContext );
+        Cursor<ServerEntry> result = nextInterceptor.search( opContext );
         SearchControls searchCtls = opContext.getSearchControls();
         
         if ( searchCtls.getReturningAttributes() != null )
         {
             if ( service.isDenormalizeOpAttrsEnabled() )
             {
-                return new SearchResultFilteringEnumeration( result, searchCtls, invocation, DENORMALIZING_SEARCH_FILTER, "Search Operational Filter denormalized" );
+//                return new SearchResultFilteringEnumeration( result, searchCtls, invocation, DENORMALIZING_SEARCH_FILTER, "Search Operational Filter denormalized" );
+                // TODO not implemented
+                throw new NotImplementedException();
             }
                 
             return result;
         }
 
-        return new SearchResultFilteringEnumeration( result, searchCtls, invocation, SEARCH_FILTER , "Search Operational Filter");
+//        return new SearchResultFilteringEnumeration( result, searchCtls, invocation, SEARCH_FILTER , "Search Operational Filter");
+        // TODO Not implemented
+        throw new NotImplementedException();
     }
 
 
@@ -332,9 +337,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      *
      * @param attributes the resultant attributes to filter
      * @return true always
-     * @throws NamingException if there are failures in evaluation
+     * @throws Exception if there are failures in evaluation
      */
-    private boolean filterOperationalAttributes( ServerEntry attributes ) throws NamingException
+    private boolean filterOperationalAttributes( ServerEntry attributes ) throws Exception
     {
         Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
 
@@ -357,7 +362,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    private void filter( LookupOperationContext lookupContext, ServerEntry entry ) throws NamingException
+    private void filter( LookupOperationContext lookupContext, ServerEntry entry ) throws Exception
     {
         LdapDN dn = lookupContext.getDn();
         List<String> ids = lookupContext.getAttrsId();
@@ -390,7 +395,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
     
-    public void denormalizeEntryOpAttrs( ServerEntry entry ) throws NamingException
+    public void denormalizeEntryOpAttrs( ServerEntry entry ) throws Exception
     {
         if ( service.isDenormalizeOpAttrsEnabled() )
         {
@@ -433,9 +438,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * 
      * @param dn the normalized distinguished name
      * @return the distinuished name denormalized
-     * @throws NamingException if there are problems denormalizing
+     * @throws Exception if there are problems denormalizing
      */
-    public LdapDN denormalizeTypes( LdapDN dn ) throws NamingException
+    public LdapDN denormalizeTypes( LdapDN dn ) throws Exception
     {
         LdapDN newDn = new LdapDN();
         
@@ -477,7 +482,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    private boolean filterDenormalized( ServerEntry entry ) throws NamingException
+    private boolean filterDenormalized( ServerEntry entry ) throws Exception
     {
         denormalizeEntryOpAttrs( entry );
         return true;

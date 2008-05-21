@@ -509,7 +509,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public void addPartition( Partition parition ) throws NamingException
+    public void addPartition( Partition parition ) throws Exception
     {
         partitions.add( parition );
 
@@ -756,7 +756,7 @@ public class DefaultDirectoryService implements DirectoryService
                     {
                         shutdown();
                     }
-                    catch ( NamingException e )
+                    catch ( Exception e )
                     {
                         LOG.warn( "Failed to shut down the directory service: "
                             + DefaultDirectoryService.this.instanceId, e );
@@ -787,7 +787,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public synchronized void sync() throws NamingException
+    public synchronized void sync() throws Exception
     {
         if ( !started )
         {
@@ -799,7 +799,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public synchronized void shutdown() throws NamingException
+    public synchronized void shutdown() throws Exception
     {
         if ( !started )
         {
@@ -1207,7 +1207,7 @@ public class DefaultDirectoryService implements DirectoryService
      * Displays security warning messages if any possible secutiry issue is found.
      * @throws NamingException if there are failures parsing and accessing internal structures
      */
-    private void showSecurityWarnings() throws NamingException
+    private void showSecurityWarnings() throws Exception
     {
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword = false;
@@ -1242,7 +1242,7 @@ public class DefaultDirectoryService implements DirectoryService
      * 
      * @throws NamingException if the creation of test entries fails.
      */
-    private void createTestEntries() throws NamingException
+    private void createTestEntries() throws Exception
     {
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE );
         ServerLdapContext ctx = new ServerLdapContext( this, principal, new LdapDN() );

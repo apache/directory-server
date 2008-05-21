@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -77,7 +76,7 @@ public abstract class PartitionNexus implements Partition
         {
             adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             throw new InternalError();
         }
@@ -100,7 +99,7 @@ public abstract class PartitionNexus implements Partition
         {
             // Nothing we can do ...
         }
-        catch ( NamingException ne )
+        catch ( Exception ne )
         {
             // Nothing we can do ...
         }
@@ -122,7 +121,7 @@ public abstract class PartitionNexus implements Partition
         {
             groupsBaseDn = new LdapDN( ServerDNConstants.GROUPS_SYSTEM_DN );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             throw new InternalError();
         }
@@ -144,7 +143,7 @@ public abstract class PartitionNexus implements Partition
         {
             usersBaseDn = new LdapDN( ServerDNConstants.USERS_SYSTEM_DN );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             throw new InternalError();
         }
@@ -167,7 +166,7 @@ public abstract class PartitionNexus implements Partition
      *
      * @return the attributes of the RootDSE
      */
-    public abstract ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException;
+    public abstract ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception;
 
 
     /**
@@ -176,15 +175,16 @@ public abstract class PartitionNexus implements Partition
      *
      * @param compareContext the context used to compare
      * @return true if the entry contains an attribute with the value, false otherwise
-     * @throws NamingException if there is a problem accessing the entry and its values
+     * @throws Exception if there is a problem accessing the entry and its values
+     * @throws Exception 
      */
-    public abstract boolean compare( CompareOperationContext compareContext ) throws NamingException;
+    public abstract boolean compare( CompareOperationContext compareContext ) throws Exception;
 
 
-    public abstract void addContextPartition( AddContextPartitionOperationContext opContext ) throws NamingException;
+    public abstract void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception;
 
 
-    public abstract void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws NamingException;
+    public abstract void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws Exception;
 
 
     public abstract Partition getSystemPartition();
@@ -198,9 +198,9 @@ public abstract class PartitionNexus implements Partition
      * 
      * @param dn the normalized distinguished name to get a partition for
      * @return the partition containing the entry represented by the dn
-     * @throws NamingException if there is no partition for the dn
+     * @throws Exception if there is no partition for the dn
      */
-    public abstract Partition getPartition( LdapDN dn ) throws NamingException;
+    public abstract Partition getPartition( LdapDN dn ) throws Exception;
 
 
     /**
@@ -211,9 +211,9 @@ public abstract class PartitionNexus implements Partition
      * @return a distinguished name representing the matching portion of dn,
      * as originally provided by the user on creation of the matched entry or 
      * the empty string distinguished name if no match was found.
-     * @throws NamingException if there are any problems
+     * @throws Exception if there are any problems
      */
-    public abstract LdapDN getMatchedName ( GetMatchedNameOperationContext getMatchedNameContext ) throws NamingException;
+    public abstract LdapDN getMatchedName ( GetMatchedNameOperationContext getMatchedNameContext ) throws Exception;
 
 
     /**
@@ -225,9 +225,9 @@ public abstract class PartitionNexus implements Partition
      * name to use for finding a suffix.
      * @return the suffix portion of dn, or the valid empty string Dn if no
      * naming context was found for dn.
-     * @throws NamingException if there are any problems
+     * @throws Exception if there are any problems
      */
-    public abstract LdapDN getSuffix ( GetSuffixOperationContext suffixContext ) throws NamingException;
+    public abstract LdapDN getSuffix ( GetSuffixOperationContext suffixContext ) throws Exception;
 
 
     /**
@@ -235,9 +235,9 @@ public abstract class PartitionNexus implements Partition
      * {@link PartitionNexus}.
      *
      * @return Iteration over ContextPartition suffix names as Names.
-     * @throws NamingException if there are any problems
+     * @throws Exception if there are any problems
      */
-    public abstract Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws NamingException;
+    public abstract Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception;
 
 
     /**
@@ -246,8 +246,8 @@ public abstract class PartitionNexus implements Partition
      * @param extensionOids a set of OID strings to add to the supportedExtension 
      * attribute in the RootDSE
      */
-    public abstract void registerSupportedExtensions( Set<String> extensionOids ) throws NamingException;
+    public abstract void registerSupportedExtensions( Set<String> extensionOids ) throws Exception;
 
 
-    public abstract void registerSupportedSaslMechanisms( Set<String> strings ) throws NamingException;
+    public abstract void registerSupportedSaslMechanisms( Set<String> strings ) throws Exception;
 }

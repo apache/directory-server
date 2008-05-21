@@ -212,7 +212,15 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         opCtx.addRequestControls( requestControls );
 
         // execute operation
-        boolean result = super.getNexusProxy().compare( opCtx );
+        boolean result = false;
+        try
+        {
+            result = super.getNexusProxy().compare( opCtx );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+        }
         
         // extract the response controls from the operation and return
         responseControls = getResponseControls();

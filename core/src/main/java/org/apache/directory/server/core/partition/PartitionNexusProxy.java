@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.ServiceUnavailableException;
 import javax.naming.directory.SearchControls;
 import javax.naming.event.EventContext;
@@ -42,6 +40,7 @@ import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.changelog.ChangeLogInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -76,6 +75,7 @@ import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
@@ -217,7 +217,7 @@ public class PartitionNexusProxy extends PartitionNexus
      * @param caller  a JNDI {@link Context} object that will call this proxy
      * @param service a JNDI service
      */
-    public PartitionNexusProxy( Context caller, DirectoryService service ) throws NamingException
+    public PartitionNexusProxy( Context caller, DirectoryService service ) throws Exception
     {
         this.caller = caller;
         this.service = service;
@@ -278,7 +278,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void init( DirectoryService core ) throws NamingException
+    public void init( DirectoryService core ) throws Exception
     {
     }
 
@@ -294,30 +294,30 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Partition getPartition( LdapDN dn ) throws NamingException
+    public Partition getPartition( LdapDN dn ) throws Exception
     {
         return service.getPartitionNexus().getPartition( dn );
     }
 
 
-    public LdapDN getSuffixDn() throws NamingException
+    public LdapDN getSuffixDn() throws Exception
     {
         return service.getPartitionNexus().getSuffixDn();
     }
 
-    public LdapDN getUpSuffixDn() throws NamingException
+    public LdapDN getUpSuffixDn() throws Exception
     {
         return service.getPartitionNexus().getUpSuffixDn();
     }
 
 
-    public void sync() throws NamingException
+    public void sync() throws Exception
     {
         this.service.sync();
     }
 
 
-    public void close() throws NamingException
+    public void close() throws Exception
     {
         this.service.shutdown();
     }
@@ -329,13 +329,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws NamingException
+    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
     {
         return getMatchedName( opContext, null );
     }
 
 
-    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "getMatchedName", bypass ) );
@@ -351,13 +351,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws NamingException
+    public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception
     {
         return getSuffix( opContext, null );
     }
 
 
-    public LdapDN getSuffix( GetSuffixOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public LdapDN getSuffix( GetSuffixOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "getSuffixDn", bypass ) );
@@ -373,13 +373,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws NamingException
+    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
     {
         return listSuffixes( opContext, null );
     }
 
 
-    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "listSuffices", bypass ) );
@@ -395,13 +395,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public boolean compare( CompareOperationContext opContext ) throws NamingException
+    public boolean compare( CompareOperationContext opContext ) throws Exception
     {
         return compare( opContext, null );
     }
 
 
-    public boolean compare( CompareOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public boolean compare( CompareOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "compare", bypass ) );
@@ -417,13 +417,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void delete( DeleteOperationContext opContext ) throws NamingException
+    public void delete( DeleteOperationContext opContext ) throws Exception
     {
         delete( opContext, null );
     }
 
 
-    public void delete( DeleteOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public void delete( DeleteOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "delete", bypass ) );
@@ -439,13 +439,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void add( AddOperationContext opContext ) throws NamingException
+    public void add( AddOperationContext opContext ) throws Exception
     {
         add( opContext, null );
     }
 
 
-    public void add( AddOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public void add( AddOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "add", bypass ) );
@@ -461,13 +461,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void modify( ModifyOperationContext opContext ) throws NamingException
+    public void modify( ModifyOperationContext opContext ) throws Exception
     {
         modify( opContext, null );
     }
 
 
-    public void modify( ModifyOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public void modify( ModifyOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "modify", bypass ) );
@@ -483,14 +483,14 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException
+    public Cursor<ServerEntry> list( ListOperationContext opContext ) throws Exception
     {
         return list( opContext, null );
     }
 
 
-    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+    public Cursor<ServerEntry> list( ListOperationContext opContext, Collection<String> bypass )
+            throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "list", bypass ) );
@@ -506,10 +506,9 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
-            throws NamingException
+    public Cursor<ServerEntry> search( SearchOperationContext opContext ) throws Exception
     {
-        NamingEnumeration<ServerSearchResult> ne = search( opContext, null );
+        Cursor<ServerEntry> ne = search( opContext, null );
 
         if ( ne instanceof SearchResultFilteringEnumeration )
         {
@@ -528,7 +527,7 @@ public class PartitionNexusProxy extends PartitionNexus
 
 
                     public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-                            throws NamingException
+                            throws Exception
                     {
                         if ( controls.getTimeLimit() > 0 )
                         {
@@ -558,8 +557,8 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+    public Cursor<ServerEntry> search( SearchOperationContext opContext, Collection<String> bypass )
+            throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "search", bypass ) );
@@ -575,7 +574,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
         if ( opContext.getDn().size() == 0 )
         {
@@ -612,7 +611,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public ServerEntry lookup( LookupOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public ServerEntry lookup( LookupOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "lookup", bypass ) );
@@ -627,13 +626,13 @@ public class PartitionNexusProxy extends PartitionNexus
         }
     }
 
-    public boolean hasEntry( EntryOperationContext opContext ) throws NamingException
+    public boolean hasEntry( EntryOperationContext opContext ) throws Exception
     {
         return hasEntry( opContext, null );
     }
 
 
-    public boolean hasEntry( EntryOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public boolean hasEntry( EntryOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "hasEntry", bypass ) );
@@ -649,13 +648,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void rename( RenameOperationContext opContext ) throws NamingException
+    public void rename( RenameOperationContext opContext ) throws Exception
     {
         rename( opContext, null );
     }
 
 
-    public void rename( RenameOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public void rename( RenameOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "rename", bypass ) );
@@ -671,13 +670,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void move( MoveOperationContext opContext ) throws NamingException
+    public void move( MoveOperationContext opContext ) throws Exception
     {
         move( opContext, null );
     }
 
 
-    public void move( MoveOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public void move( MoveOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "move", bypass ) );
@@ -693,14 +692,14 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws NamingException
+    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
     {
         moveAndRename( opContext, null );
     }
 
 
     public void moveAndRename( MoveAndRenameOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+            throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "moveAndRename", bypass ) );
@@ -720,10 +719,10 @@ public class PartitionNexusProxy extends PartitionNexus
      *
      * @param opContext The operation context
      * @param bypass bypass instructions to skip interceptors
-     * @throws NamingException if bind fails
+     * @throws Exception if bind fails
      */
     public void bind( BindOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+            throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "bind", bypass ) );
@@ -739,7 +738,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void unbind( UnbindOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public void unbind( UnbindOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "unbind", bypass ) );
@@ -755,19 +754,19 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void bind( BindOperationContext opContext ) throws NamingException
+    public void bind( BindOperationContext opContext ) throws Exception
     {
         bind( opContext, null );
     }
 
 
-    public void unbind( UnbindOperationContext opContext ) throws NamingException
+    public void unbind( UnbindOperationContext opContext ) throws Exception
     {
         unbind( opContext, null );
     }
 
 
-    public ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
+    public ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
     {
         if ( opContext.getDn().size() == 0 )
         {
@@ -787,7 +786,7 @@ public class PartitionNexusProxy extends PartitionNexus
 
 
     public ServerEntry getRootDSE( GetRootDSEOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+            throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "getRootDSE", GET_ROOT_DSE_BYPASS ) );
@@ -803,14 +802,14 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void addContextPartition( AddContextPartitionOperationContext opContext ) throws NamingException
+    public void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception
     {
         addContextPartition( opContext, null );
     }
 
 
     public void addContextPartition( AddContextPartitionOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+            throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "addContextPartition", bypass ) );
@@ -826,14 +825,14 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws NamingException
+    public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws Exception
     {
         removeContextPartition( opContext, null );
     }
 
 
     public void removeContextPartition( RemoveContextPartitionOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+            throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "removeContextPartition", bypass ) );
@@ -858,13 +857,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void registerSupportedExtensions( Set<String> extensionOids ) throws NamingException
+    public void registerSupportedExtensions( Set<String> extensionOids ) throws Exception
     {
         service.getPartitionNexus().registerSupportedExtensions( extensionOids );
     }
 
 
-    public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws NamingException
+    public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws Exception
     {
         service.getPartitionNexus().registerSupportedSaslMechanisms( supportedSaslMechanisms );
     }
@@ -882,7 +881,7 @@ public class PartitionNexusProxy extends PartitionNexus
      */
 
     public void addNamingListener( EventContext ctx, LdapDN name, ExprNode filter, SearchControls searchControls,
-            NamingListener namingListener ) throws NamingException
+            NamingListener namingListener ) throws Exception
     {
         InterceptorChain chain = service.getInterceptorChain();
         EventInterceptor interceptor = ( EventInterceptor ) chain.get( EventInterceptor.class.getName() );
@@ -890,7 +889,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void removeNamingListener( EventContext ctx, NamingListener namingListener ) throws NamingException
+    public void removeNamingListener( EventContext ctx, NamingListener namingListener ) throws Exception
     {
         InterceptorChain chain = service.getInterceptorChain();
         if ( chain == null )
@@ -899,5 +898,13 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         EventInterceptor interceptor = ( EventInterceptor ) chain.get( EventInterceptor.class.getName() );
         interceptor.removeNamingListener( ctx, namingListener );
+    }
+
+
+    public ServerEntry lookup( Long id ) throws Exception
+    {
+        // TODO not implemented until we can lookup partition using the 
+        // partition id component of the 64 bit identifier
+        throw new NotImplementedException();
     }
 }
