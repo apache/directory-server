@@ -49,7 +49,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 import java.util.Iterator;
 
@@ -107,8 +106,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * This method does nothing by default.
+     * @throws Exception 
      */
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
     }
 
@@ -125,118 +125,118 @@ public abstract class BaseInterceptor implements Interceptor
     // Interceptor's Invoke Method
     // ------------------------------------------------------------------------
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         next.add( opContext );
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         next.delete( opContext );
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
     {
         return next.getMatchedName( opContext );
     }
 
 
-    public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException
+    public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
     {
         return next.getRootDSE( opContext );
     }
 
 
-    public LdapDN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws NamingException
+    public LdapDN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
     {
         return next.getSuffix( opContext );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws Exception
     {
         return next.hasEntry( opContext );
     }
 
 
     public NamingEnumeration<ServerSearchResult> list( NextInterceptor next, ListOperationContext opContext ) 
-        throws NamingException
+        throws Exception
     {
         return next.list( opContext );
     }
 
 
     public Iterator<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) 
-        throws NamingException
+        throws Exception
     {
         return next.listSuffixes( opContext );
     }
 
 
-    public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
+    public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
     {
         return next.lookup( opContext );
     }
 
     
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         next.modify( opContext );
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
         next.rename( opContext );
     }
 
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         next.moveAndRename( opContext );
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
         next.move( opContext );
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         return next.search( opContext );
     }
 
 
-    public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext ) throws NamingException
+    public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext ) throws Exception
     {
         next.addContextPartition( opContext );
     }
 
 
-    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws NamingException
+    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws Exception
     {
         next.removeContextPartition( opContext );
     }
 
 
-    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws NamingException
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
     {
         return next.compare( opContext );
     }
 
 
-    public void bind( NextInterceptor next, BindOperationContext opContext ) throws NamingException
+    public void bind( NextInterceptor next, BindOperationContext opContext ) throws Exception
     {
         next.bind( opContext );
     }
 
 
-    public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws NamingException
+    public void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws Exception
     {
         next.unbind( opContext );
     }

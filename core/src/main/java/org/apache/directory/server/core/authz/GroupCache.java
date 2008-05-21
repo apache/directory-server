@@ -29,9 +29,9 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -52,7 +52,6 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
@@ -100,7 +99,7 @@ public class GroupCache
      * @param directoryService the directory service core
      * @throws NamingException if there are failures on initialization 
      */
-    public GroupCache( DirectoryService directoryService ) throws NamingException
+    public GroupCache( DirectoryService directoryService ) throws Exception
     {
         normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         nexus = directoryService.getPartitionNexus();
@@ -124,7 +123,7 @@ public class GroupCache
     }
 
 
-    private void initialize( Registries registries ) throws NamingException
+    private void initialize( Registries registries ) throws Exception
     {
         // search all naming contexts for static groups and generate
         // normalized sets of members to cache within the map
@@ -143,14 +142,14 @@ public class GroupCache
             LdapDN baseDn = new LdapDN( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration<ServerSearchResult> results = nexus.search( new SearchOperationContext( registries,
+            Cursor<ServerEntry> results = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
 
-            while ( results.hasMore() )
+            while ( results.next() )
             {
-                ServerSearchResult result = results.next();
+                ServerEntry result = results.get();
                 LdapDN groupDn = result.getDn().normalize( normalizerMap );
-                EntryAttribute members = getMemberAttribute( result.getServerEntry() );
+                EntryAttribute members = getMemberAttribute( result );
 
                 if ( members != null )
                 {

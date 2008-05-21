@@ -118,7 +118,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
         nexus = directoryService.getPartitionNexus();
         normalizerMapping = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
@@ -143,7 +143,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
     
     
-    private void loadAdministrators( Registries registries ) throws NamingException
+    private void loadAdministrators( Registries registries ) throws Exception
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
@@ -258,7 +258,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
      * the admin needs access.
      */
     public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         if ( enabled )
         {

@@ -199,7 +199,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param directoryService the directory service core
      * @throws NamingException if there are problems during initialization
      */
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
         super.init( directoryService );
 
