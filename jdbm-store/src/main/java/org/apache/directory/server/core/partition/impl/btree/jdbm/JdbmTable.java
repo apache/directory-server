@@ -207,6 +207,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         if ( recId != 0 )
         {
             bt = BTree.load( recMan, recId );
+            bt.setValueSerializer( valueSerializer );
             recId = recMan.getNamedObject( name + SZSUFFIX );
             count = ( Integer ) recMan.fetch( recId );
         }
