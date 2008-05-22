@@ -142,16 +142,12 @@ public class MaxImmSubFilter implements ACITupleFilter
         Collection<String> c = new HashSet<String>();
         c.add( NormalizationInterceptor.class.getName() );
         c.add( AuthenticationInterceptor.class.getName() );
-//        c.add( ReferralInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
-//        c.add( ExceptionInterceptor.class.getName() );
         c.add( OperationalAttributeInterceptor.class.getName() );
         c.add( SchemaInterceptor.class.getName() );
         c.add( SubentryInterceptor.class.getName() );
-//        c.add( CollectiveAttributeInterceptor.class.getName() );
         c.add( EventInterceptor.class.getName() );
-//        c.add( TriggerInterceptor.class.getName() );
         SEARCH_BYPASS = Collections.unmodifiableCollection( c );
     }
 
@@ -159,29 +155,28 @@ public class MaxImmSubFilter implements ACITupleFilter
     private int getImmSubCount( Registries registries, PartitionNexusProxy proxy, LdapDN entryName ) throws Exception
     {
         int cnt = 0;
-        Cursor<ServerEntry> e = null;
+        Cursor<ServerEntry> results = null;
         
         try
         {
-            e = proxy.search( new SearchOperationContext( registries, ( LdapDN ) entryName.getPrefix( 1 ),
+            results = proxy.search( new SearchOperationContext( registries, ( LdapDN ) entryName.getPrefix( 1 ),
                     AliasDerefMode.DEREF_ALWAYS, childrenFilter, childrenSearchControls ), SEARCH_BYPASS );
 
-            while ( e.next() )
+            while ( results.next() )
             {
-                e.get();
+                results.get();
                 cnt++;
             }
 
         }
         finally
         {
-            if ( e != null )
+            if ( results != null )
             {
-                e.close();
+                results.close();
             }
         }
 
         return cnt;
     }
-
 }

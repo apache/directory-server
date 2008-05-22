@@ -25,6 +25,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.CursorIterator;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -37,6 +38,7 @@ import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
@@ -45,7 +47,6 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 import java.io.File;
@@ -54,6 +55,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -180,17 +182,13 @@ public class MaxImmSubFilterTest
         public Cursor<ServerEntry> search( SearchOperationContext opContext )
             throws NamingException
         {
-            //TODO FixMe
-            //return new BogusEnumeration( count );
-            return null;
+            return new BogusCursor( count );
         }
 
 
         public Cursor<ServerEntry> search( SearchOperationContext opContext, Collection bypass ) throws NamingException
         {
-            //// TODO FixMe
-            //return new BogusEnumeration( count );
-            return null;
+            return new BogusCursor( count );
         }
     }
 
@@ -511,32 +509,19 @@ public class MaxImmSubFilterTest
         }
     }
 
-    class BogusEnumeration implements NamingEnumeration
+    class BogusCursor implements Cursor<ServerEntry>
     {
         final int count;
         int ii;
 
 
-        public BogusEnumeration(int count)
+        public BogusCursor(int count)
         {
             this.count = count;
         }
 
 
-        public Object next() throws NamingException
-        {
-            if ( ii >= count )
-            {
-                throw new NoSuchElementException();
-            }
-
-            ii++;
-            
-            return new Object();
-        }
-
-
-        public boolean hasMore() throws NamingException
+        public boolean available() 
         {
             return ii < count;
         }
@@ -564,6 +549,91 @@ public class MaxImmSubFilterTest
             ii++;
             
             return new Object();
+        }
+
+
+        public void after( ServerEntry element ) throws Exception
+        {
+        }
+
+
+        public void afterLast() throws Exception
+        {
+        }
+
+
+        public void before( ServerEntry element ) throws Exception
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public void beforeFirst() throws Exception
+        {
+            ii = -1;
+        }
+
+
+        public boolean first() throws Exception
+        {
+            ii = 0;
+            return ii < count;
+        }
+
+
+        public ServerEntry get() throws Exception
+        {
+            return null;
+        }
+
+
+        public boolean isClosed() throws Exception
+        {
+            return false;
+        }
+
+
+        public boolean isElementReused()
+        {
+            return false;
+        }
+
+
+        public boolean last() throws Exception
+        {
+            ii = count;
+            return true;
+        }
+
+
+        public boolean next() 
+        {
+            if ( ii >= count )
+            {
+                return false;
+            }
+
+            ii++;
+            
+            return true;
+        }
+
+
+        public boolean previous() throws Exception
+        {
+            if ( ii < 0 )
+            {
+                return false;
+            }
+            
+            ii--;
+            return true;
+        }
+
+
+        public Iterator<ServerEntry> iterator()
+        {
+            return new CursorIterator<ServerEntry>( this );
         }
     }
 }

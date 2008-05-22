@@ -58,6 +58,8 @@ import java.util.Set;
 
 /**
  * Tests the partition schema loader.
+ * 
+ * TODO move this to core-integ does not belong here and get rid of all the static 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
