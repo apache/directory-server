@@ -19,9 +19,11 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+
 
 /**
  * A ListContext context used for Interceptors. It contains all the informations
@@ -30,11 +32,8 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ListOperationContext extends AbstractOperationContext
+public class ListOperationContext extends SearchingOperationContext
 {
-    private AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
-
-
     /**
      * Creates a new instance of ListOperationContext.
      */
@@ -63,8 +62,7 @@ public class ListOperationContext extends AbstractOperationContext
      */
     public ListOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode )
     {
-        super( registries, dn );
-        this.aliasDerefMode = aliasDerefMode;
+        super( registries, dn, aliasDerefMode );
     }
 
     
@@ -74,11 +72,5 @@ public class ListOperationContext extends AbstractOperationContext
     public String toString()
     {
         return "ListOperationContext with DN '" + getDn().getUpName() + "'";
-    }
-
-
-    public AliasDerefMode getAliasDerefMode()
-    {
-        return aliasDerefMode;
     }
 }

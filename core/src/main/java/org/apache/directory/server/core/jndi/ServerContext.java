@@ -24,11 +24,11 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -253,7 +253,7 @@ public abstract class ServerContext implements EventContext
      * @param searchControls
      * @return NamingEnumeration
      */
-    protected Cursor<ServerEntry> doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
+    protected EntryFilteringCursor doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
         ExprNode filter, SearchControls searchControls ) throws Exception
     {
         // setup the op context and populate with request controls
@@ -262,7 +262,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute search operation
-        Cursor<ServerEntry> results = nexusProxy.search( opCtx );
+        EntryFilteringCursor results = nexusProxy.search( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -275,14 +275,14 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
      */
-    protected Cursor<ServerEntry> doListOperation( LdapDN target ) throws Exception
+    protected EntryFilteringCursor doListOperation( LdapDN target ) throws Exception
     {
         // setup the op context and populate with request controls
         ListOperationContext opCtx = new ListOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
 
         // execute list operation
-        Cursor<ServerEntry> results = nexusProxy.list( opCtx );
+        EntryFilteringCursor results = nexusProxy.list( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -1170,6 +1170,7 @@ public abstract class ServerContext implements EventContext
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
 //        return doSearchOperation( base, aliasDerefMode, filter, ctls );
+        
         // TODO not implemented
         throw new NotImplementedException();
     }

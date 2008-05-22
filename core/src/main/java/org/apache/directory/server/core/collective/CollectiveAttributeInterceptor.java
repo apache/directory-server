@@ -20,13 +20,12 @@
 package org.apache.directory.server.core.collective;
 
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.enumeration.SearchResultFilter;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -34,8 +33,7 @@ import org.apache.directory.server.core.interceptor.context.ListOperationContext
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -45,8 +43,6 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
-import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -79,22 +75,20 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * the search result filter to use for collective attribute injection
      */
-    private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
+    private final EntryFilter SEARCH_FILTER = new EntryFilter()
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result )
             throws Exception
         {
-            LdapDN name = ((ServerSearchResult)result).getDn();
+            LdapDN name = result.getDn();
             
             if ( name.isNormalized() == false )
             {
             	name = LdapDN.normalize( name, atRegistry.getNormalizerMapping() );
             }
             
-            ServerEntry entry = result.getServerEntry();
-            String[] retAttrs = controls.getReturningAttributes();
-            addCollectiveAttributes( name, entry, retAttrs );
-            result.setServerEntry( entry );
+            String[] retAttrs = operation.getSearchControls().getReturningAttributes();
+            addCollectiveAttributes( name, result, retAttrs );
             return true;
         }
     };
@@ -285,7 +279,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
     
     
-    private Set<AttributeType> getAllSuperTypes( AttributeType id ) throws NamingException
+    private Set<AttributeType> getAllSuperTypes( AttributeType id ) throws Exception
     {
         Set<AttributeType> allSuperTypes = new HashSet<AttributeType>();
         AttributeType superType = id;
@@ -307,9 +301,12 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     // ------------------------------------------------------------------------
     // Interceptor Method Overrides
     // ------------------------------------------------------------------------
-    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+
+    
+    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) 
+        throws Exception
     {
-        ServerEntry result = nextInterceptor.lookup( opContext );
+        ClonedServerEntry result = nextInterceptor.lookup( opContext );
         
         if ( result == null )
         {
@@ -329,33 +326,26 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        Cursor<ServerEntry> result = nextInterceptor.list( opContext );
-        Invocation invocation = InvocationStack.getInstance().peek();
-        
-//        return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, SEARCH_FILTER, "List collective Filter" );
-        
-        // TODO not implemented
-        throw new NotImplementedException();
+        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
+        cursor.addEntryFilter( SEARCH_FILTER );
+        return cursor;
     }
 
 
-    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
-        Cursor<ServerEntry> result = nextInterceptor.search( opContext );
-        Invocation invocation = InvocationStack.getInstance().peek();
-        
-//        return new SearchResultFilteringEnumeration( 
-//            result, opContext.getSearchControls(), invocation, SEARCH_FILTER, "Search collective Filter" );
-        
-        // TODO not implemented
-        throw new NotImplementedException();
+        EntryFilteringCursor cursor = nextInterceptor.search( opContext );
+        cursor.addEntryFilter( SEARCH_FILTER );
+        return cursor;
     }
+
     
     // ------------------------------------------------------------------------
     // Partial Schema Checking
     // ------------------------------------------------------------------------
+    
     
     public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {

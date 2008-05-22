@@ -22,10 +22,11 @@ package org.apache.directory.server.core.exception;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.EmptyCursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -232,7 +233,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         // check if entry to delete has children (only leaves can be deleted)
         boolean hasChildren = false;
-        Cursor<ServerEntry> list = nextInterceptor.list( new ListOperationContext( registries, name ) );
+        EntryFilteringCursor list = nextInterceptor.list( new ListOperationContext( registries, name ) );
         
         if ( list.next() )
         {
@@ -263,12 +264,12 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
         if ( opContext.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
             // there is nothing under the schema subentry
-            return new EmptyCursor<ServerEntry>();
+            return new EntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
         }
         
         // check if entry to search exists
@@ -282,7 +283,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
         if ( opContext.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
@@ -516,15 +517,15 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the entry being searched exists, otherwise throws the appropriate LdapException.
      */
-    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
         LdapDN base = opContext.getDn();
 
         try
         {
-            Cursor<ServerEntry> result =  nextInterceptor.search( opContext );
+            EntryFilteringCursor cursor =  nextInterceptor.search( opContext );
 	        
-	        if ( ! result.next() )
+	        if ( ! cursor.next() )
 	        {
 	            if ( !base.isEmpty() && !( subschemSubentryDn.toNormName() ).equalsIgnoreCase( base.toNormName() ) )
 	            {
@@ -533,7 +534,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 	            }
 	        }
 
-	        return result;
+	        return cursor;
         }
         catch ( Exception ne )
         {

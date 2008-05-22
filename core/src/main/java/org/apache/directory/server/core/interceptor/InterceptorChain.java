@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -100,7 +100,7 @@ public class InterceptorChain
         }
 
 
-        public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
+        public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
         {
             return nexus.getRootDSE( opContext );
         }
@@ -142,21 +142,21 @@ public class InterceptorChain
         }
 
 
-        public Cursor<ServerEntry> list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+        public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
         {
             return nexus.list( opContext );
         }
 
 
-        public Cursor<ServerEntry>  search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+        public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
         {
             return nexus.search( opContext );
         }
 
 
-        public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
+        public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
         {
-            return ( ServerEntry ) nexus.lookup( opContext ).clone();
+            return nexus.lookup( opContext );
         }
 
 
@@ -534,7 +534,7 @@ public class InterceptorChain
     }
 
 
-    public ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
+    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -793,7 +793,7 @@ public class InterceptorChain
     }
 
 
-    public Cursor<ServerEntry> list( ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -815,7 +815,7 @@ public class InterceptorChain
     }
 
 
-    public Cursor<ServerEntry> search( SearchOperationContext opContext )
+    public EntryFilteringCursor search( SearchOperationContext opContext )
         throws Exception
     {
         Entry entry = getStartingEntry();
@@ -838,7 +838,7 @@ public class InterceptorChain
     }
 
 
-    public ServerEntry lookup( LookupOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -1039,7 +1039,7 @@ public class InterceptorChain
                 }
 
 
-                public ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
+                public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1183,7 +1183,7 @@ public class InterceptorChain
                 }
 
                 
-                public Cursor<ServerEntry> list( ListOperationContext opContext ) throws Exception
+                public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1204,7 +1204,7 @@ public class InterceptorChain
                 }
 
 
-                public Cursor<ServerEntry> search( SearchOperationContext opContext )
+                public EntryFilteringCursor search( SearchOperationContext opContext )
                     throws Exception
                 {
                     Entry next = getNextEntry();
@@ -1226,7 +1226,7 @@ public class InterceptorChain
                 }
 
 
-                public ServerEntry lookup( LookupOperationContext opContext ) throws Exception
+                public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;

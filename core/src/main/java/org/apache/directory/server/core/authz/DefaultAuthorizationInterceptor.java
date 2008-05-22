@@ -20,12 +20,12 @@
 package org.apache.directory.server.core.authz;
 
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -37,6 +37,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -422,9 +423,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
-        ServerEntry serverEntry = nextInterceptor.lookup( opContext );
+        ClonedServerEntry serverEntry = nextInterceptor.lookup( opContext );
         
         if ( !enabled || ( serverEntry == null ) )
         {
@@ -494,57 +495,48 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
-        Cursor<ServerEntry> e = nextInterceptor.search( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.search( opContext );
 
         if ( !enabled )
         {
-            return e;
+            return cursor;
         }
 
-        Invocation invocation = InvocationStack.getInstance().peek();
-
-//        return new SearchResultFilteringEnumeration( e, opContext.getSearchControls(), invocation, 
-//            new SearchResultFilter()
-//        {
-//            public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-//                throws Exception
-//            {
-//                return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
-//            }
-//        }, "Search Default Authorization filter" );
-        // TODO not implemented
-        throw new NotImplementedException();
+        cursor.addEntryFilter( new EntryFilter() {
+            public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
+            {
+                Invocation invocation = InvocationStack.getInstance().peek();
+                return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
+            }
+        } );
+        return cursor;
     }
 
 
-    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        Cursor<ServerEntry> result = nextInterceptor.list( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
         
         if ( !enabled )
         {
-            return result;
+            return cursor;
         }
 
-        Invocation invocation = InvocationStack.getInstance().peek();
-        
-//        return new SearchResultFilteringEnumeration( result, null, invocation, new SearchResultFilter()
-//        {
-//            public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-//                throws Exception
-//            {
-//                return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
-//            }
-//        }, "List Default Authorization filter" );
-        
-        // TODO not implemented
-        throw new NotImplementedException();
+        cursor.addEntryFilter( new EntryFilter()
+        {
+            public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
+            {
+                Invocation invocation = InvocationStack.getInstance().peek();
+                return DefaultAuthorizationInterceptor.this.isSearchable( invocation, entry );
+            }
+        } );
+        return cursor;
     }
 
 
-    private boolean isSearchable( Invocation invocation, ServerSearchResult result ) throws Exception
+    private boolean isSearchable( Invocation invocation, ClonedServerEntry result ) throws Exception
     {
         LdapDN principalDn = ( ( ServerContext ) invocation.getCaller() ).getPrincipal().getJndiName();
         LdapDN dn = result.getDn();

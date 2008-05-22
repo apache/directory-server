@@ -21,9 +21,10 @@ package org.apache.directory.server.core.partition;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -91,7 +92,7 @@ public interface Partition
      *
      * @return the entry for the suffix of this Partition.
      */
-    ServerEntry getContextEntry();
+    ClonedServerEntry getContextEntry();
 
 
     /**
@@ -239,7 +240,7 @@ public interface Partition
      * @return a NamingEnumeration containing objects of type {@link ServerSearchResult}
      * @throws Exception if there are any problems
      */
-    Cursor<ServerEntry> list( ListOperationContext opContext ) throws Exception;
+    EntryFilteringCursor list( ListOperationContext opContext ) throws Exception;
 
 
     /**
@@ -253,11 +254,8 @@ public interface Partition
      * @param opContext The context containing the information used by the operation
      * @throws Exception if there are any problems
      * @return a NamingEnumeration containing objects of type 
-     * <a href="http://java.sun.com/j2se/1.4.2/docs/api/
-     * javax/naming/directory/SearchResult.html">SearchResult</a>.
      */
-    Cursor<ServerEntry> search( SearchOperationContext opContext )
-        throws Exception;
+    EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception;
 
 
     /**
@@ -272,10 +270,10 @@ public interface Partition
      * @return an Attributes object representing the entry
      * @throws Exception if there are any problems
      */
-    ServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
+    ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
     
     
-    ServerEntry lookup( Long id ) throws Exception;
+    ClonedServerEntry lookup( Long id ) throws Exception;
     
 
     /**

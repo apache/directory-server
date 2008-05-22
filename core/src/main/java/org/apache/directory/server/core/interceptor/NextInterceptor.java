@@ -22,8 +22,8 @@ package org.apache.directory.server.core.interceptor;
 
 import java.util.Iterator;
 
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -66,7 +66,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#getRootDSE( NextInterceptor, GetRootDSEOperationContext )}.
      */
-    ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception;
+    ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception;
 
 
     /**
@@ -119,19 +119,19 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#list( NextInterceptor, ListOperationContext )}.
      */
-    Cursor<ServerEntry> list( ListOperationContext opContext ) throws Exception;
+    EntryFilteringCursor list( ListOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#search( NextInterceptor, SearchOperationContext opContext )}.
      */
-    Cursor<ServerEntry> search( SearchOperationContext opContext ) throws Exception;
+    EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#lookup( NextInterceptor, LookupOperationContext )}.
      */
-    ServerEntry lookup( LookupOperationContext opContext ) throws Exception;
+    ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception;
 
 
     /**

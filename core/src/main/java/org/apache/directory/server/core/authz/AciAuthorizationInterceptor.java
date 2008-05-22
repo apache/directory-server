@@ -20,17 +20,16 @@
 package org.apache.directory.server.core.authz;
 
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.enumeration.SearchResultFilter;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -46,6 +45,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -759,7 +759,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public ServerEntry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws Exception
+    public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
@@ -995,32 +995,31 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
     
-    public Cursor<ServerEntry> list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
-        Cursor<ServerEntry> e = next.list( opContext );
+        EntryFilteringCursor cursor = next.list( opContext );
         
         if ( isPrincipalAnAdministrator( user.getJndiName() ) || !enabled )
         {
-            return e;
+            return cursor;
         }
         
         AuthorizationFilter authzFilter = new AuthorizationFilter();
-//        return new SearchResultFilteringEnumeration( e, DEFAULT_SEARCH_CONTROLS, invocation, authzFilter, "List authorization Filter" );
-        // TODO NotImplementedException
-        throw new NotImplementedException();
+        cursor.addEntryFilter( authzFilter );
+        return cursor;
     }
 
 
-    public Cursor<ServerEntry> search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
         LdapDN principalDn = user.getJndiName();
-        Cursor<ServerEntry> e = next.search( opContext );
+        EntryFilteringCursor cursor = next.search( opContext );
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( opContext.getDn().getNormName() );
         SearchControls searchCtls = opContext.getSearchControls();
@@ -1028,13 +1027,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         if ( isPrincipalAnAdministrator( principalDn ) || !enabled || isRootDSELookup || isSubschemaSubentryLookup )
         {
-            return e;
+            return cursor;
         }
         
-        AuthorizationFilter authzFilter = new AuthorizationFilter();
-//        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, authzFilter, "Search authorization Filter" );
-        // TODO NotImplementedException
-        throw new NotImplementedException();
+        cursor.addEntryFilter( new AuthorizationFilter() );
+        return cursor;
     }
 
     
@@ -1129,15 +1126,14 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean filter( Invocation invocation, LdapDN normName, ServerSearchResult result ) throws Exception
+    private boolean filter( LdapDN normName, ClonedServerEntry clonedEntry ) throws Exception
     {
-        ServerEntry resultEntry = result.getServerEntry();
-
         /*
          * First call hasPermission() for entry level "Browse" and "ReturnDN" perm
          * tests.  If we hasPermission() returns false we immediately short the
          * process and return false.
          */
+        Invocation invocation = InvocationStack.getInstance().peek();
         ServerEntry entry = invocation.getProxy().lookup( 
                 new LookupOperationContext( registries, normName ), PartitionNexusProxy.LOOKUP_BYPASS );
         
@@ -1160,7 +1156,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                         null, 
                         SEARCH_ENTRY_PERMS, 
                         tuples, 
-                        entry, 
+                        clonedEntry.getOriginalEntry(), 
                         null ) )
         {
             return false;
@@ -1175,11 +1171,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          */
         List<AttributeType> attributeToRemove = new ArrayList<AttributeType>();
         
-        for ( AttributeType attributeType:resultEntry.getAttributeTypes() )
+        for ( AttributeType attributeType:clonedEntry.getAttributeTypes() )
         {
             // if attribute type scope access is not allowed then remove the attribute and continue
             String id = attributeType.getName();
-            EntryAttribute attr = resultEntry.get( attributeType );
+            EntryAttribute attr = clonedEntry.get( attributeType );
         
             if ( !engine.hasPermission( 
                         registries, 
@@ -1236,10 +1232,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         
         for ( AttributeType attributeType:attributeToRemove )
         {
-            resultEntry.removeAttributes( attributeType );
+            clonedEntry.removeAttributes( attributeType );
         }
 
-        result.setServerEntry( resultEntry );
         return true;
     }
 
@@ -1247,13 +1242,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /**
      * WARNING: create one of these filters fresh every time for each new search.
      */
-    class AuthorizationFilter implements SearchResultFilter
+    class AuthorizationFilter implements EntryFilter
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls ) 
+        public boolean accept( SearchingOperationContext operationContext, ClonedServerEntry entry ) 
             throws Exception
         {
-            LdapDN normName = result.getDn().normalize( atRegistry.getNormalizerMapping() );
-            return filter( invocation, normName, result );
+            LdapDN normName = entry.getDn().normalize( atRegistry.getNormalizerMapping() );
+            return filter( normName, entry );
         }
     }
 }

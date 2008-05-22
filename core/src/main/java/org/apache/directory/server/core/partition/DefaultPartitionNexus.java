@@ -22,12 +22,12 @@ package org.apache.directory.server.core.partition;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.SingletonCursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -63,7 +63,6 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -79,14 +78,13 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
-import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import org.apache.directory.shared.ldap.util.StringTools;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.ConfigurationException;
 import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
 import java.io.IOException;
@@ -231,9 +229,9 @@ public class DefaultPartitionNexus extends PartitionNexus
      *
      * @return the root entry for the DSA
      */
-    public ServerEntry getContextEntry()
+    public ClonedServerEntry getContextEntry()
     {
-        return rootDSE;
+        return new ClonedServerEntry( rootDSE );
     }
 
 
@@ -783,9 +781,9 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public ServerEntry getRootDSE( GetRootDSEOperationContext getRootDSEContext )
+    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext getRootDSEContext )
     {
-        return rootDSE;
+        return new ClonedServerEntry( rootDSE );
     }
 
 
@@ -867,14 +865,14 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#list(ListOperationContext)
      */
-    public Cursor<ServerEntry> list( ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
         Partition backend = getPartition( opContext.getDn() );
         return backend.list( opContext );
     }
 
 
-    public Cursor<ServerEntry> search( SearchOperationContext opContext )
+    public EntryFilteringCursor search( SearchOperationContext opContext )
         throws Exception
     {
         LdapDN base = opContext.getDn();
@@ -903,7 +901,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 if ( ( ids == null ) || ( ids.length == 0 ) )
                 {
                 	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-                    return new SingletonCursor<ServerEntry>( rootDSE );
+                    return new EntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
                 }
                 
                 // -----------------------------------------------------------
@@ -949,14 +947,14 @@ public class DefaultPartitionNexus extends PartitionNexus
                 if ( containsOneDotOne )
                 {
                 	ServerEntry serverEntry = new DefaultServerEntry( registries, base );
-                    return new SingletonCursor<ServerEntry>( serverEntry );
+                    return new EntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
                 }
                 
                 // return everything
                 if ( containsAsterisk && containsPlus )
                 {
                 	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-                    return new SingletonCursor<ServerEntry>( rootDSE );
+                    return new EntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
                 }
                 
                 ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
@@ -981,7 +979,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     }
                 }
 
-                return new SingletonCursor<ServerEntry>( serverEntry );
+                return new EntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
             }
 
             throw new LdapNameNotFoundException();
@@ -992,13 +990,13 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public ServerEntry lookup( LookupOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
         LdapDN dn = opContext.getDn();
         
         if ( dn.size() == 0 )
         {
-            ServerEntry retval = new DefaultServerEntry( registries, opContext.getDn() );
+            ClonedServerEntry retval = new ClonedServerEntry( rootDSE );
             Set<AttributeType> attributeTypes = rootDSE.getAttributeTypes();
      
             if ( opContext.getAttrsId() != null )
@@ -1007,26 +1005,17 @@ public class DefaultPartitionNexus extends PartitionNexus
                 {
                     String oid = attributeType.getOid();
                     
-                    if ( opContext.getAttrsId().contains( oid ) )
+                    if ( ! opContext.getAttrsId().contains( oid ) )
                     {
-                        EntryAttribute attr = rootDSE.get( oid );
-                        retval.put( (ServerAttribute)attr.clone() );
+                        retval.removeAttributes( attributeType );
                     }
-                    
                 }
+                return retval;
             }
             else
             {
-                for ( AttributeType attributeType:attributeTypes )
-                {
-                    String id = attributeType.getName();
-                    
-                    EntryAttribute attr = rootDSE.get( id );
-                    retval.put( (ServerAttribute)attr.clone() );
-                }
+                return new ClonedServerEntry( rootDSE );
             }
-            
-            return retval;
         }
 
         Partition backend = getPartition( dn );
@@ -1167,7 +1156,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public ServerEntry lookup( Long id ) throws Exception
+    public ClonedServerEntry lookup( Long id ) throws Exception
     {
         // TODO not implemented until we can use id to figure out the partition using
         // the partition ID component of the 64 bit Long identifier

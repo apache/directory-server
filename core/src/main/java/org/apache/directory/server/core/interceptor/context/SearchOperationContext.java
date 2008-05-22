@@ -35,16 +35,10 @@ import javax.naming.directory.SearchControls;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SearchOperationContext extends AbstractOperationContext
+public class SearchOperationContext extends SearchingOperationContext
 {
     /** The filter */
     private ExprNode filter;
-    
-    /** The controls */
-    private SearchControls searchControls;
-
-    /** The mode of alias handling */
-    private AliasDerefMode aliasDerefMode;
 
 
     /**
@@ -66,10 +60,8 @@ public class SearchOperationContext extends AbstractOperationContext
     public SearchOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode, ExprNode filter,
                                    SearchControls searchControls )
     {
-        super( registries, dn );
+        super( registries, dn, aliasDerefMode, searchControls );
         this.filter = filter;
-        this.aliasDerefMode = aliasDerefMode;
-        this.searchControls = searchControls;
     }
 
 
@@ -94,50 +86,11 @@ public class SearchOperationContext extends AbstractOperationContext
 
 
     /**
-     *  @return The search controls
-     */
-    public SearchControls getSearchControls()
-    {
-        return searchControls;
-    }
-
-
-    /**
-     * Set the search controls
-     *
-     * @param searchControls The search controls
-     */
-    public void setSearchControls( SearchControls searchControls )
-    {
-        this.searchControls = searchControls;
-    }
-
-
-    /**
      * @see Object#toString()
      */
     public String toString()
     {
         return "SearchContext for DN '" + getDn().getUpName() + "', filter :'"
         + filter + "'"; 
-    }
-
-
-    /**
-     *  @return The alias handling mode
-     */
-    public AliasDerefMode getAliasDerefMode()
-    {
-        return aliasDerefMode;
-    }
-
-
-    /**
-     * Set the alias handling mode
-     *  @param aliasDerefMode The alias handling mode
-     */
-    public void setAliasDerefMode( AliasDerefMode aliasDerefMode )
-    {
-        this.aliasDerefMode = aliasDerefMode;
     }
 }

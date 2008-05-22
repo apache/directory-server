@@ -29,7 +29,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
@@ -166,7 +166,7 @@ public abstract class PartitionNexus implements Partition
      *
      * @return the attributes of the RootDSE
      */
-    public abstract ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception;
+    public abstract ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception;
 
 
     /**

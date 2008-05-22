@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -228,7 +228,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
+    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -264,7 +264,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public Cursor<ServerEntry> list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -288,7 +288,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -382,7 +382,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public Cursor<ServerEntry> search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {

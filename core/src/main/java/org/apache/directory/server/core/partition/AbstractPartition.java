@@ -21,7 +21,7 @@ package org.apache.directory.server.core.partition;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 
@@ -166,7 +166,7 @@ public abstract class AbstractPartition implements Partition
      * with null <tt>attributeIds</tt> by default.  Please override
      * this method if there is more effective way for your implementation.
      */
-    public ServerEntry lookup( LookupOperationContext lookupContext ) throws NamingException
+    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws NamingException
     {
         return null;
     }
