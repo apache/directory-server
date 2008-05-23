@@ -130,8 +130,8 @@ public class TupleCache
         {
             String suffix = suffixes.next();
             LdapDN baseDn = parseNormalized( suffix );
-            ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
-                SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
+            ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
+                new ClientStringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             EntryFilteringCursor results = nexus.search( new SearchOperationContext( registries,

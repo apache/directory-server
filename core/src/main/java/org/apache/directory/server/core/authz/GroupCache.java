@@ -129,9 +129,9 @@ public class GroupCache
         // normalized sets of members to cache within the map
 
         BranchNode filter = new OrNode();
-        filter.addNode( new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
+        filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
             SchemaConstants.GROUP_OF_NAMES_OC ) ) );
-        filter.addNode( new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
+        filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
             SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
         Iterator<String> suffixes = nexus.listSuffixes( null );
