@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
@@ -1140,9 +1139,15 @@ public abstract class ServerContext implements EventContext
         { "unchecked" })
     public NamingEnumeration list( Name name ) throws NamingException
     {
-//        return ServerEntryUtils.toSearchResultEnum( doListOperation( buildTarget( name ) ) );
-        // TODO not implemented
-        throw new NotImplementedException();
+        try
+        {
+            return new NamingEnumerationAdapter( doListOperation( buildTarget( name ) ) );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+            return null; // shut up compiler
+        }
     }
 
 

@@ -24,8 +24,10 @@ import java.util.NoSuchElementException;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 
 
@@ -35,7 +37,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NamingEnumerationAdapter implements NamingEnumeration<ClonedServerEntry>
+public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
 {
     private final EntryFilteringCursor cursor;
     private boolean available = false;
@@ -88,7 +90,7 @@ public class NamingEnumerationAdapter implements NamingEnumeration<ClonedServerE
     /* 
      * @see NamingEnumeration#next()
      */
-    public ClonedServerEntry next() throws NamingException
+    public SearchResult next() throws NamingException
     {
         ClonedServerEntry entry = null;
         
@@ -105,7 +107,7 @@ public class NamingEnumerationAdapter implements NamingEnumeration<ClonedServerE
             JndiUtils.wrap( e );
         }
         
-        return entry;
+        return new SearchResult( entry.getDn().getUpName(), null, ServerEntryUtils.toAttributesImpl( entry ) );
     }
 
 
@@ -121,7 +123,7 @@ public class NamingEnumerationAdapter implements NamingEnumeration<ClonedServerE
     /* 
      * @see Enumeration#nextElement()
      */
-    public ClonedServerEntry nextElement()
+    public SearchResult nextElement()
     {
         ClonedServerEntry entry = null;
         
@@ -140,6 +142,6 @@ public class NamingEnumerationAdapter implements NamingEnumeration<ClonedServerE
             throw nsee;
         }
         
-        return entry;
+        return new SearchResult( entry.getDn().getUpName(), null, ServerEntryUtils.toAttributesImpl( entry ) );
     }
 }
