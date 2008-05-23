@@ -401,18 +401,36 @@ public class AuthenticationInterceptor extends BaseInterceptor
      * @param operation the operation type
      * @throws Exception
      */
-    private void checkAuthenticated( OperationContext opContext ) throws Exception
+    private void checkAuthenticated( OperationContext operation ) throws Exception
     {
-        if ( opContext.getPrincipalDN() != null )
+        try
         {
+            checkAuthenticated();
+        }
+        catch ( IllegalStateException ise )
+        {
+            LOG.error( "Attempted operation {} by unauthenticated caller.", operation.getName() );
+
+            throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
+        }
+    }
+
+    private void checkAuthenticated() throws Exception
+    {
+        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
+
+        if ( ctx.getPrincipal() != null )
+        {
+            if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
+            {
+                ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
+            }
+
             return;
         }
 
-        LOG.error( "Attempted operation '{}' by unauthenticated caller.", opContext.getName() );
-
         throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
     }
-
 
     public void bind( NextInterceptor next, BindOperationContext opContext ) throws Exception
     {
