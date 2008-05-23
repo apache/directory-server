@@ -584,7 +584,7 @@ public class MaxImmSubFilterTest
 
         public ServerEntry get() throws Exception
         {
-            return null;
+            return new DefaultServerEntry( service.getRegistries() );
         }
 
 
