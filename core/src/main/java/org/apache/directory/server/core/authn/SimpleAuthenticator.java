@@ -188,25 +188,45 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * @return A byte array which can be empty if the password was not found
      * @throws NamingException If we have a problem during the lookup operation
      */
-    private byte[] getStoredPassword( Registries registries, LdapDN principalDN ) throws NamingException
+    private LdapPrincipal getStoredPassword( Registries registries, LdapDN principalDN ) throws NamingException
     {
+        LdapPrincipal principal;
+        String principalNorm = principalDN.getNormName();
+        
+        synchronized( credentialCache )
+        {
+            principal = (LdapPrincipal)credentialCache.get( principalNorm );
+        }
+        
         byte[] storedPassword;
         
-        // Not found in the cache
-        // Get the user password from the backend
-        storedPassword = lookupUserPassword( registries, principalDN );
-        
-        
-        // Deal with the special case where the user didn't enter a password
-        // We will compare the empty array with the credentials. Sometime,
-        // a user does not set a password. This is bad, but there is nothing
-        // we can do against that, except education ...
-        if ( storedPassword == null )
+        if ( principal == null )
         {
-            storedPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
-        }
+            // Not found in the cache
+            // Get the user password from the backend
+            storedPassword = lookupUserPassword( registries, principalDN );
+            
+            
+            // Deal with the special case where the user didn't enter a password
+            // We will compare the empty array with the credentials. Sometime,
+            // a user does not set a password. This is bad, but there is nothing
+            // we can do against that, except education ...
+            if ( storedPassword == null )
+            {
+                storedPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
+            }
 
-        return storedPassword;
+            // Create the new principal before storing it in the cache
+            principal = new LdapPrincipal( principalDN, AuthenticationLevel.SIMPLE, storedPassword );
+            
+            // Now, update the local cache.
+            synchronized( credentialCache )
+            {
+                credentialCache.put( principalDN.getNormName(), principal );
+            }
+        }
+        
+        return principal;
     }
 
     /**
@@ -287,28 +307,10 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // ---- extract password from JNDI environment
         byte[] credentials = getCredentials( ctx );
         
-        LdapPrincipal principal;
-        String principalNorm = principalDn.getNormName();
+        LdapPrincipal principal = getStoredPassword( getDirectoryService().getRegistries(), principalDn );
         
-        synchronized( credentialCache )
-        {
-            principal = (LdapPrincipal)credentialCache.get( principalNorm );
-        }
-        
-        byte[] storedPassword = getStoredPassword( getDirectoryService().getRegistries(), principalDn );
-
-        if ( principal == null )
-        {
-            // Create the new principal before storing it in the cache
-            principal = new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
-            
-            // Now, update the local cache.
-            synchronized( credentialCache )
-            {
-                credentialCache.put( principalDn.getNormName(), principal );
-            }
-        }
-        
+        // Get the stored password, either from cache or from backend
+        byte[] storedPassword = principal.getUserPassword();
         
         // Short circuit for PLAIN TEXT passwords : we compare the byte array directly
         // Are the passwords equal ?
