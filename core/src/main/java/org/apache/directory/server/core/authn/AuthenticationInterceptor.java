@@ -48,13 +48,13 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -198,7 +198,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     " for DN = '" + opContext.getDn().getUpName() + "'" );
         }
 
-        checkAuthenticated( MessageTypeEnum.ADD_REQUEST );
+        checkAuthenticated( opContext );
         next.add( opContext );
     }
 
@@ -210,7 +210,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Deleting name = '" + opContext.getDn().getUpName() + "'" );
         }
 
-        checkAuthenticated( MessageTypeEnum.DEL_REQUEST );
+        checkAuthenticated( opContext );
         next.delete( opContext );
         invalidateAuthenticatorCaches( opContext.getDn() );
     }
@@ -223,7 +223,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Matching name = '" + opContext.getDn().getUpName() + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( opContext );
         return next.getMatchedName( opContext );
     }
 
@@ -235,7 +235,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Getting root DSE" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( opContext );
         return next.getRootDSE( opContext );
     }
 
@@ -247,7 +247,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Getting suffix for name = '" + opContext.getDn().getUpName() + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( opContext );
         return next.getSuffix( opContext );
     }
 
@@ -259,7 +259,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Testing if entry name = '" + opContext.getDn().getUpName() + "' exists" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( opContext );
         return next.hasEntry( opContext );
     }
 
@@ -271,7 +271,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Listing base = '" + opContext.getDn().getUpName() + "'" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( opContext );
         return next.list( opContext );
     }
 
@@ -283,7 +283,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Listing suffixes" );
         }
 
-        checkAuthenticated();
+        checkAuthenticated( opContext );
         return next.listSuffixes( opContext );
     }
 
@@ -304,7 +304,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
         }
 
-        checkAuthenticated();
+        checkAuthenticated( opContext );
         return next.lookup( opContext );
     }
 
@@ -330,7 +330,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( opContext.toString() );
         }
 
-        checkAuthenticated( MessageTypeEnum.MODIFY_REQUEST );
+        checkAuthenticated( opContext );
         next.modify( opContext );
         invalidateAuthenticatorCaches( opContext.getDn() );
     }
@@ -345,7 +345,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     "oldRDN = '" + opContext.getDelOldDn() + "'" );
         }
 
-        checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
+        checkAuthenticated( opContext );
         next.rename( opContext );
         invalidateAuthenticatorCaches( opContext.getDn() );
     }
@@ -362,7 +362,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     opContext.getDelOldDn() + "'" );
         }
 
-        checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
+        checkAuthenticated( opContext );
         next.moveAndRename( opContext );
         invalidateAuthenticatorCaches( opContext.getDn() );
     }
@@ -376,7 +376,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     opContext.getParent().getUpName() + "'" );
         }
 
-        checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
+        checkAuthenticated( opContext );
         next.move( opContext );
         invalidateAuthenticatorCaches( opContext.getDn() );
     }
@@ -389,38 +389,26 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Search for base = '" + opContext.getDn().getUpName() + "'" );
         }
 
-        checkAuthenticated( MessageTypeEnum.SEARCH_REQUEST );
+        checkAuthenticated( opContext );
         return next.search( opContext );
     }
 
 
-    private void checkAuthenticated( MessageTypeEnum operation ) throws Exception
+    /**
+     * Check if the curretn operation has a valid PrincipalDN or not.
+     *
+     * @param opContext the OperationContext for this operation
+     * @param operation the operation type
+     * @throws Exception
+     */
+    private void checkAuthenticated( OperationContext opContext ) throws Exception
     {
-        try
+        if ( opContext.getPrincipalDN() != null )
         {
-            checkAuthenticated();
-        }
-        catch ( IllegalStateException ise )
-        {
-            LOG.error( "Attempted operation {} by unauthenticated caller.", operation.name() );
-
-            throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
-        }
-    }
-
-    private void checkAuthenticated() throws Exception
-    {
-        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-
-        if ( ctx.getPrincipal() != null )
-        {
-            if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
-            {
-                ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
-            }
-
             return;
         }
+
+        LOG.error( "Attempted operation '{}' by unauthenticated caller.", opContext.getName() );
 
         throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
     }
