@@ -1170,10 +1170,15 @@ public abstract class ServerContext implements EventContext
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
-//        return doSearchOperation( base, aliasDerefMode, filter, ctls );
-        
-        // TODO not implemented
-        throw new NotImplementedException();
+        try
+        {
+            return new NamingEnumerationAdapter( doSearchOperation( base, aliasDerefMode, filter, ctls ) );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+            return null; // shutup compiler
+        }
     }
 
 
