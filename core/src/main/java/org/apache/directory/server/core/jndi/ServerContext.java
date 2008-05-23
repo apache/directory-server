@@ -39,7 +39,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -211,8 +210,11 @@ public abstract class ServerContext implements EventContext
      * @param entry
      * @param target
      */
-    protected void doAddOperation( AddOperationContext opCtx, LdapDN target, ServerEntry entry ) throws Exception
+    protected void doAddOperation( LdapDN target, ServerEntry entry ) throws Exception
     {
+        // setup the op context and populate with request controls
+        AddOperationContext opCtx = new AddOperationContext( service.getRegistries(), entry );
+
         opCtx.addRequestControls( requestControls );
 
         // execute add operation
@@ -639,10 +641,7 @@ public abstract class ServerContext implements EventContext
          */
         try
         {
-            // setup the op context
-            AddOperationContext opCtx = new AddOperationContext( service.getRegistries(), serverEntry );
-            
-            doAddOperation( opCtx, target, serverEntry );
+            doAddOperation( target, serverEntry );
         }
         catch ( Exception e )
         {
@@ -742,10 +741,7 @@ public abstract class ServerContext implements EventContext
         {
             try
             {
-                // setup the op context
-                AddOperationContext opCtx = new AddOperationContext( service.getRegistries(), outServerEntry );
-                
-                doAddOperation( opCtx, target, outServerEntry );
+                doAddOperation( target, outServerEntry );
             }
             catch ( Exception e )
             {
@@ -758,10 +754,7 @@ public abstract class ServerContext implements EventContext
         {
             try
             {
-                // setup the op context
-                AddOperationContext opCtx = new AddOperationContext( service.getRegistries(), ( ServerEntry ) obj );
-                
-                doAddOperation( opCtx, target, ( ServerEntry ) obj );
+                doAddOperation( target, ( ServerEntry ) obj );
             }
             catch ( Exception e )
             {
@@ -799,10 +792,7 @@ public abstract class ServerContext implements EventContext
             JavaLdapSupport.serialize( serverEntry, obj, registries );
             try
             {
-                // setup the op context
-                AddOperationContext opCtx = new AddOperationContext( service.getRegistries(), serverEntry );
-
-                doAddOperation( opCtx, target, serverEntry );
+                doAddOperation( target, serverEntry );
             }
             catch ( Exception e )
             {
@@ -826,10 +816,7 @@ public abstract class ServerContext implements EventContext
             injectRdnAttributeValues( target, serverEntry );
             try
             {
-                // setup the op context
-                AddOperationContext opCtx = new AddOperationContext( service.getRegistries(), serverEntry );
-
-                doAddOperation( opCtx, target, serverEntry );
+                doAddOperation( target, serverEntry );
             }
             catch ( Exception e )
             {
