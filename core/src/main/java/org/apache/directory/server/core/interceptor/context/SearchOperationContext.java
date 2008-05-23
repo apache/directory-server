@@ -23,6 +23,7 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.directory.SearchControls;
@@ -95,8 +96,11 @@ public class SearchOperationContext extends SearchingOperationContext
     }
 
 
+    /**
+     * @return the operation name
+     */
     public String getName()
     {
-        return "Search";
+        return MessageTypeEnum.SEARCH_REQUEST.name();
     }
 }
