@@ -67,16 +67,19 @@ public class ListOperationContext extends SearchingOperationContext
 
     
     /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "List";
+    }
+
+    
+    /**
      * @see Object#toString()
      */
     public String toString()
     {
-        return "ListOperationContext with DN '" + getDn().getUpName() + "'";
-    }
-    
-    
-    public String getName()
-    {
-        return "List";
+        return "List with DN '" + getDn().getUpName() + "'";
     }
 }
