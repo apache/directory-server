@@ -50,6 +50,15 @@ public class GetRootDSEOperationContext extends AbstractOperationContext
     }
     
     /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "GetRootDSE";
+    }
+
+    
+    /**
      * @see Object#toString()
      */
     public String toString()

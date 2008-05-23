@@ -75,7 +75,7 @@ public interface OperationContext
     /**
      * Adds a response control to this operation.
      *
-     * @param responseControl the response control to add to this operation.
+     * @param responseControl the response control to add to this operation
      */
     void addResponseControl( Control responseControl );
     
@@ -125,7 +125,7 @@ public interface OperationContext
     /**
      * Adds a request control to this operation.
      *
-     * @param requestControl the request control to add to this operation.
+     * @param requestControl the request control to add to this operation
      */
     void addRequestControl( Control requestControl );
     
@@ -151,7 +151,27 @@ public interface OperationContext
     /**
      * Adds many request controls to this operation.
      *
-     * @param requestControls the request controls to add to this operation.
+     * @param requestControls the request controls to add to this operation
      */
     void addRequestControls( Control[] requestControls );
+    
+    
+    /**
+     * Set the principal DN into this context.
+     * 
+     * @param principalDn the principal DN
+     */
+    void setPrincipalDN( LdapDN principalDn );
+
+    
+    /**
+     * @return the PrincipalDN
+     */
+    LdapDN getPrincipalDN();
+    
+    
+    /**
+     * @return the operation's name
+     */
+    String getName();
 }

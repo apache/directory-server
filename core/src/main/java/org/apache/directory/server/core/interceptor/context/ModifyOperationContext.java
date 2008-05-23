@@ -30,6 +30,7 @@ import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -117,6 +118,15 @@ public class ModifyOperationContext extends AbstractOperationContext
     }
 
 
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return MessageTypeEnum.MODIFY_REQUEST.name();
+    }
+
+    
     /**
      * @see Object#toString()
      */

@@ -45,6 +45,9 @@ public abstract class AbstractOperationContext implements OperationContext
     /** The DN associated with the context */
     private LdapDN dn;
     
+    /** The principal DN associated with the context */
+    private LdapDN principalDn;
+    
     /** The associated request's controls */
     private Map<String, Control> requestControls = new HashMap<String, Control>(4);
 
@@ -236,11 +239,37 @@ public abstract class AbstractOperationContext implements OperationContext
     
     
     /**
-     * Remove the invocation fro the invocation stack
+     * Remove the invocation from the invocation stack
      */
     public void pop()
     {
         InvocationStack stack = InvocationStack.getInstance();
         stack.pop();
     }
+    
+    
+    /**
+     * Set the principal DN into this context.
+     * 
+     * @param principalDn the principal DN
+     */
+    public void setPrincipalDN( LdapDN principalDn )
+    {
+        this.principalDn= principalDn;
+    }
+
+    
+    /**
+     * @return the PrincipalDN
+     */
+    public LdapDN getPrincipalDN()
+    {
+        return principalDn;
+    }
+
+
+    /**
+     * @return the operation name
+     */
+    public abstract String getName();
 }

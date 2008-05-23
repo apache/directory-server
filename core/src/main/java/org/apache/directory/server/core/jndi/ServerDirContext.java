@@ -25,6 +25,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -328,7 +329,10 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             ServerEntry clone = ( ServerEntry ) serverEntry.clone();
             try
             {
-                doAddOperation( target, clone );
+                // setup the op context
+                AddOperationContext opCtx = new AddOperationContext( registries, clone );
+
+                doAddOperation( opCtx, target, clone );
             }
             catch ( Exception e )
             {
@@ -355,7 +359,10 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
             try
             {
-                doAddOperation( target, clone );
+                // setup the op context
+                AddOperationContext opCtx = new AddOperationContext( registries, clone );
+
+                doAddOperation( opCtx, target, clone );
             }
             catch ( Exception e )
             {
@@ -393,7 +400,10 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             JavaLdapSupport.serialize( serverEntry, obj, registries );
             try
             {
-                doAddOperation( target, clone );
+                // setup the op context
+                AddOperationContext opCtx = new AddOperationContext( registries, clone );
+
+                doAddOperation( opCtx, target, clone );
             }
             catch ( Exception e )
             {
@@ -416,7 +426,10 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
             try
             {
-                doAddOperation( target, entry );
+                // setup the op context
+                AddOperationContext opCtx = new AddOperationContext( registries, entry );
+                
+                doAddOperation( opCtx, target, entry );
             }
             catch ( Exception e )
             {
@@ -531,7 +544,12 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         // Add the new context to the server which as a side effect adds
         try
         {
-            doAddOperation( target, ServerEntryUtils.toServerEntry( attributes, target, registries ) );
+            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attributes, target, registries );
+            
+            // setup the op context
+            AddOperationContext opCtx = new AddOperationContext( registries, serverEntry );
+
+            doAddOperation( opCtx, target, serverEntry );
         }
         catch ( Exception e )
         {

@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class EmptyOperationContext extends AbstractOperationContext
+public abstract class EmptyOperationContext extends AbstractOperationContext
 {
     /**
      * Creates a new instance of EmptyOperationContext.

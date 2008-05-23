@@ -49,6 +49,16 @@ public class GetSuffixOperationContext extends AbstractOperationContext
         super( registries, dn );
     }
     
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "GetSuffix";
+    }
+
+    
     /**
      * @see Object#toString()
      */

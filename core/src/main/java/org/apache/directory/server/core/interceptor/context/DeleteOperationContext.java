@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -74,6 +75,15 @@ public class DeleteOperationContext extends AbstractOperationContext
     }
 
 
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return MessageTypeEnum.DEL_REQUEST.name();
+    }
+
+    
     /**
      * @see Object#toString()
      */

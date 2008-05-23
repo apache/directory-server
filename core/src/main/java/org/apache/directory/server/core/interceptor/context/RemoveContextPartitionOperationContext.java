@@ -50,6 +50,16 @@ public class RemoveContextPartitionOperationContext extends AbstractOperationCon
         super( registries, dn );
     }
     
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "RemoveContext";
+    }
+
+    
     /**
      * @see Object#toString()
      */

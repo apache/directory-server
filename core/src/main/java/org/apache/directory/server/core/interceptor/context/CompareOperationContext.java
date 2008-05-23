@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -127,6 +128,16 @@ public class CompareOperationContext extends AbstractOperationContext
 		this.value = value;
 	}
 
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return MessageTypeEnum.COMPARE_REQUEST.name();
+    }
+
+    
 	/**
      * @see Object#toString()
      */

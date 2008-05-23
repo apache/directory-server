@@ -49,6 +49,16 @@ public class GetMatchedNameOperationContext extends AbstractOperationContext
         super( registries, dn );
     }
     
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "MatchedName";
+    }
+
+    
     /**
      * @see Object#toString()
      */

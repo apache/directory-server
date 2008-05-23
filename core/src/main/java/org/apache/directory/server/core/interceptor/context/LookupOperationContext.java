@@ -215,6 +215,16 @@ public class LookupOperationContext extends AbstractOperationContext
         return attrsOid;
     }
     
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "Lookup";
+    }
+
+    
     /**
      * @see Object#toString()
      */

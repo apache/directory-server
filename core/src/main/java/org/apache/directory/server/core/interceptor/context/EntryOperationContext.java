@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -48,6 +49,16 @@ public class EntryOperationContext extends AbstractOperationContext
     {
         super( registries, entryDn );
     }
+    
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return MessageTypeEnum.ADD_REQUEST.name();
+    }
+
     
     /**
      * @see Object#toString()

@@ -78,4 +78,13 @@ public class AddContextPartitionOperationContext extends EmptyOperationContext
     {
         this.partition = partition;
     }
+    
+    
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "AddContextPartition";
+    }
 }

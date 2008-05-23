@@ -22,6 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 import java.util.List;
 
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
@@ -87,10 +88,21 @@ public class BindOperationContext extends AbstractOperationContext
         return saslAuthId;
     }
 
+
     public void setSaslAuthId( String saslAuthId )
     {
         this.saslAuthId = saslAuthId;
     }
+    
+    
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return MessageTypeEnum.BIND_REQUEST.name();
+    }
+
     
     /**
      * @see Object#toString()

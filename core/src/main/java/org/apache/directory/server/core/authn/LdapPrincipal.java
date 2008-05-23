@@ -25,7 +25,6 @@ import java.security.Principal;
 
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -48,11 +47,6 @@ public final class LdapPrincipal implements Principal, Serializable
     /** the authentication level for this principal */
     private final AuthenticationLevel authenticationLevel;
     
-    /** The userPassword
-     * @todo security risk remove this immediately
-     */
-    private byte[] userPassword;
-
 
     /**
      * Creates a new LDAP/X500 principal without any group associations.  Keep
@@ -65,12 +59,13 @@ public final class LdapPrincipal implements Principal, Serializable
     public LdapPrincipal( LdapDN name, AuthenticationLevel authenticationLevel )
     {
         this.name = name;
+        
         if ( ! name.isNormalized() )
         {
             throw new IllegalStateException( "Names used for principals must be normalized!" );
         }
+        
         this.authenticationLevel = authenticationLevel;
-        this.userPassword = null;
     }
 
     /**
@@ -86,7 +81,6 @@ public final class LdapPrincipal implements Principal, Serializable
     {
         this.name = name;
         this.authenticationLevel = authenticationLevel;
-        this.userPassword = userPassword;
     }
 
 
@@ -98,7 +92,6 @@ public final class LdapPrincipal implements Principal, Serializable
     {
         name = new LdapDN();
         authenticationLevel = AuthenticationLevel.NONE;
-        userPassword = null;
     }
 
 
@@ -140,18 +133,6 @@ public final class LdapPrincipal implements Principal, Serializable
      */
     public String toString()
     {
-        return "['" + name.getUpName() + "', '" + StringTools.utf8ToString( userPassword ) +"']'";
-    }
-
-
-    public byte[] getUserPassword()
-    {
-        return userPassword;
-    }
-
-
-    public void setUserPassword( byte[] userPassword )
-    {
-        this.userPassword = userPassword;
+        return "['" + name.getUpName() + /*"', '" + StringTools.utf8ToString( userPassword ) +*/ "']'";
     }
 }

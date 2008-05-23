@@ -49,6 +49,16 @@ public class ListSuffixOperationContext extends AbstractOperationContext
         super( registries, dn );
     }
     
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "ListSuffix";
+    }
+
+    
     /**
      * @see Object#toString()
      */

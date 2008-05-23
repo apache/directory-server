@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
@@ -105,6 +106,15 @@ public class RenameOperationContext extends AbstractOperationContext
 	}
 
 
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return MessageTypeEnum.MOD_DN_REQUEST.name();
+    }
+
+    
     /**
      * @see Object#toString()
      */
