@@ -19,23 +19,23 @@
  */
 package org.apache.directory.server.core.operational;
 
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
-import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.enumeration.SearchResultFilter;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -47,8 +47,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -64,7 +63,7 @@ import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
 import javax.naming.directory.SearchControls;
-
+ 
 
 /**
  * An {@link Interceptor} that adds or modifies the default attributes
@@ -79,37 +78,30 @@ import javax.naming.directory.SearchControls;
  */
 public class OperationalAttributeInterceptor extends BaseInterceptor
 {
-    private final SearchResultFilter DENORMALIZING_SEARCH_FILTER = new SearchResultFilter()
+    private final EntryFilter DENORMALIZING_SEARCH_FILTER = new EntryFilter()
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls ) 
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry serverEntry ) 
             throws Exception
         {
-            ServerEntry serverEntry = result.getServerEntry(); 
-            
-            if ( controls.getReturningAttributes() == null )
+            if ( operation.getSearchControls().getReturningAttributes() == null )
             {
                 return true;
             }
             
-            boolean denormalized = filterDenormalized( serverEntry );
-            
-            result.setServerEntry( serverEntry );
-            
-            return denormalized;
+            return filterDenormalized( serverEntry );
         }
     };
 
     /**
      * the database search result filter to register with filter service
      */
-    private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
+    private final EntryFilter SEARCH_FILTER = new EntryFilter()
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry )
             throws Exception
         {
-            ServerEntry serverEntry = result.getServerEntry(); 
-            
-            return controls.getReturningAttributes() != null || filterOperationalAttributes( serverEntry );
+            return operation.getSearchControls().getReturningAttributes() != null 
+                || filterOperationalAttributes( entry );
         }
     };
 
@@ -274,9 +266,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
-        ServerEntry result = nextInterceptor.lookup( opContext );
+        ClonedServerEntry result = nextInterceptor.lookup( opContext );
         
         if ( result == null )
         {
@@ -296,38 +288,31 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        Cursor<ServerEntry> result = nextInterceptor.list( opContext );
-        Invocation invocation = InvocationStack.getInstance().peek();
-        
-//        return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, SEARCH_FILTER, "List Operational Filter" );
-        // TODO not implemented
-        throw new NotImplementedException();
+        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
+        cursor.addEntryFilter( SEARCH_FILTER );
+        return cursor;
     }
 
 
-    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
-        Invocation invocation = InvocationStack.getInstance().peek();
-        Cursor<ServerEntry> result = nextInterceptor.search( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.search( opContext );
         SearchControls searchCtls = opContext.getSearchControls();
         
         if ( searchCtls.getReturningAttributes() != null )
         {
             if ( service.isDenormalizeOpAttrsEnabled() )
             {
-//                return new SearchResultFilteringEnumeration( result, searchCtls, invocation, DENORMALIZING_SEARCH_FILTER, "Search Operational Filter denormalized" );
-                // TODO not implemented
-                throw new NotImplementedException();
+                cursor.addEntryFilter( DENORMALIZING_SEARCH_FILTER );
             }
                 
-            return result;
+            return cursor;
         }
 
-//        return new SearchResultFilteringEnumeration( result, searchCtls, invocation, SEARCH_FILTER , "Search Operational Filter");
-        // TODO Not implemented
-        throw new NotImplementedException();
+        cursor.addEntryFilter( SEARCH_FILTER );
+        return cursor;
     }
 
 

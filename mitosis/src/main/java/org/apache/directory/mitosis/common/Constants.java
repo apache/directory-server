@@ -21,12 +21,10 @@ package org.apache.directory.mitosis.common;
 
 
 import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.enumeration.SearchResultFilter;
-import org.apache.directory.server.core.invocation.Invocation;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 
 
@@ -59,12 +57,11 @@ public class Constants
      * A {@link SearchResultFilter} that filters out the entries whose
      * {@link #ENTRY_DELETED} attribute is <tt>TRUE</tt>.
      */
-    public static final SearchResultFilter DELETED_ENTRIES_FILTER = new SearchResultFilter()
+    public static final EntryFilter DELETED_ENTRIES_FILTER = new EntryFilter()
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry )
             throws NamingException
         {
-            ServerEntry entry = result.getServerEntry();
             EntryAttribute deleted = entry.get( ENTRY_DELETED );
             Object value = deleted == null ? null : deleted.get();
             return ( value == null || !"TRUE".equalsIgnoreCase( value.toString() ) );

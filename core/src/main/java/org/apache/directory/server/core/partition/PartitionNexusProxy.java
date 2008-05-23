@@ -40,13 +40,12 @@ import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.changelog.ChangeLogInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.enumeration.SearchResultFilter;
-import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -66,6 +65,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -242,7 +242,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public ServerEntry getContextEntry()
+    public ClonedServerEntry getContextEntry()
     {
         throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
     }
@@ -483,14 +483,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Cursor<ServerEntry> list( ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
         return list( opContext, null );
     }
 
 
-    public Cursor<ServerEntry> list( ListOperationContext opContext, Collection<String> bypass )
-            throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "list", bypass ) );
@@ -506,41 +505,37 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Cursor<ServerEntry> search( SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
-        Cursor<ServerEntry> ne = search( opContext, null );
-
-        if ( ne instanceof SearchResultFilteringEnumeration )
-        {
-            SearchResultFilteringEnumeration results = ( SearchResultFilteringEnumeration ) ne;
-            SearchControls searchCtls = opContext.getSearchControls();
+        EntryFilteringCursor cursor = search( opContext, null );
+        final SearchControls searchCtls = opContext.getSearchControls();
 
             if ( searchCtls.getTimeLimit() + searchCtls.getCountLimit() > 0 )
             {
                 // this will be the last filter added so other filters before it must
                 // have passed/approved of the entry to be returned back to the client
                 // so the candidate we have is going to be returned for sure
-                results.addResultFilter( new SearchResultFilter()
+                cursor.addEntryFilter( new EntryFilter()
                 {
                     final long startTime = System.currentTimeMillis();
                     int count = 1; // with prefetch we've missed one which is ok since 1 is the minimum
 
 
-                    public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
+                    public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry )
                             throws Exception
                     {
-                        if ( controls.getTimeLimit() > 0 )
+                        if ( searchCtls.getTimeLimit() > 0 )
                         {
                             long runtime = System.currentTimeMillis() - startTime;
-                            if ( runtime > controls.getTimeLimit() )
+                            if ( runtime > searchCtls.getTimeLimit() )
                             {
                                 throw new LdapTimeLimitExceededException();
                             }
                         }
 
-                        if ( controls.getCountLimit() > 0 )
+                        if ( searchCtls.getCountLimit() > 0 )
                         {
-                            if ( count > controls.getCountLimit() )
+                            if ( count > searchCtls.getCountLimit() )
                             {
                                 throw new LdapSizeLimitExceededException();
                             }
@@ -551,13 +546,12 @@ public class PartitionNexusProxy extends PartitionNexus
                     }
                 } );
             }
-        }
 
-        return ne;
+        return cursor;
     }
 
 
-    public Cursor<ServerEntry> search( SearchOperationContext opContext, Collection<String> bypass )
+    public EntryFilteringCursor search( SearchOperationContext opContext, Collection<String> bypass )
             throws Exception
     {
         ensureStarted();
@@ -574,7 +568,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public ServerEntry lookup( LookupOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
         if ( opContext.getDn().size() == 0 )
         {
@@ -590,7 +584,7 @@ public class PartitionNexusProxy extends PartitionNexus
                     }
                 }
 
-                return ROOT_DSE_NO_OPERATIONNAL;
+                return new ClonedServerEntry( ROOT_DSE_NO_OPERATIONNAL );
             } 
             else if ( ( attrs.size() == 1 ) && ( attrs.contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) ) )
             {
@@ -602,7 +596,7 @@ public class PartitionNexusProxy extends PartitionNexus
                     }
                 }
 
-                return ROOT_DSE_ALL;
+                return new ClonedServerEntry( ROOT_DSE_ALL );
             }
 
         }
@@ -611,7 +605,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public ServerEntry lookup( LookupOperationContext opContext, Collection<String> bypass ) throws Exception
+    public ClonedServerEntry lookup( LookupOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "lookup", bypass ) );
@@ -766,7 +760,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
+    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
     {
         if ( opContext.getDn().size() == 0 )
         {
@@ -778,14 +772,14 @@ public class PartitionNexusProxy extends PartitionNexus
                 }
             }
 
-            return ROOT_DSE_ALL;
+            return new ClonedServerEntry( ROOT_DSE_ALL );
         }
 
         return getRootDSE( opContext, null );
     }
 
 
-    public ServerEntry getRootDSE( GetRootDSEOperationContext opContext, Collection<String> bypass )
+    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext, Collection<String> bypass )
             throws Exception
     {
         ensureStarted();
@@ -901,7 +895,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public ServerEntry lookup( Long id ) throws Exception
+    public ClonedServerEntry lookup( Long id ) throws Exception
     {
         // TODO not implemented until we can lookup partition using the 
         // partition id component of the 64 bit identifier

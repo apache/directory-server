@@ -21,9 +21,10 @@ package org.apache.directory.server.core.normalization;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.EmptyCursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
@@ -159,7 +160,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
-    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
         ExprNode filter = opContext.getFilter();
         opContext.getDn().normalize( attrNormalizers );
@@ -168,7 +169,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( result == null )
         {
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new EmptyCursor<ServerEntry>();
+            return new EntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
         }
         else
         {
@@ -187,7 +188,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
-    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
         return nextInterceptor.list( opContext );
@@ -213,7 +214,8 @@ public class NormalizationInterceptor extends BaseInterceptor
         return normalizedAttrIds;
     }
 
-    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
+    
+    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
         
@@ -231,6 +233,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     // Normalize all Name based arguments for other interface operations
     // ------------------------------------------------------------------------
 
+    
     public LdapDN getMatchedName ( NextInterceptor nextInterceptor, GetMatchedNameOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );

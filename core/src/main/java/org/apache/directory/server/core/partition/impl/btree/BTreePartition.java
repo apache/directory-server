@@ -20,8 +20,9 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
@@ -34,15 +35,14 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import javax.naming.directory.SearchControls;
 import java.util.Collections;
@@ -137,11 +137,11 @@ public abstract class BTreePartition implements Partition
      *
      * @return the root suffix entry for this BTreePartition
      */
-    public ServerEntry getContextEntry()
+    public ClonedServerEntry getContextEntry()
     {
         if ( contextEntry != null )
         {
-            return ( ServerEntry ) contextEntry.clone();
+            return new ClonedServerEntry( contextEntry );
         }
         else
         {
@@ -262,13 +262,14 @@ public abstract class BTreePartition implements Partition
     public abstract void modify( ModifyOperationContext opContext ) throws Exception;
 
 
-    public Cursor<ServerEntry> list( ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
-        return new ServerEntryCursorAdaptor( this, list( getEntryId( opContext.getDn().getNormName() ) ) );
+        return new EntryFilteringCursor( new ServerEntryCursorAdaptor( this, 
+            list( getEntryId( opContext.getDn().getNormName() ) ) ), opContext );
     }
 
 
-    public Cursor<ServerEntry> search( SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
         SearchControls searchCtls = opContext.getSearchControls();
         IndexCursor<Long,ServerEntry> underlying;
@@ -279,32 +280,28 @@ public abstract class BTreePartition implements Partition
             opContext.getFilter(), 
             searchCtls );
 
-        return new ServerEntryCursorAdaptor( this, underlying );
+        return new EntryFilteringCursor( new ServerEntryCursorAdaptor( this, underlying ), opContext );
     }
 
 
-    public ServerEntry lookup( LookupOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
-        ServerEntry entry = lookup( getEntryId( opContext.getDn().getNormName() ) );
+        ClonedServerEntry entry = lookup( getEntryId( opContext.getDn().getNormName() ) );
 
         if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) )
         {
             return entry;
         }
 
-        ServerEntry retval = new DefaultServerEntry( opContext.getRegistries(), opContext.getDn() );
-
-        for ( String attrId:opContext.getAttrsId() )
+        for ( AttributeType attributeType : entry.getAttributeTypes() )
         {
-            EntryAttribute attr = entry.get( attrId );
-
-            if ( attr != null )
+            if ( ! opContext.getAttrsId().contains( attributeType.getOid() ) )
             {
-                retval.put( attr );
+                entry.removeAttributes( attributeType );
             }
         }
 
-        return retval;
+        return entry;
     }
 
 
@@ -530,7 +527,7 @@ public abstract class BTreePartition implements Partition
     public abstract String getEntryUpdn( String dn ) throws Exception;
 
 
-    public abstract ServerEntry lookup( Long id ) throws Exception;
+    public abstract ClonedServerEntry lookup( Long id ) throws Exception;
 
 
     public abstract void delete( Long id ) throws Exception;
@@ -555,9 +552,6 @@ public abstract class BTreePartition implements Partition
 
 
     public abstract Iterator<String> getSystemIndices();
-
-
-    public abstract ServerEntry getIndices( Long id ) throws Exception;
 
 
     /**

@@ -21,8 +21,8 @@ package org.apache.directory.server.core.interceptor;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -83,7 +83,7 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
+    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.getRootDSE( opContext );
@@ -104,7 +104,7 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public Iterator listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
+    public Iterator<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.listSuffixes( opContext );
@@ -155,21 +155,21 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public Cursor<ServerEntry> list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.list( opContext );
     }
 
 
-    public Cursor<ServerEntry> search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.search( opContext );
     }
 
 
-    public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
+    public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.lookup( opContext );

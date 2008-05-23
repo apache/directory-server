@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -452,9 +453,9 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final ServerEntry lookup( Long id ) throws Exception
+    public final ClonedServerEntry lookup( Long id ) throws Exception
     {
-        return store.lookup( id );
+        return new ClonedServerEntry( store.lookup( id ) );
     }
 
 
@@ -561,26 +562,14 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    @Override
-    public ServerEntry getIndices( Long id ) throws Exception
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-
-    @Override
     public Index<String, ServerEntry> getPresenceIndex()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return store.getPresenceIndex();
     }
 
 
-    @Override
     public Index<Long, ServerEntry> getSubLevelIndex()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return store.getSubLevelIndex();
     }
 }

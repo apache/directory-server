@@ -25,9 +25,10 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -93,17 +94,17 @@ public class AddEntryOperation extends Operation
     private void recursiveDelete( PartitionNexus nexus, LdapDN normalizedName, Registries registries )
         throws Exception
     {
-        Cursor<ServerEntry> ne = nexus.list( new ListOperationContext( registries, normalizedName ) );
+        EntryFilteringCursor cursor = nexus.list( new ListOperationContext( registries, normalizedName ) );
         
-        if ( !ne.available() )
+        if ( !cursor.available() )
         {
             nexus.delete( new DeleteOperationContext( registries, normalizedName ) );
             return;
         }
 
-        while ( ne.next() )
+        while ( cursor.next() )
         {
-            ServerEntry sr = ne.get();
+            ClonedServerEntry sr = cursor.get();
             LdapDN dn = sr.getDn();
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             recursiveDelete( nexus, dn, registries );

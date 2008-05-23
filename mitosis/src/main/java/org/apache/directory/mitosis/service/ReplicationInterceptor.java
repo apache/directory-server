@@ -33,8 +33,9 @@ import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerCo
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerProtocolHandler;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -344,16 +345,16 @@ public class ReplicationInterceptor extends BaseInterceptor
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         ctrl.setReturningAttributes( new String[] { "entryCSN", "entryDeleted" } );
 
-        Cursor<ServerEntry> e = nexus.search(
+        EntryFilteringCursor cursor = nexus.search(
             new SearchOperationContext( registries, contextName, AliasDerefMode.DEREF_ALWAYS, filter, ctrl ) );
 
         List<LdapDN> names = new ArrayList<LdapDN>();
         
         try
         {
-            while ( e.next() )
+            while ( cursor.next() )
             {
-            	ServerEntry entry = e.get();
+            	ServerEntry entry = cursor.get();
                 LdapDN name = entry.getDn();
                 
                 if ( name.size() > contextName.size() )
@@ -364,7 +365,7 @@ public class ReplicationInterceptor extends BaseInterceptor
         }
         finally
         {
-            e.close();
+            cursor.close();
         }
 
         for ( LdapDN name : names )
@@ -457,7 +458,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     }
 
 
-    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws Exception
+    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws Exception
     {
         if ( lookupContext.getAttrsId() != null )
         {
@@ -485,30 +486,28 @@ public class ReplicationInterceptor extends BaseInterceptor
             }
         }
 
-        ServerEntry result = nextInterceptor.lookup( lookupContext );
-        ensureNotDeleted( lookupContext.getDn(), result );
-        return result;
+        ClonedServerEntry entry = nextInterceptor.lookup( lookupContext );
+        ensureNotDeleted( lookupContext.getDn(), entry );
+        return entry;
     }
 
 
     @Override
-    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-    	Cursor<ServerEntry> result = nextInterceptor.search(
+    	EntryFilteringCursor cursor = nextInterceptor.search(
 	            new SearchOperationContext(
 	                registries, opContext.getDn(), opContext.getAliasDerefMode(),
 	                new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
 	                new SearchControls() ) );
 
-        // TODO FixMe
-    	//return new SearchResultFilteringEnumeration( result, new SearchControls(), InvocationStack.getInstance().peek(),
-        //    Constants.DELETED_ENTRIES_FILTER, "List replication filter" );
-    	return null;
+    	cursor.addEntryFilter( Constants.DELETED_ENTRIES_FILTER );
+    	return cursor;
     }
 
 
     @Override
-    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) 
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) 
         throws Exception
     {
         SearchControls searchControls = opContext.getSearchControls();
@@ -522,12 +521,10 @@ public class ReplicationInterceptor extends BaseInterceptor
             searchControls.setReturningAttributes( newAttrIds );
         }
 
-    	Cursor<ServerEntry> result = nextInterceptor.search(
-            new SearchOperationContext( registries, opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(), searchControls ) );
-        // TODO FixMe
-    	// return new SearchResultFilteringEnumeration( result, searchControls, InvocationStack.getInstance().peek(),
-        //    Constants.DELETED_ENTRIES_FILTER, "Search Replication filter" );
-    	return null;
+    	EntryFilteringCursor cursor = nextInterceptor.search( new SearchOperationContext( registries, 
+    	    opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(), searchControls ) );
+    	cursor.addEntryFilter( Constants.DELETED_ENTRIES_FILTER );
+    	return cursor;
     }
 
 

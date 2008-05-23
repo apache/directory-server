@@ -22,15 +22,17 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.EmptyCursor;
+import org.apache.directory.server.core.cursor.SingletonCursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerStringValue;
-import org.apache.directory.server.core.enumeration.SearchResultFilter;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -42,8 +44,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
@@ -137,7 +138,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private TopFilter topFilter;
 
-    private List<SearchResultFilter> filters = new ArrayList<SearchResultFilter>();
+    private List<EntryFilter> filters = new ArrayList<EntryFilter>();
 
     /**
      * the global schema object registries
@@ -381,18 +382,11 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    /**
-     *
-     */
-    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext )
-        throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        Cursor<ServerEntry> result = nextInterceptor.list( opContext );
-        Invocation invocation = InvocationStack.getInstance().peek();
-        // TODO FixMe
-        //return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, binaryAttributeFilter,
-        //    "List Schema Filter" );
-        return null;
+        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
+        cursor.addEntryFilter( binaryAttributeFilter );
+        return cursor;
     }
 
 
@@ -661,11 +655,8 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    /**
-     *
-     */
-    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor,
-        SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) 
+        throws Exception
     {
         LdapDN base = opContext.getDn();
         SearchControls searchCtls = opContext.getSearchControls();
@@ -684,21 +675,19 @@ public class SchemaInterceptor extends BaseInterceptor
         // Deal with the normal case : searching for a normal value (not subSchemaSubEntry)
         if ( !subschemaSubentryDnNorm.equals( baseNormForm ) )
         {
-            Cursor<ServerEntry> result = nextInterceptor.search( opContext );
-
-            Invocation invocation = InvocationStack.getInstance().peek();
+            EntryFilteringCursor cursor = nextInterceptor.search( opContext );
 
             if ( searchCtls.getReturningAttributes() != null )
             {
-                // TODO FixMe
-                //return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, topFilter,
-                //    "Search Schema Filter top" );
-                return null;
+                cursor.addEntryFilter( topFilter );
+                return cursor;
             }
 
-            // TODO FixMe
-            //return new SearchResultFilteringEnumeration( result, searchCtls, invocation, filters,
-            //    "Search Schema Filter" );
+            for ( EntryFilter ef : filters )
+            {
+                cursor.addEntryFilter( ef );
+            }
+            
             return null;
         }
 
@@ -732,9 +721,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 else
                 {
-                    // TODO FixMe
-                    //return new EmptyEnumeration<ServerSearchResult>();
-                    return null;
+                    return new EntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
                 }
 
                 String nodeOid = registries.getOidRegistry().getOid( node.getAttribute() );
@@ -746,16 +733,11 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
-                    ServerSearchResult result = new ServerSearchResult( base, null, serverEntry );
-                    // TODO FixMe
-                    //return new SingletonEnumeration<ServerSearchResult>( result );
-                    return null;
+                    return new EntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
                 }
                 else
                 {
-                    // TODO FixMe
-                    //return new EmptyEnumeration<ServerSearchResult>();
-                    return null;
+                    return new EntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
                 }
             }
             else if ( filter instanceof PresenceNode )
@@ -767,28 +749,25 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
-                    ServerSearchResult result = new ServerSearchResult( base, null, serverEntry, false );
-                    // TODO FixMe
-                    //return new SingletonEnumeration<ServerSearchResult>( result );
-                    return null;
+                    EntryFilteringCursor cursor = new EntryFilteringCursor( 
+                        new SingletonCursor<ServerEntry>( serverEntry ), opContext );
+                    return cursor;
                 }
             }
         }
 
         // In any case not handled previously, just return an empty result
-        // TODO FixMe
-        //return new EmptyEnumeration<ServerSearchResult>();
-        return null;
+        return new EntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
     }
 
 
     /**
      * Search for an entry, using its DN. Binary attributes and ObjectClass attribute are removed.
      */
-    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext )
+    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext )
         throws Exception
     {
-        ServerEntry result = nextInterceptor.lookup( opContext );
+        ClonedServerEntry result = nextInterceptor.lookup( opContext );
 
         if ( result == null )
         {
@@ -1529,12 +1508,12 @@ public class SchemaInterceptor extends BaseInterceptor
      * @see <a href= "http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#binary">
      *      java.naming.ldap.attributes.binary</a>
      */
-    private class BinaryAttributeFilter implements SearchResultFilter
+    private class BinaryAttributeFilter implements EntryFilter
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result )
             throws Exception
         {
-            filterBinaryAttributes( result.getServerEntry() );
+            filterBinaryAttributes( result );
             return true;
         }
     }
@@ -1542,13 +1521,12 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Filters objectClass attribute to inject top when not present.
      */
-    private class TopFilter implements SearchResultFilter
+    private class TopFilter implements EntryFilter
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result )
             throws Exception
         {
-            filterObjectClass( result.getServerEntry() );
-
+            filterObjectClass( result );
             return true;
         }
     }

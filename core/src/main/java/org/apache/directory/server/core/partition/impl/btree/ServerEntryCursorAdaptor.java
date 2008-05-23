@@ -31,7 +31,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 
 
 /**
- * TODO ServerEntryCursorAdaptor.
+ * Adapts index cursors to return just ServerEntry objects.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -49,8 +49,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
     
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#after(java.lang.Object)
+    /* 
+     * @see Cursor#after(java.lang.Object)
      */
     public void after( ServerEntry element ) throws Exception
     {
@@ -58,8 +58,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#afterLast()
+    /* 
+     * @see Cursor#afterLast()
      */
     public void afterLast() throws Exception
     {
@@ -67,8 +67,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#available()
+    /* 
+     * @see Cursor#available()
      */
     public boolean available()
     {
@@ -76,8 +76,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#before(java.lang.Object)
+    /* 
+     * @see Cursor#before(java.lang.Object)
      */
     public void before( ServerEntry element ) throws Exception
     {
@@ -85,8 +85,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#beforeFirst()
+    /* 
+     * @see Cursor#beforeFirst()
      */
     public void beforeFirst() throws Exception
     {
@@ -94,8 +94,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#close()
+    /* 
+     * @see Cursor#close()
      */
     public void close() throws Exception
     {
@@ -103,8 +103,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#first()
+    /* 
+     * @see Cursor#first()
      */
     public boolean first() throws Exception
     {
@@ -112,8 +112,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#get()
+    /* 
+     * @see Cursor#get()
      */
     public ServerEntry get() throws Exception
     {
@@ -128,8 +128,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#isClosed()
+    /* 
+     * @see Cursor#isClosed()
      */
     public boolean isClosed() throws Exception
     {
@@ -137,8 +137,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#isElementReused()
+    /* 
+     * @see Cursor#isElementReused()
      */
     public boolean isElementReused()
     {
@@ -146,8 +146,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#last()
+    /* 
+     * @see Cursor#last()
      */
     public boolean last() throws Exception
     {
@@ -155,8 +155,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#next()
+    /* 
+     * @see Cursor#next()
      */
     public boolean next() throws Exception
     {
@@ -164,8 +164,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.Cursor#previous()
+    /* 
+     * @see Cursor#previous()
      */
     public boolean previous() throws Exception
     {
@@ -173,8 +173,8 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
     }
 
 
-    /* (non-Javadoc)
-     * @see java.lang.Iterable#iterator()
+    /* 
+     * @see Iterable#iterator()
      */
     public Iterator<ServerEntry> iterator()
     {

@@ -876,10 +876,11 @@ public class PartitionFrame extends JFrame
         AttributesTableModel model = new AttributesTableModel( entry, id, dn, false );
         entryTbl.setModel( model );
 
-        model = new AttributesTableModel( partition.getIndices( id ), id, dn, false );
-        idxTbl.setModel( model );
-
-        validate();
+        // TODO use utility method to getIndices below
+//        model = new AttributesTableModel( partition.getIndices( id ), id, dn, false );
+//        idxTbl.setModel( model );
+//
+//        validate();
     }
 
 

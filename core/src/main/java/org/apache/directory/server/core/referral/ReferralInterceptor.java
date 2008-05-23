@@ -31,15 +31,13 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.entry.ServerStringValue;
-import org.apache.directory.server.core.enumeration.ReferralHandlingEnumeration;
-import org.apache.directory.server.core.enumeration.SearchResultFilter;
-import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.event.EventInterceptor;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
@@ -53,6 +51,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -880,7 +879,7 @@ public class ReferralInterceptor extends BaseInterceptor
         Partition partition = opContext.getPartition();
         LdapDN suffix = partition.getSuffixDn();
         Invocation invocation = InvocationStack.getInstance().peek();
-        Cursor<ServerEntry> list = invocation.getProxy().search(
+        EntryFilteringCursor list = invocation.getProxy().search(
             new SearchOperationContext( registries, suffix, AliasDerefMode.DEREF_ALWAYS, getReferralFilter(),
                 getControls() ), SEARCH_BYPASS );
         addReferrals( list, suffix );
@@ -892,16 +891,16 @@ public class ReferralInterceptor extends BaseInterceptor
     {
         // remove referrals immediately before removing the partition
         Invocation invocation = InvocationStack.getInstance().peek();
-        Cursor<ServerEntry> list = invocation.getProxy().search(
+        EntryFilteringCursor cursor = invocation.getProxy().search(
             new SearchOperationContext( registries, opContext.getDn(), AliasDerefMode.DEREF_ALWAYS,
                 getReferralFilter(), getControls() ), SEARCH_BYPASS );
 
-        deleteReferrals( list, opContext.getDn() );
+        deleteReferrals( cursor, opContext.getDn() );
         next.removeContextPartition( opContext );
     }
 
 
-    private void addReferrals( Cursor<ServerEntry> referrals, LdapDN base ) throws Exception
+    private void addReferrals( EntryFilteringCursor referrals, LdapDN base ) throws Exception
     {
         while ( referrals.next() )
         {
@@ -922,12 +921,12 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    private void deleteReferrals( Cursor<ServerEntry> referrals, LdapDN base ) throws Exception
+    private void deleteReferrals( EntryFilteringCursor referrals, LdapDN base ) throws Exception
     {
         while ( referrals.next() )
         {
             ServerEntry r = referrals.get();
-            LdapDN referral;
+//            LdapDN referral;
             LdapDN result = new LdapDN( r.getDn() );
             result.normalize( atRegistry.getNormalizerMapping() );
 
@@ -943,8 +942,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public Cursor<ServerEntry> search( NextInterceptor next, SearchOperationContext opContext )
-        throws Exception
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
@@ -1002,11 +1000,13 @@ public class ReferralInterceptor extends BaseInterceptor
 
             if ( farthest == null )
             {
-                SearchResultFilteringEnumeration srfe = ( SearchResultFilteringEnumeration ) next.search( opContext );
+                EntryFilteringCursor srfe = next.search( opContext );
+                
                 // TODO FixMe
                 //return new ReferralHandlingEnumeration( srfe, lut, opContext.getRegistries(), nexus, controls
                 //    .getSearchScope(), true );
-                return null;
+                
+                throw new NotImplementedException();
             }
 
             ServerEntry referral = invocation.getProxy().lookup( new LookupOperationContext( registries, farthest ),
@@ -1026,10 +1026,9 @@ public class ReferralInterceptor extends BaseInterceptor
         }
     }
 
-    class ReferralFilter implements SearchResultFilter//, SearchResultEnumerationAppender 
+    class ReferralFilter implements EntryFilter//, SearchResultEnumerationAppender 
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-            throws NamingException
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
         {
             return false;
         }

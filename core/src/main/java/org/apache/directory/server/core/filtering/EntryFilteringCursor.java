@@ -346,7 +346,16 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
         outer: while ( wrapped.next() )
         {
             boolean accepted = true;
-            tempResult = new ClonedServerEntry( wrapped.get() );
+            
+            ServerEntry tempEntry = wrapped.get();
+            if ( tempEntry instanceof ClonedServerEntry )
+            {
+                tempResult = ( ClonedServerEntry ) tempEntry;
+            }
+            else
+            {
+                tempResult = new ClonedServerEntry( tempEntry );
+            }
             
             /*
              * O P T I M I Z A T I O N

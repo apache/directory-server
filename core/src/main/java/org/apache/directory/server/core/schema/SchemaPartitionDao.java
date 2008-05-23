@@ -29,10 +29,10 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -157,7 +157,7 @@ public class SchemaPartitionDao
     public Map<String, Schema> getSchemas() throws Exception
     {
         Map<String, Schema> schemas = new HashMap<String, Schema>();
-        Cursor<ServerEntry> list = listSchemas();
+        EntryFilteringCursor list = listSchemas();
 
         while ( list.next() )
         {
@@ -173,7 +173,7 @@ public class SchemaPartitionDao
     public Set<String> getSchemaNames() throws Exception
     {
         Set<String> schemaNames = new HashSet<String>();
-        Cursor<ServerEntry> list = listSchemas();
+        EntryFilteringCursor list = listSchemas();
 
         while ( list.next() )
         {
@@ -185,7 +185,7 @@ public class SchemaPartitionDao
     }
 
 
-    private Cursor<ServerEntry> listSchemas() throws Exception
+    private EntryFilteringCursor listSchemas() throws Exception
     {
         LdapDN base = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
         base.normalize( attrRegistry.getNormalizerMapping() );
@@ -224,19 +224,19 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        Cursor<ServerEntry> ne = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
-            if ( !ne.next() )
+            if ( !cursor.next() )
             {
                 return false;
             }
 
-            if ( ne.next() )
+            if ( cursor.next() )
             {
                 throw new NamingException( "Got more than one matchingRule for oid of " + oid );
             }
@@ -245,9 +245,9 @@ public class SchemaPartitionDao
         }
         finally
         {
-            if ( ne != null )
+            if ( cursor != null )
             {
-                ne.close();
+                cursor.close();
             }
         }
     }
@@ -270,19 +270,19 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        Cursor<ServerEntry> ne = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
-            if ( !ne.next() )
+            if ( !cursor.next() )
             {
                 return false;
             }
 
-            if ( ne.next() )
+            if ( cursor.next() )
             {
                 throw new NamingException( "Got more than one attributeType for oid of " + oid );
             }
@@ -291,9 +291,9 @@ public class SchemaPartitionDao
         }
         finally
         {
-            if ( ne != null )
+            if ( cursor != null )
             {
-                ne.close();
+                cursor.close();
             }
         }
     }
@@ -316,19 +316,19 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        Cursor<ServerEntry> ne = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
-            if ( !ne.next() )
+            if ( !cursor.next() )
             {
                 return false;
             }
 
-            if ( ne.next() )
+            if ( cursor.next() )
             {
                 throw new NamingException( "Got more than one attributeType for oid of " + oid );
             }
@@ -337,9 +337,9 @@ public class SchemaPartitionDao
         }
         finally
         {
-            if ( ne != null )
+            if ( cursor != null )
             {
-                ne.close();
+                cursor.close();
             }
         }
     }
@@ -362,19 +362,19 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        Cursor<ServerEntry> ne = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
-            if ( !ne.next() )
+            if ( !cursor.next() )
             {
                 return false;
             }
 
-            if ( ne.next() )
+            if ( cursor.next() )
             {
                 throw new NamingException( "Got more than one syntax for oid of " + oid );
             }
@@ -383,9 +383,9 @@ public class SchemaPartitionDao
         }
         finally
         {
-            if ( ne != null )
+            if ( cursor != null )
             {
-                ne.close();
+                cursor.close();
             }
         }
     }
@@ -408,19 +408,19 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        Cursor<ServerEntry> ne = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
-            if ( !ne.next() )
+            if ( !cursor.next() )
             {
                 return false;
             }
 
-            if ( ne.next() )
+            if ( cursor.next() )
             {
                 throw new NamingException( "Got more than one syntaxChecker for oid of " + oid );
             }
@@ -429,9 +429,9 @@ public class SchemaPartitionDao
         }
         finally
         {
-            if ( ne != null )
+            if ( cursor != null )
             {
-                ne.close();
+                cursor.close();
             }
         }
     }
@@ -502,21 +502,21 @@ public class SchemaPartitionDao
         filter.addNode( oidAVA );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        Cursor<ServerEntry> ne = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
-            if ( !ne.next() )
+            if ( !cursor.next() )
             {
                 return null;
             }
 
-            ServerEntry sr = ne.get();
+            ServerEntry sr = cursor.get();
             
-            if ( ne.next() )
+            if ( cursor.next() )
             {
                 throw new NamingException( "Got more than one result for the entity name: " + entityName );
             }
@@ -525,9 +525,9 @@ public class SchemaPartitionDao
         }
         finally
         {
-            if ( ne != null )
+            if ( cursor != null )
             {
-                ne.close();
+                cursor.close();
             }
         }
     }
@@ -624,23 +624,23 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        Cursor<ServerEntry> ne = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
-            while ( ne.next() )
+            while ( cursor.next() )
             {
-                set.add( ne.get() );
+                set.add( cursor.get() );
             }
         }
         finally
         {
-            if ( ne != null )
+            if ( cursor != null )
             {
-                ne.close();
+                cursor.close();
             }
         }
 
@@ -675,23 +675,23 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        Cursor<ServerEntry> ne = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
-            while ( ne.next() )
+            while ( cursor.next() )
             {
-                set.add( ne.get() );
+                set.add( cursor.get() );
             }
         }
         finally
         {
-            if ( ne != null )
+            if ( cursor != null )
             {
-                ne.close();
+                cursor.close();
             }
         }
 
@@ -699,7 +699,7 @@ public class SchemaPartitionDao
     }
 
 
-    public Cursor<ServerEntry> listAllNames() throws Exception
+    public EntryFilteringCursor listAllNames() throws Exception
     {
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -752,23 +752,23 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        Cursor<ServerEntry> ne = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
-            while ( ne.next() )
+            while ( cursor.next() )
             {
-                set.add( ne.get() );
+                set.add( cursor.get() );
             }
         }
         finally
         {
-            if ( ne != null )
+            if ( cursor != null )
             {
-                ne.close();
+                cursor.close();
             }
         }
 
@@ -800,23 +800,23 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Cursor<ServerEntry> ne = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
-            while ( ne.next() )
+            while ( cursor.next() )
             {
-                set.add( ne.get() );
+                set.add( cursor.get() );
             }
         }
         finally
         {
-            if ( ne != null )
+            if ( cursor != null )
             {
-                ne.close();
+                cursor.close();
             }
         }
 
@@ -842,16 +842,16 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Cursor<ServerEntry> ne = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
-            while ( ne.next() )
+            while ( cursor.next() )
             {
-                ServerEntry sr = ne.get();
+                ServerEntry sr = cursor.get();
                 EntryAttribute disabled = sr.get( disabledAttributeType );
 
                 if ( disabled == null )
@@ -866,9 +866,9 @@ public class SchemaPartitionDao
         }
         finally
         {
-            if ( ne != null )
+            if ( cursor != null )
             {
-                ne.close();
+                cursor.close();
             }
         }
 
@@ -922,23 +922,23 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        Cursor<ServerEntry> ne = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
-            ne = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( registries, partition.getSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
-            while ( ne.next() )
+            while ( cursor.next() )
             {
-                set.add( ne.get() );
+                set.add( cursor.get() );
             }
         }
         finally
         {
-            if ( ne != null )
+            if ( cursor != null )
             {
-                ne.close();
+                cursor.close();
             }
         }
 

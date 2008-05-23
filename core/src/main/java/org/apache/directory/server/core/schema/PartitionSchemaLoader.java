@@ -36,8 +36,9 @@ import java.util.Stack;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -196,11 +197,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
          * OID registry.  To prevent this we need to load all the OID's in advance
          * regardless of whether they are used or not.
          */
-        Cursor<ServerEntry> ne = dao.listAllNames();
+        EntryFilteringCursor cursor = dao.listAllNames();
         
-        while ( ne.next() )
+        while ( cursor.next() )
         {
-            ServerEntry entry = ne.get();
+            ServerEntry entry = cursor.get();
             String oid = entry.get( mOidAT ).getString();
             EntryAttribute names = entry.get( mNameAT );
             targetRegistries.getOidRegistry().register( oid, oid );
@@ -211,7 +212,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             }
         }
         
-        ne.close();
+        cursor.close();
         
         
         Map<String, Schema> allSchemaMap = getSchemas();
@@ -424,14 +425,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading objectClasses", schema.getSchemaName() );
         
-        Cursor<ServerEntry> list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
-            ServerEntry result = list.get();
+            ClonedServerEntry result = list.get();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
-            ServerEntry attrs = lookupPartition( resultDN );
+            ClonedServerEntry attrs = lookupPartition( resultDN );
             ObjectClass oc = factory.getObjectClass( attrs, targetRegistries, schema.getSchemaName() );
             
             try
@@ -525,7 +526,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading attributeTypes", schema.getSchemaName() );
         
-        Cursor<ServerEntry> list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
@@ -623,7 +624,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading matchingRules", schema.getSchemaName() );
         
-        Cursor<ServerEntry> list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
@@ -656,7 +657,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading syntaxes", schema.getSchemaName() );
         
-        Cursor<ServerEntry> list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
@@ -688,7 +689,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading syntaxCheckers", schema.getSchemaName() );
         
-        Cursor<ServerEntry> list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
@@ -722,11 +723,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading normalizers", schema.getSchemaName() );
         
-        Cursor<ServerEntry> list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
-            ServerEntry result = list.get();
+            ClonedServerEntry result = list.get();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
@@ -777,10 +778,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
     
-    private ServerEntry lookupPartition( LdapDN dn ) throws Exception
+    private ClonedServerEntry lookupPartition( LdapDN dn ) throws Exception
     {
         return partition.lookup( new LookupOperationContext( registries, dn ) );
     }
+    
     
     private void loadComparators( Schema schema, Registries targetRegistries ) throws Exception
     {
@@ -800,14 +802,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading comparators", schema.getSchemaName() );
         
-        Cursor<ServerEntry> list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
-            ServerEntry result = list.get();
+            ClonedServerEntry result = list.get();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
-            ServerEntry attrs = lookupPartition( resultDN );
+            ClonedServerEntry attrs = lookupPartition( resultDN );
             Comparator comparator = factory.getComparator( attrs, targetRegistries );
             ComparatorDescription comparatorDescription = getComparatorDescription( schema.getSchemaName(), attrs );
             targetRegistries.getComparatorRegistry().register( comparatorDescription, comparator );

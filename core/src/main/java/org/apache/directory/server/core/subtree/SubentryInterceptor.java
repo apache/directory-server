@@ -24,14 +24,14 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
-import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.enumeration.SearchResultFilter;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -42,6 +42,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -154,7 +155,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         // prepare to find all subentries in all namingContexts
         Iterator<String> suffixes = this.nexus.listSuffixes( null );
-        ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
+        ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
             SchemaConstants.SUBENTRY_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -168,7 +169,7 @@ public class SubentryInterceptor extends BaseInterceptor
             //suffix = LdapDN.normalize( suffix, registry.getNormalizerMapping() );
             suffix.normalize( atRegistry.getNormalizerMapping() );
 
-            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
                 suffix, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -236,51 +237,45 @@ public class SubentryInterceptor extends BaseInterceptor
     // Methods/Code dealing with Subentry Visibility
     // -----------------------------------------------------------------------
 
-    public Cursor<ServerEntry> list( NextInterceptor nextInterceptor, ListOperationContext opContext )
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
         throws Exception
     {
-        Cursor<ServerEntry> result = nextInterceptor.list( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
 
         if ( !isSubentryVisible( invocation ) )
         {
-            // TODO FixMe
-            //return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation,
-            //    new HideSubentriesFilter(), "List Subentry filter" );
+            cursor.addEntryFilter( new HideSubentriesFilter() );
         }
 
-        return result;
+        return cursor;
     }
 
 
-    public Cursor<ServerEntry> search( NextInterceptor nextInterceptor,
-        SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) 
+        throws Exception
     {
-        Cursor<ServerEntry> result = nextInterceptor.search( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         SearchControls searchCtls = opContext.getSearchControls();
 
         // object scope searches by default return subentries
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
         {
-            return result;
+            return cursor;
         }
 
         // for subtree and one level scope we filter
         if ( !isSubentryVisible( invocation ) )
         {
-            // TODO FixMe
-            //return new SearchResultFilteringEnumeration( result, searchCtls, invocation, new HideSubentriesFilter(),
-            //    "Search Subentry filter hide subentries" );
-            return null;
+            cursor.addEntryFilter( new HideSubentriesFilter() );
         }
         else
         {
-            // TODO FixMe
-            //return new SearchResultFilteringEnumeration( result, searchCtls, invocation, new HideEntriesFilter(),
-            //    "Search Subentry filter hide entries" );
-            return null;
+            cursor.addEntryFilter( new HideEntriesFilter() );
         }
+
+        return cursor;
     }
 
 
@@ -485,7 +480,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -619,7 +614,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -660,7 +655,7 @@ public class SubentryInterceptor extends BaseInterceptor
         ExprNode filter = new PresenceNode( "administrativeRole" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        Cursor<ServerEntry> aps = nexus.search( new SearchOperationContext( registries, name,
+        EntryFilteringCursor aps = nexus.search( new SearchOperationContext( registries, name,
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
         if ( aps.next() )
@@ -778,7 +773,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -855,7 +850,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -929,7 +924,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -1063,7 +1058,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            Cursor<ServerEntry> subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
                 oldBaseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -1359,12 +1354,12 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * SearchResultFilter used to filter out subentries based on objectClass values.
      */
-    public class HideSubentriesFilter implements SearchResultFilter
+    public class HideSubentriesFilter implements EntryFilter
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry )
             throws Exception
         {
-            String dn = result.getDn().getNormName();
+            String dn = entry.getDn().getNormName();
 
             // see if we can get a match without normalization
             if ( subentryCache.hasSubentry( dn ) )
@@ -1373,28 +1368,17 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            EntryAttribute objectClasses = result.getServerEntry().get( SchemaConstants.OBJECT_CLASS_AT );
+            EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
             if ( objectClasses != null )
             {
                 return !objectClasses.contains( SchemaConstants.SUBENTRY_OC );
             }
 
-            if ( !result.isRelative() )
-            {
-                LdapDN ndn = new LdapDN( dn );
-                ndn.normalize( atRegistry.getNormalizerMapping() );
-                String normalizedDn = ndn.toString();
-                return !subentryCache.hasSubentry( normalizedDn );
-            }
-
-            LdapDN name = new LdapDN( invocation.getCaller().getNameInNamespace() );
-            name.normalize( atRegistry.getNormalizerMapping() );
-
-            LdapDN rest = result.getDn();
-            rest.normalize( atRegistry.getNormalizerMapping() );
-            name.addAll( rest );
-            return !subentryCache.hasSubentry( name.toString() );
+            LdapDN ndn = new LdapDN( dn );
+            ndn.normalize( atRegistry.getNormalizerMapping() );
+            String normalizedDn = ndn.toString();
+            return !subentryCache.hasSubentry( normalizedDn );
         }
     }
 
@@ -1402,12 +1386,12 @@ public class SubentryInterceptor extends BaseInterceptor
      * SearchResultFilter used to filter out normal entries but shows subentries based on 
      * objectClass values.
      */
-    public class HideEntriesFilter implements SearchResultFilter
+    public class HideEntriesFilter implements EntryFilter
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry )
             throws Exception
         {
-            String dn = result.getDn().getNormName();
+            String dn = entry.getDn().getNormName();
 
             // see if we can get a match without normalization
             if ( subentryCache.hasSubentry( dn ) )
@@ -1416,27 +1400,16 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            EntryAttribute objectClasses = result.getServerEntry().get( SchemaConstants.OBJECT_CLASS_AT );
+            EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
             if ( objectClasses != null )
             {
                 return objectClasses.contains( SchemaConstants.SUBENTRY_OC );
             }
 
-            if ( !result.isRelative() )
-            {
-                LdapDN ndn = new LdapDN( dn );
-                ndn.normalize( atRegistry.getNormalizerMapping() );
-                return subentryCache.hasSubentry( ndn.toNormName() );
-            }
-
-            LdapDN name = new LdapDN( invocation.getCaller().getNameInNamespace() );
-            name.normalize( atRegistry.getNormalizerMapping() );
-
-            LdapDN rest = result.getDn();
-            rest.normalize( atRegistry.getNormalizerMapping() );
-            name.addAll( rest );
-            return subentryCache.hasSubentry( name.toNormName() );
+            LdapDN ndn = new LdapDN( dn );
+            ndn.normalize( atRegistry.getNormalizerMapping() );
+            return subentryCache.hasSubentry( ndn.toNormName() );
         }
     }
 

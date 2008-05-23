@@ -28,6 +28,7 @@ import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.CursorIterator;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -179,16 +180,16 @@ public class MaxImmSubFilterTest
         }
 
 
-        public Cursor<ServerEntry> search( SearchOperationContext opContext )
+        public EntryFilteringCursor search( SearchOperationContext opContext )
             throws NamingException
         {
-            return new BogusCursor( count );
+            return new EntryFilteringCursor( new BogusCursor( count ), opContext );
         }
 
 
-        public Cursor<ServerEntry> search( SearchOperationContext opContext, Collection bypass ) throws NamingException
+        public EntryFilteringCursor search( SearchOperationContext opContext, Collection<String> bypass ) throws NamingException
         {
-            return new BogusCursor( count );
+            return new EntryFilteringCursor( new BogusCursor( count ), opContext );
         }
     }
 

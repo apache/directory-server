@@ -42,8 +42,8 @@ import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -378,15 +378,15 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        Cursor<ServerEntry> e = ctx.getDirectoryService().getPartitionNexus().search(
+        EntryFilteringCursor cursor = ctx.getDirectoryService().getPartitionNexus().search(
             new SearchOperationContext( ctx.getDirectoryService().getRegistries(), contextName,
                 AliasDerefMode.DEREF_ALWAYS, new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         try
         {
-            while ( e.next() )
+            while ( cursor.next() )
             {
-                ServerEntry entry = e.get();
+                ServerEntry entry = cursor.get();
 
                 // Skip entries without entryCSN attribute.
                 EntryAttribute entryCSNAttr = entry.get( org.apache.directory.mitosis.common.Constants.ENTRY_CSN );
@@ -430,7 +430,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         }
         finally
         {
-            e.close();
+            cursor.close();
         }
     }
 

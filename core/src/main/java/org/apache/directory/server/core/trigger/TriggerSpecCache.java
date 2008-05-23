@@ -17,13 +17,14 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.core.trigger;
+
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -111,16 +112,16 @@ public class TriggerSpecCache
         {
             String suffix = suffixes.next();
             LdapDN baseDn = new LdapDN( suffix );
-            ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, 
+            ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
                     new ClientStringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            Cursor<ServerEntry> results = 
+            EntryFilteringCursor results = 
                 nexus.search( new SearchOperationContext( registries, baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
             
             while ( results.next() )
             {
-                ServerEntry resultEntry = results.get();
+                ClonedServerEntry resultEntry = results.get();
                 LdapDN subentryDn = resultEntry.getDn();
                 EntryAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
                 
