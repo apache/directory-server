@@ -773,7 +773,6 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         initialize();
-        firstStart = createBootstrapEntries();
         showSecurityWarnings();
         started = true;
         
@@ -1069,26 +1068,29 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
-            
-            Interceptor authzInterceptor = interceptorChain.get( AciAuthorizationInterceptor.class.getName() );
-            
-            if ( authzInterceptor == null )
-            {
-                LOG.error( "The Authorization service is null : this is not allowed" );
-                throw new NamingException( "The Authorization service is null" );
-            }
-            
-            if ( !( authzInterceptor instanceof AciAuthorizationInterceptor ) )
-            {
-                LOG.error( "The Authorization service is not set correctly : '{}' is an incorect interceptor",
-                    authzInterceptor.getClass().getName() );
-                throw new NamingException( "The Authorization service is incorrectly set" );
-                
-            }
 
-            AciAuthorizationInterceptor authzSrvc = ( AciAuthorizationInterceptor ) authzInterceptor;
-            authzSrvc.cacheNewGroup( name, serverEntry );
-
+            // TODO - confirm if we need this at all since the 
+            // group cache on initialization after this stage will
+            // search the directory for all the groups anyway
+            
+//            Interceptor authzInterceptor = interceptorChain.get( AciAuthorizationInterceptor.class.getName() );
+//            
+//            if ( authzInterceptor == null )
+//            {
+//                LOG.error( "The Authorization service is null : this is not allowed" );
+//                throw new NamingException( "The Authorization service is null" );
+//            }
+//            
+//            if ( !( authzInterceptor instanceof AciAuthorizationInterceptor ) )
+//            {
+//                LOG.error( "The Authorization service is not set correctly : '{}' is an incorect interceptor",
+//                    authzInterceptor.getClass().getName() );
+//                throw new NamingException( "The Authorization service is incorrectly set" );
+//                
+//            }
+//
+//            AciAuthorizationInterceptor authzSrvc = ( AciAuthorizationInterceptor ) authzInterceptor;
+//            authzSrvc.cacheNewGroup( name, serverEntry );
         }
 
         // -------------------------------------------------------------------
@@ -1401,6 +1403,9 @@ public class DefaultDirectoryService implements DirectoryService
         partitionNexus = new DefaultPartitionNexus( new DefaultServerEntry( registries, LdapDN.EMPTY_LDAPDN ) );
         partitionNexus.init( this );
         partitionNexus.addContextPartition( new AddContextPartitionOperationContext( registries, schemaPartition ) );
+
+        // Create all the bootstrap entries before initializing chain
+        firstStart = createBootstrapEntries();
 
         interceptorChain = new InterceptorChain();
         interceptorChain.init( this );
