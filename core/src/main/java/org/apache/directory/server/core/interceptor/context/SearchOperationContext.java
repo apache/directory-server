@@ -93,4 +93,10 @@ public class SearchOperationContext extends SearchingOperationContext
         return "SearchContext for DN '" + getDn().getUpName() + "', filter :'"
         + filter + "'"; 
     }
+
+
+    public String getName()
+    {
+        return "Search";
+    }
 }

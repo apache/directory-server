@@ -20,24 +20,32 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import javax.naming.directory.SearchControls;
+
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * A ListContext context used for Interceptors. It contains all the informations
- * needed for the List operation, and used by all the interceptors
+ * A context used for search related operations and used by all 
+ * the Interceptors.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ListOperationContext extends SearchingOperationContext
+public abstract class SearchingOperationContext extends AbstractOperationContext
 {
+    private AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
+
+    /** The controls */
+    protected SearchControls searchControls = new SearchControls();
+
+    
     /**
      * Creates a new instance of ListOperationContext.
      */
-    public ListOperationContext( Registries registries )
+    public SearchingOperationContext( Registries registries )
     {
         super( registries );
     }
@@ -48,7 +56,7 @@ public class ListOperationContext extends SearchingOperationContext
      *
      * @param dn The DN to get the suffix from
      */
-    public ListOperationContext( Registries registries, LdapDN dn )
+    public SearchingOperationContext( Registries registries, LdapDN dn )
     {
         super( registries, dn );
     }
@@ -60,9 +68,25 @@ public class ListOperationContext extends SearchingOperationContext
      * @param dn The DN to get the suffix from
      * @param aliasDerefMode the alias dereferencing mode to use
      */
-    public ListOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode )
+    public SearchingOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode )
     {
-        super( registries, dn, aliasDerefMode );
+        super( registries, dn );
+        this.aliasDerefMode = aliasDerefMode;
+    }
+
+    
+    /**
+     * Creates a new instance of ListOperationContext.
+     *
+     * @param dn The DN to get the suffix from
+     * @param aliasDerefMode the alias dereferencing mode to use
+     */
+    public SearchingOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode, 
+        SearchControls searchControls )
+    {
+        super( registries, dn );
+        this.aliasDerefMode = aliasDerefMode;
+        this.searchControls = searchControls;
     }
 
     
@@ -73,10 +97,30 @@ public class ListOperationContext extends SearchingOperationContext
     {
         return "ListOperationContext with DN '" + getDn().getUpName() + "'";
     }
-    
-    
-    public String getName()
+
+
+    /**
+     *  @return The search controls
+     */
+    public SearchControls getSearchControls()
     {
-        return "List";
+        return searchControls;
+    }
+
+
+    /**
+     * Set the search controls
+     *
+     * @param searchControls The search controls
+     */
+    public void setSearchControls( SearchControls searchControls )
+    {
+        this.searchControls = searchControls;
+    }
+
+    
+    public AliasDerefMode getAliasDerefMode()
+    {
+        return aliasDerefMode;
     }
 }
