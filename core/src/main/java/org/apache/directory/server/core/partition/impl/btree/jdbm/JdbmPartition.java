@@ -572,4 +572,13 @@ public class JdbmPartition extends BTreePartition
     {
         return store.getSubLevelIndex();
     }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "Partition<" + id + ">"; 
+    }
 }

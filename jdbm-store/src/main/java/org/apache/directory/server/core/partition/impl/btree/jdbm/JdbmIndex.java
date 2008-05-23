@@ -667,4 +667,13 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
         return normalized;
     }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "Index<" + attributeId +">";
+    }
 }
