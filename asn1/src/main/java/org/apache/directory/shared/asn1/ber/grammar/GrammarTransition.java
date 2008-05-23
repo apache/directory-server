@@ -50,7 +50,9 @@ public class GrammarTransition
     /**
      * Creates a new GrammarTransition object.
      * 
-     * @param currentState The current transition
+     * @param previousState the previous state
+     * @param currentState The current state
+     * @param currentTag the current TLV's tag
      * @param action The action to execute. It could be null.
      */
     public GrammarTransition( int previousState, int currentState, int currentTag, IAction action )

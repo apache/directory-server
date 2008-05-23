@@ -24,7 +24,6 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.primitives.BitString;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 
 

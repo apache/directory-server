@@ -104,6 +104,8 @@ public class TLV
 
     /**
      * Creates a new TLV object.
+     * 
+     * @param id the TLV's id
      */
     public TLV( int id )
     {
@@ -123,6 +125,7 @@ public class TLV
     /**
      * Checks to see if the tag is constructed.
      * 
+     * @param tag the TLV's tag 
      * @return true if constructed, false if primitive
      */
     public static boolean isConstructed( byte tag )
@@ -145,6 +148,7 @@ public class TLV
      * Checks to see if the tag represented by this Tag is primitive or
      * constructed.
      * 
+     * @param tag the tag to be checked 
      * @return true if it is primitive, false if it is constructed
      */
     public static boolean isPrimitive( byte tag )
@@ -155,6 +159,7 @@ public class TLV
     /**
      * Tells if the tag is Universal or not
      * 
+     * @param tag the tag to be checked
      * @return true if it is primitive, false if it is constructed
      */
     public static boolean isUniversal( byte tag )
@@ -184,7 +189,9 @@ public class TLV
     }
 
     /**
-     * @return Returns the tag.
+     * Set a tag value for this TLV.
+     * 
+     * @param tag the tag field for this TLV.
      */
     public void setTag( byte tag )
     {
@@ -373,46 +380,78 @@ public class TLV
     }
 
 
+    /**
+     * @return the number of bytes necessary to store the TLV's length
+     */
     public int getLengthNbBytes()
     {
         return lengthNbBytes;
     }
 
 
+    /**
+     * Set the number of bytes we should use to store the TLV's length
+     *  @param lengthNbBytes the number of bytes necessary to store the TLV's length
+     */
     public void setLengthNbBytes( int lengthNbBytes )
     {
         this.lengthNbBytes = lengthNbBytes;
     }
 
 
+    /**
+     * @return the tLV's length
+     */
     public int getLength()
     {
         return length;
     }
 
 
+    /**
+     * Set the TLV's length
+     *
+     * @param length the TLV's length
+     */
     public void setLength( int length )
     {
         this.length = length;
     }
 
 
+    /**
+     * @return the currently read TLV's length bytes
+     */
     public int getLengthBytesRead()
     {
         return lengthBytesRead;
     }
 
 
+    /**
+     * Set the currently read TLV's length bytes.
+     * 
+     * @param lengthBytesRead the currently read TLV's length bytes
+     */
     public void setLengthBytesRead( int lengthBytesRead )
     {
         this.lengthBytesRead = lengthBytesRead;
     }
     
+    
+    /**
+     * Increment the number of bytes read for this TLV
+     *
+     */
     public void incLengthBytesRead()
     {
         lengthBytesRead++;
     }
 
+    
+    /**
+     * @return the TLV's ID 
+     */
     public int getId()
     {
         return id;

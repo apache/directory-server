@@ -211,18 +211,18 @@ public class BitString implements Serializable
             return;
         }
 
-        int nbBytes = bytes.length - 1;
+        int nbb = bytes.length - 1;
 
-        if ( ( nbBytes > DEFAULT_LENGTH ) && ( bytes.length < nbBytes ) )
+        if ( ( nbb > DEFAULT_LENGTH ) && ( bytes.length < nbb ) )
         {
 
             // The current size is too small.
             // We have to allocate more space
             // TODO : implement the streaming
-            bytes = new byte[nbBytes];
+            bytes = new byte[nbb];
         }
 
-        setBytes( bytes, nbBytes );
+        setBytes( bytes, nbb );
     }
 
 

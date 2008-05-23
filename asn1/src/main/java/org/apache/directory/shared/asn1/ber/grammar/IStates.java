@@ -39,12 +39,27 @@ public interface IStates
     /** The END_STATE */
     int END_STATE = -1;
 
-    /** Get the current state */
+    /** 
+     * Get the current state's name 
+     * 
+     * @param state the current state
+     * @return the associated name for this state
+     */
     String getState( int state );
 
-    /** Return the grammar name from a grammar */
+    /** 
+     * Return the grammar name of a grammar
+     * 
+     * @param grammar the grammar from which we want the name
+     * @return the grammar's name
+     */
     String getGrammarName( IGrammar grammar );
 
-    /** Return the grammar name from a grammar number */
+    /** 
+     * Return the grammar name from a grammar number 
+     * 
+     * @param grammar the grammar number from which we want the name
+     * @return the grammar's name
+     */
     String getGrammarName( int grammar );
 }

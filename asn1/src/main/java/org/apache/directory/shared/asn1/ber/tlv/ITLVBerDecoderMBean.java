@@ -37,8 +37,8 @@ public interface ITLVBerDecoderMBean
      * including the first byte. Max is 127 if the Length use a definite form,
      * default is 1
      * 
-     * @param length
-     *            The number of byte to use
+     * @param length the number of byte to use
+     * @throws DecoderException 
      */
     void setMaxLengthLength( int length ) throws DecoderException;
 

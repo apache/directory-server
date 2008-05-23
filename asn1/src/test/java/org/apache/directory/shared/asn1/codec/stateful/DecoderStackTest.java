@@ -23,10 +23,6 @@ package org.apache.directory.shared.asn1.codec.stateful;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.codec.stateful.AbstractStatefulDecoder;
-import org.apache.directory.shared.asn1.codec.stateful.CallbackHistory;
-import org.apache.directory.shared.asn1.codec.stateful.DecoderStack;
-import org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder;
 
 
 /**

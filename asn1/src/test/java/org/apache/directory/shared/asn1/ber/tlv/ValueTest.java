@@ -245,13 +245,13 @@ public class ValueTest extends TestCase
                 -256, -255, -128, -127, -1, 0, 1, 127, 128, 255, 256, 32767, 32768, 65535, 65536, 8388607, 8388608,
                 16777215, 16777216, Integer.MAX_VALUE };
 
-        for ( int i = 0; i < testedInt.length; i++ )
+        for ( int i:testedInt )
         {
-            encoded = Value.getBytes( testedInt[i] );
+            encoded = Value.getBytes( i );
 
             int value = new BigInteger( encoded ).intValue();
 
-            Assert.assertEquals( testedInt[i], value );
+            Assert.assertEquals( i, value );
         }
     }
 
@@ -264,13 +264,13 @@ public class ValueTest extends TestCase
                 -256, -255, -128, -127, -1, 0, 1, 127, 128, 255, 256, 32767, 32768, 65535, 65536, 8388607, 8388608,
                 16777215, 16777216, Integer.MAX_VALUE };
 
-        for ( int i = 0; i < testedInt.length; i++ )
+        for ( int i:testedInt )
         {
-            encoded = new BigInteger( Integer.toString( testedInt[i] ) ).toByteArray();
+            encoded = new BigInteger( Integer.toString( i ) ).toByteArray();
 
             int value = IntegerDecoder.parse( new Value( encoded ) );
 
-            Assert.assertEquals( testedInt[i], value );
+            Assert.assertEquals( i, value );
         }
     }
     

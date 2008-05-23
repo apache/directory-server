@@ -54,9 +54,9 @@ public interface Asn1Object
     /**
      * Encode the object to a PDU.
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
+     * @throws EncoderException if the buffer can't be encoded
      */
     ByteBuffer encode( ByteBuffer buffer ) throws EncoderException;
 

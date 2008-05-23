@@ -36,7 +36,7 @@ import org.apache.directory.shared.asn1.util.Asn1StringUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Value implements Cloneable, Serializable
+public class Value implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -82,8 +82,10 @@ public class Value implements Cloneable, Serializable
 
     /**
      * The constructor.
+     * 
+     * @param value the associated value
      */
-    public Value(byte[] value)
+    public Value( byte[] value )
     {
         // Do a copy of the byte array
         data = new byte[value.length];
@@ -125,19 +127,6 @@ public class Value implements Cloneable, Serializable
 
 
     /**
-     * Clone the Value
-     * 
-     * @return An object that is a copy of this Value
-     * @throws CloneNotSupportedException Thrown when the cloning failed
-     */
-    public Object clone() throws CloneNotSupportedException
-    {
-
-        return super.clone();
-    }
-
-
-    /**
      * Get the Values'data
      * 
      * @return Returns the data.
@@ -164,12 +153,12 @@ public class Value implements Cloneable, Serializable
     /**
      * Append some bytes to the data buffer.
      * 
-     * @param data The data to append.
+     * @param buffer The data to append.
      */
-    public void addData( ByteBuffer data )
+    public void addData( ByteBuffer buffer )
     {
-        int length = data.remaining();
-        data.get( this.data, currentPos, length );
+        int length = buffer.remaining();
+        buffer.get( data, currentPos, length );
         currentPos += length;
     }
 
@@ -189,12 +178,12 @@ public class Value implements Cloneable, Serializable
     /**
      * Append some bytes to the data buffer.
      * 
-     * @param data The data to append.
+     * @param array The data to append.
      */
-    public void addData( byte[] data )
+    public void addData( byte[] array )
     {
-        System.arraycopy( data, 0, this.data, currentPos, data.length );
-        currentPos = data.length;
+        System.arraycopy( array, 0, this.data, currentPos, array.length );
+        currentPos = array.length;
     }
 
 
@@ -339,6 +328,8 @@ public class Value implements Cloneable, Serializable
      * 
      * @param buffer The PDU in which the value will be put
      * @param string The String to be encoded. It is supposed to be UTF-8
+     * @throws EncoderException if the PDU in which the value should be encoded is
+     * two small
      */
     public static void encode( ByteBuffer buffer, String string ) throws EncoderException
     {
@@ -373,6 +364,8 @@ public class Value implements Cloneable, Serializable
      * 
      * @param buffer The PDU in which the value will be put
      * @param bitString The BitString to be encoded.
+     * @throws EncoderException if the PDU in which the value should be encoded is
+     * two small
      */
     public static void encode( ByteBuffer buffer, BitString bitString ) throws EncoderException
     {
@@ -407,6 +400,8 @@ public class Value implements Cloneable, Serializable
      * 
      * @param buffer The PDU in which the value will be put
      * @param bytes The bytes to be encoded
+     * @throws EncoderException if the PDU in which the value should be encoded is
+     * two small
      */
     public static void encode( ByteBuffer buffer, byte[] bytes ) throws EncoderException
     {
@@ -443,6 +438,8 @@ public class Value implements Cloneable, Serializable
      * 
      * @param buffer The PDU in which the value will be put
      * @param oid The OID to be encoded
+     * @throws EncoderException if the PDU in which the value should be encoded is
+     * two small
      */
     public static void encode( ByteBuffer buffer, OID oid ) throws EncoderException
     {
@@ -475,6 +472,8 @@ public class Value implements Cloneable, Serializable
      * 
      * @param buffer The PDU in which the value will be put
      * @param value The integer to be encoded
+     * @throws EncoderException if the PDU in which the value should be encoded is
+     * two small
      */
     public static void encode( ByteBuffer buffer, int value ) throws EncoderException
     {
@@ -504,6 +503,8 @@ public class Value implements Cloneable, Serializable
      * @param buffer The PDU in which the value will be put
      * @param tag The tag if it's not an UNIVERSAL one
      * @param value The integer to be encoded
+     * @throws EncoderException if the PDU in which the value should be encoded is
+     * two small
      */
     public static void encode( ByteBuffer buffer, byte tag, int value ) throws EncoderException
     {
@@ -532,6 +533,8 @@ public class Value implements Cloneable, Serializable
      * 
      * @param buffer The PDU in which the value will be put
      * @param value The integer to be encoded
+     * @throws EncoderException if the PDU in which the value should be encoded is
+     * two small
      */
     public static void encodeEnumerated( ByteBuffer buffer, int value ) throws EncoderException
     {
@@ -560,6 +563,8 @@ public class Value implements Cloneable, Serializable
      * 
      * @param buffer The PDU in which the value will be put
      * @param bool The boolean to be encoded
+     * @throws EncoderException if the PDU in which the value should be encoded is
+     * two small
      */
     public static void encode( ByteBuffer buffer, boolean bool ) throws EncoderException
     {

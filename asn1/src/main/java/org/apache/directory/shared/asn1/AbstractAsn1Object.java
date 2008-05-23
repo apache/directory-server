@@ -98,9 +98,9 @@ public abstract class AbstractAsn1Object implements Asn1Object
     /**
      * Encode the object to a PDU.
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
+     * @throws EncoderException if the buffer can't be encoded
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {

@@ -91,7 +91,9 @@ public class OID implements Serializable
     /**
      * Create a new OID object from a byte array
      * 
-     * @param oid
+     * @param oid the byte array containing the OID
+     * @throws DecoderException if the byte array does not contain a 
+     * valid OID
      */
     public OID( byte[] oid ) throws DecoderException
     {
@@ -104,30 +106,13 @@ public class OID implements Serializable
      * Create a new OID object from a String
      * 
      * @param oid The String which is supposed to be an OID
+     * @throws DecoderException if the byte array does not contain a 
+     * valid OID
      */
     public OID( String oid ) throws DecoderException
     {
         setOID( oid );
         hash = computeHashCode();
-    }
-
-
-    /**
-     * Create a new OID object from a String
-     * 
-     * @param oid The String which is supposed to be an OID
-     */
-    public OID( String oid, boolean safe )
-    {
-        try
-        {
-            setOID( oid );
-            hash = computeHashCode();
-        }
-        catch ( DecoderException de )
-        {
-            // do nothing
-        }
     }
 
 
@@ -138,6 +123,7 @@ public class OID implements Serializable
      * representation.
      * 
      * @param oid The bytes containing the OID
+     * @throws DecoderException if the byte array does not contains a valid OID 
      */
     public void setOID( byte[] oid ) throws DecoderException
     {
@@ -237,6 +223,7 @@ public class OID implements Serializable
      * OID = ( [ '0' | '1' ] '.' [ 0 .. 39 ] | '2' '.' int) ( '.' int )*
      * 
      * @param oid The String containing the OID
+     * @throws DecoderException if the byte array does not contains a valid OID 
      */
     public void setOID( String oid ) throws DecoderException
     {
@@ -247,14 +234,14 @@ public class OID implements Serializable
         }
 
         int nbValues = 1;
-        char[] bytes = oid.toCharArray();
+        char[] chars = oid.toCharArray();
         boolean dotSeen = false;
 
         // Count the number of int to allocate.
-        for ( int i = 0; i < bytes.length; i++ )
+        for ( char c:chars )
         {
 
-            if ( bytes[i] == '.' )
+            if ( c == '.' )
             {
 
                 if ( dotSeen )
@@ -289,7 +276,7 @@ public class OID implements Serializable
         boolean ituOrIso = false;
 
         // The first value
-        switch ( bytes[pos] )
+        switch ( chars[pos] )
         {
 
             case '0': // itu-t
@@ -298,7 +285,7 @@ public class OID implements Serializable
             // fallthrough
 
             case '2': // joint-iso-itu-t
-                oidValues[intPos++] = bytes[pos++] - '0';
+                oidValues[intPos++] = chars[pos++] - '0';
                 break;
 
             default: // error, this value is not allowed
@@ -306,7 +293,7 @@ public class OID implements Serializable
         }
 
         // We must have a dot
-        if ( bytes[pos++] != '.' )
+        if ( chars[pos++] != '.' )
         {
             throw new DecoderException( "Invalid OID : " + oid );
         }
@@ -315,10 +302,10 @@ public class OID implements Serializable
 
         int value = 0;
 
-        for ( int i = pos; i < bytes.length; i++ )
+        for ( int i = pos; i < chars.length; i++ )
         {
 
-            if ( bytes[i] == '.' )
+            if ( chars[i] == '.' )
             {
 
                 if ( dotSeen )
@@ -342,10 +329,10 @@ public class OID implements Serializable
                 oidValues[intPos++] = value;
                 value = 0;
             }
-            else if ( ( bytes[i] >= 0x30 ) && ( bytes[i] <= 0x39 ) )
+            else if ( ( chars[i] >= 0x30 ) && ( chars[i] <= 0x39 ) )
             {
                 dotSeen = false;
-                value = ( ( value * 10 ) + bytes[i] ) - '0';
+                value = ( ( value * 10 ) + chars[i] ) - '0';
 
             }
             else
@@ -356,16 +343,16 @@ public class OID implements Serializable
             }
         }
 
-        oidValues[intPos++] = value;
+        oidValues[intPos] = value;
 
         hash = computeHashCode();
     }
 
 
     /**
-     * Get an array of int from the OID
+     * Get an array of long from the OID
      * 
-     * @return An array of int representing the OID
+     * @return An array of long representing the OID
      */
     public long[] getOIDValues()
     {
@@ -526,9 +513,11 @@ public class OID implements Serializable
 
 
     /**
-     * Compute the hashcode for this object. No need to copute
+     * Compute the hash code for this object. No need to compute
      * it live when calling the hashCode() method, as an OID
      * never change.
+     * 
+     * @return the OID's hash code
      */
     private int computeHashCode()
     {
@@ -562,10 +551,10 @@ public class OID implements Serializable
         boolean dotSeen = false;
 
         // Count the number of int to allocate.
-        for ( int i = 0; i < bytes.length; i++ )
+        for ( byte b:bytes )
         {
 
-            if ( bytes[i] == '.' )
+            if ( b == '.' )
             {
 
                 if ( dotSeen )
@@ -687,15 +676,13 @@ public class OID implements Serializable
         return sb.toString();
     }
 
-    /**
-     * @see Object#hashCode()
-     * @return the instance's hashcode 
-     */
+
     public int hashCode()
     {
         return hash;
     }
-    
+
+
     public boolean equals( Object oid )
     {
         if ( this == oid )

@@ -21,7 +21,6 @@ package org.apache.directory.shared.asn1.util;
 
 
 import org.apache.directory.shared.asn1.ber.tlv.Value;
-import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +46,7 @@ public class BooleanDecoder
      * @param value
      *            The byte buffer to parse
      * @return A boolean.
-     * @throws DecoderException
+     * @throws BooleanDecoderException
      *             Thrown if the byte stream does not contains a boolean
      */
     public static boolean parse( Value value ) throws BooleanDecoderException

@@ -77,10 +77,9 @@ public interface EncoderMonitor
     /**
      * Monitors callbacks that deliver a fully decoded object.
      * 
-     * @param encoder
-     *            the stateful encoder driving the callback
-     * @param decoded
-     *            the object that was decoded
+     * @param encoder the stateful encoder driving the callback
+     * @param cb the callback to call when the encoder has done its job
+     * @param decoded the object that was decoded
      */
     void callbackOccured( StatefulEncoder encoder, EncoderCallback cb, Object decoded );
 

@@ -78,10 +78,9 @@ public interface DecoderMonitor
     /**
      * Monitors callbacks that deliver a fully decoded object.
      * 
-     * @param decoder
-     *            the stateful decoder driving the callback
-     * @param decoded
-     *            the object that was decoded
+     * @param decoder the stateful decoder driving the callback
+     * @param cb the callback to call when the decoder has done its job
+     * @param decoded the object that was decoded
      */
     void callbackOccured( StatefulDecoder decoder, DecoderCallback cb, Object decoded );
 
@@ -89,12 +88,9 @@ public interface DecoderMonitor
     /**
      * Monitors changes to the callback.
      * 
-     * @param decoder
-     *            the decoder whose callback was set
-     * @param oldcb
-     *            the unset old callback, or null if none was set
-     * @param newcb
-     *            the newly set callback, or null if callback is cleared
+     * @param decoder the decoder whose callback was set
+     * @param oldcb the unset old callback, or null if none was set
+     * @param newcb the newly set callback, or null if callback is cleared
      */
     void callbackSet( StatefulDecoder decoder, DecoderCallback oldcb, DecoderCallback newcb );
 }

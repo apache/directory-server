@@ -33,7 +33,7 @@ import org.apache.directory.shared.asn1.codec.stateful.StatefulEncoder;
  * Document me.
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
- *         $Rev$
+ * @version $Rev$
  */
 public class HexEncoder implements StatefulEncoder
 {

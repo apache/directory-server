@@ -75,7 +75,7 @@ public class Hex implements BinaryEncoder, BinaryDecoder
         {
             int f = toDigit( data[j], j ) << 4;
             j++;
-            f = f | toDigit( data[j], j );
+            f |= toDigit( data[j], j );
             j++;
             out[i] = ( byte ) ( f & 0xFF );
         }

@@ -96,7 +96,6 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * the result and other informations.
      * @return <code>true</code> if there are more bytes to read, <code>false 
      * </code> otherwise
-     * @throws DecoderException If something went wrong.
      */
     private boolean treatTagStartState( ByteBuffer stream, IAsn1Container container )
     {
@@ -167,6 +166,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * Check if the TLV tree is fully decoded
      * 
      * @param container The container
+     * @return <code>true</code> if the TLV has been decoded
      */
     private boolean isTLVDecoded( IAsn1Container container )
     {
@@ -265,7 +265,6 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * the result and other informations.
      * @return <code>true</code> if there are more bytes to read, <code>false 
      * </code> otherwise
-     * @throws DecoderException Thrown if anything went wrong
      */
     private boolean treatLengthPendingState( ByteBuffer stream, IAsn1Container container )
     {
@@ -521,7 +520,6 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * the result and other informations.
      * @return <code>true</code> if there are more bytes to read, <code>false 
      * </code> otherwise
-     * @throws DecoderException Thrown if anything went wrong
      */
     private boolean treatValueStartState( ByteBuffer stream, IAsn1Container container )
     {
@@ -569,7 +567,6 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * @return <code>MORE</code> if some bytes remain in the buffer when the
      * value has been decoded, <code>END</code> if whe still need to get some 
      * more bytes.
-     * @throws DecoderException Thrown if anything went wrong
      */
     private boolean treatValuePendingState( ByteBuffer stream, IAsn1Container container )
     {
@@ -807,6 +804,9 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
                     hasRemaining = false;
 
+                    break;
+                    
+                default :
                     break;
             }
         }

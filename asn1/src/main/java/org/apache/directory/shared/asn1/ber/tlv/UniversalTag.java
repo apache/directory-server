@@ -307,24 +307,34 @@ public class UniversalTag
         };
 
     /** ASN.1 primitive tag values */
+    /** Boolean TAG */
     public static final byte BOOLEAN_TAG = 0x01;
 
+    /** Integer TAG */
     public static final byte INTEGER_TAG = 0x02;
 
+    /** BIT_STRING TAG */
     public static final byte BIT_STRING_TAG = 0x03;
 
+    /** OCTET_STRING TAG */
     public static final byte OCTET_STRING_TAG = 0x04;
 
+    /** ENUMERATED TAG */
     public static final byte ENUMERATED_TAG = 0x0A;
     
+    /** UTF8_STRING TAG */
     public static final byte UTF8_STRING_TAG = 0x0C;
 
+    /** GENERALIZED_TIME TAG */
     public static final byte GENERALIZED_TIME_TAG = 0x18;
 
+    /** GENERALIZED_STRING TAG */
     public static final byte GENERALIZED_STRING_TAG = 0x1B;
 
+    /** SEQUENCE TAG */
     public static final byte SEQUENCE_TAG = 0x30;
 
+    /** SET TAG */
     public static final byte SET_TAG = 0x31;
 
 
