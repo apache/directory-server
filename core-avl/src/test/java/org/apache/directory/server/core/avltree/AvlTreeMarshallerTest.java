@@ -34,6 +34,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,17 +48,44 @@ import org.slf4j.LoggerFactory;
  */
 public class AvlTreeMarshallerTest
 {
-    private static final byte[] SERIALIZED_AVLTREE = 
-    { 
-        0, 0, 0, 0, 7, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 
-        86, 0, 0, 0, 3, 0, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 
-        0, 0, 0, 0, 26, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, -122, 
-        0, 0, 0, 5, 0, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 0, 
-        0, 0, 0, 122, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 
-        0, 0, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, -74, 
-        0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0 
+    private static final long[] AVLTREE_KEYS_PRE_REMOVE =
+    {
+        2, 14, 26, 86, 110, 122, 134, 182
     };
+        
+    private static final long[] AVLTREE_EXPECTED_KEYS_POST_REMOVE =
+    {
+        2, 14, 26, 86, 122, 134, 182
+    };
+        
+    private static final byte[] SERIALIZED_AVLTREE_PRE_REMOVE =
+    {
+        0, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 
+        110, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 
+        0, 0, 0, 0, 26, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 
+        8, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 
+        0, 0, 0, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 
+        14, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+        4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 86, 0, 0, 0, 
+        3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 
+        8, 0, 0, 0, 0, 0, 0, 0, -122, 0, 0, 0, 6, 0, 0, 0, 
+        2, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 122, 0, 0, 0, 
+        5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 
+        8, 0, 0, 0, 0, 0, 0, 0, -74, 0, 0, 0, 7, 0, 0, 0, 
+        0, 0, 0, 0, 0 
+    };
+    
+//    private static final byte[] SERIALIZED_AVLTREE_POST_REMOVE = 
+//    { 
+//        0, 0, 0, 0, 7, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 
+//        86, 0, 0, 0, 3, 0, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 
+//        0, 0, 0, 0, 26, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 
+//        0, 0, 0, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, -122, 
+//        0, 0, 0, 5, 0, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 0, 
+//        0, 0, 0, 122, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 
+//        0, 0, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, -74, 
+//        0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0 
+//    };
 
     AvlTree<Integer> tree;
     Comparator<Integer> comparator;
@@ -87,8 +115,14 @@ public class AvlTreeMarshallerTest
     }
 
     
+    /**
+     * TODO Fix me.
+     *
+     * @throws IOException
+     */
     @Test
-    public void testBadTree() throws IOException
+    @Ignore ( "Remove operation is deleting more keys than it should." )
+    public void testRemoveBug() throws IOException
     {
         Comparator<Long> comparator = new Comparator<Long>() 
         {
@@ -97,10 +131,32 @@ public class AvlTreeMarshallerTest
                 return i1.compareTo( i2 );
             }
         };
-        
-      
+
+        /*
+         * This deserializes the state of the AvlTree before the remove 
+         * operation and it should work checking to make sure that all
+         * the pre-remove keys are present.
+         */
+
         AvlTreeMarshaller<Long> treeMarshaller = new AvlTreeMarshaller<Long>( comparator, new LongMarshaller() );
-        treeMarshaller.deserialize( SERIALIZED_AVLTREE );
+        AvlTree<Long> tree = treeMarshaller.deserialize( SERIALIZED_AVLTREE_PRE_REMOVE );
+        
+        for ( long key : AVLTREE_KEYS_PRE_REMOVE )
+        {
+            assertNotNull( "Should find " + key, tree.find( key ) );
+        }
+        
+        /*
+         * Now we remove the key 110 and this should show that we don't have 
+         * the expected keys.  We will be missing 134, 2 and 14.
+         */
+        
+        tree.remove( 110L );
+
+        for ( long key : AVLTREE_EXPECTED_KEYS_POST_REMOVE )
+        {
+            assertNotNull( "Should find " + key, tree.find( key ) );
+        }
     }
     
 
