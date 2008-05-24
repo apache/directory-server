@@ -53,6 +53,10 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
                 cursor.close();
                 available = false;
             }
+            else
+            {
+                available = true;
+            }
         }
         catch ( Exception e )
         {
