@@ -28,7 +28,6 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -183,6 +182,11 @@ public class JdbmStore<E> implements Store<E>
     
     public Long getContextEntryId()
     {
+        if ( contextEntryId == null )
+        {
+            return 1L;
+        }
+        
         return contextEntryId;
     }
 
@@ -280,7 +284,7 @@ public class JdbmStore<E> implements Store<E>
         // Now, create the entry cache for this partition
         recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
-        // Create the master table (the table wcontaining all the entries)
+        // Create the master table (the table containing all the entries)
         master = new JdbmMasterTable<ServerEntry>( recMan, registries );
 
         // -------------------------------------------------------------------
@@ -290,12 +294,8 @@ public class JdbmStore<E> implements Store<E>
         setupSystemIndices();
         setupUserIndices();
 
-        contextEntry.getDn().normalize( attributeTypeRegistry.getNormalizerMapping() );
-
         initSuffixEntry3( suffixDn, contextEntry );
         
-        contextEntryId = getEntryId( contextEntry.getDn().getNormName() );
-
         // We are done !
         initialized = true;
     }
@@ -414,7 +414,8 @@ public class JdbmStore<E> implements Store<E>
      */
     protected void initSuffixEntry3( String suffix, ServerEntry entry ) throws Exception
     {
-        // add entry for context, if it does not exist
+        // normalize then add entry for context, if it does not exist
+        contextEntry.getDn().normalize( attributeTypeRegistry.getNormalizerMapping() );
         ServerEntry suffixOnDisk = getSuffixEntry();
 
         if ( suffixOnDisk == null )
@@ -423,6 +424,8 @@ public class JdbmStore<E> implements Store<E>
             LdapDN normalizedSuffix = LdapDN.normalize( dn, attributeTypeRegistry.getNormalizerMapping() );
             add( normalizedSuffix, entry );
         }
+        
+        contextEntryId = ndnIdx.forwardLookup( contextEntry.getDn().getNormName() );
     }
 
 
@@ -1195,14 +1198,12 @@ public class JdbmStore<E> implements Store<E>
 
     public ServerEntry getSuffixEntry() throws Exception
     {
-        Long id = getEntryId( normSuffix.toNormName() );
-
-        if ( null == id )
+        if ( null == contextEntryId )
         {
             return null;
         }
 
-        return lookup( id );
+        return lookup( contextEntryId );
     }
 
 

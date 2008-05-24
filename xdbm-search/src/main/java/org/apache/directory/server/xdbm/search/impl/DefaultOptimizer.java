@@ -52,7 +52,9 @@ import org.apache.directory.server.xdbm.Store;
 public class DefaultOptimizer<E> implements Optimizer
 {
     /** the database this optimizer operates on */
-    private Store<E> db;
+    private final Store<E> db;
+    private final Long contextEntryId;
+    
 
     /**
      * Creates an optimizer on a database.
@@ -62,6 +64,7 @@ public class DefaultOptimizer<E> implements Optimizer
     public DefaultOptimizer( Store<E> db )
     {
         this.db = db;
+        this.contextEntryId = db.getContextEntryId();
     }
 
 
@@ -337,17 +340,24 @@ public class DefaultOptimizer<E> implements Optimizer
      */
     private long getScopeScan( ScopeNode node ) throws Exception
     {
+        Long id = db.getEntryId( node.getBaseDn() );
         switch ( node.getScope() )
         {
             case OBJECT:
                 return 1L;
             
             case ONELEVEL:
-                Long id = db.getEntryId( node.getBaseDn() );
                 return db.getChildCount( id );
                 
             case SUBTREE:
-                return db.count();
+                if ( id.longValue() == contextEntryId.longValue() )
+                {
+                    return db.count();
+                }
+                else
+                {
+                    return db.getSubLevelIndex().count( id );
+                }
             
             default:
                 throw new IllegalArgumentException( "Unrecognized search scope " + "value for filter scope node" );
