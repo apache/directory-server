@@ -33,6 +33,8 @@ import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.core.cursor.SingletonCursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 
 
@@ -121,6 +123,32 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
         else
         {
             effectiveBase = new LdapDN( aliasedBase );
+        }
+        
+        // --------------------------------------------------------------------
+        // Specifically Handle Object Level Scope
+        // --------------------------------------------------------------------
+
+        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
+        {
+            Long effectiveBaseId = baseId;
+            if ( effectiveBase != base )
+            {
+                effectiveBaseId = db.getEntryId( effectiveBase.toNormName() ); 
+            }
+            
+            IndexEntry<Long, ServerEntry> indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
+            indexEntry.setId( effectiveBaseId );
+            Evaluator<? extends ExprNode, ServerEntry> evaluator = evaluatorBuilder.build( filter );
+            
+            if ( evaluator.evaluate( indexEntry ) )
+            {
+                return new SingletonIndexCursor<Long,ServerEntry>( indexEntry );
+            }
+            else
+            {
+                return new EmptyIndexCursor<Long, ServerEntry>();
+            }
         }
         
         // Add the scope node using the effective base to the filter
