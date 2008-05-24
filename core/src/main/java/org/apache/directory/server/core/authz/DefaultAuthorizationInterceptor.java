@@ -507,8 +507,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         cursor.addEntryFilter( new EntryFilter() {
             public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
             {
-                Invocation invocation = InvocationStack.getInstance().peek();
-                return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
+                return DefaultAuthorizationInterceptor.this.isSearchable( operation.getInvocation(), result );
             }
         } );
         return cursor;
@@ -528,8 +527,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         {
             public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
             {
-                Invocation invocation = InvocationStack.getInstance().peek();
-                return DefaultAuthorizationInterceptor.this.isSearchable( invocation, entry );
+                return DefaultAuthorizationInterceptor.this.isSearchable( operation.getInvocation(), entry );
             }
         } );
         return cursor;

@@ -60,6 +60,13 @@ public abstract class AbstractOperationContext implements OperationContext
     /** The global registries reference */
     private Registries registries;
 
+    /** 
+     * TODO this is temporary and needs to be removed as soon as the 
+     * InvocationStack is removed.
+     */
+    private Invocation invocation;
+
+    
     /**
      * Creates a new instance of AbstractOperationContext.
      *
@@ -233,6 +240,7 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public void push( Invocation invocation )
     {
+        this.invocation = invocation;
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( invocation );
     }
@@ -272,4 +280,16 @@ public abstract class AbstractOperationContext implements OperationContext
      * @return the operation name
      */
     public abstract String getName();
+
+
+    /** 
+     * TODO this is temporary and needs to be removed as soon as the 
+     * InvocationStack is removed.
+     * 
+     * @return the invocation
+     */
+    public Invocation getInvocation()
+    {
+        return invocation;
+    }
 }
