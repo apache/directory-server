@@ -22,7 +22,9 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -79,12 +81,14 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
 
             if ( mr == null )
             {
-                throw new IllegalStateException(
-                    "Could not find matchingRule to use for EqualityNode evaluation: " + node );
+                normalizer = NoOpNormalizer.INSTANCE;
+                comparator = ByteArrayComparator.INSTANCE;
             }
-
-            normalizer = mr.getNormalizer();
-            comparator = mr.getComparator();
+            else
+            {
+                normalizer = mr.getNormalizer();
+                comparator = mr.getComparator();
+            }
         }
     }
 
