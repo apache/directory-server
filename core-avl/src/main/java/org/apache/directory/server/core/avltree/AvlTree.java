@@ -541,6 +541,18 @@ public class AvlTree<K>
                 parentNode.right = temp;
             }
         }
+        /*
+         when the 'parentNode' param is null then the node under rotation is a child of ROOT.
+         Most likely this condition executes when the root node is deleted and balancing is required.
+         */
+        else if( root != null )
+        {
+            if( root.left == node )
+            {
+                root.left = temp;
+            }
+            // no need to check for right node
+        }
 	}
 		
 
@@ -560,7 +572,7 @@ public class AvlTree<K>
 	        }
 	        else if( node == parentNode.right )
 	        {
-	            parentNode.right = null;
+	            parentNode.right = node.left;
 	        }
 	    }
 	}

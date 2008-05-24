@@ -353,6 +353,41 @@ public class AvlTreeTest
         assertTrue( 7 == tree.getKeys().size() );
     }
     
+    @Test
+    public void testTreeRoationAtLeftChildAfterDeletingRoot()
+    {
+        int[] keys = { 86, 110, 122, 2, 134, 26, 14, 182 }; // order is important to produce the expected tree
+        int[] expectedKeys = { 2, 14, 26, 86, 122, 134, 182 };
+        
+        for( int key:keys )
+        {
+            tree.insert( key );
+        }
+        
+        tree.remove( 110 );
+
+        for ( int key : expectedKeys )
+        {
+            assertNotNull( "Should find " + key, tree.find( key ) );
+        }
+    }
+    
+
+    @Test
+    public void testDetachNodesAtLeftChildAfterDeletingRoot()
+    {
+        int[] keys = { 110, 122, 2, 134, 86, 14, 26, 182 }; // order is important to produce the expected tree
+        
+        for( int key:keys )
+        {
+            tree.insert( key );
+        }
+
+        tree.remove( 110 );
+        
+        assertEquals( 26, ( int ) tree.find( 14 ).right.key );
+    }
+
     
     private String getLinkedText() 
     {
