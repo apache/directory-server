@@ -177,8 +177,6 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         ByteArrayInputStream bin = new ByteArrayInputStream( data );
         DataInputStream din = new DataInputStream( bin );
         
-        try
-        {
             byte startByte = din.readByte();
             
             if( startByte != 0 )
@@ -209,13 +207,6 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
             }
 
             return tree;
-        }
-        catch( Exception ioe )
-        {
-            ioe.printStackTrace();
-        }
-        
-        return null;
     }
 
     
