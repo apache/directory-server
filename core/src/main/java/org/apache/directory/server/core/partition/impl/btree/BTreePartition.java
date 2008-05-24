@@ -293,7 +293,7 @@ public abstract class BTreePartition implements Partition
             return entry;
         }
 
-        for ( AttributeType attributeType : entry.getAttributeTypes() )
+        for ( AttributeType attributeType : entry.getOriginalEntry().getAttributeTypes() )
         {
             if ( ! opContext.getAttrsId().contains( attributeType.getOid() ) )
             {

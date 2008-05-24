@@ -674,7 +674,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         
-        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
+        ClonedServerEntry entry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
             
         
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
@@ -688,13 +688,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( proxy, tuples, name, entry );
-        addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( proxy, tuples, name, entry );
+        addPerscriptiveAciTuples( proxy, tuples, name, entry.getOriginalEntry() );
+        addEntryAciTuples( tuples, entry.getOriginalEntry() );
+        addSubentryAciTuples( proxy, tuples, name, entry.getOriginalEntry() );
 
         // check that we have browse access to the entry
         engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
-            BROWSE_PERMS, tuples, entry, null );
+            BROWSE_PERMS, tuples, entry.getOriginalEntry(), null );
 
         return next.hasEntry( entryContext );
     }
