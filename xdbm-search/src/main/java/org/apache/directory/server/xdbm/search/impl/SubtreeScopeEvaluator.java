@@ -43,6 +43,18 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
     /** The entry identifier of the scope base */
     private final Long baseId;
 
+    /** 
+     * Whether or not to accept all candidates.  If this evaluator's baseId is
+     * set to the context entry's id, then obviously all candidates will be 
+     * subordinate to this root ancestor or in subtree scope.  This check is 
+     * done on  initialization and used there after.  One reason we need do 
+     * this is because the subtree scope index (sub level index) does not map 
+     * the values for the context entry id to it's subordinates since it would 
+     * have to include all entries.  This is a waste of space and lookup time
+     * since we know all entries will be subordinates in this case.
+     */ 
+    private final boolean baseIsContextEntry;
+    
     /** True if the scope requires alias dereferencing while searching */
     private final boolean dereferencing;
 
@@ -68,11 +80,12 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
         }
 
         baseId = db.getEntryId( node.getBaseDn() );
+        baseIsContextEntry = db.getContextEntryId().longValue() == baseId.longValue();
         dereferencing = node.getDerefAliases().isDerefInSearching() ||
             node.getDerefAliases().isDerefAlways();
     }
 
-
+    
     /**
      * Asserts whether or not a candidate has one level scope while taking
      * alias dereferencing into account.
@@ -85,6 +98,18 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
      */
     public boolean evaluate( IndexEntry<?,E> candidate ) throws Exception
     {
+        /*
+         * This condition catches situations where the candidate is equal to 
+         * the base entry and when the base entry is the context entry.  Note
+         * we do not store a mapping in the subtree index of the context entry
+         * to all it's subordinates since that would be the entire set of 
+         * entries in the db.
+         */
+        if ( baseIsContextEntry || baseId.longValue() == candidate.getId().longValue() )
+        {
+            return true;
+        }
+
         boolean isDescendant = db.getSubLevelIndex().forward( baseId, candidate.getId() );
 
         /*
