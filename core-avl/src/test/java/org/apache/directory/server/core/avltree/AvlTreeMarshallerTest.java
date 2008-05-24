@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.core.avltree;
 
-
+ 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -47,6 +47,18 @@ import org.slf4j.LoggerFactory;
  */
 public class AvlTreeMarshallerTest
 {
+    private static final byte[] SERIALIZED_AVLTREE = 
+    { 
+        0, 0, 0, 0, 7, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 
+        86, 0, 0, 0, 3, 0, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 
+        0, 0, 0, 0, 26, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 
+        0, 0, 0, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, -122, 
+        0, 0, 0, 5, 0, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 0, 
+        0, 0, 0, 122, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 
+        0, 0, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, -74, 
+        0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0 
+    };
+
     AvlTree<Integer> tree;
     Comparator<Integer> comparator;
     AvlTreeMarshaller<Integer> treeMarshaller;
@@ -56,6 +68,7 @@ public class AvlTreeMarshallerTest
     File treeFile = new File( System.getProperty( "java.io.tmpdir" ) + File.separator + "avl.tree");
     
     private static final Logger LOG = LoggerFactory.getLogger( AvlTreeMarshallerTest.class.getSimpleName() );
+
     
     @Before
     public void createTree()
@@ -73,6 +86,23 @@ public class AvlTreeMarshallerTest
         treeMarshaller = new AvlTreeMarshaller<Integer>( comparator, new IntegerKeyMarshaller() );
     }
 
+    
+    @Test
+    public void testBadTree() throws IOException
+    {
+        Comparator<Long> comparator = new Comparator<Long>() 
+        {
+            public int compare( Long i1, Long i2 )
+            {
+                return i1.compareTo( i2 );
+            }
+        };
+        
+      
+        AvlTreeMarshaller<Long> treeMarshaller = new AvlTreeMarshaller<Long>( comparator, new LongMarshaller() );
+        treeMarshaller.deserialize( SERIALIZED_AVLTREE );
+    }
+    
 
     @Test
     public void testMarshalEmptyTree() throws IOException
@@ -355,5 +385,48 @@ public class AvlTreeMarshallerTest
     public void testDeserializeNullData() throws IOException
     {
         treeMarshaller.deserialize( null );
+    }
+    
+    
+    public class LongMarshaller implements Marshaller<Long>
+    {
+        public byte[] serialize( Long obj ) throws IOException
+        {
+            long id = obj.longValue();
+            byte[] bites = new byte[8];
+
+            bites[0] = ( byte ) ( id >> 56 );
+            bites[1] = ( byte ) ( id >> 48 );
+            bites[2] = ( byte ) ( id >> 40 );
+            bites[3] = ( byte ) ( id >> 32 );
+            bites[4] = ( byte ) ( id >> 24 );
+            bites[5] = ( byte ) ( id >> 16 );
+            bites[6] = ( byte ) ( id >> 8 );
+            bites[7] = ( byte ) id;
+
+            return bites;
+        }
+
+
+        public Long deserialize( byte[] bites ) throws IOException
+        {
+            long id;
+            id = bites[0]  + ( ( bites[0] < 0 ) ? 256 : 0 );
+            id <<= 8;
+            id += bites[1] + ( ( bites[1] < 0 ) ? 256 : 0 );
+            id <<= 8;
+            id += bites[2] + ( ( bites[2] < 0 ) ? 256 : 0 );
+            id <<= 8;
+            id += bites[3] + ( ( bites[3] < 0 ) ? 256 : 0 );
+            id <<= 8;
+            id += bites[4] + ( ( bites[4] < 0 ) ? 256 : 0 );
+            id <<= 8;
+            id += bites[5] + ( ( bites[5] < 0 ) ? 256 : 0 );
+            id <<= 8;
+            id += bites[6] + ( ( bites[6] < 0 ) ? 256 : 0 );
+            id <<= 8;
+            id += bites[7] + ( ( bites[7] < 0 ) ? 256 : 0 );
+            return id;
+        }
     }
 }
