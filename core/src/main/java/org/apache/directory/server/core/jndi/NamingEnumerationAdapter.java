@@ -116,7 +116,10 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
             JndiUtils.wrap( e );
         }
         
-        return new SearchResult( entry.getDn().getUpName(), null, ServerEntryUtils.toAttributesImpl( entry ) );
+        SearchResult result = new SearchResult( entry.getDn().getUpName(), null, ServerEntryUtils.toAttributesImpl( entry ) );
+        result.setRelative( false );
+        
+        return result;
     }
 
 
@@ -151,6 +154,9 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
             throw nsee;
         }
         
-        return new SearchResult( entry.getDn().getUpName(), null, ServerEntryUtils.toAttributesImpl( entry ) );
+        SearchResult result = new SearchResult( entry.getDn().getUpName(), null, ServerEntryUtils.toAttributesImpl( entry ) );
+        result.setRelative( false );
+        
+        return result;
     }
 }
