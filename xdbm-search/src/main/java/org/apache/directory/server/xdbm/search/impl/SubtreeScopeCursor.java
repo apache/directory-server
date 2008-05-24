@@ -44,7 +44,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
     private final Store<ServerEntry> db;
 
     /** A ScopeNode Evaluator */
-    private final SubtreeScopeEvaluator evaluator;
+    private final SubtreeScopeEvaluator<ServerEntry> evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
     private final IndexCursor<Long,ServerEntry> scopeCursor;
@@ -66,11 +66,19 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public SubtreeScopeCursor( Store<ServerEntry> db, SubtreeScopeEvaluator evaluator ) throws Exception
+    public SubtreeScopeCursor( Store<ServerEntry> db, SubtreeScopeEvaluator<ServerEntry> evaluator ) throws Exception
     {
         this.db = db;
         this.evaluator = evaluator;
-        scopeCursor = db.getSubLevelIndex().forwardCursor( evaluator.getBaseId() );
+        
+        if ( evaluator.getBaseId().longValue() == db.getContextEntryId().longValue() )
+        {
+            scopeCursor = new AllEntriesCursor( db );
+        }
+        else
+        {
+            scopeCursor = db.getSubLevelIndex().forwardCursor( evaluator.getBaseId() );
+        }
 
         if ( evaluator.isDereferencing() )
         {
