@@ -29,6 +29,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -136,9 +137,16 @@ public class AuthorizationServiceAsAdminIT
             set.add( result.getName() );
         }
 
+        assertEquals( 10, set.size() );
         assertTrue( set.contains( "ou=system" ) );
-        assertTrue( set.contains( "ou=groups,ou=system" ) );
-        assertTrue( set.contains( "ou=users,ou=system" ) );
-        assertTrue( set.contains( "uid=admin,ou=system" ) );
+          assertTrue( set.contains( "ou=configuration,ou=system" ) );
+            assertTrue( set.contains( "ou=interceptors,ou=configuration,ou=system" ) );
+            assertTrue( set.contains( "ou=partitions,ou=configuration,ou=system" ) );
+            assertTrue( set.contains( "ou=services,ou=configuration,ou=system" ) );
+          assertTrue( set.contains( "ou=groups,ou=system" ) );
+            assertTrue( set.contains( "cn=Administrators,ou=groups,ou=system" ) );
+          assertTrue( set.contains( "ou=users,ou=system" ) );
+          assertTrue( set.contains( "prefNodeName=sysPrefRoot,ou=system" ) );
+          assertTrue( set.contains( "uid=admin,ou=system" ) );
     }
 }
