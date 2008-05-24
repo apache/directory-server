@@ -1284,7 +1284,11 @@ public class JdbmStore<E> implements Store<E>
         if ( hasUserIndexOn( modsOid ) )
         {
             Index<?,E> index = getUserIndex( modsOid );
-            ( ( JdbmIndex ) index ).drop( ServerEntryUtils.toAttributeImpl( mods ), id );
+            
+            for ( Value<?> value : mods )
+            {
+                ( ( JdbmIndex ) index ).drop( value.get(), id );
+            }
 
             /* 
              * If no attribute values exist for this entryId in the index then
@@ -1359,8 +1363,12 @@ public class JdbmStore<E> implements Store<E>
             Index<?,E> index = getUserIndex( modsOid );
 
             // Drop all existing attribute value index entries and add new ones
-            ( ( JdbmIndex ) index ).drop( id );
-            ( ( JdbmIndex ) index ).add( ServerEntryUtils.toAttributeImpl( mods ), id );
+            ( ( JdbmIndex<?,E> ) index ).drop( id );
+            
+            for ( Value<?> value : mods )
+            {
+                ( ( JdbmIndex<Object,E> ) index ).add( value.get(), id );
+            }
 
             /* 
              * If no attribute values exist for this entryId in the index then
