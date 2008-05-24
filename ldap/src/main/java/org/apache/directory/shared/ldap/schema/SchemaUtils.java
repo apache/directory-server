@@ -20,8 +20,10 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -34,6 +36,7 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractAdsSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -1087,5 +1090,63 @@ public class SchemaUtils
         }
 
         return values.get( 0 );
+    }
+
+
+    /**
+     * Remove the options from the attributeType, and returns the ID.
+     * 
+     * RFC 4512 :
+     * attributedescription = attributetype options
+     * attributetype = oid
+     * options = *( SEMI option )
+     * option = 1*keychar
+     */
+    public static String stripOptions( String attributeId )
+    {
+        int optionsPos = attributeId.indexOf( ";" ); 
+        
+        if ( optionsPos != -1 )
+        {
+            return attributeId.substring( 0, optionsPos );
+        }
+        else
+        {
+            return attributeId;
+        }
+    }
+    
+    /**
+     * Get the options from the attributeType.
+     * 
+     * For instance, given :
+     * jpegphoto;binary;lang=jp
+     * 
+     * your get back a set containing { "binary", "lang=jp" }
+     */
+    public static Set<String> getOptions( String attributeId )
+    {
+        int optionsPos = attributeId.indexOf( ";" ); 
+
+        if ( optionsPos != -1 )
+        {
+            Set<String> options = new HashSet<String>();
+            
+            String[] res = attributeId.substring( optionsPos + 1 ).split( ";" );
+            
+            for ( String option:res )
+            {
+                if ( !StringTools.isEmpty( option ) )
+                {
+                    options.add( option );
+                }
+            }
+            
+            return options;
+        }
+        else
+        {
+            return null;
+        }
     }
 }
