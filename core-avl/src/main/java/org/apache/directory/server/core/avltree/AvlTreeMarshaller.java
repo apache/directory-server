@@ -177,36 +177,36 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         ByteArrayInputStream bin = new ByteArrayInputStream( data );
         DataInputStream din = new DataInputStream( bin );
         
-            byte startByte = din.readByte();
-            
-            if( startByte != 0 )
-            {
-                throw new IOException("wrong AvlTree serialized data format");
-            }
-            
-            int size = din.readInt();
-            
-            LinkedAvlNode[] nodes = new LinkedAvlNode[ size ];
-            LinkedAvlNode<E> root = readTree( din, null, nodes );
-            
-            AvlTree<E> tree = new AvlTree<E>( comparator );
-            
-            tree.setRoot( root );
-            
-            tree.setFirst( nodes[0] );
-            
-            if( nodes.length >= 1 )
-            {
-                tree.setLast( nodes[ nodes.length - 1 ] );
-            }
-            
-            for( int i = 0; i < nodes.length - 1; i++ )
-            {
-                nodes[ i ].setNext( nodes[ i + 1] );
-                nodes[ i + 1].setPrevious( nodes[ i ] );
-            }
+        byte startByte = din.readByte();
+        
+        if( startByte != 0 )
+        {
+            throw new IOException("wrong AvlTree serialized data format");
+        }
+        
+        int size = din.readInt();
+        
+        LinkedAvlNode[] nodes = new LinkedAvlNode[ size ];
+        LinkedAvlNode<E> root = readTree( din, null, nodes );
+        
+        AvlTree<E> tree = new AvlTree<E>( comparator );
+        
+        tree.setRoot( root );
+        
+        tree.setFirst( nodes[0] );
+        
+        if( nodes.length >= 1 )
+        {
+            tree.setLast( nodes[ nodes.length - 1 ] );
+        }
+        
+        for( int i = 0; i < nodes.length - 1; i++ )
+        {
+            nodes[ i ].setNext( nodes[ i + 1] );
+            nodes[ i + 1].setPrevious( nodes[ i ] );
+        }
 
-            return tree;
+        return tree;
     }
 
     
