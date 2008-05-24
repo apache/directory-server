@@ -101,7 +101,7 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
         try
         {
             entry = cursor.get();
-            if ( available = cursor.next() )
+            if ( available != cursor.next() )
             {
                 cursor.close();
             }
