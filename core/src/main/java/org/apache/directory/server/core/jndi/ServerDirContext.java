@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -638,6 +637,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         throws NamingException
     {
         SearchControls ctls = new SearchControls();
+        LdapDN target = buildTarget( name );
 
         // If we need to return specific attributes add em to the SearchControls
         if ( null != attributesToReturn )
@@ -652,9 +652,15 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         {
             PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
             AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
-//            return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, filter, ctls ) );
-            // TODO not implemented
-            throw new NotImplementedException();
+            try
+            {
+                return new NamingEnumerationAdapter ( 
+                    doSearchOperation( target, aliasDerefMode, filter, ctls ) );
+            }
+            catch ( Exception e )
+            {
+                JndiUtils.wrap( e );
+            }
         }
 
         // Handle simple filter expressions without multiple terms
@@ -667,21 +673,28 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             if ( attr.size() == 1 )
             {
                 Object value = attr.get();
-                SimpleNode node;
+                SimpleNode<?> node;
 
                 if ( value instanceof byte[] )
                 {
-                    node = new EqualityNode( attr.getID(), new ClientBinaryValue( ( byte[] ) value ) );
+                    node = new EqualityNode<byte[]>( attr.getID(), new ClientBinaryValue( ( byte[] ) value ) );
                 }
                 else
                 {
-                    node = new EqualityNode( attr.getID(), new ClientStringValue( ( String ) value ) );
+                    node = new EqualityNode<String>( attr.getID(), new ClientStringValue( ( String ) value ) );
                 }
 
                 AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
-//                return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, node, ctls ) );
-                // TODO not implemented
-                throw new NotImplementedException();
+                try
+                {
+                    return new NamingEnumerationAdapter ( 
+                        doSearchOperation( target, aliasDerefMode, node, ctls ) );
+                }
+                catch ( Exception e )
+                {
+                    JndiUtils.wrap( e );
+                    return null; // shut compiler up
+                }
             }
         }
 
@@ -721,16 +734,22 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 // Add simpel AVA node if its value is a String 
                 if ( val instanceof String )
                 {
-                    node = new EqualityNode( attr.getID(), new ClientStringValue( ( String ) val ) );
+                    node = new EqualityNode<String>( attr.getID(), new ClientStringValue( ( String ) val ) );
                     filter.addNode( node );
                 }
             }
         }
 
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
-//        return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, filter, ctls ) );
-        // TODO not implemented
-        throw new NotImplementedException();
+        try
+        {
+            return new NamingEnumerationAdapter( doSearchOperation( target, aliasDerefMode, filter, ctls ) );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+            return null; // shut compiler up
+        }
     }
 
 
@@ -761,9 +780,15 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     {
         LdapDN target = buildTarget( name );
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
-//        return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, filter, cons ) );
-        // TODO not implemented
-        throw new NotImplementedException();
+        try
+        {
+            return new NamingEnumerationAdapter( doSearchOperation( target, aliasDerefMode, filter, cons ) );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+            return null; // shut compiler up
+        }
     }
 
 
@@ -790,9 +815,15 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
 
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
-//        return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, filterNode, cons ) );
-        // TODO not implemented
-        throw new NotImplementedException();
+        try
+        {
+            return new NamingEnumerationAdapter( doSearchOperation( target, aliasDerefMode, filterNode, cons ) );
+        }
+        catch ( Exception e )
+        {
+            JndiUtils.wrap( e );
+            return null; // shut compiler up
+        }
     }
 
 
