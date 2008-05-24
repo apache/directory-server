@@ -939,7 +939,7 @@ public class SearchIT
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( new String[]
-            { "cn", "sn;unknownOption" } );
+            { "cn", "sn;unknownOption", "badAttr" } );
 
         NamingEnumeration<SearchResult> result = sysRoot.search( RDN, FILTER, ctls );
 

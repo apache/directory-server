@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.naming.NamingException;
+import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.schema.registries.Registries;
@@ -32,7 +33,11 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.directory.shared.ldap.filter.SearchScope.ONELEVEL;
 
@@ -46,22 +51,34 @@ import static org.apache.directory.shared.ldap.filter.SearchScope.ONELEVEL;
  */
 public abstract class SearchingOperationContext extends AbstractOperationContext
 {
+    /** The LoggerFactory used by this Interceptor */
+    private static Logger LOG = LoggerFactory.getLogger( SearchingOperationContext.class );
+
+    /** A flag describing the way alias should be handled */
     private AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
 
+    /** The sizeLimit for this search operation */
     private long sizeLimit = 0;
     
+    /** The timeLimit for this search operation */
     private int timeLimit = 0;
     
+    /** The scope for this search : default to One Level */
     private SearchScope scope = ONELEVEL;
 
+    /** A flag set if the returned attributes set contains '+' */
     private boolean allOperationalAttributes = false;
     
+    /** A flag set if the returned attributes set contains '*' */
     private boolean allUserAttributes = false;
     
+    /** A flag set if the returned attributes set contains '1.1' */
     private boolean noAttributes = false;
     
-    private Set<AttributeType> returningAttributes; 
+    /** A set containing the returning attributeTypesOptions */
+    private Set<AttributeTypeOptions> returningAttributes; 
     
+    /** A flag if the search operation is abandoned */
     private boolean abandoned = false;
     
     
@@ -116,7 +133,8 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
         
         if ( searchControls.getReturningAttributes() != null )
         {
-            returningAttributes = new HashSet<AttributeType>();
+            returningAttributes = new HashSet<AttributeTypeOptions>();
+            
             for ( String returnAttribute : searchControls.getReturningAttributes() )
             {
                 if ( returnAttribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
@@ -137,7 +155,20 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
                     continue;
                 }
                 
-                returningAttributes.add( registries.getAttributeTypeRegistry().lookup( returnAttribute ) );
+                try
+                {
+                    String id = SchemaUtils.stripOptions( returnAttribute );
+                    Set<String> options = SchemaUtils.getOptions( returnAttribute );
+                    AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( id );
+                    AttributeTypeOptions attrOptions = new AttributeTypeOptions( attributeType, options );
+                    
+                    returningAttributes.add( attrOptions );
+                }
+                catch ( NoSuchAttributeException nsae )
+                {
+                    LOG.warn( "Requested attribute {} does not exist in the schema, it will be ignored", returnAttribute );
+                    // Unknown attributes should be silently ignored, as RFC 2251 states
+                }
             }
         }
     }
@@ -271,7 +302,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     /**
      * @param returningAttributes the returningAttributes to set
      */
-    public void setReturningAttributes( Set<AttributeType> returningAttributes )
+    public void setReturningAttributes( Set<AttributeTypeOptions> returningAttributes )
     {
         this.returningAttributes = returningAttributes;
     }
@@ -280,7 +311,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     /**
      * @return the returningAttributes
      */
-    public Set<AttributeType> getReturningAttributes()
+    public Set<AttributeTypeOptions> getReturningAttributes()
     {
         return returningAttributes;
     }
@@ -331,15 +362,15 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
         
         if ( returningAttributes != null )
         {
-            for ( AttributeType at : returningAttributes )
+            for ( AttributeTypeOptions at : returningAttributes )
             {
                 if ( denormalized )
                 {
-                    allReturningAttributes.add( at.getName() );
+                    allReturningAttributes.add( at.getAttributeType().getName() );
                 }
                 else
                 {
-                    allReturningAttributes.add( at.getOid() );
+                    allReturningAttributes.add( at.getAttributeType().getOid() );
                 }
             }
         }

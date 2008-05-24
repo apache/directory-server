@@ -81,6 +81,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
@@ -1441,6 +1442,50 @@ public class SchemaInterceptor extends BaseInterceptor
         next.modify( opContext );
     }
 
+    
+    /**
+     * Filter the attributes by removing the ones which are not allowed
+     */
+    private void filterAttributeTypes( SearchingOperationContext operation, ClonedServerEntry result )
+    {
+        if ( operation.getReturningAttributes() == null )
+        {
+            return;
+        }
+        
+        for ( AttributeTypeOptions attrOptions:operation.getReturningAttributes() )
+        {
+            EntryAttribute attribute = result.get( attrOptions.getAttributeType() );
+            
+            if ( attrOptions.hasOption() )
+            {
+                for ( String option:attrOptions.getOptions() )
+                {
+                    if ( "binary".equalsIgnoreCase( option ) )
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            if ( result.contains( attribute ) )
+                            {
+                                result.remove( attribute );
+                            }
+                        }
+                        catch ( NamingException ne )
+                        {
+                            // Do nothings
+                        }
+                        break;
+                    }
+                }
+                
+                
+            }
+        }
+    }
 
     private void filterObjectClass( ServerEntry entry ) throws Exception
     {
@@ -1527,6 +1572,7 @@ public class SchemaInterceptor extends BaseInterceptor
             throws Exception
         {
             filterObjectClass( result );
+            filterAttributeTypes( operation, result );
             return true;
         }
     }

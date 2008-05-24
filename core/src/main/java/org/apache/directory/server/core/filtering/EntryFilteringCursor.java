@@ -33,6 +33,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 
 import org.slf4j.Logger;
@@ -343,7 +344,17 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
         {
             for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
             {
-                boolean isNotRequested = ! getOperationContext().getReturningAttributes().contains( at );
+                boolean isNotRequested = true;
+                
+                for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
+                {
+                    if ( attrOptions.getAttributeType().equals( at ) )
+                    {
+                        isNotRequested = false;
+                        break;
+                    }
+                }
+                
                 boolean isNotUserAttribute = at.getUsage() != UsageEnum.USER_APPLICATIONS;
                 
                 if (  isNotRequested && isNotUserAttribute )
@@ -359,7 +370,17 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
         {
             for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
             {
-                boolean isNotRequested = ! getOperationContext().getReturningAttributes().contains( at );
+                boolean isNotRequested = true;
+                
+                for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
+                {
+                    if ( attrOptions.getAttributeType().equals( at ) )
+                    {
+                        isNotRequested = false;
+                        break;
+                    }
+                }
+
                 boolean isUserAttribute = at.getUsage() == UsageEnum.USER_APPLICATIONS;
                 
                 if ( isNotRequested && isUserAttribute )
@@ -375,7 +396,16 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
         {
             for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
             {
-                boolean isNotRequested = ! getOperationContext().getReturningAttributes().contains( at );
+                boolean isNotRequested = true;
+                
+                for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
+                {
+                    if ( attrOptions.getAttributeType().equals( at ) )
+                    {
+                        isNotRequested = false;
+                        break;
+                    }
+                }
 
                 if ( isNotRequested )
                 {
