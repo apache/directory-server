@@ -150,7 +150,7 @@ public class ApproximateEvaluator implements Evaluator<ApproximateNode, ServerEn
     {
         if ( idx != null )
         {
-            return idx.forward( indexEntry.getValue(), indexEntry.getId() );
+            return idx.forward( node.getValue().get(), indexEntry.getId() );
         }
 
         ServerEntry entry = indexEntry.getObject();

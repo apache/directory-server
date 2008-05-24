@@ -103,7 +103,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
     {
         if ( idx != null )
         {
-            return idx.forward( ( T ) indexEntry.getValue(), indexEntry.getId() );
+            return idx.forward( node.getValue().get(), indexEntry.getId() );
         }
 
         ServerEntry entry = indexEntry.getObject();
