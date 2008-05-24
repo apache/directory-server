@@ -32,6 +32,8 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.UsageEnum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,9 +64,6 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     
     /** the first accepted search result that is pre fetched */
     private ClonedServerEntry prefetched;
-    
-    /** whether or not this search has been abandoned */
-    private boolean abandoned = false;
 
     
     // ------------------------------------------------------------------------
@@ -122,7 +121,7 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
         this.filters = new ArrayList<EntryFilter>();
         this.filters.addAll( filters );
     }
-
+    
     
     // ------------------------------------------------------------------------
     // Class Specific Methods
@@ -136,7 +135,7 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
      */
     public boolean isAbandoned()
     {
-        return abandoned;
+        return getOperationContext().isAbandoned();
     }
     
     
@@ -147,7 +146,7 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
      */
     public void setAbandoned( boolean abandoned )
     {
-        this.abandoned = abandoned;
+        getOperationContext().setAbandoned( abandoned );
         
         if ( abandoned )
         {
@@ -269,7 +268,7 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
      */
     public boolean first() throws Exception
     {
-        if ( abandoned )
+        if ( getOperationContext().isAbandoned() )
         {
             log.info( "Cursor has been abandoned." );
             close();
@@ -318,7 +317,7 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
      */
     public boolean last() throws Exception
     {
-        if ( abandoned )
+        if ( getOperationContext().isAbandoned() )
         {
             log.info( "Cursor has been abandoned." );
             close();
@@ -328,14 +327,73 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
         afterLast();
         return previous();
     }
+    
+    
+    private void filterContents( ClonedServerEntry entry ) throws Exception
+    {
+        boolean returnAll = getOperationContext().getReturningAttributes() == null ||
+            ( getOperationContext().isAllOperationalAttributes() && getOperationContext().isAllUserAttributes() );
+        
+        if ( returnAll )
+        {
+            return;
+        }
+        
+        if ( getOperationContext().isAllUserAttributes() )
+        {
+            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            {
+                boolean isNotRequested = ! getOperationContext().getReturningAttributes().contains( at );
+                boolean isNotUserAttribute = at.getUsage() != UsageEnum.USER_APPLICATIONS;
+                
+                if (  isNotRequested && isNotUserAttribute )
+                {
+                    entry.removeAttributes( at );
+                }
+            }
+            
+            return;
+        }
+        
+        if ( getOperationContext().isAllOperationalAttributes() )
+        {
+            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            {
+                boolean isNotRequested = ! getOperationContext().getReturningAttributes().contains( at );
+                boolean isUserAttribute = at.getUsage() == UsageEnum.USER_APPLICATIONS;
+                
+                if ( isNotRequested && isUserAttribute )
+                {
+                    entry.removeAttributes( at );
+                }
+            }
+            
+            return;
+        }
 
+        if ( getOperationContext().isNoAttributes() )
+        {
+            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            {
+                boolean isNotRequested = ! getOperationContext().getReturningAttributes().contains( at );
 
+                if ( isNotRequested )
+                {
+                    entry.removeAttributes( at );
+                }
+            }
+            
+            return;
+        }
+    }
+    
+    
     /* 
      * @see Cursor#next()
      */
     public boolean next() throws Exception
     {
-        if ( abandoned )
+        if ( getOperationContext().isAbandoned() )
         {
             log.info( "Cursor has been abandoned." );
             close();
@@ -368,14 +426,16 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
+                filterContents( prefetched );
                 return true;
             }
             
             if ( filters.size() == 1 )
             {
-                if ( filters.get( 0 ).accept( operationContext, tempResult ) )
+                if ( filters.get( 0 ).accept( getOperationContext(), tempResult ) )
                 {
                     prefetched = tempResult;
+                    filterContents( prefetched );
                     return true;
                 }
             }
@@ -385,7 +445,7 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
             for ( EntryFilter filter : filters )
             {
                 // if a filter rejects then short and continue with outer loop
-                if ( ! ( accepted &= filter.accept( operationContext, tempResult ) ) )
+                if ( ! ( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
                 {
                     continue outer;
                 }
@@ -394,8 +454,8 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
             /*
              * Here the entry has been accepted by all filters.
              */
-            
             prefetched = tempResult;
+            filterContents( prefetched );
             return true;
         }
         
@@ -409,7 +469,7 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
      */
     public boolean previous() throws Exception
     {
-        if ( abandoned )
+        if ( getOperationContext().isAbandoned() )
         {
             log.info( "Cursor has been abandoned." );
             close();
@@ -433,14 +493,16 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
+                filterContents( prefetched );
                 return true;
             }
             
             if ( filters.size() == 1 )
             {
-                if ( filters.get( 0 ).accept( operationContext, tempResult ) )
+                if ( filters.get( 0 ).accept( getOperationContext(), tempResult ) )
                 {
                     prefetched = tempResult;
+                    filterContents( prefetched );
                     return true;
                 }
             }
@@ -450,7 +512,7 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
             for ( EntryFilter filter : filters )
             {
                 // if a filter rejects then short and continue with outer loop
-                if ( ! ( accepted &= filter.accept( operationContext, tempResult ) ) )
+                if ( ! ( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
                 {
                     continue outer;
                 }
@@ -459,8 +521,8 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
             /*
              * Here the entry has been accepted by all filters.
              */
-            
             prefetched = tempResult;
+            filterContents( prefetched );
             return true;
         }
         

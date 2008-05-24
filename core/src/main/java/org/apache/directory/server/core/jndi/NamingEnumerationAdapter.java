@@ -118,7 +118,6 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
         
         SearchResult result = new SearchResult( entry.getDn().getUpName(), null, ServerEntryUtils.toAttributesImpl( entry ) );
         result.setRelative( false );
-        
         return result;
     }
 
@@ -137,26 +136,13 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
      */
     public SearchResult nextElement()
     {
-        ClonedServerEntry entry = null;
-        
         try
         {
-            entry = cursor.get();
-            if ( available = cursor.next() )
-            {
-                cursor.close();
-            }
+            return next();
         }
-        catch ( Exception e )
+        catch ( NamingException e )
         {
-            NoSuchElementException nsee = new NoSuchElementException( e.getMessage() );
-            nsee.initCause( e );
-            throw nsee;
+            throw new NoSuchElementException( e.getMessage() );
         }
-        
-        SearchResult result = new SearchResult( entry.getDn().getUpName(), null, ServerEntryUtils.toAttributesImpl( entry ) );
-        result.setRelative( false );
-        
-        return result;
     }
 }

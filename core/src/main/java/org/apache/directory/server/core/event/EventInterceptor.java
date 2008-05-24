@@ -56,6 +56,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
@@ -165,7 +166,7 @@ public class EventInterceptor extends BaseInterceptor
         }
 
         ScopeNode scope = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, normalizedBaseDn.toNormName(),
-            searchControls.getSearchScope() );
+            SearchScope.getSearchScope( searchControls ) );
 
         if ( filter != null )
         {

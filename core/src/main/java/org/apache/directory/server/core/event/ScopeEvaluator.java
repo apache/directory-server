@@ -51,10 +51,10 @@ public class ScopeEvaluator implements Evaluator
 
         switch ( snode.getScope() )
         {
-            case ( SearchControls.OBJECT_SCOPE  ):
+            case OBJECT:
                 return dn.equals( snode.getBaseDn() );
             
-            case ( SearchControls.ONELEVEL_SCOPE  ):
+            case ONELEVEL:
                 if ( dn.endsWith( snode.getBaseDn() ) )
                 {
                     LdapDN candidateDn = new LdapDN( dn );
@@ -62,7 +62,7 @@ public class ScopeEvaluator implements Evaluator
                     return ( scopeDn.size() + 1 ) == candidateDn.size();
                 }
             
-            case ( SearchControls.SUBTREE_SCOPE  ):
+            case SUBTREE:
                 return dn.endsWith( snode.getBaseDn() );
             
             default:

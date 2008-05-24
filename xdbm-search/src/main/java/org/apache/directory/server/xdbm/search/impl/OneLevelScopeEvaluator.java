@@ -20,9 +20,8 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import javax.naming.directory.SearchControls;
-
 import org.apache.directory.shared.ldap.filter.ScopeNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -60,7 +59,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode,E>
     {
         this.node = node;
 
-        if ( node.getScope() != SearchControls.ONELEVEL_SCOPE )
+        if ( node.getScope() != SearchScope.ONELEVEL )
         {
             throw new IllegalStateException( "ScopeNode is not of onelevel scope." );
         }

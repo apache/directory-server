@@ -21,11 +21,10 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import org.apache.directory.shared.ldap.filter.ScopeNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-
-import javax.naming.directory.SearchControls;
 
 
 /**
@@ -74,7 +73,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
         this.db = db;
         this.node = node;
 
-        if ( node.getScope() != SearchControls.SUBTREE_SCOPE )
+        if ( node.getScope() != SearchScope.SUBTREE )
         {
             throw new IllegalStateException( "ScopeNode is not of subtree scope." );
         }

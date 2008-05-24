@@ -22,8 +22,6 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.List;
 
-import javax.naming.directory.SearchControls;
-
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.AssertionNode;
@@ -341,14 +339,14 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         switch ( node.getScope() )
         {
-            case ( SearchControls.OBJECT_SCOPE  ):
+            case OBJECT:
                 return 1L;
             
-            case ( SearchControls.ONELEVEL_SCOPE  ):
+            case ONELEVEL:
                 Long id = db.getEntryId( node.getBaseDn() );
                 return db.getChildCount( id );
                 
-            case ( SearchControls.SUBTREE_SCOPE  ):
+            case SUBTREE:
                 return db.count();
             
             default:

@@ -510,42 +510,41 @@ public class PartitionNexusProxy extends PartitionNexus
         EntryFilteringCursor cursor = search( opContext, null );
         final SearchControls searchCtls = opContext.getSearchControls();
 
-            if ( searchCtls.getTimeLimit() + searchCtls.getCountLimit() > 0 )
+        if ( searchCtls.getTimeLimit() + searchCtls.getCountLimit() > 0 )
+        {
+            // this will be the last filter added so other filters before it must
+            // have passed/approved of the entry to be returned back to the client
+            // so the candidate we have is going to be returned for sure
+            cursor.addEntryFilter( new EntryFilter()
             {
-                // this will be the last filter added so other filters before it must
-                // have passed/approved of the entry to be returned back to the client
-                // so the candidate we have is going to be returned for sure
-                cursor.addEntryFilter( new EntryFilter()
+                final long startTime = System.currentTimeMillis();
+                int count = 0; // with prefetch we've missed one which is ok since 1 is the minimum
+
+                public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry )
+                        throws Exception
                 {
-                    final long startTime = System.currentTimeMillis();
-                    int count = 1; // with prefetch we've missed one which is ok since 1 is the minimum
-
-
-                    public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry )
-                            throws Exception
+                    if ( searchCtls.getTimeLimit() > 0 )
                     {
-                        if ( searchCtls.getTimeLimit() > 0 )
+                        long runtime = System.currentTimeMillis() - startTime;
+                        if ( runtime > searchCtls.getTimeLimit() )
                         {
-                            long runtime = System.currentTimeMillis() - startTime;
-                            if ( runtime > searchCtls.getTimeLimit() )
-                            {
-                                throw new LdapTimeLimitExceededException();
-                            }
+                            throw new LdapTimeLimitExceededException();
                         }
-
-                        if ( searchCtls.getCountLimit() > 0 )
-                        {
-                            if ( count > searchCtls.getCountLimit() )
-                            {
-                                throw new LdapSizeLimitExceededException();
-                            }
-                        }
-
-                        count++;
-                        return true;
                     }
-                } );
-            }
+
+                    if ( searchCtls.getCountLimit() > 0 )
+                    {
+                        if ( count > searchCtls.getCountLimit() )
+                        {
+                            throw new LdapSizeLimitExceededException();
+                        }
+                    }
+
+                    count++;
+                    return true;
+                }
+            } );
+        }
 
         return cursor;
     }

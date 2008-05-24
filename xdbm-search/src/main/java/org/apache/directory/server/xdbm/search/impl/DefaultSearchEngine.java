@@ -26,6 +26,7 @@ import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.server.xdbm.*;
@@ -124,7 +125,8 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
         
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase.toString(), searchCtls.getSearchScope() );
+        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase.toString(), 
+            SearchScope.getSearchScope( searchCtls ) );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 

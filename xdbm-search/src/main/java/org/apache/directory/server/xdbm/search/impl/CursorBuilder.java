@@ -23,8 +23,6 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.List;
 import java.util.ArrayList;
 
-import javax.naming.directory.SearchControls;
-
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -78,7 +76,7 @@ public class CursorBuilder
             case PRESENCE:
                 return new PresenceCursor( db, ( PresenceEvaluator ) evaluatorBuilder.build( node ) );
             case SCOPE:
-                if ( ( ( ScopeNode ) node ).getScope() == SearchControls.ONELEVEL_SCOPE )
+                if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
                     return new OneLevelScopeCursor( db, ( OneLevelScopeEvaluator ) evaluatorBuilder.build( node ) );
                 }

@@ -20,13 +20,15 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
-import javax.naming.directory.SearchControls;
 
 
 /**
@@ -57,9 +59,10 @@ public class SearchOperationContext extends SearchingOperationContext
      * @param dn the dn of the search base
      * @param filter the filter AST to use for the search
      * @param searchControls the search controls
+     * @throws NamingException 
      */
     public SearchOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode, ExprNode filter,
-                                   SearchControls searchControls )
+                                   SearchControls searchControls ) throws NamingException
     {
         super( registries, dn, aliasDerefMode, searchControls );
         this.filter = filter;

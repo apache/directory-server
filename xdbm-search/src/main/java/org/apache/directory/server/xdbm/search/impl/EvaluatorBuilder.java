@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import javax.naming.directory.SearchControls;
-
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -77,7 +75,7 @@ public class EvaluatorBuilder
             case PRESENCE:
                 return new PresenceEvaluator( ( PresenceNode ) node, db, registries );
             case SCOPE:
-                if ( ( ( ScopeNode ) node ).getScope() == SearchControls.ONELEVEL_SCOPE )
+                if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
                     return new OneLevelScopeEvaluator<ServerEntry>( db, ( ScopeNode ) node );
                 }
