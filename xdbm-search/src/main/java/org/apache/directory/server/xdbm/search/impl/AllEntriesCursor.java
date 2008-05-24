@@ -127,6 +127,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
         IndexEntry<String,ServerEntry> wrappedEntry = wrapped.get();
         indexEntry.setId( wrappedEntry.getId() );
         indexEntry.setValue( wrappedEntry.getId() );
+        indexEntry.setObject( wrappedEntry.getObject() );
         return indexEntry;
     }
 
