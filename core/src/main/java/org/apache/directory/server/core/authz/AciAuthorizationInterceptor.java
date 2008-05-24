@@ -1126,14 +1126,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean filter( LdapDN normName, ClonedServerEntry clonedEntry ) throws Exception
+    private boolean filter( Invocation invocation, LdapDN normName, ClonedServerEntry clonedEntry ) throws Exception
     {
         /*
          * First call hasPermission() for entry level "Browse" and "ReturnDN" perm
          * tests.  If we hasPermission() returns false we immediately short the
          * process and return false.
          */
-        Invocation invocation = InvocationStack.getInstance().peek();
         ServerEntry entry = invocation.getProxy().lookup( 
                 new LookupOperationContext( registries, normName ), PartitionNexusProxy.LOOKUP_BYPASS );
         
@@ -1248,7 +1247,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             throws Exception
         {
             LdapDN normName = entry.getDn().normalize( atRegistry.getNormalizerMapping() );
-            return filter( normName, entry );
+            return filter( operationContext.getInvocation(), normName, entry );
         }
     }
 }
