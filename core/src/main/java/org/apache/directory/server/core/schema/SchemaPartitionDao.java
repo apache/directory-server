@@ -256,16 +256,16 @@ public class SchemaPartitionDao
     public boolean hasAttributeType( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
+        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new ClientStringValue(
             MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode( M_OID_OID, new ClientStringValue( oid ) ) );
+            filter.addNode( new EqualityNode<String>( M_OID_OID, new ClientStringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
+            filter.addNode( new EqualityNode<String>( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
         }
 
         SearchControls searchControls = new SearchControls();
