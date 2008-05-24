@@ -140,6 +140,7 @@ public class JdbmStore<E> implements Store<E>
 
 
     private ServerEntry contextEntry;
+    private Long contextEntryId;
     private String suffixDn;
     private int cacheSize = DEFAULT_CACHE_SIZE;
     private String name;
@@ -177,6 +178,12 @@ public class JdbmStore<E> implements Store<E>
     public ServerEntry getContextEntry()
     {
         return contextEntry;
+    }
+    
+    
+    public Long getContextEntryId()
+    {
+        return contextEntryId;
     }
 
 
@@ -286,6 +293,8 @@ public class JdbmStore<E> implements Store<E>
         contextEntry.getDn().normalize( attributeTypeRegistry.getNormalizerMapping() );
 
         initSuffixEntry3( suffixDn, contextEntry );
+        
+        contextEntryId = getEntryId( contextEntry.getDn().getNormName() );
 
         // We are done !
         initialized = true;

@@ -122,7 +122,10 @@ public interface Store<E>
 
     ServerEntry getContextEntry();
 
+    
+    Long getContextEntryId();
 
+    
     void setSuffixDn( String suffixDn );
 
 
