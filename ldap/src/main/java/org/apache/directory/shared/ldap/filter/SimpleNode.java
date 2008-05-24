@@ -160,7 +160,7 @@ public abstract class SimpleNode<T> extends LeafNode
             return false;
         }
 
-        SimpleNode otherNode = ( SimpleNode ) other;
+        SimpleNode<?> otherNode = ( SimpleNode<?> ) other;
 
         if ( value == null )
         {
