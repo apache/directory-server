@@ -585,7 +585,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         try
         {
-            LookupOperationContext lookupContex  = new LookupOperationContext( registries, new String[] { SchemaConstants.USER_PASSWORD_AT } );
+            LookupOperationContext lookupContex  = new LookupOperationContext( registries, new String[] { SchemaConstants.USER_PASSWORD_AT_OID } );
             lookupContex.setDn( principalDn );
             
             userEntry = proxy.lookup( lookupContex, USERLOOKUP_BYPASS ); 
