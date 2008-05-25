@@ -879,6 +879,9 @@ public class DefaultPartitionNexus extends PartitionNexus
         SearchControls searchCtls = opContext.getSearchControls();
         ExprNode filter = opContext.getFilter();
         
+        // TODO since we're handling the *, and + in the EntryFilteringCursor
+        // we may not need this code: we need see if this is actually the 
+        // case and remove this code.
         if ( base.size() == 0 )
         {
             boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
