@@ -61,6 +61,7 @@ import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
@@ -257,10 +258,9 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         EntryFilteringCursor cursor = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
-        SearchControls searchCtls = opContext.getSearchControls();
 
         // object scope searches by default return subentries
-        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
+        if ( opContext.getScope() == SearchScope.OBJECT )
         {
             return cursor;
         }
