@@ -218,7 +218,6 @@ public class OperationalAttributeServiceIT
      * specified.  There are no interceptors in effect when this happens so
      * we must test explicitly.
      *
-     *
      * @see <a href="http://nagoya.apache.org/jira/browse/DIREVE-57">DIREVE-57:
      * ou=system does not contain operational attributes</a>
      *
@@ -232,6 +231,7 @@ public class OperationalAttributeServiceIT
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        
         NamingEnumeration<SearchResult> list;
         list = sysRoot.search( "", "(objectClass=*)", controls );
         SearchResult result = list.next();
