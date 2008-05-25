@@ -16,9 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.authz;
+package org.apache.directory.server.core.suites;
 
 
+import org.apache.directory.server.core.authz.AddAuthorizationIT;
+import org.apache.directory.server.core.authz.AdministratorsGroupIT;
+import org.apache.directory.server.core.authz.AuthorizationServiceAsAdminIT;
+import org.apache.directory.server.core.authz.AuthorizationServiceAsNonAdminIT;
+import org.apache.directory.server.core.authz.AuthzAuthnIT;
+import org.apache.directory.server.core.authz.CompareAuthorizationIT;
+import org.apache.directory.server.core.authz.DeleteAuthorizationIT;
+import org.apache.directory.server.core.authz.GeneralAuthorizationIT;
+import org.apache.directory.server.core.authz.ModifyAuthorizationIT;
+import org.apache.directory.server.core.authz.MoveRenameAuthorizationIT;
+import org.apache.directory.server.core.authz.SearchAuthorizationIT;
 import org.apache.directory.server.core.integ.CiSuite;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.*;

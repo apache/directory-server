@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core;
+package org.apache.directory.server.core.suites;
 
 import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
 import org.apache.directory.server.core.changelog.DefaultChangeLogIT;
