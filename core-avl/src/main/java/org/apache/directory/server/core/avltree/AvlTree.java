@@ -549,7 +549,6 @@ public class AvlTree<K>
         {
             if( root.left == node )
             {
-                System.out.println("IT IS ROOT");
                 root.left = temp;
             }
             // no need to check for right node
