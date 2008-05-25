@@ -388,6 +388,22 @@ public class AvlTreeTest
         assertEquals( 26, ( int ) tree.find( 14 ).right.key );
     }
 
+
+    @Test
+    public void testRemoveInRightSubtree()
+    {
+        int[] keys = { 8, 4, 13, 6, 15, 7, 10, 5, 14, 2, 11, 3, 9, 1 }; // order is important to produce the expected tree
+        
+        for( int key:keys )
+        {
+            tree.insert( key );
+        }
+
+        tree.remove( 13 );
+
+        assertEquals( 11, ( int ) tree.find( 8 ).right.key );
+    }
+
     
     private String getLinkedText() 
     {

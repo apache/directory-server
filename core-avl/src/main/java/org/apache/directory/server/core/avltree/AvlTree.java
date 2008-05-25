@@ -248,13 +248,13 @@ public class AvlTree<K>
                 }
                 else
                 {
-                    detachNodes( y, leftTreePath.get( 0 ) );
+                    detachNodes( y, leftTreePath.remove( 0 ) );
                 }
                 
                 leftTreePath.addAll( treePath );
                 treePath = leftTreePath;
                 
-                y.right = temp.right;
+                y.right = temp.right; // assign the right here left will be assigned in replaceNode()
 
                 if( temp == root )
                 {
@@ -277,13 +277,13 @@ public class AvlTree<K>
                 }
                 else
                 {
-                    detachNodes( y, rightTreePath.get( 0 ) );
+                    detachNodes( y, rightTreePath.remove( 0 ) );
                 }
                 
                 rightTreePath.addAll( treePath );
                 treePath = rightTreePath;
                 
-                y.right = temp.right;
+                y.right = temp.right; // assign the right here left will be assigned in replaceNode()
                 
                 if( temp == root )
                 {
@@ -549,6 +549,7 @@ public class AvlTree<K>
         {
             if( root.left == node )
             {
+                System.out.println("IT IS ROOT");
                 root.left = temp;
             }
             // no need to check for right node
@@ -590,6 +591,8 @@ public class AvlTree<K>
     {
         if( parentNode != null )
         {
+            replaceNode.left = deleteNode.left;
+            
             if( deleteNode == parentNode.left )
             {
                 parentNode.left = replaceNode;
