@@ -666,7 +666,10 @@ public class SchemaInterceptor extends BaseInterceptor
         // We have to eliminate bad attributes from the request, accordingly
         // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
         // from the list
-        filterAttributesToReturn( searchCtls );
+        if ( searchCtls.getReturningAttributes() != null )
+        {
+            filterAttributesToReturn( searchCtls );
+        }
 
         // We also have to check the H/R flag for the filter attributes
         checkFilter( filter );
@@ -689,7 +692,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 cursor.addEntryFilter( ef );
             }
             
-            return null;
+            return cursor;
         }
 
         // The user was searching into the subSchemaSubEntry

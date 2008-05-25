@@ -375,7 +375,11 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
             }
         }
         
-        controls.setReturningAttributes( allReturningAttributes.toArray( ArrayUtils.EMPTY_STRING_ARRAY ) );
+        if ( allReturningAttributes.size() > 0 )
+        {
+            controls.setReturningAttributes( allReturningAttributes.toArray( ArrayUtils.EMPTY_STRING_ARRAY ) );
+        }
+        
         return controls;
     }
 
