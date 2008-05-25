@@ -24,7 +24,7 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -116,7 +116,7 @@ public class TriggerSpecCache
                     new ClientStringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            EntryFilteringCursor results = 
+            BaseEntryFilteringCursor results = 
                 nexus.search( new SearchOperationContext( registries, baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
             
             while ( results.next() )

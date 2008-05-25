@@ -32,7 +32,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -157,7 +157,7 @@ public class SchemaPartitionDao
     public Map<String, Schema> getSchemas() throws Exception
     {
         Map<String, Schema> schemas = new HashMap<String, Schema>();
-        EntryFilteringCursor list = listSchemas();
+        BaseEntryFilteringCursor list = listSchemas();
 
         while ( list.next() )
         {
@@ -173,7 +173,7 @@ public class SchemaPartitionDao
     public Set<String> getSchemaNames() throws Exception
     {
         Set<String> schemaNames = new HashSet<String>();
-        EntryFilteringCursor list = listSchemas();
+        BaseEntryFilteringCursor list = listSchemas();
 
         while ( list.next() )
         {
@@ -185,7 +185,7 @@ public class SchemaPartitionDao
     }
 
 
-    private EntryFilteringCursor listSchemas() throws Exception
+    private BaseEntryFilteringCursor listSchemas() throws Exception
     {
         LdapDN base = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
         base.normalize( attrRegistry.getNormalizerMapping() );
@@ -224,7 +224,7 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        EntryFilteringCursor cursor = null;
+        BaseEntryFilteringCursor cursor = null;
 
         try
         {
@@ -270,7 +270,7 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        EntryFilteringCursor cursor = null;
+        BaseEntryFilteringCursor cursor = null;
 
         try
         {
@@ -316,7 +316,7 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        EntryFilteringCursor cursor = null;
+        BaseEntryFilteringCursor cursor = null;
 
         try
         {
@@ -362,7 +362,7 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        EntryFilteringCursor cursor = null;
+        BaseEntryFilteringCursor cursor = null;
 
         try
         {
@@ -408,7 +408,7 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        EntryFilteringCursor cursor = null;
+        BaseEntryFilteringCursor cursor = null;
 
         try
         {
@@ -502,7 +502,7 @@ public class SchemaPartitionDao
         filter.addNode( oidAVA );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        EntryFilteringCursor cursor = null;
+        BaseEntryFilteringCursor cursor = null;
 
         try
         {
@@ -624,7 +624,7 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        EntryFilteringCursor cursor = null;
+        BaseEntryFilteringCursor cursor = null;
 
         try
         {
@@ -675,7 +675,7 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        EntryFilteringCursor cursor = null;
+        BaseEntryFilteringCursor cursor = null;
 
         try
         {
@@ -699,7 +699,7 @@ public class SchemaPartitionDao
     }
 
 
-    public EntryFilteringCursor listAllNames() throws Exception
+    public BaseEntryFilteringCursor listAllNames() throws Exception
     {
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -752,7 +752,7 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        EntryFilteringCursor cursor = null;
+        BaseEntryFilteringCursor cursor = null;
 
         try
         {
@@ -800,7 +800,7 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        EntryFilteringCursor cursor = null;
+        BaseEntryFilteringCursor cursor = null;
 
         try
         {
@@ -842,7 +842,7 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        EntryFilteringCursor cursor = null;
+        BaseEntryFilteringCursor cursor = null;
 
         try
         {
@@ -922,7 +922,7 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        EntryFilteringCursor cursor = null;
+        BaseEntryFilteringCursor cursor = null;
 
         try
         {

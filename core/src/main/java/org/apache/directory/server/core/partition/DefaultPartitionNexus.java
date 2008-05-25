@@ -27,7 +27,7 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -865,21 +865,21 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#list(ListOperationContext)
      */
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
         Partition backend = getPartition( opContext.getDn() );
         return backend.list( opContext );
     }
 
 
-    public EntryFilteringCursor search( SearchOperationContext opContext )
+    public BaseEntryFilteringCursor search( SearchOperationContext opContext )
         throws Exception
     {
         LdapDN base = opContext.getDn();
         SearchControls searchCtls = opContext.getSearchControls();
         ExprNode filter = opContext.getFilter();
         
-        // TODO since we're handling the *, and + in the EntryFilteringCursor
+        // TODO since we're handling the *, and + in the BaseEntryFilteringCursor
         // we may not need this code: we need see if this is actually the 
         // case and remove this code.
         if ( base.size() == 0 )
@@ -904,7 +904,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 if ( ( ids == null ) || ( ids.length == 0 ) )
                 {
                 	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-                    return new EntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
+                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
                 }
                 
                 // -----------------------------------------------------------
@@ -950,14 +950,14 @@ public class DefaultPartitionNexus extends PartitionNexus
                 if ( containsOneDotOne )
                 {
                 	ServerEntry serverEntry = new DefaultServerEntry( registries, base );
-                    return new EntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
+                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
                 }
                 
                 // return everything
                 if ( containsAsterisk && containsPlus )
                 {
                 	ServerEntry rootDSE = (ServerEntry)getRootDSE( null ).clone();
-                    return new EntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
+                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
                 }
                 
                 ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
@@ -982,7 +982,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     }
                 }
 
-                return new EntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
+                return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
             }
 
             throw new LdapNameNotFoundException();

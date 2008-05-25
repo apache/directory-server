@@ -23,7 +23,7 @@ package org.apache.directory.server.core.interceptor;
 import java.util.Iterator;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -119,13 +119,13 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#list( NextInterceptor, ListOperationContext )}.
      */
-    EntryFilteringCursor list( ListOperationContext opContext ) throws Exception;
+    BaseEntryFilteringCursor list( ListOperationContext opContext ) throws Exception;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#search( NextInterceptor, SearchOperationContext opContext )}.
      */
-    EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception;
+    BaseEntryFilteringCursor search( SearchOperationContext opContext ) throws Exception;
 
 
     /**

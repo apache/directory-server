@@ -23,7 +23,7 @@ package org.apache.directory.server.core.authz;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
@@ -134,7 +134,7 @@ public class TupleCache
                 new ClientStringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            EntryFilteringCursor results = nexus.search( new SearchOperationContext( registries,
+            BaseEntryFilteringCursor results = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, ctls ) );
 
             while ( results.next() )

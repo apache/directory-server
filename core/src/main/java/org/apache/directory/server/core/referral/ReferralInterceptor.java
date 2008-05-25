@@ -37,6 +37,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -879,7 +880,7 @@ public class ReferralInterceptor extends BaseInterceptor
         Partition partition = opContext.getPartition();
         LdapDN suffix = partition.getSuffixDn();
         Invocation invocation = InvocationStack.getInstance().peek();
-        EntryFilteringCursor list = invocation.getProxy().search(
+        BaseEntryFilteringCursor list = invocation.getProxy().search(
             new SearchOperationContext( registries, suffix, AliasDerefMode.DEREF_ALWAYS, getReferralFilter(),
                 getControls() ), SEARCH_BYPASS );
         addReferrals( list, suffix );
@@ -891,7 +892,7 @@ public class ReferralInterceptor extends BaseInterceptor
     {
         // remove referrals immediately before removing the partition
         Invocation invocation = InvocationStack.getInstance().peek();
-        EntryFilteringCursor cursor = invocation.getProxy().search(
+        BaseEntryFilteringCursor cursor = invocation.getProxy().search(
             new SearchOperationContext( registries, opContext.getDn(), AliasDerefMode.DEREF_ALWAYS,
                 getReferralFilter(), getControls() ), SEARCH_BYPASS );
 
@@ -900,7 +901,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    private void addReferrals( EntryFilteringCursor referrals, LdapDN base ) throws Exception
+    private void addReferrals( BaseEntryFilteringCursor referrals, LdapDN base ) throws Exception
     {
         while ( referrals.next() )
         {
@@ -921,7 +922,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    private void deleteReferrals( EntryFilteringCursor referrals, LdapDN base ) throws Exception
+    private void deleteReferrals( BaseEntryFilteringCursor referrals, LdapDN base ) throws Exception
     {
         while ( referrals.next() )
         {
@@ -942,7 +943,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();

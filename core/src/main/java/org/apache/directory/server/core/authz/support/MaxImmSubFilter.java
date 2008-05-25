@@ -25,7 +25,7 @@ import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.EventInterceptor;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
@@ -155,7 +155,7 @@ public class MaxImmSubFilter implements ACITupleFilter
     private int getImmSubCount( Registries registries, PartitionNexusProxy proxy, LdapDN entryName ) throws Exception
     {
         int cnt = 0;
-        EntryFilteringCursor results = null;
+        BaseEntryFilteringCursor results = null;
         
         try
         {

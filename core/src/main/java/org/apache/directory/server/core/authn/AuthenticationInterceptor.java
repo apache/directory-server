@@ -31,7 +31,7 @@ import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -264,7 +264,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -382,7 +382,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {

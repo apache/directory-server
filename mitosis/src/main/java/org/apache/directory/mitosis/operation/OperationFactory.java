@@ -30,7 +30,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -271,7 +271,7 @@ public class OperationFactory
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         
-        EntryFilteringCursor cursor = nexus.search( 
+        BaseEntryFilteringCursor cursor = nexus.search( 
             new SearchOperationContext( registries, oldName, AliasDerefMode.DEREF_ALWAYS,
                     new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 

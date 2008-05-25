@@ -22,7 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
@@ -262,14 +262,14 @@ public abstract class BTreePartition implements Partition
     public abstract void modify( ModifyOperationContext opContext ) throws Exception;
 
 
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
-        return new EntryFilteringCursor( new ServerEntryCursorAdaptor( this, 
+        return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor( this, 
             list( getEntryId( opContext.getDn().getNormName() ) ) ), opContext );
     }
 
 
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
         SearchControls searchCtls = opContext.getSearchControls();
         IndexCursor<Long,ServerEntry> underlying;
@@ -280,7 +280,7 @@ public abstract class BTreePartition implements Partition
             opContext.getFilter(), 
             searchCtls );
 
-        return new EntryFilteringCursor( new ServerEntryCursorAdaptor( this, underlying ), opContext );
+        return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor( this, underlying ), opContext );
     }
 
 

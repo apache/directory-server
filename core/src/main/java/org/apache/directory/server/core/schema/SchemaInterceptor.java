@@ -32,7 +32,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.filtering.EntryFilter;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -383,9 +383,9 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
+        BaseEntryFilteringCursor cursor = nextInterceptor.list( opContext );
         cursor.addEntryFilter( binaryAttributeFilter );
         return cursor;
     }
@@ -656,7 +656,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) 
+    public BaseEntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) 
         throws Exception
     {
         LdapDN base = opContext.getDn();
@@ -679,7 +679,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Deal with the normal case : searching for a normal value (not subSchemaSubEntry)
         if ( !subschemaSubentryDnNorm.equals( baseNormForm ) )
         {
-            EntryFilteringCursor cursor = nextInterceptor.search( opContext );
+            BaseEntryFilteringCursor cursor = nextInterceptor.search( opContext );
 
             if ( searchCtls.getReturningAttributes() != null )
             {
@@ -725,7 +725,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 else
                 {
-                    return new EntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
+                    return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
                 }
 
                 String nodeOid = registries.getOidRegistry().getOid( node.getAttribute() );
@@ -737,11 +737,11 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
-                    return new EntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
+                    return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
                 }
                 else
                 {
-                    return new EntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
+                    return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
                 }
             }
             else if ( filter instanceof PresenceNode )
@@ -753,7 +753,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
-                    EntryFilteringCursor cursor = new EntryFilteringCursor( 
+                    BaseEntryFilteringCursor cursor = new BaseEntryFilteringCursor( 
                         new SingletonCursor<ServerEntry>( serverEntry ), opContext );
                     return cursor;
                 }
@@ -761,7 +761,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
 
         // In any case not handled previously, just return an empty result
-        return new EntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
+        return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
     }
 
 

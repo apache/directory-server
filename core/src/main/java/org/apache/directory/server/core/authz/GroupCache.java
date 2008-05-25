@@ -31,7 +31,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -142,7 +142,7 @@ public class GroupCache
             LdapDN baseDn = new LdapDN( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            EntryFilteringCursor results = nexus.search( new SearchOperationContext( registries,
+            BaseEntryFilteringCursor results = nexus.search( new SearchOperationContext( registries,
                 baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
 
             while ( results.next() )

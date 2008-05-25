@@ -45,7 +45,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.filtering.EntryFilter;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -483,13 +483,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
         return list( opContext, null );
     }
 
 
-    public EntryFilteringCursor list( ListOperationContext opContext, Collection<String> bypass ) throws Exception
+    public BaseEntryFilteringCursor list( ListOperationContext opContext, Collection<String> bypass ) throws Exception
     {
         ensureStarted();
         opContext.push( new Invocation( this, caller, "list", bypass ) );
@@ -505,9 +505,9 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
-        EntryFilteringCursor cursor = search( opContext, null );
+        BaseEntryFilteringCursor cursor = search( opContext, null );
         final SearchControls searchCtls = opContext.getSearchControls();
 
         if ( searchCtls.getTimeLimit() + searchCtls.getCountLimit() > 0 )
@@ -550,7 +550,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public EntryFilteringCursor search( SearchOperationContext opContext, Collection<String> bypass )
+    public BaseEntryFilteringCursor search( SearchOperationContext opContext, Collection<String> bypass )
             throws Exception
     {
         ensureStarted();

@@ -22,7 +22,7 @@ package org.apache.directory.server.core.interceptor;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -198,13 +198,13 @@ public interface Interceptor
     /**
      * Filters {@link Partition#list( ListOperationContext )} call.
      */
-    EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception;
+    BaseEntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception;
 
 
     /**
      * Filters {@link Partition#search( SearchOperationContext )} call.
      */
-    EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception;
+    BaseEntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception;
 
 
     /**

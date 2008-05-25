@@ -22,7 +22,7 @@ package org.apache.directory.server.core.interceptor;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -155,14 +155,14 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.list( opContext );
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.search( opContext );

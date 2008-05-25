@@ -49,10 +49,10 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
+public class BaseEntryFilteringCursor implements EntryFilteringCursor
 {
     /** the logger used by this class */
-    private static final Logger log = LoggerFactory.getLogger( EntryFilteringCursor.class );
+    private static final Logger log = LoggerFactory.getLogger( BaseEntryFilteringCursor.class );
 
     /** the underlying wrapped search results Cursor */
     private final Cursor<ServerEntry> wrapped;
@@ -81,7 +81,7 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
      * @param invocation the search operation invocation creating this Cursor
      * @param filter a single filter to be used
      */
-    public EntryFilteringCursor( Cursor<ServerEntry> wrapped, 
+    public BaseEntryFilteringCursor( Cursor<ServerEntry> wrapped, 
         SearchingOperationContext operationContext, EntryFilter filter )
     {
         this( wrapped, operationContext, Collections.singletonList( filter ) );
@@ -97,7 +97,7 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
      * @param invocation the search operation invocation creating this Cursor
      * @param filter a single filter to be used
      */
-    public EntryFilteringCursor( Cursor<ServerEntry> wrapped, SearchingOperationContext operationContext )
+    public BaseEntryFilteringCursor( Cursor<ServerEntry> wrapped, SearchingOperationContext operationContext )
     {
         this.wrapped = wrapped;
         this.operationContext = operationContext;
@@ -114,7 +114,7 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
      * @param invocation the search operation invocation creating this Cursor
      * @param filters a list of filters to be used
      */
-    public EntryFilteringCursor( Cursor<ServerEntry> wrapped, 
+    public BaseEntryFilteringCursor( Cursor<ServerEntry> wrapped, 
         SearchingOperationContext operationContext, List<EntryFilter> filters )
     {
         this.wrapped = wrapped;
@@ -129,10 +129,8 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     // ------------------------------------------------------------------------
 
     
-    /**
-     * Gets whether or not this EntryFilteringCursor has been abandoned.
-     *
-     * @return true if abandoned, false if not
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#isAbandoned()
      */
     public boolean isAbandoned()
     {
@@ -140,10 +138,8 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     }
     
     
-    /**
-     * Sets whether this EntryFilteringCursor has been abandoned.
-     *
-     * @param abandoned true if abandoned, false if not
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#setAbandoned(boolean)
      */
     public void setAbandoned( boolean abandoned )
     {
@@ -156,12 +152,8 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     }
     
     
-    /**
-     * Adds an entry filter to this EntryFilteringCursor at the very end of 
-     * the filter list.  EntryFilters are applied in the order of addition.
-     * 
-     * @param filter a filter to apply to the entries
-     * @return the result of {@link List#add(Object)}
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#addEntryFilter(org.apache.directory.server.core.filtering.EntryFilter)
      */
     public boolean addEntryFilter( EntryFilter filter )
     {
@@ -169,12 +161,8 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     }
     
     
-    /**
-     * Removes an entry filter to this EntryFilteringCursor at the very end of 
-     * the filter list.  
-     * 
-     * @param filter a filter to remove from the filter list
-     * @return the result of {@link List#remove(Object)}
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#removeEntryFilter(org.apache.directory.server.core.filtering.EntryFilter)
      */
     public boolean removeEntryFilter( EntryFilter filter )
     {
@@ -182,10 +170,8 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     }
     
     
-    /**
-     * Gets an unmodifiable list of EntryFilters applied.
-     *
-     * @return an unmodifiable list of EntryFilters applied
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#getEntryFilters()
      */
     public List<EntryFilter> getEntryFilters()
     {
@@ -193,8 +179,8 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     }
     
     
-    /**
-     * @return the operationContext
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#getOperationContext()
      */
     public SearchingOperationContext getOperationContext()
     {
@@ -210,6 +196,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     /* 
      * @see Cursor#after(Object)
      */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#after(org.apache.directory.server.core.entry.ClonedServerEntry)
+     */
     public void after( ClonedServerEntry element ) throws Exception
     {
         throw new UnsupportedOperationException();
@@ -218,6 +207,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
 
     /* 
      * @see Cursor#afterLast()
+     */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#afterLast()
      */
     public void afterLast() throws Exception
     {
@@ -229,6 +221,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     /* 
      * @see Cursor#available()
      */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#available()
+     */
     public boolean available()
     {
         return prefetched != null;
@@ -238,6 +233,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     /* 
      * @see Cursor#before(java.lang.Object)
      */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#before(org.apache.directory.server.core.entry.ClonedServerEntry)
+     */
     public void before( ClonedServerEntry element ) throws Exception
     {
         throw new UnsupportedOperationException();
@@ -246,6 +244,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
 
     /* 
      * @see Cursor#beforeFirst()
+     */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#beforeFirst()
      */
     public void beforeFirst() throws Exception
     {
@@ -257,6 +258,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     /* 
      * @see Cursor#close()
      */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#close()
+     */
     public void close() throws Exception
     {
         wrapped.close();
@@ -266,6 +270,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
 
     /* 
      * @see Cursor#first()
+     */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#first()
      */
     public boolean first() throws Exception
     {
@@ -284,6 +291,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     /* 
      * @see Cursor#get()
      */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#get()
+     */
     public ClonedServerEntry get() throws Exception
     {
         if ( available() )
@@ -298,6 +308,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     /* 
      * @see Cursor#isClosed()
      */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#isClosed()
+     */
     public boolean isClosed() throws Exception
     {
         return wrapped.isClosed();
@@ -307,6 +320,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     /* 
      * @see Cursor#isElementReused()
      */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#isElementReused()
+     */
     public boolean isElementReused()
     {
         return true;
@@ -315,6 +331,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
 
     /* 
      * @see Cursor#last()
+     */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#last()
      */
     public boolean last() throws Exception
     {
@@ -421,6 +440,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     /* 
      * @see Cursor#next()
      */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#next()
+     */
     public boolean next() throws Exception
     {
         if ( getOperationContext().isAbandoned() )
@@ -497,6 +519,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
     /* 
      * @see Cursor#previous()
      */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#previous()
+     */
     public boolean previous() throws Exception
     {
         if ( getOperationContext().isAbandoned() )
@@ -563,6 +588,9 @@ public class EntryFilteringCursor implements Cursor<ClonedServerEntry>
 
     /* 
      * @see Iterable#iterator()
+     */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#iterator()
      */
     public Iterator<ClonedServerEntry> iterator()
     {

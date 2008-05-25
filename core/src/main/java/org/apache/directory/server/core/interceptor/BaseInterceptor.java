@@ -23,7 +23,7 @@ package org.apache.directory.server.core.interceptor;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -160,7 +160,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
         return next.list( opContext );
     }
@@ -204,7 +204,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public BaseEntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         return next.search( opContext );
     }
