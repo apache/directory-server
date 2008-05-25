@@ -27,7 +27,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -252,7 +252,7 @@ public abstract class ServerContext implements EventContext
      * @param searchControls
      * @return NamingEnumeration
      */
-    protected BaseEntryFilteringCursor doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
+    protected EntryFilteringCursor doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
         ExprNode filter, SearchControls searchControls ) throws Exception
     {
         // setup the op context and populate with request controls
@@ -261,7 +261,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute search operation
-        BaseEntryFilteringCursor results = nexusProxy.search( opCtx );
+        EntryFilteringCursor results = nexusProxy.search( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -274,14 +274,14 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
      */
-    protected BaseEntryFilteringCursor doListOperation( LdapDN target ) throws Exception
+    protected EntryFilteringCursor doListOperation( LdapDN target ) throws Exception
     {
         // setup the op context and populate with request controls
         ListOperationContext opCtx = new ListOperationContext( registries, target );
         opCtx.addRequestControls( requestControls );
 
         // execute list operation
-        BaseEntryFilteringCursor results = nexusProxy.list( opCtx );
+        EntryFilteringCursor results = nexusProxy.list( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;

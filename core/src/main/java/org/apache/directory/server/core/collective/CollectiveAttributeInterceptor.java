@@ -25,7 +25,7 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
-import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -326,17 +326,17 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public BaseEntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        BaseEntryFilteringCursor cursor = nextInterceptor.list( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
         cursor.addEntryFilter( SEARCH_FILTER );
         return cursor;
     }
 
 
-    public BaseEntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
-        BaseEntryFilteringCursor cursor = nextInterceptor.search( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.search( opContext );
         cursor.addEntryFilter( SEARCH_FILTER );
         return cursor;
     }

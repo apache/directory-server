@@ -29,7 +29,7 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.filtering.EntryFilter;
-import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -995,12 +995,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
     
-    public BaseEntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
-        BaseEntryFilteringCursor cursor = next.list( opContext );
+        EntryFilteringCursor cursor = next.list( opContext );
         
         if ( isPrincipalAnAdministrator( user.getJndiName() ) || !enabled )
         {
@@ -1013,13 +1013,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public BaseEntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
         LdapDN principalDn = user.getJndiName();
-        BaseEntryFilteringCursor cursor = next.search( opContext );
+        EntryFilteringCursor cursor = next.search( opContext );
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( opContext.getDn().getNormName() );
         SearchControls searchCtls = opContext.getSearchControls();

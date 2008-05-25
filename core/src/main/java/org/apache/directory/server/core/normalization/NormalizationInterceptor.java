@@ -24,6 +24,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.cursor.EmptyCursor;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -160,7 +161,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
-    public BaseEntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
         ExprNode filter = opContext.getFilter();
         opContext.getDn().normalize( attrNormalizers );
@@ -188,7 +189,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
-    public BaseEntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
         return nextInterceptor.list( opContext );

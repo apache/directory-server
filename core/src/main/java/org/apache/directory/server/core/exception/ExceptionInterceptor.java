@@ -26,6 +26,7 @@ import org.apache.directory.server.core.cursor.EmptyCursor;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -233,7 +234,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         // check if entry to delete has children (only leaves can be deleted)
         boolean hasChildren = false;
-        BaseEntryFilteringCursor list = nextInterceptor.list( new ListOperationContext( registries, name ) );
+        EntryFilteringCursor list = nextInterceptor.list( new ListOperationContext( registries, name ) );
         
         if ( list.next() )
         {
@@ -264,7 +265,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the base being searched exists, otherwise throws the appropriate LdapException.
      */
-    public BaseEntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
         if ( opContext.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
@@ -517,13 +518,13 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * Checks to see the entry being searched exists, otherwise throws the appropriate LdapException.
      */
-    public BaseEntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
         LdapDN base = opContext.getDn();
 
         try
         {
-            BaseEntryFilteringCursor cursor =  nextInterceptor.search( opContext );
+            EntryFilteringCursor cursor =  nextInterceptor.search( opContext );
 	        
 	        if ( ! cursor.next() )
 	        {

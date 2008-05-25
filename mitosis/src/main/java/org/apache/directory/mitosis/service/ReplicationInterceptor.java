@@ -35,7 +35,7 @@ import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -345,7 +345,7 @@ public class ReplicationInterceptor extends BaseInterceptor
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         ctrl.setReturningAttributes( new String[] { "entryCSN", "entryDeleted" } );
 
-        BaseEntryFilteringCursor cursor = nexus.search(
+        EntryFilteringCursor cursor = nexus.search(
             new SearchOperationContext( registries, contextName, AliasDerefMode.DEREF_ALWAYS, filter, ctrl ) );
 
         List<LdapDN> names = new ArrayList<LdapDN>();
@@ -493,9 +493,9 @@ public class ReplicationInterceptor extends BaseInterceptor
 
 
     @Override
-    public BaseEntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-    	BaseEntryFilteringCursor cursor = nextInterceptor.search(
+    	EntryFilteringCursor cursor = nextInterceptor.search(
 	            new SearchOperationContext(
 	                registries, opContext.getDn(), opContext.getAliasDerefMode(),
 	                new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
@@ -507,7 +507,7 @@ public class ReplicationInterceptor extends BaseInterceptor
 
 
     @Override
-    public BaseEntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) 
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) 
         throws Exception
     {
         SearchControls searchControls = opContext.getSearchControls();
@@ -521,7 +521,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             searchControls.setReturningAttributes( newAttrIds );
         }
 
-    	BaseEntryFilteringCursor cursor = nextInterceptor.search( new SearchOperationContext( registries, 
+    	EntryFilteringCursor cursor = nextInterceptor.search( new SearchOperationContext( registries, 
     	    opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(), searchControls ) );
     	cursor.addEntryFilter( Constants.DELETED_ENTRIES_FILTER );
     	return cursor;

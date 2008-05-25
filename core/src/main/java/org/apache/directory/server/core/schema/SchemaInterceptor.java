@@ -32,6 +32,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -383,9 +384,9 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public BaseEntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        BaseEntryFilteringCursor cursor = nextInterceptor.list( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
         cursor.addEntryFilter( binaryAttributeFilter );
         return cursor;
     }
@@ -656,7 +657,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public BaseEntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) 
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) 
         throws Exception
     {
         LdapDN base = opContext.getDn();
@@ -679,7 +680,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Deal with the normal case : searching for a normal value (not subSchemaSubEntry)
         if ( !subschemaSubentryDnNorm.equals( baseNormForm ) )
         {
-            BaseEntryFilteringCursor cursor = nextInterceptor.search( opContext );
+            EntryFilteringCursor cursor = nextInterceptor.search( opContext );
 
             if ( searchCtls.getReturningAttributes() != null )
             {
@@ -753,7 +754,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
-                    BaseEntryFilteringCursor cursor = new BaseEntryFilteringCursor( 
+                    EntryFilteringCursor cursor = new BaseEntryFilteringCursor( 
                         new SingletonCursor<ServerEntry>( serverEntry ), opContext );
                     return cursor;
                 }

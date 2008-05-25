@@ -28,7 +28,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 
 
 /**
@@ -39,11 +39,11 @@ import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
  */
 public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
 {
-    private final BaseEntryFilteringCursor cursor;
+    private final EntryFilteringCursor cursor;
     private boolean available = false;
     
     
-    public NamingEnumerationAdapter( BaseEntryFilteringCursor cursor ) throws NamingException
+    public NamingEnumerationAdapter( EntryFilteringCursor cursor ) throws NamingException
     {
         this.cursor = cursor;
         try

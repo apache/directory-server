@@ -38,7 +38,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -197,7 +197,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
          * OID registry.  To prevent this we need to load all the OID's in advance
          * regardless of whether they are used or not.
          */
-        BaseEntryFilteringCursor cursor = dao.listAllNames();
+        EntryFilteringCursor cursor = dao.listAllNames();
         
         while ( cursor.next() )
         {
@@ -425,7 +425,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading objectClasses", schema.getSchemaName() );
         
-        BaseEntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
@@ -526,7 +526,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading attributeTypes", schema.getSchemaName() );
         
-        BaseEntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
@@ -624,7 +624,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading matchingRules", schema.getSchemaName() );
         
-        BaseEntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
@@ -657,7 +657,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading syntaxes", schema.getSchemaName() );
         
-        BaseEntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
@@ -689,7 +689,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading syntaxCheckers", schema.getSchemaName() );
         
-        BaseEntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
@@ -723,7 +723,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading normalizers", schema.getSchemaName() );
         
-        BaseEntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {
@@ -802,7 +802,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "{} schema: loading comparators", schema.getSchemaName() );
         
-        BaseEntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
         
         while ( list.next() )
         {

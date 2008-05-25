@@ -24,7 +24,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -240,7 +240,7 @@ public interface Partition
      * @return a NamingEnumeration containing objects of type {@link ServerSearchResult}
      * @throws Exception if there are any problems
      */
-    BaseEntryFilteringCursor list( ListOperationContext opContext ) throws Exception;
+    EntryFilteringCursor list( ListOperationContext opContext ) throws Exception;
 
 
     /**
@@ -255,7 +255,7 @@ public interface Partition
      * @throws Exception if there are any problems
      * @return a NamingEnumeration containing objects of type 
      */
-    BaseEntryFilteringCursor search( SearchOperationContext opContext ) throws Exception;
+    EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception;
 
 
     /**

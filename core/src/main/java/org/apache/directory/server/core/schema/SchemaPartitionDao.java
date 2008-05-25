@@ -32,7 +32,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
-import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -157,7 +157,7 @@ public class SchemaPartitionDao
     public Map<String, Schema> getSchemas() throws Exception
     {
         Map<String, Schema> schemas = new HashMap<String, Schema>();
-        BaseEntryFilteringCursor list = listSchemas();
+        EntryFilteringCursor list = listSchemas();
 
         while ( list.next() )
         {
@@ -173,7 +173,7 @@ public class SchemaPartitionDao
     public Set<String> getSchemaNames() throws Exception
     {
         Set<String> schemaNames = new HashSet<String>();
-        BaseEntryFilteringCursor list = listSchemas();
+        EntryFilteringCursor list = listSchemas();
 
         while ( list.next() )
         {
@@ -185,11 +185,11 @@ public class SchemaPartitionDao
     }
 
 
-    private BaseEntryFilteringCursor listSchemas() throws Exception
+    private EntryFilteringCursor listSchemas() throws Exception
     {
         LdapDN base = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
         base.normalize( attrRegistry.getNormalizerMapping() );
-        ExprNode filter = new EqualityNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ),
+        ExprNode filter = new EqualityNode<String>( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ),
             new ClientStringValue( MetaSchemaConstants.META_SCHEMA_OC ) );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -210,21 +210,21 @@ public class SchemaPartitionDao
     public boolean hasMatchingRule( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
+        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new ClientStringValue(
             MetaSchemaConstants.META_MATCHING_RULE_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode( M_OID_OID, new ClientStringValue( oid ) ) );
+            filter.addNode( new EqualityNode<String>( M_OID_OID, new ClientStringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
+            filter.addNode( new EqualityNode<String>( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
         }
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        BaseEntryFilteringCursor cursor = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
@@ -270,7 +270,7 @@ public class SchemaPartitionDao
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        BaseEntryFilteringCursor cursor = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
@@ -302,21 +302,21 @@ public class SchemaPartitionDao
     public boolean hasObjectClass( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
-            MetaSchemaConstants.META_OBJECT_CLASS_OC ) ) );
+        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+            new ClientStringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode( M_OID_OID, new ClientStringValue( oid ) ) );
+            filter.addNode( new EqualityNode<String>( M_OID_OID, new ClientStringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
+            filter.addNode( new EqualityNode<String>( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
         }
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        BaseEntryFilteringCursor cursor = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
@@ -348,21 +348,21 @@ public class SchemaPartitionDao
     public boolean hasSyntax( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter
-            .addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_SYNTAX_OC ) ) );
+        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+                new ClientStringValue( MetaSchemaConstants.META_SYNTAX_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode( M_OID_OID, new ClientStringValue( oid ) ) );
+            filter.addNode( new EqualityNode<String>( M_OID_OID, new ClientStringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
+            filter.addNode( new EqualityNode<String>( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
         }
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        BaseEntryFilteringCursor cursor = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
@@ -394,21 +394,21 @@ public class SchemaPartitionDao
     public boolean hasSyntaxChecker( String oid ) throws Exception
     {
         BranchNode filter = new AndNode();
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
-            MetaSchemaConstants.META_SYNTAX_CHECKER_OC ) ) );
+        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+            new ClientStringValue( MetaSchemaConstants.META_SYNTAX_CHECKER_OC ) ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new EqualityNode( M_OID_OID, new ClientStringValue( oid ) ) );
+            filter.addNode( new EqualityNode<String>( M_OID_OID, new ClientStringValue( oid ) ) );
         }
         else
         {
-            filter.addNode( new EqualityNode( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
+            filter.addNode( new EqualityNode<String>( M_NAME_OID, new ClientStringValue( oid.toLowerCase() ) ) );
         }
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        BaseEntryFilteringCursor cursor = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
@@ -496,13 +496,15 @@ public class SchemaPartitionDao
     public ServerEntry find( String entityName ) throws Exception
     {
         BranchNode filter = new OrNode();
-        SimpleNode nameAVA = new EqualityNode( M_NAME_OID, new ClientStringValue( entityName.toLowerCase() ) );
-        SimpleNode oidAVA = new EqualityNode( M_OID_OID, new ClientStringValue( entityName.toLowerCase() ) );
+        SimpleNode<String> nameAVA = new EqualityNode<String>( M_NAME_OID, 
+            new ClientStringValue( entityName.toLowerCase() ) );
+        SimpleNode<String> oidAVA = new EqualityNode<String>( M_OID_OID, 
+            new ClientStringValue( entityName.toLowerCase() ) );
         filter.addNode( nameAVA );
         filter.addNode( oidAVA );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        BaseEntryFilteringCursor cursor = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
@@ -614,17 +616,17 @@ public class SchemaPartitionDao
 
         // subfilter for (| (objectClass=metaMatchingRule) (objectClass=metaAttributeType))  
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_MATCHING_RULE_OC
-            .toLowerCase() ) ) );
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
-            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
+        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+            new ClientStringValue( MetaSchemaConstants.META_MATCHING_RULE_OC.toLowerCase() ) ) );
+        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+            new ClientStringValue( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
 
         filter.addNode( or );
-        filter.addNode( new EqualityNode( M_SYNTAX_OID, new ClientStringValue( numericOid.toLowerCase() ) ) );
+        filter.addNode( new EqualityNode<String>( M_SYNTAX_OID, new ClientStringValue( numericOid.toLowerCase() ) ) );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        BaseEntryFilteringCursor cursor = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
@@ -654,28 +656,28 @@ public class SchemaPartitionDao
         BranchNode filter = new AndNode();
 
         // ( objectClass = metaAttributeType )
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
+        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new ClientStringValue(
             MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
 
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode( M_ORDERING_OID, new ClientStringValue( mr.getOid() ) ) );
-        or.addNode( new EqualityNode( M_SUBSTRING_OID, new ClientStringValue( mr.getOid() ) ) );
-        or.addNode( new EqualityNode( M_EQUALITY_OID, new ClientStringValue( mr.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_ORDERING_OID, new ClientStringValue( mr.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_SUBSTRING_OID, new ClientStringValue( mr.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_EQUALITY_OID, new ClientStringValue( mr.getOid() ) ) );
         filter.addNode( or );
 
         if ( mr.getNames() != null || mr.getNames().length > 0 )
         {
             for ( String name : mr.getNames() )
             {
-                or.addNode( new EqualityNode( M_ORDERING_OID, new ClientStringValue( name.toLowerCase() ) ) );
-                or.addNode( new EqualityNode( M_SUBSTRING_OID, new ClientStringValue( name.toLowerCase() ) ) );
-                or.addNode( new EqualityNode( M_EQUALITY_OID, new ClientStringValue( name.toLowerCase() ) ) );
+                or.addNode( new EqualityNode<String>( M_ORDERING_OID, new ClientStringValue( name.toLowerCase() ) ) );
+                or.addNode( new EqualityNode<String>( M_SUBSTRING_OID, new ClientStringValue( name.toLowerCase() ) ) );
+                or.addNode( new EqualityNode<String>( M_EQUALITY_OID, new ClientStringValue( name.toLowerCase() ) ) );
             }
         }
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        BaseEntryFilteringCursor cursor = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
@@ -699,7 +701,7 @@ public class SchemaPartitionDao
     }
 
 
-    public BaseEntryFilteringCursor listAllNames() throws Exception
+    public EntryFilteringCursor listAllNames() throws Exception
     {
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -738,21 +740,21 @@ public class SchemaPartitionDao
 
         // ( objectClass = metaAttributeType )
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
-            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC
-            .toLowerCase() ) ) );
+        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+            new ClientStringValue( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) ) );
+        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+            new ClientStringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase() ) ) );
         filter.addNode( or );
 
         or = new OrNode();
-        or.addNode( new EqualityNode( M_MAY_OID, new ClientStringValue( at.getOid() ) ) );
-        or.addNode( new EqualityNode( M_MUST_OID, new ClientStringValue( at.getOid() ) ) );
-        or.addNode( new EqualityNode( M_SUP_ATTRIBUTE_TYPE_OID, new ClientStringValue( at.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_MAY_OID, new ClientStringValue( at.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_MUST_OID, new ClientStringValue( at.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_SUP_ATTRIBUTE_TYPE_OID, new ClientStringValue( at.getOid() ) ) );
         filter.addNode( or );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        BaseEntryFilteringCursor cursor = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
@@ -794,13 +796,14 @@ public class SchemaPartitionDao
         Set<ServerEntry> set = new HashSet<ServerEntry>();
         BranchNode filter = new AndNode();
 
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_SCHEMA_OC
-            .toLowerCase() ) ) );
-        filter.addNode( new EqualityNode( M_DEPENDENCIES_OID, new ClientStringValue( schemaName.toLowerCase() ) ) );
+        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, 
+            new ClientStringValue( MetaSchemaConstants.META_SCHEMA_OC.toLowerCase() ) ) );
+        filter.addNode( new EqualityNode<String>( M_DEPENDENCIES_OID, 
+            new ClientStringValue( schemaName.toLowerCase() ) ) );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        BaseEntryFilteringCursor cursor = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
@@ -836,13 +839,14 @@ public class SchemaPartitionDao
         Set<ServerEntry> set = new HashSet<ServerEntry>();
         BranchNode filter = new AndNode();
 
-        filter.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_SCHEMA_OC
-            .toLowerCase() ) ) );
-        filter.addNode( new EqualityNode( M_DEPENDENCIES_OID, new ClientStringValue( schemaName.toLowerCase() ) ) );
+        filter.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new ClientStringValue( 
+            MetaSchemaConstants.META_SCHEMA_OC.toLowerCase() ) ) );
+        filter.addNode( new EqualityNode<String>( M_DEPENDENCIES_OID, new ClientStringValue( 
+            schemaName.toLowerCase() ) ) );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        BaseEntryFilteringCursor cursor = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
@@ -906,23 +910,23 @@ public class SchemaPartitionDao
         BranchNode filter = new AndNode();
 
         BranchNode or = new OrNode();
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_NAME_FORM_OC
+        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_NAME_FORM_OC
             .toLowerCase() ) ) );
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC
+        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new ClientStringValue( MetaSchemaConstants.META_OBJECT_CLASS_OC
             .toLowerCase() ) ) );
-        or.addNode( new EqualityNode( OBJECTCLASS_OID, new ClientStringValue(
+        or.addNode( new EqualityNode<String>( OBJECTCLASS_OID, new ClientStringValue(
             MetaSchemaConstants.META_DIT_CONTENT_RULE_OC.toLowerCase() ) ) );
         filter.addNode( or );
 
         or = new OrNode();
-        or.addNode( new EqualityNode( M_AUX_OID, new ClientStringValue( oc.getOid() ) ) );
-        or.addNode( new EqualityNode( M_OC_OID, new ClientStringValue( oc.getOid() ) ) );
-        or.addNode( new EqualityNode( M_SUP_OBJECT_CLASS_OID, new ClientStringValue( oc.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_AUX_OID, new ClientStringValue( oc.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_OC_OID, new ClientStringValue( oc.getOid() ) ) );
+        or.addNode( new EqualityNode<String>( M_SUP_OBJECT_CLASS_OID, new ClientStringValue( oc.getOid() ) ) );
         filter.addNode( or );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        BaseEntryFilteringCursor cursor = null;
+        EntryFilteringCursor cursor = null;
 
         try
         {
