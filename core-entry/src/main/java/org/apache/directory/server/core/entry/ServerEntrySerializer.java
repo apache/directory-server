@@ -156,8 +156,8 @@ public class ServerEntrySerializer implements Serializer
 
         if ( IS_DEBUG )
         {
-            System.out.println( ">------------------------------------------------" );
-            System.out.println( "Serialize " + entry );
+            LOG.debug( ">------------------------------------------------" );
+            LOG.debug( "Serialize " + entry );
         }
 
         return baos.toByteArray();
@@ -368,8 +368,8 @@ public class ServerEntrySerializer implements Serializer
 
             if ( IS_DEBUG )
             {
-                System.out.println( "<------------------------------------------------" );
-                System.out.println( "Deserialize " + serverEntry );
+                LOG.debug( "<------------------------------------------------" );
+                LOG.debug( "Deserialize " + serverEntry );
             }
 
             return serverEntry;

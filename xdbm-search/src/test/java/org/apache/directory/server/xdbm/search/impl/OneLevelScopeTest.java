@@ -995,7 +995,7 @@ public class OneLevelScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES,
             SchemaConstants.OU_AT_OID + "=sales," +
-            SchemaConstants.O_AT_OID  + "=good times co.", SearchScope.ONELEVEL );
+            SchemaConstants.O_AT_OID  + "=good times co.", SearchScope.SUBTREE );
         new OneLevelScopeEvaluator<ServerEntry>( store, node );
     }
 }
