@@ -857,7 +857,8 @@ public class ReferralInterceptor extends BaseInterceptor
 
     static ExprNode getReferralFilter()
     {
-        return new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue( SchemaConstants.REFERRAL_OC ) );
+        return new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
+            new ClientStringValue( SchemaConstants.REFERRAL_OC ) );
     }
 
 
@@ -905,15 +906,8 @@ public class ReferralInterceptor extends BaseInterceptor
         while ( referrals.next() )
         {
             ServerEntry r = referrals.get();
-            LdapDN referral;
             LdapDN result = new LdapDN( r.getDn() );
             result.normalize( atRegistry.getNormalizerMapping() );
-
-            /*if ( r.isRelative() )
-            {
-                referral = ( LdapDN ) base.clone();
-                referral.addAll( result );
-            }*/
 
             // Now, add the referral to the cache
             lut.referralAdded( result );
@@ -1001,12 +995,7 @@ public class ReferralInterceptor extends BaseInterceptor
             if ( farthest == null )
             {
                 EntryFilteringCursor srfe = next.search( opContext );
-                
-                // TODO FixMe
-                //return new ReferralHandlingEnumeration( srfe, lut, opContext.getRegistries(), nexus, controls
-                //    .getSearchScope(), true );
-                
-                throw new NotImplementedException();
+                return new ReferralHandlingCursor( srfe, lut, true );
             }
 
             ServerEntry referral = invocation.getProxy().lookup( new LookupOperationContext( registries, farthest ),
