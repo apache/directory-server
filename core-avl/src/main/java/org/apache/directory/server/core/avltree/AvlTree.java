@@ -568,7 +568,7 @@ public class AvlTree<K>
 	    {
 	        if( node == parentNode.left )
 	        {
-	            parentNode.left = null;
+	            parentNode.left = node.left;
 	        }
 	        else if( node == parentNode.right )
 	        {
