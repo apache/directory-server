@@ -383,9 +383,12 @@ public class JdbmStoreTest
     {
       Index idx = store.getSubLevelIndex();
       
-      assertEquals( 8, idx.count() );
+      assertEquals( 19, idx.count() );
       
       Cursor<IndexEntry<Long,Attributes>> cursor = idx.forwardCursor( 2L );
+      
+      assertTrue( cursor.next() );
+      assertEquals( 2, ( long ) cursor.get().getId() );
       
       assertTrue( cursor.next() );
       assertEquals( 5, ( long ) cursor.get().getId() );
@@ -399,6 +402,9 @@ public class JdbmStoreTest
       
       cursor = idx.forwardCursor( 2L );
 
+      assertTrue( cursor.next() );
+      assertEquals( 2, ( long ) cursor.get().getId() );
+      
       assertTrue( cursor.next() );
       assertEquals( 6, ( long ) cursor.get().getId() );
       
@@ -448,11 +454,29 @@ public class JdbmStoreTest
 
       cursor = idx.forwardCursor( 3L);
       cursor.afterLast();
+
       assertTrue( cursor.previous() );
       assertEquals( 14, ( long ) cursor.get().getId() );
       
       assertTrue( cursor.previous() );
       assertEquals( 13, ( long ) cursor.get().getId() );
+
+      assertTrue( cursor.previous() );
+      assertEquals( 12, ( long ) cursor.get().getId() );
+
+      assertTrue( cursor.previous() );
+      assertEquals( 10, ( long ) cursor.get().getId() );
+
+      assertTrue( cursor.previous() );
+      assertEquals( 9, ( long ) cursor.get().getId() );
+
+      assertTrue( cursor.previous() );
+      assertEquals( 7, ( long ) cursor.get().getId() );
+
+      assertTrue( cursor.previous() );
+      assertEquals( 3, ( long ) cursor.get().getId() );
+      
+      assertFalse( cursor.previous() );
     }
    
     
