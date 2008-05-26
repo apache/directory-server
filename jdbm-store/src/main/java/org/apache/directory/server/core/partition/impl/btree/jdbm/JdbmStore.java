@@ -1064,6 +1064,7 @@ public class JdbmStore<E> implements Store<E>
             subLevelIdx.add( tempId, id );
             tempId = getParentId( tempId );
         }
+        subLevelIdx.add( id, id );
         
         // Now work on the user defined userIndices
         for ( EntryAttribute attribute : entry )
