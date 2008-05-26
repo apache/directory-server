@@ -155,6 +155,13 @@ public class SubtreeScopeTest
         assertTrue( cursor.available() );
         IndexEntry<Long,ServerEntry> indexEntry = cursor.get();
         assertNotNull( indexEntry );
+        assertEquals( 2L, ( long ) indexEntry.getId() );
+        assertEquals( 2L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
         assertEquals( 5L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
@@ -174,6 +181,13 @@ public class SubtreeScopeTest
         assertFalse( cursor.available() );
         cursor.first();
 
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 2L, ( long ) indexEntry.getId() );
+        assertEquals( 2L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
@@ -210,6 +224,13 @@ public class SubtreeScopeTest
         assertEquals( 5L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 2L, ( long ) indexEntry.getId() );
+        assertEquals( 2L, ( long ) indexEntry.getValue() );
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
@@ -232,6 +253,13 @@ public class SubtreeScopeTest
         assertEquals( 5L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 2L, ( long ) indexEntry.getId() );
+        assertEquals( 2L, ( long ) indexEntry.getValue() );
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
@@ -252,6 +280,13 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 5L, ( long ) indexEntry.getId() );
+        assertEquals( 2L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 2L, ( long ) indexEntry.getId() );
         assertEquals( 2L, ( long ) indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
@@ -280,6 +315,13 @@ public class SubtreeScopeTest
         assertTrue( cursor.available() );
         IndexEntry<Long,ServerEntry> indexEntry = cursor.get();
         assertNotNull( indexEntry );
+        assertEquals( 3L, ( long ) indexEntry.getId() );
+        assertEquals( 3L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
 
@@ -299,6 +341,13 @@ public class SubtreeScopeTest
         assertFalse( cursor.available() );
         cursor.first();
 
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 3L, ( long ) indexEntry.getId() );
+        assertEquals( 3L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
@@ -335,6 +384,13 @@ public class SubtreeScopeTest
         assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
 
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 3L, ( long ) indexEntry.getId() );
+        assertEquals( 3L, ( long ) indexEntry.getValue() );
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
@@ -355,6 +411,13 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
+        assertEquals( 3L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 3L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
@@ -379,6 +442,13 @@ public class SubtreeScopeTest
         assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
 
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 3L, ( long ) indexEntry.getId() );
+        assertEquals( 3L, ( long ) indexEntry.getValue() );
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
@@ -388,6 +458,13 @@ public class SubtreeScopeTest
         assertFalse( cursor.available() );
         cursor.next();
 
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 3L, ( long ) indexEntry.getId() );
+        assertEquals( 3L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
@@ -430,6 +507,13 @@ public class SubtreeScopeTest
         assertTrue( cursor.available() );
         IndexEntry<Long,ServerEntry> indexEntry = cursor.get();
         assertNotNull( indexEntry );
+        assertEquals( 7L, ( long ) indexEntry.getId() );
+        assertEquals( 7L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 7L, ( long ) indexEntry.getValue() );
 
@@ -442,6 +526,13 @@ public class SubtreeScopeTest
         assertFalse( cursor.available() );
         cursor.first();
 
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 7L, ( long ) indexEntry.getId() );
+        assertEquals( 7L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
@@ -464,6 +555,13 @@ public class SubtreeScopeTest
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 7L, ( long ) indexEntry.getValue() );
 
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 7L, ( long ) indexEntry.getId() );
+        assertEquals( 7L, ( long ) indexEntry.getValue() );
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
@@ -479,6 +577,13 @@ public class SubtreeScopeTest
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 7L, ( long ) indexEntry.getValue() );
 
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 7L, ( long ) indexEntry.getId() );
+        assertEquals( 7L, ( long ) indexEntry.getValue() );
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
@@ -492,6 +597,13 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
+        assertEquals( 7L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 7L, ( long ) indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
@@ -546,6 +658,13 @@ public class SubtreeScopeTest
         assertTrue( cursor.available() );
         IndexEntry<Long,ServerEntry> indexEntry = cursor.get();
         assertNotNull( indexEntry );
+        assertEquals( 3L, ( long ) indexEntry.getId() );
+        assertEquals( 3L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
 
@@ -578,6 +697,13 @@ public class SubtreeScopeTest
         cursor = new SubtreeScopeCursor( store, evaluator );
         assertFalse( cursor.available() );
         cursor.first();
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 7L, ( long ) indexEntry.getId() );
+        assertEquals( 3L, ( long ) indexEntry.getValue() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -637,6 +763,13 @@ public class SubtreeScopeTest
         assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
 
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 3L, ( long ) indexEntry.getId() );
+        assertEquals( 3L, ( long ) indexEntry.getValue() );
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
@@ -671,6 +804,13 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
+        assertEquals( 3L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 3L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
 
         assertFalse( cursor.previous() );
@@ -709,6 +849,13 @@ public class SubtreeScopeTest
         assertEquals( 7L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
 
+        assertTrue( cursor.previous() );
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 3L, ( long ) indexEntry.getId() );
+        assertEquals( 3L, ( long ) indexEntry.getValue() );
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
@@ -718,6 +865,13 @@ public class SubtreeScopeTest
         assertFalse( cursor.available() );
         cursor.next();
 
+        assertTrue( cursor.available() );
+        indexEntry = cursor.get();
+        assertNotNull( indexEntry );
+        assertEquals( 3L, ( long ) indexEntry.getId() );
+        assertEquals( 3L, ( long ) indexEntry.getValue() );
+
+        assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
