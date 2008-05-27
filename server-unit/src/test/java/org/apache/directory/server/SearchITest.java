@@ -767,11 +767,11 @@ public class SearchITest extends AbstractServerTest
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"cn"} );
         
-        NamingEnumeration res = ctx.search( "", "(commonName=Tori*)", controls );
+        NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori*)", controls );
         
         assertTrue( res.hasMore() );
         
-        SearchResult result = ( SearchResult ) res.next();
+        SearchResult result = res.next();
 
         // ensure that result is not null
         assertNotNull( result );
