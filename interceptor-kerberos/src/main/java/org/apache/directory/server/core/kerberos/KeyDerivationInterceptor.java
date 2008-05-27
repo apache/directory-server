@@ -49,6 +49,7 @@ import org.apache.directory.server.core.operational.OperationalAttributeIntercep
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
@@ -290,7 +291,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        ServerEntry userEntry;
+        ClonedServerEntry userEntry;
 
         LookupOperationContext lookupContext = 
             new LookupOperationContext( modContext.getRegistries(),
@@ -310,7 +311,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             throw new LdapAuthenticationException( "Failed to authenticate user '" + principalDn + "'." );
         }
 
-        EntryAttribute objectClass = userEntry.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClass = userEntry.getOriginalEntry().get( SchemaConstants.OBJECT_CLASS_AT );
         
         if ( !objectClass.contains( SchemaConstants.KRB5_PRINCIPAL_OC ) )
         {
@@ -324,13 +325,13 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         if ( subContext.getPrincipalName() == null )
         {
-            EntryAttribute principalAttribute = userEntry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
+            EntryAttribute principalAttribute = userEntry.getOriginalEntry().get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
             String principalName = principalAttribute.getString();
             subContext.setPrincipalName( principalName );
             log.debug( "Found principal '{}' from lookup.", principalName );
         }
 
-        EntryAttribute keyVersionNumberAttr = userEntry.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
+        EntryAttribute keyVersionNumberAttr = userEntry.getOriginalEntry().get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
 
         if ( keyVersionNumberAttr == null )
         {
