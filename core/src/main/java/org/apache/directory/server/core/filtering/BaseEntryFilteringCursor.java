@@ -367,7 +367,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 
                 for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( at ) )
+                    if ( attrOptions.getAttributeType().equals( at ) || attrOptions.getAttributeType().isAncestorOf( at ) )
                     {
                         isNotRequested = false;
                         break;
@@ -393,7 +393,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 
                 for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( at ) )
+                    if ( attrOptions.getAttributeType().equals( at ) || attrOptions.getAttributeType().isAncestorOf( at ) )
                     {
                         isNotRequested = false;
                         break;
@@ -419,7 +419,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
                 
                 for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( at ) )
+                    if ( attrOptions.getAttributeType().equals( at ) || attrOptions.getAttributeType().isAncestorOf( at ) )
                     {
                         isNotRequested = false;
                         break;
@@ -433,6 +433,28 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             }
             
             return;
+        }
+        
+        if ( getOperationContext().getReturningAttributes() != null )
+        {
+            for ( AttributeType at : entry.getOriginalEntry().getAttributeTypes() )
+            {
+                boolean isNotRequested = true;
+                
+                for ( AttributeTypeOptions attrOptions:getOperationContext().getReturningAttributes() )
+                {
+                    if ( attrOptions.getAttributeType().equals( at ) || attrOptions.getAttributeType().isAncestorOf( at ) )
+                    {
+                        isNotRequested = false;
+                        break;
+                    }
+                }
+    
+                if ( isNotRequested )
+                {
+                    entry.removeAttributes( at );
+                }
+            }
         }
     }
     

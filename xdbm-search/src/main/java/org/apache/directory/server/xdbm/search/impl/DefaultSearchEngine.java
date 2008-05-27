@@ -139,6 +139,7 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
             
             IndexEntry<Long, ServerEntry> indexEntry = new ForwardIndexEntry<Long, ServerEntry>();
             indexEntry.setId( effectiveBaseId );
+            optimizer.annotate( filter );
             Evaluator<? extends ExprNode, ServerEntry> evaluator = evaluatorBuilder.build( filter );
             
             if ( evaluator.evaluate( indexEntry ) )
