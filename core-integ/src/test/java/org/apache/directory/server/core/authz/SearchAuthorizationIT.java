@@ -794,6 +794,7 @@ public class SearchAuthorizationIT
         }
         catch ( LdapNoPermissionException e )
         {
+            return null;
         }
         finally
         {

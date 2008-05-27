@@ -373,7 +373,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         		    parentDn, 
         		    new String[]
         		               { SchemaConstants.SUBENTRY_ACI_AT }) , 
-        		PartitionNexusProxy.LOOKUP_BYPASS );
+        		PartitionNexusProxy.LOOKUP_BYPASS ).getOriginalEntry();
         
         EntryAttribute subentryAci = administrativeEntry.get( subentryAciType );
 
@@ -1133,16 +1133,14 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          * tests.  If we hasPermission() returns false we immediately short the
          * process and return false.
          */
-        ServerEntry entry = invocation.getProxy().lookup( 
-                new LookupOperationContext( registries, normName ), PartitionNexusProxy.LOOKUP_BYPASS );
         
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapDN userDn = ctx.getPrincipal().getJndiName();
         Set<LdapDN> userGroups = groupCache.getGroups( userDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( invocation.getProxy(), tuples, normName, entry );
-        addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( invocation.getProxy(), tuples, normName, entry );
+        addPerscriptiveAciTuples( invocation.getProxy(), tuples, normName, clonedEntry.getOriginalEntry() );
+        addEntryAciTuples( tuples, clonedEntry.getOriginalEntry() );
+        addSubentryAciTuples( invocation.getProxy(), tuples, normName, clonedEntry.getOriginalEntry() );
 
         if ( !engine.hasPermission( 
                         registries, 
@@ -1187,7 +1185,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                         null, 
                         SEARCH_ATTRVAL_PERMS, 
                         tuples, 
-                        entry, 
+                        clonedEntry, 
                         null ) )
             {
                 attributeToRemove.add( attributeType );
@@ -1211,7 +1209,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                         value, 
                         SEARCH_ATTRVAL_PERMS, 
                         tuples,
-                        entry, 
+                        clonedEntry, 
                         null ) )
                 {
                     valueToRemove.add( value );
