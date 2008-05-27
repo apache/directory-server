@@ -138,7 +138,7 @@ public abstract class BTreePartition implements Partition
      *
      * @return the root suffix entry for this BTreePartition
      */
-    public ClonedServerEntry getContextEntry()
+    public ServerEntry getContextEntry()
     {
         if ( contextEntry != null )
         {

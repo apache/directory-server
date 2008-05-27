@@ -92,7 +92,7 @@ public interface Partition
      *
      * @return the entry for the suffix of this Partition.
      */
-    ClonedServerEntry getContextEntry();
+    ServerEntry getContextEntry();
 
 
     /**
