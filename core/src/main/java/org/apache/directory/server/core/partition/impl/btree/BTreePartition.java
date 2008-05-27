@@ -287,7 +287,14 @@ public abstract class BTreePartition implements Partition
 
     public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
-        ClonedServerEntry entry = lookup( getEntryId( opContext.getDn().getNormName() ) );
+        Long id = getEntryId( opContext.getDn().getNormName() );
+        
+        if ( id == null )
+        {
+            return null;
+        }
+        
+        ClonedServerEntry entry = lookup( id );
 
         if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) )
         {
