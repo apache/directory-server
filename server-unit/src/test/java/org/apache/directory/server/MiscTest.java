@@ -360,31 +360,25 @@ public class MiscTest extends AbstractServerTest
         SearchControls cons = new SearchControls();
         NamingEnumeration<SearchResult> e = sysRoot.search( "", "(bogusAttribute=abc123)", cons );
         assertNotNull( e );
-        assertEquals( e.getClass(), EmptyEnumeration.class );
         
         e = sysRoot.search( "", "(!(bogusAttribute=abc123))", cons );
         assertNotNull( e );
         assertFalse( e.hasMore() );
-        assertEquals( e.getClass(), EmptyEnumeration.class );
         
         e = sysRoot.search( "", "(|(bogusAttribute=abc123)(bogusAttribute=abc123))", cons );
         assertNotNull( e );
         assertFalse( e.hasMore() );
-        assertEquals( e.getClass(), EmptyEnumeration.class );
         
         e = sysRoot.search( "", "(|(bogusAttribute=abc123)(ou=abc123))", cons );
         assertNotNull( e );
         assertFalse( e.hasMore() );
-        assertFalse( e.getClass().equals( EmptyEnumeration.class ) );
 
         e = sysRoot.search( "", "(OBJECTclass=*)", cons );
         assertNotNull( e );
         assertTrue( e.hasMore() );
-        assertFalse( e.getClass().equals( EmptyEnumeration.class ) );
 
         e = sysRoot.search( "", "(objectclass=*)", cons );
         assertNotNull( e );
-        assertFalse( e.getClass().equals( EmptyEnumeration.class ) );
     }
 
 
