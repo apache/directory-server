@@ -118,7 +118,7 @@ public class ModifyRdnTest extends AbstractServerTest
 
     /**
      * Just a little test to check wether opening the connection succeeds.
-     *
+     */
     @Test public void testSetUpTearDown()
     {
         assertNotNull( ctx );
@@ -129,7 +129,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * Modify Rdn of an entry, delete its old rdn value.
      * 
      * @throws NamingException
-     *
+     */
     @Test public void testModifyRdnAndDeleteOld() throws NamingException
     {
         // Create a person, cn value is rdn
@@ -176,7 +176,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * The JNDI property is set with 'False'
      * 
      * @throws NamingException
-     *
+     */
     @Test public void testModifyRdnAndDontDeleteOldFalse() throws NamingException
     {
         // Create a person, cn value is rdn
@@ -221,7 +221,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * Modify Rdn of an entry, keep its old rdn value.
      * 
      * @throws NamingException
-     *
+     */
     @Test public void testModifyRdnAndKeepOld() throws NamingException
     {
         // Create a person, cn value is rdn
@@ -268,7 +268,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * cn has another value as well.
      * 
      * @throws NamingException
-     *
+     */
     @Test public void testModifyRdnAndDeleteOldVariant() throws NamingException
     {
         // Create a person, cn value is rdn
@@ -322,7 +322,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * Modify DN of an entry, changing RDN from cn to sn.
      * 
      * @throws NamingException
-     *
+     */
     @Test public void testModifyRdnDifferentAttribute() throws NamingException
     {
 
@@ -375,7 +375,9 @@ public class ModifyRdnTest extends AbstractServerTest
      * @throws NamingException
      */
     /*
-    @Test public void testModifyRdnAndDeleteOldWithChild() throws NamingException
+    @Test 
+    @Ignore( "Was commented out before for some failure to investigate" )
+    public void testModifyRdnAndDeleteOldWithChild() throws NamingException
     {
         // Create an organizational unit, ou value is rdn
         String oldOu = "Writers";
@@ -412,7 +414,7 @@ public class ModifyRdnTest extends AbstractServerTest
         assertNotNull( org );
   
         // Check values of ou
-        Attribute ou = org.getObject( "" ).get( "ou" );
+        Attribute ou = org.getAttributes( "" ).get( "ou" );
         assertTrue( ou.contains( newOu ) );
         assertTrue( !ou.contains( oldOu ) ); // old value is gone
         assertEquals( 1, ou.size() );
@@ -442,9 +444,12 @@ public class ModifyRdnTest extends AbstractServerTest
      * Ensure that the attribute itself contains the unencoded value.
      *
      * @throws Exception
-     *
+     */
+    
     /*
-    @Test public void testModifyRdnWithEncodedNewRdn() throws Exception
+    @Test    
+    @Ignore( "Was commented out before for some failure to investigate" )
+    public void testModifyRdnWithEncodedNewRdn() throws Exception
     {
         // Create a person, cn value is rdn
         String cnVal = "Tori Amos";
@@ -476,7 +481,7 @@ public class ModifyRdnTest extends AbstractServerTest
         assertNotNull( newCtx );
 
         // Check that cn contains the unecnoded value
-        Attribute cn = newCtx.getObject( "" ).get( "cn" );
+        Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( "Number of cn occurences", 1, cn.size() );
         assertTrue( cn.contains( newCnVal ) );
 
