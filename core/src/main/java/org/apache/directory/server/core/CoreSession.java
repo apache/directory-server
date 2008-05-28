@@ -21,13 +21,22 @@ package org.apache.directory.server.core;
 
 
 import java.net.SocketAddress;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 
 
 /**
@@ -148,4 +157,52 @@ public interface CoreSession
      * associated with a real LDAP service
      */
     SocketAddress getServiceAddress();
+    
+    
+    // -----------------------------------------------------------------------
+    // Operation Methods
+    // -----------------------------------------------------------------------
+
+
+    void add( ServerEntry entry ) throws Exception;
+    
+    
+    void compare( LdapDN dn, String oid, Object value ) throws Exception;
+    
+    
+    void delete( LdapDN dn ) throws Exception;
+    
+    
+    void lookup( LdapDN dn ) throws Exception;
+
+    
+    void modify( LdapDN dn, List<Modification> mods ) throws Exception;
+    
+
+    void modify( LdapDN dn, List<Modification> mods, boolean collateral ) throws Exception;
+    
+
+    void move( LdapDN dn, LdapDN newParent ) throws Exception;
+    
+    
+    void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
+    
+    
+    void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
+    
+    
+    void list( LdapDN dn, AliasDerefMode aliasDerefMode, Set<AttributeTypeOptions> returningAttributes ) 
+        throws Exception;
+    
+    
+    void list( LdapDN dn, AliasDerefMode aliasDerefMode, 
+        Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception;
+    
+    
+    void search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
+        Set<AttributeTypeOptions> returningAttributes ) throws Exception;
+    
+    
+    void search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
+        Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception;
 }
