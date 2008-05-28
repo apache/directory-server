@@ -31,17 +31,17 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 
 
 /**
- * An interface representing an LDAP session.  LDAP sessions may either be 
- * real and associated with an actual LDAP network client, or may be virtual
- * in which case there is not real LDAP client associated with the session. 
- * This interface is used by the DirectoryService core to track session 
- * specific parameters used to make various decisions during the course of 
- * operation handling.
+ * An interface representing a session with the core DirectoryService. These 
+ * sessions may either be real representing LDAP sessions associated with an 
+ * actual LDAP network client, or may be virtual in which case there is no 
+ * real LDAP client associated with the session.  This interface is used by 
+ * the DirectoryService core to track session specific parameters used to make 
+ * various decisions during the course of operation handling.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface LdapSession
+public interface CoreSession
 {
     /**
      * Gets the DirectoryService this session is bound to.
