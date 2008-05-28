@@ -46,7 +46,6 @@ public class AvlTree<K>
     private LinkedAvlNode<K> last;
 
 
-
     /**
 	 * Creates a new instance of AVLTree.
 	 *
@@ -58,6 +57,9 @@ public class AvlTree<K>
 	}
 	
 	
+	/**
+	 * @return the comparator associated with this tree 
+	 */
 	public Comparator<K> getComparator()
 	{
 	    return comparator;
@@ -65,9 +67,10 @@ public class AvlTree<K>
 	
 	
 	/**
-	 * Inserts a LinkedAvlNode with the given key
+	 * Inserts a LinkedAvlNode with the given key.
 	 *
-	 * @param key the item to be inserted.<br> 
+	 * @param key the item to be inserted
+	 * @return the replaced key if it already exists
 	 * Note: Ignores if a node with the given key already exists.
 	 */
 	public K insert( K key )
@@ -76,7 +79,7 @@ public class AvlTree<K>
 	    LinkedAvlNode<K> parent = null;
 	    int c;
 	    
-	    if( root == null )
+	    if ( root == null )
 	    {
 	      root = new LinkedAvlNode<K>( key );
 	      first = root;
@@ -202,6 +205,7 @@ public class AvlTree<K>
      * Removes the LinkedAvlNode present in the tree with the given key value
      *
      * @param key the value of the node to be removed
+     * @return the removed key, if any, or null if the key does not exist
      */
     public K remove( K key )
     {
@@ -404,30 +408,58 @@ public class AvlTree<K>
     }
     
     
-    public void setRoot( LinkedAvlNode<K> root )
+    /**
+     * Set the root of the tree.
+     * 
+     * Note : this method is used by the deserialization method
+     *
+     * @param root the root of the tree
+     */
+    /* no protection */ void setRoot( LinkedAvlNode<K> root )
     {
         this.root = root;
     }
 
     
-    
-    public void setFirst( LinkedAvlNode<K> first )
+    /**
+     * Set the first element of the tree
+     * 
+     * Note : this method is used by the deserialization method
+     *
+     * @param first the first element to be added
+     */
+    /* no protection */  void setFirst( LinkedAvlNode<K> first )
     {
         this.first = first;
     }
 
-    public void setLast( LinkedAvlNode<K> last )
+    
+    /**
+     * Set the last element of the tree
+     * 
+     * Note : this method is used by the deserialization method
+     *
+     * @param last the last element to be added
+     */
+    /* no protection */  void setLast( LinkedAvlNode<K> last )
     {
         this.last = last;
     }
 
 
+    /**
+     * @return the root element of this tree (ie, not the first, but the
+     * topmost element)
+     */
     public LinkedAvlNode<K> getRoot()
     {
         return root;
     }
     
     
+    /**
+     * @return a list of the stored keys in this tree
+     */
     public List<K> getKeys()
     {
         List<K> keys = new ArrayList<K>();
@@ -463,15 +495,18 @@ public class AvlTree<K>
     }
     
 
-    //-------------- private methods ----------
-    
-    
+    /**
+     * @return The first element of this tree
+     */
 	public LinkedAvlNode<K> getFirst()
     {
         return first;
     }
 
 	
+	/**
+	 * @return The last element in this tree
+	 */
     public LinkedAvlNode<K> getLast()
     {
         return last;
