@@ -383,10 +383,10 @@ public interface DirectoryService extends ServerEntryFactory
     
 
     /**
-     * Create a new ServerEntry
+     * Create a new ServerEntry.
      * 
-     * @param ldif The String representing the attributes, as a LDIF file
-     * @param dn The DN for this new entry
+     * @param ldif the String representing the attributes, in LDIF format
+     * @param dn the DN for this new entry
      */
     ServerEntry newEntry( String ldif, String dn );
 }
