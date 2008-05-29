@@ -114,44 +114,35 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
      * @throws NamingException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( LdapDN normName, ServerEntry entry, String[] retAttrs ) throws Exception
+    private void addCollectiveAttributes( LdapDN normName, ClonedServerEntry entry, String[] retAttrs ) throws Exception
     {
-        EntryAttribute caSubentries;
-
-        //noinspection StringEquality
-        if ( ( retAttrs == null ) || ( retAttrs.length != 1 ) || ( retAttrs[0] != SchemaConstants.ALL_USER_ATTRIBUTES ) )
-        {
-            ServerEntry entryWithCAS = nexus.lookup( new LookupOperationContext( registries, normName, new String[] { 
-            	SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT_OID } ) );
-            caSubentries = entryWithCAS.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        }
-        else
-        {
-            caSubentries = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        }
+        EntryAttribute collectiveAttributeSubentries = 
+            entry.getOriginalEntry().get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         
         /*
-         * If there are no collective attribute subentries referenced
-         * then we have no collective attributes to inject to this entry.
+         * If there are no collective attribute subentries referenced then we 
+         * have no collective attributes to inject to this entry.
          */
-        if ( caSubentries == null )
+        if ( collectiveAttributeSubentries == null )
         {
             return;
         }
     
         /*
-         * Before we proceed we need to lookup the exclusions within the
-         * entry and build a set of exclusions for rapid lookup.  We use
-         * OID values in the exclusions set instead of regular names that
-         * may have case variance.
+         * Before we proceed we need to lookup the exclusions within the entry 
+         * and build a set of exclusions for rapid lookup.  We use OID values 
+         * in the exclusions set instead of regular names that may have case 
+         * variance.
          */
-        EntryAttribute collectiveExclusions = entry.get( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
+        EntryAttribute collectiveExclusions = 
+            entry.getOriginalEntry().get( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
         Set<String> exclusions = new HashSet<String>();
         
         if ( collectiveExclusions != null )
         {
             if ( collectiveExclusions.contains( SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT_OID )
-                || collectiveExclusions.contains( SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT  ) )
+                 || 
+                 collectiveExclusions.contains( SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT  ) )
             {
                 /*
                  * This entry does not allow any collective attributes
@@ -202,7 +193,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          * attributes of the subentry and copy collective attributes from the
          * subentry into the entry.
          */
-        for ( Value<?> value:caSubentries )
+        for ( Value<?> value:collectiveAttributeSubentries )
         {
             String subentryDnStr = ( String ) value.get();
             LdapDN subentryDn = new LdapDN( subentryDnStr );
