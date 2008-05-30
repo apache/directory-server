@@ -148,7 +148,8 @@ public class JdbmTableNoDuplicatesTest
         assertNull( table.get( 0 ) );
         
         // Test remove methods
-        assertNull( table.remove( 1 ) );
+        table.remove( 1 );
+        assertNull( table.get( 1 ) );
         
         // Test has operations
         assertFalse( table.has( 1 ) );
@@ -256,11 +257,16 @@ public class JdbmTableNoDuplicatesTest
     public void testRemove() throws Exception
     {
         table.put( 1, 1 );
-        assertEquals( 1, ( int ) table.remove( 1 ) );
+        table.remove( 1 );
+        assertNull( table.get( 1 ) );
+
         table.put( 10, 10 );
-        assertNull( table.remove( 10, 11 ) );
-        assertNull( table.remove( null ) );
-        assertNull( table.remove( null, null ) );
+        
+        table.remove( 10, 11 );
+        assertFalse( table.has( 10, 11 ) );
+        
+//        assertNull( table.remove( null ) );
+//        assertNull( table.remove( null, null ) );
     }
 
 
@@ -274,7 +280,8 @@ public class JdbmTableNoDuplicatesTest
             table.put( ii, ii );
         }
         assertEquals( SIZE, table.count() );
-        assertNotNull( table.put( 0, 0 ) );
+        table.put( 0, 0 );
+        assertTrue( table.has( 0, 0 ) );
     }
     
 

@@ -230,25 +230,21 @@ public interface Table<K, V>
      *
      * @param key the key of the record
      * @param value the value of the record.
-     * @return the last value present for the key or null if the key did not
-     * exist before, if the key value pair existed the same exact value object
-     * is returned
      * @throws Exception if there is a failure to read or write to the
      * underlying Db
      * @throws IllegalArgumentException if a null key or value is used
      */
-    V put( K key, V value ) throws Exception;
+    void put( K key, V value ) throws Exception;
 
 
     /**
      * Removes all records with a specified key from this Table.
      *
      * @param key the key of the records to remove
-     * @return the removed object or null if one did not exist for the key
      * @throws Exception if there is a failure to read or write to
      * the underlying Db
      */
-    V remove( K key ) throws Exception;
+    void remove( K key ) throws Exception;
 
 
     /**
@@ -257,11 +253,10 @@ public interface Table<K, V>
      *
      * @param key the key of the record to remove
      * @param value the value of the record to remove
-     * @return the removed value object or null if one did not exist
      * @throws Exception if there is a failure to read or write to
      * the underlying Db
      */
-    V remove( K key, V value ) throws Exception;
+    void remove( K key, V value ) throws Exception;
 
 
     /**

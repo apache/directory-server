@@ -199,7 +199,8 @@ public class JdbmTableWithDuplicatesTest
         assertNull( table.get( null ) );
 
         // Test remove methods
-        assertNull( table.remove( 1 ) );
+        table.remove( 1 );
+        assertFalse( table.has( 1 ) );
         
         // Test has operations
         assertFalse( table.has( 1 ) );
@@ -221,7 +222,8 @@ public class JdbmTableWithDuplicatesTest
             table.put( ii, ii );
         }
         assertEquals( SIZE, table.count() );
-        assertNotNull( table.put( 0, 0 ) );
+        table.put( 0, 0 );
+        assertTrue( table.has( 0, 0 ) );
 
         // add some duplicates
         for ( int ii = 0; ii < SIZE*2; ii++ )
@@ -229,8 +231,12 @@ public class JdbmTableWithDuplicatesTest
             table.put( SIZE*2, ii );
         }
         assertEquals( SIZE*3, table.count() );
-        assertNotNull( table.put( 0, 0 ) );
-        assertNotNull( table.put( SIZE*2, 0 ) );
+        
+        table.put( 0, 0 );
+        assertTrue( table.has( 0, 0 ) );
+        
+        table.put( SIZE*2, 0 );
+        assertTrue( table.has( SIZE*2, 0 ) );
     }
 
 
@@ -345,14 +351,17 @@ public class JdbmTableWithDuplicatesTest
         table.put( 1, 1 );
         table.put( 1, 2 );
         assertEquals( 2, table.count() );
-        assertEquals( 1, ( int ) table.remove( 1 ) );
+        table.remove( 1 );
+        assertFalse( table.has( 1 ) );
         assertEquals( 0, table.count() );
 
         table.put( 10, 10 );
         assertEquals( 1, table.count() );
-        assertNull( table.remove( 10, 11 ) );
+        table.remove( 10, 11 );
+        assertFalse( table.has( 10, 11 ) );
         assertEquals( 1, table.count() );
-        assertNotNull( table.remove( 10, 10 ) );
+        table.remove( 10, 10 );
+        assertFalse( table.has( 10, 10 ) );
         assertEquals( 0, table.count() );
 
         // add duplicates
@@ -362,10 +371,12 @@ public class JdbmTableWithDuplicatesTest
         }
 
         assertEquals( SIZE*2, table.count() );
-        assertNull( table.remove( 0, 100 ) );
+        table.remove( 0, 100 );
+        assertFalse( table.has( 0, 100 ) );
         assertEquals( SIZE*2, table.count() );
-
-        assertEquals( 0, ( int ) table.remove( 0 ) );
+        
+        table.remove( 0 );
+        assertNull( table.get( 0 ) );
     }
     
     
@@ -516,7 +527,8 @@ public class JdbmTableWithDuplicatesTest
         {
             table.put( 0, ii );
         }
-        assertEquals( 0, ( int ) table.remove( 0 ) );
+        table.remove( 0 );
+        assertFalse( table.has( 0 ) );
     }
 
     

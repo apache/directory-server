@@ -147,12 +147,11 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
      *
      * @param entry the ServerEntry w/ operational attributes
      * @param id    the Long id of the entry to put
-     * @return the ServerEntry put
      * @throws Exception if there is a write error on the underlying Db.
      */
-    public E put( Long id, E entry ) throws Exception
+    public void put( Long id, E entry ) throws Exception
     {
-        return super.put( id, entry );
+        super.put( id, entry );
     }
 
 
@@ -160,12 +159,11 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
      * Deletes a ServerEntry from the master table at an index specified by id.
      *
      * @param id the Long id of the entry to delete
-     * @return the Attributes of the deleted entry
      * @throws Exception if there is a write error on the underlying Db
      */
-    public E delete( Long id ) throws Exception
+    public void delete( Long id ) throws Exception
     {
-        return super.remove( id );
+        super.remove( id );
     }
 
 

@@ -51,10 +51,9 @@ public interface MasterTable<E> extends Table<Long, E>
      *
      * @param entry the entry to add
      * @param id unique identifier of the entry to put
-     * @return the newly created entry
      * @throws Exception if there is a write error on the underlying Db.
      */
-    E put( Long id, E entry ) throws Exception;
+    void put( Long id, E entry ) throws Exception;
 
 
     /**
@@ -64,14 +63,13 @@ public interface MasterTable<E> extends Table<Long, E>
      * @return the deleted entry
      * @throws Exception if there is a write error on the underlying Db
      */
-    E delete( Long id ) throws Exception;
+    void delete( Long id ) throws Exception;
 
 
     /**
      * Gets the value of the id sequence from this MasterTable's sequence
      * without affecting the value.
      *
-     * @return the current value
      * @throws Exception if the admin table storing sequences cannot be read
      */
     Long getCurrentId() throws Exception;
