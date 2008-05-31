@@ -225,7 +225,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public void add( AddOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -244,7 +243,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public void bind( BindOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -263,7 +261,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public boolean compare( CompareOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -282,7 +279,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public void delete( DeleteOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -301,7 +297,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public LdapDN getMatchedName( GetMatchedNameOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -321,7 +316,6 @@ public class DefaultOperationManager implements OperationManager
     public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext, Collection<String> bypass ) 
         throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -340,7 +334,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public LdapDN getSuffix( GetSuffixOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -359,7 +352,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public boolean hasEntry( EntryOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -378,7 +370,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public EntryFilteringCursor list( ListOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -398,7 +389,6 @@ public class DefaultOperationManager implements OperationManager
     public Iterator<String> listSuffixes( ListSuffixOperationContext opContext, Collection<String> bypass ) 
         throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -417,7 +407,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public ClonedServerEntry lookup( LookupOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -436,7 +425,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public void modify( ModifyOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -455,7 +443,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public void move( MoveOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -474,7 +461,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public void moveAndRename( MoveAndRenameOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -493,7 +479,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public void rename( RenameOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -512,7 +497,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public EntryFilteringCursor search( SearchOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -531,7 +515,6 @@ public class DefaultOperationManager implements OperationManager
      */
     public void unbind( UnbindOperationContext opContext, Collection<String> bypass ) throws Exception
     {
-        ensureStarted();
         push( opContext, bypass );
         
         try
@@ -545,17 +528,13 @@ public class DefaultOperationManager implements OperationManager
     }
 
 
-    private void ensureStarted() throws ServiceUnavailableException
+    private void push( OperationContext opContext, Collection<String> bypass ) throws ServiceUnavailableException
     {
         if ( ! directoryService.isStarted() )
         {
             throw new ServiceUnavailableException( "Directory service is not started." );
         }
-    }
 
-
-    private void push( OperationContext opContext, Collection<String> bypass )
-    {
         // TODO - need to remove Context caller and PartitionNexusProxy from Invocations
         Invocation invocation = new Invocation( null, null, opContext.getName(), bypass );
         InvocationStack stack = InvocationStack.getInstance();
