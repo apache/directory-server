@@ -22,6 +22,7 @@ package org.apache.directory.server.core.interceptor;
 
 import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -548,6 +549,12 @@ public class InterceptorChainTest extends TestCase
 
         
         public ServerEntry newEntry( String ldif, String dn )
+        {
+            return null;
+        }
+
+
+        public OperationManager getOperationManager()
         {
             return null;
         }

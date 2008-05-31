@@ -22,6 +22,7 @@ package org.apache.directory.server.core.authz.support;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.cursor.Cursor;
@@ -506,6 +507,12 @@ public class MaxImmSubFilterTest
         }
         
         public ServerEntry newEntry( String ldif, String dn )
+        {
+            return null;
+        }
+
+
+        public OperationManager getOperationManager()
         {
             return null;
         }
