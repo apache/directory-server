@@ -20,6 +20,7 @@
 package org.apache.directory.server.core;
 
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -153,4 +154,106 @@ public interface OperationManager
      * TODO document after determining if this method should be here.
      */
     void unbind( UnbindOperationContext opContext ) throws Exception;
+
+    
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    ClonedServerEntry getRootDSE( GetRootDSEOperationContext  opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    LdapDN getMatchedName( GetMatchedNameOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    LdapDN getSuffix ( GetSuffixOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    Iterator<String> listSuffixes( ListSuffixOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    boolean compare( CompareOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    void delete( DeleteOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    void add( AddOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    void modify( ModifyOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    EntryFilteringCursor list( ListOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    EntryFilteringCursor search( SearchOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    ClonedServerEntry lookup( LookupOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    boolean hasEntry( EntryOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    void rename( RenameOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    void move( MoveOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    void moveAndRename( MoveAndRenameOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+    
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    void bind( BindOperationContext opContext, Collection<String> bypass ) throws Exception;
+
+    
+    /**
+     * TODO document after determining if this method should be here.
+     */
+    void unbind( UnbindOperationContext opContext, Collection<String> bypass ) throws Exception;
 }

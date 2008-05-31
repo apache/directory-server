@@ -20,7 +20,10 @@
 package org.apache.directory.server.core;
 
 
+import java.util.Collection;
 import java.util.Iterator;
+
+import javax.naming.ServiceUnavailableException;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -38,9 +41,12 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.invocation.Invocation;
+import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -59,14 +65,14 @@ public class DefaultOperationManager implements OperationManager
     {
         this.directoryService = directoryService;
     }
-
-
+    
+    
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.OperationManager#add(org.apache.directory.server.core.interceptor.context.AddOperationContext)
      */
     public void add( AddOperationContext opContext ) throws Exception
     {
-        directoryService.getInterceptorChain().add( opContext );
+        add( opContext, null );
     }
 
 
@@ -75,7 +81,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public void bind( BindOperationContext opContext ) throws Exception
     {
-        directoryService.getInterceptorChain().bind( opContext );
+        bind( opContext, null );
     }
 
 
@@ -84,7 +90,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public boolean compare( CompareOperationContext opContext ) throws Exception
     {
-        return directoryService.getInterceptorChain().compare( opContext );
+        return compare( opContext, null );
     }
 
 
@@ -93,7 +99,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
-        directoryService.getInterceptorChain().delete( opContext );
+        delete( opContext, null );
     }
 
 
@@ -102,7 +108,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
     {
-        return directoryService.getInterceptorChain().getMatchedName( opContext );
+        return getMatchedName( opContext, null );
     }
 
 
@@ -111,7 +117,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
     {
-        return directoryService.getInterceptorChain().getRootDSE( opContext );
+        return getRootDSE( opContext, null );
     }
 
 
@@ -120,7 +126,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception
     {
-        return directoryService.getInterceptorChain().getSuffix( opContext );
+        return getSuffix( opContext, null );
     }
 
 
@@ -129,7 +135,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public boolean hasEntry( EntryOperationContext opContext ) throws Exception
     {
-        return directoryService.getInterceptorChain().hasEntry( opContext );
+        return hasEntry( opContext, null );
     }
 
 
@@ -138,7 +144,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
-        return directoryService.getInterceptorChain().list( opContext );
+        return list( opContext, null );
     }
 
 
@@ -147,7 +153,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
     {
-        return directoryService.getInterceptorChain().listSuffixes( opContext );
+        return listSuffixes( opContext, null );
     }
 
 
@@ -156,7 +162,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
-        return directoryService.getInterceptorChain().lookup( opContext );
+        return lookup( opContext, null );
     }
 
 
@@ -165,7 +171,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public void modify( ModifyOperationContext opContext ) throws Exception
     {
-        directoryService.getInterceptorChain().modify( opContext );
+        modify( opContext, null );
     }
 
 
@@ -174,7 +180,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public void move( MoveOperationContext opContext ) throws Exception
     {
-        directoryService.getInterceptorChain().move( opContext );
+        move( opContext, null );
     }
 
 
@@ -183,7 +189,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
     {
-        directoryService.getInterceptorChain().moveAndRename( opContext );
+        moveAndRename( opContext, null );
     }
 
 
@@ -192,7 +198,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public void rename( RenameOperationContext opContext ) throws Exception
     {
-        directoryService.getInterceptorChain().rename( opContext );
+        rename( opContext, null );
     }
 
 
@@ -201,7 +207,7 @@ public class DefaultOperationManager implements OperationManager
      */
     public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
-        return directoryService.getInterceptorChain().search( opContext );
+        return search( opContext, null );
     }
 
 
@@ -210,6 +216,349 @@ public class DefaultOperationManager implements OperationManager
      */
     public void unbind( UnbindOperationContext opContext ) throws Exception
     {
-        directoryService.getInterceptorChain().unbind( opContext );
+        unbind( opContext, null );
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#add(org.apache.directory.server.core.interceptor.context.AddOperationContext)
+     */
+    public void add( AddOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            directoryService.getInterceptorChain().add( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#bind(org.apache.directory.server.core.interceptor.context.BindOperationContext)
+     */
+    public void bind( BindOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            directoryService.getInterceptorChain().bind( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#compare(org.apache.directory.server.core.interceptor.context.CompareOperationContext)
+     */
+    public boolean compare( CompareOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            return directoryService.getInterceptorChain().compare( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#delete(org.apache.directory.server.core.interceptor.context.DeleteOperationContext)
+     */
+    public void delete( DeleteOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            directoryService.getInterceptorChain().delete( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#getMatchedName(org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext)
+     */
+    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            return directoryService.getInterceptorChain().getMatchedName( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#getRootDSE(org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext)
+     */
+    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext, Collection<String> bypass ) 
+        throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            return directoryService.getInterceptorChain().getRootDSE( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#getSuffix(org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext)
+     */
+    public LdapDN getSuffix( GetSuffixOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            return directoryService.getInterceptorChain().getSuffix( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#hasEntry(org.apache.directory.server.core.interceptor.context.EntryOperationContext)
+     */
+    public boolean hasEntry( EntryOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            return directoryService.getInterceptorChain().hasEntry( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#list(org.apache.directory.server.core.interceptor.context.ListOperationContext)
+     */
+    public EntryFilteringCursor list( ListOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            return directoryService.getInterceptorChain().list( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#listSuffixes(org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext)
+     */
+    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext, Collection<String> bypass ) 
+        throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            return directoryService.getInterceptorChain().listSuffixes( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#lookup(org.apache.directory.server.core.interceptor.context.LookupOperationContext)
+     */
+    public ClonedServerEntry lookup( LookupOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            return directoryService.getInterceptorChain().lookup( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#modify(org.apache.directory.server.core.interceptor.context.ModifyOperationContext)
+     */
+    public void modify( ModifyOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            directoryService.getInterceptorChain().modify( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#move(org.apache.directory.server.core.interceptor.context.MoveOperationContext)
+     */
+    public void move( MoveOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            directoryService.getInterceptorChain().move( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#moveAndRename(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext)
+     */
+    public void moveAndRename( MoveAndRenameOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            directoryService.getInterceptorChain().moveAndRename( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#rename(org.apache.directory.server.core.interceptor.context.RenameOperationContext)
+     */
+    public void rename( RenameOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            directoryService.getInterceptorChain().rename( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#search(org.apache.directory.server.core.interceptor.context.SearchOperationContext)
+     */
+    public EntryFilteringCursor search( SearchOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            return directoryService.getInterceptorChain().search( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.OperationManager#unbind(org.apache.directory.server.core.interceptor.context.UnbindOperationContext)
+     */
+    public void unbind( UnbindOperationContext opContext, Collection<String> bypass ) throws Exception
+    {
+        ensureStarted();
+        push( opContext, bypass );
+        
+        try
+        {
+            directoryService.getInterceptorChain().unbind( opContext );
+        }
+        finally
+        {
+            opContext.pop();
+        }
+    }
+
+
+    private void ensureStarted() throws ServiceUnavailableException
+    {
+        if ( ! directoryService.isStarted() )
+        {
+            throw new ServiceUnavailableException( "Directory service is not started." );
+        }
+    }
+
+
+    private void push( OperationContext opContext, Collection<String> bypass )
+    {
+        // TODO - need to remove Context caller and PartitionNexusProxy from Invocations
+        Invocation invocation = new Invocation( null, null, opContext.getName(), bypass );
+        InvocationStack stack = InvocationStack.getInstance();
+        stack.push( invocation );
     }
 }
