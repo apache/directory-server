@@ -27,8 +27,6 @@ import java.util.Set;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
