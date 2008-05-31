@@ -708,7 +708,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
     /**
-     * TODO : check if we can find another way to procect ourselves from recursion.
+     * TODO : check if we can find another way to protect ourselves from recursion.
      *
      * @param opContext The operation context
      * @param bypass bypass instructions to skip interceptors
