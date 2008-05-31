@@ -27,6 +27,8 @@ import java.util.Set;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -164,45 +166,172 @@ public interface CoreSession
     // -----------------------------------------------------------------------
 
 
+    /**
+     * Adds an entry into the DirectoryService associated with this CoreSession.
+     * 
+     * @param entry the entry to add
+     * @exception Exception on failures to add the entry
+     */
     void add( ServerEntry entry ) throws Exception;
     
     
+    /**
+     * Checks to see if an attribute in an entry contains a value.
+     *
+     * @param dn the distinguished name of the entry to check
+     * @param oid the OID of the attribute to check for the value
+     * @param value the value to check for
+     * @throws Exception if there are failures while comparing
+     */
     void compare( LdapDN dn, String oid, Object value ) throws Exception;
     
     
+    /**
+     * Deletes an entry in the server.
+     *
+     * @param dn the distinguished name of the entry to delete
+     * @throws Exception if there are failures while deleting the entry
+     */
     void delete( LdapDN dn ) throws Exception;
     
     
+    /**
+     * Looks up an entry in the server returning all attributes: both user and
+     * operational attributes.
+     *
+     * @param dn the name of the entry to lookup
+     * @throws Exception if there are failures while looking up the entry
+     */
     void lookup( LdapDN dn ) throws Exception;
 
     
+    /**
+     * Modifies an entry within the server by applying a list of modifications 
+     * to the entry.
+     *
+     * @param dn the distinguished name of the entry to modify
+     * @param mods the list of modifications to apply
+     * @throws Exception if there are failures while modifying the entry
+     */
     void modify( LdapDN dn, List<Modification> mods ) throws Exception;
     
 
+    /**
+     * Modifies an entry within the server by applying a list of modifications 
+     * to the entry as a collateral operation.  This means such operations 
+     * avoid certain house keeping operations.
+     * 
+     * TODO determine if this overload should even be here since this is used 
+     * internally by services in the server.
+     *
+     * @param dn the distinguished name of the entry to modify
+     * @param mods the list of modifications to apply
+     * @param collateral whether or not the operation is a side effect of 
+     * another modify
+     * @throws Exception if there are failures while modifying the entry
+     */
     void modify( LdapDN dn, List<Modification> mods, boolean collateral ) throws Exception;
     
 
+    /**
+     * Moves an entry or a branch of entries at a specified distinguished name
+     * to a position under a new parent.
+     * 
+     * @param dn the distinguished name of the entry/branch to move
+     * @param newParent the new parent under which the entry/branch is moved
+     * @exception if there are failures while moving the entry/branch
+     */
     void move( LdapDN dn, LdapDN newParent ) throws Exception;
     
     
+    /**
+     * Moves and renames (the relative distinguished name of) an entry (or a 
+     * branch if the entry has children) at a specified distinguished name to 
+     * a position under a new parent.
+     * 
+     * @param dn the distinguished name of the entry/branch to move
+     * @param newParent the new parent under which the entry/branch is moved
+     * @param newRdn the new relative distinguished name of the entry at the 
+     * root of the branch
+     * @exception if there are failures while moving and renaming the entry
+     * or branch
+     */
     void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
     
     
+    /**
+     * Renames an entry by changing it's relative distinguished name.  This 
+     * has the side effect of changing the distinguished name of all entries
+     * directly or indirectly subordinate to the named entry if it has 
+     * descendants.
+     *
+     * @param dn the distinguished name of the entry to rename
+     * @param newRdn the new relative distinguished name for the entry
+     * @param deleteOldRdn whether or not the old value for the relative 
+     * distinguished name is to be deleted from the entry
+     * @throws Exception if there are failures while renaming the entry
+     */
     void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
     
     
-    void list( LdapDN dn, AliasDerefMode aliasDerefMode, Set<AttributeTypeOptions> returningAttributes ) 
-        throws Exception;
+    /**
+     * An optimized search operation using one level search scope which 
+     * returns all the children of an entry specified by distinguished name.
+     * This is equivalent to a search operation with one level scope using
+     * the <code>(objectClass=*)</code> filter.
+     *
+     * @param dn the distinguished name of the entry to list the children of
+     * @param aliasDerefMode the alias dereferencing mode used
+     * @param returningAttributes the attributes to return
+     * @throws Exception if there are failures while listing children
+     */
+    Cursor<ClonedServerEntry> list( LdapDN dn, AliasDerefMode aliasDerefMode, 
+        Set<AttributeTypeOptions> returningAttributes ) throws Exception;
     
     
-    void list( LdapDN dn, AliasDerefMode aliasDerefMode, 
+    /**
+     * An optimized search operation using one level search scope which 
+     * applies size and time limit constraints and returns all the children 
+     * of an entry specified by distinguished name if thes limits are not
+     * violated.  This is equivalent to a search operation with one level 
+     * scope using the <code>(objectClass=*)</code> filter.
+     *
+     * @param dn the distinguished name of the entry to list the children of
+     * @param aliasDerefMode the alias dereferencing mode used
+     * @param returningAttributes the attributes to return
+     * @param sizeLimit the upper bound to the number of entries to return
+     * @param timeLimit the upper bound to the amount of time before 
+     * terminating the search
+     * @throws Exception if there are failures while listing children
+     */
+    Cursor<ClonedServerEntry> list( LdapDN dn, AliasDerefMode aliasDerefMode, 
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception;
     
     
+    /**
+     * Searches the directory using a specified search scope and filter.
+     *
+     * @param dn the distinguished name of the entry to list the children of
+     * @param scope the search scope to apply
+     * @param aliasDerefMode the alias dereferencing mode used
+     * @param returningAttributes the attributes to return
+     * @throws Exception if there are failures while listing children
+     */
     void search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
         Set<AttributeTypeOptions> returningAttributes ) throws Exception;
     
     
+    /**
+     * Searches the directory using a specified search scope and filter.
+     *
+     * @param dn the distinguished name of the entry to list the children of
+     * @param aliasDerefMode the alias dereferencing mode used
+     * @param returningAttributes the attributes to return
+     * @param sizeLimit the upper bound to the number of entries to return
+     * @param timeLimit the upper bound to the amount of time before 
+     * terminating the search
+     * @throws Exception if there are failures while listing children
+     */
     void search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception;
 }

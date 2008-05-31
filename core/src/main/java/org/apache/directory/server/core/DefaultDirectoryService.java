@@ -149,7 +149,14 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** the change log service */
     private ChangeLog changeLog;
+    
+    /** 
+     * the interface used to perform various operations on this 
+     * DirectoryService
+     */
+    private OperationManager operationManager = new DefaultOperationManager( this );
 
+    /** the distinguished name of the administrative user */
     private LdapDN adminDn;
 
     /** remove me after implementation is completed */
@@ -735,6 +742,12 @@ public class DefaultDirectoryService implements DirectoryService
         return changeLog.getCurrentRevision();
     }
 
+    
+    public OperationManager getOperationManager()
+    {
+        return operationManager;
+    }
+    
 
     /**
      * @throws NamingException if the LDAP server cannot be started
@@ -1331,7 +1344,7 @@ public class DefaultDirectoryService implements DirectoryService
         
         for ( String attributeId : listing.getIndexedAttributes() )
         {
-            indexedAttributes.add( new JdbmIndex( attributeId ) );
+            indexedAttributes.add( new JdbmIndex<Object,ServerEntry>( attributeId ) );
         }
 
         schemaPartition.setIndexedAttributes( indexedAttributes );
@@ -1367,7 +1380,7 @@ public class DefaultDirectoryService implements DirectoryService
             if ( partition instanceof BTreePartition )
             {
                 JdbmPartition btpconf = ( JdbmPartition ) partition;
-                for ( Index index : btpconf.getIndexedAttributes() )
+                for ( Index<?,ServerEntry> index : btpconf.getIndexedAttributes() )
                 {
                     String schemaName = dao.findSchema( index.getAttributeId() );
                     if ( schemaName == null )

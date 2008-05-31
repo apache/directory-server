@@ -389,4 +389,10 @@ public interface DirectoryService extends ServerEntryFactory
      * @param dn the DN for this new entry
      */
     ServerEntry newEntry( String ldif, String dn );
+    
+    
+    /**
+     * Gets the operation manager.
+     */
+    OperationManager getOperationManager();
 }
