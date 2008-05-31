@@ -30,6 +30,7 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -285,7 +286,7 @@ public interface CoreSession
      * @param returningAttributes the attributes to return
      * @throws Exception if there are failures while listing children
      */
-    Cursor<ClonedServerEntry> list( LdapDN dn, AliasDerefMode aliasDerefMode, 
+    EntryFilteringCursor list( LdapDN dn, AliasDerefMode aliasDerefMode, 
         Set<AttributeTypeOptions> returningAttributes ) throws Exception;
     
     
@@ -304,7 +305,7 @@ public interface CoreSession
      * terminating the search
      * @throws Exception if there are failures while listing children
      */
-    Cursor<ClonedServerEntry> list( LdapDN dn, AliasDerefMode aliasDerefMode, 
+    EntryFilteringCursor list( LdapDN dn, AliasDerefMode aliasDerefMode, 
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception;
     
     
@@ -317,7 +318,7 @@ public interface CoreSession
      * @param returningAttributes the attributes to return
      * @throws Exception if there are failures while listing children
      */
-    void search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
+    EntryFilteringCursor search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
         Set<AttributeTypeOptions> returningAttributes ) throws Exception;
     
     
@@ -332,6 +333,6 @@ public interface CoreSession
      * terminating the search
      * @throws Exception if there are failures while listing children
      */
-    void search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
+    EntryFilteringCursor search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception;
 }
