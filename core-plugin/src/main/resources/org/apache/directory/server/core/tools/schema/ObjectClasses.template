@@ -71,7 +71,8 @@ public class $classname extends AbstractBootstrapProducer
         objectClass.setObsolete( $objectClass.isObsolete() );
 
         #if ( $objectClass.getDescription() )
-objectClass.setDescription( "$objectClass.getDescription()" );
+#set( $desc = $objectClass.getDescription().replaceAll("\"", "\\\"") )
+objectClass.setDescription( "$desc" );
         #end
 // set the objectclass type
         #if ( $objectClass.getClassType().getValue() == 0 )

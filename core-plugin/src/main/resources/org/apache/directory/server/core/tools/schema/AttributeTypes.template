@@ -69,7 +69,9 @@ public class $classname extends AbstractBootstrapProducer
         ## --------------------------------------------------------------------
 
         attributeType = newAttributeType( "$attrType.getOid()", registries );
-#if ( $attrType.getDescription() )        attributeType.setDescription( "$attrType.getDescription()" );
+#if ( $attrType.getDescription() )
+        #set( $desc = $attrType.getDescription().replaceAll("\"", "\\\"") )
+        attributeType.setDescription( "$desc" );
 #end
         attributeType.setCanUserModify( ! $attrType.isNoUserModification() );
         attributeType.setSingleValue( $attrType.isSingleValue() );
