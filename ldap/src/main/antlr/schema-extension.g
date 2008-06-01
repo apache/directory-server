@@ -43,7 +43,20 @@ options    {
     defaultErrorHandler = false ;
 }
 
-protected WHSP : (options{greedy=true;}: ' ' )+ {$setType(Token.SKIP);} ;
+protected WHSP
+    :
+    ( options {greedy=true;} :
+    ' '
+    |
+    '\t'
+    |
+    '\r' (options {greedy=true;} : '\n')? { newline(); } 
+    |
+    '\n' { newline(); }
+    )+
+    { $setType(Token.SKIP); } //ignore this token
+    ;
+
 protected QUOTE : '\'' ;
 //protected ESC : '\\' ;
 

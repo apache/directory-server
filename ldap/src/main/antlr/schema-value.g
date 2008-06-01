@@ -43,7 +43,20 @@ options    {
 }
 
 //WHSP : (' ') {$setType(Token.SKIP);} ;
-SP : ( ' ' )+ { setText(" "); };
+//SP : ( ' ' )+ { setText(" "); };
+SP
+    :
+    ( options {greedy=true;} :
+    ' '
+    |
+    '\t'
+    |
+    '\r' (options {greedy=true;} : '\n')? { newline(); } 
+    |
+    '\n' { newline(); }
+    )+
+    { setText(" "); }
+    ;
 
 LPAR : '(' ;
 RPAR : ')' ;

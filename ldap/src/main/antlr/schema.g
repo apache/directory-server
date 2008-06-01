@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.directory.shared.ldap.schema.parser.ParserMonitor;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 
@@ -42,12 +43,26 @@ class AntlrSchemaLexer extends Lexer;
 options    {
     k = 5 ;
     exportVocab=AntlrSchema ;
-    charVocabulary = '\u0000'..'\uFFFE'; 
+    charVocabulary = '\u0000'..'\uFFFE';
     caseSensitive = true ;
     defaultErrorHandler = false ;
 }
 
-WHSP : (options{greedy=true;}: ' ' )+ {$setType(Token.SKIP);} ;
+WHSP
+    :
+    ( options {greedy=true;} :
+    ' '
+    |
+    '\t'
+    |
+    '\r' (options {greedy=true;} : '\n')? { newline(); } 
+    |
+    '\n' { newline(); }
+    |
+    '#' (~'\n')* '\n' { newline(); }
+    )+
+    {$setType(Token.SKIP);} //ignore this token
+    ;
 
 LPAR : '(' ;
 RPAR : ')' ;
@@ -66,6 +81,9 @@ OBSOLETE : ( "OBSOLETE" (WHSP)? ) ;
 ABSTRACT : ( "ABSTRACT" (WHSP)? ) ;
 STRUCTURAL : ( "STRUCTURAL" (WHSP)? ) ;
 AUXILIARY : ( "AUXILIARY" (WHSP)? ) ;
+
+OBJECTCLASS : ( "objectclass" (WHSP)? ) ;
+ATTRIBUTETYPE : ( "attributetype" (WHSP)? ) ;
 
 STARTNUMERICOID : ( LPAR ( numericoid:VALUE ) ) { setText(numericoid.getText().trim()); } ;
 NAME : ( "NAME" WHSP qdstrings:VALUES ) { setText(qdstrings.getText().trim()); } ;
@@ -144,6 +162,18 @@ options    {
 }
 
 {
+    private ParserMonitor monitor = null;
+    public void setParserMonitor( ParserMonitor monitor )
+    {
+        this.monitor = monitor;
+    }
+    private void matchedProduction( String msg )
+    {
+        if ( null != monitor )
+        {
+            monitor.matchedProduction( msg );
+        }
+    }
     static class Extension
     {
         String key = "";
@@ -178,6 +208,42 @@ options    {
 
 }
 
+openLdapSchema returns [List<AbstractSchemaDescription> list = new ArrayList<AbstractSchemaDescription>()]
+    {
+        AbstractSchemaDescription atd = null;
+        AbstractSchemaDescription ocd = null;
+    }
+    :
+    ( 
+        atd = openLdapAttributeType { list.add( atd ); }
+        |
+        ocd = openLdapObjectClass { list.add( ocd ); }
+    )*
+    ;
+
+openLdapObjectClass returns [ObjectClassDescription ocd]
+    {
+        matchedProduction( "openLdapObjectClass()" );
+    }
+    :
+    (
+        OBJECTCLASS
+        ( ocd=objectClassDescription )
+    )
+    ;
+    
+    
+openLdapAttributeType returns [AttributeTypeDescription atd]
+    {
+        matchedProduction( "openLdapAttributeType()" );
+    }
+    :
+    (
+        ATTRIBUTETYPE
+        ( atd=attributeTypeDescription )
+    )
+    ;
+
 
     /**
      * Production for matching object class descriptions. It is fault-tolerant
@@ -203,6 +269,7 @@ options    {
     */
 objectClassDescription returns [ObjectClassDescription ocd = new ObjectClassDescription()]
     {
+        matchedProduction( "objectClassDescription()" );
         ElementTracker et = new ElementTracker();
     }
     :
@@ -269,6 +336,7 @@ objectClassDescription returns [ObjectClassDescription ocd = new ObjectClassDesc
     */
 attributeTypeDescription returns [AttributeTypeDescription atd = new AttributeTypeDescription()]
     {
+        matchedProduction( "attributeTypeDescription()" );
         ElementTracker et = new ElementTracker();
     }
     :
@@ -352,6 +420,7 @@ attributeTypeDescription returns [AttributeTypeDescription atd = new AttributeTy
     */
 ldapSyntaxDescription returns [LdapSyntaxDescription lsd = new LdapSyntaxDescription()]
     {
+        matchedProduction( "ldapSyntaxDescription()" );
         ElementTracker et = new ElementTracker();
     }
     :
@@ -386,6 +455,7 @@ ldapSyntaxDescription returns [LdapSyntaxDescription lsd = new LdapSyntaxDescrip
     */
 matchingRuleDescription returns [MatchingRuleDescription mrd = new MatchingRuleDescription()]
     {
+        matchedProduction( "matchingRuleDescription()" );
         ElementTracker et = new ElementTracker();
     }
     :
@@ -431,6 +501,7 @@ matchingRuleDescription returns [MatchingRuleDescription mrd = new MatchingRuleD
     */
 matchingRuleUseDescription returns [MatchingRuleUseDescription mrud = new MatchingRuleUseDescription()]
     {
+        matchedProduction( "matchingRuleUseDescription()" );
         ElementTracker et = new ElementTracker();
     }
     :
@@ -479,6 +550,7 @@ matchingRuleUseDescription returns [MatchingRuleUseDescription mrud = new Matchi
     */
 ditContentRuleDescription returns [DITContentRuleDescription dcrd = new DITContentRuleDescription()]
     {
+        matchedProduction( "ditContentRuleDescription()" );
         ElementTracker et = new ElementTracker();
     }
     :
@@ -529,6 +601,7 @@ ditContentRuleDescription returns [DITContentRuleDescription dcrd = new DITConte
     */
 ditStructureRuleDescription returns [DITStructureRuleDescription dsrd = new DITStructureRuleDescription()]
     {
+        matchedProduction( "ditStructureRuleDescription()" );
         ElementTracker et = new ElementTracker();
     }
     :
@@ -578,6 +651,7 @@ ditStructureRuleDescription returns [DITStructureRuleDescription dsrd = new DITS
     */
 nameFormDescription returns [NameFormDescription nfd = new NameFormDescription()]
     {
+        matchedProduction( "nameFormDescription()" );
         ElementTracker et = new ElementTracker();
     }
     :
@@ -642,6 +716,7 @@ nameFormDescription returns [NameFormDescription nfd = new NameFormDescription()
     */
 comparatorDescription returns [ComparatorDescription cd = new ComparatorDescription()]
     {
+        matchedProduction( "comparatorDescription()" );
         ElementTracker et = new ElementTracker();
     }
     :
@@ -694,6 +769,7 @@ comparatorDescription returns [ComparatorDescription cd = new ComparatorDescript
     */
 normalizerDescription returns [NormalizerDescription nd = new NormalizerDescription()]
     {
+        matchedProduction( "normalizerDescription()" );
         ElementTracker et = new ElementTracker();
     }
     :
@@ -746,6 +822,7 @@ normalizerDescription returns [NormalizerDescription nd = new NormalizerDescript
     */
 syntaxCheckerDescription returns [SyntaxCheckerDescription scd = new SyntaxCheckerDescription()]
     {
+        matchedProduction( "syntaxCheckerDescription()" );
         ElementTracker et = new ElementTracker();
     }
     :
@@ -782,6 +859,7 @@ syntaxCheckerDescription returns [SyntaxCheckerDescription scd = new SyntaxCheck
 
 noidlen [String s] returns [NoidLen noidlen]
     {
+        matchedProduction( "noidlen()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         noidlen = parser.noidlen();
@@ -792,6 +870,7 @@ noidlen [String s] returns [NoidLen noidlen]
 
 extension [String s] returns [Extension extension]
     {
+        matchedProduction( "extension()" );
         AntlrSchemaExtensionLexer lexer = new AntlrSchemaExtensionLexer(new StringReader(s));
         AntlrSchemaExtensionParser parser = new AntlrSchemaExtensionParser(lexer);
         extension = parser.extension();
@@ -802,6 +881,7 @@ extension [String s] returns [Extension extension]
 
 numericoid [String s] returns [String numericoid]
     {
+        matchedProduction( "numericoid()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         numericoid = parser.numericoid();
@@ -811,6 +891,7 @@ numericoid [String s] returns [String numericoid]
 
 oid [String s] returns [String oid]
     {
+        matchedProduction( "oid()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         oid = parser.oid();
@@ -820,6 +901,7 @@ oid [String s] returns [String oid]
 
 oids [String s] returns [List<String> oids]
     {
+        matchedProduction( "oid()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         oids = parser.oids();
@@ -829,6 +911,7 @@ oids [String s] returns [List<String> oids]
 
 qdescr [String s] returns [String qdescr]
     {
+        matchedProduction( "qdescr()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         qdescr = parser.qdescr();
@@ -838,6 +921,7 @@ qdescr [String s] returns [String qdescr]
 
 qdescrs [String s] returns [List<String> qdescrs]
     {
+        matchedProduction( "qdescrs()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         qdescrs = parser.qdescrs();
@@ -847,6 +931,7 @@ qdescrs [String s] returns [List<String> qdescrs]
 
 qdstring [String s] returns [String qdstring]
     {
+        matchedProduction( "qdstring()" );
         AntlrSchemaQdstringLexer lexer = new AntlrSchemaQdstringLexer(new StringReader(s));
         AntlrSchemaQdstringParser parser = new AntlrSchemaQdstringParser(lexer);
         qdstring = parser.qdstring();
@@ -856,6 +941,7 @@ qdstring [String s] returns [String qdstring]
 
 qdstrings [String s] returns [List<String> qdstrings]
     {
+        matchedProduction( "qdstrings()" );
         AntlrSchemaQdstringLexer lexer = new AntlrSchemaQdstringLexer(new StringReader(s));
         AntlrSchemaQdstringParser parser = new AntlrSchemaQdstringParser(lexer);
         qdstrings = parser.qdstrings();
@@ -865,6 +951,7 @@ qdstrings [String s] returns [List<String> qdstrings]
 
 ruleid [String s] returns [Integer ruleid]
     {
+        matchedProduction( "ruleid()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         ruleid = parser.ruleid();
@@ -874,6 +961,7 @@ ruleid [String s] returns [Integer ruleid]
 
 ruleids [String s] returns [List<Integer> ruleids]
     {
+        matchedProduction( "ruleids()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         ruleids = parser.ruleids();

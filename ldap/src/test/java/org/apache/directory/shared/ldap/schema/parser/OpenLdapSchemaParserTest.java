@@ -123,7 +123,7 @@ public class OpenLdapSchemaParserTest extends TestCase
         assertNotNull( type );
         assertEquals( "2.5.4.2", type.getOid() );
         assertEquals( "knowledgeInformation", type.getNames()[0] );
-        assertEquals( "RFC2256: \\\"knowledge\\\" information", type.getDescription() );
+        assertEquals( "RFC2256: \"knowledge\" information", type.getDescription() );
         assertEquals( "1.3.6.1.4.1.1466.115.121.1.15", type.getSyntax() );
         assertEquals( 32768, type.getLength() );
     }

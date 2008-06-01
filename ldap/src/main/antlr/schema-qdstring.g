@@ -42,7 +42,20 @@ options    {
     defaultErrorHandler = false ;
 }
 
-WHSP : ( ' ' ) {$setType(Token.SKIP);} ;
+WHSP
+    :
+    ( options {greedy=true;} :
+    ' '
+    |
+    '\t'
+    |
+    '\r' (options {greedy=true;} : '\n')? { newline(); } 
+    |
+    '\n' { newline(); }
+    )+
+    { $setType(Token.SKIP); } //ignore this token
+    ;
+
 LPAR : '(' ;
 RPAR : ')' ;
 QUOTE : '\'' ;

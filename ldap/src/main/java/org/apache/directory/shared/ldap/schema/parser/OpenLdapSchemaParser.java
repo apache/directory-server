@@ -20,16 +20,19 @@
 package org.apache.directory.shared.ldap.schema.parser;
 
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.InputStreamReader;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
+import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
+import org.apache.directory.shared.ldap.schema.syntax.parser.AbstractSchemaParser;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 import antlr.RecognitionException;
@@ -42,18 +45,17 @@ import antlr.TokenStreamException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 494164 $
  */
-public class OpenLdapSchemaParser
+public class OpenLdapSchemaParser extends AbstractSchemaParser
 {
     /** the monitor to use for this parser */
     private ParserMonitor monitor = new ParserMonitorAdapter();
     
-    /** The antlr generated parser */
-    private antlrOpenLdapSchemaParser parser = null;
+    /** The list of parsed schema descriptions */
+    private List<AbstractSchemaDescription> schemaDescriptions;
+
+    private List<AttributeTypeLiteral> attributeTypeLiterals;
+    private List<ObjectClassLiteral> objectClassLiterals;
     
-    /** A pipe into the parser */
-    private PipedOutputStream parserIn = null;
-
-
     /**
      * Creates a reusable instance of an OpenLdapSchemaParser.
      *
@@ -67,41 +69,84 @@ public class OpenLdapSchemaParser
 
     /**
      * Initializes a parser and its plumbing.
-     *
-     * @throws IOException if a pipe cannot be formed.
      */
-    public void init() throws IOException
+    public void init()
     {
-        parserIn = new PipedOutputStream();
-        PipedInputStream in = new PipedInputStream();
-        parserIn.connect( in );
-        antlrOpenLdapSchemaLexer lexer = new antlrOpenLdapSchemaLexer( in );
-        parser = new antlrOpenLdapSchemaParser( lexer );
     }
 
 
     /**
      * Reset the parser 
-     *
      */
     public synchronized void clear()
     {
-        parser.clear();
     }
 
 
     /**
      * @return the AttributeTypes list
      */
-    public List getAttributeTypes()
+    public List<AttributeTypeLiteral> getAttributeTypes()
     {
-        return parser.getAttributeTypes();
+        if(attributeTypeLiterals == null) 
+        {
+            splitParsedSchemaDescriptions();
+        }
+        
+        return attributeTypeLiterals;
     }
 
 
-    public List getObjectClassTypes()
+    public List<ObjectClassLiteral> getObjectClassTypes()
     {
-        return parser.getObjectClasses();
+        if(objectClassLiterals == null) 
+        {
+            splitParsedSchemaDescriptions();
+        }
+        
+        return objectClassLiterals;
+    }
+    
+    private void splitParsedSchemaDescriptions()
+    {
+        objectClassLiterals = new ArrayList<ObjectClassLiteral>();
+        attributeTypeLiterals = new ArrayList<AttributeTypeLiteral>();
+        
+        for ( AbstractSchemaDescription schemaDescription : schemaDescriptions )
+        {
+            if(schemaDescription instanceof AttributeTypeDescription)
+            {
+                AttributeTypeDescription atd = (AttributeTypeDescription)schemaDescription;
+                AttributeTypeLiteral literal = new AttributeTypeLiteral(atd.getNumericOid());
+                literal.setNames( atd.getNames().toArray( new String[atd.getNames().size()] ) );
+                literal.setDescription( atd.getDescription() );
+                literal.setSuperior( atd.getSuperType() );
+                literal.setEquality( atd.getEqualityMatchingRule() );
+                literal.setOrdering( atd.getOrderingMatchingRule() );
+                literal.setSubstr( atd.getSubstringsMatchingRule() );
+                literal.setSyntax( atd.getSyntax() );
+                literal.setLength( atd.getSyntaxLength() );
+                literal.setObsolete( atd.isObsolete() );
+                literal.setCollective( atd.isCollective() );
+                literal.setSingleValue( atd.isSingleValued() );
+                literal.setNoUserModification( !atd.isUserModifiable() );
+                literal.setUsage( atd.getUsage() );
+                attributeTypeLiterals.add( literal );
+            }
+            else if(schemaDescription instanceof ObjectClassDescription)
+            {
+                ObjectClassDescription ocd = (ObjectClassDescription)schemaDescription;
+                ObjectClassLiteral literal = new ObjectClassLiteral(ocd.getNumericOid());
+                literal.setNames( ocd.getNames().toArray( new String[ocd.getNames().size()] ) );
+                literal.setDescription( ocd.getDescription() );
+                literal.setSuperiors( ocd.getSuperiorObjectClasses().toArray( new String[ocd.getSuperiorObjectClasses().size()] ) );
+                literal.setMay( ocd.getMayAttributeTypes().toArray( new String[ocd.getMayAttributeTypes().size()] ) );
+                literal.setMust( ocd.getMustAttributeTypes().toArray( new String[ocd.getMustAttributeTypes().size()] ) );
+                literal.setClassType( ocd.getKind() );
+                literal.setObsolete( ocd.isObsolete() );
+                objectClassLiterals.add( literal );
+            }
+        }
     }
 
 
@@ -112,31 +157,27 @@ public class OpenLdapSchemaParser
      * @throws IOException If the schemaObject can't be transformed to a byteArrayInputStream
      * @throws ParseException If the schemaObject can't be parsed
      */
-    public synchronized void parse( String schemaObject ) throws IOException, ParseException
+    public synchronized AbstractSchemaDescription parse( String schemaObject ) throws ParseException
     {
         if ( schemaObject == null || schemaObject.trim().equals( "" ) )
         {
             throw new ParseException( "The schemaObject is either null or is " + "the empty String!", 0 );
         }
-
-        this.schemaIn = new ByteArrayInputStream( schemaObject.getBytes() );
-
-        if ( producerThread == null )
-        {
-            producerThread = new Thread( new DataProducer() );
-        }
-
-        producerThread.start();
+        
+        reset( schemaObject ); // reset and initialize the parser / lexer pair
         invokeParser( schemaObject );
+        
+        // TODO: return
+        return null;
     }
 
 
-    private void invokeParser( String subject ) throws IOException, ParseException
+    private void invokeParser( String subject ) throws ParseException
     {
         try
         {
             monitor.startedParse( "starting parse on:\n" + subject );
-            parser.parseSchema();
+            schemaDescriptions = parser.openLdapSchema();
             monitor.finishedParse( "Done parsing!" );
         }
         catch ( RecognitionException e )
@@ -155,10 +196,6 @@ public class OpenLdapSchemaParser
         }
     }
 
-    byte[] buf = new byte[128];
-    private InputStream schemaIn;
-    private Thread producerThread;
-
 
     /**
      * Thread safe method parses a stream of OpenLDAP schemaObject elements/objects.
@@ -169,14 +206,10 @@ public class OpenLdapSchemaParser
      */
     public synchronized void parse( InputStream schemaIn ) throws IOException, ParseException
     {
-        this.schemaIn = schemaIn;
-
-        if ( producerThread == null )
-        {
-            producerThread = new Thread( new DataProducer() );
-        }
-
-        producerThread.start();
+        InputStreamReader in = new InputStreamReader( schemaIn );
+        lexer.prepareNextInput( in );
+        parser.resetState();
+        
         invokeParser( "schema input stream ==> " + schemaIn.toString() );
     }
 
@@ -190,14 +223,10 @@ public class OpenLdapSchemaParser
      */
     public synchronized void parse( File schemaFile ) throws IOException, ParseException
     {
-        this.schemaIn = new FileInputStream( schemaFile );
-
-        if ( producerThread == null )
-        {
-            producerThread = new Thread( new DataProducer() );
-        }
-
-        producerThread.start();
+        FileReader in = new FileReader( schemaFile );
+        lexer.prepareNextInput( in );
+        parser.resetState();
+        
         invokeParser( "schema file ==> " + schemaFile.getAbsolutePath() );
     }
 
@@ -205,30 +234,7 @@ public class OpenLdapSchemaParser
     public void setParserMonitor( ParserMonitor monitor )
     {
         this.monitor = monitor;
-        this.parser.setParserMonitor( monitor );
+        parser.setParserMonitor( monitor );
     }
 
-    class DataProducer implements Runnable
-    {
-        public void run()
-        {
-            int count = -1;
-
-            try
-            {
-                while ( ( count = schemaIn.read( buf ) ) != -1 )
-                {
-                    parserIn.write( buf, 0, count );
-                    parserIn.flush();
-                }
-
-                // using an input termination token END - need extra space to return
-                parserIn.write( "END ".getBytes() );
-            }
-            catch ( IOException e )
-            {
-                e.printStackTrace();
-            }
-        }
-    }
 }

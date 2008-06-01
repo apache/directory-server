@@ -34,7 +34,7 @@ import antlr.TokenStream;
  * @see <a href="http://www.faqs.org/rfcs/rfc3672.html">RFC 3672</a>
  * @version $Rev$, $Date$
  */
-class ReusableAntlrSchemaParser extends AntlrSchemaParser
+public class ReusableAntlrSchemaParser extends AntlrSchemaParser
 {
     /**
      * Creates a ReusableAntlrSchemaParser instance.
