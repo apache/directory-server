@@ -70,7 +70,6 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
 
     public void testFqcn() throws ParseException
     {
-
         String value = null;
         SyntaxCheckerDescription scd = null;
 
@@ -79,13 +78,11 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
         scd = parser.parseSyntaxCheckerDescription( value );
         assertNotNull( scd.getFqcn() );
         assertEquals( "org.apache.directory.SimpleComparator", scd.getFqcn() );
-
     }
 
 
     public void testBytecode() throws ParseException
     {
-
         String value = null;
         SyntaxCheckerDescription scd = null;
 
@@ -94,7 +91,6 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
         scd = parser.parseSyntaxCheckerDescription( value );
         assertNotNull( scd.getBytecode() );
         assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", scd.getBytecode() );
-
     }
 
 

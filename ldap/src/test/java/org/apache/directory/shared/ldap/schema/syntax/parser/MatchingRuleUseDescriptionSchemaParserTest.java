@@ -100,7 +100,7 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
         assertEquals( "123.4567.890", mrud.getApplicableAttributes().get( 0 ) );
 
         // APPLIES single descr
-        value = "( 1.1 APPLIES ( a-z-A-Z-0-9 ) )";
+        value = "(1.1 APPLIES(a-z-A-Z-0-9))";
         mrud = parser.parseMatchingRuleUseDescription( value );
         assertEquals( 1, mrud.getApplicableAttributes().size() );
         assertEquals( "a-z-A-Z-0-9", mrud.getApplicableAttributes().get( 0 ) );
@@ -120,8 +120,8 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
         assertEquals( "test1", mrud.getApplicableAttributes().get( 0 ) );
         assertEquals( "test2", mrud.getApplicableAttributes().get( 1 ) );
 
-        // APPLIES multi mixed
-        value = "( 1.1 APPLIES ( test1 $ 1.2.3.4 $ test2 ) )";
+        // APPLIES multi mixed, tabs
+        value = "\t(\t1.1\tAPPLIES\t(\ttest1\t$\t1.2.3.4\t$\ttest2\t)\t)\t";
         mrud = parser.parseMatchingRuleUseDescription( value );
         assertEquals( 3, mrud.getApplicableAttributes().size() );
         assertEquals( "test1", mrud.getApplicableAttributes().get( 0 ) );
@@ -129,7 +129,7 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
         assertEquals( "test2", mrud.getApplicableAttributes().get( 2 ) );
 
         // APPLIES multi mixed no space
-        value = "( 1.1 APPLIES (TEST-1$1.2.3.4$TEST-2) )";
+        value = "(1.1 APPLIES(TEST-1$1.2.3.4$TEST-2))";
         mrud = parser.parseMatchingRuleUseDescription( value );
         assertEquals( 3, mrud.getApplicableAttributes().size() );
         assertEquals( "TEST-1", mrud.getApplicableAttributes().get( 0 ) );
@@ -215,7 +215,7 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
         {
             // expected
         }
-        
+
         // APPLIES is required
         value = "( 1.1 )";
         try
@@ -286,17 +286,13 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
     public void testUniqueElements()
     {
         String[] testValues = new String[]
-            { 
-                "( 1.1 APPLIES 1.1 NAME 'test1' NAME 'test2' )",
-                "( 1.1 APPLIES 1.1 DESC 'test1' DESC 'test2' )",
-                "( 1.1 APPLIES 1.1 OBSOLETE OBSOLETE )", 
-                "( 1.1 APPLIES 1.1 APPLIES test1 APPLIES test2 )",
-                "( 1.1 APPLIES 1.1 X-TEST 'test1' X-TEST 'test2' )" 
-            };
+            { "( 1.1 APPLIES 1.1 NAME 'test1' NAME 'test2' )", "( 1.1 APPLIES 1.1 DESC 'test1' DESC 'test2' )",
+                "( 1.1 APPLIES 1.1 OBSOLETE OBSOLETE )", "( 1.1 APPLIES 1.1 APPLIES test1 APPLIES test2 )",
+                "( 1.1 APPLIES 1.1 X-TEST 'test1' X-TEST 'test2' )" };
         SchemaParserTestUtils.testUnique( parser, testValues );
-    }    
-    
-    
+    }
+
+
     /**
      * Test required elements.
      * 
@@ -323,8 +319,8 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
         }
 
     }
-    
-    
+
+
     ////////////////////////////////////////////////////////////////
     //       Some real-world matching rule use descriptons        //
     ////////////////////////////////////////////////////////////////

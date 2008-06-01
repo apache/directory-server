@@ -42,9 +42,7 @@ options    {
     defaultErrorHandler = false ;
 }
 
-//WHSP : (' ') {$setType(Token.SKIP);} ;
-//SP : ( ' ' )+ { setText(" "); };
-SP
+WHSP
     :
     ( options {greedy=true;} :
     ' '
@@ -114,7 +112,7 @@ noidlen returns [AntlrSchemaParser.NoidLen noidlen = new AntlrSchemaParser.NoidL
 numericoid returns [String numericoid=null]
     : 
     (
-        (SP)? n:NUMERICOID (SP)? { numericoid = n.getText(); } 
+        (WHSP)? n:NUMERICOID (WHSP)? { numericoid = n.getText(); } 
     )
     ;
 
@@ -132,13 +130,13 @@ numericoid returns [String numericoid=null]
 oid returns [String oid=null]
     : 
     (
-        (SP)? 
+        (WHSP)? 
         (
             n:NUMERICOID { oid = n.getText(); }
         | 
             d:DESCR { oid = d.getText(); }
         )
-        (SP)?
+        (WHSP)?
     )
     ;
 
@@ -177,7 +175,7 @@ oids returns [List<String> oids]
 qdescr returns [String qdescr=null]
     : 
     ( 
-        (SP)?
+        (WHSP)?
         QUOTE 
         d:DESCR { qdescr = d.getText(); } 
         QUOTE
@@ -204,10 +202,10 @@ qdescrs returns [List<String> qdescrs]
             LPAR 
             qdescr=qdescr { qdescrs.add(qdescr); } 
             (
-                SP
+                (options {greedy=true;} : WHSP)?
                 qdescr=qdescr { qdescrs.add(qdescr); } 
             )* 
-            (SP)?
+            (WHSP)?
             RPAR 
         )
     )
@@ -221,7 +219,7 @@ qdescrs returns [List<String> qdescrs]
 ruleid returns [Integer ruleid=null]
     : 
     (
-        (SP)? 
+        (WHSP)? 
         n:NUMBER { ruleid = Integer.parseInt(n.getText()); }
     )
     ;
@@ -246,10 +244,10 @@ ruleids returns [List<Integer> ruleids]
             LPAR 
             ruleid=ruleid { ruleids.add(ruleid); } 
             ( 
-                SP
+                WHSP
                 ruleid=ruleid { ruleids.add(ruleid); } 
             )* 
-            (SP)?
+            (WHSP)?
             RPAR 
         )
     )

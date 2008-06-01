@@ -148,16 +148,16 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         assertEquals( "top1", ocd.getSuperiorObjectClasses().get( 0 ) );
         assertEquals( "top2", ocd.getSuperiorObjectClasses().get( 1 ) );
 
-        // SUP multi mixed
-        value = "( 1.1 SUP ( top1 $ 1.2.3.4 $ top2 ) )";
+        // SUP multi mixed, tabs
+        value = "\t(\t1.1\tSUP\t(\ttop1\t$\t1.2.3.4\t$\ttop2\t)\t)\t";
         ocd = parser.parseObjectClassDescription( value );
         assertEquals( 3, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "top1", ocd.getSuperiorObjectClasses().get( 0 ) );
         assertEquals( "1.2.3.4", ocd.getSuperiorObjectClasses().get( 1 ) );
         assertEquals( "top2", ocd.getSuperiorObjectClasses().get( 2 ) );
 
-        // SUP multi mixed no space
-        value = "( 1.1 SUP (TOP-1$1.2.3.4$TOP-2) )";
+        // SUP multi mixed, no space
+        value = "(1.1 SUP(TOP-1$1.2.3.4$TOP-2))";
         ocd = parser.parseObjectClassDescription( value );
         assertEquals( 3, ocd.getSuperiorObjectClasses().size() );
         assertEquals( "TOP-1", ocd.getSuperiorObjectClasses().get( 0 ) );
@@ -266,13 +266,13 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         ocd = parser.parseObjectClassDescription( value );
         assertEquals( ObjectClassTypeEnum.ABSTRACT, ocd.getKind() );
 
-        // AUXILIARY
-        value = "( 1.1 AUXILIARY )";
+        // AUXILIARY, tab
+        value = "\t(\t1.1\tAUXILIARY\t)\t";
         ocd = parser.parseObjectClassDescription( value );
         assertEquals( ObjectClassTypeEnum.AUXILIARY, ocd.getKind() );
 
-        // STRUCTURAL
-        value = "( 1.1 STRUCTURAL )";
+        // STRUCTURAL, no space
+        value = "(1.1 STRUCTURAL)";
         ocd = parser.parseObjectClassDescription( value );
         assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
 
@@ -313,7 +313,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         assertEquals( "1.2.3", ocd.getMustAttributeTypes().get( 0 ) );
 
         // MUST mulitple
-        value = "(1.1 MUST (cn$sn       $11.22.33.44.55         $  objectClass   ))";
+        value = "(1.1 MUST(cn$sn\r$11.22.33.44.55         $  objectClass   ))";
         ocd = parser.parseObjectClassDescription( value );
         assertEquals( 4, ocd.getMustAttributeTypes().size() );
         assertEquals( "cn", ocd.getMustAttributeTypes().get( 0 ) );
@@ -370,7 +370,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         assertEquals( "1.2.3", ocd.getMayAttributeTypes().get( 0 ) );
 
         // MAY mulitple
-        value = "(1.1 MAY (cn$sn       $11.22.33.44.55         $  objectClass   ))";
+        value = "(1.1 MAY(cn$sn       $11.22.33.44.55\n$  objectClass   ))";
         ocd = parser.parseObjectClassDescription( value );
         assertEquals( 4, ocd.getMayAttributeTypes().size() );
         assertEquals( "cn", ocd.getMayAttributeTypes().get( 0 ) );

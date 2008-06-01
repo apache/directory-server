@@ -37,6 +37,7 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
     /** the parser instance */
     private MatchingRuleDescriptionSchemaParser parser;
 
+
     protected void setUp() throws Exception
     {
         parser = new MatchingRuleDescriptionSchemaParser();
@@ -75,7 +76,6 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
 
     public void testSyntax() throws ParseException
     {
-
         String value = null;
         MatchingRuleDescription mrd = null;
 
@@ -85,7 +85,7 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "0.1.2.3.4.5.6.7.8.9", mrd.getSyntax() );
 
         // simple
-        value = "( 1.1 SYNTAX 123.456.789.0 )";
+        value = "(1.1 SYNTAX 123.456.789.0)";
         mrd = parser.parseMatchingRuleDescription( value );
         assertEquals( "123.456.789.0", mrd.getSyntax() );
 
@@ -118,7 +118,7 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
             // expected
         }
 
-        // OC must only appear once
+        // SYNTAX must only appear once
         value = "( 1.1 SYNTAX 2.2 SYNTAX 3.3 )";
         try
         {
@@ -129,7 +129,7 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
         {
             assertTrue( true );
         }
-        
+
     }
 
 
@@ -164,8 +164,8 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "test2-1", mrd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
         assertEquals( "test2-2", mrd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
     }
-    
-    
+
+
     /**
      * Test unique elements.
      * 
@@ -174,13 +174,9 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
     public void testUniqueElements()
     {
         String[] testValues = new String[]
-            { 
-                "( 1.1 SYNTAX 1.1 NAME 'test1' NAME 'test2' )", 
-                "( 1.1 SYNTAX 1.1 DESC 'test1' DESC 'test2' )",
-                "( 1.1 SYNTAX 1.1 OBSOLETE OBSOLETE )", 
-                "( 1.1 SYNTAX 1.1 SYNTAX 2.2 SYNTAX 3.3 )",
-                "( 1.1 SYNTAX 1.1 X-TEST 'test1' X-TEST 'test2' )" 
-            };
+            { "( 1.1 SYNTAX 1.1 NAME 'test1' NAME 'test2' )", "( 1.1 SYNTAX 1.1 DESC 'test1' DESC 'test2' )",
+                "( 1.1 SYNTAX 1.1 OBSOLETE OBSOLETE )", "( 1.1 SYNTAX 1.1 SYNTAX 2.2 SYNTAX 3.3 )",
+                "( 1.1 SYNTAX 1.1 X-TEST 'test1' X-TEST 'test2' )" };
         SchemaParserTestUtils.testUnique( parser, testValues );
     }
 
@@ -211,8 +207,8 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
         }
 
     }
-    
-    
+
+
     ////////////////////////////////////////////////////////////////
     //         Some real-world matching rule descriptons          //
     ////////////////////////////////////////////////////////////////

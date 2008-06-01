@@ -400,15 +400,10 @@ public class NameFormDescriptionSchemaParserTest extends TestCase
     public void testUniqueElements()
     {
         String[] testValues = new String[]
-            { 
-                "( 1.1 OC o MUST m NAME 'test1' NAME 'test2' )", 
-                "( 1.1 OC o MUST m DESC 'test1' DESC 'test2' )",
-                "( 1.1 OC o MUST m OBSOLETE OBSOLETE )", 
-                "( 1.1 OC o MUST m OC test1 OC test2 )",
-                "( 1.1 OC o MUST m MUST test1 MUST test2 )",
-                "( 1.1 OC o MUST m MAY test1 MAY test2 )",
-                "( 1.1 OC o MUST m X-TEST 'test1' X-TEST 'test2' )" 
-            };
+            { "( 1.1 OC o MUST m NAME 'test1' NAME 'test2' )", "( 1.1 OC o MUST m DESC 'test1' DESC 'test2' )",
+                "( 1.1 OC o MUST m OBSOLETE OBSOLETE )", "( 1.1 OC o MUST m OC test1 OC test2 )",
+                "( 1.1 OC o MUST m MUST test1 MUST test2 )", "( 1.1 OC o MUST m MAY test1 MAY test2 )",
+                "( 1.1 OC o MUST m X-TEST 'test1' X-TEST 'test2' )" };
         SchemaParserTestUtils.testUnique( parser, testValues );
     }
 
@@ -452,47 +447,46 @@ public class NameFormDescriptionSchemaParserTest extends TestCase
     }
 
 
-//    /**
-//     * Test if MUST and MAY are disjoint.
-//     * 
-//     * Problem: What if MUST is a numeric oid and MAY is a name?
-//     * 
-//     * @throws ParseException
-//     */
-//    public void testDisjoint() throws ParseException
-//    {
-//        String value = null;
-//        NameFormDescription nfd = null;
-//
-//        value = "( 1.2.3.4.5.6.7.8.9.0 OC o MUST test1 MAY test2 )";
-//        nfd = parser.parseNameFormDescription( value );
-//        assertNotNull( nfd.getStructuralObjectClass() );
-//        assertEquals( 1, nfd.getMustAttributeTypes().size() );
-//
-//        value = "( 1.2.3.4.5.6.7.8.9.0 OC o MUST test1 MAY test1 )";
-//        try
-//        {
-//            nfd = parser.parseNameFormDescription( value );
-//            fail( "Exception expected, MUST and MAY must be disjoint" );
-//        }
-//        catch ( ParseException pe )
-//        {
-//            // expected
-//        }
-//
-//        value = "( 1.2.3.4.5.6.7.8.9.0 OC o MUST ( test1 $ test2 ) MAY ( test4 $ test3 $ test2 ) )";
-//        try
-//        {
-//            nfd = parser.parseNameFormDescription( value );
-//            fail( "Exception expected, MUST and MAY must be disjoint" );
-//        }
-//        catch ( ParseException pe )
-//        {
-//            // expected
-//        }
-//
-//    }
-
+    //    /**
+    //     * Test if MUST and MAY are disjoint.
+    //     * 
+    //     * Problem: What if MUST is a numeric oid and MAY is a name?
+    //     * 
+    //     * @throws ParseException
+    //     */
+    //    public void testDisjoint() throws ParseException
+    //    {
+    //        String value = null;
+    //        NameFormDescription nfd = null;
+    //
+    //        value = "( 1.2.3.4.5.6.7.8.9.0 OC o MUST test1 MAY test2 )";
+    //        nfd = parser.parseNameFormDescription( value );
+    //        assertNotNull( nfd.getStructuralObjectClass() );
+    //        assertEquals( 1, nfd.getMustAttributeTypes().size() );
+    //
+    //        value = "( 1.2.3.4.5.6.7.8.9.0 OC o MUST test1 MAY test1 )";
+    //        try
+    //        {
+    //            nfd = parser.parseNameFormDescription( value );
+    //            fail( "Exception expected, MUST and MAY must be disjoint" );
+    //        }
+    //        catch ( ParseException pe )
+    //        {
+    //            // expected
+    //        }
+    //
+    //        value = "( 1.2.3.4.5.6.7.8.9.0 OC o MUST ( test1 $ test2 ) MAY ( test4 $ test3 $ test2 ) )";
+    //        try
+    //        {
+    //            nfd = parser.parseNameFormDescription( value );
+    //            fail( "Exception expected, MUST and MAY must be disjoint" );
+    //        }
+    //        catch ( ParseException pe )
+    //        {
+    //            // expected
+    //        }
+    //
+    //    }
 
     /**
      * Tests the multithreaded use of a single parser.

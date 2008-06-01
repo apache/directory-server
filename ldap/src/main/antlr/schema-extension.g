@@ -63,7 +63,7 @@ protected QUOTE : '\'' ;
 XKEY : xstring:XSTRING { setText(xstring.getText().trim()); }; 
 XVALUES : values:VALUES { setText(values.getText().trim()); };
 
-protected XSTRING : ( "X-" ( 'a'..'z' | 'A'..'Z' | '-' | '_' )+ WHSP ) ; 
+protected XSTRING : ( "X-" ( 'a'..'z' | 'A'..'Z' | '-' | '_' )+ (WHSP)? ) ; 
 protected VALUES : ( VALUE | '('  VALUE ( ('$')? VALUE )* ')' ) ;
 protected VALUE : (WHSP)? ( QUOTED_STRING ) (options {greedy=true;}: WHSP)? ;
 protected QUOTED_STRING : ( QUOTE (~'\'')* QUOTE ) ;

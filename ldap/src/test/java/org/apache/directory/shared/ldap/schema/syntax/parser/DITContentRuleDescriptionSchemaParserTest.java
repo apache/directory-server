@@ -156,7 +156,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "top2", dcrd.getAuxiliaryObjectClasses().get( 2 ) );
 
         // AUX multi mixed no space
-        value = "( 1.1 AUX (TOP-1$1.2.3.4$TOP-2) )";
+        value = "(1.1 AUX(TOP-1$1.2.3.4$TOP-2))";
         dcrd = parser.parseDITContentRuleDescription( value );
         assertEquals( 3, dcrd.getAuxiliaryObjectClasses().size() );
         assertEquals( "TOP-1", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
@@ -255,7 +255,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
     {
         String value = null;
         DITContentRuleDescription dcrd = null;
-        
+
         // no MUST
         value = "( 1.1 )";
         dcrd = parser.parseDITContentRuleDescription( value );
@@ -346,6 +346,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         }
     }
 
+
     /**
      * Test NOT and its values.
      * Very similar to AUX, so here are less test cases. 
@@ -389,7 +390,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
             // expected
         }
     }
-    
+
 
     /**
      * Test extensions.
@@ -449,7 +450,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "test2-2", dcrd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
     }
 
-    
+
     /**
      * Test unique elements.
      * 
@@ -458,20 +459,13 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
     public void testUniqueElements()
     {
         String[] testValues = new String[]
-            { 
-                "( 1.1 NAME 'test1' NAME 'test2' )", 
-                "( 1.1 DESC 'test1' DESC 'test2' )",
-                "( 1.1 OBSOLETE OBSOLETE )", 
-                "( 1.1 AUX test1 AUX test2 )",
-                "( 1.1 MUST test1 MUST test2 )",
-                "( 1.1 MAY test1 MAY test2 )",
-                "( 1.1 NOT test1 NOT test2 )",
-                "( 1.1 X-TEST 'test1' X-TEST 'test2' )" 
-            };
+            { "( 1.1 NAME 'test1' NAME 'test2' )", "( 1.1 DESC 'test1' DESC 'test2' )", "( 1.1 OBSOLETE OBSOLETE )",
+                "( 1.1 AUX test1 AUX test2 )", "( 1.1 MUST test1 MUST test2 )", "( 1.1 MAY test1 MAY test2 )",
+                "( 1.1 NOT test1 NOT test2 )", "( 1.1 X-TEST 'test1' X-TEST 'test2' )" };
         SchemaParserTestUtils.testUnique( parser, testValues );
     }
-    
-    
+
+
     /**
      * Tests the multithreaded use of a single parser.
      */

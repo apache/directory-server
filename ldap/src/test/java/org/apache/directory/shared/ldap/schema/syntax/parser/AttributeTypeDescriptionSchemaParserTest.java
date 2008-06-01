@@ -115,8 +115,13 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( "1.2.3.4.5.6.7.8.9.0", atd.getSuperType() );
 
-        // SUP descr
-        value = "( 1.1 SYNTAX 1.1 SUP abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 )";
+        // SUP descr, no space
+        value = "(1.1 SYNTAX1.1 SUPabcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789)";
+        atd = parser.parseAttributeTypeDescription( value );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd.getSuperType() );
+
+        // SUP descr, newline
+        value = "\t(\t1.1\tSYNTAX\t1.1\tSUP\tabcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789\t)\t";
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd.getSuperType() );
 
@@ -203,8 +208,13 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( "1.2.3.4567.8.9.0", atd.getEqualityMatchingRule() );
 
-        // EQUALITY descr
-        value = "( 1.1 SYNTAX 1.1 EQUALITY abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 )";
+        // EQUALITY descr, no space
+        value = "(1.1 SYNTAX1.1 EQUALITYabcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789)";
+        atd = parser.parseAttributeTypeDescription( value );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd.getEqualityMatchingRule() );
+
+        // EQUALITY descr, newline
+        value = "\n(\n1.1\nSYNTAX\n1.1\nEQUALITY\nabcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789\n)\n";
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd.getEqualityMatchingRule() );
 
@@ -233,18 +243,23 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         String value = null;
         AttributeTypeDescription atd = null;
 
-        // no EQUALITY
+        // no ORDERING
         value = "( 1.1 SYNTAX 1.1 )";
         atd = parser.parseAttributeTypeDescription( value );
         assertNull( atd.getOrderingMatchingRule() );
 
-        // EQUALITY numericoid
+        // ORDERING numericoid
         value = "( 1.1 SYNTAX 1.1 ORDERING 1.2.3.4567.8.9.0 )";
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( "1.2.3.4567.8.9.0", atd.getOrderingMatchingRule() );
 
-        // EQUALITY descr
-        value = "( 1.1 SYNTAX 1.1 ORDERING abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 )";
+        // ORDERING descr, no space
+        value = "(1.1 SYNTAX1.1 ORDERINGabcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789)";
+        atd = parser.parseAttributeTypeDescription( value );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd.getOrderingMatchingRule() );
+
+        // ORDERING descr, newline
+        value = "\r(\r1.1\rSYNTAX\r1.1\rORDERING\rabcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789\r)\r";
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd.getOrderingMatchingRule() );
 
@@ -273,18 +288,24 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         String value = null;
         AttributeTypeDescription atd = null;
 
-        // no EQUALITY
+        // no SUBSTR
         value = "( 1.1 SYNTAX 1.1 )";
         atd = parser.parseAttributeTypeDescription( value );
         assertNull( atd.getSubstringsMatchingRule() );
 
-        // EQUALITY numericoid
+        // SUBSTR numericoid
         value = "( 1.1 SYNTAX 1.1 SUBSTR 1.2.3.4567.8.9.0 )";
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( "1.2.3.4567.8.9.0", atd.getSubstringsMatchingRule() );
 
-        // EQUALITY descr
-        value = "( 1.1 SYNTAX 1.1 SUBSTR abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 )";
+        // SUBSTR descr, no space
+        value = "(1.1 SYNTAX1.1 SUBSTRabcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789)";
+        atd = parser.parseAttributeTypeDescription( value );
+        assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd
+            .getSubstringsMatchingRule() );
+
+        // SUBSTR descr, newline
+        value = "\r\n(\r\n1.1\r\nSYNTAX\r\n1.1\r\nSUBSTR\r\nabcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789\r\n)\r\n";
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", atd
             .getSubstringsMatchingRule() );
@@ -325,14 +346,20 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         assertEquals( "1.2.3.4567.8.9.0", atd.getSyntax() );
         assertEquals( 0, atd.getSyntaxLength() );
 
-        // SYNTAX numericoid and length
-        value = "( 1.1 SYNTAX 1.2.3.4567.8.9.0{1234567890} )";
+        // SYNTAX numericoid and length, no spaces
+        value = "(1.1 SYNTAX1.2.3.4567.8.9.0{1234567890})";
+        atd = parser.parseAttributeTypeDescription( value );
+        assertEquals( "1.2.3.4567.8.9.0", atd.getSyntax() );
+        assertEquals( 1234567890, atd.getSyntaxLength() );
+
+        // SYNTAX, with tabs
+        value = "\t(\t1.1\tSYNTAX\t1.2.3.4567.8.9.0\t{1234567890}\t)\t";
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( "1.2.3.4567.8.9.0", atd.getSyntax() );
         assertEquals( 1234567890, atd.getSyntaxLength() );
 
         // SYNTAX numericoid and zero length
-        value = "( 1.1 SYNTAX 1.2.3{0} )";
+        value = "( 1.1 SYNTAX 1.2.3 {0} )";
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( "1.2.3", atd.getSyntax() );
         assertEquals( 0, atd.getSyntaxLength() );
@@ -437,7 +464,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         atd = parser.parseAttributeTypeDescription( value );
         assertTrue( atd.isSingleValued() );
 
-        // ivalid
+        // invalid
         value = "(1.1 SYNTAX 1.1 NAME 'test' DESC 'Descripton' SINGLE-VALU )";
         try
         {
@@ -554,13 +581,13 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( UsageEnum.DIRECTORY_OPERATION, atd.getUsage() );
 
-        // AUXILIARY
-        value = "( 1.1 SYNTAX 1.1 USAGE distributedOperation )";
+        // distributedOperation, tabs
+        value = "\t(\t1.1\tSYNTAX\t1.1\tUSAGE\tdistributedOperation\t)\t";
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( UsageEnum.DISTRIBUTED_OPERATION, atd.getUsage() );
 
-        // STRUCTURAL
-        value = "( 1.1 SYNTAX 1.1 USAGE dSAOperation )";
+        // dSAOperation, no space
+        value = "(1.1 SYNTAX1.1 USAGEdSAOperation)";
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( UsageEnum.DSA_OPERATION, atd.getUsage() );
 
@@ -633,7 +660,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         assertEquals( "test2-2", atd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
     }
 
-    
+
     /**
      * Test unique elements.
      * 
@@ -642,25 +669,18 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
     public void testUniqueElements()
     {
         String[] testValues = new String[]
-            { 
-                "( 1.1 SYNTAX 1.1 NAME 'test1' NAME 'test2' )", 
-                "( 1.1 SYNTAX 1.1 DESC 'test1' DESC 'test2' )",
-                "( 1.1 SYNTAX 1.1 OBSOLETE OBSOLETE )", 
-                "( 1.1 SYNTAX 1.1 SUP test1 SUP test2 )",
-                "( 1.1 SYNTAX 1.1 EQUALITY test1 EQUALITY test2 )",
-                "( 1.1 SYNTAX 1.1 ORDERING test1 ORDERING test2 )",
-                "( 1.1 SYNTAX 1.1 SUBSTR test1 SUBSTR test2 )",
-                "( 1.1 SYNTAX 1.1 SYNTAX 2.2 SYNTAX 3.3 )",
-                "( 1.1 SYNTAX 1.1 SINGLE-VALUE SINGLE-VALUE )",
-                "( 1.1 SYNTAX 1.1 COLLECTIVE COLLECTIVE )", 
-                "( 1.1 SYNTAX 1.1 USAGE directoryOperation NO-USER-MODIFICATION NO-USER-MODIFICATION )", 
-                "( 1.1 SYNTAX 1.1 USAGE directoryOperation USAGE userApplications )", 
-                "( 1.1 SYNTAX 1.1 X-TEST 'test1' X-TEST 'test2' )" 
-            };
+            { "( 1.1 SYNTAX 1.1 NAME 'test1' NAME 'test2' )", "( 1.1 SYNTAX 1.1 DESC 'test1' DESC 'test2' )",
+                "( 1.1 SYNTAX 1.1 OBSOLETE OBSOLETE )", "( 1.1 SYNTAX 1.1 SUP test1 SUP test2 )",
+                "( 1.1 SYNTAX 1.1 EQUALITY test1 EQUALITY test2 )", "( 1.1 SYNTAX 1.1 ORDERING test1 ORDERING test2 )",
+                "( 1.1 SYNTAX 1.1 SUBSTR test1 SUBSTR test2 )", "( 1.1 SYNTAX 1.1 SYNTAX 2.2 SYNTAX 3.3 )",
+                "( 1.1 SYNTAX 1.1 SINGLE-VALUE SINGLE-VALUE )", "( 1.1 SYNTAX 1.1 COLLECTIVE COLLECTIVE )",
+                "( 1.1 SYNTAX 1.1 USAGE directoryOperation NO-USER-MODIFICATION NO-USER-MODIFICATION )",
+                "( 1.1 SYNTAX 1.1 USAGE directoryOperation USAGE userApplications )",
+                "( 1.1 SYNTAX 1.1 X-TEST 'test1' X-TEST 'test2' )" };
         SchemaParserTestUtils.testUnique( parser, testValues );
     }
-    
-    
+
+
     /**
      * Test required elements.
      * 
@@ -675,12 +695,12 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         atd = parser.parseAttributeTypeDescription( value );
         assertNotNull( atd.getSyntax() );
         assertNotNull( atd.getSuperType() );
-        
+
         value = "( 1.2.3.4.5.6.7.8.9.0 SYNTAX 1.1 )";
         atd = parser.parseAttributeTypeDescription( value );
         assertNotNull( atd.getSyntax() );
         assertNull( atd.getSuperType() );
-        
+
         value = "( 1.2.3.4.5.6.7.8.9.0 SUP 1.1 )";
         atd = parser.parseAttributeTypeDescription( value );
         assertNull( atd.getSyntax() );
@@ -698,7 +718,8 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         }
 
     }
-    
+
+
     /**
      * Test collective constraint:
      * COLLECTIVE requires USAGE userApplications
@@ -713,13 +734,13 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         value = "( 1.1 SYNTAX 1.1 COLLECTIVE )";
         atd = parser.parseAttributeTypeDescription( value );
         assertTrue( atd.isCollective() );
-        assertEquals( UsageEnum.USER_APPLICATIONS , atd.getUsage() );
-        
+        assertEquals( UsageEnum.USER_APPLICATIONS, atd.getUsage() );
+
         value = "( 1.1 SYNTAX 1.1 COLLECTIVE USAGE userApplications )";
         atd = parser.parseAttributeTypeDescription( value );
         assertTrue( atd.isCollective() );
-        assertEquals( UsageEnum.USER_APPLICATIONS , atd.getUsage() );
-        
+        assertEquals( UsageEnum.USER_APPLICATIONS, atd.getUsage() );
+
         value = "( 1.1 SYNTAX 1.1 COLLECTIVE USAGE directoryOperation )";
         try
         {
@@ -730,7 +751,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         {
             // expected
         }
-        
+
         value = "( 1.1 SYNTAX 1.1 COLLECTIVE USAGE dSAOperation )";
         try
         {
@@ -741,7 +762,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         {
             // expected
         }
-        
+
         value = "( 1.1 SYNTAX 1.1 COLLECTIVE USAGE distributedOperation )";
         try
         {
@@ -752,10 +773,10 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         {
             // expected
         }
-        
+
     }
-    
-    
+
+
     /**
      * Test no-user-modification constraint:
      * NO-USER-MODIFICATION requires an operational USAGE
@@ -766,22 +787,22 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
     {
         String value = null;
         AttributeTypeDescription atd = null;
-        
+
         value = "( 1.1 SYNTAX 1.1 NO-USER-MODIFICATION USAGE directoryOperation )";
         atd = parser.parseAttributeTypeDescription( value );
         assertFalse( atd.isUserModifiable() );
-        assertEquals( UsageEnum.DIRECTORY_OPERATION , atd.getUsage() );
-        
+        assertEquals( UsageEnum.DIRECTORY_OPERATION, atd.getUsage() );
+
         value = "( 1.1 SYNTAX 1.1 NO-USER-MODIFICATION USAGE dSAOperation )";
         atd = parser.parseAttributeTypeDescription( value );
         assertFalse( atd.isUserModifiable() );
-        assertEquals( UsageEnum.DSA_OPERATION , atd.getUsage() );
-        
+        assertEquals( UsageEnum.DSA_OPERATION, atd.getUsage() );
+
         value = "( 1.1 SYNTAX 1.1 NO-USER-MODIFICATION USAGE distributedOperation )";
         atd = parser.parseAttributeTypeDescription( value );
         assertFalse( atd.isUserModifiable() );
-        assertEquals( UsageEnum.DISTRIBUTED_OPERATION , atd.getUsage() );
-        
+        assertEquals( UsageEnum.DISTRIBUTED_OPERATION, atd.getUsage() );
+
         value = "( 1.1 SYNTAX 1.1 NO-USER-MODIFICATION USAGE userApplications )";
         try
         {
@@ -792,7 +813,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         {
             // expected
         }
-        
+
         value = "( 1.1 SYNTAX 1.1 NO-USER-MODIFICATION )";
         try
         {
@@ -804,8 +825,8 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
             // expected
         }
     }
-    
-    
+
+
     /**
      * Ensure that element order is ignored
      * 
@@ -861,13 +882,14 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         assertEquals( 0, atd.getExtensions().size() );
     }
 
+
     /**
      * Tests the parse of a simple AttributeType
      */
     public void testAddAttributeType() throws Exception
     {
-        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) " +
-                "DESC 'bogus description' SUP name SINGLE-VALUE )";
+        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
+            + "DESC 'bogus description' SUP name SINGLE-VALUE )";
         AttributeTypeDescription desc = parser.parseAttributeTypeDescription( substrate );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", desc.getNumericOid() );
         assertEquals( "bogus", desc.getNames().get( 0 ) );
@@ -877,14 +899,14 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         assertEquals( true, desc.isSingleValued() );
     }
 
-    
+
     /**
      * Tests the parse of a simple AttributeType with the schema extension.
      */
     public void testAttributeTypeWithSchemaExtension() throws Exception
     {
-        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) " +
-                "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'blah' )";
+        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
+            + "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'blah' )";
         AttributeTypeDescription desc = parser.parseAttributeTypeDescription( substrate );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", desc.getNumericOid() );
         assertEquals( "bogus", desc.getNames().get( 0 ) );
@@ -893,8 +915,8 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         assertEquals( "name", desc.getSuperType() );
         assertEquals( true, desc.isSingleValued() );
         assertEquals( "blah", desc.getExtensions().get( "X-SCHEMA" ).get( 0 ) );
-    }    
-    
+    }
+
 
     /**
      * Tests the multithreaded use of a single parser.

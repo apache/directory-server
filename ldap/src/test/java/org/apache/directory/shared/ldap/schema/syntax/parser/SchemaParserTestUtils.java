@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SchemaParserTestUtils 
+public class SchemaParserTestUtils
 {
 
     /**
@@ -74,22 +74,32 @@ public class SchemaParserTestUtils
         }
 
         // simple
-        value = "( 0.1.2.3.4.5.6.7.8.9 "+required+" )";
+        value = "( 0.1.2.3.4.5.6.7.8.9 " + required + " )";
         asd = parser.parse( value );
         Assert.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
 
         // simple
-        value = "( 123.4567.890 "+required+")";
+        value = "( 123.4567.890 " + required + ")";
         asd = parser.parse( value );
         Assert.assertEquals( "123.4567.890", asd.getNumericOid() );
-        
-        // simple with spaces
-        value = "(          0.1.2.3.4.5.6.7.8.9         "+required+" )";
+
+        // simple with multiple spaces
+        value = "(          0.1.2.3.4.5.6.7.8.9         " + required + " )";
+        asd = parser.parse( value );
+        Assert.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
+
+        // simple w/o spaces
+        value = "(0.1.2.3.4.5.6.7.8.9 " + required + ")";
+        asd = parser.parse( value );
+        Assert.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
+
+        // simple with tabs, newline, comment.
+        value = "(\t0.1.2.3.4.5.6.7.8.9\n#comment\n\t" + required + "\r\n)\r";
         asd = parser.parse( value );
         Assert.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
 
         // non-numeric not allowed
-        value = "( test "+required+" )";
+        value = "( test " + required + " )";
         try
         {
             parser.parse( value );
@@ -101,7 +111,7 @@ public class SchemaParserTestUtils
         }
 
         // to short
-        value = "( 1 "+required+" )";
+        value = "( 1 " + required + " )";
         try
         {
             parser.parse( value );
@@ -113,7 +123,7 @@ public class SchemaParserTestUtils
         }
 
         // dot only
-        value = "( . "+required+" )";
+        value = "( . " + required + " )";
         try
         {
             parser.parse( value );
@@ -125,7 +135,7 @@ public class SchemaParserTestUtils
         }
 
         // ends with dot
-        value = "( 1.1. "+required+" )";
+        value = "( 1.1. " + required + " )";
         try
         {
             parser.parse( value );
@@ -137,7 +147,7 @@ public class SchemaParserTestUtils
         }
 
         // quotes not allowed
-        value = "( '1.1' "+required+" )";
+        value = "( '1.1' " + required + " )";
         try
         {
             parser.parse( value );
@@ -149,7 +159,7 @@ public class SchemaParserTestUtils
         }
 
         // leading 0 not allowed
-        value = "( 01.1 "+required+" )";
+        value = "( 01.1 " + required + " )";
         try
         {
             parser.parse( value );
@@ -161,7 +171,7 @@ public class SchemaParserTestUtils
         }
 
         // alpha not allowed
-        value = "( 1.2.a.4 "+required+" )";
+        value = "( 1.2.a.4 " + required + " )";
         try
         {
             parser.parse( value );
@@ -171,9 +181,10 @@ public class SchemaParserTestUtils
         {
             Assert.assertTrue( true );
         }
-        
+
     }
-    
+
+
     /**
      * Tests NAME and its values
      * 
@@ -185,38 +196,40 @@ public class SchemaParserTestUtils
         AbstractSchemaDescription asd = null;
 
         // alpha
-        value = "( "+oid+" "+required+" NAME 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' )";
+        value = "( " + oid + " " + required + " NAME 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' )";
         asd = parser.parse( value );
         Assert.assertEquals( 1, asd.getNames().size() );
         Assert.assertEquals( "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", asd.getNames().get( 0 ) );
 
         // alpha-num-hypen
-        value = "( "+oid+" "+required+" NAME 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' )";
+        value = "( " + oid + " " + required
+            + " NAME 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' )";
         asd = parser.parse( value );
         Assert.assertEquals( 1, asd.getNames().size() );
-        Assert.assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", asd.getNames().get( 0 ) );
+        Assert
+            .assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", asd.getNames().get( 0 ) );
 
         // with parentheses
-        value = "( "+oid+" "+required+" NAME ( 'a-z-0-9' ) )";
+        value = "( " + oid + " " + required + " NAME ( 'a-z-0-9' ) )";
         asd = parser.parse( value );
         Assert.assertEquals( 1, asd.getNames().size() );
         Assert.assertEquals( "a-z-0-9", asd.getNames().get( 0 ) );
 
         // with parentheses, without space
-        value = "( "+oid+" "+required+" NAME ('a-z-0-9') )";
+        value = "(" + oid + " " + required + " NAME('a-z-0-9'))";
         asd = parser.parse( value );
         Assert.assertEquals( 1, asd.getNames().size() );
         Assert.assertEquals( "a-z-0-9", asd.getNames().get( 0 ) );
 
         // multi with space
-        value = "( "+oid+" "+required+" NAME ( 'test1' 'test2' ) )";
+        value = " ( " + oid + " " + required + " NAME ( 'test1' 'test2' ) ) ";
         asd = parser.parse( value );
         Assert.assertEquals( 2, asd.getNames().size() );
         Assert.assertEquals( "test1", asd.getNames().get( 0 ) );
         Assert.assertEquals( "test2", asd.getNames().get( 1 ) );
 
         // multi without space
-        value = "( "+oid+" "+required+" NAME ('test1' 'test2' 'test3') )";
+        value = "(" + oid + " " + required + " NAME('test1''test2''test3'))";
         asd = parser.parse( value );
         Assert.assertEquals( 3, asd.getNames().size() );
         Assert.assertEquals( "test1", asd.getNames().get( 0 ) );
@@ -224,7 +237,17 @@ public class SchemaParserTestUtils
         Assert.assertEquals( "test3", asd.getNames().get( 2 ) );
 
         // multi with many spaces
-        value = "(          "+oid+" "+required+"          NAME          (          'test1'          'test2'          'test3'          )          )";
+        value = "(          " + oid + " " + required
+            + "          NAME          (          'test1'          'test2'          'test3'          )          )";
+        asd = parser.parse( value );
+        Assert.assertEquals( 3, asd.getNames().size() );
+        Assert.assertEquals( "test1", asd.getNames().get( 0 ) );
+        Assert.assertEquals( "test2", asd.getNames().get( 1 ) );
+        Assert.assertEquals( "test3", asd.getNames().get( 2 ) );
+
+        // multi with tabs, newline, comment, etc.
+        value = "(\r\n" + oid + "\r" + required
+            + "\nNAME\t(\t\t\t'test1'\t\n\t'test2'\t\r\t'test3'\t\r\n\t)\n#comment\n)";
         asd = parser.parse( value );
         Assert.assertEquals( 3, asd.getNames().size() );
         Assert.assertEquals( "test1", asd.getNames().get( 0 ) );
@@ -232,7 +255,7 @@ public class SchemaParserTestUtils
         Assert.assertEquals( "test3", asd.getNames().get( 2 ) );
 
         // lowercase
-        value = "( "+oid+" "+required+" name 'test' )";
+        value = "( " + oid + " " + required + " name 'test' )";
         try
         {
             parser.parse( value );
@@ -244,7 +267,7 @@ public class SchemaParserTestUtils
         }
 
         // unquoted
-        value = "( "+oid+" "+required+" NAME test )";
+        value = "( " + oid + " " + required + " NAME test )";
         try
         {
             parser.parse( value );
@@ -256,7 +279,7 @@ public class SchemaParserTestUtils
         }
 
         // start with number
-        value = "( "+oid+" "+required+" NAME '1test' )";
+        value = "( " + oid + " " + required + " NAME '1test' )";
         try
         {
             parser.parse( value );
@@ -268,7 +291,7 @@ public class SchemaParserTestUtils
         }
 
         // start with hypen
-        value = "( "+oid+" "+required+" NAME '-test' )";
+        value = "( " + oid + " " + required + " NAME '-test' )";
         try
         {
             parser.parse( value );
@@ -280,7 +303,7 @@ public class SchemaParserTestUtils
         }
 
         // invalid character
-        value = "( "+oid+" "+required+" NAME 'te_st' )";
+        value = "( " + oid + " " + required + " NAME 'te_st' )";
         try
         {
             parser.parse( value );
@@ -292,7 +315,7 @@ public class SchemaParserTestUtils
         }
 
         // NAM unknown
-        value = "( "+oid+" "+required+" NAM 'test' )";
+        value = "( " + oid + " " + required + " NAM 'test' )";
         try
         {
             parser.parse( value );
@@ -304,7 +327,7 @@ public class SchemaParserTestUtils
         }
 
         // one valid, one invalid
-        value = "( "+oid+" "+required+" NAME ( 'test' 'te_st' ) )";
+        value = "( " + oid + " " + required + " NAME ( 'test' 'te_st' ) )";
         try
         {
             parser.parse( value );
@@ -314,57 +337,56 @@ public class SchemaParserTestUtils
         {
             // expected
         }
-
-        // no space between values
-        value = "( "+oid+" "+required+" NAME ( 'test1''test2' ) )";
-        try
-        {
-            asd = parser.parse( value );
-            Assert.fail( "Exception expected, invalid NAME values (no space between values)" );
-        }
-        catch ( ParseException pe )
-        {
-            Assert.assertTrue( true );
-        }
     }
-    
-    
+
+
     /**
      * Tests DESC
      * 
      * @throws ParseException
      */
-    public static void testDescription( AbstractSchemaParser parser, String oid, String required ) throws ParseException
+    public static void testDescription( AbstractSchemaParser parser, String oid, String required )
+        throws ParseException
     {
         String value = null;
         AbstractSchemaDescription asd = null;
 
         // simple
-        value = "("+oid+" "+required+" DESC 'Descripton')";
+        value = "(" + oid + " " + required + " DESC 'Descripton')";
+        asd = parser.parse( value );
+        Assert.assertEquals( "Descripton", asd.getDescription() );
+
+        // simple with tabs, newline, comment, etc.
+        value = "(" + oid + "\n" + required + "\tDESC#comment\n\n\r\n\r\t'Descripton')";
+        asd = parser.parse( value );
+        Assert.assertEquals( "Descripton", asd.getDescription() );
+
+        // simple w/o space
+        value = "(" + oid + " " + required + " DESC'Descripton')";
         asd = parser.parse( value );
         Assert.assertEquals( "Descripton", asd.getDescription() );
 
         // unicode
-        value = "( "+oid+" "+required+" DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' )";
+        value = "( " + oid + " " + required + " DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' )";
         asd = parser.parse( value );
         Assert.assertEquals( "Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577", asd.getDescription() );
-        
+
         // escaped characters
-        value = "( "+oid+" "+required+" DESC 'test\\5Ctest' )";
+        value = "( " + oid + " " + required + " DESC 'test\\5Ctest' )";
         asd = parser.parse( value );
         Assert.assertEquals( "test\\test", asd.getDescription() );
-        value = "( "+oid+" "+required+" DESC 'test\\5ctest' )";
+        value = "( " + oid + " " + required + " DESC 'test\\5ctest' )";
         asd = parser.parse( value );
         Assert.assertEquals( "test\\test", asd.getDescription() );
-        value = "( "+oid+" "+required+" DESC 'test\\27test' )";
+        value = "( " + oid + " " + required + " DESC 'test\\27test' )";
         asd = parser.parse( value );
         Assert.assertEquals( "test'test", asd.getDescription() );
-        value = "( "+oid+" "+required+" DESC '\\5C\\27\\5c' )";
+        value = "( " + oid + " " + required + " DESC '\\5C\\27\\5c' )";
         asd = parser.parse( value );
         Assert.assertEquals( "\\'\\", asd.getDescription() );
-        
+
         // lowercase
-        value = "( "+oid+" "+required+" desc 'Descripton' )";
+        value = "( " + oid + " " + required + " desc 'Descripton' )";
         try
         {
             parser.parse( value );
@@ -374,10 +396,10 @@ public class SchemaParserTestUtils
         {
             Assert.assertTrue( true );
         }
-        
+
     }
-    
-    
+
+
     /**
      * Test extensions.
      * 
@@ -389,12 +411,12 @@ public class SchemaParserTestUtils
         AbstractSchemaDescription asd = null;
 
         // no extension
-        value = "( "+oid+" "+required+" )";
+        value = "( " + oid + " " + required + " )";
         asd = parser.parse( value );
         Assert.assertEquals( 0, asd.getExtensions().size() );
 
         // single extension with one value
-        value = "( "+oid+" "+required+" X-TEST 'test' )";
+        value = "( " + oid + " " + required + " X-TEST 'test' )";
         asd = parser.parse( value );
         Assert.assertEquals( 1, asd.getExtensions().size() );
         Assert.assertNotNull( asd.getExtensions().get( "X-TEST" ) );
@@ -402,7 +424,8 @@ public class SchemaParserTestUtils
         Assert.assertEquals( "test", asd.getExtensions().get( "X-TEST" ).get( 0 ) );
 
         // single extension with multiple values
-        value = "( "+oid+" "+required+" X-TEST-ABC ('test1' 'test \u00E4\u00F6\u00FC\u00DF'       'test \u90E8\u9577' ) )";
+        value = "( " + oid + " " + required
+            + " X-TEST-ABC ('test1' 'test \u00E4\u00F6\u00FC\u00DF'       'test \u90E8\u9577' ) )";
         asd = parser.parse( value );
         Assert.assertEquals( 1, asd.getExtensions().size() );
         Assert.assertNotNull( asd.getExtensions().get( "X-TEST-ABC" ) );
@@ -412,7 +435,34 @@ public class SchemaParserTestUtils
         Assert.assertEquals( "test \u90E8\u9577", asd.getExtensions().get( "X-TEST-ABC" ).get( 2 ) );
 
         // multiple extensions
-        value = "("+oid+" "+required+" X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2'))";
+        value = "(" + oid + " " + required + " X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2'))";
+        asd = parser.parse( value );
+        Assert.assertEquals( 2, asd.getExtensions().size() );
+        Assert.assertNotNull( asd.getExtensions().get( "X-TEST-a" ) );
+        Assert.assertEquals( 2, asd.getExtensions().get( "X-TEST-a" ).size() );
+        Assert.assertEquals( "test1-1", asd.getExtensions().get( "X-TEST-a" ).get( 0 ) );
+        Assert.assertEquals( "test1-2", asd.getExtensions().get( "X-TEST-a" ).get( 1 ) );
+        Assert.assertNotNull( asd.getExtensions().get( "X-TEST-b" ) );
+        Assert.assertEquals( 2, asd.getExtensions().get( "X-TEST-b" ).size() );
+        Assert.assertEquals( "test2-1", asd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
+        Assert.assertEquals( "test2-2", asd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
+
+        // multiple extensions, no spaces
+        value = "(" + oid + " " + required + " X-TEST-a('test1-1''test1-2')X-TEST-b('test2-1''test2-2'))";
+        asd = parser.parse( value );
+        Assert.assertEquals( 2, asd.getExtensions().size() );
+        Assert.assertNotNull( asd.getExtensions().get( "X-TEST-a" ) );
+        Assert.assertEquals( 2, asd.getExtensions().get( "X-TEST-a" ).size() );
+        Assert.assertEquals( "test1-1", asd.getExtensions().get( "X-TEST-a" ).get( 0 ) );
+        Assert.assertEquals( "test1-2", asd.getExtensions().get( "X-TEST-a" ).get( 1 ) );
+        Assert.assertNotNull( asd.getExtensions().get( "X-TEST-b" ) );
+        Assert.assertEquals( 2, asd.getExtensions().get( "X-TEST-b" ).size() );
+        Assert.assertEquals( "test2-1", asd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
+        Assert.assertEquals( "test2-2", asd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
+
+        // multiple extensions, tabs, newline, comments
+        value = "(" + oid + "\n#comment\n" + required
+            + "\nX-TEST-a\n(\t'test1-1'\t\n'test1-2'\n\r)\tX-TEST-b\n(\n'test2-1'\t'test2-2'\t)\r)";
         asd = parser.parse( value );
         Assert.assertEquals( 2, asd.getExtensions().size() );
         Assert.assertNotNull( asd.getExtensions().get( "X-TEST-a" ) );
@@ -425,15 +475,18 @@ public class SchemaParserTestUtils
         Assert.assertEquals( "test2-2", asd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
 
         // some more complicated
-        value = "("+oid+" "+required+" X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ('\\5C\\27\\5c'))";
+        value = "(" + oid + " " + required
+            + " X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ('\\5C\\27\\5c'))";
         asd = parser.parse( value );
         Assert.assertEquals( 1, asd.getExtensions().size() );
         Assert.assertNotNull( asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ) );
-        Assert.assertEquals( 1, asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ).size() );
-        Assert.assertEquals( "\\'\\", asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ).get( 0 ) );
-        
+        Assert.assertEquals( 1, asd.getExtensions().get( "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" )
+            .size() );
+        Assert.assertEquals( "\\'\\", asd.getExtensions().get(
+            "X-_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ).get( 0 ) );
+
         // invalid extension, no number allowed
-        value = "( "+oid+" "+required+" X-TEST1 'test' )";
+        value = "( " + oid + " " + required + " X-TEST1 'test' )";
         try
         {
             asd = parser.parse( value );
@@ -446,7 +499,7 @@ public class SchemaParserTestUtils
 
     }
 
-    
+
     /**
      * Tests OBSOLETE
      * 
@@ -458,27 +511,27 @@ public class SchemaParserTestUtils
         AbstractSchemaDescription asd = null;
 
         // not obsolete
-        value = "( "+oid+" "+required+" )";
+        value = "( " + oid + " " + required + " )";
         asd = parser.parse( value );
         Assert.assertFalse( asd.isObsolete() );
 
         // not obsolete
-        value = "( "+oid+" "+required+" NAME 'test' DESC 'Descripton' )";
+        value = "( " + oid + " " + required + " NAME 'test' DESC 'Descripton' )";
         asd = parser.parse( value );
         Assert.assertFalse( asd.isObsolete() );
-        
+
         // obsolete
-        value = "("+oid+" "+required+" NAME 'test' DESC 'Descripton' OBSOLETE)";
+        value = "(" + oid + " " + required + " NAME 'test' DESC 'Descripton' OBSOLETE)";
         asd = parser.parse( value );
         Assert.assertTrue( asd.isObsolete() );
 
         // obsolete 
-        value = "("+oid+" "+required+" OBSOLETE)";
+        value = "(" + oid + " " + required + " OBSOLETE)";
         asd = parser.parse( value );
         Assert.assertTrue( asd.isObsolete() );
 
-        // ivalid
-        value = "("+oid+" "+required+" NAME 'test' DESC 'Descripton' OBSOLET )";
+        // invalid
+        value = "(" + oid + " " + required + " NAME 'test' DESC 'Descripton' OBSOLET )";
         try
         {
             asd = parser.parse( value );
@@ -488,9 +541,9 @@ public class SchemaParserTestUtils
         {
             // expected
         }
-        
+
         // trailing value not allowed
-        value = "("+oid+" "+required+" NAME 'test' DESC 'Descripton' OBSOLETE 'true' )";
+        value = "(" + oid + " " + required + " NAME 'test' DESC 'Descripton' OBSOLETE 'true' )";
         try
         {
             asd = parser.parse( value );
@@ -500,11 +553,10 @@ public class SchemaParserTestUtils
         {
             Assert.assertTrue( true );
         }
-        
+
     }
-    
-    
-    
+
+
     /**
      * Tests for unique elements.
      * 
@@ -518,17 +570,17 @@ public class SchemaParserTestUtils
             try
             {
                 parser.parse( testValue );
-                Assert.fail( "Exception expected, element appears twice in "+testValue );
+                Assert.fail( "Exception expected, element appears twice in " + testValue );
             }
             catch ( ParseException pe )
             {
                 Assert.assertTrue( true );
             }
         }
-        
+
     }
-    
-    
+
+
     /**
      * Tests the multithreaded use of a single parser.
      */
@@ -536,7 +588,7 @@ public class SchemaParserTestUtils
     {
         final boolean[] isSuccessMultithreaded = new boolean[1];
         isSuccessMultithreaded[0] = true;
-        
+
         // start up and track all threads (40 threads)
         List<Thread> threads = new ArrayList<Thread>();
         for ( int ii = 0; ii < 10; ii++ )
@@ -565,7 +617,7 @@ public class SchemaParserTestUtils
 
         // check that no one thread failed to parse and generate a SS object
         Assert.assertTrue( isSuccessMultithreaded[0] );
-        
+
     }
 
     static class ParseSpecification implements Runnable
@@ -573,17 +625,18 @@ public class SchemaParserTestUtils
         private final AbstractSchemaParser parser;
         private final String value;
         private final boolean[] isSuccessMultithreaded;
-        
+
         private AbstractSchemaDescription result;
-        
+
+
         public ParseSpecification( AbstractSchemaParser parser, String value, boolean[] isSuccessMultithreaded )
         {
             this.parser = parser;
             this.value = value;
             this.isSuccessMultithreaded = isSuccessMultithreaded;
         }
-        
-        
+
+
         public void run()
         {
             try
@@ -594,10 +647,9 @@ public class SchemaParserTestUtils
             {
                 e.printStackTrace();
             }
-            
+
             isSuccessMultithreaded[0] = isSuccessMultithreaded[0] && ( result != null );
         }
     }
-    
-    
+
 }

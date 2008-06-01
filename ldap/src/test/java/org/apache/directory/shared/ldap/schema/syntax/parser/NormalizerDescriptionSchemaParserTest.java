@@ -58,14 +58,12 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
 
     public void testDescription() throws ParseException
     {
-        SchemaParserTestUtils
-            .testDescription( parser, "1.1", "FQCN org.apache.directory.SimpleComparator" );
+        SchemaParserTestUtils.testDescription( parser, "1.1", "FQCN org.apache.directory.SimpleComparator" );
     }
 
 
     public void testFqcn() throws ParseException
     {
-
         String value = null;
         NormalizerDescription nd = null;
 
@@ -74,13 +72,11 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
         nd = parser.parseNormalizerDescription( value );
         assertNotNull( nd.getFqcn() );
         assertEquals( "org.apache.directory.SimpleComparator", nd.getFqcn() );
-
     }
 
 
     public void testBytecode() throws ParseException
     {
-
         String value = null;
         NormalizerDescription nd = null;
 
@@ -89,7 +85,6 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
         nd = parser.parseNormalizerDescription( value );
         assertNotNull( nd.getBytecode() );
         assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", nd.getBytecode() );
-
     }
 
 
