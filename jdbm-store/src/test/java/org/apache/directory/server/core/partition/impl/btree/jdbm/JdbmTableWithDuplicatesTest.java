@@ -168,20 +168,6 @@ public class JdbmTableWithDuplicatesTest
     public void testConfigMethods() throws Exception
     {
         assertTrue( table.isDupsEnabled() );
-        assertNull( table.getRenderer() );
-        table.setRenderer( new TupleRenderer() {
-            public String getKeyString( Object key )
-            {
-                return null;
-            }
-            public String getValueString( Object value )
-            {
-                return null;
-            }} 
-        );
-        assertNotNull( table.getRenderer() );
-        table.setRenderer( null );
-        assertNull( table.getRenderer() );
         assertEquals( "test", table.getName() );
         assertNotNull( table.getKeyComparator() );
     }

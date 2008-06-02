@@ -66,8 +66,6 @@ public class JdbmTable<K,V> implements Table<K,V>
     private BTree bt;
 
 
-    /** the renderer to use for btree tuples */
-    private TupleRenderer renderer;
     /** the limit at which we start using btree redirection for duplicates */
     private int numDupLimit = JdbmIndex.DEFAULT_DUPLICATE_LIMIT;
     /** a cache of duplicate BTrees */
@@ -275,24 +273,6 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
 
-    /**
-     * @see org.apache.directory.server.xdbm.Table#getRenderer()
-     */
-    public TupleRenderer getRenderer()
-    {
-        return renderer;
-    }
-
-
-    /**
-     * @see Table#setRenderer(TupleRenderer)
-     */
-    public void setRenderer( TupleRenderer renderer )
-    {
-        this.renderer = renderer;
-    }
-
-    
     public boolean isCountExact()
     {
         return false;

@@ -55,24 +55,6 @@ public interface Table<K, V>
 
 
     /**
-     * Gets an optional data renderer associated with this Table to display or
-     * log record keys and values.
-     *
-     * @return the renderer used
-     */
-    TupleRenderer getRenderer();
-
-
-    /**
-     * Sets the data renderer to by used by this Table to display or log record
-     * keys and values.
-     *
-     * @param renderer the DataRenderer instance to used as the renderer.
-     */
-    void setRenderer( TupleRenderer renderer );
-
-
-    /**
      * Gets the name of this Table.
      *
      * @return the name
