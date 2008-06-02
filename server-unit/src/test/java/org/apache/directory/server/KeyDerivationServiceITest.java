@@ -20,9 +20,11 @@
 package org.apache.directory.server;
 
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.xdbm.Index;
@@ -106,7 +108,8 @@ public class KeyDerivationServiceITest extends AbstractServerTest
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
         }
 
-        ctx =   directoryService.getJndiContext( "dc=example,dc=com" );
+        CoreSession session = directoryService.getSession();
+        ctx = new ServerLdapContext( directoryService, session, new LdapDN( "dc=example,dc=com" ) );
 
         attrs = getOrgUnitAttributes( "users" );
         DirContext users = ctx.createSubcontext( "ou=users", attrs );
