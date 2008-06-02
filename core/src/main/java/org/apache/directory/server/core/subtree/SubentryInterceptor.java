@@ -23,7 +23,11 @@ package org.apache.directory.server.core.subtree;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -40,15 +44,15 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -76,8 +80,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.Name;
 import javax.naming.directory.SearchControls;
-import javax.naming.ldap.Control;
-import javax.naming.ldap.LdapContext;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -170,7 +172,12 @@ public class SubentryInterceptor extends BaseInterceptor
             //suffix = LdapDN.normalize( suffix, registry.getNormalizerMapping() );
             suffix.normalize( atRegistry.getNormalizerMapping() );
 
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
+            LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+            CoreSession adminSession = new DefaultCoreSession( 
+                new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( adminSession,
                 suffix, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -238,13 +245,13 @@ public class SubentryInterceptor extends BaseInterceptor
     // Methods/Code dealing with Subentry Visibility
     // -----------------------------------------------------------------------
 
+    
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
         throws Exception
     {
         EntryFilteringCursor cursor = nextInterceptor.list( opContext );
-        Invocation invocation = InvocationStack.getInstance().peek();
 
-        if ( !isSubentryVisible( invocation ) )
+        if ( !isSubentryVisible( opContext ) )
         {
             cursor.addEntryFilter( new HideSubentriesFilter() );
         }
@@ -257,7 +264,6 @@ public class SubentryInterceptor extends BaseInterceptor
         throws Exception
     {
         EntryFilteringCursor cursor = nextInterceptor.search( opContext );
-        Invocation invocation = InvocationStack.getInstance().peek();
 
         // object scope searches by default return subentries
         if ( opContext.getScope() == SearchScope.OBJECT )
@@ -266,7 +272,7 @@ public class SubentryInterceptor extends BaseInterceptor
         }
 
         // for subtree and one level scope we filter
-        if ( !isSubentryVisible( invocation ) )
+        if ( !isSubentryVisible( opContext ) )
         {
             cursor.addEntryFilter( new HideSubentriesFilter() );
         }
@@ -287,24 +293,18 @@ public class SubentryInterceptor extends BaseInterceptor
      * @return true if subentries should be visible, false otherwise
      * @throws Exception if there are problems accessing request controls
      */
-    private boolean isSubentryVisible( Invocation invocation ) throws Exception
+    private boolean isSubentryVisible( OperationContext opContext ) throws Exception
     {
-        Control[] reqControls = ( ( LdapContext ) invocation.getCaller() ).getRequestControls();
-
-        if ( reqControls == null || reqControls.length <= 0 )
+        if ( opContext.hasRequestControls() )
         {
             return false;
         }
 
-        // check all request controls to see if subentry control is present
-        for ( Control reqControl : reqControls )
+        // found the subentry request control so we return its value
+        if ( opContext.hasRequestControl( SUBENTRY_CONTROL ) )
         {
-            // found the subentry request control so we return its value
-            if ( reqControl.getID().equals( SUBENTRY_CONTROL ) )
-            {
-                SubentriesControl subentriesControl = ( SubentriesControl ) reqControl;
-                return subentriesControl.isVisible();
-            }
+            SubentriesControl subentriesControl = ( SubentriesControl ) opContext.getRequestControl( SUBENTRY_CONTROL );
+            return subentriesControl.isVisible();
         }
 
         return false;
@@ -414,7 +414,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // get the name of the administrative point and its administrativeRole attributes
             LdapDN apName = ( LdapDN ) name.clone();
             apName.remove( name.size() - 1 );
-            ServerEntry ap = nexus.lookup( new LookupOperationContext( registries, apName ) );
+            ServerEntry ap = nexus.lookup( new LookupOperationContext( addContext.getSession(), apName ) );
             EntryAttribute administrativeRole = ap.get( "administrativeRole" );
 
             // check that administrativeRole has something valid in it for us
@@ -480,7 +480,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( addContext.getSession(),
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -491,8 +491,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForAdd( candidate,
-                        operational ) ) );
+                    nexus.modify( new ModifyOperationContext( addContext.getSession(), dn, 
+                        getOperationalModsForAdd( candidate, operational ) ) );
                 }
             }
 
@@ -587,7 +587,7 @@ public class SubentryInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         LdapDN name = opContext.getDn();
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getSession(), name ) );
         EntryAttribute objectClasses = entry.get( objectClassType );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
@@ -614,7 +614,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( opContext.getSession(),
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -625,8 +625,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForRemove( name,
-                        candidate ) ) );
+                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, 
+                        getOperationalModsForRemove( name, candidate ) ) );
                 }
             }
         }
@@ -650,12 +650,12 @@ public class SubentryInterceptor extends BaseInterceptor
      * are, false otherwise
      * @throws Exception if there are errors while searching the directory
      */
-    private boolean hasAdministrativeDescendant( LdapDN name ) throws Exception
+    private boolean hasAdministrativeDescendant( OperationContext opContext, LdapDN name ) throws Exception
     {
         ExprNode filter = new PresenceNode( "administrativeRole" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        EntryFilteringCursor aps = nexus.search( new SearchOperationContext( registries, name,
+        EntryFilteringCursor aps = nexus.search( new SearchOperationContext( opContext.getSession(), name,
             AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
         if ( aps.next() )
@@ -746,7 +746,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         LdapDN name = opContext.getDn();
 
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getSession(), name ) );
 
         EntryAttribute objectClasses = entry.get( objectClassType );
 
@@ -773,7 +773,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( opContext.getSession(),
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -785,14 +785,14 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForReplace( name,
-                        newName, subentry, candidate ) ) );
+                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, 
+                        getOperationalModsForReplace( name, newName, subentry, candidate ) ) );
                 }
             }
         }
         else
         {
-            if ( hasAdministrativeDescendant( name ) )
+            if ( hasAdministrativeDescendant( opContext, name ) )
             {
                 String msg = "Will not allow rename operation on entries with administrative descendants.";
                 LOG.warn( msg );
@@ -811,7 +811,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( mods.size() > 0 )
             {
-                nexus.modify( new ModifyOperationContext( registries, newName, mods ) );
+                nexus.modify( new ModifyOperationContext( opContext.getSession(), newName, mods ) );
             }
         }
     }
@@ -822,7 +822,7 @@ public class SubentryInterceptor extends BaseInterceptor
         LdapDN oriChildName = opContext.getDn();
         LdapDN parent = opContext.getParent();
 
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getSession(), oriChildName ) );
 
         EntryAttribute objectClasses = entry.get( objectClassType );
 
@@ -850,7 +850,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( opContext.getSession(),
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -861,14 +861,14 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForReplace(
-                        oriChildName, newName, subentry, candidate ) ) );
+                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, 
+                        getOperationalModsForReplace( oriChildName, newName, subentry, candidate ) ) );
                 }
             }
         }
         else
         {
-            if ( hasAdministrativeDescendant( oriChildName ) )
+            if ( hasAdministrativeDescendant( opContext, oriChildName ) )
             {
                 String msg = "Will not allow rename operation on entries with administrative descendants.";
                 LOG.warn( msg );
@@ -886,7 +886,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( mods.size() > 0 )
             {
-                nexus.modify( new ModifyOperationContext( registries, newName, mods ) );
+                nexus.modify( new ModifyOperationContext( opContext.getSession(), newName, mods ) );
             }
         }
     }
@@ -897,7 +897,7 @@ public class SubentryInterceptor extends BaseInterceptor
         LdapDN oriChildName = opContext.getDn();
         LdapDN newParentName = opContext.getParent();
 
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getSession(), oriChildName ) );
 
         EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -924,7 +924,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( opContext.getSession(),
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -935,14 +935,14 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForReplace(
-                        oriChildName, newName, subentry, candidate ) ) );
+                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, 
+                        getOperationalModsForReplace( oriChildName, newName, subentry, candidate ) ) );
                 }
             }
         }
         else
         {
-            if ( hasAdministrativeDescendant( oriChildName ) )
+            if ( hasAdministrativeDescendant( opContext, oriChildName ) )
             {
                 String msg = "Will not allow rename operation on entries with administrative descendants.";
                 LOG.warn( msg );
@@ -959,7 +959,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( mods.size() > 0 )
             {
-                nexus.modify( new ModifyOperationContext( registries, newName, mods ) );
+                nexus.modify( new ModifyOperationContext( opContext.getSession(), newName, mods ) );
             }
         }
     }
@@ -1013,7 +1013,7 @@ public class SubentryInterceptor extends BaseInterceptor
         LdapDN name = opContext.getDn();
         List<Modification> mods = opContext.getModItems();
 
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+        ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getSession(), name ) );
 
         ServerEntry oldEntry = ( ServerEntry ) entry.clone();
         EntryAttribute objectClasses = entry.get( objectClassType );
@@ -1058,7 +1058,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
-            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( opContext.getSession(),
                 oldBaseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
@@ -1069,8 +1069,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ssOld, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForRemove( name,
-                        candidate ) ) );
+                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, 
+                        getOperationalModsForRemove( name, candidate ) ) );
                 }
             }
 
@@ -1079,7 +1079,7 @@ public class SubentryInterceptor extends BaseInterceptor
             ServerEntry operational = getSubentryOperatationalAttributes( name, subentry );
             LdapDN newBaseDn = ( LdapDN ) apName.clone();
             newBaseDn.addAll( ssNew.getBase() );
-            subentries = nexus.search( new SearchOperationContext( registries, newBaseDn,
+            subentries = nexus.search( new SearchOperationContext( opContext.getSession(), newBaseDn,
                 AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.next() )
@@ -1090,8 +1090,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( evaluator.evaluate( ssNew, apName, dn, candidate ) )
                 {
-                    nexus.modify( new ModifyOperationContext( registries, dn, getOperationalModsForAdd( candidate,
-                        operational ) ) );
+                    nexus.modify( new ModifyOperationContext( opContext.getSession(), dn, 
+                        getOperationalModsForAdd( candidate, operational ) ) );
                 }
             }
         }
@@ -1101,13 +1101,13 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( !objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
             {
-                ServerEntry newEntry = nexus.lookup( new LookupOperationContext( registries, name ) );
+                ServerEntry newEntry = nexus.lookup( new LookupOperationContext( opContext.getSession(), name ) );
 
                 List<Modification> subentriesOpAttrMods = getModsOnEntryModification( name, oldEntry, newEntry );
 
                 if ( subentriesOpAttrMods.size() > 0 )
                 {
-                    nexus.modify( new ModifyOperationContext( registries, name, subentriesOpAttrMods ) );
+                    nexus.modify( new ModifyOperationContext( opContext.getSession(), name, subentriesOpAttrMods ) );
                 }
             }
         }

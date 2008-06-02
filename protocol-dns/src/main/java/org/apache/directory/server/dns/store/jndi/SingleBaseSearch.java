@@ -25,13 +25,16 @@ import java.util.Set;
 
 import javax.naming.directory.DirContext;
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.jndi.operations.GetRecords;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +60,8 @@ public class SingleBaseSearch implements SearchStrategy
     {
         try
         {
-            ctx = directoryService.getJndiContext( searchBaseDn );
+            CoreSession session = directoryService.getSession();
+            ctx = new ServerLdapContext( directoryService, session, new LdapDN( searchBaseDn ) );
         } catch ( Exception e )
         {
             throw new ServiceConfigurationException( "Can't get context at" + searchBaseDn, e );

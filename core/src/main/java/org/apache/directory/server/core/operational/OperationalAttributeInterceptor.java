@@ -199,7 +199,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // Make the modify() call happen
         // -------------------------------------------------------------------
 
-        ModifyOperationContext newModify = new ModifyOperationContext( registries, opContext.getDn(), modItemList );
+        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), 
+            opContext.getDn(), modItemList );
         service.getPartitionNexus().modify( newModify );
     }
 
@@ -221,7 +222,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
 
-        ModifyOperationContext newModify = new ModifyOperationContext( registries, newDn, items );
+        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), newDn, items );
         
         service.getPartitionNexus().modify( newModify );
     }
@@ -240,7 +241,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
 
         ModifyOperationContext newModify = 
-            new ModifyOperationContext( registries, opContext.getParent(), items );
+            new ModifyOperationContext( opContext.getSession(), opContext.getParent(), items );
         
         service.getPartitionNexus().modify( newModify );
     }
@@ -259,8 +260,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = 
-            new ModifyOperationContext( registries, 
-                opContext.getParent(), items );
+            new ModifyOperationContext( opContext.getSession(), opContext.getParent(), items );
         
         service.getPartitionNexus().modify( newModify );
     }

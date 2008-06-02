@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.jndi;
 
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -74,8 +75,8 @@ public class CoreContextFactory implements InitialContextFactory
         ServerLdapContext ctx = null;
         try
         {
-            ctx = ( ServerLdapContext ) service.getJndiContext( principalDn, principal, credential,
-                    authentication, providerUrl );
+            CoreSession session = service.getSession( principalDn, credential, authentication );
+            ctx = new ServerLdapContext( service, session, new LdapDN( providerUrl ) );
         }
         catch ( Exception e )
         {

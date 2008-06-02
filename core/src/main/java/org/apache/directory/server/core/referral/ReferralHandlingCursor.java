@@ -31,8 +31,8 @@ import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -272,7 +272,7 @@ public class ReferralHandlingCursor implements EntryFilteringCursor
             
             if ( doThrow )
             {
-                doReferralExceptionOnSearchBase( wrapped.getOperationContext().getRegistries() );
+                doReferralExceptionOnSearchBase( wrapped.getOperationContext() );
             }
                 
             return true;
@@ -420,7 +420,7 @@ public class ReferralHandlingCursor implements EntryFilteringCursor
     }
     
 
-    private void doReferralExceptionOnSearchBase( Registries registries ) throws NamingException
+    private void doReferralExceptionOnSearchBase( OperationContext opContext ) throws NamingException
     {
         // the refs attribute may be filtered out so we might need to lookup the entry
         EntryAttribute refs = entry.getOriginalEntry().get( SchemaConstants.REF_AT );

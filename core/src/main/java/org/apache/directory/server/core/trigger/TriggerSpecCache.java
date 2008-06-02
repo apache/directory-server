@@ -21,7 +21,11 @@ package org.apache.directory.server.core.trigger;
 
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -29,7 +33,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -97,11 +101,11 @@ public class TriggerSpecCache
                     return registry.getNormalizerMapping();
                 }
             });
-        initialize( directoryService.getRegistries() );
+        initialize( directoryService );
     }
 
 
-    private void initialize( Registries registries ) throws Exception
+    private void initialize( DirectoryService directoryService ) throws Exception
     {
         // search all naming contexts for trigger subentenries
         // generate TriggerSpecification arrays for each subentry
@@ -116,8 +120,13 @@ public class TriggerSpecCache
                     new ClientStringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            EntryFilteringCursor results = 
-                nexus.search( new SearchOperationContext( registries, baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
+            
+            LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            adminDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            CoreSession adminSession = new DefaultCoreSession( 
+                new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+            EntryFilteringCursor results = nexus.search( new SearchOperationContext( 
+                adminSession, baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
             
             while ( results.next() )
             {
@@ -131,7 +140,8 @@ public class TriggerSpecCache
                     continue;
                 }
 
-                LdapDN normSubentryName = subentryDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+                LdapDN normSubentryName = subentryDn.normalize( directoryService.getRegistries()
+                    .getAttributeTypeRegistry().getNormalizerMapping() );
                 subentryAdded( normSubentryName, resultEntry );
             }
             

@@ -26,9 +26,9 @@ import javax.naming.directory.InvalidAttributeIdentifierException;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
@@ -95,20 +95,21 @@ public abstract class AttributeOperation extends Operation
     }
 
 
-    protected final void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries ) 
+    protected final void execute0( PartitionNexus nexus, ReplicationStore store, OperationContext opContext ) 
         throws Exception
     {
-        if ( !EntryUtil.isEntryUpdatable( registries, nexus, name, getCSN() ) )
+        if ( ! EntryUtil.isEntryUpdatable( opContext, name, getCSN() ) )
         {
             return;
         }
-        EntryUtil.createGlueEntries( registries, nexus, name, true );
+        
+        EntryUtil.createGlueEntries( opContext, name, true );
 
-        execute1( nexus, registries );
+        execute1( nexus, opContext );
     }
 
 
-    protected abstract void execute1( PartitionNexus nexus, Registries registries ) throws Exception;
+    protected abstract void execute1( PartitionNexus nexus, OperationContext opContext ) throws Exception;
 
 
     /**

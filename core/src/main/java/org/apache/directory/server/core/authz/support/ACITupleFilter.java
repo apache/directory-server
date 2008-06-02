@@ -25,7 +25,7 @@ import java.util.Collection;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -68,7 +68,7 @@ public interface ACITupleFilter
             Registries registries, 
             Collection<ACITuple> tuples, 
             OperationScope scope, 
-            PartitionNexusProxy proxy,
+            OperationContext opContext,
             Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
             ServerEntry userEntry,

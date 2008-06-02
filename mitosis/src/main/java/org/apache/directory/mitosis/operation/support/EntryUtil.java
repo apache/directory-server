@@ -22,13 +22,12 @@ package org.apache.directory.mitosis.operation.support;
 
 import javax.naming.NameNotFoundException;
 
-import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -42,10 +41,11 @@ import org.apache.directory.mitosis.common.DefaultCSN;
 public class EntryUtil
 {
     @SuppressWarnings("unchecked")
-    public static boolean isEntryUpdatable( Registries registries, PartitionNexus nexus, LdapDN name, CSN newCSN ) 
+    public static boolean isEntryUpdatable( OperationContext opContext, LdapDN name, CSN newCSN ) 
         throws Exception
     {
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+        PartitionNexus nexus = opContext.getSession().getDirectoryService().getPartitionNexus();
+        ServerEntry entry = nexus.lookup( opContext.newLookupContext( name ) );
 
         if ( entry == null )
         {
@@ -85,29 +85,32 @@ public class EntryUtil
     }
 
 
-    public static void createGlueEntries( Registries registries, PartitionNexus nexus, LdapDN name, boolean includeLeaf )
+    public static void createGlueEntries( OperationContext opContext, LdapDN name, boolean includeLeaf )
         throws Exception
     {
         assert name.size() > 0;
 
         for ( int i = name.size() - 1; i > 0; i-- )
         {
-            createGlueEntry( registries, nexus, ( LdapDN ) name.getSuffix( i ) );
+            createGlueEntry( opContext, ( LdapDN ) name.getSuffix( i ) );
         }
 
         if ( includeLeaf )
         {
-            createGlueEntry( registries, nexus, name );
+            createGlueEntry( opContext, name );
         }
     }
 
 
-    private static void createGlueEntry( Registries registries, PartitionNexus nexus, LdapDN name ) 
+    private static void createGlueEntry( OperationContext opContext, LdapDN name ) 
         throws Exception
     {
+        DirectoryService ds = opContext.getSession().getDirectoryService();
+        PartitionNexus nexus = ds.getPartitionNexus();
+        
         try
         {
-            if ( nexus.hasEntry( new EntryOperationContext( registries, name ) ) )
+            if ( nexus.hasEntry( new EntryOperationContext( opContext.getSession(), name ) ) )
             {
                 return;
             }
@@ -119,7 +122,7 @@ public class EntryUtil
         }
 
         // Create a glue entry.
-        ServerEntry entry = new DefaultServerEntry( registries, name );
+        ServerEntry entry = ds.newEntry( name );
         
         //// Add RDN attribute. 
         String rdn = name.get( name.size() - 1 );
@@ -131,7 +134,7 @@ public class EntryUtil
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
 
         // And add it to the nexus.
-        nexus.add( new AddOperationContext( registries, entry ) );
+        nexus.add( new AddOperationContext( opContext.getSession(), entry ) );
     }
 
 

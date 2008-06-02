@@ -19,10 +19,12 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import org.apache.directory.server.schema.registries.Registries;
+
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
+
 
 /**
  * A Compare context used for Interceptors. It contains all the informations
@@ -45,55 +47,60 @@ public class CompareOperationContext extends AbstractOperationContext
      * Creates a new instance of CompareOperationContext.
      *
      */
-    public CompareOperationContext( Registries registries )
+    public CompareOperationContext( CoreSession session )
     {
-    	super( registries );
+    	super( session );
     }
 
+    
     /**
      * 
      * Creates a new instance of CompareOperationContext.
      *
      */
-    public CompareOperationContext( Registries registries, LdapDN dn )
+    public CompareOperationContext( CoreSession session, LdapDN dn )
     {
-        super( registries, dn );
+        super( session, dn );
     }
 
+    
     /**
      * 
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareOperationContext( Registries registries, String oid )
+    public CompareOperationContext( CoreSession session, String oid )
     {
-    	super( registries );
+    	super( session );
         this.oid = oid;
     }
 
+    
     /**
      * 
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareOperationContext( Registries registries, LdapDN dn, String oid )
+    public CompareOperationContext( CoreSession session, LdapDN dn, String oid )
     {
-    	super( registries, dn );
+    	super( session, dn );
         this.oid = oid;
     }
 
+    
     /**
      * 
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareOperationContext( Registries registries, LdapDN dn, String oid, Object value )
+    public CompareOperationContext( CoreSession session, LdapDN dn, String oid, Object value )
     {
-    	super( registries, dn );
+    	super( session, dn );
         this.oid = oid;
         this.value = value;
     }
 
+    
     /**
      * @return The compared OID
      */
@@ -102,6 +109,7 @@ public class CompareOperationContext extends AbstractOperationContext
 		return oid;
 	}
 
+	
 	/**
 	 * Set the compared OID
 	 * @param oid The compared OID
@@ -111,6 +119,7 @@ public class CompareOperationContext extends AbstractOperationContext
 		this.oid = oid;
 	}
 
+	
 	/**
 	 * @return The value to compare
 	 */
@@ -119,6 +128,7 @@ public class CompareOperationContext extends AbstractOperationContext
 		return value;
 	}
 
+	
 	/**
 	 * Set the value to compare
 	 * @param value The value to compare

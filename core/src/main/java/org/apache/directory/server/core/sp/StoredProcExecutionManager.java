@@ -17,23 +17,30 @@
  *  under the License. 
  *  
  */
-
-
 package org.apache.directory.server.core.sp;
 
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.entry.ServerStringValue;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
 
 /**
  * A Factory type class which holds a registry of supported {@link StoredProcEngineConfig}s. A container reference
@@ -44,6 +51,7 @@ import java.util.List;
  */
 public class StoredProcExecutionManager
 {
+    private final static Set<AttributeTypeOptions> EMPTY_ATTRIBS = Collections.emptySet();
     
     private final String storedProcContainer;
 
@@ -71,15 +79,27 @@ public class StoredProcExecutionManager
      * @return The entry associated with the SP Unit.
      * @throws NamingException If the unit cannot be located or any other error occurs.
      */
-    public ServerEntry findStoredProcUnit( LdapContext rootDSE, String fullSPName, Registries registries ) throws NamingException
+    public ServerEntry findStoredProcUnit( CoreSession session, String fullSPName ) throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         String spUnitName = StoredProcUtils.extractStoredProcUnitName( fullSPName );
-        String filter = "(storedProcUnitName=" + spUnitName + ")";
-        NamingEnumeration<SearchResult> results = rootDSE.search( storedProcContainer, filter, controls );
-        return ServerEntryUtils.toServerEntry( results.nextElement().getAttributes(), LdapDN.EMPTY_LDAPDN, registries );
+        
+        AttributeType at = session.getDirectoryService()
+            .getRegistries().getAttributeTypeRegistry().lookup( "storedProcUnitName" );
+        ExprNode filter = new EqualityNode<String>( "storedProcUnitName", new ServerStringValue( at, spUnitName ) );
+        LdapDN dn = new LdapDN( storedProcContainer );
+        EntryFilteringCursor results = session.search( dn, SearchScope.SUBTREE, filter, 
+            AliasDerefMode.DEREF_ALWAYS, EMPTY_ATTRIBS );
+        if ( results.first() )
+        {
+            ClonedServerEntry entry = results.get();
+            results.close();
+            return entry;
+        }
+        
+        return null;
     }
 
 

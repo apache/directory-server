@@ -17,13 +17,10 @@
  *  under the License. 
  *  
  */
-
-
 package org.apache.directory.server.core.sp;
 
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntry;
 
 
@@ -55,12 +52,11 @@ public interface StoredProcEngine
     /**
      * Invokes the stored procedure handled by the engine.
      * 
-     * @param rootDSE A handle on Root DSE to invoke the stored procedure over.
      * @param fullSPName A fully qualified name of the stored procedure including its unit name.
      * @param spArgs A list or arguments to be passed to the stored procedure. It should be an empty array if there aren't any parameters defined.
      * @return The value obtained from invoked procedure. The client should know what will return exactly so that it can downcast to the appropriate type.
      * @throws NamingException If an error occurs during invocation.
      */
-    public Object invokeProcedure( LdapContext rootDSE, String fullSPName, Object[] spArgs ) throws NamingException;
+    public Object invokeProcedure( CoreSession session, String fullSPName, Object[] spArgs ) throws Exception;
 
 }

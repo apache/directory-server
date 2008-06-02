@@ -20,9 +20,12 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import java.util.Collection;
+
 import javax.naming.ldap.Control;
 
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -58,11 +61,6 @@ public interface OperationContext
      */
     LdapDN getDn();
     
-    
-    /**
-     *  @return The global registries 
-     */
-    Registries getRegistries();
     
     /**
      * Set the context DN
@@ -140,6 +138,14 @@ public interface OperationContext
     
     
     /**
+     * Checks if any request controls exists for this operation.
+     *
+     * @return true if any request controls exist, false otherwise
+     */
+    boolean hasRequestControls();
+    
+    
+    /**
      * Gets a request control if present for this request.
      * 
      * @param numericOid the numeric OID of the control also known as it's type OID
@@ -157,21 +163,62 @@ public interface OperationContext
     
     
     /**
-     * Set the principal DN into this context.
-     * 
-     * @param principalDn the principal DN
-     */
-    void setPrincipalDN( LdapDN principalDn );
-
-    
-    /**
-     * @return the PrincipalDN
-     */
-    LdapDN getPrincipalDN();
-    
-    
-    /**
      * @return the operation's name
      */
     String getName();
+    
+    
+    /**
+     * Checks to see if an Interceptor is bypassed for this operation.
+     *
+     * @param interceptorName the interceptorName of the Interceptor to check for bypass
+     * @return true if the Interceptor should be bypassed, false otherwise
+     */
+    boolean isBypassed( String interceptorName );
+
+
+    /**
+     * Checks to see if any Interceptors are bypassed by this Invocation.
+     *
+     * @return true if at least one bypass exists
+     */
+    boolean hasBypass();
+    
+    
+    /**
+     * Gets the set of bypassed Interceptors.
+     *
+     * @return the set of bypassed Interceptors
+     */
+    Collection<String> getByPassed();
+    
+    
+    /**
+     * Sets the set of bypassed Interceptors.
+     * 
+     * @param byPassed the set of bypassed Interceptors
+     */
+    void setByPassed( Collection<String> byPassed );
+    
+    
+    /**
+     * Gets the session associated with this operation.
+     *
+     * @return the session associated with this operation
+     */
+    CoreSession getSession();
+    
+    
+    // -----------------------------------------------------------------------
+    // Utility Factory Methods to Create New OperationContexts
+    // -----------------------------------------------------------------------
+    
+    
+    LookupOperationContext newLookupContext( LdapDN dn );
+
+    
+    ClonedServerEntry lookup( LdapDN dn, Collection<String> bypass ) throws Exception;
+    
+    
+    ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
 }

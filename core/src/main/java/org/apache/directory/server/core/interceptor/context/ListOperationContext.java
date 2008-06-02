@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
@@ -37,9 +37,9 @@ public class ListOperationContext extends SearchingOperationContext
     /**
      * Creates a new instance of ListOperationContext.
      */
-    public ListOperationContext( Registries registries )
+    public ListOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
 
 
@@ -48,9 +48,9 @@ public class ListOperationContext extends SearchingOperationContext
      *
      * @param dn The DN to get the suffix from
      */
-    public ListOperationContext( Registries registries, LdapDN dn )
+    public ListOperationContext( CoreSession session, LdapDN dn )
     {
-        super( registries, dn );
+        super( session, dn );
     }
 
 
@@ -60,9 +60,9 @@ public class ListOperationContext extends SearchingOperationContext
      * @param dn The DN to get the suffix from
      * @param aliasDerefMode the alias dereferencing mode to use
      */
-    public ListOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode )
+    public ListOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode )
     {
-        super( registries, dn, aliasDerefMode );
+        super( session, dn, aliasDerefMode );
     }
 
     

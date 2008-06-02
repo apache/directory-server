@@ -21,8 +21,10 @@ package org.apache.directory.server.core.integ;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -121,7 +123,9 @@ public class IntegrationUtils
             dn = "";
         }
 
-        return service.getJndiContext( principal, dn );
+        CoreSession session = service.getSession( principal );
+        LdapContext ctx = new ServerLdapContext( service, session, new LdapDN( dn ) );
+        return ctx;
     }
 
 

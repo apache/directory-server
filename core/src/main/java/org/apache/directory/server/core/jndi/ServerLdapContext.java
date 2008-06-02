@@ -28,6 +28,7 @@ import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
@@ -80,7 +81,14 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public ServerLdapContext( DirectoryService service, LdapPrincipal principal, LdapDN dn ) throws Exception
     {
         super( service, principal, dn );
-        refService = ( ( ReferralInterceptor ) service.getInterceptorChain().get( ReferralInterceptor.class.getName() ) );
+        refService = ( ( ReferralInterceptor ) 
+            service.getInterceptorChain().get( ReferralInterceptor.class.getName() ) );
+    }
+
+
+    public ServerLdapContext( DirectoryService service, CoreSession session, LdapDN bindDn ) throws Exception
+    {
+        super( service, session, bindDn );
     }
 
 
@@ -216,7 +224,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         }
         
         
-        CompareOperationContext opCtx = new CompareOperationContext( registries, name, oid, val );
+        CompareOperationContext opCtx = new CompareOperationContext( getSession(), name, oid, val );
         opCtx.addRequestControls( requestControls );
 
         // execute operation
@@ -248,7 +256,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public void ldapUnbind() throws NamingException
     {
         LdapDN principalDn = super.getPrincipal().getJndiName();
-        UnbindOperationContext opCtx = new UnbindOperationContext( registries, principalDn );
+        UnbindOperationContext opCtx = new UnbindOperationContext( getSession(), principalDn );
         opCtx.addRequestControls( requestControls );
         try
         {

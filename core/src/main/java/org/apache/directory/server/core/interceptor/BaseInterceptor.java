@@ -39,16 +39,15 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
-import javax.naming.ldap.LdapContext;
 import java.util.Iterator;
 
 
@@ -75,23 +74,24 @@ public abstract class BaseInterceptor implements Interceptor
     }
     
     /**
+     * TODO delete this since it uses static access
      * Returns {@link LdapPrincipal} of current context.
      * @return the authenticated principal
      */
     public static LdapPrincipal getPrincipal()
     {
-        ServerContext ctx = ( ServerContext ) getContext();
-        return ctx.getPrincipal();
+        return getContext().getSession().getEffectivePrincipal();
     }
 
 
     /**
+     * TODO delete this since it uses static access
      * Returns the current JNDI {@link Context}.
      * @return the context on the invocation stack
      */
-    public static LdapContext getContext()
+    public static OperationContext getContext()
     {
-        return ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
+        return InvocationStack.getInstance().peek();
     }
 
 

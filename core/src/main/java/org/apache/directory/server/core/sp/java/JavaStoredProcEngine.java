@@ -28,9 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.sp.StoredProcEngine;
 import org.apache.directory.server.core.sp.StoredProcUtils;
@@ -53,9 +52,9 @@ public class JavaStoredProcEngine implements StoredProcEngine
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.sp.StoredProcEngine#invokeProcedure(javax.naming.ldap.LdapContext, java.lang.String, java.lang.Object[])
+     * @see org.apache.directory.server.core.sp.StoredProcEngine#invokeProcedure(OperationContext, String, Object[])
      */
-    public Object invokeProcedure( LdapContext rootCtx, String fullSPName, Object[] spArgs ) throws NamingException
+    public Object invokeProcedure( CoreSession session, String fullSPName, Object[] spArgs ) throws Exception
     {
         EntryAttribute javaByteCode = spUnit.get( "javaByteCode" );
         String spName = StoredProcUtils.extractStoredProcName( fullSPName );

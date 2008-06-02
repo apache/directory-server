@@ -27,7 +27,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -85,9 +85,9 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of ListOperationContext.
      */
-    public SearchingOperationContext( Registries registries )
+    public SearchingOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
 
 
@@ -96,9 +96,9 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
      *
      * @param dn The DN to get the suffix from
      */
-    public SearchingOperationContext( Registries registries, LdapDN dn )
+    public SearchingOperationContext( CoreSession session, LdapDN dn )
     {
-        super( registries, dn );
+        super( session, dn );
     }
 
 
@@ -108,9 +108,9 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
      * @param dn The DN to get the suffix from
      * @param aliasDerefMode the alias dereferencing mode to use
      */
-    public SearchingOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode )
+    public SearchingOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode )
     {
-        super( registries, dn );
+        super( session, dn );
         this.aliasDerefMode = aliasDerefMode;
     }
 
@@ -122,10 +122,10 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
      * @param aliasDerefMode the alias dereferencing mode to use
      * @throws NamingException 
      */
-    public SearchingOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode, 
+    public SearchingOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode, 
         SearchControls searchControls ) throws NamingException
     {
-        super( registries, dn );
+        super( session, dn );
         this.aliasDerefMode = aliasDerefMode;
         this.scope = SearchScope.getSearchScope( searchControls );
         this.timeLimit = searchControls.getTimeLimit();
@@ -159,7 +159,9 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
                 {
                     String id = SchemaUtils.stripOptions( returnAttribute );
                     Set<String> options = SchemaUtils.getOptions( returnAttribute );
-                    AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( id );
+                    
+                    AttributeType attributeType = session.getDirectoryService()
+                        .getRegistries().getAttributeTypeRegistry().lookup( id );
                     AttributeTypeOptions attrOptions = new AttributeTypeOptions( attributeType, options );
                     
                     returningAttributes.add( attrOptions );

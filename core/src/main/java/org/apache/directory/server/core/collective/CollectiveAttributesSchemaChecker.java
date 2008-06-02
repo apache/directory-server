@@ -17,8 +17,8 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.core.collective;
+
 
 import java.util.List;
 import java.util.Set;
@@ -29,9 +29,9 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -78,13 +78,13 @@ public class CollectiveAttributesSchemaChecker
         }
     }
     
-    public void checkModify( Registries registries, LdapDN normName, List<Modification> mods ) throws Exception
+    public void checkModify( OperationContext opContext, LdapDN normName, List<Modification> mods ) throws Exception
     {
-        ServerEntry originalEntry = nexus.lookup( new LookupOperationContext( registries, normName ) );
+        ServerEntry originalEntry = nexus.lookup( new LookupOperationContext( opContext.getSession(), normName ) );
         ServerEntry targetEntry = ServerEntryUtils.toServerEntry( 
             SchemaUtils.getTargetEntry( ServerEntryUtils.toModificationItemImpl( mods ), ServerEntryUtils.toAttributesImpl( originalEntry ) ),
             normName,
-            registries);
+            opContext.getSession().getDirectoryService().getRegistries() );
         
         EntryAttribute targetObjectClasses = targetEntry.get( SchemaConstants.OBJECT_CLASS_AT );
         

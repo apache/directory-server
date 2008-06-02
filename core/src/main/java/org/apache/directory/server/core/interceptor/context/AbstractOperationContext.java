@@ -20,14 +20,15 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.ldap.Control;
 
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -45,9 +46,6 @@ public abstract class AbstractOperationContext implements OperationContext
     /** The DN associated with the context */
     private LdapDN dn;
     
-    /** The principal DN associated with the context */
-    private LdapDN principalDn;
-    
     /** The associated request's controls */
     private Map<String, Control> requestControls = new HashMap<String, Control>(4);
 
@@ -57,52 +55,44 @@ public abstract class AbstractOperationContext implements OperationContext
     /** A flag to tell that this is a collateral operation */
     private boolean collateralOperation;
     
-    /** The global registries reference */
-    private Registries registries;
-
-    /** 
-     * TODO this is temporary and needs to be removed as soon as the 
-     * InvocationStack is removed.
-     */
-    private Invocation invocation;
-
+    /** the Interceptors bypassed by this operation */
+    private Collection<String> bypassed;
     
+    private CoreSession session;
+
+
     /**
      * Creates a new instance of AbstractOperationContext.
-     *
-     * @param registries The global registries
      */
-    public AbstractOperationContext( Registries registries )
+    public AbstractOperationContext( CoreSession session )
     {
-        this.registries = registries;
+        this.session = session;
     }
     
     
     /**
      * Creates a new instance of AbstractOperationContext.
      *
-     * @param registries The global registries
      * @param dn The associated DN
      */
-    public AbstractOperationContext( Registries registries, LdapDN dn )
+    public AbstractOperationContext( CoreSession session, LdapDN dn )
     {
         this.dn = dn;
-        this.registries = registries;
+        this.session = session;
     }
 
 
     /**
      * Creates a new instance of AbstractOperationContext.
      *
-     * @param registries The global registries
      * @param dn the associated DN
      * @param collateralOperation true if op is collateral, false otherwise
      */
-    public AbstractOperationContext( Registries registries, LdapDN dn, boolean collateralOperation )
+    public AbstractOperationContext( CoreSession session, LdapDN dn, boolean collateralOperation )
     {
         this.dn = dn;
+        this.session = session;
         this.collateralOperation = collateralOperation;
-        this.registries = registries; 
     }
 
 
@@ -110,13 +100,24 @@ public abstract class AbstractOperationContext implements OperationContext
      * Creates an operation context where the operation is considered a side
      * effect of a direct operation.
      *
-     * @param registries The global registries
      * @param collateralOperation true if this is a side effect operation
      */
-    public AbstractOperationContext( Registries registries, boolean collateralOperation )
+    public AbstractOperationContext( CoreSession session, boolean collateralOperation )
     {
+        this.session = session;
         this.collateralOperation = collateralOperation;
-        this.registries = registries;
+    }
+    
+    
+    public CoreSession getSession()
+    {
+        return session;
+    }
+    
+    
+    protected void setSession( CoreSession session )
+    {
+        this.session = session;
     }
 
 
@@ -173,6 +174,12 @@ public abstract class AbstractOperationContext implements OperationContext
         return requestControls.containsKey( numericOid );
     }
 
+    
+    public boolean hasRequestControls()
+    {
+        return ! requestControls.isEmpty();
+    }
+
 
     public void addResponseControl( Control responseControl )
     {
@@ -225,71 +232,77 @@ public abstract class AbstractOperationContext implements OperationContext
 
     
     /**
-     * @return The AttributeTypeRegistry
-     */
-    public Registries getRegistries()
-    {
-        return registries;
-    }
-    
-    
-    /**
-     * Add the invocation into the invocation stack
-     * 
-     * @param invocation The new invocation.
-     */
-    public void push( Invocation invocation )
-    {
-        this.invocation = invocation;
-        InvocationStack stack = InvocationStack.getInstance();
-        stack.push( invocation );
-    }
-    
-    
-    /**
-     * Remove the invocation from the invocation stack
-     */
-    public void pop()
-    {
-        InvocationStack stack = InvocationStack.getInstance();
-        stack.pop();
-    }
-    
-    
-    /**
-     * Set the principal DN into this context.
-     * 
-     * @param principalDn the principal DN
-     */
-    public void setPrincipalDN( LdapDN principalDn )
-    {
-        this.principalDn= principalDn;
-    }
-
-    
-    /**
-     * @return the PrincipalDN
-     */
-    public LdapDN getPrincipalDN()
-    {
-        return principalDn;
-    }
-
-
-    /**
      * @return the operation name
      */
     public abstract String getName();
 
 
-    /** 
-     * TODO this is temporary and needs to be removed as soon as the 
-     * InvocationStack is removed.
-     * 
-     * @return the invocation
+    /**
+     * Gets the set of bypassed Interceptors.
+     *
+     * @return the set of bypassed Interceptors
      */
-    public Invocation getInvocation()
+    public Collection<String> getByPassed()
     {
-        return invocation;
+        if ( bypassed == null )
+        {
+            return Collections.emptyList();
+        }
+        
+        return Collections.unmodifiableCollection( bypassed );
+    }
+    
+    
+    /**
+     * Sets the set of bypassed Interceptors.
+     * 
+     * @param byPassed the set of bypassed Interceptors
+     */
+    public void setByPassed( Collection<String> byPassed )
+    {
+        this.bypassed = byPassed;
+    }
+
+    
+    /**
+     * Checks to see if an Interceptor is bypassed for this operation.
+     *
+     * @param interceptorName the interceptorName of the Interceptor to check for bypass
+     * @return true if the Interceptor should be bypassed, false otherwise
+     */
+    public boolean isBypassed( String interceptorName )
+    {
+        return bypassed != null && bypassed.contains( interceptorName );
+    }
+
+
+    /**
+     * Checks to see if any Interceptors are bypassed by this operation.
+     *
+     * @return true if at least one bypass exists
+     */
+    public boolean hasBypass()
+    {
+        return bypassed != null && !bypassed.isEmpty();
+    }
+    
+    
+    public LookupOperationContext newLookupContext( LdapDN dn )
+    {
+        return new LookupOperationContext( session, dn );
+    }
+
+
+    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
+    {
+        return session.getDirectoryService().getOperationManager().lookup( opContext );
+    }
+
+
+    public ClonedServerEntry lookup( LdapDN dn, Collection<String> byPassed ) throws Exception
+    {
+        LookupOperationContext opContext = newLookupContext( dn );
+        opContext.setByPassed( byPassed );
+        return session.getDirectoryService().getOperationManager().lookup( opContext );
     }
 }

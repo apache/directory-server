@@ -17,17 +17,19 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.kerberos.shared.store;
 
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.kerberos.shared.store.operations.AddPrincipal;
 import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
 import org.apache.directory.server.kerberos.shared.store.operations.DeletePrincipal;
 import org.apache.directory.server.kerberos.shared.store.operations.GetAllPrincipals;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.directory.DirContext;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -49,7 +51,8 @@ class SingleBaseSearch implements PrincipalStore
     {
         try
         {
-            ctx = directoryService.getJndiContext(searchBaseDn);
+            CoreSession session = directoryService.getSession();
+            ctx = new ServerLdapContext( directoryService, session, new LdapDN( searchBaseDn ) );
         } catch ( Exception e )
         {
             throw new ServiceConfigurationException("Can't get context at" + searchBaseDn, e);
@@ -86,6 +89,4 @@ class SingleBaseSearch implements PrincipalStore
     {
         return ( String ) new ChangePassword( principal, newPassword ).execute( ctx, null );
     }
-
-
 }

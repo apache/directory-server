@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.authz.support;
 
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.OperationManager;
@@ -27,17 +29,33 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.CursorIterator;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.jndi.DeadContext;
+import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.schema.registries.Registries;
@@ -51,6 +69,7 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
+import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.util.ArrayList;
@@ -170,15 +189,18 @@ public class MaxImmSubFilterTest
             null, ENTRY_NAME, null, null, ENTRY, null, null ).size() );
     }
 
-    class MockProxy extends PartitionNexusProxy
+    
+    class MockProxy implements OperationContext
     {
         final int count;
+        final CoreSession session; 
 
 
-        public MockProxy(int count) throws Exception 
+        public MockProxy( int count ) throws Exception 
         {
-            super( new DeadContext(), new MockDirectoryService() );
             this.count = count;
+            this.session = new DefaultCoreSession( new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), 
+                new MockDirectoryService( count ) );
         }
 
 
@@ -193,10 +215,185 @@ public class MaxImmSubFilterTest
         {
             return new BaseEntryFilteringCursor( new BogusCursor( count ), opContext );
         }
+
+
+        public void addRequestControl( Control requestControl )
+        {
+            // TODO Auto-generated method stub
+            
+        }
+
+
+        public void addRequestControls( Control[] requestControls )
+        {
+            // TODO Auto-generated method stub
+            
+        }
+
+
+        public void addResponseControl( Control responseControl )
+        {
+            // TODO Auto-generated method stub
+            
+        }
+
+
+        public Collection<String> getByPassed()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public LdapDN getDn()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public String getName()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public Control getRequestControl( String numericOid )
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public Control getResponseControl( String numericOid )
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public int getResponseControlCount()
+        {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+
+        public Control[] getResponseControls()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public CoreSession getSession()
+        {
+            return session;
+        }
+
+
+        public boolean hasBypass()
+        {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+
+        public boolean hasRequestControl( String numericOid )
+        {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+
+        public boolean hasRequestControls()
+        {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+
+        public boolean hasResponseControl( String numericOid )
+        {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+
+        public boolean hasResponseControls()
+        {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+
+        public boolean isBypassed( String interceptorName )
+        {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+
+        public boolean isCollateralOperation()
+        {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+
+        public ClonedServerEntry lookup( LdapDN dn, Collection<String> bypass ) throws Exception
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public LookupOperationContext newLookupContext( LdapDN dn )
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public void setByPassed( Collection<String> byPassed )
+        {
+            // TODO Auto-generated method stub
+            
+        }
+
+
+        public void setCollateralOperation( boolean collateralOperation )
+        {
+            // TODO Auto-generated method stub
+            
+        }
+
+
+        public void setDn( LdapDN dn )
+        {
+            // TODO Auto-generated method stub
+            
+        }
     }
 
     class MockDirectoryService implements DirectoryService
     {
+        int count;
+        
+        
+        public MockDirectoryService( int count )
+        {
+            this.count = count;
+        }
+        
         public Hashtable<String, Object> getEnvironment()
         {
             return null;
@@ -304,31 +501,6 @@ public class MaxImmSubFilterTest
 
 
         public DirectoryService getDirectoryService()
-        {
-            return null;
-        }
-
-
-        public LdapContext getJndiContext( String baseName ) throws NamingException
-        {
-            return null;
-        }
-
-
-        public LdapContext getJndiContext( LdapPrincipal principal ) throws NamingException
-        {
-            return null;
-        }
-
-
-        public LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException
-        {
-            return null;
-        }
-
-
-        public LdapContext getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
-            String authentication, String baseName ) throws NamingException
         {
             return null;
         }
@@ -514,9 +686,120 @@ public class MaxImmSubFilterTest
 
         public OperationManager getOperationManager()
         {
+            return new MockOperationManager( count );
+        }
+
+
+        public CoreSession getSession() throws Exception
+        {
+            return null;
+        }
+
+
+        public CoreSession getSession( LdapPrincipal principal ) throws Exception
+        {
+            return null;
+        }
+
+
+        public CoreSession getSession( LdapDN principalDn, byte[] credentials, String authentication ) throws Exception
+        {
             return null;
         }
     }
+
+    
+    class MockOperationManager implements OperationManager
+    {
+        int count;
+        
+        public MockOperationManager( int count )
+        {
+            this.count = count;
+        }
+        
+        public void add( AddOperationContext opContext ) throws Exception
+        {
+        }
+
+        
+        public void bind( BindOperationContext opContext ) throws Exception
+        {
+        }
+
+        
+        public boolean compare( CompareOperationContext opContext ) throws Exception
+        {
+            return false;
+        }
+
+
+        public void delete( DeleteOperationContext opContext ) throws Exception
+        {
+        }
+
+        public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
+        {
+            return null;
+        }
+
+        public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
+        {
+            return null;
+        }
+
+        public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception
+        {
+            return null;
+        }
+
+        public boolean hasEntry( EntryOperationContext opContext ) throws Exception
+        {
+            return false;
+        }
+
+        public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+        {
+            return null;
+        }
+
+        public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
+        {
+            return null;
+        }
+
+        public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
+        {
+            return null;
+        }
+
+        public void modify( ModifyOperationContext opContext ) throws Exception
+        {
+        }
+
+        public void move( MoveOperationContext opContext ) throws Exception
+        {
+        }
+
+        public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
+        {
+        }
+
+        public void rename( RenameOperationContext opContext ) throws Exception
+        {
+        }
+
+        public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
+        {
+            return new BaseEntryFilteringCursor( new BogusCursor( count ), opContext );
+        }
+
+
+        public void unbind( UnbindOperationContext opContext ) throws Exception
+        {
+        }
+    }
+    
 
     class BogusCursor implements Cursor<ServerEntry>
     {

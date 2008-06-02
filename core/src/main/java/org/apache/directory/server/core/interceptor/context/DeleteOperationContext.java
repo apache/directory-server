@@ -19,9 +19,11 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import org.apache.directory.server.schema.registries.Registries;
+
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A Delete context used for Interceptors. It contains all the informations
@@ -35,9 +37,9 @@ public class DeleteOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of DeleteOperationContext.
      */
-    public DeleteOperationContext( Registries registries )
+    public DeleteOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
     
 
@@ -46,9 +48,9 @@ public class DeleteOperationContext extends AbstractOperationContext
      *
      * @param collateralOperation true if this is a side effect operation
      */
-    public DeleteOperationContext( Registries registries, boolean collateralOperation )
+    public DeleteOperationContext( CoreSession session, boolean collateralOperation )
     {
-        super( registries, collateralOperation );
+        super( session, collateralOperation );
     }
 
 
@@ -57,9 +59,9 @@ public class DeleteOperationContext extends AbstractOperationContext
      *
      * @param deleteDn The entry DN to delete
      */
-    public DeleteOperationContext( Registries registries, LdapDN deleteDn )
+    public DeleteOperationContext( CoreSession session, LdapDN deleteDn )
     {
-        super( registries, deleteDn );
+        super( session, deleteDn );
     }
 
 
@@ -69,9 +71,9 @@ public class DeleteOperationContext extends AbstractOperationContext
      * @param deleteDn The entry DN to delete
      * @param collateralOperation true if this is a side effect operation
      */
-    public DeleteOperationContext( Registries registries, LdapDN deleteDn, boolean collateralOperation )
+    public DeleteOperationContext( CoreSession session, LdapDN deleteDn, boolean collateralOperation )
     {
-        super( registries, deleteDn, collateralOperation );
+        super( session, deleteDn, collateralOperation );
     }
 
 

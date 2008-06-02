@@ -18,14 +18,16 @@
  *  
  */
 package org.apache.directory.server.core.interceptor.context;
+ 
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
+
 
 /**
  * A Lookup context used for Interceptors. It contains all the informations
@@ -42,34 +44,37 @@ public class LookupOperationContext extends AbstractOperationContext
     /** The list of attributes OIDs for attributes to be returned */
     private List<String> attrsOid;
     
+    
     /**
      * 
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupOperationContext( Registries registries )
+    public LookupOperationContext( CoreSession session )
     {
-    	super( registries );
+    	super( session );
     }
+    
 
     /**
      * 
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupOperationContext( Registries registries, LdapDN dn )
+    public LookupOperationContext( CoreSession session, LdapDN dn )
     {
-        super( registries, dn );
+        super( session, dn );
     }
+    
 
     /**
      * 
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupOperationContext( Registries registries, String attrsId[] )
+    public LookupOperationContext( CoreSession session, String attrsId[] )
     {
-    	super( registries );
+    	super( session );
         this.attrsId = new ArrayList<String>();
         attrsOid = new ArrayList<String>();
         setAttrsId( attrsId );
@@ -80,9 +85,9 @@ public class LookupOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupOperationContext( Registries registries, LdapDN dn, String attrsId[] )
+    public LookupOperationContext( CoreSession session, LdapDN dn, String attrsId[] )
     {
-        super( registries, dn );
+        super( session, dn );
         this.attrsId = new ArrayList<String>();
         attrsOid = new ArrayList<String>();
         setAttrsId( attrsId );

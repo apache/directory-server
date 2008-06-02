@@ -17,11 +17,12 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.dns.store.jndi;
 
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResourceRecord;
@@ -31,6 +32,7 @@ import org.apache.directory.server.protocol.shared.ServiceConfigurationException
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
 import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +65,8 @@ public class MultiBaseSearch implements SearchStrategy
         this.directoryService = directoryService;
         try
         {
-            DirContext ctx = directoryService.getJndiContext(catalogBaseDn);
+            CoreSession session = directoryService.getSession();
+            DirContext ctx = new ServerLdapContext( directoryService, session, new LdapDN( catalogBaseDn ) );
             //noinspection unchecked
             catalog = new DnsCatalog( ( Map<String, Object> ) new GetCatalog().execute( ctx, null ) );
         }
@@ -82,7 +85,8 @@ public class MultiBaseSearch implements SearchStrategy
         {
             GetRecords getRecords = new GetRecords( question );
             String baseDn = catalog.getBaseDn( question.getDomainName() );
-            DirContext dirContext = directoryService.getJndiContext( baseDn );
+            CoreSession session = directoryService.getSession();
+            DirContext dirContext = new ServerLdapContext( directoryService, session, new LdapDN( baseDn ) );
             return getRecords.execute( dirContext, null );
         }
         catch ( LdapNameNotFoundException lnnfe )
@@ -104,6 +108,4 @@ public class MultiBaseSearch implements SearchStrategy
         }
 
     }
-
-
 }

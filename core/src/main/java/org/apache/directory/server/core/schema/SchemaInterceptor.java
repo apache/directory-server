@@ -1098,12 +1098,11 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
 
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
+        ClonedServerEntry entry = nexus.lookup( opContext.newLookupContext( oriChildName ) );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
-            schemaManager.move( oriChildName, opContext.getParent(), opContext.getNewRdn(), opContext.getDelOldDn(),
-                entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
+            schemaManager.move( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
 
         next.moveAndRename( opContext );
@@ -1114,12 +1113,11 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
 
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, oriChildName ) );
+        ClonedServerEntry entry = nexus.lookup( opContext.newLookupContext( oriChildName ) );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
-            schemaManager.replace( oriChildName, opContext.getParent(), entry, opContext
-                .hasRequestControl( CascadeControl.CONTROL_OID ) );
+            schemaManager.replace( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
 
         next.move( opContext );
@@ -1132,11 +1130,11 @@ public class SchemaInterceptor extends BaseInterceptor
         Rdn newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
 
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+        ServerEntry entry = nexus.lookup( opContext.newLookupContext( name ) );
 
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.modifyRn( name, newRdn, deleteOldRn, entry, opContext
+            schemaManager.modifyRn( opContext, entry, opContext
                 .hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
 
@@ -1158,7 +1156,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
         else
         {
-            entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+            entry = nexus.lookup( opContext.newLookupContext( name ) );
         }
 
         // First, we get the entry from the backend. If it does not exist, then we throw an exception
@@ -1431,14 +1429,14 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             LOG.debug( "Modification attempt on schema partition {}: \n{}", name, opContext );
 
-            schemaManager.modify( name, mods, entry, targetEntry, opContext
+            schemaManager.modify( opContext, entry, targetEntry, opContext
                 .hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
         else if ( subschemaSubentryDnNorm.equals( name.getNormName() ) )
         {
             LOG.debug( "Modification attempt on schema subentry {}: \n{}", name, opContext );
 
-            schemaManager.modifySchemaSubentry( name, mods, entry, targetEntry, opContext
+            schemaManager.modifySchemaSubentry( opContext, entry, targetEntry, opContext
                 .hasRequestControl( CascadeControl.CONTROL_OID ) );
             return;
         }
@@ -1661,7 +1659,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.add( name, entry );
+            schemaManager.add( addContext );
         }
 
         next.add( addContext );
@@ -1711,8 +1709,8 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( name.startsWith( schemaBaseDN ) )
         {
-            ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
-            schemaManager.delete( name, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
+            ClonedServerEntry entry = nexus.lookup( opContext.newLookupContext( name ) );
+            schemaManager.delete( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
 
         next.delete( opContext );

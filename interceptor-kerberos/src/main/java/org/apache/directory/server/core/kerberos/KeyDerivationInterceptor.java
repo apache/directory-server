@@ -36,9 +36,6 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
@@ -161,7 +158,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             entry.put( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principalName );
             entry.put( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, "0" );
 
-            entry.put( getKeyAttribute( addContext.getRegistries(), keys ) );
+            entry.put( getKeyAttribute( addContext.getSession().getDirectoryService().getRegistries(), keys ) );
 
             log.debug( "Adding modified entry '{}' for DN '{}'.", entry, normName
                 .getUpName() );
@@ -289,22 +286,16 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     {
         LdapDN principalDn = modContext.getDn();
 
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-        ClonedServerEntry userEntry;
-
-        LookupOperationContext lookupContext = 
-            new LookupOperationContext( modContext.getRegistries(),
-                new String[]
-                           { 
-                            SchemaConstants.OBJECT_CLASS_AT, 
-                            KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
-                            KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT 
-                           } );
+        LookupOperationContext lookupContext = modContext.newLookupContext( principalDn );
+        lookupContext.setByPassed( USERLOOKUP_BYPASS );
+        lookupContext.setAttrsId( new String[] 
+        { 
+            SchemaConstants.OBJECT_CLASS_AT, 
+            KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
+            KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT 
+        } );
         
-        lookupContext.setDn( principalDn );
-
-        userEntry = proxy.lookup( lookupContext, USERLOOKUP_BYPASS );
+        ClonedServerEntry userEntry = modContext.lookup( lookupContext );
 
         if ( userEntry == null )
         {
@@ -376,7 +367,8 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             newModsList.add( mod );
         }
         
-        AttributeTypeRegistry atRegistry = modContext.getRegistries().getAttributeTypeRegistry();
+        AttributeTypeRegistry atRegistry = modContext.getSession()
+            .getDirectoryService().getRegistries().getAttributeTypeRegistry();
 
         // Add our modification items.
         newModsList.add( 
@@ -394,9 +386,9 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                     atRegistry.lookup( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ),
                     Integer.toString( kvno ) ) ) );
         
-        ServerAttribute attribute = getKeyAttribute( modContext.getRegistries(), keys );
-        newModsList.add( 
-            new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute ) );
+        ServerAttribute attribute = getKeyAttribute( modContext.getSession()
+            .getDirectoryService().getRegistries(), keys );
+        newModsList.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute ) );
 
         modContext.setModItems( newModsList );
     }

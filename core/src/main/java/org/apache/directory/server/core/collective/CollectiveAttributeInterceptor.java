@@ -32,11 +32,11 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -61,9 +61,6 @@ import java.util.Set;
  */
 public class CollectiveAttributeInterceptor extends BaseInterceptor
 {
-    /** The global registries */
-    private Registries registries;
-    
     /** The attributeType registry */
     private AttributeTypeRegistry atRegistry;
     
@@ -88,7 +85,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             }
             
             String[] retAttrs = operation.getSearchControls().getReturningAttributes();
-            addCollectiveAttributes( name, result, retAttrs );
+            addCollectiveAttributes( operation, result, retAttrs );
             return true;
         }
     };
@@ -99,7 +96,6 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         nexus = directoryService.getPartitionNexus();
         atRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         collectiveAttributesSchemaChecker = new CollectiveAttributesSchemaChecker( nexus, atRegistry );
-        registries = directoryService.getRegistries();
     }
 
 
@@ -109,12 +105,14 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      * attributes that are specified to be excluded via the 'collectiveExclusions'
      * attribute in the entry.
      *
-     * @param normName name of the entry being processed
+     * @param opContext the context of the operation collective attributes 
+     * are added to
      * @param entry the entry to have the collective attributes injected
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
      * @throws NamingException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( LdapDN normName, ClonedServerEntry entry, String[] retAttrs ) throws Exception
+    private void addCollectiveAttributes( OperationContext opContext, ClonedServerEntry entry, 
+        String[] retAttrs ) throws Exception
     {
         EntryAttribute collectiveAttributeSubentries = 
             entry.getOriginalEntry().get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
@@ -197,7 +195,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         {
             String subentryDnStr = ( String ) value.get();
             LdapDN subentryDn = new LdapDN( subentryDnStr );
-            ServerEntry subentry = nexus.lookup( new LookupOperationContext( registries, subentryDn ) );
+            ServerEntry subentry = nexus.lookup( new LookupOperationContext( opContext.getSession(), subentryDn ) );
             
             for ( AttributeType attributeType:subentry.getAttributeTypes() )
             {
@@ -306,11 +304,11 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         
         if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) ) 
         {
-            addCollectiveAttributes( opContext.getDn(), result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+            addCollectiveAttributes( opContext, result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         }
         else
         {
-            addCollectiveAttributes( opContext.getDn(), result, opContext.getAttrsIdArray() );
+            addCollectiveAttributes( opContext, result, opContext.getAttrsIdArray() );
         }
 
         return result;
@@ -348,7 +346,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
-        collectiveAttributesSchemaChecker.checkModify( opContext.getRegistries(),opContext.getDn(), opContext.getModItems() );
+        collectiveAttributesSchemaChecker.checkModify( opContext,opContext.getDn(), opContext.getModItems() );
 
         next.modify( opContext );
     }

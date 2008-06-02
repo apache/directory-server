@@ -385,10 +385,10 @@ public class SchemaService
         if ( schemaSubentry == null )
         {
             generateSchemaSubentry( schemaPartition.lookup(
-                    new LookupOperationContext( registries, schemaModificationAttributesDN ) ) );
+                    new LookupOperationContext( null, schemaModificationAttributesDN ) ) );
         }
 
-        return (ServerEntry)schemaSubentry.clone();
+        return ( ServerEntry ) schemaSubentry.clone();
     }
 
 
@@ -403,7 +403,7 @@ public class SchemaService
         if ( schemaSubentry == null )
         {
             generateSchemaSubentry( schemaPartition.lookup(
-                    new LookupOperationContext( registries, schemaModificationAttributesDN ) ) );
+                    new LookupOperationContext( null, schemaModificationAttributesDN ) ) );
         }
 
         return ( ServerEntry ) schemaSubentry.clone();
@@ -435,7 +435,8 @@ public class SchemaService
             // Check if we need an update by looking at timestamps on disk
             // ---------------------------------------------------------------
 
-            ServerEntry mods = schemaPartition.lookup( new LookupOperationContext( registries, schemaModificationAttributesDN ) );
+            ServerEntry mods = 
+                schemaPartition.lookup( new LookupOperationContext( null, schemaModificationAttributesDN ) );
 // @todo enable this optimization at some point but for now it
 // is causing some problems so I will just turn it off
 //          Attribute modifyTimeDisk = mods.get( SchemaConstants.MODIFY_TIMESTAMP_AT );

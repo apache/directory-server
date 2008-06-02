@@ -85,9 +85,6 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /** The attributeType registry */
     private AttributeTypeRegistry atRegistry;
     
-    /** The global registries */
-    private Registries registries;
-    
     private final AttributeType mOidAT;
     private final AttributeType mNameAT;
     private final AttributeType cnAT;
@@ -103,11 +100,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private static Map<String, LdapDN> staticSyntaxCheckersDNs = new HashMap<String, LdapDN>();
     private static Map<String, LdapDN> staticSyntaxesDNs = new HashMap<String, LdapDN>();
     
+    
     public PartitionSchemaLoader( Partition partition, Registries registries ) throws Exception
     {
         this.factory = new SchemaEntityFactory( registries );
         this.partition = partition;
-        this.registries = registries;
         atRegistry = registries.getAttributeTypeRegistry();
         
         dao = new SchemaPartitionDao( this.partition, registries );
@@ -128,6 +125,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         initStaticDNs( "cosine" );
         initStaticDNs( "inetorgperson" );
     }
+    
     
     private void initStaticDNs( String schemaName ) throws Exception
     {
@@ -418,14 +416,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticObjectClassesDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading objectClasses", schema.getSchemaName() );
         
-        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
         
         while ( list.next() )
         {
@@ -519,14 +517,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticAttributeTypeDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading attributeTypes", schema.getSchemaName() );
         
-        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
         
         while ( list.next() )
         {
@@ -617,14 +615,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticMatchingRulesDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading matchingRules", schema.getSchemaName() );
         
-        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
         
         while ( list.next() )
         {
@@ -650,14 +648,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticSyntaxesDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading syntaxes", schema.getSchemaName() );
         
-        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
         
         while ( list.next() )
         {
@@ -682,14 +680,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticSyntaxCheckersDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading syntaxCheckers", schema.getSchemaName() );
         
-        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
         
         while ( list.next() )
         {
@@ -716,14 +714,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticNormalizersDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading normalizers", schema.getSchemaName() );
         
-        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
         
         while ( list.next() )
         {
@@ -780,10 +778,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     
     private ClonedServerEntry lookupPartition( LdapDN dn ) throws Exception
     {
-        return partition.lookup( new LookupOperationContext( registries, dn ) );
+        return partition.lookup( new LookupOperationContext( null, dn ) );
     }
     
     
+    @SuppressWarnings("unchecked")
     private void loadComparators( Schema schema, Registries targetRegistries ) throws Exception
     {
         LdapDN dn = staticComparatorsDNs.get( schema.getSchemaName() );
@@ -795,14 +794,14 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticComparatorsDNs.put( schema.getSchemaName(), dn );
         }
 
-        if ( ! partition.hasEntry( new EntryOperationContext( registries, dn ) ) )
+        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
         {
             return;
         }
         
         LOG.debug( "{} schema: loading comparators", schema.getSchemaName() );
         
-        EntryFilteringCursor list = partition.list( new ListOperationContext( registries, dn ) );
+        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
         
         while ( list.next() )
         {

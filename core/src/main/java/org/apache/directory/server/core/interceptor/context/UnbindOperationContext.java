@@ -19,9 +19,11 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import org.apache.directory.server.schema.registries.Registries;
+
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A Unbind context used for Interceptors. It contains all the informations
@@ -35,19 +37,20 @@ public class UnbindOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of UnbindOperationContext.
      */
-    public UnbindOperationContext( Registries registries )
+    public UnbindOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
     
+
     /**
      * Creates a new instance of UnbindOperationContext.
      *
      * @param principalDn The principal DN to unbind
      */
-    public UnbindOperationContext( Registries registries, LdapDN principalDn )
+    public UnbindOperationContext( CoreSession session, LdapDN principalDn )
     {
-        super( registries, principalDn );
+        super( session, principalDn );
     }
     
 

@@ -23,9 +23,11 @@ package org.apache.directory.server.configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
@@ -403,9 +405,9 @@ public class ApacheDS
         dn.normalize( reg.getNormalizerMapping() );
         
         LdapPrincipal admin = new LdapPrincipal( dn, AuthenticationLevel.STRONG );
-        
-        
-        DirContext root = directoryService.getJndiContext( admin );
+        CoreSession session = directoryService.getSession( admin );
+        DirContext root = new ServerLdapContext( directoryService, session, new LdapDN() );
+
         ensureLdifFileBase( root );
 
         // if ldif directory is a file try to load it

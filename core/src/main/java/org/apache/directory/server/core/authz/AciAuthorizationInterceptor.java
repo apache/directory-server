@@ -21,6 +21,8 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
@@ -43,14 +45,11 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -60,6 +59,7 @@ import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -202,8 +202,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
 
-        tupleCache = new TupleCache( directoryService );
-        groupCache = new GroupCache( directoryService );
+        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        adminDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        CoreSession adminSession = new DefaultCoreSession( 
+            new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+
+        tupleCache = new TupleCache( adminSession );
+        groupCache = new GroupCache( adminSession );
         registries = directoryService.getRegistries();
         atRegistry = registries.getAttributeTypeRegistry();
         OidRegistry oidRegistry = registries.getOidRegistry();
@@ -269,7 +274,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */
-    private void addPerscriptiveAciTuples( PartitionNexusProxy proxy, Collection<ACITuple> tuples, LdapDN dn,
+    private void addPerscriptiveAciTuples( OperationContext opContext, Collection<ACITuple> tuples, LdapDN dn,
         ServerEntry entry ) throws Exception
     {
         EntryAttribute oc = entry.get( objectClassType );
@@ -287,7 +292,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             LdapDN parentDn = ( LdapDN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
-            entry = proxy.lookup( new LookupOperationContext( registries, parentDn), PartitionNexusProxy.LOOKUP_BYPASS );
+            entry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
         }
 
         EntryAttribute subentries = entry.get( acSubentryType );
@@ -353,7 +358,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */
-    private void addSubentryAciTuples( PartitionNexusProxy proxy, Collection<ACITuple> tuples, LdapDN dn, ServerEntry entry )
+    private void addSubentryAciTuples( OperationContext opContext, Collection<ACITuple> tuples, LdapDN dn, ServerEntry entry )
         throws Exception
     {
         // only perform this for subentries
@@ -366,14 +371,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will contain the subentryACI attributes that effect subentries
         LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( dn.size() - 1 );
-        ServerEntry administrativeEntry =  
-            proxy.lookup( 
-        		new LookupOperationContext( 
-        		    registries, 
-        		    parentDn, 
-        		    new String[]
-        		               { SchemaConstants.SUBENTRY_ACI_AT }) , 
-        		PartitionNexusProxy.LOOKUP_BYPASS ).getOriginalEntry();
+        ServerEntry administrativeEntry = opContext.lookup( parentDn, 
+            Collections.singletonList( SchemaConstants.SUBENTRY_ACI_AT ) ).getOriginalEntry();
         
         EntryAttribute subentryAci = administrativeEntry.get( subentryAciType );
 
@@ -427,8 +426,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        Invocation invocation = InvocationStack.getInstance().peek();
-        LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
+        LdapPrincipal principal = addContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
         
         ServerEntry serverEntry = addContext.getEntry(); 
@@ -467,12 +465,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // Build the total collection of tuples to be considered for add rights
         // NOTE: entryACI are NOT considered in adds (it would be a security breech)
-        addPerscriptiveAciTuples( invocation.getProxy(), tuples, name, subentryAttrs );
-        addSubentryAciTuples( invocation.getProxy(), tuples, name, subentryAttrs );
+        addPerscriptiveAciTuples( addContext, tuples, name, subentryAttrs );
+        addSubentryAciTuples( addContext, tuples, name, subentryAttrs );
 
         // check if entry scope permission is granted
-        PartitionNexusProxy proxy = invocation.getProxy();
-        engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
+        engine.checkPermission( registries, addContext, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
             ADD_PERMS, tuples, subentryAttrs, null );
 
         // now we must check if attribute type and value scope permission is granted
@@ -480,8 +477,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             for ( Value<?> value:attribute )
             {
-                engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attribute
-                    .getUpId(), value, ADD_PERMS, tuples, serverEntry, null );
+                engine.checkPermission( registries, addContext, userGroups, principalDn, 
+                    principal.getAuthenticationLevel(), name, attribute.getUpId(), value, 
+                    ADD_PERMS, tuples, serverEntry, null );
             }
         }
 
@@ -505,11 +503,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
     	LdapDN name = deleteContext.getDn();
     	
-        // Access the principal requesting the operation, and bypass checks if it is the admin
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-
-        LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
+        LdapPrincipal principal = deleteContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
 
         // bypass authz code if we are disabled
@@ -519,7 +513,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, name ) , PartitionNexusProxy.LOOKUP_BYPASS );
+        ClonedServerEntry entry = deleteContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 
         protectCriticalEntries( name );
 
@@ -534,12 +528,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( proxy, tuples, name, entry );
+        addPerscriptiveAciTuples( deleteContext, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( proxy, tuples, name, entry );
+        addSubentryAciTuples( deleteContext, tuples, name, entry );
 
-        engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
-            REMOVE_PERMS, tuples, entry, null );
+        engine.checkPermission( registries, deleteContext, userGroups, principalDn, 
+            principal.getAuthenticationLevel(), name, null, null, REMOVE_PERMS, tuples, entry, null );
 
         next.delete( deleteContext );
         tupleCache.subentryDeleted( name, entry );
@@ -549,15 +543,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
-        // Access the principal requesting the operation, and bypass checks if it is the admin
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
         LdapDN name = opContext.getDn();
 
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
+        ClonedServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
         
-        LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
+        LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
 
         // bypass authz code if we are disabled
@@ -576,7 +567,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             /**
              * @TODO: A virtual entry can be created here for not hitting the backend again.
              */
-            ServerEntry modifiedEntry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
+            ServerEntry modifiedEntry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
             tupleCache.subentryModified( name, mods, modifiedEntry );
             groupCache.groupModified( name, mods, entry, registries );
             return;
@@ -584,11 +575,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( proxy, tuples, name, entry );
+        addPerscriptiveAciTuples( opContext, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( proxy, tuples, name, entry );
+        addSubentryAciTuples( opContext, tuples, name, entry );
 
-        engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
+        engine.checkPermission( registries, opContext, userGroups, principalDn, 
+            principal.getAuthenticationLevel(), name, null, null, 
             Collections.singleton( MicroOperation.MODIFY ), tuples, entry, null );
 
         Collection<MicroOperation> perms = null;
@@ -607,7 +599,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                     if ( entry.get( attr.getId() ) == null )
                     {
                         // ... we also need to check if adding the attribute is permitted
-                        engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
+                        engine.checkPermission( registries, opContext, userGroups, principalDn, principal.getAuthenticationLevel(), name,
                                 attr.getId(), null, perms, tuples, entry, null );
                     }
                     
@@ -623,8 +615,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                         if ( entryAttr.size() == 1 )
                         {
                             // ... we also need to check if removing the attribute at all is permitted
-                            engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                                    attr.getId(), null, perms, tuples, entry, null );
+                            engine.checkPermission( registries, opContext, userGroups, principalDn, 
+                                principal.getAuthenticationLevel(), name, attr.getId(), 
+                                null, perms, tuples, entry, null );
                         }
                     }
                     
@@ -652,8 +645,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             
             for ( Value<?> value:attr )
             {                
-                engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                        attr.getId(), value, perms, tuples, entry, entryView );
+                engine.checkPermission( registries, opContext, userGroups, principalDn, 
+                    principal.getAuthenticationLevel(), name, attr.getId(), value, 
+                    perms, tuples, entry, entryView );
             }
         }
 
@@ -663,21 +657,20 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         /**
          * @TODO: A virtual entry can be created here for not hitting the backend again.
          */
-        ServerEntry modifiedEntry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
+        ServerEntry modifiedEntry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
         tupleCache.subentryModified( name, mods, modifiedEntry );
         groupCache.groupModified( name, mods, entry, registries );
     }
 
+    
     public boolean hasEntry( NextInterceptor next, EntryOperationContext entryContext ) throws Exception
     {
         LdapDN name = entryContext.getDn();
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
         
-        ClonedServerEntry entry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
+        ClonedServerEntry entry = entryContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
             
         
-        LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
+        LdapPrincipal principal = entryContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
 
         if ( isPrincipalAnAdministrator( principalDn ) || !enabled || ( name.size() == 0 ) ) // no checks on the rootdse
@@ -688,12 +681,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( proxy, tuples, name, entry.getOriginalEntry() );
+        addPerscriptiveAciTuples( entryContext, tuples, name, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry.getOriginalEntry() );
-        addSubentryAciTuples( proxy, tuples, name, entry.getOriginalEntry() );
+        addSubentryAciTuples( entryContext, tuples, name, entry.getOriginalEntry() );
 
         // check that we have browse access to the entry
-        engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
+        engine.checkPermission( registries, entryContext, userGroups, principalDn, 
+            principal.getAuthenticationLevel(), name, null, null,
             BROWSE_PERMS, tuples, entry.getOriginalEntry(), null );
 
         return next.hasEntry( entryContext );
@@ -715,24 +709,25 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @param entry the raw entry pulled from the nexus
      * @throws Exception if undlying access to the DIT fails
      */
-    private void checkLookupAccess( LdapPrincipal principal, LdapDN dn, ServerEntry entry ) throws Exception
+    private void checkLookupAccess( LookupOperationContext lookupContext, ServerEntry entry ) throws Exception
     {
         // no permissions checks on the RootDSE
-        if ( dn.toString().trim().equals( "" ) )
+        if ( lookupContext.getDn().toString().trim().equals( "" ) )
         {
             return;
         }
 
-        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
+        LdapPrincipal principal = lookupContext.getSession().getEffectivePrincipal();
         LdapDN userName = principal.getJndiName();
         Set<LdapDN> userGroups = groupCache.getGroups( userName.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( proxy, tuples, dn, entry );
+        addPerscriptiveAciTuples( lookupContext, tuples, lookupContext.getDn(), entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( proxy, tuples, dn, entry );
+        addSubentryAciTuples( lookupContext, tuples, lookupContext.getDn(), entry );
 
         // check that we have read access to the entry
-        engine.checkPermission( registries, proxy, userGroups, userName, principal.getAuthenticationLevel(), dn, null, null,
+        engine.checkPermission( registries, lookupContext, userGroups, userName, principal.getAuthenticationLevel(), 
+            lookupContext.getDn(), null, null,
             LOOKUP_PERMS, tuples, entry, null );
 
         // check that we have read access to every attribute type and value
@@ -743,11 +738,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             {
                 engine.checkPermission( 
                     registries, 
-                    proxy, 
+                    lookupContext, 
                     userGroups, 
                     userName, 
                     principal.getAuthenticationLevel(), 
-                    dn, 
+                    lookupContext.getDn(), 
                     attribute.getUpId(), 
                     value, 
                     READ_PERMS, 
@@ -761,8 +756,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws Exception
     {
-        Invocation invocation = InvocationStack.getInstance().peek();
-        LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
+        LdapPrincipal principal = lookupContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
         
         if ( !principalDn.isNormalized() )
@@ -775,24 +769,22 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return next.lookup( lookupContext );
         }
 
-        PartitionNexusProxy proxy = invocation.getProxy();
-        ServerEntry entry = proxy.lookup( lookupContext, PartitionNexusProxy.LOOKUP_BYPASS );
+        lookupContext.setByPassed( ByPassConstants.LOOKUP_BYPASS );
+        ServerEntry entry = lookupContext.getSession().getDirectoryService()
+            .getOperationManager().lookup( lookupContext );
 
-        checkLookupAccess( principal, lookupContext.getDn(), entry );
+        checkLookupAccess( lookupContext, entry );
         return next.lookup( lookupContext );
     }
 
+    
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
     {
         LdapDN name = renameContext.getDn();
 
-        // Access the principal requesting the operation, and bypass checks if it is the admin
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
+        ServerEntry entry = renameContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
         
-        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, name ), PartitionNexusProxy.LOOKUP_BYPASS );
-        
-        LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
+        LdapPrincipal principal = renameContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
         LdapDN newName = ( LdapDN ) name.clone();
         newName.remove( name.size() - 1 );
@@ -822,11 +814,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( proxy, tuples, name, entry );
+        addPerscriptiveAciTuples( renameContext, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( proxy, tuples, name, entry );
+        addSubentryAciTuples( renameContext, tuples, name, entry );
 
-        engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
+        engine.checkPermission( registries, renameContext, userGroups, principalDn, 
+            principal.getAuthenticationLevel(), name, null, null,
             RENAME_PERMS, tuples, entry, null );
 
         next.rename( renameContext );
@@ -841,13 +834,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN oriChildName = moveAndRenameContext.getDn();
         LdapDN newParentName = moveAndRenameContext.getParent();
 
-        // Access the principal requesting the operation, and bypass checks if it is the admin
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
+        ServerEntry entry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
         
-        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
-        
-            LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
+        LdapPrincipal principal = moveAndRenameContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
         LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( moveAndRenameContext.getNewRdn().getUpName() );
@@ -872,11 +861,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( proxy, tuples, oriChildName, entry );
+        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oriChildName, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( proxy, tuples, oriChildName, entry );
+        addSubentryAciTuples( moveAndRenameContext, tuples, oriChildName, entry );
 
-        engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), oriChildName, null,
+        engine.checkPermission( registries, moveAndRenameContext, userGroups, 
+            principalDn, principal.getAuthenticationLevel(), oriChildName, null,
             null, MOVERENAME_PERMS, tuples, entry, null );
 
         // Get the entry again without operational attributes
@@ -884,10 +874,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        ServerEntry importedEntry = proxy.lookup( 
-            new LookupOperationContext( registries, oriChildName ), 
-                PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
-            
+        
+        ClonedServerEntry importedEntry = moveAndRenameContext.lookup( oriChildName, 
+            ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
@@ -904,10 +893,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         
         Collection<ACITuple> destTuples = new HashSet<ACITuple>();
         // Import permission is only valid for prescriptive ACIs
-        addPerscriptiveAciTuples( proxy, destTuples, newName, subentryAttrs );
+        addPerscriptiveAciTuples( moveAndRenameContext, destTuples, newName, subentryAttrs );
         // Evaluate the target context to see whether it
         // allows an entry named newName to be imported as a subordinate.
-        engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), newName, null,
+        engine.checkPermission( registries, moveAndRenameContext, userGroups, principalDn, 
+            principal.getAuthenticationLevel(), newName, null,
             null, IMPORT_PERMS, destTuples, subentryAttrs, null );
 
 
@@ -923,13 +913,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN newParentName = moveContext.getParent();
         
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-        ServerEntry entry = proxy.lookup( new LookupOperationContext( registries, oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
+        ServerEntry entry = moveContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
        
         LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
-        LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
+        LdapPrincipal principal = moveContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
 
         // bypass authz code if we are disabled
@@ -952,11 +940,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( proxy, tuples, oriChildName, entry );
+        addPerscriptiveAciTuples( moveContext, tuples, oriChildName, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( proxy, tuples, oriChildName, entry );
+        addSubentryAciTuples( moveContext, tuples, oriChildName, entry );
 
-        engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), oriChildName, null,
+        engine.checkPermission( registries, moveContext, userGroups, principalDn, 
+            principal.getAuthenticationLevel(), oriChildName, null,
             null, EXPORT_PERMS, tuples, entry, null );
         
         // Get the entry again without operational attributes
@@ -964,16 +953,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        ServerEntry importedEntry = proxy.lookup( 
-            new LookupOperationContext( registries, oriChildName ), 
-                PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        ServerEntry importedEntry = moveContext.lookup( oriChildName, 
+            ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
             
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
+        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) 
+            chain.get( SubentryInterceptor.class.getName() );
         ServerEntry subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
         
         for ( EntryAttribute attribute:importedEntry )
@@ -983,10 +972,11 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         
         Collection<ACITuple> destTuples = new HashSet<ACITuple>();
         // Import permission is only valid for prescriptive ACIs
-        addPerscriptiveAciTuples( proxy, destTuples, newName, subentryAttrs );
+        addPerscriptiveAciTuples( moveContext, destTuples, newName, subentryAttrs );
         // Evaluate the target context to see whether it
         // allows an entry named newName to be imported as a subordinate.
-        engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), newName, null,
+        engine.checkPermission( registries, moveContext, userGroups, principalDn, 
+            principal.getAuthenticationLevel(), newName, null,
             null, IMPORT_PERMS, destTuples, subentryAttrs, null );
 
         next.move( moveContext );
@@ -997,9 +987,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     
     public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
-        Invocation invocation = InvocationStack.getInstance().peek();
-        ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
-        LdapPrincipal user = ctx.getPrincipal();
+        LdapPrincipal user = opContext.getSession().getEffectivePrincipal();
         EntryFilteringCursor cursor = next.list( opContext );
         
         if ( isPrincipalAnAdministrator( user.getJndiName() ) || !enabled )
@@ -1015,9 +1003,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
-        Invocation invocation = InvocationStack.getInstance().peek();
-        ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
-        LdapPrincipal user = ctx.getPrincipal();
+        LdapPrincipal user = opContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = user.getJndiName();
         EntryFilteringCursor cursor = next.search( opContext );
 
@@ -1046,15 +1032,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     	LdapDN name = opContext.getDn();
     	String oid = opContext.getOid();
     	Value<?> value = (Value<?>)opContext.getValue();
-    	
-        // Access the principal requesting the operation, and bypass checks if it is the admin
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-        ServerEntry entry = proxy.lookup( 
-        		new LookupOperationContext( registries, name ), 
-        		PartitionNexusProxy.LOOKUP_BYPASS );
 
-        LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
+        ClonedServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+
+        LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
 
         if ( isPrincipalAnAdministrator( principalDn ) || !enabled )
@@ -1064,13 +1045,15 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( proxy, tuples, name, entry );
+        addPerscriptiveAciTuples( opContext, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( proxy, tuples, name, entry );
+        addSubentryAciTuples( opContext, tuples, name, entry );
 
-        engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
+        engine.checkPermission( registries, opContext, userGroups, principalDn, 
+            principal.getAuthenticationLevel(), name, null, null,
             READ_PERMS, tuples, entry, null );
-        engine.checkPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, oid, value,
+        engine.checkPermission( registries, opContext, userGroups, principalDn, 
+            principal.getAuthenticationLevel(), name, oid, value,
             COMPARE_PERMS, tuples, entry, null );
 
         return next.compare( opContext );
@@ -1080,9 +1063,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public LdapDN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-        LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
+        LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
         
         if ( isPrincipalAnAdministrator( principalDn ) || !enabled )
@@ -1099,15 +1080,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // that but if permission is granted then short the process and return the dn
         while ( matched.size() > 0 )
         {
-            entry = proxy.lookup( new LookupOperationContext( registries, matched ), PartitionNexusProxy.GETMATCHEDDN_BYPASS );
+            entry = opContext.lookup( matched, ByPassConstants.GETMATCHEDDN_BYPASS );
             
             Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
             Collection<ACITuple> tuples = new HashSet<ACITuple>();
-            addPerscriptiveAciTuples( proxy, tuples, matched, entry );
+            addPerscriptiveAciTuples( opContext, tuples, matched, entry );
             addEntryAciTuples( tuples, entry );
-            addSubentryAciTuples( proxy, tuples, matched, entry );
+            addSubentryAciTuples( opContext, tuples, matched, entry );
 
-            if ( engine.hasPermission( registries, proxy, userGroups, principalDn, principal.getAuthenticationLevel(), matched, null,
+            if ( engine.hasPermission( registries, opContext, userGroups, principalDn, 
+                principal.getAuthenticationLevel(), matched, null,
                 null, MATCHEDNAME_PERMS, tuples, entry, null ) )
             {
                 return matched;
@@ -1126,7 +1108,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean filter( Invocation invocation, LdapDN normName, ClonedServerEntry clonedEntry ) throws Exception
+    private boolean filter( OperationContext opContext, LdapDN normName, ClonedServerEntry clonedEntry ) 
+        throws Exception
     {
         /*
          * First call hasPermission() for entry level "Browse" and "ReturnDN" perm
@@ -1134,20 +1117,20 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          * process and return false.
          */
         
-        ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
-        LdapDN userDn = ctx.getPrincipal().getJndiName();
+        LdapPrincipal principal = opContext.getSession().getEffectivePrincipal();
+        LdapDN userDn = principal.getJndiName();
         Set<LdapDN> userGroups = groupCache.getGroups( userDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( invocation.getProxy(), tuples, normName, clonedEntry.getOriginalEntry() );
+        addPerscriptiveAciTuples( opContext, tuples, normName, clonedEntry.getOriginalEntry() );
         addEntryAciTuples( tuples, clonedEntry.getOriginalEntry() );
-        addSubentryAciTuples( invocation.getProxy(), tuples, normName, clonedEntry.getOriginalEntry() );
+        addSubentryAciTuples( opContext, tuples, normName, clonedEntry.getOriginalEntry() );
 
         if ( !engine.hasPermission( 
                         registries, 
-                        invocation.getProxy(), 
+                        opContext, 
                         userGroups, 
                         userDn, 
-                        ctx.getPrincipal().getAuthenticationLevel(), 
+                        principal.getAuthenticationLevel(), 
                         normName, 
                         null, 
                         null, 
@@ -1176,10 +1159,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         
             if ( !engine.hasPermission( 
                         registries, 
-                        invocation.getProxy(), 
+                        opContext, 
                         userGroups, 
                         userDn,
-                        ctx.getPrincipal().getAuthenticationLevel(), 
+                        principal.getAuthenticationLevel(), 
                         normName, 
                         id, 
                         null, 
@@ -1200,10 +1183,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             {
                 if ( !engine.hasPermission( 
                         registries, 
-                        invocation.getProxy(), 
+                        opContext, 
                         userGroups, 
                         userDn, 
-                        ctx.getPrincipal().getAuthenticationLevel(), 
+                        principal.getAuthenticationLevel(), 
                         normName, 
                         attr.getUpId(), 
                         value, 
@@ -1245,7 +1228,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             throws Exception
         {
             LdapDN normName = entry.getDn().normalize( atRegistry.getNormalizerMapping() );
-            return filter( operationContext.getInvocation(), normName, entry );
+            return filter( operationContext, normName, entry );
         }
     }
 }

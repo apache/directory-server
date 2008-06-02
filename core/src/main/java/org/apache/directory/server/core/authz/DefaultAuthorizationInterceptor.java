@@ -21,7 +21,10 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -35,15 +38,13 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -55,7 +56,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NoPermissionException;
-import javax.naming.ldap.LdapContext;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -137,15 +137,20 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         
         uniqueMemberAT = attrRegistry.lookup( SchemaConstants.UNIQUE_MEMBER_AT_OID );
         
-        loadAdministrators( directoryService.getRegistries() );
+        loadAdministrators( directoryService );
     }
     
     
-    private void loadAdministrators( Registries registries ) throws Exception
+    private void loadAdministrators( DirectoryService directoryService ) throws Exception
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
-        ServerEntry adminGroup = nexus.lookup( new LookupOperationContext( registries, ADMIN_GROUP_DN ) );
+        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        adminDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        CoreSession adminSession = new DefaultCoreSession( 
+            new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+
+        ServerEntry adminGroup = nexus.lookup( new LookupOperationContext( adminSession, ADMIN_GROUP_DN ) );
         
         if ( adminGroup == null )
         {
@@ -268,7 +273,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             // update administrators if we change administrators group
             if ( dn.getNormName().equals( ADMIN_GROUP_DN.getNormName() ) )
             {
-                loadAdministrators( opContext.getRegistries() );
+                loadAdministrators( opContext.getSession().getDirectoryService() );
             }
         }
         else
@@ -432,16 +437,13 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             return serverEntry;
         }
 
-        protectLookUp( opContext.getDn() );
+        protectLookUp( opContext.getSession().getEffectivePrincipal().getJndiName(), opContext.getDn() );
         return serverEntry;
     }
 
 
-    private void protectLookUp( LdapDN normalizedDn ) throws Exception
+    private void protectLookUp( LdapDN principalDn, LdapDN normalizedDn ) throws Exception
     {
-        LdapContext ctx = ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
-        LdapDN principalDn = ( ( ServerContext ) ctx ).getPrincipal().getJndiName();
-        
         if ( !isAnAdministrator( principalDn ) )
         {
             if ( normalizedDn.size() > 2 )
@@ -507,7 +509,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         cursor.addEntryFilter( new EntryFilter() {
             public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
             {
-                return DefaultAuthorizationInterceptor.this.isSearchable( operation.getInvocation(), result );
+                return DefaultAuthorizationInterceptor.this.isSearchable( operation, result );
             }
         } );
         return cursor;
@@ -527,16 +529,16 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         {
             public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry ) throws Exception
             {
-                return DefaultAuthorizationInterceptor.this.isSearchable( operation.getInvocation(), entry );
+                return DefaultAuthorizationInterceptor.this.isSearchable( operation, entry );
             }
         } );
         return cursor;
     }
 
 
-    private boolean isSearchable( Invocation invocation, ClonedServerEntry result ) throws Exception
+    private boolean isSearchable( OperationContext opContext, ClonedServerEntry result ) throws Exception
     {
-        LdapDN principalDn = ( ( ServerContext ) invocation.getCaller() ).getPrincipal().getJndiName();
+        LdapDN principalDn = opContext.getSession().getEffectivePrincipal().getJndiName();
         LdapDN dn = result.getDn();
         
         if ( !dn.isNormalized() )

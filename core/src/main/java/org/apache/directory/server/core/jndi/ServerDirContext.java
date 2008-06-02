@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.jndi;
 
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -113,6 +114,13 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     // DirContext Implementations
     // ------------------------------------------------------------------------
 
+    
+    public ServerDirContext( DirectoryService service, CoreSession session, LdapDN bindDn ) throws Exception
+    {
+        super( service, session, bindDn );
+    }
+
+
     /**
      * @see javax.naming.directory.DirContext#getAttributes(java.lang.String)
      */
@@ -201,8 +209,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             }
         }
 
-        List<Modification> newMods = ServerEntryUtils.toServerModification( modItems, registries
-            .getAttributeTypeRegistry() );
+        List<Modification> newMods = ServerEntryUtils.toServerModification( modItems, 
+            getDirectoryService().getRegistries().getAttributeTypeRegistry() );
 
         try
         {
@@ -256,7 +264,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public void modifyAttributes( Name name, ModificationItem[] mods ) throws NamingException
     {
         List<Modification> newMods = ServerEntryUtils
-            .toServerModification( mods, registries.getAttributeTypeRegistry() );
+            .toServerModification( mods, getDirectoryService().getRegistries().getAttributeTypeRegistry() );
         try
         {
             doModifyOperation( buildTarget( new LdapDN( name ) ), newMods );
@@ -275,7 +283,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public void modifyAttributes( Name name, List<ModificationItemImpl> mods ) throws NamingException
     {
         List<Modification> newMods = ServerEntryUtils
-            .toServerModification( mods, registries.getAttributeTypeRegistry() );
+            .toServerModification( mods, getDirectoryService().getRegistries().getAttributeTypeRegistry() );
         try
         {
             doModifyOperation( buildTarget( new LdapDN( name ) ), newMods );
@@ -319,7 +327,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         LdapDN target = buildTarget( name );
 
         ServerEntry serverEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( attrs ), target,
-            registries );
+            getDirectoryService().getRegistries() );
 
         // No object binding so we just add the attributes
         if ( null == obj )
@@ -338,7 +346,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         // First, use state factories to do a transformation
         DirStateFactory.Result res = DirectoryManager.getStateToBind( obj, name, this, getEnvironment(), attrs );
-        ServerEntry outServerEntry = ServerEntryUtils.toServerEntry( res.getAttributes(), target, registries );
+        ServerEntry outServerEntry = ServerEntryUtils.toServerEntry( 
+            res.getAttributes(), target, getDirectoryService().getRegistries() );
 
         if ( outServerEntry != serverEntry )
         {
@@ -390,7 +399,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             }
 
             // Serialize object into entry attributes and add it.
-            JavaLdapSupport.serialize( serverEntry, obj, registries );
+            JavaLdapSupport.serialize( serverEntry, obj, getDirectoryService().getRegistries() );
             try
             {
                 // setup the op context
@@ -405,7 +414,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         {
             // Grab attributes and merge with outAttrs
             ServerEntry entry = ServerEntryUtils.toServerEntry( ( ( DirContext ) obj ).getAttributes( "" ), target,
-                registries );
+                getDirectoryService().getRegistries() );
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
@@ -452,7 +461,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            if ( getNexusProxy().hasEntry( new EntryOperationContext( registries, target ) ) )
+            if ( getNexusProxy().hasEntry( new EntryOperationContext( getSession(), target ) ) )
             {
                 doDeleteOperation( target );
             }
@@ -533,7 +542,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         // Add the new context to the server which as a side effect adds
         try
         {
-            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attributes, target, registries );
+            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attributes, 
+                target, getDirectoryService().getRegistries() );
             doAddOperation( target, serverEntry );
         }
         catch ( Exception e )

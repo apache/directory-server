@@ -18,12 +18,15 @@
  *  
  */
 package org.apache.directory.server.core.interceptor.context;
+ 
 
 import java.util.List;
 
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
+
 
 /**
  * A Bind context used for Interceptors. It contains all the informations
@@ -43,14 +46,16 @@ public class BindOperationContext extends AbstractOperationContext
     /** The SASL identifier */
     private String saslAuthId;
     
+    /** the authenticating principal's distinguished name */
+    private LdapDN principalDn;
+    
+    
     /**
      * Creates a new instance of BindOperationContext.
-     *
-     * @param registries The global registries
      */
-    public BindOperationContext( Registries registries )
+    public BindOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
 
     
@@ -62,11 +67,13 @@ public class BindOperationContext extends AbstractOperationContext
         return mechanisms;
     }
 
+    
     public void setMechanisms( List<String> mechanisms )
     {
         this.mechanisms = mechanisms;
     }
 
+    
     /**
      * @return The principal password
      */
@@ -75,11 +82,13 @@ public class BindOperationContext extends AbstractOperationContext
         return credentials;
     }
 
+    
     public void setCredentials( byte[] credentials )
     {
         this.credentials = credentials;
     }
 
+    
     /**
      * @return The SASL authentication ID
      */
@@ -113,5 +122,29 @@ public class BindOperationContext extends AbstractOperationContext
             ( credentials != null ? StringTools.dumpBytes( credentials ) : "" ) + ">" +
             ( ( mechanisms != null ) ? ", mechanisms : <" + StringTools.listToString( mechanisms ) + ">" : "" ) +
             ( saslAuthId != null ? ", saslAuthId <" + saslAuthId + ">" : "" );
+    }
+
+
+    /**
+     * @param principalDn the principalDn to set
+     */
+    public void setPrincipalDn( LdapDN principalDn )
+    {
+        this.principalDn = principalDn;
+    }
+
+
+    /**
+     * @return the principalDn
+     */
+    public LdapDN getPrincipalDn()
+    {
+        return principalDn;
+    }
+    
+    
+    public void setSession( CoreSession session )
+    {
+        super.setSession( session );
     }
 }

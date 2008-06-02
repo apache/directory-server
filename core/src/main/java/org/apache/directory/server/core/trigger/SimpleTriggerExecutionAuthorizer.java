@@ -19,16 +19,14 @@
  */
 package org.apache.directory.server.core.trigger;
 
-import java.security.Principal;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.ServerContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthorizer
 {
@@ -47,13 +45,9 @@ public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthori
         }
     }
     
-    public boolean hasPermission() throws NamingException
+    public boolean hasPermission( OperationContext opContext ) throws NamingException
     {
-        Invocation invocation = InvocationStack.getInstance().peek();
-        Principal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN principalName = new LdapDN( principal.getName() );
-        
+        LdapDN principalName = opContext.getSession().getEffectivePrincipal().getJndiName();
         return principalName.equals( adminName );
     }
-
 }

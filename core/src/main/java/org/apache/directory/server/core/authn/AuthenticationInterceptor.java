@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -51,16 +53,12 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.LdapJndiProperties;
-import org.apache.directory.server.core.jndi.ServerContext;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.Context;
 
 
 /**
@@ -80,8 +78,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     private Set<Authenticator> authenticators;
-    private final Map<String, Collection<Authenticator>> authenticatorsMapByType = new HashMap<String, Collection<Authenticator>>();
+    private final Map<String, Collection<Authenticator>> authenticatorsMapByType = 
+        new HashMap<String, Collection<Authenticator>>();
 
+    private DirectoryService directoryService;
+    
+    
     /**
      * Creates an authentication service interceptor.
      */
@@ -89,12 +91,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
     }
 
+    
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
      */
     public void init( DirectoryService directoryService ) throws Exception
     {
-
+        this.directoryService = directoryService;
+        
         if ( authenticators == null )
         {
             setDefaultAuthenticators();
@@ -106,6 +110,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
     }
 
+    
     private void setDefaultAuthenticators()
     {
         Set<Authenticator> set = new HashSet<Authenticator>();
@@ -122,6 +127,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         return authenticators;
     }
 
+    
     /**
      * @param authenticators authenticators to be used by this AuthenticationInterceptor
      * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.authn.Authenticator"
@@ -131,6 +137,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         this.authenticators = authenticators;
     }
 
+    
     /**
      * Deinitializes and deregisters all {@link Authenticator}s from this service.
      */
@@ -145,6 +152,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
     }
 
+    
     /**
      * Initializes the specified {@link Authenticator} and registers it to
      * this service.
@@ -308,6 +316,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         return next.lookup( opContext );
     }
 
+    
     private void invalidateAuthenticatorCaches( LdapDN principalDn )
     {
         for ( String authMech : authenticatorsMapByType.keySet() )
@@ -403,65 +412,27 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     private void checkAuthenticated( OperationContext operation ) throws Exception
     {
-        try
-        {
-            checkAuthenticated();
-        }
-        catch ( IllegalStateException ise )
+        if ( operation.getSession() == null || operation.getSession().getEffectivePrincipal() == null )
         {
             LOG.error( "Attempted operation {} by unauthenticated caller.", operation.getName() );
-
             throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
         }
     }
 
-    private void checkAuthenticated() throws Exception
-    {
-        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-
-        if ( ctx.getPrincipal() != null )
-        {
-            if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
-            {
-                ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
-            }
-
-            return;
-        }
-
-        throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
-    }
 
     public void bind( NextInterceptor next, BindOperationContext opContext ) throws Exception
     {
-        // The DN is always normalized here
-        LdapDN normBindDn = opContext.getDn();
-        String bindUpDn = normBindDn.getUpName();
-
         if ( IS_DEBUG )
         {
-            LOG.debug( "Bind operation. bindDn: " + bindUpDn );
+            LOG.debug( "bind: principal: " + opContext.getPrincipalDn() );
         }
 
-        // check if we are already authenticated and if so we return making
-        // sure first that the credentials are not exposed within context
-        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-
-        if ( IS_DEBUG )
+        if ( opContext.getSession() != null && opContext.getSession().getEffectivePrincipal() != null )
         {
-            LOG.debug( "bind: principal: " + ctx.getPrincipal() );
+            // null out the credentials
+            opContext.setCredentials( null );
         }
-
-        if ( ctx.getPrincipal() != null )
-        {
-            if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
-            {
-                ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
-            }
-
-            return;
-        }
-
+        
         // pick the first matching authenticator type
         Collection<Authenticator> authenticators = null;
 
@@ -484,12 +455,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             LOG.debug( "Nexus succeeded on bind operation." );
 
-            // bind succeeded if we got this far 
-            ctx.setPrincipal( new TrustedPrincipalWrapper( new LdapPrincipal( normBindDn, LdapJndiProperties
-                    .getAuthenticationLevel( ctx.getEnvironment() ) ) ) );
+            // bind succeeded if we got this far
+            // TODO - authentication level not being set
+            LdapPrincipal principal = new LdapPrincipal( opContext.getPrincipalDn(), AuthenticationLevel.SIMPLE );
+            CoreSession session = new DefaultCoreSession( principal, directoryService );
+            opContext.setSession( session );
 
             // remove creds so there is no security risk
-            ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
+            opContext.setCredentials( null );
             return;
         }
 
@@ -500,13 +473,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
             try
             {
                 // perform the authentication
-                LdapPrincipal authorizationId = authenticator.authenticate( normBindDn, ctx );
+                LdapPrincipal principal = authenticator.authenticate( opContext );
 
                 // authentication was successful
-                ctx.setPrincipal( new TrustedPrincipalWrapper( authorizationId ) );
+                CoreSession session = new DefaultCoreSession( principal, directoryService );
+                opContext.setSession( session );
 
                 // remove creds so there is no security risk
-                ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
+                opContext.setCredentials( null );
 
                 return;
             }
@@ -515,7 +489,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 // authentication failed, try the next authenticator
                 if ( LOG.isInfoEnabled() )
                 {
-                    LOG.info( "Authenticator " + authenticator.getClass() + " failed to authenticate " + bindUpDn );
+                    LOG.info( "Authenticator {} failed to authenticate: {}", authenticator, opContext );
                 }
             }
             catch ( Exception e )
@@ -523,7 +497,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 // Log other exceptions than LdapAuthenticationException
                 if ( LOG.isWarnEnabled() )
                 {
-                    LOG.warn( "Unexpected exception from " + authenticator.getClass() + " for principal " + bindUpDn, e );
+                    LOG.info( "Unexpected failure for Authenticator {} : {}", authenticator, opContext );
                 }
             }
         }
@@ -534,48 +508,5 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         throw new LdapAuthenticationException();
-    }
-
-    /**
-     * FIXME This doesn't secure anything actually.
-     * <p/>
-     * Created this wrapper to pass to ctx.setPrincipal() which is public for added
-     * security.  This adds more security because an instance of this class is not
-     * easily accessible whereas LdapPrincipals can be accessed easily from a context
-     * althought they cannot be instantiated outside of the authn package.  Malicious
-     * code may not be able to set the principal to what they would like but they
-     * could switch existing principals using the now public ServerContext.setPrincipal()
-     * method.  To avoid this we make sure that this metho takes a TrustedPrincipalWrapper
-     * as opposed to the LdapPrincipal.  Only this service can create and call setPrincipal
-     * with a TrustedPrincipalWrapper.
-     */
-    public final class TrustedPrincipalWrapper
-    {
-        /**
-         * the wrapped ldap principal
-         */
-        private final LdapPrincipal principal;
-
-
-        /**
-         * Creates a TrustedPrincipalWrapper around an LdapPrincipal.
-         *
-         * @param principal the LdapPrincipal to wrap
-         */
-        private TrustedPrincipalWrapper( LdapPrincipal principal )
-        {
-            this.principal = principal;
-        }
-
-
-        /**
-         * Gets the LdapPrincipal this TrustedPrincipalWrapper wraps.
-         *
-         * @return the wrapped LdapPrincipal
-         */
-        public LdapPrincipal getPrincipal()
-        {
-            return principal;
-        }
     }
 }

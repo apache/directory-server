@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -99,11 +99,12 @@ public class GroupCache
      * @param directoryService the directory service core
      * @throws NamingException if there are failures on initialization 
      */
-    public GroupCache( DirectoryService directoryService ) throws Exception
+    public GroupCache( CoreSession session ) throws Exception
     {
-        normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
-        nexus = directoryService.getPartitionNexus();
-        AttributeTypeRegistry attributeTypeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
+        normalizerMap = session.getDirectoryService().getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        nexus = session.getDirectoryService().getPartitionNexus();
+        AttributeTypeRegistry attributeTypeRegistry = session.getDirectoryService()
+            .getRegistries().getAttributeTypeRegistry();
 
         memberAT = attributeTypeRegistry.lookup( SchemaConstants.MEMBER_AT_OID );
         uniqueMemberAT = attributeTypeRegistry.lookup( SchemaConstants.UNIQUE_MEMBER_AT_OID );
@@ -111,7 +112,7 @@ public class GroupCache
         // stuff for dealing with the admin group
         administratorsGroupDn = parseNormalized( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
-        initialize( directoryService.getRegistries() );
+        initialize( session );
     }
 
 
@@ -123,7 +124,7 @@ public class GroupCache
     }
 
 
-    private void initialize( Registries registries ) throws Exception
+    private void initialize( CoreSession session ) throws Exception
     {
         // search all naming contexts for static groups and generate
         // normalized sets of members to cache within the map
@@ -142,7 +143,9 @@ public class GroupCache
             LdapDN baseDn = new LdapDN( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            EntryFilteringCursor results = nexus.search( new SearchOperationContext( registries,
+            
+            
+            EntryFilteringCursor results = nexus.search( new SearchOperationContext( session,
                 baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
 
             while ( results.next() )

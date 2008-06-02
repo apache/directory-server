@@ -19,9 +19,11 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import org.apache.directory.server.schema.registries.Registries;
+
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A Move context used for Interceptors. It contains all the informations
@@ -35,27 +37,26 @@ public class MoveOperationContext extends AbstractOperationContext
     /** The parent DN */
     private LdapDN parent;
     
-    /**
-     * 
-     * Creates a new instance of MoveOperationContext.
-     *
-     */
-    public MoveOperationContext( Registries registries )
-    {
-    	super( registries );
-    }
 
     /**
-     * 
      * Creates a new instance of MoveOperationContext.
-     *
      */
-    public MoveOperationContext( Registries registries, LdapDN oldDn, LdapDN parent )
+    public MoveOperationContext( CoreSession session )
     {
-        super( registries, oldDn );
+    	super( session );
+    }
+    
+
+    /**
+     * Creates a new instance of MoveOperationContext.
+     */
+    public MoveOperationContext( CoreSession session, LdapDN oldDn, LdapDN parent )
+    {
+        super( session, oldDn );
         this.parent = parent;
     }
 
+    
     /**
      *  @return The parent DN
      */
@@ -63,6 +64,7 @@ public class MoveOperationContext extends AbstractOperationContext
     {
         return parent;
     }
+    
 
     /**
      * Set the parent DN
@@ -92,5 +94,4 @@ public class MoveOperationContext extends AbstractOperationContext
         return "ReplaceContext for old DN '" + getDn().getUpName() + "'" +
         ", parent '" + parent + "'";
     }
-
 }

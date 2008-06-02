@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
@@ -90,6 +91,14 @@ public interface CoreSession
      * @return the LdapPrincipal to use as the effective principal
      */
     LdapPrincipal getEffectivePrincipal();
+
+    
+    /**
+     * Gets the referral handling mode for this CoreSession.
+     *
+     * @return the referral handling mode for this session
+     */
+    ReferralHandlingMode getReferralHandlingMode();
     
     
     /**
@@ -201,7 +210,7 @@ public interface CoreSession
      * @param dn the name of the entry to lookup
      * @throws Exception if there are failures while looking up the entry
      */
-    void lookup( LdapDN dn ) throws Exception;
+    ClonedServerEntry lookup( LdapDN dn ) throws Exception;
 
     
     /**

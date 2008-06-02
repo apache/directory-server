@@ -505,6 +505,7 @@ public class DefaultBindHandler extends BindHandler
         return subject;
     }
     
+    
     private PrincipalStoreEntry findPrincipal( LdapServer ldapServer, GetPrincipal getPrincipal ) throws Exception
     {
         if ( ctx == null )
@@ -513,7 +514,9 @@ public class DefaultBindHandler extends BindHandler
             {
                 LdapPrincipal principal = new LdapPrincipal(
                         new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN ), AuthenticationLevel.SIMPLE );
-                ctx = ldapServer.getDirectoryService().getJndiContext( principal, ldapServer.getSearchBaseDn() );
+                
+                ctx = new ServerLdapContext( ldapServer.getDirectoryService(), principal, 
+                    new LdapDN( ldapServer.getSearchBaseDn() ) );
             }
             catch ( NamingException ne )
             {

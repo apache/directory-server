@@ -33,6 +33,7 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -70,47 +71,51 @@ public class AddEntryOperation extends Operation
     }
 
 
-    protected void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries )
+    protected void execute0( PartitionNexus nexus, ReplicationStore store, OperationContext opContext )
         throws Exception
     {
-        if ( !EntryUtil.isEntryUpdatable( registries, nexus, dn, getCSN() ) )
+        Registries registries = opContext.getSession().getDirectoryService().getRegistries();
+        
+        if ( ! EntryUtil.isEntryUpdatable( opContext, dn, getCSN() ) )
         {
             return;
         }
         
-        EntryUtil.createGlueEntries( registries, nexus, dn, false );
+        EntryUtil.createGlueEntries( opContext, dn, false );
 
         // Replace the entry if an entry with the same name exists.
-        if ( nexus.lookup( new LookupOperationContext( registries, dn ) ) != null )
+        if ( nexus.lookup( new LookupOperationContext( opContext.getSession(), dn ) ) != null )
         {
-            recursiveDelete( nexus, dn, registries );
+            recursiveDelete( nexus, dn, opContext );
         }
 
-        nexus.add( new AddOperationContext( registries, ServerEntryUtils.toServerEntry( entry, dn, registries ) ) );
+        nexus.add( new AddOperationContext( opContext.getSession(), 
+            ServerEntryUtils.toServerEntry( entry, dn, registries ) ) );
     }
 
 
     @SuppressWarnings("unchecked")
-    private void recursiveDelete( PartitionNexus nexus, LdapDN normalizedName, Registries registries )
+    private void recursiveDelete( PartitionNexus nexus, LdapDN normalizedName, OperationContext opContext )
         throws Exception
     {
-        EntryFilteringCursor cursor = nexus.list( new ListOperationContext( registries, normalizedName ) );
+        EntryFilteringCursor cursor = nexus.list( new ListOperationContext( opContext.getSession(), normalizedName ) );
         
         if ( !cursor.available() )
         {
-            nexus.delete( new DeleteOperationContext( registries, normalizedName ) );
+            nexus.delete( new DeleteOperationContext( opContext.getSession(), normalizedName ) );
             return;
         }
 
+        Registries registries = opContext.getSession().getDirectoryService().getRegistries();
         while ( cursor.next() )
         {
             ClonedServerEntry sr = cursor.get();
             LdapDN dn = sr.getDn();
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-            recursiveDelete( nexus, dn, registries );
+            recursiveDelete( nexus, dn, opContext );
         }
         
-        nexus.delete( new DeleteOperationContext( registries, normalizedName ) );
+        nexus.delete( new DeleteOperationContext( opContext.getSession(), normalizedName ) );
     }
 
 

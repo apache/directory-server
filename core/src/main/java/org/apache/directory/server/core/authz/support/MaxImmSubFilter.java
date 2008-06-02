@@ -26,10 +26,10 @@ import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.schema.registries.Registries;
@@ -76,7 +76,7 @@ public class MaxImmSubFilter implements ACITupleFilter
             Registries registries, 
             Collection<ACITuple> tuples, 
             OperationScope scope, 
-            PartitionNexusProxy proxy,
+            OperationContext opContext,
             Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
             ServerEntry userEntry, 
@@ -120,7 +120,7 @@ public class MaxImmSubFilter implements ACITupleFilter
                 {
                     if ( immSubCount < 0 )
                     {
-                        immSubCount = getImmSubCount( registries, proxy, entryName );
+                        immSubCount = getImmSubCount( registries, opContext, entryName );
                     }
 
                     ProtectedItem.MaxImmSub mis = ( ProtectedItem.MaxImmSub ) item;
@@ -152,15 +152,18 @@ public class MaxImmSubFilter implements ACITupleFilter
     }
 
 
-    private int getImmSubCount( Registries registries, PartitionNexusProxy proxy, LdapDN entryName ) throws Exception
+    private int getImmSubCount( Registries registries, OperationContext opContext, LdapDN entryName ) throws Exception
     {
         int cnt = 0;
         EntryFilteringCursor results = null;
         
         try
         {
-            results = proxy.search( new SearchOperationContext( registries, ( LdapDN ) entryName.getPrefix( 1 ),
-                    AliasDerefMode.DEREF_ALWAYS, childrenFilter, childrenSearchControls ), SEARCH_BYPASS );
+            SearchOperationContext searchContext = new SearchOperationContext( opContext.getSession(), 
+                ( LdapDN ) entryName.getPrefix( 1 ), AliasDerefMode.DEREF_ALWAYS, 
+                childrenFilter, childrenSearchControls );
+            searchContext.setByPassed( SEARCH_BYPASS );
+            results = opContext.getSession().getDirectoryService().getOperationManager().search( searchContext );
 
             while ( results.next() )
             {

@@ -26,7 +26,11 @@ import org.apache.directory.mitosis.common.Constants;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -39,6 +43,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -91,7 +96,11 @@ public class OperationFactory
 
     /** The global registries */
     private Registries registries;
+    
+    
+    private DirectoryService ds;
 
+    
     public OperationFactory( DirectoryService directoryService, ReplicationConfiguration cfg )
     {
         replicaId = cfg.getReplicaId();
@@ -100,6 +109,7 @@ public class OperationFactory
         csnFactory = cfg.getCsnFactory();
         registries = directoryService.getRegistries();
         attributeRegistry = registries.getAttributeTypeRegistry();
+        this.ds = directoryService;
     }
 
 
@@ -271,8 +281,13 @@ public class OperationFactory
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         
+        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        CoreSession adminSession = new DefaultCoreSession( 
+            new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), ds );
+
         EntryFilteringCursor cursor = nexus.search( 
-            new SearchOperationContext( registries, oldName, AliasDerefMode.DEREF_ALWAYS,
+            new SearchOperationContext( adminSession, oldName, AliasDerefMode.DEREF_ALWAYS,
                     new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         while ( cursor.next() )
@@ -362,9 +377,14 @@ public class OperationFactory
      */
     private void checkBeforeAdd( LdapDN newEntryName ) throws Exception
     {
-        if ( nexus.hasEntry( new EntryOperationContext( registries, newEntryName ) ) )
+        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        CoreSession adminSession = new DefaultCoreSession( 
+            new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), ds );
+
+        if ( nexus.hasEntry( new EntryOperationContext( adminSession, newEntryName ) ) )
         {
-            ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, newEntryName ) );
+            ServerEntry entry = nexus.lookup( new LookupOperationContext( adminSession, newEntryName ) );
             EntryAttribute deleted = entry.get( Constants.ENTRY_DELETED );
             Object value = deleted == null ? null : deleted.get();
 

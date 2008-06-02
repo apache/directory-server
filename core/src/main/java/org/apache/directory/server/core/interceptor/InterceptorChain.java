@@ -44,14 +44,14 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -506,13 +506,13 @@ public class InterceptorChain
             return head;
         }
 
-        Invocation invocation = InvocationStack.getInstance().peek();
-        if ( !invocation.hasBypass() )
+        OperationContext opContext = InvocationStack.getInstance().peek();
+        if ( !opContext.hasBypass() )
         {
             return head;
         }
 
-        if ( invocation.isBypassed( PartitionNexusProxy.BYPASS_ALL ) )
+        if ( opContext.isBypassed( ByPassConstants.BYPASS_ALL ) )
         {
             return tail;
         }
@@ -520,7 +520,7 @@ public class InterceptorChain
         Entry next = head;
         while ( next != tail )
         {
-            if ( invocation.isBypassed( next.getName() ) )
+            if ( opContext.isBypassed( next.getName() ) )
             {
                 next = next.nextEntry;
             }
@@ -987,8 +987,8 @@ public class InterceptorChain
                         return Entry.this.nextEntry;
                     }
 
-                    Invocation invocation = InvocationStack.getInstance().peek();
-                    if ( !invocation.hasBypass() )
+                    OperationContext opContext = InvocationStack.getInstance().peek();
+                    if ( !opContext.hasBypass() )
                     {
                         return Entry.this.nextEntry;
                     }
@@ -1004,7 +1004,7 @@ public class InterceptorChain
                     Entry next = Entry.this.nextEntry;
                     while ( next != tail )
                     {
-                        if ( invocation.isBypassed( next.getName() ) )
+                        if ( opContext.isBypassed( next.getName() ) )
                         {
                             next = next.nextEntry;
                         }

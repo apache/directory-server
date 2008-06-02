@@ -34,10 +34,9 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
@@ -91,7 +90,7 @@ public class ACDFEngine
      * 
      * @throws NamingException if failed to initialize internal components
      */
-    public ACDFEngine(OidRegistry oidRegistry, AttributeTypeRegistry attrTypeRegistry) throws NamingException
+    public ACDFEngine( OidRegistry oidRegistry, AttributeTypeRegistry attrTypeRegistry ) throws NamingException
     {
         Evaluator entryEvaluator = new ExpressionEvaluator( oidRegistry, attrTypeRegistry );
         SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( oidRegistry, attrTypeRegistry );
@@ -130,7 +129,7 @@ public class ACDFEngine
      */
     public void checkPermission( 
         Registries registries, 
-        PartitionNexusProxy proxy, 
+        OperationContext opContext, 
         Collection<LdapDN> userGroupNames, 
         LdapDN username,
         AuthenticationLevel authenticationLevel, 
@@ -142,8 +141,8 @@ public class ACDFEngine
         ServerEntry entry, 
         ServerEntry entryView ) throws Exception
     {
-        if ( !hasPermission( registries, proxy, userGroupNames, username, authenticationLevel, entryName, attrId, attrValue,
-            microOperations, aciTuples, entry, entryView ) )
+        if ( !hasPermission( registries, opContext, userGroupNames, username, authenticationLevel, entryName, 
+            attrId, attrValue, microOperations, aciTuples, entry, entryView ) )
         {
             throw new LdapNoPermissionException();
         }
@@ -188,7 +187,7 @@ public class ACDFEngine
      */
     public boolean hasPermission( 
         Registries registries, 
-        PartitionNexusProxy proxy, 
+        OperationContext opContext, 
         Collection<LdapDN> userGroupNames, 
         LdapDN userName,
         AuthenticationLevel authenticationLevel, 
@@ -205,7 +204,7 @@ public class ACDFEngine
             throw new NullPointerException( "entryName" );
         }
 
-        ServerEntry userEntry = proxy.lookup( new LookupOperationContext( registries, userName ), USER_LOOKUP_BYPASS );
+        ServerEntry userEntry = opContext.lookup( userName, USER_LOOKUP_BYPASS );
 
         // Determine the scope of the requested operation.
         OperationScope scope;
@@ -233,7 +232,7 @@ public class ACDFEngine
                 registries, 
                 aciTuples, 
                 scope, 
-                proxy, 
+                opContext, 
                 userGroupNames, 
                 userName, 
                 userEntry,

@@ -28,7 +28,7 @@ import javax.naming.directory.Attribute;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.Evaluator;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
@@ -76,7 +76,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             Registries registries, 
             Collection<ACITuple> tuples, 
             OperationScope scope, 
-            PartitionNexusProxy proxy,
+            OperationContext opContext,
             Collection<LdapDN> userGroupNames, 
             LdapDN userName, 
             ServerEntry userEntry,

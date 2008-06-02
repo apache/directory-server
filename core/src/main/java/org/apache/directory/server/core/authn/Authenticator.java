@@ -21,12 +21,10 @@ package org.apache.directory.server.core.authn;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
 
 
 /**
@@ -58,7 +56,7 @@ public interface Authenticator
      * Called by {@link AuthenticationInterceptor} to indicate that this
      * authenticator is being placed into service.
      */
-    public void init( DirectoryService directoryService ) throws NamingException;
+    public void init( DirectoryService directoryService ) throws Exception;
 
 
     /**
@@ -67,6 +65,7 @@ public interface Authenticator
      */
     public void destroy();
 
+    
     /**
      * Callback used to respond to password changes by invalidating a password
      * cache if implemented.  This is an additional feature of an authenticator
@@ -77,8 +76,9 @@ public interface Authenticator
      */
     public void invalidateCache( LdapDN bindDn );
 
+    
     /**
      * Performs authentication and returns the principal if succeeded.
      */
-    public LdapPrincipal authenticate( LdapDN bindDn, ServerContext ctx ) throws NamingException;
+    public LdapPrincipal authenticate( BindOperationContext opContext ) throws Exception;
 }

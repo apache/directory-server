@@ -34,9 +34,6 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.Context;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -140,68 +137,38 @@ public interface DirectoryService extends ServerEntryFactory
      */
     boolean isStarted();
 
-
+    
     /**
-     * Gets a JNDI {@link Context} to the RootDSE as an anonymous user.
-     * This bypasses authentication within the server.
+     * Gets a logical session to perform operations on this DirectoryService
+     * as the anonymous user.  This bypasses authentication without 
+     * propagating a bind operation into the core.
      *
-     * @return a JNDI context to the RootDSE
-     * @throws Exception if failed to create a context
+     * @return a logical session as the anonymous user
      */
-    LdapContext getJndiContext() throws Exception;
+    CoreSession getSession() throws Exception;
 
-
+    
     /**
-     * Gets a JNDI {@link Context} to a specific entry as an anonymous user.
-     * This bypasses authentication within the server.
+     * Gets a logical session to perform operations on this DirectoryService
+     * as a specific user.  This bypasses authentication without propagating 
+     * a bind operation into the core.
      *
-     * @param dn the distinguished name of the entry
-     * @return a JNDI context to the entry at the specified DN
-     * @throws Exception if failed to create a context
+     * @return a logical session as a specific user
      */
-    LdapContext getJndiContext( String dn ) throws Exception;
+    CoreSession getSession( LdapPrincipal principal ) throws Exception;
 
-
+    
     /**
-     * Gets a JNDI {@link Context} to the RootDSE as a specific LDAP user principal.
-     * This bypasses authentication within the server.
+     * Gets a logical session to perform operations on this DirectoryService
+     * as a specific user with a separate authorization principal.  This 
+     * bypasses authentication without propagating a bind operation into the 
+     * core.
      *
-     * @param principal the user to associate with the context
-     * @return a JNDI context to the RootDSE as a specific user
-     * @throws Exception if failed to create a context
+     * @return a logical session as a specific user
      */
-    LdapContext getJndiContext( LdapPrincipal principal ) throws Exception;
+    CoreSession getSession( LdapDN principalDn, byte[] credentials, String authentication ) throws Exception;
 
-
-    /**
-     * Gets a JNDI {@link Context} to a specific entry as a specific LDAP user principal.
-     * This bypasses authentication within the server.
-     *
-     * @param principal the user to associate with the context
-     * @param dn the distinguished name of the entry
-     * @return a JNDI context to the specified entry as a specific user
-     * @throws Exception if failed to create a context
-     */
-    LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws Exception;
-
-
-    /**
-     * Returns a JNDI {@link Context} with the specified authentication information
-     * (<tt>principal</tt>, <tt>credential</tt>, and <tt>authentication</tt>) and
-     * <tt>baseName</tt>.
-     * 
-     * @param principalDn the distinguished name of the bind principal
-     * @param principal {@link Context#SECURITY_PRINCIPAL} value
-     * @param credential {@link Context#SECURITY_CREDENTIALS} value
-     * @param authentication {@link Context#SECURITY_AUTHENTICATION} value
-     * @param dn the distinguished name of the entry
-     * @return a JNDI context to the specified entry as a specific user
-     * @throws Exception if failed to create a context
-     */
-    LdapContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
-        String authentication, String dn ) throws Exception;
-
-
+    
     void setInstanceId( String instanceId );
 
 

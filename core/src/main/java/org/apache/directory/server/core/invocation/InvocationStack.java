@@ -26,7 +26,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.Context;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 
 
 /**
@@ -34,9 +34,6 @@ import javax.naming.Context;
  * occurs in the same thread since it is called first, so we manages stacks
  * for each invocation in {@link ThreadLocal}-like manner.  You can just use
  * {@link #getInstance()} to get current invocation stack.
- * <p>
- * Using {@link InvocationStack}, you can find out current effective JNDI
- * {@link Context} or detect infinite recursions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -50,8 +47,9 @@ public final class InvocationStack
         Collections.synchronizedMap( new IdentityHashMap<Thread, InvocationStack>() );
 
     private final Thread thread;
-    private final List<Invocation> stack = new ArrayList<Invocation>();
+    private final List<OperationContext> stack = new ArrayList<OperationContext>();
 
+    
     /**
      * Returns the invocation stack of current thread.
      */
@@ -68,6 +66,7 @@ public final class InvocationStack
 
         return ctx;
     }
+    
 
     private InvocationStack( Thread currentThread )
     {
@@ -80,9 +79,9 @@ public final class InvocationStack
      * Returns an array of {@link Invocation}s.  0th element is the
      * latest invocation.
      */
-    public Invocation[] toArray()
+    public OperationContext[] toArray()
     {
-        Invocation[] result = new Invocation[stack.size()];
+        OperationContext[] result = new OperationContext[stack.size()];
         result = stack.toArray( result );
         return result;
     }
@@ -91,7 +90,7 @@ public final class InvocationStack
     /**
      * Returns the latest invocation.
      */
-    public Invocation peek()
+    public OperationContext peek()
     {
         return stack.get( 0 );
     }
@@ -109,9 +108,9 @@ public final class InvocationStack
     /**
      * Pushes the specified invocation to this stack.
      */
-    public void push( Invocation invocation )
+    public void push( OperationContext opContext )
     {
-        stack.add( 0, invocation );
+        stack.add( 0, opContext );
     }
 
 
@@ -119,9 +118,9 @@ public final class InvocationStack
      * Pops the latest invocation from this stack.  This stack is released
      * automatically if you pop all items from this stack.
      */
-    public Invocation pop()
+    public OperationContext pop()
     {
-        Invocation invocation = stack.remove( 0 );
+        OperationContext invocation = stack.remove( 0 );
         
         if ( stack.size() == 0 )
         {

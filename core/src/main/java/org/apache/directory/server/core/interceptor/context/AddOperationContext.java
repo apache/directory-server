@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -42,27 +42,27 @@ public class AddOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of AddOperationContext.
      */
-    public AddOperationContext( Registries registries )
+    public AddOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
 
 
     /**
      * Creates a new instance of AddOperationContext.
      */
-    public AddOperationContext( Registries registries, LdapDN dn )
+    public AddOperationContext( CoreSession session, LdapDN dn )
     {
-        super( registries, dn );
+        super( session, dn );
     }
 
 
     /**
      * Creates a new instance of ModifyOperationContext.
      */
-    public AddOperationContext( Registries registries, ServerEntry entry )
+    public AddOperationContext( CoreSession session, ServerEntry entry )
     {
-        super( registries, entry.getDn() );
+        super( session, entry.getDn() );
         this.entry = entry;
     }
 
@@ -72,9 +72,9 @@ public class AddOperationContext extends AbstractOperationContext
      *
      * @param collateralOperation whether or not this is a side-effect
      */
-    public AddOperationContext( Registries registries, boolean collateralOperation )
+    public AddOperationContext( CoreSession session, boolean collateralOperation )
     {
-        super( registries, collateralOperation );
+        super( session, collateralOperation );
     }
 
 
@@ -84,9 +84,9 @@ public class AddOperationContext extends AbstractOperationContext
      * @param dn the name of the entry being added
      * @param collateralOperation whether or not this is a side-effect
      */
-    public AddOperationContext( Registries registries, LdapDN dn, boolean collateralOperation )
+    public AddOperationContext( CoreSession session, LdapDN dn, boolean collateralOperation )
     {
-        super( registries, dn, collateralOperation );
+        super( session, dn, collateralOperation );
     }
 
 
@@ -97,9 +97,9 @@ public class AddOperationContext extends AbstractOperationContext
      * @param entry the entry being added
      * @param collateralOperation whether or not this is a side-effect
      */
-    public AddOperationContext( Registries registries, LdapDN dn, ServerEntry entry, boolean collateralOperation )
+    public AddOperationContext( CoreSession session, LdapDN dn, ServerEntry entry, boolean collateralOperation )
     {
-        super( registries, dn, collateralOperation );
+        super( session, dn, collateralOperation );
         this.entry = entry;
     }
 

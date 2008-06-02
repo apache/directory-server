@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.authz;
 
 
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -29,7 +29,6 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -98,16 +97,18 @@ public class TupleCache
      * @param directoryService the context factory configuration for the server
      * @throws NamingException if initialization fails
      */
-    public TupleCache( DirectoryService directoryService ) throws Exception
+    public TupleCache( CoreSession session ) throws Exception
     {
-        normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
-        this.nexus = directoryService.getPartitionNexus();
-        AttributeTypeRegistry attributeTypeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
-        OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
+        normalizerMap = session.getDirectoryService().getRegistries()
+            .getAttributeTypeRegistry().getNormalizerMapping();
+        this.nexus = session.getDirectoryService().getPartitionNexus();
+        AttributeTypeRegistry attributeTypeRegistry = session.getDirectoryService()
+            .getRegistries().getAttributeTypeRegistry();
+        OidRegistry oidRegistry = session.getDirectoryService().getRegistries().getOidRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry, oidRegistry );
         aciParser = new ACIItemParser( ncn, normalizerMap );
         prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT );
-        initialize( directoryService.getRegistries() );
+        initialize( session );
     }
 
 
@@ -119,7 +120,7 @@ public class TupleCache
     }
 
 
-    private void initialize( Registries registries ) throws Exception
+    private void initialize( CoreSession session ) throws Exception
     {
         // search all naming contexts for access control subentenries
         // generate ACITuple Arrays for each subentry
@@ -134,7 +135,7 @@ public class TupleCache
                 new ClientStringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            EntryFilteringCursor results = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor results = nexus.search( new SearchOperationContext( session,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, ctls ) );
 
             while ( results.next() )

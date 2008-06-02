@@ -21,7 +21,10 @@ package org.apache.directory.server.core.partition;
 
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.cursor.SingletonCursor;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
@@ -59,6 +62,7 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -313,8 +317,13 @@ public class DefaultPartitionNexus extends PartitionNexus
             while ( partitions.hasNext() )
             {
                 Partition partition = partitions.next();
+                LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+                CoreSession adminSession = new DefaultCoreSession( 
+                    new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+
                 AddContextPartitionOperationContext opCtx = 
-                    new AddContextPartitionOperationContext( registries, partition );
+                    new AddContextPartitionOperationContext( adminSession, partition );
                 addContextPartition( opCtx );
                 initializedPartitions.add( opCtx.getPartition() );
             }
@@ -407,7 +416,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 Set<String> indexOids = new HashSet<String>();
                 OidRegistry registry = registries.getOidRegistry();
 
-                for ( Index index : indices )
+                for ( Index<?,ServerEntry> index : indices )
                 {
                     indexOids.add( registry.getOid( index.getAttributeId() ) );
                 }
@@ -417,7 +426,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     LOG.warn( "CAUTION: You have not included objectClass as an indexed attribute" +
                             "in the system partition configuration.  This will lead to poor " +
                             "performance.  The server is automatically adding this index for you." );
-                    JdbmIndex index = new JdbmIndex();
+                    JdbmIndex<?,ServerEntry> index = new JdbmIndex<Object,ServerEntry>();
                     index.setAttributeId( SchemaConstants.OBJECT_CLASS_AT );
                     indices.add( index );
                 }
@@ -436,7 +445,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     
             // Add objectClass attribute for the system partition
             Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-            indexedAttrs.add( new JdbmIndex( SchemaConstants.OBJECT_CLASS_AT ) );
+            indexedAttrs.add( new JdbmIndex<Object,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
             ( ( JdbmPartition ) system ).setIndexedAttributes( indexedAttrs );
     
             // Add context entry for system partition
@@ -508,7 +517,12 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             try
             {
-                removeContextPartition( new RemoveContextPartitionOperationContext( registries, new LdapDN( suffix ) ) );
+                LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+                CoreSession adminSession = new DefaultCoreSession( 
+                    new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+                removeContextPartition( new RemoveContextPartitionOperationContext( 
+                    adminSession, new LdapDN( suffix ) ) );
             }
             catch ( Exception e )
             {
@@ -558,6 +572,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     // ContextPartitionNexus Method Implementations
     // ------------------------------------------------------------------------
 
+    
     public boolean compare( CompareOperationContext compareContext ) throws Exception
     {
         Partition partition = getPartition( compareContext.getDn() );
@@ -571,7 +586,8 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         AttributeType attrType = registry.lookup( compareContext.getOid() );
         
-        EntryAttribute attr = partition.lookup( new LookupOperationContext( registries, compareContext.getDn() ) ).get( attrType.getName() );
+        EntryAttribute attr = partition.lookup( compareContext.newLookupContext( 
+            compareContext.getDn() ) ).get( attrType.getName() );
 
         // complain if the attribute being compared does not exist in the entry
         if ( attr == null )
@@ -734,13 +750,13 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see PartitionNexus#getMatchedName( GetMatchedNameOperationContext )
      */
-    public LdapDN getMatchedName ( GetMatchedNameOperationContext getMatchedNameContext ) throws Exception
+    public LdapDN getMatchedName ( GetMatchedNameOperationContext matchedNameContext ) throws Exception
     {
-        LdapDN dn = ( LdapDN ) getMatchedNameContext.getDn().clone();
+        LdapDN dn = ( LdapDN ) matchedNameContext.getDn().clone();
         
         while ( dn.size() > 0 )
         {
-            if ( hasEntry( new EntryOperationContext( registries, dn ) ) )
+            if ( hasEntry( new EntryOperationContext( matchedNameContext.getSession(), dn ) ) )
             {
                 return dn;
             }
@@ -963,7 +979,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 
                 ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
                 
-                ServerEntry rootDSE = getRootDSE( new GetRootDSEOperationContext( registries ) );
+                ServerEntry rootDSE = getRootDSE( new GetRootDSEOperationContext( opContext.getSession() ) );
                 
                 for ( EntryAttribute attribute:rootDSE )
                 {

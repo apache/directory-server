@@ -21,12 +21,12 @@ package org.apache.directory.mitosis.operation;
 
 
 import org.apache.directory.mitosis.common.CSN;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -61,13 +61,15 @@ public class DeleteAttributeOperation extends AttributeOperation
     }
 
 
-    protected void execute1( PartitionNexus nexus, Registries registries ) throws Exception
+    protected void execute1( PartitionNexus nexus, OperationContext opContext ) throws Exception
     {
-        ServerEntry serverEntry = new DefaultServerEntry( registries, LdapDN.EMPTY_LDAPDN );
-        ServerAttribute attribute = getAttribute( registries.getAttributeTypeRegistry() );
+        DirectoryService ds = opContext.getSession().getDirectoryService();
+        ServerEntry serverEntry = ds.newEntry( LdapDN.EMPTY_LDAPDN );
+        ServerAttribute attribute = getAttribute( ds.getRegistries().getAttributeTypeRegistry() );
         serverEntry.put( attribute );
-        List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REMOVE_ATTRIBUTE );
+        List<Modification> items = ModifyOperationContext.createModItems( serverEntry, 
+            ModificationOperation.REMOVE_ATTRIBUTE );
 
-        nexus.modify( new ModifyOperationContext( registries, getName(), items ) );
+        nexus.modify( new ModifyOperationContext( opContext.getSession(), getName(), items ) );
     }
 }

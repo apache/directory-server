@@ -32,7 +32,9 @@ import javax.naming.ldap.LdapContext;
 import javax.swing.JFrame;
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.Partition;
@@ -43,6 +45,7 @@ import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.server.ldap.gui.SessionsFrame;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiRequest;
@@ -97,7 +100,11 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
 
             PartitionNexus nexus = service.getPartitionNexus();
-            Iterator<String> list = nexus.listSuffixes( new ListSuffixOperationContext( service.getRegistries() ) );
+            LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            adminDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.STRONG );
+            CoreSession session = service.getSession( principal );
+            Iterator<String> list = nexus.listSuffixes( new ListSuffixOperationContext( session ) );
             int launchedWindowCount = 0;
             
             while ( list.hasNext() )

@@ -35,6 +35,7 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.sp.StoredProcEngine;
@@ -100,7 +101,8 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         StoredProcedure spBean = decodeBean( req.getPayload() );
         
         String procedure = StringTools.utf8ToString( spBean.getProcedure() );
-        ServerEntry spUnit = manager.findStoredProcUnit( ctx, procedure, ctx.getService().getRegistries() );
+        CoreSession coreSession = ctx.getService().getSession( ctx.getPrincipal() );
+        ServerEntry spUnit = manager.findStoredProcUnit( coreSession, procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
         
         List<Object> valueList = new ArrayList<Object>( spBean.getParameters().size() );
@@ -123,7 +125,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         
         Object[] values = valueList.toArray( EMPTY_CLASS_ARRAY );
         
-        Object response = engine.invokeProcedure( ctx, procedure, values );
+        Object response = engine.invokeProcedure( coreSession, procedure, values );
         
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
         ( ( ExtendedResponse )( req.getResultResponse() ) ).setResponse( serializedResponse );

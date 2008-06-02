@@ -19,8 +19,10 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import org.apache.directory.server.schema.registries.Registries;
+
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * An EmptySuffix context used for Interceptors. It contains no data, and mask
@@ -34,9 +36,9 @@ public abstract class EmptyOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of EmptyOperationContext.
      */
-    public EmptyOperationContext( Registries registries )
+    public EmptyOperationContext( CoreSession session )
     {
-        super( registries, LdapDN.EMPTY_LDAPDN );
+        super( session, LdapDN.EMPTY_LDAPDN );
     }
     
 

@@ -27,7 +27,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.kerberos.shared.store.operations.AddPrincipal;
 import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
 import org.apache.directory.server.kerberos.shared.store.operations.DeletePrincipal;
@@ -37,6 +39,7 @@ import org.apache.directory.server.protocol.shared.ServiceConfigurationException
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
 import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -60,7 +63,8 @@ class MultiBaseSearch implements PrincipalStore
         this.directoryService = directoryService;
         try
         {
-            DirContext ctx = directoryService.getJndiContext(catalogBaseDn);
+            CoreSession session = directoryService.getSession();
+            DirContext ctx = new ServerLdapContext( directoryService, session, new LdapDN( catalogBaseDn ) );
             catalog = new KerberosCatalog( ( Map ) execute( ctx, new GetCatalog() ) );
         }
         catch ( Exception e )
@@ -148,7 +152,7 @@ class MultiBaseSearch implements PrincipalStore
     
     private DirContext getDirContext( String name ) throws Exception
     {
-        return directoryService.getJndiContext(catalog.getBaseDn( name ));
+        CoreSession session = directoryService.getSession();
+        return new ServerLdapContext( directoryService, session, new LdapDN( catalog.getBaseDn( name ) ) );
     }
-
 }

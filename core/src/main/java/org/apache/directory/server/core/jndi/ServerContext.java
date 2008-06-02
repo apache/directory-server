@@ -20,10 +20,10 @@
 package org.apache.directory.server.core.jndi;
 
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
@@ -42,7 +42,6 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -98,9 +97,6 @@ public abstract class ServerContext implements EventContext
     /** The directory service which owns this context **/
     private final DirectoryService service;
 
-    /** The global registries **/
-    protected final Registries registries;
-
     /** The interceptor proxy to the backend nexus */
     private final PartitionNexus nexusProxy;
 
@@ -124,6 +120,8 @@ public abstract class ServerContext implements EventContext
 
     /** Connection level controls associated with the session */
     protected Control[] connectControls = EMPTY_CONTROLS;
+    
+    private final CoreSession session;
 
 
     // ------------------------------------------------------------------------
@@ -151,7 +149,7 @@ public abstract class ServerContext implements EventContext
         this.service = service;
 
         // set references to cloned env and the proxy
-        this.nexusProxy = new PartitionNexusProxy( this, service );
+        this.nexusProxy = new PartitionNexusProxy( service );
 
         this.env = env;
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
@@ -161,9 +159,9 @@ public abstract class ServerContext implements EventContext
         doBindOperation( props.getBindDn(), props.getCredentials(), props.getAuthenticationMechanisms(), props
             .getSaslAuthId() );
 
-        registries = service.getRegistries();
-
-        if ( !nexusProxy.hasEntry( new EntryOperationContext( registries, dn ) ) )
+        session = new DefaultCoreSession( principal, service );
+        
+        if ( !nexusProxy.hasEntry( new EntryOperationContext( session, dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
@@ -188,14 +186,27 @@ public abstract class ServerContext implements EventContext
         this.env = new Hashtable<String, Object>();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
-        this.nexusProxy = new PartitionNexusProxy( this, service );
+        this.nexusProxy = new PartitionNexusProxy( service );
         this.principal = principal;
-        registries = service.getRegistries();
+        session = new DefaultCoreSession( principal, service );
+    }
+
+
+    public ServerContext( DirectoryService service, CoreSession session, Name dn ) throws Exception
+    {
+        this.service = service;
+        this.dn = ( LdapDN ) dn.clone();
+        this.env = new Hashtable<String, Object>();
+        this.env.put( PROVIDER_URL, dn.toString() );
+        this.env.put( DirectoryService.JNDI_KEY, service );
+        this.nexusProxy = new PartitionNexusProxy( service );
+        this.principal = session.getEffectivePrincipal();
+        this.session = session;
     }
 
 
     // ------------------------------------------------------------------------
-    // Protected Methods for Control [De]Marshalling 
+    // Protected Methods for Operations
     // ------------------------------------------------------------------------
     // Use these methods instead of manually calling the nexusProxy so we can
     // add request controls to operation contexts before the call and extract 
@@ -212,7 +223,7 @@ public abstract class ServerContext implements EventContext
     protected void doAddOperation( LdapDN target, ServerEntry entry ) throws Exception
     {
         // setup the op context and populate with request controls
-        AddOperationContext opCtx = new AddOperationContext( service.getRegistries(), entry );
+        AddOperationContext opCtx = new AddOperationContext( session, entry );
 
         opCtx.addRequestControls( requestControls );
 
@@ -232,7 +243,7 @@ public abstract class ServerContext implements EventContext
     protected void doDeleteOperation( LdapDN target ) throws Exception
     {
         // setup the op context and populate with request controls
-        DeleteOperationContext opCtx = new DeleteOperationContext( registries, target );
+        DeleteOperationContext opCtx = new DeleteOperationContext( session, target );
         opCtx.addRequestControls( requestControls );
 
         // execute delete operation
@@ -256,7 +267,7 @@ public abstract class ServerContext implements EventContext
         ExprNode filter, SearchControls searchControls ) throws Exception
     {
         // setup the op context and populate with request controls
-        SearchOperationContext opCtx = new SearchOperationContext( registries, dn, aliasDerefMode, filter,
+        SearchOperationContext opCtx = new SearchOperationContext( session, dn, aliasDerefMode, filter,
             searchControls );
         opCtx.addRequestControls( requestControls );
 
@@ -277,7 +288,7 @@ public abstract class ServerContext implements EventContext
     protected EntryFilteringCursor doListOperation( LdapDN target ) throws Exception
     {
         // setup the op context and populate with request controls
-        ListOperationContext opCtx = new ListOperationContext( registries, target );
+        ListOperationContext opCtx = new ListOperationContext( session, target );
         opCtx.addRequestControls( requestControls );
 
         // execute list operation
@@ -293,7 +304,7 @@ public abstract class ServerContext implements EventContext
 
     protected ServerEntry doGetRootDSEOperation( LdapDN target ) throws Exception
     {
-        GetRootDSEOperationContext opCtx = new GetRootDSEOperationContext( registries, target );
+        GetRootDSEOperationContext opCtx = new GetRootDSEOperationContext( session, target );
         opCtx.addRequestControls( requestControls );
 
         // do not reset request controls since this is not an external 
@@ -311,7 +322,7 @@ public abstract class ServerContext implements EventContext
         LookupOperationContext opCtx;
 
         // execute lookup/getRootDSE operation
-        opCtx = new LookupOperationContext( registries, target );
+        opCtx = new LookupOperationContext( session, target );
         opCtx.addRequestControls( requestControls );
         ServerEntry serverEntry = nexusProxy.lookup( opCtx );
 
@@ -331,7 +342,7 @@ public abstract class ServerContext implements EventContext
         LookupOperationContext opCtx;
 
         // execute lookup/getRootDSE operation
-        opCtx = new LookupOperationContext( registries, target, attrIds );
+        opCtx = new LookupOperationContext( session, target, attrIds );
         opCtx.addRequestControls( requestControls );
         ServerEntry serverEntry = nexusProxy.lookup( opCtx );
 
@@ -356,17 +367,16 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after bind operations.
      */
-    protected void doBindOperation( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
-        throws Exception
+    protected BindOperationContext doBindOperation( LdapDN bindDn, byte[] credentials, List<String> mechanisms, 
+        String saslAuthId ) throws Exception
     {
         // setup the op context and populate with request controls
-        BindOperationContext opCtx = new BindOperationContext( registries );
+        BindOperationContext opCtx = new BindOperationContext( null );
         opCtx.setDn( bindDn );
         opCtx.setCredentials( credentials );
         opCtx.setMechanisms( mechanisms );
         opCtx.setSaslAuthId( saslAuthId );
         opCtx.addRequestControls( requestControls );
-        opCtx.setPrincipalDN( bindDn );
 
         // execute bind operation
         this.nexusProxy.bind( opCtx );
@@ -374,6 +384,7 @@ public abstract class ServerContext implements EventContext
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
+        return opCtx;
     }
 
 
@@ -384,7 +395,7 @@ public abstract class ServerContext implements EventContext
         throws Exception
     {
         // setup the op context and populate with request controls
-        MoveAndRenameOperationContext opCtx = new MoveAndRenameOperationContext( registries, oldDn, parent, new Rdn(
+        MoveAndRenameOperationContext opCtx = new MoveAndRenameOperationContext( session, oldDn, parent, new Rdn(
             newRdn ), delOldDn );
         opCtx.addRequestControls( requestControls );
 
@@ -403,7 +414,7 @@ public abstract class ServerContext implements EventContext
     protected void doModifyOperation( LdapDN dn, List<Modification> modifications ) throws Exception
     {
         // setup the op context and populate with request controls
-        ModifyOperationContext opCtx = new ModifyOperationContext( registries, dn, modifications );
+        ModifyOperationContext opCtx = new ModifyOperationContext( session, dn, modifications );
         opCtx.addRequestControls( requestControls );
 
         // execute modify operation
@@ -421,7 +432,7 @@ public abstract class ServerContext implements EventContext
     protected void doMove( LdapDN oldDn, LdapDN target ) throws Exception
     {
         // setup the op context and populate with request controls
-        MoveOperationContext opCtx = new MoveOperationContext( registries, oldDn, target );
+        MoveOperationContext opCtx = new MoveOperationContext( session, oldDn, target );
         opCtx.addRequestControls( requestControls );
 
         // execute move operation
@@ -439,7 +450,7 @@ public abstract class ServerContext implements EventContext
     protected void doRename( LdapDN oldDn, String newRdn, boolean delOldRdn ) throws Exception
     {
         // setup the op context and populate with request controls
-        RenameOperationContext opCtx = new RenameOperationContext( registries, oldDn, new Rdn( newRdn ), delOldRdn );
+        RenameOperationContext opCtx = new RenameOperationContext( session, oldDn, new Rdn( newRdn ), delOldRdn );
         opCtx.addRequestControls( requestControls );
 
         // execute rename operation
@@ -450,7 +461,19 @@ public abstract class ServerContext implements EventContext
         responseControls = opCtx.getResponseControls();
     }
 
-
+    
+    protected CoreSession getSession()
+    {
+        return session;
+    }
+    
+    
+    protected DirectoryService getDirectoryService()
+    {
+        return service;
+    }
+    
+    
     // ------------------------------------------------------------------------
     // New Impl Specific Public Methods
     // ------------------------------------------------------------------------
@@ -496,9 +519,9 @@ public abstract class ServerContext implements EventContext
      * @param wrapper the wrapper - has to go
      * @todo get ride of using this wrapper and protect this call with a security manager
      */
-    public void setPrincipal( AuthenticationInterceptor.TrustedPrincipalWrapper wrapper )
+    public void setPrincipal( LdapPrincipal principal )
     {
-        this.principal = wrapper.getPrincipal();
+        this.principal = principal;
     }
 
 
@@ -603,7 +626,7 @@ public abstract class ServerContext implements EventContext
     public Context createSubcontext( Name name ) throws NamingException
     {
         LdapDN target = buildTarget( name );
-        ServerEntry serverEntry = new DefaultServerEntry( registries, target );
+        ServerEntry serverEntry = service.newEntry( target );
         serverEntry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, JavaLdapSupport.JCONTAINER_ATTR );
 
         // Now add the CN attribute, which is mandatory
@@ -734,7 +757,7 @@ public abstract class ServerContext implements EventContext
 
         // let's be sure that the Attributes is case insensitive
         ServerEntry outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( res
-            .getAttributes() ), target, registries );
+            .getAttributes() ), target, service.getRegistries() );
 
         if ( outServerEntry != null )
         {
@@ -774,7 +797,7 @@ public abstract class ServerContext implements EventContext
         else if ( obj instanceof Serializable )
         {
             // Serialize and add outAttrs
-            ServerEntry serverEntry = new DefaultServerEntry( registries, target );
+            ServerEntry serverEntry = service.newEntry( target );
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
@@ -788,7 +811,7 @@ public abstract class ServerContext implements EventContext
             injectRdnAttributeValues( target, serverEntry );
 
             // Serialize object into entry attributes and add it.
-            JavaLdapSupport.serialize( serverEntry, obj, registries );
+            JavaLdapSupport.serialize( serverEntry, obj, service.getRegistries() );
             try
             {
                 doAddOperation( target, serverEntry );
@@ -802,7 +825,7 @@ public abstract class ServerContext implements EventContext
         {
             // Grab attributes and merge with outAttrs
             ServerEntry serverEntry = ServerEntryUtils.toServerEntry( ( ( DirContext ) obj ).getAttributes( "" ),
-                target, registries );
+                target, service.getRegistries() );
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
@@ -940,7 +963,7 @@ public abstract class ServerContext implements EventContext
 
         try
         {
-            if ( nexusProxy.hasEntry( new EntryOperationContext( registries, target ) ) )
+            if ( nexusProxy.hasEntry( new EntryOperationContext( session, target ) ) )
             {
                 doDeleteOperation( target );
             }
