@@ -39,7 +39,7 @@ options    {
     k = 2 ;
     exportVocab=AntlrSchemaExtension ;
     charVocabulary = '\u0000'..'\uFFFE'; 
-    caseSensitive = true ;
+    caseSensitive = false ;
     defaultErrorHandler = false ;
 }
 
@@ -63,7 +63,7 @@ protected QUOTE : '\'' ;
 XKEY : xstring:XSTRING { setText(xstring.getText().trim()); }; 
 XVALUES : values:VALUES { setText(values.getText().trim()); };
 
-protected XSTRING : ( "X-" ( 'a'..'z' | 'A'..'Z' | '-' | '_' )+ (WHSP)? ) ; 
+protected XSTRING : ( "x-" ( 'a'..'z' | '-' | '_' )+ (WHSP)? ) ; 
 protected VALUES : ( VALUE | '('  VALUE ( ('$')? VALUE )* ')' ) ;
 protected VALUE : (WHSP)? ( QUOTED_STRING ) (options {greedy=true;}: WHSP)? ;
 protected QUOTED_STRING : ( QUOTE (~'\'')* QUOTE ) ;

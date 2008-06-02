@@ -44,7 +44,7 @@ options    {
     k = 5 ;
     exportVocab=AntlrSchema ;
     charVocabulary = '\u0000'..'\uFFFE';
-    caseSensitive = true ;
+    caseSensitive = false ;
     defaultErrorHandler = false ;
 }
 
@@ -73,46 +73,45 @@ RBRACKET : '}' ;
 
 LEN : LBRACKET ('0'..'9')+ RBRACKET ;
 
-SINGLE_VALUE : ( "SINGLE-VALUE" (WHSP)? ) ;
-COLLECTIVE : ( "COLLECTIVE" (WHSP)? ) ;
-NO_USER_MODIFICATION : ( "NO-USER-MODIFICATION" (WHSP)? ) ;
+SINGLE_VALUE : ( "single-value" (WHSP)? ) ;
+COLLECTIVE : ( "collective" (WHSP)? ) ;
+NO_USER_MODIFICATION : ( "no-user-modification" (WHSP)? ) ;
 
-OBSOLETE : ( "OBSOLETE" (WHSP)? ) ;
-ABSTRACT : ( "ABSTRACT" (WHSP)? ) ;
-STRUCTURAL : ( "STRUCTURAL" (WHSP)? ) ;
-AUXILIARY : ( "AUXILIARY" (WHSP)? ) ;
+OBSOLETE : ( "obsolete" (WHSP)? ) ;
+ABSTRACT : ( "abstract" (WHSP)? ) ;
+STRUCTURAL : ( "structural" (WHSP)? ) ;
+AUXILIARY : ( "auxiliary" (WHSP)? ) ;
 
 OBJECTCLASS : ( "objectclass" (WHSP)? ) ;
 ATTRIBUTETYPE : ( "attributetype" (WHSP)? ) ;
 
 STARTNUMERICOID : ( LPAR ( numericoid:VALUE ) ) { setText(numericoid.getText().trim()); } ;
-NAME : ( "NAME" (options {greedy=true;} : WHSP)? qdstrings:VALUES ) { setText(qdstrings.getText().trim()); } ;
-DESC : ( "DESC" (options {greedy=true;} : WHSP)? qdstring:VALUES ) { setText(qdstring.getText().trim()); } ;
-SUP : ( "SUP" (options {greedy=true;} : WHSP)? sup:VALUES ) { setText(sup.getText().trim()); } ;
-MUST : ( "MUST" (options {greedy=true;} : WHSP)? must:VALUES ) { setText(must.getText().trim()); } ;
-MAY : ( "MAY" (options {greedy=true;} : WHSP)? may:VALUES ) { setText(may.getText()); } ;
-AUX : ( "AUX" (options {greedy=true;} : WHSP)? aux:VALUES ) { setText(aux.getText()); } ;
-NOT : ( "NOT" (options {greedy=true;} : WHSP)? not:VALUES ) { setText(not.getText()); } ;
-FORM : ( "FORM" (options {greedy=true;} : WHSP)? form:VALUES ) { setText(form.getText()); } ;
-OC : ( "OC" (options {greedy=true;} : WHSP)? oc:VALUES ) { setText(oc.getText()); } ;
-EQUALITY : ( "EQUALITY" (options {greedy=true;} : WHSP)? equality:VALUES ) { setText(equality.getText().trim()); } ;
-ORDERING : ( "ORDERING" (options {greedy=true;} : WHSP)? ordering:VALUES ) { setText(ordering.getText().trim()); } ;
-SUBSTR : ( "SUBSTR" (options {greedy=true;} : WHSP)? substr:VALUES ) { setText(substr.getText().trim()); } ;
-SYNTAX : ( "SYNTAX" (options {greedy=true;} : WHSP)? syntax:VALUES (len:LEN)? ) { setText(syntax.getText().trim() + (len!=null?len.getText().trim():"")); } ;
-APPLIES : ( "APPLIES" (options {greedy=true;} : WHSP)? applies:VALUES ) { setText(applies.getText().trim()); } ;
-EXTENSION : x:( "X-" ( options {greedy=true;} : 'a'..'z' | 'A'..'Z' | '-' | '_' )+ (options {greedy=true;} : WHSP)? VALUES ) ; 
-FQCN : ( "FQCN" (options {greedy=true;} : WHSP)? fqcn:FQCN_VALUE ) { setText(fqcn.getText().trim()); } ;
-BYTECODE : ( "BYTECODE" (options {greedy=true;} : WHSP)? bytecode:BYTECODE_VALUE ) { setText(bytecode.getText().trim()); } ;
+NAME : ( "name" (options {greedy=true;} : WHSP)? qdstrings:VALUES ) { setText(qdstrings.getText().trim()); } ;
+DESC : ( "desc" (options {greedy=true;} : WHSP)? qdstring:VALUES ) { setText(qdstring.getText().trim()); } ;
+SUP : ( "sup" (options {greedy=true;} : WHSP)? sup:VALUES ) { setText(sup.getText().trim()); } ;
+MUST : ( "must" (options {greedy=true;} : WHSP)? must:VALUES ) { setText(must.getText().trim()); } ;
+MAY : ( "may" (options {greedy=true;} : WHSP)? may:VALUES ) { setText(may.getText()); } ;
+AUX : ( "aux" (options {greedy=true;} : WHSP)? aux:VALUES ) { setText(aux.getText()); } ;
+NOT : ( "not" (options {greedy=true;} : WHSP)? not:VALUES ) { setText(not.getText()); } ;
+FORM : ( "form" (options {greedy=true;} : WHSP)? form:VALUES ) { setText(form.getText()); } ;
+OC : ( "oc" (options {greedy=true;} : WHSP)? oc:VALUES ) { setText(oc.getText()); } ;
+EQUALITY : ( "equality" (options {greedy=true;} : WHSP)? equality:VALUES ) { setText(equality.getText().trim()); } ;
+ORDERING : ( "ordering" (options {greedy=true;} : WHSP)? ordering:VALUES ) { setText(ordering.getText().trim()); } ;
+SUBSTR : ( "substr" (options {greedy=true;} : WHSP)? substr:VALUES ) { setText(substr.getText().trim()); } ;
+SYNTAX : ( "syntax" (options {greedy=true;} : WHSP)? syntax:VALUES (len:LEN)? ) { setText(syntax.getText().trim() + (len!=null?len.getText().trim():"")); } ;
+APPLIES : ( "applies" (options {greedy=true;} : WHSP)? applies:VALUES ) { setText(applies.getText().trim()); } ;
+EXTENSION : x:( "x-" ( options {greedy=true;} : 'a'..'z' | '-' | '_' )+ (options {greedy=true;} : WHSP)? VALUES ) ; 
+FQCN : ( "fqcn" (options {greedy=true;} : WHSP)? fqcn:FQCN_VALUE ) { setText(fqcn.getText().trim()); } ;
+BYTECODE : ( "bytecode" (options {greedy=true;} : WHSP)? bytecode:BYTECODE_VALUE ) { setText(bytecode.getText().trim()); } ;
 
 protected VALUES : ( VALUE | LPAR  VALUE ( (DOLLAR)? VALUE )* RPAR ) ;
 protected VALUE : (WHSP)? ( QUOTED_STRING | UNQUOTED_STRING ) (options {greedy=true;}: WHSP)? ;
-protected UNQUOTED_STRING : (options{greedy=true;}: 'a'..'z' | 'A'..'Z' | '0'..'9' | '-' | ';' | '.' )+ ;
+protected UNQUOTED_STRING : (options{greedy=true;}: 'a'..'z' | '0'..'9' | '-' | ';' | '.' )+ ;
 protected QUOTED_STRING : ( QUOTE (~'\'')* QUOTE ) ;
 protected FQCN_VALUE : ( FQCN_IDENTIFIER ( '.' FQCN_IDENTIFIER )* ) ;
 protected FQCN_IDENTIFIER : ( FQCN_LETTER ( FQCN_LETTERORDIGIT )* ) ;
 protected FQCN_LETTER : 
        '\u0024' |
-       '\u0041'..'\u005a' |
        '\u005f' |
        '\u0061'..'\u007a' |
        '\u00c0'..'\u00d6' |
@@ -126,7 +125,6 @@ protected FQCN_LETTER :
        '\uf900'..'\ufaff' ;
 protected FQCN_LETTERORDIGIT : 
        '\u0024' |
-       '\u0041'..'\u005a' |
        '\u005f' |
        '\u0061'..'\u007a' |
        '\u00c0'..'\u00d6' |
@@ -139,14 +137,14 @@ protected FQCN_LETTERORDIGIT :
        '\u4e00'..'\u9fff' |
        '\uf900'..'\ufaff' |
        '\u0030'..'\u0039' ;
-protected BYTECODE_VALUE : ( 'a'..'z' | 'A'..'Z' | '0'..'9' | '+' | '/' | '=' )+ ;
+protected BYTECODE_VALUE : ( 'a'..'z' | '0'..'9' | '+' | '/' | '=' )+ ;
 
 
-USAGE : ( "USAGE" (WHSP)? ) ;
-USER_APPLICATIONS : ( "userApplications" (WHSP)? ) ;
-DIRECTORY_OPERATION : ( "directoryOperation" (WHSP)? ) ;
-DISTRIBUTED_OPERATION : ( "distributedOperation" (WHSP)? ) ;
-DSA_OPERATION : ( "dSAOperation" (WHSP)? ) ;
+USAGE : ( "usage" (WHSP)? ) ;
+USER_APPLICATIONS : ( "userapplications" (WHSP)? ) ;
+DIRECTORY_OPERATION : ( "directoryoperation" (WHSP)? ) ;
+DISTRIBUTED_OPERATION : ( "distributedoperation" (WHSP)? ) ;
+DSA_OPERATION : ( "dsaoperation" (WHSP)? ) ;
 
 /**
  * An antlr generated schema main parser.

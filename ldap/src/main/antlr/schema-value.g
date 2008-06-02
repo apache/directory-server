@@ -38,7 +38,7 @@ options    {
     k = 3 ;
     exportVocab=AntlrSchemaValue ;
     charVocabulary = '\3'..'\377' ;
-    caseSensitive = true ;
+    caseSensitive = false ;
     defaultErrorHandler = false ;
 }
 
@@ -67,7 +67,7 @@ QUOTE : '\'' ;
 DOLLAR : '$' ;
 LCURLY : '{' ;
 RCURLY : '}' ;
-DESCR : ( 'a'..'z' | 'A'..'Z' ) ( 'a'..'z' | 'A'..'Z' | '0'..'9' | '-' )* ;
+DESCR : ( 'a'..'z' ) ( 'a'..'z' | '0'..'9' | '-' )* ;
 LEN : LCURLY n:NUMBER RCURLY { setText(n.getText()); } ;
 
 NUMBER_OR_NUMERICOID :

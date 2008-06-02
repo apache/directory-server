@@ -35,28 +35,40 @@ public class DITStructureRuleDescriptionSyntaxCheckerTest extends TestCase
 {
     private DITStructureRuleDescriptionSyntaxChecker checker = new DITStructureRuleDescriptionSyntaxChecker();
 
+
     public void testValid()
     {
         assertTrue( checker.isValidSyntax( "( 2 FORM 2.5.15.3 )" ) );
         assertTrue( checker.isValidSyntax( "( 2 NAME 'organization' FORM 2.5.15.3 )" ) );
-        assertTrue( checker.isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' FORM 2.5.15.3 )" ) );
-        assertTrue( checker.isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' OBSOLETE FORM 2.5.15.3 )" ) );
-        assertTrue( checker.isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' OBSOLETE FORM 2.5.15.3 SUP 1 )" ) );
-        assertTrue( checker.isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' OBSOLETE FORM 2.5.15.3 SUP ( 1 ) )" ) );
-        assertTrue( checker.isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' OBSOLETE FORM 2.5.15.3 SUP ( 1 1234567890 5 ) )" ) );
+        assertTrue( checker
+            .isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' FORM 2.5.15.3 )" ) );
+        assertTrue( checker
+            .isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' OBSOLETE FORM 2.5.15.3 )" ) );
+        assertTrue( checker
+            .isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' OBSOLETE FORM 2.5.15.3 SUP 1 )" ) );
+        assertTrue( checker
+            .isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' OBSOLETE FORM 2.5.15.3 SUP ( 1 ) )" ) );
+        assertTrue( checker
+            .isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' OBSOLETE FORM 2.5.15.3 SUP ( 1 1234567890 5 ) )" ) );
 
         assertTrue( checker.isValidSyntax( "(2 FORM 2.5.15.3)" ) );
-        assertTrue( checker.isValidSyntax( "(   2   NAME    'organization'    DESC    'organization structure rule'    OBSOLETE   FORM   2.5.15.3    SUP   (1 1234567890        5   ))" ) );
+        assertTrue( checker
+            .isValidSyntax( "(   2   NAME    'organization'    DESC    'organization structure rule'    OBSOLETE   FORM   2.5.15.3    SUP   (1 1234567890        5   ))" ) );
+
+        // lowercase NAME, DESC, FORM
+        assertTrue( checker
+            .isValidSyntax( "( 2 name 'organization' desc 'organization structure rule' form 2.5.15.3 )" ) );
     }
+
 
     public void testInvalid()
     {
         // null 
         assertFalse( checker.isValidSyntax( null ) );
-        
+
         // empty 
         assertFalse( checker.isValidSyntax( "" ) );
-        
+
         // missing/invalid ruleid
         assertFalse( checker.isValidSyntax( "()" ) );
         assertFalse( checker.isValidSyntax( "(  )" ) );
@@ -71,9 +83,6 @@ public class DITStructureRuleDescriptionSyntaxCheckerTest extends TestCase
 
         // missing quotes
         assertFalse( checker.isValidSyntax( "( 2 NAME organization FORM 2.5.15.3 )" ) );
-
-        // lowercase NAME, DESC, FORM
-        assertFalse( checker.isValidSyntax( "( 2 name 'organization' desc 'organization structure rule' form 2.5.15.3 )" ) );
 
         // missing FORM
         assertFalse( checker.isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' )" ) );

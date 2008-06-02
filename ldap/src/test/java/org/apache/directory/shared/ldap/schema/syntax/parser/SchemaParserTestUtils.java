@@ -254,17 +254,11 @@ public class SchemaParserTestUtils
         Assert.assertEquals( "test2", asd.getNames().get( 1 ) );
         Assert.assertEquals( "test3", asd.getNames().get( 2 ) );
 
-        // lowercase
+        // lowercase NAME
         value = "( " + oid + " " + required + " name 'test' )";
-        try
-        {
-            parser.parse( value );
-            Assert.fail( "Exception expected, NAME is lowercase" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        asd = parser.parse( value );
+        Assert.assertEquals( 1, asd.getNames().size() );
+        Assert.assertEquals( "test", asd.getNames().get( 0 ) );
 
         // unquoted
         value = "( " + oid + " " + required + " NAME test )";
@@ -385,18 +379,10 @@ public class SchemaParserTestUtils
         asd = parser.parse( value );
         Assert.assertEquals( "\\'\\", asd.getDescription() );
 
-        // lowercase
+        // lowercase DESC
         value = "( " + oid + " " + required + " desc 'Descripton' )";
-        try
-        {
-            parser.parse( value );
-            Assert.fail( "Exception expected, DESC is lowercase" );
-        }
-        catch ( ParseException pe )
-        {
-            Assert.assertTrue( true );
-        }
-
+        asd = parser.parse( value );
+        Assert.assertEquals( "Descripton", asd.getDescription() );
     }
 
 

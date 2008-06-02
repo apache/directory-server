@@ -38,7 +38,7 @@ options    {
     k = 2 ;
     exportVocab=AntlrSchemaQdstring ;
     charVocabulary = '\u0000'..'\uFFFE'; 
-    caseSensitive = true ;
+    caseSensitive = false ;
     defaultErrorHandler = false ;
 }
 
