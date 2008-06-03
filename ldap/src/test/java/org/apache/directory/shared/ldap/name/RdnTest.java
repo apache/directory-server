@@ -1257,4 +1257,22 @@ public class RdnTest
         assertEquals( "a=", new Rdn( "a=" ).toString() );
     }
 
+    /**
+     * test an RDN with escaped comma
+     */
+    @Test
+    public void testRdnWithEscapedComa() throws InvalidNameException
+    {
+        assertTrue( RdnParser.isValid( "a=b\\,c" ) );
+        assertEquals( "a=b\\,c", new Rdn( "a=b\\,c" ).toString() );
+
+        assertTrue( RdnParser.isValid( "a=\"b,c\"" ) );
+        assertEquals( "a=b\\,c", new Rdn( "a=\"b,c\"" ).toString() );
+        assertEquals( "a=\"b,c\"", new Rdn( "a=\"b,c\"" ).getUpName() );
+
+        assertTrue( RdnParser.isValid( "a=\"b\\,c\"" ) );
+        Rdn rdn = new Rdn( "a=\"b\\,c\"" );
+        assertEquals( "a=\"b\\,c\"", new Rdn( "a=\"b\\,c\"" ).getUpName() );
+        assertEquals( "a=b\\,c", new Rdn( "a=\"b\\,c\"" ).toString() );
+    }
 }

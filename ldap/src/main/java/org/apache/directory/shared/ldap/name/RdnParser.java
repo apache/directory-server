@@ -420,6 +420,7 @@ public class RdnParser
             pos.length = 0;
             pos.end = pos.start;
             int nbBytes = 0;
+            int length = 0;
 
             // <attributeValue> ::= '"' <quotechar-or-pair> '"'
             // <quotechar-or-pairs> ::= <quotechar> <quotechar-or-pairs> | '\'
@@ -431,49 +432,6 @@ public class RdnParser
                     pos.end++;
                     int nbChars = 0;
 
-                    if ( ( nbChars = DNUtils.countPairChar( bytes, pos.start ) ) != DNUtils.PARSING_ERROR )
-                    {
-                        pos.end += nbChars;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-                else if ( ( nbBytes = DNUtils.isQuoteChar( bytes, pos.end ) ) != DNUtils.PARSING_ERROR )
-                {
-                    pos.end += nbBytes;
-                }
-                else
-                {
-                    pos.length = pos.end - pos.start;
-                    break;
-                }
-            }
-
-            if ( StringTools.isCharASCII( bytes, pos.end, '"' ) )
-            {
-                pos.end++;
-                return StringTools.utf8ToString( bytes, pos.start, pos.length );
-            }
-            else
-            {
-                return null;
-            }
-        }
-        else
-        {
-            int escapedSpace = -1;
-            boolean hasPairChar = false;
-
-            while ( true )
-            {
-                if ( StringTools.isCharASCII( bytes, pos.end, '\\' ) )
-                {
-                    // '\' <pairchar> <pairs-or-strings>
-                    pos.end++;
-
-                    int nbChars = 0;
                     if ( ( nbChars = DNUtils.countPairChar( bytes, pos.end ) ) == DNUtils.PARSING_ERROR )
                     {
                         return null;
@@ -486,11 +444,68 @@ public class RdnParser
                         }
                         else
                         {
-                            if ( !hasPairChar )
-                            {
-                                hasPairChar = true;
-                            }
+                            byte b = StringTools.getHexValue( bytes[pos.end], bytes[pos.end + 1] );
 
+                            buffer[currPos++] = b;
+                        }
+                        
+                        pos.end += nbChars;
+                        length += nbChars;
+                    }
+                }
+                else if ( ( nbBytes = DNUtils.isQuoteChar( bytes, pos.end ) ) != DNUtils.PARSING_ERROR )
+                {
+                    for ( int i = 0; i < nbBytes; i++ )
+                    {
+                        buffer[currPos++] = bytes[pos.end + i];
+                    }
+                    
+                    pos.end += nbBytes;
+                    length += nbBytes;
+                }
+                else
+                {
+                    //pos.length = pos.end - pos.start;
+                    break;
+                }
+            }
+
+            if ( StringTools.isCharASCII( bytes, pos.end, '"' ) )
+            {
+                pos.end++;
+                return StringTools.utf8ToString( buffer, length );
+                //return StringTools.utf8ToString( bytes, pos.start, pos.length );
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else
+        {
+            int escapedSpace = -1;
+
+            while ( true )
+            {
+                if ( StringTools.isCharASCII( bytes, pos.end, '\\' ) )
+                {
+                    // '\' <pairchar> <pairs-or-strings>
+                    pos.end++;
+
+                    int nbChars = 0;
+                    
+                    if ( ( nbChars = DNUtils.countPairChar( bytes, pos.end ) ) == DNUtils.PARSING_ERROR )
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        if ( nbChars == 1 )
+                        {
+                            buffer[currPos++] = bytes[pos.end];
+                        }
+                        else
+                        {
                             byte b = StringTools.getHexValue( bytes[pos.end], bytes[pos.end + 1] );
 
                             buffer[currPos++] = b;
@@ -647,7 +662,7 @@ public class RdnParser
                     pos.end++;
                     int nbChars = 0;
 
-                    if ( ( nbChars = DNUtils.countPairChar( bytes, pos.start ) ) != DNUtils.PARSING_ERROR )
+                    if ( ( nbChars = DNUtils.countPairChar( bytes, pos.end ) ) != DNUtils.PARSING_ERROR )
                     {
                         pos.end += nbChars;
                     }
