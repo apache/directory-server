@@ -23,6 +23,8 @@ package org.apache.directory.shared.ldap.schema.syntax;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.apache.directory.shared.ldap.schema.parser.ParserMonitor;
+
 }
 
 
@@ -52,8 +54,11 @@ WHSP
     '\r' (options {greedy=true;} : '\n')? { newline(); } 
     |
     '\n' { newline(); }
+    |
+    '#' (~'\n')* '\n' { newline(); }
     )+
     { setText(" "); }
+    //{$setType(Token.SKIP);} //ignore this token
     ;
 
 LPAR : '(' ;
@@ -61,6 +66,7 @@ RPAR : ')' ;
 protected LDIGIT : '1'..'9' ;
 protected DIGIT : '0'..'9' ; 
 protected NUMBER : DIGIT | ( LDIGIT (DIGIT)+ ) ;
+protected NUMBER2 : (DIGIT)+ ;
 protected NUMERICOID : NUMBER ( '.' NUMBER )+ ;
 
 QUOTE : '\'' ;
@@ -68,7 +74,7 @@ DOLLAR : '$' ;
 LCURLY : '{' ;
 RCURLY : '}' ;
 DESCR : ( 'a'..'z' ) ( 'a'..'z' | '0'..'9' | '-' )* ;
-LEN : LCURLY n:NUMBER RCURLY { setText(n.getText()); } ;
+LEN : LCURLY n:NUMBER2 RCURLY { setText(n.getText()); } ;
 
 NUMBER_OR_NUMERICOID :
     ( NUMBER '.' ) => NUMERICOID { $setType( NUMERICOID ); }
@@ -90,18 +96,45 @@ options    {
     //buildAST=true ;
 }
 
+{
+    private ParserMonitor monitor = null;
+    public void setParserMonitor( ParserMonitor monitor )
+    {
+        this.monitor = monitor;
+    }
+    private void matchedProduction( String msg )
+    {
+        if ( null != monitor )
+        {
+            monitor.matchedProduction( msg );
+        }
+    }
+}
 
     /**
      * noidlen = numericoid [ LCURLY len RCURLY ]
      * len = number
      */
 noidlen returns [AntlrSchemaParser.NoidLen noidlen = new AntlrSchemaParser.NoidLen()]
+    {
+        matchedProduction( "AntlrSchemaValueParser.noidlen()" );
+    }
     :
     ( 
-      o:NUMERICOID { noidlen.noid = o.getText(); } 
-      (
-        l:LEN { noidlen.len = Integer.parseInt(l.getText()); } 
-      )?
+        (LPAR)?
+        (WHSP)?
+        (QUOTE)?
+        o:NUMERICOID { noidlen.noid = o.getText(); } 
+        (QUOTE)?
+        (WHSP)?
+        (RPAR)?
+        (
+            l:LEN { noidlen.len = Integer.parseInt(l.getText()); }
+            (QUOTE)?
+            (WHSP)?
+            (RPAR)?
+        )?
+        
     )
     ;
 
@@ -110,9 +143,22 @@ noidlen returns [AntlrSchemaParser.NoidLen noidlen = new AntlrSchemaParser.NoidL
      * numericoid = number 1*( DOT number )
      */
 numericoid returns [String numericoid=null]
+    {
+        matchedProduction( "AntlrSchemaValueParser.numericoid()" );
+    }
     : 
     (
-        (WHSP)? n:NUMERICOID (WHSP)? { numericoid = n.getText(); } 
+        (WHSP)?
+        (LPAR (WHSP)? )?
+        (
+            ( QUOTE n1:NUMERICOID { numericoid = n1.getText(); } QUOTE )
+            |
+            ( n2:NUMERICOID { numericoid = n2.getText(); } )
+        )
+        (
+        (WHSP)?
+        (RPAR)?
+        )
     )
     ;
 
@@ -128,15 +174,22 @@ numericoid returns [String numericoid=null]
      *
      */
 oid returns [String oid=null]
+    {
+        matchedProduction( "AntlrSchemaValueParser.oid()" );
+    }
     : 
     (
-        (WHSP)? 
-        (
-            n:NUMERICOID { oid = n.getText(); }
-        | 
-            d:DESCR { oid = d.getText(); }
-        )
         (WHSP)?
+        (
+            ( QUOTE n1:NUMERICOID { oid = n1.getText(); } QUOTE  )
+            |
+            ( n2:NUMERICOID { oid = n2.getText(); } )
+            |
+            ( QUOTE d1:DESCR { oid = d1.getText(); } QUOTE )
+            |
+            ( d2:DESCR { oid = d2.getText(); } )
+        )
+        (options {greedy=true;} : WHSP)?
     )
     ;
 
@@ -147,6 +200,7 @@ oid returns [String oid=null]
      */
 oids returns [List<String> oids]
     {
+        matchedProduction( "AntlrSchemaValueParser.oids()" );
         oids = new ArrayList<String>();
         String oid = null;
     }
@@ -156,14 +210,14 @@ oids returns [List<String> oids]
             oid=oid { oids.add(oid); } 
         )
     |
-        ( 
-            LPAR 
+        (
+            LPAR
             oid=oid { oids.add(oid); } 
             ( 
-                DOLLAR 
+                (DOLLAR)? 
                 oid=oid { oids.add(oid); } 
             )* 
-            RPAR 
+            RPAR
         )
     )
     ;
@@ -173,12 +227,17 @@ oids returns [List<String> oids]
      * qdescr = SQUOTE descr SQUOTE
      */
 qdescr returns [String qdescr=null]
+    {
+        matchedProduction( "AntlrSchemaValueParser.qdescr()" );
+    }
     : 
     ( 
         (WHSP)?
-        QUOTE 
-        d:DESCR { qdescr = d.getText(); } 
-        QUOTE
+        (
+            ( QUOTE d1:DESCR { qdescr = d1.getText(); } QUOTE )
+            |
+            ( d2:DESCR { qdescr = d2.getText(); } )
+        )
     )
     ; 
 
@@ -189,6 +248,7 @@ qdescr returns [String qdescr=null]
      */
 qdescrs returns [List<String> qdescrs]
     {
+        matchedProduction( "AntlrSchemaValueParser.qdescrs()" );
         qdescrs = new ArrayList<String>();
         String qdescr = null;
     }
@@ -201,11 +261,11 @@ qdescrs returns [List<String> qdescrs]
         ( 
             LPAR 
             qdescr=qdescr { qdescrs.add(qdescr); } 
+            (options {greedy=true;} : WHSP)?
             (
-                (options {greedy=true;} : WHSP)?
                 qdescr=qdescr { qdescrs.add(qdescr); } 
-            )* 
-            (WHSP)?
+                (options {greedy=true;} : WHSP)?
+            )*
             RPAR 
         )
     )
@@ -217,6 +277,9 @@ qdescrs returns [List<String> qdescrs]
      *
      */
 ruleid returns [Integer ruleid=null]
+    {
+        matchedProduction( "AntlrSchemaValueParser.ruleid()" );
+    }
     : 
     (
         (WHSP)? 
@@ -231,6 +294,7 @@ ruleid returns [Integer ruleid=null]
      */
 ruleids returns [List<Integer> ruleids]
     {
+        matchedProduction( "AntlrSchemaValueParser.ruleids()" );
         ruleids = new ArrayList<Integer>();
         Integer ruleid = null;
     }

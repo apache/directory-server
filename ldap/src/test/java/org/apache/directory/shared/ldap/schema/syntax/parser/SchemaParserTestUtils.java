@@ -94,7 +94,17 @@ public class SchemaParserTestUtils
         Assert.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
 
         // simple with tabs, newline, comment.
-        value = "(\t0.1.2.3.4.5.6.7.8.9\n#comment\n\t" + required + "\r\n)\r";
+        value = "(\t0.1.2.3.4.5.6.7.8.9\n#comment\n" + required + "\r\n)\r";
+        asd = parser.parse( value );
+        Assert.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
+
+        // quoted OID
+        value = "( '0.1.2.3.4.5.6.7.8.9' " + required + " )";
+        asd = parser.parse( value );
+        Assert.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
+
+        // quoted OID in parentheses
+        value = "( ('0.1.2.3.4.5.6.7.8.9') " + required + " )";
         asd = parser.parse( value );
         Assert.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
 
@@ -146,18 +156,6 @@ public class SchemaParserTestUtils
             // expected
         }
 
-        // quotes not allowed
-        value = "( '1.1' " + required + " )";
-        try
-        {
-            parser.parse( value );
-            Assert.fail( "Exception expected, invalid NUMERICOID '1.1' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
         // leading 0 not allowed
         value = "( 01.1 " + required + " )";
         try
@@ -179,9 +177,20 @@ public class SchemaParserTestUtils
         }
         catch ( ParseException pe )
         {
-            Assert.assertTrue( true );
+            // excpected
         }
 
+        // multiple not allowed
+        value = "( ( 1.2.3 4.5.6 ) " + required + " )";
+        try
+        {
+            parser.parse( value );
+            Assert.fail( "Exception expected, invalid multiple OIDs not allowed.)" );
+        }
+        catch ( ParseException pe )
+        {
+            // excpected
+        }
     }
 
 
@@ -260,17 +269,18 @@ public class SchemaParserTestUtils
         Assert.assertEquals( 1, asd.getNames().size() );
         Assert.assertEquals( "test", asd.getNames().get( 0 ) );
 
-        // unquoted
+        // unquoted NAME value
         value = "( " + oid + " " + required + " NAME test )";
-        try
-        {
-            parser.parse( value );
-            Assert.fail( "Exception expected, invalid NAME test (unquoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        asd = parser.parse( value );
+        Assert.assertEquals( 1, asd.getNames().size() );
+        Assert.assertEquals( "test", asd.getNames().get( 0 ) );
+
+        // multi unquoted NAME values
+        value = " ( " + oid + " " + required + " NAME (test1 test2) ) ";
+        asd = parser.parse( value );
+        Assert.assertEquals( 2, asd.getNames().size() );
+        Assert.assertEquals( "test1", asd.getNames().get( 0 ) );
+        Assert.assertEquals( "test2", asd.getNames().get( 1 ) );
 
         // start with number
         value = "( " + oid + " " + required + " NAME '1test' )";
@@ -360,6 +370,11 @@ public class SchemaParserTestUtils
         asd = parser.parse( value );
         Assert.assertEquals( "Descripton", asd.getDescription() );
 
+        // simple parentheses and quotes
+        value = "(" + oid + " " + required + " DESC ('Descripton') )";
+        asd = parser.parse( value );
+        Assert.assertEquals( "Descripton", asd.getDescription() );
+
         // unicode
         value = "( " + oid + " " + required + " DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' )";
         asd = parser.parse( value );
@@ -383,6 +398,23 @@ public class SchemaParserTestUtils
         value = "( " + oid + " " + required + " desc 'Descripton' )";
         asd = parser.parse( value );
         Assert.assertEquals( "Descripton", asd.getDescription() );
+
+        // empty DESC
+        value = "( " + oid + " " + required + " DESC '' )";
+        asd = parser.parse( value );
+        Assert.assertEquals( "", asd.getDescription() );
+
+        // multiple not allowed
+        value = "(" + oid + " " + required + " DESC ( 'Descripton1' 'Description 2' )  )";
+        try
+        {
+            parser.parse( value );
+            Assert.fail( "Exception expected, invalid multiple DESC not allowed.)" );
+        }
+        catch ( ParseException pe )
+        {
+            // expected
+        }
     }
 
 
@@ -513,6 +545,11 @@ public class SchemaParserTestUtils
 
         // obsolete 
         value = "(" + oid + " " + required + " OBSOLETE)";
+        asd = parser.parse( value );
+        Assert.assertTrue( asd.isObsolete() );
+
+        // lowercased obsolete 
+        value = "(" + oid + " " + required + " obsolete)";
         asd = parser.parse( value );
         Assert.assertTrue( asd.isObsolete() );
 

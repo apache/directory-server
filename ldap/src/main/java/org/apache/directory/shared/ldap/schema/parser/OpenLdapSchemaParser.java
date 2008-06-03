@@ -47,15 +47,17 @@ import antlr.TokenStreamException;
  */
 public class OpenLdapSchemaParser extends AbstractSchemaParser
 {
-    /** the monitor to use for this parser */
-    private ParserMonitor monitor = new ParserMonitorAdapter();
-    
+
     /** The list of parsed schema descriptions */
     private List<AbstractSchemaDescription> schemaDescriptions;
 
+    /** The list of attribute type literals, initialized by splitParsedSchemaDescriptions() */
     private List<AttributeTypeLiteral> attributeTypeLiterals;
+
+    /** the list of object class literals, initialized by splitParsedSchemaDescriptions()*/
     private List<ObjectClassLiteral> objectClassLiterals;
-    
+
+
     /**
      * Creates a reusable instance of an OpenLdapSchemaParser.
      *
@@ -88,36 +90,37 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
      */
     public List<AttributeTypeLiteral> getAttributeTypes()
     {
-        if(attributeTypeLiterals == null) 
+        if ( attributeTypeLiterals == null )
         {
             splitParsedSchemaDescriptions();
         }
-        
+
         return attributeTypeLiterals;
     }
 
 
     public List<ObjectClassLiteral> getObjectClassTypes()
     {
-        if(objectClassLiterals == null) 
+        if ( objectClassLiterals == null )
         {
             splitParsedSchemaDescriptions();
         }
-        
+
         return objectClassLiterals;
     }
-    
+
+
     private void splitParsedSchemaDescriptions()
     {
         objectClassLiterals = new ArrayList<ObjectClassLiteral>();
         attributeTypeLiterals = new ArrayList<AttributeTypeLiteral>();
-        
+
         for ( AbstractSchemaDescription schemaDescription : schemaDescriptions )
         {
-            if(schemaDescription instanceof AttributeTypeDescription)
+            if ( schemaDescription instanceof AttributeTypeDescription )
             {
-                AttributeTypeDescription atd = (AttributeTypeDescription)schemaDescription;
-                AttributeTypeLiteral literal = new AttributeTypeLiteral(atd.getNumericOid());
+                AttributeTypeDescription atd = ( AttributeTypeDescription ) schemaDescription;
+                AttributeTypeLiteral literal = new AttributeTypeLiteral( atd.getNumericOid() );
                 literal.setNames( atd.getNames().toArray( new String[atd.getNames().size()] ) );
                 literal.setDescription( atd.getDescription() );
                 literal.setSuperior( atd.getSuperType() );
@@ -133,13 +136,14 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
                 literal.setUsage( atd.getUsage() );
                 attributeTypeLiterals.add( literal );
             }
-            else if(schemaDescription instanceof ObjectClassDescription)
+            else if ( schemaDescription instanceof ObjectClassDescription )
             {
-                ObjectClassDescription ocd = (ObjectClassDescription)schemaDescription;
-                ObjectClassLiteral literal = new ObjectClassLiteral(ocd.getNumericOid());
+                ObjectClassDescription ocd = ( ObjectClassDescription ) schemaDescription;
+                ObjectClassLiteral literal = new ObjectClassLiteral( ocd.getNumericOid() );
                 literal.setNames( ocd.getNames().toArray( new String[ocd.getNames().size()] ) );
                 literal.setDescription( ocd.getDescription() );
-                literal.setSuperiors( ocd.getSuperiorObjectClasses().toArray( new String[ocd.getSuperiorObjectClasses().size()] ) );
+                literal.setSuperiors( ocd.getSuperiorObjectClasses().toArray(
+                    new String[ocd.getSuperiorObjectClasses().size()] ) );
                 literal.setMay( ocd.getMayAttributeTypes().toArray( new String[ocd.getMayAttributeTypes().size()] ) );
                 literal.setMust( ocd.getMustAttributeTypes().toArray( new String[ocd.getMustAttributeTypes().size()] ) );
                 literal.setClassType( ocd.getKind() );
@@ -163,12 +167,18 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
         {
             throw new ParseException( "The schemaObject is either null or is " + "the empty String!", 0 );
         }
-        
+
         reset( schemaObject ); // reset and initialize the parser / lexer pair
         invokeParser( schemaObject );
-        
-        // TODO: return
-        return null;
+
+        if ( !schemaDescriptions.isEmpty() )
+        {
+            return schemaDescriptions.get( 0 );
+        }
+        else
+        {
+            return null;
+        }
     }
 
 
@@ -209,7 +219,7 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
         InputStreamReader in = new InputStreamReader( schemaIn );
         lexer.prepareNextInput( in );
         parser.resetState();
-        
+
         invokeParser( "schema input stream ==> " + schemaIn.toString() );
     }
 
@@ -226,15 +236,8 @@ public class OpenLdapSchemaParser extends AbstractSchemaParser
         FileReader in = new FileReader( schemaFile );
         lexer.prepareNextInput( in );
         parser.resetState();
-        
+
         invokeParser( "schema file ==> " + schemaFile.getAbsolutePath() );
-    }
-
-
-    public void setParserMonitor( ParserMonitor monitor )
-    {
-        this.monitor = monitor;
-        parser.setParserMonitor( monitor );
     }
 
 }

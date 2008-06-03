@@ -144,29 +144,24 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
         assertEquals( "1.2.3.4", mrud.getApplicableAttributes().get( 1 ) );
         assertEquals( "test2", mrud.getApplicableAttributes().get( 2 ) );
 
-        // no quote allowed
+        // quoted value
         value = "( 1.1 APPLIES 'test' )";
-        try
-        {
-            mrud = parser.parseMatchingRuleUseDescription( value );
-            fail( "Exception expected, invalid APPLIES 'test' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        mrud = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 1, mrud.getApplicableAttributes().size() );
+        assertEquals( "test", mrud.getApplicableAttributes().get( 0 ) );
 
-        // no quote allowed
+        // quoted value
         value = "( 1.1 APPLIES '1.2.3.4' )";
-        try
-        {
-            mrud = parser.parseMatchingRuleUseDescription( value );
-            fail( "Exception expected, invalid APPLIES '1.2.3.4' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        mrud = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 1, mrud.getApplicableAttributes().size() );
+        assertEquals( "1.2.3.4", mrud.getApplicableAttributes().get( 0 ) );
+
+        // no $ separator
+        value = "( 1.1 APPLIES ( test1 test2 ) )";
+        mrud = parser.parseMatchingRuleUseDescription( value );
+        assertEquals( 2, mrud.getApplicableAttributes().size() );
+        assertEquals( "test1", mrud.getApplicableAttributes().get( 0 ) );
+        assertEquals( "test2", mrud.getApplicableAttributes().get( 1 ) );
 
         // invalid character
         value = "( 1.1 APPLIES 1.2.3.4.A )";
@@ -186,18 +181,6 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
         {
             mrud = parser.parseMatchingRuleUseDescription( value );
             fail( "Exception expected, invalid APPLIES '-test' (starts with hypen)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // invalid separator
-        value = "( 1.1 APPLIES ( test1 test2 ) )";
-        try
-        {
-            mrud = parser.parseMatchingRuleUseDescription( value );
-            fail( "Exception expected, invalid separator (no DOLLAR)" );
         }
         catch ( ParseException pe )
         {

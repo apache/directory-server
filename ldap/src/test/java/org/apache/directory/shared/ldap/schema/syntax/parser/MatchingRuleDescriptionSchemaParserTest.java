@@ -94,6 +94,11 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
         mrd = parser.parseMatchingRuleDescription( value );
         assertEquals( "0.1.2.3.4.5.6.7.8.9", mrd.getSyntax() );
 
+        // quoted value in parentheses
+        value = "( 1.1    SYNTAX ('0.1.2.3.4.5.6.7.8.9')    )";
+        mrd = parser.parseMatchingRuleDescription( value );
+        assertEquals( "0.1.2.3.4.5.6.7.8.9", mrd.getSyntax() );
+
         // non-numeric not allowed
         value = "( test )";
         try

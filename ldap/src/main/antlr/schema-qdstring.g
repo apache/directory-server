@@ -23,6 +23,8 @@ package org.apache.directory.shared.ldap.schema.syntax;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.shared.ldap.schema.parser.ParserMonitor;
+
 }
 
    
@@ -62,9 +64,6 @@ QUOTE : '\'' ;
 QDSTRING : ( QUOTE (~'\'')* QUOTE ) ;
 
 
-
-
-
 /**
  * An antlr generated schema parser. This is a sub-parser used to parse
  * qdstring and qdstrings according to RFC4512.
@@ -79,12 +78,28 @@ options    {
     //buildAST=true ;
 }
 
+{
+    private ParserMonitor monitor = null;
+    public void setParserMonitor( ParserMonitor monitor )
+    {
+        this.monitor = monitor;
+    }
+    private void matchedProduction( String msg )
+    {
+        if ( null != monitor )
+        {
+            monitor.matchedProduction( msg );
+        }
+    }
+}
+
     /**
      * qdstrings = qdstring / ( LPAREN WSP qdstringlist WSP RPAREN )
      * qdstringlist = [ qdstring *( SP qdstring ) ]
      */
 qdstrings returns [List<String> qdstrings]
     {
+        matchedProduction( "AntlrSchemaQdstringParser.qdstrings()" );
         qdstrings = new ArrayList<String>();
         String qdstring = null;
     }
@@ -100,6 +115,9 @@ qdstrings returns [List<String> qdstrings]
                 if(qdstring.endsWith("'")) {
                     qdstring = qdstring.substring(0, qdstring.length()-1);
                 }
+                qdstring = qdstring.replaceAll("\\\\5C", "\\\\");
+                qdstring = qdstring.replaceAll("\\\\5c", "\\\\");
+                qdstring = qdstring.replaceAll("\\\\27", "'");
                 qdstrings.add(qdstring);
             } 
         )
@@ -123,6 +141,9 @@ qdstrings returns [List<String> qdstrings]
      * QUTF1    = %x00-26 / %x28-5B / %x5D-7F
      */    
 qdstring returns [String qdstring=null]
+    {
+        matchedProduction( "AntlrSchemaQdstringParser.qdstring()" );
+    }
     : 
     ( 
         q:QDSTRING 

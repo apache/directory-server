@@ -173,27 +173,22 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
 
         // no quote allowed
         value = "( 1.1 AUX 'top' )";
-        try
-        {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid AUX 'top' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        dcrd = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, dcrd.getAuxiliaryObjectClasses().size() );
+        assertEquals( "top", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
 
-        // no quote allowed
+        // quoted value
         value = "( 1.1 AUX '1.2.3.4' )";
-        try
-        {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid AUX '1.2.3.4' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        dcrd = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, dcrd.getAuxiliaryObjectClasses().size() );
+        assertEquals( "1.2.3.4", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
+
+        // no $ separator
+        value = "( 1.1 AUX ( top1 top2 ) )";
+        dcrd = parser.parseDITContentRuleDescription( value );
+        assertEquals( 2, dcrd.getAuxiliaryObjectClasses().size() );
+        assertEquals( "top1", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
+        assertEquals( "top2", dcrd.getAuxiliaryObjectClasses().get( 1 ) );
 
         // invalid character
         value = "( 1.1 AUX 1.2.3.4.A )";
@@ -213,18 +208,6 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         {
             dcrd = parser.parseDITContentRuleDescription( value );
             fail( "Exception expected, invalid AUX '-top' (starts with hypen)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // invalid separator
-        value = "( 1.1 AUX ( top1 top2 ) )";
-        try
-        {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid separator (no DOLLAR)" );
         }
         catch ( ParseException pe )
         {
@@ -268,7 +251,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "1.2.3", dcrd.getMustAttributeTypes().get( 0 ) );
 
         // MUST mulitple
-        value = "(1.1 MUST (cn$sn       $11.22.33.44.55         $  objectClass   ))";
+        value = "(1.1 MUST (cn\rsn       $11.22.33.44.55            objectClass\t))";
         dcrd = parser.parseDITContentRuleDescription( value );
         assertEquals( 4, dcrd.getMustAttributeTypes().size() );
         assertEquals( "cn", dcrd.getMustAttributeTypes().get( 0 ) );
@@ -358,19 +341,19 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         String value = null;
         DITContentRuleDescription dcrd = null;
 
-        // no MAY
+        // no NOT
         value = "( 1.1 )";
         dcrd = parser.parseDITContentRuleDescription( value );
         assertEquals( 0, dcrd.getNotAttributeTypes().size() );
 
-        // MAY simple numericoid
+        // NOT simple numericoid
         value = "( 1.1 NOT 1.2.3 )";
         dcrd = parser.parseDITContentRuleDescription( value );
         assertEquals( 1, dcrd.getNotAttributeTypes().size() );
         assertEquals( "1.2.3", dcrd.getNotAttributeTypes().get( 0 ) );
 
-        // MAY mulitple
-        value = "(1.1 NOT (cn$sn       $11.22.33.44.55         $  objectClass   ))";
+        // NOT mulitple
+        value = "(1.1 NOT (cn\nsn\t$11.22.33.44.55         $  objectClass   ))";
         dcrd = parser.parseDITContentRuleDescription( value );
         assertEquals( 4, dcrd.getNotAttributeTypes().size() );
         assertEquals( "cn", dcrd.getNotAttributeTypes().get( 0 ) );

@@ -52,6 +52,7 @@ public class DITStructureRuleDescriptionSyntaxCheckerTest extends TestCase
             .isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' OBSOLETE FORM 2.5.15.3 SUP ( 1 1234567890 5 ) )" ) );
 
         assertTrue( checker.isValidSyntax( "(2 FORM 2.5.15.3)" ) );
+        assertTrue( checker.isValidSyntax( "(2 NAME organization FORM 2.5.15.3)" ) );
         assertTrue( checker
             .isValidSyntax( "(   2   NAME    'organization'    DESC    'organization structure rule'    OBSOLETE   FORM   2.5.15.3    SUP   (1 1234567890        5   ))" ) );
 
@@ -80,9 +81,6 @@ public class DITStructureRuleDescriptionSyntaxCheckerTest extends TestCase
 
         // missing right parenthesis
         assertFalse( checker.isValidSyntax( "( 2 FORM 2.5.15.3" ) );
-
-        // missing quotes
-        assertFalse( checker.isValidSyntax( "( 2 NAME organization FORM 2.5.15.3 )" ) );
 
         // missing FORM
         assertFalse( checker.isValidSyntax( "( 2 NAME 'organization' DESC 'organization structure rule' )" ) );

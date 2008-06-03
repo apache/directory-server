@@ -172,29 +172,24 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         assertEquals( "1.2.3.4", ocd.getSuperiorObjectClasses().get( 1 ) );
         assertEquals( "top2", ocd.getSuperiorObjectClasses().get( 2 ) );
 
-        // no quote allowed
+        // quoted value
         value = "( 1.1 SUP 'top' )";
-        try
-        {
-            ocd = parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid SUP 'top' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        ocd = parser.parseObjectClassDescription( value );
+        assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
+        assertEquals( "top", ocd.getSuperiorObjectClasses().get( 0 ) );
 
-        // no quote allowed
+        // quoted value
         value = "( 1.1 SUP '1.2.3.4' )";
-        try
-        {
-            ocd = parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid SUP '1.2.3.4' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        ocd = parser.parseObjectClassDescription( value );
+        assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
+        assertEquals( "1.2.3.4", ocd.getSuperiorObjectClasses().get( 0 ) );
+
+        // no $ separator
+        value = "( 1.1 SUP ( top1 top2 ) )";
+        ocd = parser.parseObjectClassDescription( value );
+        assertEquals( 2, ocd.getSuperiorObjectClasses().size() );
+        assertEquals( "top1", ocd.getSuperiorObjectClasses().get( 0 ) );
+        assertEquals( "top2", ocd.getSuperiorObjectClasses().get( 1 ) );
 
         // invalid character
         value = "( 1.1 SUP 1.2.3.4.A )";
@@ -214,18 +209,6 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         {
             ocd = parser.parseObjectClassDescription( value );
             fail( "Exception expected, invalid SUP '-top' (starts with hypen)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // invalid separator
-        value = "( 1.1 SUP ( top1 top2 ) )";
-        try
-        {
-            ocd = parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid separator (no DOLLAR)" );
         }
         catch ( ParseException pe )
         {
@@ -276,7 +259,12 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         ocd = parser.parseObjectClassDescription( value );
         assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
 
-        // ivalid
+        // STRUCTURAL, case-insensitive
+        value = "(1.1 sTrUcTuRaL )";
+        ocd = parser.parseObjectClassDescription( value );
+        assertEquals( ObjectClassTypeEnum.STRUCTURAL, ocd.getKind() );
+
+        // invalid
         value = "( 1.1 FOO )";
         try
         {
@@ -312,8 +300,17 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         assertEquals( 1, ocd.getMustAttributeTypes().size() );
         assertEquals( "1.2.3", ocd.getMustAttributeTypes().get( 0 ) );
 
-        // MUST mulitple
+        // MUST multiple
         value = "(1.1 MUST(cn$sn\r$11.22.33.44.55         $  objectClass   ))";
+        ocd = parser.parseObjectClassDescription( value );
+        assertEquals( 4, ocd.getMustAttributeTypes().size() );
+        assertEquals( "cn", ocd.getMustAttributeTypes().get( 0 ) );
+        assertEquals( "sn", ocd.getMustAttributeTypes().get( 1 ) );
+        assertEquals( "11.22.33.44.55", ocd.getMustAttributeTypes().get( 2 ) );
+        assertEquals( "objectClass", ocd.getMustAttributeTypes().get( 3 ) );
+
+        // MUST multiple, no $ separator
+        value = "(1.1 MUST(cn sn\t'11.22.33.44.55'\n'objectClass'))";
         ocd = parser.parseObjectClassDescription( value );
         assertEquals( 4, ocd.getMustAttributeTypes().size() );
         assertEquals( "cn", ocd.getMustAttributeTypes().get( 0 ) );
@@ -369,8 +366,17 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         assertEquals( 1, ocd.getMayAttributeTypes().size() );
         assertEquals( "1.2.3", ocd.getMayAttributeTypes().get( 0 ) );
 
-        // MAY mulitple
+        // MAY multiple
         value = "(1.1 MAY(cn$sn       $11.22.33.44.55\n$  objectClass   ))";
+        ocd = parser.parseObjectClassDescription( value );
+        assertEquals( 4, ocd.getMayAttributeTypes().size() );
+        assertEquals( "cn", ocd.getMayAttributeTypes().get( 0 ) );
+        assertEquals( "sn", ocd.getMayAttributeTypes().get( 1 ) );
+        assertEquals( "11.22.33.44.55", ocd.getMayAttributeTypes().get( 2 ) );
+        assertEquals( "objectClass", ocd.getMayAttributeTypes().get( 3 ) );
+
+        // MAY multiple, no $ separator, quoted
+        value = "(1.1 MAY('cn' sn\t'11.22.33.44.55'\nobjectClass))";
         ocd = parser.parseObjectClassDescription( value );
         assertEquals( 4, ocd.getMayAttributeTypes().size() );
         assertEquals( "cn", ocd.getMayAttributeTypes().get( 0 ) );
@@ -456,23 +462,14 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
     public void testUniqueElements()
     {
         String[] testValues = new String[]
-            { 
-                "( 1.1 NAME 'test1' NAME 'test2' )", 
-                "( 1.1 DESC 'test1' DESC 'test2' )",
-                "( 1.1 OBSOLETE OBSOLETE )", 
-                "( 1.1 SUP test1 SUP test2 )",
-                "( 1.1 STRUCTURAL STRUCTURAL )",
-                "( 1.1 ABSTRACT ABSTRACT )",
-                "( 1.1 AUXILIARY AUXILIARY )",
-                "( 1.1 STRUCTURAL AUXILIARY AUXILIARY )",
-                "( 1.1 MUST test1 MUST test2 )",
-                "( 1.1 MAY test1 MAY test2 )",
-                "( 1.1 X-TEST 'test1' X-TEST 'test2' )" 
-            };
+            { "( 1.1 NAME 'test1' NAME 'test2' )", "( 1.1 DESC 'test1' DESC 'test2' )", "( 1.1 OBSOLETE OBSOLETE )",
+                "( 1.1 SUP test1 SUP test2 )", "( 1.1 STRUCTURAL STRUCTURAL )", "( 1.1 ABSTRACT ABSTRACT )",
+                "( 1.1 AUXILIARY AUXILIARY )", "( 1.1 STRUCTURAL AUXILIARY AUXILIARY )",
+                "( 1.1 MUST test1 MUST test2 )", "( 1.1 MAY test1 MAY test2 )", "( 1.1 X-TEST 'test1' X-TEST 'test2' )" };
         SchemaParserTestUtils.testUnique( parser, testValues );
     }
-    
-    
+
+
     /**
      * Ensure that element order is ignored
      * 

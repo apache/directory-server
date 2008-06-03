@@ -47,18 +47,6 @@ public class LdapSyntaxDescription extends AbstractSchemaDescription
     }
 
 
-    public List<String> getNames()
-    {
-        throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
-    }
-
-
-    public void setNames( List<String> names )
-    {
-        throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
-    }
-
-
     public boolean isObsolete()
     {
         throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );

@@ -27,6 +27,7 @@ import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
+import antlr.TokenStreamRecognitionException;
 
 
 /**
@@ -101,6 +102,12 @@ public class AttributeTypeDescriptionSchemaParser extends AbstractSchemaParser
             msg += "\nAntlr message: " + re.getMessage();
             msg += "\nAntlr column: " + re.getColumn();
             throw new ParseException( msg, re.getColumn() );
+        }
+        catch ( TokenStreamRecognitionException tsre )
+        {
+            String msg = "Parser failure on attribute type description:\n\t" + attributeTypeDescription;
+            msg += "\nAntlr message: " + tsre.getMessage();
+            throw new ParseException( msg, 0 );
         }
         catch ( TokenStreamException tse )
         {

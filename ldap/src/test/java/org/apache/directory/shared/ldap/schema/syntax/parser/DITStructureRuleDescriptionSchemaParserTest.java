@@ -206,29 +206,15 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
         dsrd = parser.parseDITStructureRuleDescription( value );
         assertEquals( "abc", dsrd.getForm() );
 
-        // no quote allowed
+        // quoted value
         value = "( 1 FORM '1.2.3.4.5.6.7.8.9.0' )";
-        try
-        {
-            dsrd = parser.parseDITStructureRuleDescription( value );
-            fail( "Exception expected, invalid FORM '1.2.3.4.5.6.7.8.9.0' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        dsrd = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", dsrd.getForm() );
 
         // no quote allowed
-        value = "( 1 FORM 'test' )";
-        try
-        {
-            dsrd = parser.parseDITStructureRuleDescription( value );
-            fail( "Exception expected, invalid FORM 'test' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        value = "( 1 FORM ('test') )";
+        dsrd = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "test", dsrd.getForm() );
 
         // invalid character
         value = "( 1 FORM 1.2.3.4.A )";
@@ -254,7 +240,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
             // expected
         }
 
-        // no multi value
+        // no multiple values
         value = "( 1 FORM ( test1 test2 ) )";
         try
         {

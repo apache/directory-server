@@ -120,29 +120,15 @@ public class NameFormDescriptionSchemaParserTest extends TestCase
         assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", nfd
             .getStructuralObjectClass() );
 
-        // no quote allowed
+        // quoted value
         value = "( 1.1 MUST m OC '1.2.3.4.5.6.7.8.9.0' )";
-        try
-        {
-            nfd = parser.parseNameFormDescription( value );
-            fail( "Exception expected, invalid FORM '1.2.3.4.5.6.7.8.9.0' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        nfd = parser.parseNameFormDescription( value );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", nfd.getStructuralObjectClass() );
 
-        // no quote allowed
+        // quoted value
         value = "( 1.1 MUST m OC 'test' )";
-        try
-        {
-            nfd = parser.parseNameFormDescription( value );
-            fail( "Exception expected, invalid OC 'test' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        nfd = parser.parseNameFormDescription( value );
+        assertEquals( "test", nfd.getStructuralObjectClass() );
 
         // invalid character
         value = "( 1.1 MUST m OC 1.2.3.4.A )";

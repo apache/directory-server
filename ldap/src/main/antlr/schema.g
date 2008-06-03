@@ -85,7 +85,7 @@ AUXILIARY : ( "auxiliary" (WHSP)? ) ;
 OBJECTCLASS : ( "objectclass" (WHSP)? ) ;
 ATTRIBUTETYPE : ( "attributetype" (WHSP)? ) ;
 
-STARTNUMERICOID : ( LPAR ( numericoid:VALUE ) ) { setText(numericoid.getText().trim()); } ;
+STARTNUMERICOID : ( LPAR (options {greedy=true;} : WHSP)? ( numericoid:VALUES ) ) { setText(numericoid.getText()); } ;
 NAME : ( "name" (options {greedy=true;} : WHSP)? qdstrings:VALUES ) { setText(qdstrings.getText().trim()); } ;
 DESC : ( "desc" (options {greedy=true;} : WHSP)? qdstring:VALUES ) { setText(qdstring.getText().trim()); } ;
 SUP : ( "sup" (options {greedy=true;} : WHSP)? sup:VALUES ) { setText(sup.getText().trim()); } ;
@@ -424,6 +424,8 @@ ldapSyntaxDescription returns [LdapSyntaxDescription lsd = new LdapSyntaxDescrip
     :
     ( oid:STARTNUMERICOID { lsd.setNumericOid(numericoid(oid.getText())); } )
     (
+        ( name:NAME { et.track("NAME", name); lsd.setNames(qdescrs(name.getText())); } )
+        |
         ( desc:DESC { et.track("DESC", desc); lsd.setDescription(qdstring(desc.getText())); } )
         |
         ( extension:EXTENSION { 
@@ -860,6 +862,7 @@ noidlen [String s] returns [NoidLen noidlen]
         matchedProduction( "noidlen()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
+        parser.setParserMonitor(monitor);
         noidlen = parser.noidlen();
     }
     :
@@ -879,9 +882,10 @@ extension [String s] returns [Extension extension]
 
 numericoid [String s] returns [String numericoid]
     {
-        matchedProduction( "numericoid()" );
+        matchedProduction( "numericoid()");
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
+        parser.setParserMonitor(monitor);
         numericoid = parser.numericoid();
     }
     :
@@ -890,9 +894,12 @@ numericoid [String s] returns [String numericoid]
 oid [String s] returns [String oid]
     {
         matchedProduction( "oid()" );
-        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
-        AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
-        oid = parser.oid();
+        List<String> oids = oids(s);
+        if( oids.size() != 1 ) 
+        {
+            throw new SemanticException( "Exactly one OID expected", null, 0, 0 );
+        }
+        oid = oids.get(0);
     }
     :
     ;
@@ -902,6 +909,7 @@ oids [String s] returns [List<String> oids]
         matchedProduction( "oid()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
+        parser.setParserMonitor(monitor);
         oids = parser.oids();
     }
     :
@@ -910,9 +918,12 @@ oids [String s] returns [List<String> oids]
 qdescr [String s] returns [String qdescr]
     {
         matchedProduction( "qdescr()" );
-        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
-        AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
-        qdescr = parser.qdescr();
+        List<String> qdescrs = qdescrs(s);
+        if( qdescrs.size() != 1 ) 
+        {
+            throw new SemanticException( "Exactly one qdescrs expected", null, 0, 0 );
+        }
+        qdescr = qdescrs.get(0);
     }
     :
     ;
@@ -922,6 +933,7 @@ qdescrs [String s] returns [List<String> qdescrs]
         matchedProduction( "qdescrs()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
+        parser.setParserMonitor(monitor);
         qdescrs = parser.qdescrs();
     }
     :
@@ -930,9 +942,12 @@ qdescrs [String s] returns [List<String> qdescrs]
 qdstring [String s] returns [String qdstring]
     {
         matchedProduction( "qdstring()" );
-        AntlrSchemaQdstringLexer lexer = new AntlrSchemaQdstringLexer(new StringReader(s));
-        AntlrSchemaQdstringParser parser = new AntlrSchemaQdstringParser(lexer);
-        qdstring = parser.qdstring();
+        List<String> qdstrings = qdstrings(s);
+        if( qdstrings.size() != 1 ) 
+        {
+            throw new SemanticException( "Exactly one qdstrings expected", null, 0, 0 );
+        }
+        qdstring = qdstrings.get(0);
     }
     :
     ;
@@ -942,6 +957,7 @@ qdstrings [String s] returns [List<String> qdstrings]
         matchedProduction( "qdstrings()" );
         AntlrSchemaQdstringLexer lexer = new AntlrSchemaQdstringLexer(new StringReader(s));
         AntlrSchemaQdstringParser parser = new AntlrSchemaQdstringParser(lexer);
+        parser.setParserMonitor(monitor);
         qdstrings = parser.qdstrings();
     }
     :
@@ -952,6 +968,7 @@ ruleid [String s] returns [Integer ruleid]
         matchedProduction( "ruleid()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
+        parser.setParserMonitor(monitor);
         ruleid = parser.ruleid();
     }
     :
@@ -962,6 +979,7 @@ ruleids [String s] returns [List<Integer> ruleids]
         matchedProduction( "ruleids()" );
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
+        parser.setParserMonitor(monitor);
         ruleids = parser.ruleids();
     }
     :

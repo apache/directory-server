@@ -62,6 +62,17 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
 
 
     /**
+     * Tests NAMES
+     * 
+     * @throws ParseException
+     */
+    public void testNames() throws ParseException
+    {
+        SchemaParserTestUtils.testNames( parser, "1.1", "" );
+    }
+
+
+    /**
      * Tests DESC
      * 
      * @throws ParseException
