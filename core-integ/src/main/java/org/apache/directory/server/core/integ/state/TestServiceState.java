@@ -18,14 +18,13 @@
  */
 package org.apache.directory.server.core.integ.state;
 
-import org.apache.directory.server.core.integ.DirectoryServiceFactory;
+import java.io.IOException;
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.integ.InheritableSettings;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
 import org.junit.runner.notification.RunNotifier;
-
-import javax.naming.NamingException;
-import java.io.IOException;
 
 
 /**
@@ -43,13 +42,14 @@ public interface TestServiceState
      * configuration which takes place when the factory is used to get
      * a new instance of the service.
      *
-     * @param factory the factory to use for creating a configured service
+     * @param settings The inherited settings
+     * @throws NamingException if we can't create the service
      */
-    void create( DirectoryServiceFactory factory ) throws NamingException;
+    void create( InheritableSettings settings ) throws NamingException;
 
 
     /**
-     * Action where an attempt is made to destroy the service.  This
+     * Action where an attempt is made to destroy the service. This
      * entails nulling out reference to it and triggering garbage
      * collection.
      */

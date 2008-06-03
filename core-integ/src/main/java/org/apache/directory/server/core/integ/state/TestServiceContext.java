@@ -19,8 +19,12 @@
 package org.apache.directory.server.core.integ.state;
 
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.InheritableSettings;
 import org.junit.internal.runners.MethodRoadie;
 import org.junit.internal.runners.TestClass;
@@ -29,11 +33,6 @@ import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 
 
 /**
@@ -46,15 +45,20 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class TestServiceContext
 {
+    /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( TestServiceContext.class );
+    
+    /** The ThreadLocal containing the contexts */
     private static final ThreadLocal<TestServiceContext> CONTEXTS = new ThreadLocal<TestServiceContext>();
 
+    /** The NonExistant state instance */
     private final TestServiceState nonExistentState = new NonExistentState( this );
-    private final TestServiceState startedDirtyState = new StartedDirtyState( this );
+
+    /** The StartedPristine state instance */
     private final TestServiceState startedPristineState = new StartedPristineState( this );
-    private final TestServiceState startedRevertedState = new StartedRevertedState( this );
-    private final TestServiceState stoppedDirtyState = new StoppedDirtyState( this );
-    private final TestServiceState stoppedPristineState = new StoppedPristineState( this );
+    
+    /** The StartedNormal state instance */
+    private final TestServiceState startedNormalState = new StartedNormalState( this );
 
 
     /** current service state with respect to the testing life cycle */
@@ -62,6 +66,16 @@ public class TestServiceContext
 
     /** the core directory service managed by this context */
     private DirectoryService service;
+
+
+    /**
+     * A private constructor, the clas contains only static methods, 
+     * no need to construct an instance.
+     */
+    private TestServiceContext()
+    {
+        
+    }
 
 
     /**
@@ -101,11 +115,12 @@ public class TestServiceContext
      * configuration which takes place when the factory is used to get
      * a new instance of the service.
      *
-     * @param factory the factory to use for creating a configured service
+     * @param settings the settings for this test
+     * @throws NamingException if we can't create the service
      */
-    public static void create( DirectoryServiceFactory factory ) throws NamingException
+    public static void create( InheritableSettings settings ) throws NamingException
     {
-        get().state.create( factory );
+        get().state.create( settings );
     }
 
 
@@ -187,13 +202,12 @@ public class TestServiceContext
 
     static void invokeTest( TestClass testClass, TestMethod testMethod, RunNotifier notifier, Description description )
     {
-        Object test;
-        
         try
         {
-            test = testClass.getConstructor().newInstance();
+            Object test = testClass.getConstructor().newInstance();
             Field field = testClass.getJavaClass().getDeclaredField( "service" );
             field.set( testClass.getJavaClass(), get().getService() );
+            new MethodRoadie( test, testMethod, notifier, description ).run();
         }
         catch ( InvocationTargetException e )
         {
@@ -201,14 +215,30 @@ public class TestServiceContext
             notifier.testAborted( description, e.getCause() );
             return;
         }
-        catch ( Exception e )
+        catch ( InstantiationException ie )
         {
-            LOG.error( "Failed to invoke test method: " + description.getDisplayName(), e );
-            notifier.testAborted( description, e );
+            LOG.error( "Failed to invoke test method: " + description.getDisplayName(), ie );
+            notifier.testAborted( description, ie );
             return;
         }
-
-        new MethodRoadie( test, testMethod, notifier, description ).run();
+        catch ( IllegalAccessException iae )
+        {
+            LOG.error( "Failed to invoke test method: " + description.getDisplayName(), iae );
+            notifier.testAborted( description, iae );
+            return;
+        }
+        catch ( NoSuchMethodException nsme )
+        {
+            LOG.error( "Failed to invoke test method: " + description.getDisplayName(), nsme );
+            notifier.testAborted( description, nsme );
+            return;
+        }
+        catch ( NoSuchFieldException nsfe )
+        {
+            LOG.error( "Failed to invoke test method: " + description.getDisplayName(), nsfe );
+            notifier.testAborted( description, nsfe );
+            return;
+        }
     }
 
 
@@ -235,33 +265,15 @@ public class TestServiceContext
     }
 
 
-    TestServiceState getStartedDirtyState()
-    {
-        return startedDirtyState;
-    }
-
-
     TestServiceState getStartedPristineState()
     {
         return startedPristineState;
     }
 
 
-    TestServiceState getStartedRevertedState()
+    TestServiceState getStartedNormalState()
     {
-        return startedRevertedState;
-    }
-
-
-    TestServiceState getStoppedDirtyState()
-    {
-        return stoppedDirtyState;
-    }
-
-
-    TestServiceState getStoppedPristineState()
-    {
-        return stoppedPristineState;
+        return startedNormalState;
     }
 
 

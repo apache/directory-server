@@ -19,11 +19,15 @@
 package org.apache.directory.server.core.integ;
 
 
-//port static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
+import java.io.IOException;
+import java.lang.reflect.Method;
+
+import javax.naming.NamingException;
+
 import static org.apache.directory.server.core.integ.state.TestServiceContext.cleanup;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.destroy;
-import static org.apache.directory.server.core.integ.state.TestServiceContext.test;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.test;
 import org.junit.internal.runners.InitializationError;
 import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.Description;
@@ -31,8 +35,6 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Method;
 
 
 /**
@@ -83,11 +85,17 @@ public class CiRunner extends JUnit4ClassRunner
                 cleanup();
                 destroy();
             }
-            catch ( Exception e )
+            catch ( NamingException e )
             {
                 LOG.error( "Encountered exception while trying to cleanup after test class: "
                         + this.getDescription().getDisplayName(), e );
                 notifier.fireTestFailure( new Failure( getDescription(), e ) );
+            }
+            catch ( IOException ioe )
+            {
+                LOG.error( "Encountered exception while trying to cleanup after test class: "
+                        + this.getDescription().getDisplayName(), ioe );
+                notifier.fireTestFailure( new Failure( getDescription(), ioe ) );
             }
         }
     }
@@ -109,11 +117,17 @@ public class CiRunner extends JUnit4ClassRunner
                 cleanup();
                 destroy();
             }
-            catch ( Exception e )
+            catch ( NamingException ne )
             {
                 LOG.error( "Encountered exception while trying to cleanup after test class: "
-                        + this.getDescription().getDisplayName(), e );
-                notifier.fireTestFailure( new Failure( getDescription(), e ) );
+                        + this.getDescription().getDisplayName(), ne );
+                notifier.fireTestFailure( new Failure( getDescription(), ne ) );
+            }
+            catch ( IOException ioe )
+            {
+                LOG.error( "Encountered exception while trying to cleanup after test class: "
+                        + this.getDescription().getDisplayName(), ioe );
+                notifier.fireTestFailure( new Failure( getDescription(), ioe ) );
             }
         }
     }

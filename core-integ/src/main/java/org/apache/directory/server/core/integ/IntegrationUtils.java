@@ -19,6 +19,13 @@
 package org.apache.directory.server.core.integ;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
@@ -31,13 +38,6 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 
 /**
