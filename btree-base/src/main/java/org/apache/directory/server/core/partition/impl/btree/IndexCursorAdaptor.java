@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree.jdbm;
+package org.apache.directory.server.core.partition.impl.btree;
 
 
 import org.apache.directory.server.xdbm.*;
