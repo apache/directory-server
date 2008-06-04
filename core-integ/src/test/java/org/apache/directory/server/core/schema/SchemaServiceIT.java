@@ -20,25 +20,9 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -46,9 +30,28 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -58,16 +61,30 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
+@ApplyLdifs( {
+    // Entry # 1
+    "dn: cn=person0,ou=system\n" +
+    "objectClass: person\n" +
+    "cn: person0\n" +
+    "sn: sn_person0\n",
+    // Entry # 2
+    "dn: cn=person1,ou=system\n" +
+    "objectClass: organizationalPerson\n" +
+    "cn: person1\n" +
+    "sn: sn_person1\n" +
+    "seealso: cn=Good One,ou=people,o=sevenSeas\n" +
+    "seealso:: Y249QmFkIEXDqWvDoCxvdT1wZW9wbGUsbz1zZXZlblNlYXM=\n",
+    // Entry # 3
+    "dn: cn=person2,ou=system\n" +
+    "objectClass: inetOrgPerson\n" +
+    "cn: person2\n" +
+    "sn: sn_person2\n" }
+    )
 @RunWith ( CiRunner.class )
 public class SchemaServiceIT
 {
+    /** The Directory service */
     public static DirectoryService service;
-
-
-    public void loadData() throws Exception
-    {
-        // super.setLdifPath( "./nonspecific.ldif", getClass() );
-    }
 
 
     /**
@@ -98,6 +115,7 @@ public class SchemaServiceIT
      *
      * @throws NamingException on error
      */
+    @Test
     public void testMultipleStructuralObjectClasses() throws NamingException
     {
         Attributes attrs = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
@@ -123,6 +141,7 @@ public class SchemaServiceIT
      *
      * @throws NamingException on error
      */
+    @Test
     public void testAddingTwoDifferentEntitiesWithSameOid() throws NamingException
     {
         String numberOfGunsAttrLdif = "dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.999,ou=attributeTypes,cn=other,ou=schema\n" +
@@ -164,7 +183,6 @@ public class SchemaServiceIT
         root.createSubcontext( numberOfGunsAttrEntry.getDn(), numberOfGunsAttrEntry.getAttributes() );
          
         // should blow chuncks using same OID
-        //noinspection EmptyCatchBlock
         try
         {
             root.createSubcontext( shipOCEntry.getDn(), shipOCEntry.getAttributes() );
@@ -172,10 +190,17 @@ public class SchemaServiceIT
         }
         catch( NamingException e )
         {
+            assertTrue( true );
         }
     }
     
     
+    /**
+     * Test that we have all the needed ObjectClasses
+     * 
+     * @throws NamingException on error
+     */
+    @Test
     public void testFillInObjectClasses() throws NamingException
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -199,13 +224,20 @@ public class SchemaServiceIT
     }
 
 
+    /**
+     * Search all the entries with a 'person' ObjectClass, or an ObjectClass
+     * inheriting from 'person' 
+     *
+     * @throws NamingException on error
+     */
+    @Test
     public void testSearchForPerson() throws NamingException
     {
         LdapContext sysRoot = getSystemContext( service );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=person)", controls );
+        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*person)", controls );
         
         while ( results.hasMore() )
         {
@@ -216,12 +248,9 @@ public class SchemaServiceIT
         // admin is extra
         assertEquals( 4, persons.size() );
 
-        Attributes person;
-        Attribute ocs;
-
-        person = persons.get( "cn=person0,ou=system" );
+        Attributes person = persons.get( "cn=person0,ou=system" );
         assertNotNull( person );
-        ocs = person.get( "objectClass" );
+        Attribute ocs = person.get( "objectClass" );
         assertEquals( 2, ocs.size() );
         assertTrue( ocs.contains( "top" ) );
         assertTrue( ocs.contains( "person" ) );
@@ -245,6 +274,7 @@ public class SchemaServiceIT
     }
 
 
+    @Test
     public void testSearchForOrgPerson() throws NamingException
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -262,12 +292,9 @@ public class SchemaServiceIT
         // admin is extra
         assertEquals( 3, orgPersons.size() );
 
-        Attributes orgPerson;
-        Attribute ocs;
-
-        orgPerson = orgPersons.get( "cn=person1,ou=system" );
+        Attributes orgPerson = orgPersons.get( "cn=person1,ou=system" );
         assertNotNull( orgPerson );
-        ocs = orgPerson.get( "objectClass" );
+        Attribute ocs = orgPerson.get( "objectClass" );
         assertEquals( 3, ocs.size() );
         assertTrue( ocs.contains( "top" ) );
         assertTrue( ocs.contains( "person" ) );
@@ -284,6 +311,7 @@ public class SchemaServiceIT
     }
 
 
+    @Test
     public void testSearchForInetOrgPerson() throws NamingException
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -301,19 +329,18 @@ public class SchemaServiceIT
         // admin is extra
         assertEquals( 2, inetOrgPersons.size() );
 
-        Attributes inetOrgPerson;
-        Attribute ocs;
-
-        inetOrgPerson = inetOrgPersons.get( "cn=person2,ou=system" );
+        Attributes inetOrgPerson = inetOrgPersons.get( "cn=person2,ou=system" );
         assertNotNull( inetOrgPerson );
-        ocs = inetOrgPerson.get( "objectClass" );
+        Attribute ocs = inetOrgPerson.get( "objectClass" );
         assertEquals( 4, ocs.size() );
         assertTrue( ocs.contains( "top" ) );
         assertTrue( ocs.contains( "person" ) );
         assertTrue( ocs.contains( "organizationalPerson" ) );
         assertTrue( ocs.contains( "inetOrgPerson" ) );
     }
-    
+
+
+    @Test
     public void testSearchForSubSchemaSubEntryUserAttrsOnly() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -332,7 +359,7 @@ public class SchemaServiceIT
         assertEquals( 1, subSchemaEntry.size() );
         
         // It should be the normalized form of cn=schema
-        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema" );
+        Attributes attrs = subSchemaEntry.get( "cn=schema" );
         
         assertNotNull( attrs );
         
@@ -346,6 +373,8 @@ public class SchemaServiceIT
         assertNotNull( attrs.get( "objectClass" ) );
     }
 
+
+    @Test
     public void testSearchForSubSchemaSubEntryAllAttrs() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -366,7 +395,7 @@ public class SchemaServiceIT
         assertEquals( 1, subSchemaEntry.size() );
         
         // It should be the normalized form of cn=schema
-        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema" );
+        Attributes attrs = subSchemaEntry.get( "cn=schema" );
         
         assertNotNull( attrs );
         
@@ -408,6 +437,8 @@ public class SchemaServiceIT
         assertNotNull( attrs.get( "subtreeSpecification" ) );
     }
 
+    
+    @Test
     public void testSearchForSubSchemaSubEntrySingleAttributeSelected() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -428,7 +459,7 @@ public class SchemaServiceIT
         assertEquals( 1, subSchemaEntry.size() );
         
         // It should be the normalized form of cn=schema
-        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema" );
+        Attributes attrs = subSchemaEntry.get( "cn=schema" );
         
         assertNotNull( attrs );
         
@@ -452,11 +483,13 @@ public class SchemaServiceIT
         assertNull( attrs.get( "objectClasses" ) );
     }
 
+    
     /**
      * Test for DIRSERVER-1055.
      * Check if modifyTimestamp and createTimestamp are present in the search result,
      * if they are requested.
      */
+    @Test
     public void testSearchForSubSchemaSubEntryOperationalAttributesSelected() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -478,7 +511,7 @@ public class SchemaServiceIT
         assertEquals( 1, subSchemaEntry.size() );
         
         // It should be the normalized form of cn=schema
-        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema" );
+        Attributes attrs = subSchemaEntry.get( "cn=schema" );
         
         assertNotNull( attrs );
         
@@ -501,6 +534,8 @@ public class SchemaServiceIT
         assertNull( attrs.get( "objectClasses" ) );
     }
 
+
+    @Test
     public void testSearchForSubSchemaSubEntryBadFilter() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -521,6 +556,8 @@ public class SchemaServiceIT
         assertEquals( 0, subSchemaEntry.size() );
     }
 
+
+    @Test
     public void testSearchForSubSchemaSubEntryFilterEqualTop() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -541,7 +578,7 @@ public class SchemaServiceIT
         assertEquals( 1, subSchemaEntry.size() );
         
         // It should be the normalized form of cn=schema
-        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema" );
+        Attributes attrs = subSchemaEntry.get( "cn=schema" );
         
         assertNotNull( attrs );
         
@@ -569,6 +606,8 @@ public class SchemaServiceIT
         assertNotNull( attrs.get( "objectClasses" ) );
     }
 
+
+    @Test
     public void testSearchForSubSchemaSubEntryFilterEqualSubSchema() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -589,7 +628,7 @@ public class SchemaServiceIT
         assertEquals( 1, subSchemaEntry.size() );
         
         // It should be the normalized form of cn=schema
-        Attributes attrs = subSchemaEntry.get( "2.5.4.3=schema" );
+        Attributes attrs = subSchemaEntry.get( "cn=schema" );
         
         assertNotNull( attrs );
         
@@ -617,6 +656,8 @@ public class SchemaServiceIT
         assertNotNull( attrs.get( "objectClasses" ) );
     }
 
+
+    @Test
     public void testSearchForSubSchemaSubEntryNotObjectScope() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -637,6 +678,8 @@ public class SchemaServiceIT
         assertEquals( 0, subSchemaEntry.size() );
     }
 
+
+    @Test
     public void testSearchForSubSchemaSubEntryComposedFilters() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -656,12 +699,14 @@ public class SchemaServiceIT
         // We should have no entry in the result
         assertEquals( 0, subSchemaEntry.size() );
     }
-    
+
+
     /**
      * Test for DIRSERVER-844: storing of base 64 encoded values into H-R attributes
      *
      * @throws NamingException on error
      */
+    @Test
     public void testSearchSeeAlso() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -695,13 +740,14 @@ public class SchemaServiceIT
         assertTrue( seeAlso.contains( "cn=Bad E\u00e9k\u00e0,ou=people,o=sevenSeas" ) );
     }
 
-    
+
     /**
      * Doing a search with filtering attributes should work even if the attribute
      * is not valid 
      *
      * @throws NamingException on error
      */
+    @Test
     public void testSearchForUnknownAttributes() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -750,6 +796,7 @@ public class SchemaServiceIT
      *
      * @throws NamingException on error
      */
+    @Test
     public void testSearchAttributesOIDObjectClass() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -798,6 +845,7 @@ public class SchemaServiceIT
      *
      * @throws NamingException on error
      */
+    @Test
     public void testSearchAttributesOIDObjectClassName() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -838,5 +886,56 @@ public class SchemaServiceIT
         assertNotNull( person );
         ocs = person.get( "objectClass" );
         assertNull( ocs );
+    }
+
+
+    /**
+     * Check that if we search for an attribute using its inherited
+     * AttributeType (ie, looking for name instead of givenName, surname, 
+     * commonName), we find all the entries.
+     *
+     * @throws NamingException
+     */
+    @Test
+    public void testSearchForName() throws NamingException
+    {
+        LdapContext sysRoot = getSystemContext( service );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        Map<String, Attributes> persons = new HashMap<String, Attributes>();
+
+        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(name=person*)", controls );
+        
+        while ( results.hasMore() )
+        {
+            SearchResult result = results.next();
+            persons.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( 3, persons.size() );
+
+        Attributes person = persons.get( "cn=person0,ou=system" );
+        assertNotNull( person );
+        Attribute ocs = person.get( "objectClass" );
+        assertEquals( 2, ocs.size() );
+        assertTrue( ocs.contains( "top" ) );
+        assertTrue( ocs.contains( "person" ) );
+
+        person = persons.get( "cn=person1,ou=system" );
+        assertNotNull( person );
+        ocs = person.get( "objectClass" );
+        assertEquals( 3, ocs.size() );
+        assertTrue( ocs.contains( "top" ) );
+        assertTrue( ocs.contains( "person" ) );
+        assertTrue( ocs.contains( "organizationalPerson" ) );
+
+        person = persons.get( "cn=person2,ou=system" );
+        assertNotNull( person );
+        ocs = person.get( "objectClass" );
+        assertEquals( 4, ocs.size() );
+        assertTrue( ocs.contains( "top" ) );
+        assertTrue( ocs.contains( "person" ) );
+        assertTrue( ocs.contains( "organizationalPerson" ) );
+        assertTrue( ocs.contains( "inetOrgPerson" ) );
     }
 }

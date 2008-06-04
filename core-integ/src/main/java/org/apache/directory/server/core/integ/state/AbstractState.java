@@ -20,10 +20,18 @@ package org.apache.directory.server.core.integ.state;
 
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.InheritableSettings;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
 import org.junit.runner.notification.RunNotifier;
@@ -158,5 +166,39 @@ public abstract class AbstractState implements TestServiceState
     {
         LOG.error( REVERT_ERROR );
         throw new IllegalStateException( REVERT_ERROR );
+    }
+
+    
+    /**
+     * Inject the Ldifs if any
+     *
+     * @param service the instantiated directory service
+     * @param settings the settings containing the ldif
+     */
+    protected void injectLdifs( DirectoryService service, InheritableSettings settings )
+    {
+        List<String> ldifs = new ArrayList<String>();
+
+        ldifs =  settings.getLdifs( ldifs );
+        
+        if ( ldifs.size() != 0 )
+        {
+            for ( String ldif:ldifs )
+            {
+                try
+                {
+                    StringReader in = new StringReader( ldif );
+                    LdifReader ldifReader = new LdifReader( in );
+                    LdifEntry entry = ldifReader.next();
+                    
+                    LdapContext root = IntegrationUtils.getRootContext( service );
+                    root.createSubcontext( entry.getDn(), entry.getAttributes() );
+                }
+                catch ( NamingException ne )
+                {
+                    LOG.error( "Cannot inject the following entry : {}. Skipped.", ldif );
+                }
+            }
+        }
     }
 }

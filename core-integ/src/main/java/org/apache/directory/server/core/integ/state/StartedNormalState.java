@@ -165,6 +165,9 @@ public class StartedNormalState extends AbstractState
                     return;
                 }
 
+                // Inject the LDIFs, if any 
+                injectLdifs( context.getService(), settings );
+                
                 TestServiceContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
                 
                 try
@@ -183,6 +186,10 @@ public class StartedNormalState extends AbstractState
                 return;
                 
             case RESTART :
+                // Inject the LDIFs, if any 
+                injectLdifs( context.getService(), settings );
+                
+
                 TestServiceContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
 
                 try
@@ -208,7 +215,7 @@ public class StartedNormalState extends AbstractState
                     notifier.testAborted( settings.getDescription(), ne );
                     return;
                 }
-
+                
                 return;
                 
             default:

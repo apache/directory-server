@@ -64,7 +64,7 @@ public class NonExistentState extends AbstractState
      * @param settings The inherited settings
      * @throws NamingException if we can't create the service
      */
-    public void create( InheritableSettings settings  ) throws NamingException
+    public void create( InheritableSettings settings ) throws NamingException
     {
         LOG.debug( "calling create()" );
 
@@ -162,6 +162,7 @@ public class NonExistentState extends AbstractState
                     return;
                 }
 
+                
                 context.setState( context.getStartedNormalState() );
                 context.getState().test( testClass, testMethod, notifier, settings );
                 return;

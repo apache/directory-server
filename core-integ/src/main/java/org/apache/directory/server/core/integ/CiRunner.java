@@ -77,6 +77,7 @@ public class CiRunner extends JUnit4ClassRunner
     {
         super.run( notifier );
         Level cleanupLevel = getSettings().getCleanupLevel();
+        
         if ( cleanupLevel == Level.CLASS )
         {
             try
@@ -109,6 +110,7 @@ public class CiRunner extends JUnit4ClassRunner
         test( getTestClass(), wrapMethod( method ), notifier, new InheritableSettings( description, getSettings() ) );
 
         Level cleanupLevel = getSettings().getCleanupLevel();
+        
         if ( cleanupLevel == Level.METHOD )
         {
             try

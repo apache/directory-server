@@ -120,6 +120,9 @@ public class StartedPristineState extends AbstractState
         switch ( settings.getMode() )
         {
             case PRISTINE:
+                // Inject the LDIFs, if any 
+                injectLdifs( context.getService(), settings );
+                
                 TestServiceContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
                 
                 try
@@ -164,6 +167,9 @@ public class StartedPristineState extends AbstractState
                     return;
                 }
 
+                // Inject the LDIFs, if any 
+                injectLdifs( context.getService(), settings );
+                
                 TestServiceContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
                 context.setState( context.getStartedNormalState() );
 
