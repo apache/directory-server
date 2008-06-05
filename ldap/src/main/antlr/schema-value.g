@@ -142,7 +142,11 @@ noidlen returns [AntlrSchemaParser.NoidLen noidlen = new AntlrSchemaParser.NoidL
         (LPAR)?
         (WHSP)?
         (QUOTE)?
-        o:NUMERICOID { noidlen.noid = o.getText(); } 
+        (
+            ( d4:DESCR { noidlen.noid = d4.getText(); } )
+            |
+            ( n2:NUMERICOID { noidlen.noid = n2.getText(); } )
+        )
         (QUOTE)?
         (WHSP)?
         (RPAR)?
@@ -152,7 +156,6 @@ noidlen returns [AntlrSchemaParser.NoidLen noidlen = new AntlrSchemaParser.NoidL
             (WHSP)?
             (RPAR)?
         )?
-        
     )
     ;
 
@@ -167,27 +170,25 @@ quirksNoidlen returns [AntlrSchemaParser.NoidLen noidlen = new AntlrSchemaParser
     }
     :
     (
+        (LPAR)?
         (WHSP)?
+        (QUOTE)?
         (
-            ( QUOTE q1:QUIRKS_DESCR { noidlen.noid = q1.getText(); } QUOTE )
-            |
             ( q2:QUIRKS_DESCR { noidlen.noid = q2.getText(); } )
-            |
-            ( QUOTE d3:DESCR { noidlen.noid = d3.getText(); } QUOTE )
             |
             ( d4:DESCR { noidlen.noid = d4.getText(); } )
             |
-            ( QUOTE n1:NUMERICOID { noidlen.noid = n1.getText(); } QUOTE  )
-            |
             ( n2:NUMERICOID { noidlen.noid = n2.getText(); } )
         )
+        (QUOTE)?
+        (WHSP)?
+        (RPAR)?
         (
             l:LEN { noidlen.len = Integer.parseInt(l.getText()); }
             (QUOTE)?
             (WHSP)?
             (RPAR)?
-        )?
-        
+        )?    
     )
     ;
 

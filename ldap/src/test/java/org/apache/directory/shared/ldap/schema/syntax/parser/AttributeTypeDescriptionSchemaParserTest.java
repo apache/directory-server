@@ -328,12 +328,18 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         assertNull( atd.getSyntax() );
         assertEquals( 0, atd.getSyntaxLength() );
 
+        // SYNTAX string
+        value = "( 1.1 SYNTAX IA5String )";
+        atd = parser.parseAttributeTypeDescription( value );
+        assertEquals( "IA5String", atd.getSyntax() );
+        assertEquals( 0, atd.getSyntaxLength() );
+
         // SYNTAX numericoid
         value = "( 1.1 SYNTAX 1.2.3.4567.8.9.0 )";
         atd = parser.parseAttributeTypeDescription( value );
         assertEquals( "1.2.3.4567.8.9.0", atd.getSyntax() );
         assertEquals( 0, atd.getSyntaxLength() );
-
+        
         // quoted numericoid
         value = "( 1.1 SYNTAX '1.2.3.4567.8.9.0' )";
         atd = parser.parseAttributeTypeDescription( value );
@@ -960,6 +966,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
             testEquality();
             testOrdering();
             testSubstring();
+            testSyntax();
             testSingleValue();
             testCollective();
             testNoUserModification();

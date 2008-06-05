@@ -80,7 +80,7 @@ NO_USER_MODIFICATION : ( "no-user-modification" (WHSP)? ) ;
 OBSOLETE : ( "obsolete" (WHSP)? ) ;
 ABSTRACT : ( "abstract" (WHSP)? ) ;
 STRUCTURAL : ( "structural" (WHSP)? ) ;
-AUXILIARY : ( "auxiliary" (WHSP)? ) ;
+protected AUXILIARY : ( "auxiliary" (WHSP)? ) ;
 
 OBJECTCLASS : ( "objectclass" (WHSP)? ) ;
 ATTRIBUTETYPE : ( "attributetype" (WHSP)? ) ;
@@ -91,7 +91,7 @@ DESC : ( "desc" (options {greedy=true;} : WHSP)? qdstring:VALUES ) { setText(qds
 SUP : ( "sup" (options {greedy=true;} : WHSP)? sup:VALUES ) { setText(sup.getText().trim()); } ;
 MUST : ( "must" (options {greedy=true;} : WHSP)? must:VALUES ) { setText(must.getText().trim()); } ;
 MAY : ( "may" (options {greedy=true;} : WHSP)? may:VALUES ) { setText(may.getText()); } ;
-AUX : ( "aux" (options {greedy=true;} : WHSP)? aux:VALUES ) { setText(aux.getText()); } ;
+protected AUX : ( "aux" (options {greedy=true;} : WHSP)? aux:VALUES ) { setText(aux.getText()); } ;
 NOT : ( "not" (options {greedy=true;} : WHSP)? not:VALUES ) { setText(not.getText()); } ;
 FORM : ( "form" (options {greedy=true;} : WHSP)? form:VALUES ) { setText(form.getText()); } ;
 OC : ( "oc" (options {greedy=true;} : WHSP)? oc:VALUES ) { setText(oc.getText()); } ;
@@ -103,6 +103,12 @@ APPLIES : ( "applies" (options {greedy=true;} : WHSP)? applies:VALUES ) { setTex
 EXTENSION : x:( "x-" ( options {greedy=true;} : 'a'..'z' | '-' | '_' )+ (options {greedy=true;} : WHSP)? VALUES ) ; 
 FQCN : ( "fqcn" (options {greedy=true;} : WHSP)? fqcn:FQCN_VALUE ) { setText(fqcn.getText().trim()); } ;
 BYTECODE : ( "bytecode" (options {greedy=true;} : WHSP)? bytecode:BYTECODE_VALUE ) { setText(bytecode.getText().trim()); } ;
+
+AUX_OR_AUXILIARY :
+    ( AUXILIARY ) => AUXILIARY { $setType( AUXILIARY ); }
+    |
+    ( AUX ) { $setType( AUX ); }
+    ;
 
 protected VALUES : ( VALUE | LPAR  VALUE ( (DOLLAR)? VALUE )* RPAR ) ;
 protected VALUE : (WHSP)? ( QUOTED_STRING | UNQUOTED_STRING ) (options {greedy=true;}: WHSP)? ;
