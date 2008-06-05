@@ -198,20 +198,20 @@ public class StartTlsITest extends AbstractServerTest
 	        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
 	
 	        // Create initial context
-	        LOG.error( "About to get initial context" );
+	        LOG.debug( "About to get initial context" );
 	        LdapContext ctx = new InitialLdapContext( env, null );
 	
 	        // Start TLS
-	        LOG.error( "About send startTls extended operation" );
+	        LOG.debug( "About send startTls extended operation" );
 	        StartTlsResponse tls = ( StartTlsResponse ) ctx.extendedOperation( new StartTlsRequest() );
-	        LOG.error( "Extended operation issued" );
+	        LOG.debug( "Extended operation issued" );
 	        tls.setHostnameVerifier( new HostnameVerifier() {
 	            public boolean verify( String hostname, SSLSession session )
 	            {
 	                return true;
 	            } 
 	        } );
-	        LOG.error( "TLS negotion about to begin" );
+	        LOG.debug( "TLS negotion about to begin" );
 	        tls.negotiate();
 
 	        search( ii, ctx );
