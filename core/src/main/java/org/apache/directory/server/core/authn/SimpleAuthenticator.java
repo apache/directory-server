@@ -189,7 +189,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         
         synchronized( credentialCache )
         {
-            principal = ( LdapPrincipal ) credentialCache.get( opContext.getPrincipalDn().getNormName() );
+            principal = ( LdapPrincipal ) credentialCache.get( opContext.getDn().getNormName() );
         }
         
         byte[] storedPassword;
@@ -211,12 +211,12 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             }
 
             // Create the new principal before storing it in the cache
-            principal = new LdapPrincipal( opContext.getPrincipalDn(), AuthenticationLevel.SIMPLE, storedPassword );
+            principal = new LdapPrincipal( opContext.getDn(), AuthenticationLevel.SIMPLE, storedPassword );
             
             // Now, update the local cache.
             synchronized( credentialCache )
             {
-                credentialCache.put( opContext.getPrincipalDn().getNormName(), principal );
+                credentialCache.put( opContext.getDn().getNormName(), principal );
             }
         }
         
@@ -258,7 +258,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Authenticating {}", opContext.getPrincipalDn() );
+            LOG.debug( "Authenticating {}", opContext.getDn() );
         }
         
         // ---- extract password from JNDI environment
@@ -275,7 +275,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             if ( IS_DEBUG )
             {
-                LOG.debug( "{} Authenticated", opContext.getPrincipalDn() );
+                LOG.debug( "{} Authenticated", opContext.getDn() );
             }
             
         	return principal;
@@ -304,7 +304,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             {
                 if ( IS_DEBUG )
                 {
-                    LOG.debug( "{} Authenticated", opContext.getPrincipalDn() );
+                    LOG.debug( "{} Authenticated", opContext.getDn() );
                 }
 
                 return principal;
@@ -312,7 +312,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             else
             {
                 // Bad password ...
-                String message = "Password not correct for user '" + opContext.getPrincipalDn().getUpName() + "'";
+                String message = "Password not correct for user '" + opContext.getDn().getUpName() + "'";
                 LOG.info( message );
                 throw new LdapAuthenticationException(message);
             }
@@ -320,7 +320,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         else
         {
             // Bad password ...
-            String message = "Password not correct for user '" + opContext.getPrincipalDn().getUpName() + "'";
+            String message = "Password not correct for user '" + opContext.getDn().getUpName() + "'";
             LOG.info( message );
             throw new LdapAuthenticationException(message);
         }
@@ -540,12 +540,12 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         try
         {
-            userEntry = opContext.lookup( opContext.getPrincipalDn(), USERLOOKUP_BYPASS );
+            userEntry = opContext.lookup( opContext.getDn(), USERLOOKUP_BYPASS );
 
             if ( userEntry == null )
             {
                 throw new LdapAuthenticationException( "Failed to lookup user for authentication: " 
-                    + opContext.getPrincipalDn() );
+                    + opContext.getDn() );
             }
         }
         catch ( Exception cause )

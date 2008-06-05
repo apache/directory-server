@@ -424,7 +424,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "bind: principal: " + opContext.getPrincipalDn() );
+            LOG.debug( "bind: principal: " + opContext.getDn() );
         }
 
         if ( opContext.getSession() != null && opContext.getSession().getEffectivePrincipal() != null )
@@ -434,17 +434,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
         
         // pick the first matching authenticator type
-        Collection<Authenticator> authenticators = null;
-
-        for ( String mechanism : opContext.getMechanisms() )
-        {
-            authenticators = getAuthenticators( mechanism );
-
-            if ( authenticators != null )
-            {
-                break;
-            }
-        }
+        Collection<Authenticator> authenticators = getAuthenticators( opContext.getSaslMechanism() );
 
         if ( authenticators == null )
         {
@@ -457,7 +447,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             // bind succeeded if we got this far
             // TODO - authentication level not being set
-            LdapPrincipal principal = new LdapPrincipal( opContext.getPrincipalDn(), AuthenticationLevel.SIMPLE );
+            LdapPrincipal principal = new LdapPrincipal( opContext.getDn(), AuthenticationLevel.SIMPLE );
             CoreSession session = new DefaultCoreSession( principal, directoryService );
             opContext.setSession( session );
 

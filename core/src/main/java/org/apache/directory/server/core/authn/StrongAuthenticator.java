@@ -53,6 +53,6 @@ public class StrongAuthenticator extends AbstractAuthenticator
     public LdapPrincipal authenticate( BindOperationContext opContext ) throws NamingException
     {
         // Possibly check if user account is disabled, other account checks.
-        return new LdapPrincipal( opContext.getPrincipalDn(), AuthenticationLevel.STRONG );
+        return new LdapPrincipal( opContext.getDn(), AuthenticationLevel.STRONG );
     }
 }

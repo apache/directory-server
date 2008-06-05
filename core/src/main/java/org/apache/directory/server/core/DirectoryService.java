@@ -166,7 +166,19 @@ public interface DirectoryService extends ServerEntryFactory
      *
      * @return a logical session as a specific user
      */
-    CoreSession getSession( LdapDN principalDn, byte[] credentials, String authentication ) throws Exception;
+    CoreSession getSession( LdapDN principalDn, byte[] credentials ) throws Exception;
+
+    
+    /**
+     * Gets a logical session to perform operations on this DirectoryService
+     * as a specific user with a separate authorization principal.  This 
+     * bypasses authentication without propagating a bind operation into the 
+     * core.
+     *
+     * @return a logical session as a specific user
+     */
+    CoreSession getSession( LdapDN principalDn, byte[] credentials, String saslMechanism, String saslAuthId ) 
+        throws Exception;
 
     
     void setInstanceId( String instanceId );

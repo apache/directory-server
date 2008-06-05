@@ -75,7 +75,7 @@ public class CoreContextFactory implements InitialContextFactory
         ServerLdapContext ctx = null;
         try
         {
-            CoreSession session = service.getSession( principalDn, credential, authentication );
+            CoreSession session = service.getSession( principalDn, credential );
             ctx = new ServerLdapContext( service, session, new LdapDN( providerUrl ) );
         }
         catch ( Exception e )

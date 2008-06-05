@@ -20,10 +20,7 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Hashtable;
-import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -49,7 +46,7 @@ public class LdapJndiProperties
     private LdapDN bindDn;
     private String saslAuthId;
     private AuthenticationLevel level;
-    private List<String> mechanisms = new ArrayList<String>();
+    private String saslMechanism;
     private byte[] credentials;
 
 
@@ -150,12 +147,10 @@ public class LdapJndiProperties
             if ( credobj == null )
             {
                 props.level = AuthenticationLevel.NONE;
-                props.mechanisms.add( AuthenticationLevel.NONE.toString() );
             }
             else
             {
                 props.level = AuthenticationLevel.SIMPLE;
-                props.mechanisms.add( AuthenticationLevel.SIMPLE.toString() );
             }
         }
         else if ( !( authentication instanceof String ) )
@@ -168,24 +163,23 @@ public class LdapJndiProperties
             if ( AuthenticationLevel.NONE.toString().equals( authentication ) )
             {
                 props.level = AuthenticationLevel.NONE;
-                props.mechanisms.add( AuthenticationLevel.NONE.toString() );
             }
             else if ( AuthenticationLevel.SIMPLE.toString().equals( authentication ) )
             {
                 props.level = AuthenticationLevel.SIMPLE;
-                props.mechanisms.add( AuthenticationLevel.SIMPLE.toString() );
             }
             else
             {
                 props.level = AuthenticationLevel.STRONG;
-                String[] mechList = ( ( String ) authentication ).trim().split( " " );
-                for ( String mech : mechList )
-                {
-                    if ( !mech.trim().equals( "" ) )
-                    {
-                        props.mechanisms.add( mech );
-                    }
-                }
+                props.saslMechanism = ( String ) authentication;
+//                String[] mechList = ( ( String ) authentication ).trim().split( " " );
+//                for ( String mech : mechList )
+//                {
+//                    if ( !mech.trim().equals( "" ) )
+//                    {
+//                        props.mechanisms.add( mech );
+//                    }
+//                }
             }
         }
 
@@ -284,9 +278,9 @@ public class LdapJndiProperties
     }
 
 
-    public List<String> getAuthenticationMechanisms()
+    public String getSaslMechanism()
     {
-        return Collections.unmodifiableList( mechanisms );
+        return saslMechanism;
     }
 
 

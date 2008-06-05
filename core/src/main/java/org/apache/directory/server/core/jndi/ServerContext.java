@@ -156,7 +156,7 @@ public abstract class ServerContext implements EventContext
         dn = props.getProviderDn();
 
         // need to issue a bind operation here
-        doBindOperation( props.getBindDn(), props.getCredentials(), props.getAuthenticationMechanisms(), props
+        doBindOperation( props.getBindDn(), props.getCredentials(), props.getSaslMechanism(), props
             .getSaslAuthId() );
 
         session = new DefaultCoreSession( principal, service );
@@ -367,14 +367,14 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after bind operations.
      */
-    protected BindOperationContext doBindOperation( LdapDN bindDn, byte[] credentials, List<String> mechanisms, 
+    protected BindOperationContext doBindOperation( LdapDN bindDn, byte[] credentials, String saslMechanism, 
         String saslAuthId ) throws Exception
     {
         // setup the op context and populate with request controls
         BindOperationContext opCtx = new BindOperationContext( null );
         opCtx.setDn( bindDn );
         opCtx.setCredentials( credentials );
-        opCtx.setMechanisms( mechanisms );
+        opCtx.setSaslMechanism( saslMechanism );
         opCtx.setSaslAuthId( saslAuthId );
         opCtx.addRequestControls( requestControls );
 

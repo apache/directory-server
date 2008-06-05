@@ -75,8 +75,6 @@ public class LdapJndiPropertiesTest extends TestCase
         env.put( Context.PROVIDER_URL, "" );
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( env );
         assertEquals( AuthenticationLevel.SIMPLE, props.getAuthenticationLevel() );
-        assertEquals( 1, props.getAuthenticationMechanisms().size() );
-        assertEquals( "simple", props.getAuthenticationMechanisms().get( 0 ) );
         assertTrue( ArrayUtils.isEquals( StringTools.getBytesUtf8( "asdf" ), props.getCredentials() ) );
     }
 
@@ -88,8 +86,6 @@ public class LdapJndiPropertiesTest extends TestCase
         env.put( Context.PROVIDER_URL, "" );
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( env );
         assertEquals( AuthenticationLevel.NONE, props.getAuthenticationLevel() );
-        assertEquals( 1, props.getAuthenticationMechanisms().size() );
-        assertEquals( "none", props.getAuthenticationMechanisms().get( 0 ) );
         assertTrue( props.getCredentials() == null );
     }
 
@@ -118,9 +114,6 @@ public class LdapJndiPropertiesTest extends TestCase
         env.put( Context.PROVIDER_URL, "" );
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( env );
         assertEquals( AuthenticationLevel.STRONG, props.getAuthenticationLevel() );
-        assertEquals( 2, props.getAuthenticationMechanisms().size() );
-        assertEquals( "DIGEST-MD5", props.getAuthenticationMechanisms().get( 0 ) );
-        assertEquals( "CRAM-MD5", props.getAuthenticationMechanisms().get( 1 ) );
         assertTrue( props.getCredentials() == null );
     }
 
@@ -134,9 +127,6 @@ public class LdapJndiPropertiesTest extends TestCase
         env.put( Context.PROVIDER_URL, "" );
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( env );
         assertEquals( AuthenticationLevel.STRONG, props.getAuthenticationLevel() );
-        assertEquals( 2, props.getAuthenticationMechanisms().size() );
-        assertEquals( "DIGEST-MD5", props.getAuthenticationMechanisms().get( 0 ) );
-        assertEquals( "CRAM-MD5", props.getAuthenticationMechanisms().get( 1 ) );
         assertTrue( ArrayUtils.isEquals( StringTools.getBytesUtf8( "asdf" ), props.getCredentials() ) );
     }
 }

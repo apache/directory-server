@@ -20,11 +20,8 @@
 package org.apache.directory.server.core.interceptor.context;
  
 
-import java.util.List;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -37,17 +34,15 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class BindOperationContext extends AbstractOperationContext
 {
-    /** The list of supported mechanisms */
-    private List<String> mechanisms;
-    
     /** The password */
     private byte[] credentials;
+
+    /** The SASL mechanism */
+    private String saslMechanism;
     
     /** The SASL identifier */
     private String saslAuthId;
     
-    /** the authenticating principal's distinguished name */
-    private LdapDN principalDn;
     
     
     /**
@@ -60,17 +55,17 @@ public class BindOperationContext extends AbstractOperationContext
 
     
     /**
-     * @return The list of supported mechanisms
+     * @return the SASL mechanisms
      */
-    public List<String> getMechanisms()
+    public String getSaslMechanism()
     {
-        return mechanisms;
+        return saslMechanism;
     }
 
     
-    public void setMechanisms( List<String> mechanisms )
+    public void setSaslMechanism( String saslMechanism )
     {
-        this.mechanisms = mechanisms;
+        this.saslMechanism = saslMechanism;
     }
 
     
@@ -104,6 +99,12 @@ public class BindOperationContext extends AbstractOperationContext
     }
     
     
+    public boolean isSaslBind()
+    {
+        return saslMechanism != null;
+    }
+    
+    
     /**
      * @return the operation name
      */
@@ -112,7 +113,7 @@ public class BindOperationContext extends AbstractOperationContext
         return MessageTypeEnum.BIND_REQUEST.name();
     }
 
-    
+
     /**
      * @see Object#toString()
      */
@@ -120,26 +121,8 @@ public class BindOperationContext extends AbstractOperationContext
     {
         return "BindContext for DN '" + getDn().getUpName() + "', credentials <" +
             ( credentials != null ? StringTools.dumpBytes( credentials ) : "" ) + ">" +
-            ( ( mechanisms != null ) ? ", mechanisms : <" + StringTools.listToString( mechanisms ) + ">" : "" ) +
+            ( saslMechanism != null ? ", saslMechanism : <" + saslMechanism + ">" : "" ) +
             ( saslAuthId != null ? ", saslAuthId <" + saslAuthId + ">" : "" );
-    }
-
-
-    /**
-     * @param principalDn the principalDn to set
-     */
-    public void setPrincipalDn( LdapDN principalDn )
-    {
-        this.principalDn = principalDn;
-    }
-
-
-    /**
-     * @return the principalDn
-     */
-    public LdapDN getPrincipalDn()
-    {
-        return principalDn;
     }
     
     

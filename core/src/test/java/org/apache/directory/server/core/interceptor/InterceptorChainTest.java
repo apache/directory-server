@@ -578,7 +578,14 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public CoreSession getSession( LdapDN principalDn, byte[] credentials, String authentication ) throws Exception
+        public CoreSession getSession( LdapDN principalDn, byte[] credentials ) throws Exception
+        {
+            return null;
+        }
+
+
+        public CoreSession getSession( LdapDN principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
+            throws Exception
         {
             return null;
         }

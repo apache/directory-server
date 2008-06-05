@@ -80,10 +80,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -97,7 +94,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -587,11 +583,9 @@ public class DefaultDirectoryService implements DirectoryService
     }
     
     
-    public CoreSession getSession( LdapDN principalDn, byte[] credentials, String authentication ) 
+    public CoreSession getSession( LdapDN principalDn, byte[] credentials ) 
         throws Exception
     {
-        checkSecuritySettings( principalDn.toString(), credentials, authentication );
-
         if ( ! started )
         {
             throw new IllegalStateException( "Service has not started." );
@@ -599,8 +593,24 @@ public class DefaultDirectoryService implements DirectoryService
 
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( credentials );
-        bindContext.setDn( new LdapDN() );
-        bindContext.setPrincipalDn( principalDn );
+        bindContext.setDn( principalDn );
+        operationManager.bind( bindContext );
+        
+        return bindContext.getSession();
+    }
+    
+    
+    public CoreSession getSession( LdapDN principalDn, byte[] credentials, String saslMechanism, String saslAuthId ) 
+        throws Exception
+    {
+        if ( ! started )
+        {
+            throw new IllegalStateException( "Service has not started." );
+        }
+
+        BindOperationContext bindContext = new BindOperationContext( null );
+        bindContext.setCredentials( credentials );
+        bindContext.setDn( principalDn );
         operationManager.bind( bindContext );
         
         return bindContext.getSession();
@@ -850,93 +860,11 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public ServerEntry newEntry( LdapDN dn ) throws NamingException
+    public ServerEntry newEntry( LdapDN dn ) 
     {
         return new DefaultServerEntry( registries, dn );
     }
     
-    
-    /**
-     * Checks to make sure security environment parameters are set correctly.
-     *
-     * @throws javax.naming.NamingException if the security settings are not correctly configured.
-     * @param authentication the mechanism for authentication
-     * @param credential the password
-     * @param principal the distinguished name of the principal
-     */
-    private void checkSecuritySettings( String principal, byte[] credential, String authentication )
-        throws NamingException
-    {
-        if ( authentication == null )
-        {
-            authentication = "";
-        }
-
-        /*
-         * If bind is strong make sure we have the principal name
-         * set within the environment, otherwise complain
-         */
-        if ( AuthenticationLevel.STRONG.toString().equalsIgnoreCase( authentication ) )
-        {
-            if ( principal == null )
-            {
-                throw new LdapConfigurationException( "missing required " + Context.SECURITY_PRINCIPAL
-                    + " property for strong authentication" );
-            }
-        }
-        /*
-         * If bind is simple make sure we have the credentials and the
-         * principal name set within the environment, otherwise complain
-         */
-        else if ( AuthenticationLevel.SIMPLE.toString().equalsIgnoreCase( authentication ) )
-        {
-            if ( credential == null )
-            {
-                throw new LdapConfigurationException( "missing required " + Context.SECURITY_CREDENTIALS
-                    + " property for simple authentication" );
-            }
-
-            if ( principal == null )
-            {
-                throw new LdapConfigurationException( "missing required " + Context.SECURITY_PRINCIPAL
-                    + " property for simple authentication" );
-            }
-        }
-        /*
-         * If bind is none make sure credentials and the principal
-         * name are NOT set within the environment, otherwise complain
-         */
-        else if ( AuthenticationLevel.NONE.toString().equalsIgnoreCase( authentication ) )
-        {
-            if ( credential != null )
-            {
-                throw new LdapConfigurationException( "ambiguous bind "
-                    + "settings encountered where bind is anonymous yet " + Context.SECURITY_CREDENTIALS
-                    + " property is set" );
-            }
-
-            if ( principal != null )
-            {
-                throw new LdapConfigurationException( "ambiguous bind "
-                    + "settings encountered where bind is anonymous yet " + Context.SECURITY_PRINCIPAL
-                    + " property is set" );
-            }
-
-            if ( !allowAnonymousAccess )
-            {
-                throw new LdapNoPermissionException( "Anonymous access disabled." );
-            }
-        }
-        else
-        {
-            /*
-             * If bind is anything other than strong, simple, or none we need to complain
-             */
-            throw new LdapAuthenticationNotSupportedException( "Unknown authentication type: '" + authentication + "'",
-                ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
-        }
-    }
-
 
     /**
      * Returns true if we had to create the bootstrap entries on the first
@@ -1410,6 +1338,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
     }
     
+    
     /**
      * Read an entry (without DN)
      * 
@@ -1450,7 +1379,7 @@ public class DefaultDirectoryService implements DirectoryService
                         oldAttribute.add( attribute.get() );
                         attributes.put( oldAttribute );
                     }
-                    catch (NamingException ne)
+                    catch ( NamingException ne )
                     {
                         // Do nothing
                     }
