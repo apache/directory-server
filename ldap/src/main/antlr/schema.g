@@ -106,7 +106,7 @@ BYTECODE : ( "bytecode" (options {greedy=true;} : WHSP)? bytecode:BYTECODE_VALUE
 
 protected VALUES : ( VALUE | LPAR  VALUE ( (DOLLAR)? VALUE )* RPAR ) ;
 protected VALUE : (WHSP)? ( QUOTED_STRING | UNQUOTED_STRING ) (options {greedy=true;}: WHSP)? ;
-protected UNQUOTED_STRING : (options{greedy=true;}: 'a'..'z' | '0'..'9' | '-' | ';' | '.' )+ ;
+protected UNQUOTED_STRING : (options{greedy=true;}: 'a'..'z' | '0'..'9' | '-' | '_' | ';' | '.' )+ ;
 protected QUOTED_STRING : ( QUOTE (~'\'')* QUOTE ) ;
 protected FQCN_VALUE : ( FQCN_IDENTIFIER ( '.' FQCN_IDENTIFIER )* ) ;
 protected FQCN_IDENTIFIER : ( FQCN_LETTER ( FQCN_LETTERORDIGIT )* ) ;
@@ -161,6 +161,7 @@ options    {
 
 {
     private ParserMonitor monitor = null;
+    private boolean isQuirksModeEnabled = false;
     public void setParserMonitor( ParserMonitor monitor )
     {
         this.monitor = monitor;
@@ -171,6 +172,14 @@ options    {
         {
             monitor.matchedProduction( msg );
         }
+    }
+    public void setQuirksMode( boolean enabled )
+    {
+        this.isQuirksModeEnabled = enabled;
+    }
+    public boolean isQuirksMode()
+    {
+        return this.isQuirksModeEnabled;
     }
     static class Extension
     {
@@ -384,22 +393,25 @@ attributeTypeDescription returns [AttributeTypeDescription atd = new AttributeTy
     )*    
     RPAR
     {
-        // semantic check: required elements
-        if( !et.contains("SYNTAX") && !et.contains("SUP") ) 
+        if( !isQuirksModeEnabled )
         {
-            throw new SemanticException( "One of SYNTAX or SUP is required", null, 0, 0 );
-        }
+            // semantic check: required elements
+            if( !et.contains("SYNTAX") && !et.contains("SUP") ) 
+            {
+                throw new SemanticException( "One of SYNTAX or SUP is required", null, 0, 0 );
+            }
         
-        // COLLECTIVE requires USAGE userApplications
-        if ( atd.isCollective() && ( atd.getUsage() != UsageEnum.USER_APPLICATIONS ) )
-        {
-            throw new SemanticException( "COLLECTIVE requires USAGE userApplications", null, 0, 0 );
-        }
+            // COLLECTIVE requires USAGE userApplications
+            if ( atd.isCollective() && ( atd.getUsage() != UsageEnum.USER_APPLICATIONS ) )
+            {
+                throw new SemanticException( "COLLECTIVE requires USAGE userApplications", null, 0, 0 );
+            }
         
-        // NO-USER-MODIFICATION requires an operational USAGE.
-        if ( !atd.isUserModifiable() && ( atd.getUsage() == UsageEnum.USER_APPLICATIONS ) )
-        {
-            throw new SemanticException( "NO-USER-MODIFICATION requires an operational USAGE", null, 0, 0 );
+            // NO-USER-MODIFICATION requires an operational USAGE.
+            if ( !atd.isUserModifiable() && ( atd.getUsage() == UsageEnum.USER_APPLICATIONS ) )
+            {
+                throw new SemanticException( "NO-USER-MODIFICATION requires an operational USAGE", null, 0, 0 );
+            }
         }
     }
     ;
@@ -477,9 +489,12 @@ matchingRuleDescription returns [MatchingRuleDescription mrd = new MatchingRuleD
     )*
     RPAR
     {
-        // semantic check: required elements
-        if( !et.contains("SYNTAX") ) {
-            throw new SemanticException( "SYNTAX is required", null, 0, 0 );
+        if( !isQuirksModeEnabled )
+        {    
+            // semantic check: required elements
+            if( !et.contains("SYNTAX") ) {
+                throw new SemanticException( "SYNTAX is required", null, 0, 0 );
+            }
         }
     }
     ;
@@ -523,9 +538,12 @@ matchingRuleUseDescription returns [MatchingRuleUseDescription mrud = new Matchi
     )*
     RPAR
     {
-        // semantic check: required elements
-        if( !et.contains("APPLIES") ) {
-            throw new SemanticException( "APPLIES is required", null, 0, 0 );
+        if( !isQuirksModeEnabled )
+        {
+            // semantic check: required elements
+            if( !et.contains("APPLIES") ) {
+                throw new SemanticException( "APPLIES is required", null, 0, 0 );
+            }
         }
     }
     ;
@@ -625,9 +643,12 @@ ditStructureRuleDescription returns [DITStructureRuleDescription dsrd = new DITS
     )*
     RPAR
     {
-        // semantic check: required elements
-        if( !et.contains("FORM") ) {
-            throw new SemanticException( "FORM is required", null, 0, 0 );
+        if( !isQuirksModeEnabled )
+        {
+            // semantic check: required elements
+            if( !et.contains("FORM") ) {
+                throw new SemanticException( "FORM is required", null, 0, 0 );
+            }
         }
     }
     ;
@@ -677,21 +698,24 @@ nameFormDescription returns [NameFormDescription nfd = new NameFormDescription()
     )*
     RPAR
     {
-        // semantic check: required elements
-        if( !et.contains("MUST") ) {
-            throw new SemanticException( "MUST is required", null, 0, 0 );
-        }
-        if( !et.contains("OC") ) {
-            throw new SemanticException( "OC is required", null, 0, 0 );
-        }
+        if( !isQuirksModeEnabled )
+        {
+            // semantic check: required elements
+            if( !et.contains("MUST") ) {
+                throw new SemanticException( "MUST is required", null, 0, 0 );
+            }
+            if( !et.contains("OC") ) {
+                throw new SemanticException( "OC is required", null, 0, 0 );
+            }
         
-        // semantic check: MUST and MAY must be disjoint
-        //List<String> aList = new ArrayList<String>( nfd.getMustAttributeTypes() );
-        //aList.retainAll( nfd.getMayAttributeTypes() );
-        //if( !aList.isEmpty() ) 
-        //{
-        //    throw new SemanticException( "MUST and MAY must be disjoint, "+aList.get( 0 )+" appears in both", null, 0, 0 );
-        //}
+            // semantic check: MUST and MAY must be disjoint
+            //List<String> aList = new ArrayList<String>( nfd.getMustAttributeTypes() );
+            //aList.retainAll( nfd.getMayAttributeTypes() );
+            //if( !aList.isEmpty() ) 
+            //{
+            //    throw new SemanticException( "MUST and MAY must be disjoint, "+aList.get( 0 )+" appears in both", null, 0, 0 );
+            //}
+        }
     }
     ;
     
@@ -736,14 +760,17 @@ comparatorDescription returns [ComparatorDescription cd = new ComparatorDescript
     )*
     RPAR
     {
-        // semantic check: required elements
-        if( !et.contains("FQCN") ) {
-            throw new SemanticException( "FQCN is required", null, 0, 0 );
-        }
+        if( !isQuirksModeEnabled )
+        {
+            // semantic check: required elements
+            if( !et.contains("FQCN") ) {
+                throw new SemanticException( "FQCN is required", null, 0, 0 );
+            }
         
-        // semantic check: length should be divisible by 4
-        if( cd.getBytecode() != null && ( cd.getBytecode().length() % 4 != 0 ) ) {
-            throw new SemanticException( "BYTECODE must be divisible by 4", null, 0, 0 );
+            // semantic check: length should be divisible by 4
+            if( cd.getBytecode() != null && ( cd.getBytecode().length() % 4 != 0 ) ) {
+                throw new SemanticException( "BYTECODE must be divisible by 4", null, 0, 0 );
+            }
         }
     }
     ;
@@ -789,15 +816,18 @@ normalizerDescription returns [NormalizerDescription nd = new NormalizerDescript
     )*
     RPAR
     {
-        // semantic check: required elements
-        if( !et.contains("FQCN") ) {
-            throw new SemanticException( "FQCN is required", null, 0, 0 );
-        }
+        if( !isQuirksModeEnabled )
+        {
+            // semantic check: required elements
+            if( !et.contains("FQCN") ) {
+                throw new SemanticException( "FQCN is required", null, 0, 0 );
+            }
         
-        // semantic check: length should be divisible by 4
-        if( nd.getBytecode() != null && ( nd.getBytecode().length() % 4 != 0 ) ) {
-            throw new SemanticException( "BYTECODE must be divisible by 4", null, 0, 0 );
-        }        
+            // semantic check: length should be divisible by 4
+            if( nd.getBytecode() != null && ( nd.getBytecode().length() % 4 != 0 ) ) {
+                throw new SemanticException( "BYTECODE must be divisible by 4", null, 0, 0 );
+            }     
+        }   
     }
     ;
     
@@ -842,15 +872,18 @@ syntaxCheckerDescription returns [SyntaxCheckerDescription scd = new SyntaxCheck
     )*
     RPAR
     {
-        // semantic check: required elements
-        if( !et.contains("FQCN") ) {
-            throw new SemanticException( "FQCN is required", null, 0, 0 );
-        }
+        if( !isQuirksModeEnabled )
+        {
+            // semantic check: required elements
+            if( !et.contains("FQCN") ) {
+                throw new SemanticException( "FQCN is required", null, 0, 0 );
+            }
         
-        // semantic check: length should be divisible by 4
-        if( scd.getBytecode() != null && ( scd.getBytecode().length() % 4 != 0 ) ) {
-            throw new SemanticException( "BYTECODE must be divisible by 4", null, 0, 0 );
-        }        
+            // semantic check: length should be divisible by 4
+            if( scd.getBytecode() != null && ( scd.getBytecode().length() % 4 != 0 ) ) {
+                throw new SemanticException( "BYTECODE must be divisible by 4", null, 0, 0 );
+            }  
+        }      
     }
     ;
     
@@ -863,7 +896,7 @@ noidlen [String s] returns [NoidLen noidlen]
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         parser.setParserMonitor(monitor);
-        noidlen = parser.noidlen();
+        noidlen = isQuirksModeEnabled ? parser.quirksNoidlen() : parser.noidlen();
     }
     :
     ;
@@ -883,10 +916,17 @@ extension [String s] returns [Extension extension]
 numericoid [String s] returns [String numericoid]
     {
         matchedProduction( "numericoid()");
-        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
-        AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
-        parser.setParserMonitor(monitor);
-        numericoid = parser.numericoid();
+        if(isQuirksModeEnabled)
+        {
+             numericoid = oid(s);
+        }
+        else
+        {
+	        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
+	        AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
+	        parser.setParserMonitor(monitor);
+	        numericoid = parser.numericoid();
+        }
     }
     :
     ;
@@ -906,11 +946,18 @@ oid [String s] returns [String oid]
 
 oids [String s] returns [List<String> oids]
     {
-        matchedProduction( "oid()" );
-        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
-        AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
-        parser.setParserMonitor(monitor);
-        oids = parser.oids();
+        matchedProduction( "oids()" );
+        if(isQuirksModeEnabled)
+        {
+             oids = qdescrs(s);
+        }
+        else
+        {
+	        AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
+	        AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
+	        parser.setParserMonitor(monitor);
+	        oids = parser.oids();
+	    }
     }
     :
     ;
@@ -934,7 +981,7 @@ qdescrs [String s] returns [List<String> qdescrs]
         AntlrSchemaValueLexer lexer = new AntlrSchemaValueLexer(new StringReader(s));
         AntlrSchemaValueParser parser = new AntlrSchemaValueParser(lexer);
         parser.setParserMonitor(monitor);
-        qdescrs = parser.qdescrs();
+        qdescrs = isQuirksModeEnabled ? parser.quirksQdescrs() : parser.qdescrs();
     }
     :
     ;

@@ -108,19 +108,7 @@ public class SchemaParserTestUtils
         asd = parser.parse( value );
         Assert.assertEquals( "0.1.2.3.4.5.6.7.8.9", asd.getNumericOid() );
 
-        // non-numeric not allowed
-        value = "( test " + required + " )";
-        try
-        {
-            parser.parse( value );
-            Assert.fail( "Exception expected, invalid NUMERICOID test" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // to short
+        // too short
         value = "( 1 " + required + " )";
         try
         {
@@ -156,30 +144,6 @@ public class SchemaParserTestUtils
             // expected
         }
 
-        // leading 0 not allowed
-        value = "( 01.1 " + required + " )";
-        try
-        {
-            parser.parse( value );
-            Assert.fail( "Exception expected, invalid NUMERICOID 01.1 (leading zero)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // alpha not allowed
-        value = "( 1.2.a.4 " + required + " )";
-        try
-        {
-            parser.parse( value );
-            Assert.fail( "Exception expected, invalid NUMERICOID 1.2.a.4 (alpha not allowed)" );
-        }
-        catch ( ParseException pe )
-        {
-            // excpected
-        }
-
         // multiple not allowed
         value = "( ( 1.2.3 4.5.6 ) " + required + " )";
         try
@@ -190,6 +154,46 @@ public class SchemaParserTestUtils
         catch ( ParseException pe )
         {
             // excpected
+        }
+
+        if ( !parser.isQuirksMode() )
+        {
+            // non-numeric not allowed
+            value = "( test " + required + " )";
+            try
+            {
+                parser.parse( value );
+                Assert.fail( "Exception expected, invalid NUMERICOID test" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+
+            // leading 0 not allowed
+            value = "( 01.1 " + required + " )";
+            try
+            {
+                parser.parse( value );
+                Assert.fail( "Exception expected, invalid NUMERICOID 01.1 (leading zero)" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+
+            // alpha not allowed
+            value = "( 1.2.a.4 " + required + " )";
+            try
+            {
+                parser.parse( value );
+                Assert.fail( "Exception expected, invalid NUMERICOID 1.2.a.4 (alpha not allowed)" );
+            }
+            catch ( ParseException pe )
+            {
+                // excpected
+            }
+
         }
     }
 
@@ -282,42 +286,6 @@ public class SchemaParserTestUtils
         Assert.assertEquals( "test1", asd.getNames().get( 0 ) );
         Assert.assertEquals( "test2", asd.getNames().get( 1 ) );
 
-        // start with number
-        value = "( " + oid + " " + required + " NAME '1test' )";
-        try
-        {
-            parser.parse( value );
-            Assert.fail( "Exception expected, invalid NAME 1test (starts with number)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // start with hypen
-        value = "( " + oid + " " + required + " NAME '-test' )";
-        try
-        {
-            parser.parse( value );
-            Assert.fail( "Exception expected, invalid NAME -test (starts with hypen)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // invalid character
-        value = "( " + oid + " " + required + " NAME 'te_st' )";
-        try
-        {
-            parser.parse( value );
-            Assert.fail( "Exception expected, invalid NAME te_st (contains invalid character)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
         // NAM unknown
         value = "( " + oid + " " + required + " NAM 'test' )";
         try
@@ -330,16 +298,55 @@ public class SchemaParserTestUtils
             // expected
         }
 
-        // one valid, one invalid
-        value = "( " + oid + " " + required + " NAME ( 'test' 'te_st' ) )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            parser.parse( value );
-            Assert.fail( "Exception expected, invalid NAME te_st (contains invalid character)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
+            // start with number
+            value = "( " + oid + " " + required + " NAME '1test' )";
+            try
+            {
+                parser.parse( value );
+                Assert.fail( "Exception expected, invalid NAME 1test (starts with number)" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+
+            // start with hypen
+            value = "( " + oid + " " + required + " NAME '-test' )";
+            try
+            {
+                parser.parse( value );
+                Assert.fail( "Exception expected, invalid NAME -test (starts with hypen)" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+
+            // invalid character
+            value = "( " + oid + " " + required + " NAME 'te_st' )";
+            try
+            {
+                parser.parse( value );
+                Assert.fail( "Exception expected, invalid NAME te_st (contains invalid character)" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+
+            // one valid, one invalid
+            value = "( " + oid + " " + required + " NAME ( 'test' 'te_st' ) )";
+            try
+            {
+                parser.parse( value );
+                Assert.fail( "Exception expected, invalid NAME te_st (contains invalid character)" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -641,6 +648,46 @@ public class SchemaParserTestUtils
         // check that no one thread failed to parse and generate a SS object
         Assert.assertTrue( isSuccessMultithreaded[0] );
 
+    }
+
+
+    /**
+     * Tests quirks mode.
+     */
+    public static void testQuirksMode( AbstractSchemaParser parser, String required ) throws ParseException
+    {
+        try
+        {
+            String value = null;
+            AbstractSchemaDescription asd = null;
+            
+            parser.setQuirksMode( true );
+            
+            // alphanum OID
+            value = "( abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789 " + required + " )";
+            asd = parser.parse( value );
+            Assert.assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789", asd
+                .getNumericOid() );
+
+            // start with hypen
+            value = "( -oid " + required + " )";
+            asd = parser.parse( value );
+            Assert.assertEquals( "-oid", asd.getNumericOid() );
+
+            // start with number
+            value = "( 1oid " + required + " )";
+            asd = parser.parse( value );
+            Assert.assertEquals( "1oid", asd.getNumericOid() );
+
+            // start with dot
+            value = "( .oid " + required + " )";
+            asd = parser.parse( value );
+            Assert.assertEquals( ".oid", asd.getNumericOid() );
+        }
+        finally
+        {
+            parser.setQuirksMode( false );
+        }
     }
 
     static class ParseSpecification implements Runnable

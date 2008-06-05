@@ -202,18 +202,6 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
             // expected
         }
 
-        // invalid start
-        value = "( 1.1 AUX ( top1 $ -top2 ) )";
-        try
-        {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid AUX '-top' (starts with hypen)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
         // empty AUX
         value = "( 1.1 AUX )";
         try
@@ -224,6 +212,21 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         catch ( ParseException pe )
         {
             // expected
+        }
+
+        if ( !parser.isQuirksMode() )
+        {
+            // invalid start
+            value = "( 1.1 AUX ( top1 $ -top2 ) )";
+            try
+            {
+                dcrd = parser.parseDITContentRuleDescription( value );
+                fail( "Exception expected, invalid AUX '-top' (starts with hypen)" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -259,18 +262,6 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "11.22.33.44.55", dcrd.getMustAttributeTypes().get( 2 ) );
         assertEquals( "objectClass", dcrd.getMustAttributeTypes().get( 3 ) );
 
-        // invalid value
-        value = "( 1.1 MUST ( c_n ) )";
-        try
-        {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid value c_n" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
         // no MUST values
         value = "( 1.1 MUST )";
         try
@@ -281,6 +272,21 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         catch ( ParseException pe )
         {
             // expected
+        }
+
+        if ( !parser.isQuirksMode() )
+        {
+            // invalid value
+            value = "( 1.1 MUST ( c_n ) )";
+            try
+            {
+                dcrd = parser.parseDITContentRuleDescription( value );
+                fail( "Exception expected, invalid value c_n" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -316,16 +322,19 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "11.22.33.44.55", dcrd.getMayAttributeTypes().get( 2 ) );
         assertEquals( "objectClass", dcrd.getMayAttributeTypes().get( 3 ) );
 
-        // invalid value
-        value = "( 1.1 MAY ( c_n ) )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid value c_n" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
+            // invalid value
+            value = "( 1.1 MAY ( c_n ) )";
+            try
+            {
+                dcrd = parser.parseDITContentRuleDescription( value );
+                fail( "Exception expected, invalid value c_n" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -361,16 +370,19 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "11.22.33.44.55", dcrd.getNotAttributeTypes().get( 2 ) );
         assertEquals( "objectClass", dcrd.getNotAttributeTypes().get( 3 ) );
 
-        // invalid value
-        value = "( 1.1 NOT ( c_n ) )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid value c_n" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
+            // invalid value
+            value = "( 1.1 NOT ( c_n ) )";
+            try
+            {
+                dcrd = parser.parseDITContentRuleDescription( value );
+                fail( "Exception expected, invalid value c_n" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -452,7 +464,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
-    public void testMultiThreaded() throws Exception
+    public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
             {
@@ -462,6 +474,37 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
                 "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE AUX ( 2.3.4.5.6.7.8.9.0.1 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) MUST ( 3.4.5.6.7.8.9.0.1.2 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) MAY ( 4.5.6.7.8.9.0.1.2.3 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) NOT ( 5.6.7.8.9.0.1.2.3.4 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
 
+    }
+
+
+    /**
+     * Tests quirks mode.
+     */
+    public void testQuirksMode() throws ParseException
+    {
+        SchemaParserTestUtils.testQuirksMode( parser, "" );
+
+        try
+        {
+            parser.setQuirksMode( true );
+
+            // ensure all other test pass in quirks mode
+            testNumericOid();
+            testDescription();
+            testObsolete();
+            testAux();
+            testMust();
+            testMay();
+            testNot();
+            testExtensions();
+            testFull();
+            testUniqueElements();
+            testMultiThreaded();
+        }
+        finally
+        {
+            parser.setQuirksMode( false );
+        }
     }
 
 }

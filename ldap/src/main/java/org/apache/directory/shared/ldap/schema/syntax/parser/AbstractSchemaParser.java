@@ -67,10 +67,40 @@ public abstract class AbstractSchemaParser
     }
 
 
+    /**
+     * Sets the parser monitor.
+     * 
+     * @param monitor the new parser monitor
+     */
     public void setParserMonitor( ParserMonitor monitor )
     {
         this.monitor = monitor;
         parser.setParserMonitor( monitor );
+    }
+
+
+    /**
+     * Sets the quirks mode. 
+     * 
+     * If enabled the parser accepts non-numeric OIDs and some 
+     * special characters in descriptions.
+     * 
+     * @param enabled the new quirks mode
+     */
+    public void setQuirksMode( boolean enabled )
+    {
+        parser.setQuirksMode( enabled );
+    }
+
+
+    /**
+     * Checks if quirks mode is enabled.
+     * 
+     * @return true, if is quirks mode is enabled
+     */
+    public boolean isQuirksMode()
+    {
+        return parser.isQuirksMode();
     }
 
 

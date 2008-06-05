@@ -50,15 +50,15 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
     }
 
 
-    public void testNumericOid() throws Exception
+    public void testNumericOid() throws ParseException
     {
-        SchemaParserTestUtils.testNumericOid( parser, "FQCN org.apache.directory.SimpleComparator" );
+        SchemaParserTestUtils.testNumericOid( parser, "FQCN org.apache.directory.SimpleNormalizer" );
     }
 
 
     public void testDescription() throws ParseException
     {
-        SchemaParserTestUtils.testDescription( parser, "1.1", "FQCN org.apache.directory.SimpleComparator" );
+        SchemaParserTestUtils.testDescription( parser, "1.1", "FQCN org.apache.directory.SimpleNormalizer" );
     }
 
 
@@ -68,10 +68,10 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
         NormalizerDescription nd = null;
 
         // FQCN simple p
-        value = "( 1.1 FQCN org.apache.directory.SimpleComparator )";
+        value = "( 1.1 FQCN org.apache.directory.SimpleNormalizer )";
         nd = parser.parseNormalizerDescription( value );
         assertNotNull( nd.getFqcn() );
-        assertEquals( "org.apache.directory.SimpleComparator", nd.getFqcn() );
+        assertEquals( "org.apache.directory.SimpleNormalizer", nd.getFqcn() );
     }
 
 
@@ -90,12 +90,13 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
 
     public void testExtensions() throws ParseException
     {
-        SchemaParserTestUtils.testExtensions( parser, "1.1", "FQCN org.apache.directory.SimpleComparator" );
+        SchemaParserTestUtils.testExtensions( parser, "1.1", "FQCN org.apache.directory.SimpleNormalizer" );
     }
 
 
     public void testFull()
     {
+        // TODO
     }
 
 
@@ -106,6 +107,7 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
      */
     public void testUniqueElements()
     {
+        // TODO
     }
 
 
@@ -116,14 +118,44 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
      */
     public void testRequiredElements()
     {
+        // TODO
     }
 
 
     /**
      * Tests the multithreaded use of a single parser.
      */
-    public void testMultiThreaded() throws Exception
+    public void testMultiThreaded() throws ParseException
     {
+        // TODO
     }
 
+
+    /**
+     * Tests quirks mode.
+     */
+    public void testQuirksMode() throws ParseException
+    {
+        SchemaParserTestUtils.testQuirksMode( parser, "FQCN org.apache.directory.SimpleNormalizer" );
+
+        try
+        {
+            parser.setQuirksMode( true );
+
+            // ensure all other test pass in quirks mode
+            testNumericOid();
+            testDescription();
+            testFqcn();
+            testBytecode();
+            testExtensions();
+            testFull();
+            testUniqueElements();
+            testRequiredElements();
+            testMultiThreaded();
+        }
+        finally
+        {
+            parser.setQuirksMode( false );
+        }
+    }
 }

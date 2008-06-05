@@ -22,6 +22,7 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
@@ -203,18 +204,6 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
             // expected
         }
 
-        // invalid start
-        value = "( 1.1 SUP ( top1 $ -top2 ) )";
-        try
-        {
-            ocd = parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid SUP '-top' (starts with hypen)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
         // empty sup
         value = "( 1.1 SUP )";
         try
@@ -225,6 +214,21 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         catch ( ParseException pe )
         {
             // expected
+        }
+
+        if ( !parser.isQuirksMode() )
+        {
+            // invalid start
+            value = "( 1.1 SUP ( top1 $ -top2 ) )";
+            try
+            {
+                ocd = parser.parseObjectClassDescription( value );
+                fail( "Exception expected, invalid SUP '-top' (starts with hypen)" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -318,18 +322,6 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         assertEquals( "11.22.33.44.55", ocd.getMustAttributeTypes().get( 2 ) );
         assertEquals( "objectClass", ocd.getMustAttributeTypes().get( 3 ) );
 
-        // invalid value
-        value = "( 1.1 MUST ( c_n ) )";
-        try
-        {
-            ocd = parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid value c_n" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
         // no MUST values
         value = "( 1.1 MUST )";
         try
@@ -340,6 +332,21 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         catch ( ParseException pe )
         {
             // expected
+        }
+
+        if ( !parser.isQuirksMode() )
+        {
+            // invalid value
+            value = "( 1.1 MUST ( c_n ) )";
+            try
+            {
+                ocd = parser.parseObjectClassDescription( value );
+                fail( "Exception expected, invalid value c_n" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -384,16 +391,19 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
         assertEquals( "11.22.33.44.55", ocd.getMayAttributeTypes().get( 2 ) );
         assertEquals( "objectClass", ocd.getMayAttributeTypes().get( 3 ) );
 
-        // invalid value
-        value = "( 1.1 MAY ( c_n ) )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            ocd = parser.parseObjectClassDescription( value );
-            fail( "Exception expected, invalid value c_n" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
+            // invalid value
+            value = "( 1.1 MAY ( c_n ) )";
+            try
+            {
+                ocd = parser.parseObjectClassDescription( value );
+                fail( "Exception expected, invalid value c_n" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -725,9 +735,9 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
 
 
     /**
-     * Tests the multithreaded use of a single parser.
+     * Tests the multi-threaded use of a single parser.
      */
-    public void testMultiThreaded() throws Exception
+    public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
             {
@@ -737,4 +747,80 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
                 "( 2.16.840.1.113719.1.1.6.1.30 NAME 'List' SUP Top STRUCTURAL MUST cn MAY ( description $ l $ member $ ou $ o $ eMailAddress $ mailboxLocation $ mailboxID $ owner $ seeAlso $ fullName ) X-NDS_NAMING 'cn' X-NDS_CONTAINMENT ( 'Organization' 'organizationalUnit' 'domain' ) X-NDS_NOT_CONTAINER '1' X-NDS_NONREMOVABLE '1' X-NDS_ACL_TEMPLATES '2#entry#[Root Template]#member' )" };
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
     }
+
+
+    /**
+     * Tests quirks mode.
+     */
+    public void testQuirksMode() throws ParseException
+    {
+        SchemaParserTestUtils.testQuirksMode( parser, "" );
+
+        try
+        {
+            String value = null;
+            ObjectClassDescription ocd = null;
+
+            parser.setQuirksMode( true );
+
+            // ensure all other test pass in quirks mode
+            testNumericOid();
+            testNames();
+            testDescription();
+            testObsolete();
+            testSuperior();
+            testKind();
+            testMust();
+            testMay();
+            testExtensions();
+            testFull();
+            testUniqueElements();
+            testIgnoreElementOrder();
+            testRfcTop();
+            testRfcSimpleSecurityObject();
+            testSunAlias();
+            testNovellDcObject();
+            testNovellList();
+            testMicrosoftAds2000Locality();
+            testMicrosoftAds2003Msieee();
+            testSiemensDirxX500Subschema();
+            testMultiThreaded();
+
+            // NAME with special chars
+            value = "( 1.2.3 NAME 't-e_s.t;' )";
+            ocd = parser.parseObjectClassDescription( value );
+            Assert.assertEquals( 1, ocd.getNames().size() );
+            Assert.assertEquals( "t-e_s.t;", ocd.getNames().get( 0 ) );
+
+            // SUP with underscore
+            value = "( 1.1 SUP te_st )";
+            ocd = parser.parseObjectClassDescription( value );
+            assertEquals( 1, ocd.getSuperiorObjectClasses().size() );
+            assertEquals( "te_st", ocd.getSuperiorObjectClasses().get( 0 ) );
+
+            // MAY with underscore
+            value = "( 1.1 MAY te_st )";
+            ocd = parser.parseObjectClassDescription( value );
+            assertEquals( 1, ocd.getMayAttributeTypes().size() );
+            assertEquals( "te_st", ocd.getMayAttributeTypes().get( 0 ) );
+
+            // MUST with underscore
+            value = "( 1.1 MUST te_st )";
+            ocd = parser.parseObjectClassDescription( value );
+            assertEquals( 1, ocd.getMustAttributeTypes().size() );
+            assertEquals( "te_st", ocd.getMustAttributeTypes().get( 0 ) );
+
+            // Netscape object class 
+            value = "( nsAdminGroup-oid NAME 'nsAdminGroup' DESC 'Netscape defined objectclass' SUP top STRUCTURAL MUST cn MAY ( nsAdminGroupName $ description $ nsConfigRoot $ nsAdminSIEDN ) X-ORIGIN 'Netscape' )";
+            ocd = parser.parseObjectClassDescription( value );
+            assertEquals( "nsAdminGroup-oid", ocd.getNumericOid() );
+            assertEquals( 1, ocd.getNames().size() );
+            assertEquals( "nsAdminGroup", ocd.getNames().get( 0 ) );
+        }
+        finally
+        {
+            parser.setQuirksMode( false );
+        }
+    }
+
 }

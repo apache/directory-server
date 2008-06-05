@@ -63,24 +63,42 @@ WHSP
 
 LPAR : '(' ;
 RPAR : ')' ;
+protected CHAR : 'a'..'z' ;
 protected LDIGIT : '1'..'9' ;
 protected DIGIT : '0'..'9' ; 
 protected NUMBER : DIGIT | ( LDIGIT (DIGIT)+ ) ;
 protected NUMBER2 : (DIGIT)+ ;
 protected NUMERICOID : NUMBER ( '.' NUMBER )+ ;
+protected HYPEN : '-';
+protected OTHER : '_' | ';' | '.';
+protected DESCR: CHAR ( CHAR | DIGIT | HYPEN )* ;
+protected QUIRKS_DESCR: ( CHAR | DIGIT | HYPEN | OTHER )+ ;
 
 QUOTE : '\'' ;
 DOLLAR : '$' ;
 LCURLY : '{' ;
 RCURLY : '}' ;
-DESCR : ( 'a'..'z' ) ( 'a'..'z' | '0'..'9' | '-' )* ;
 LEN : LCURLY n:NUMBER2 RCURLY { setText(n.getText()); } ;
 
-NUMBER_OR_NUMERICOID :
+
+DESCR_OR_QUIRKS_DESCR :
+    ( NUMERICOID QUIRKS_DESCR ) => QUIRKS_DESCR { $setType( QUIRKS_DESCR ); }
+    |
+    ( NUMBER QUIRKS_DESCR ) => QUIRKS_DESCR { $setType( QUIRKS_DESCR ); }
+    |
+    ( HYPEN QUIRKS_DESCR ) => QUIRKS_DESCR { $setType( QUIRKS_DESCR ); }
+    |
+    ( OTHER QUIRKS_DESCR ) => QUIRKS_DESCR { $setType( QUIRKS_DESCR ); }
+    |
+    ( DESCR QUIRKS_DESCR ) => QUIRKS_DESCR { $setType( QUIRKS_DESCR ); }
+    |
+    ( DESCR ) { $setType( DESCR ); }
+    |
     ( NUMBER '.' ) => NUMERICOID { $setType( NUMERICOID ); }
     |
     ( NUMBER ) { $setType( NUMBER ); }
     ;
+
 
 /**
  * An antlr generated schema parser. This is a sub-parser used to parse
@@ -128,6 +146,41 @@ noidlen returns [AntlrSchemaParser.NoidLen noidlen = new AntlrSchemaParser.NoidL
         (QUOTE)?
         (WHSP)?
         (RPAR)?
+        (
+            l:LEN { noidlen.len = Integer.parseInt(l.getText()); }
+            (QUOTE)?
+            (WHSP)?
+            (RPAR)?
+        )?
+        
+    )
+    ;
+
+
+    /**
+     * noidlen = numericoid [ LCURLY len RCURLY ]
+     * len = number
+     */
+quirksNoidlen returns [AntlrSchemaParser.NoidLen noidlen = new AntlrSchemaParser.NoidLen()]
+    {
+        matchedProduction( "AntlrSchemaValueParser.quirksNoidlen()" );
+    }
+    :
+    (
+        (WHSP)?
+        (
+            ( QUOTE q1:QUIRKS_DESCR { noidlen.noid = q1.getText(); } QUOTE )
+            |
+            ( q2:QUIRKS_DESCR { noidlen.noid = q2.getText(); } )
+            |
+            ( QUOTE d3:DESCR { noidlen.noid = d3.getText(); } QUOTE )
+            |
+            ( d4:DESCR { noidlen.noid = d4.getText(); } )
+            |
+            ( QUOTE n1:NUMERICOID { noidlen.noid = n1.getText(); } QUOTE  )
+            |
+            ( n2:NUMERICOID { noidlen.noid = n2.getText(); } )
+        )
         (
             l:LEN { noidlen.len = Integer.parseInt(l.getText()); }
             (QUOTE)?
@@ -258,18 +311,89 @@ qdescrs returns [List<String> qdescrs]
             qdescr=qdescr { qdescrs.add(qdescr); } 
         )
     |
-        ( 
+        (             
+        
             LPAR 
             qdescr=qdescr { qdescrs.add(qdescr); } 
             (options {greedy=true;} : WHSP)?
+            (DOLLAR)?
+            (options {greedy=true;} : WHSP)?
             (
                 qdescr=qdescr { qdescrs.add(qdescr); } 
+                (options {greedy=true;} : WHSP)?
+                (DOLLAR)?
                 (options {greedy=true;} : WHSP)?
             )*
             RPAR 
         )
     )
     ;
+    
+    
+    
+    /**
+     * qdescr = SQUOTE descr SQUOTE
+     */
+quirksQdescr returns [String qdescr=null]
+    {
+        matchedProduction( "AntlrSchemaValueParser.qdescr()" );
+    }
+    : 
+    ( 
+        (WHSP)?
+        (
+            ( QUOTE d1:QUIRKS_DESCR { qdescr = d1.getText(); } QUOTE )
+            |
+            ( d2:QUIRKS_DESCR { qdescr = d2.getText(); } )
+            |
+            ( QUOTE d3:DESCR { qdescr = d3.getText(); } QUOTE )
+            |
+            ( d4:DESCR { qdescr = d4.getText(); } )
+            |
+            ( QUOTE n1:NUMERICOID { qdescr = n1.getText(); } QUOTE  )
+            |
+            ( n2:NUMERICOID { qdescr = n2.getText(); } )
+        )
+        (options {greedy=true;} : WHSP)?
+    )
+    ; 
+
+
+    /**
+     * qdescrs = qdescr / ( LPAREN WSP qdescrlist WSP RPAREN )
+     * qdescrlist = [ qdescr *( SP qdescr ) ]
+     */
+quirksQdescrs returns [List<String> qdescrs]
+    {
+        matchedProduction( "AntlrSchemaValueParser.qdescrs()" );
+        qdescrs = new ArrayList<String>();
+        String qdescr = null;
+    }
+    :
+    (
+        ( 
+            qdescr=quirksQdescr { qdescrs.add(qdescr); } 
+        )
+    |
+        ( 
+            LPAR 
+            qdescr=quirksQdescr { qdescrs.add(qdescr); } 
+            (options {greedy=true;} : WHSP)?
+            (DOLLAR)?
+            (options {greedy=true;} : WHSP)?
+            (
+                qdescr=quirksQdescr { qdescrs.add(qdescr); } 
+                (options {greedy=true;} : WHSP)?
+                (DOLLAR)?
+                (options {greedy=true;} : WHSP)?
+            )*
+            RPAR 
+        )
+    )
+    ;
+    
+    
+    
     
     /**
      * ruleid = number

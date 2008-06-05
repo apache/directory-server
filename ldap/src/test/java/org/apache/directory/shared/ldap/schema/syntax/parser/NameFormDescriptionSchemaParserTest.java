@@ -142,36 +142,12 @@ public class NameFormDescriptionSchemaParserTest extends TestCase
             // expected
         }
 
-        // invalid start
-        value = "( 1.1 MUST m OC -test ) )";
-        try
-        {
-            nfd = parser.parseNameFormDescription( value );
-            fail( "Exception expected, invalid OC '-test' (starts with hypen)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
         // no multi value allowed
         value = "( 1.1 MUST m OC ( test1 test2 ) )";
         try
         {
             nfd = parser.parseNameFormDescription( value );
             fail( "Exception expected, OC must be single valued" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // OC is required
-        value = "( 1.1 MUST m )";
-        try
-        {
-            nfd = parser.parseNameFormDescription( value );
-            fail( "Exception expected, OC is required" );
         }
         catch ( ParseException pe )
         {
@@ -190,6 +166,32 @@ public class NameFormDescriptionSchemaParserTest extends TestCase
             // expected
         }
 
+        if ( !parser.isQuirksMode() )
+        {
+            // OC is required
+            value = "( 1.1 MUST m )";
+            try
+            {
+                nfd = parser.parseNameFormDescription( value );
+                fail( "Exception expected, OC is required" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+
+            // invalid start
+            value = "( 1.1 MUST m OC -test ) )";
+            try
+            {
+                nfd = parser.parseNameFormDescription( value );
+                fail( "Exception expected, invalid OC '-test' (starts with hypen)" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+        }
     }
 
 
@@ -218,36 +220,12 @@ public class NameFormDescriptionSchemaParserTest extends TestCase
         assertEquals( "11.22.33.44.55", nfd.getMustAttributeTypes().get( 2 ) );
         assertEquals( "objectClass", nfd.getMustAttributeTypes().get( 3 ) );
 
-        // invalid value
-        value = "( 1.1 OC o MUST ( c_n ) )";
-        try
-        {
-            nfd = parser.parseNameFormDescription( value );
-            fail( "Exception expected, invalid value c_n" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
         // no MUST values
         value = "( 1.1 OC o MUST )";
         try
         {
             nfd = parser.parseNameFormDescription( value );
             fail( "Exception expected, no MUST value" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // MUST is required
-        value = "( 1.1 OC o )";
-        try
-        {
-            nfd = parser.parseNameFormDescription( value );
-            fail( "Exception expected, MUST is required" );
         }
         catch ( ParseException pe )
         {
@@ -264,6 +242,33 @@ public class NameFormDescriptionSchemaParserTest extends TestCase
         catch ( ParseException pe )
         {
             // expected
+        }
+
+        if ( !parser.isQuirksMode() )
+        {
+            // MUST is required
+            value = "( 1.1 OC o )";
+            try
+            {
+                nfd = parser.parseNameFormDescription( value );
+                fail( "Exception expected, MUST is required" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+
+            // invalid value
+            value = "( 1.1 OC o MUST ( c_n ) )";
+            try
+            {
+                nfd = parser.parseNameFormDescription( value );
+                fail( "Exception expected, invalid value c_n" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -298,18 +303,6 @@ public class NameFormDescriptionSchemaParserTest extends TestCase
         assertEquals( "11.22.33.44.55", nfd.getMayAttributeTypes().get( 2 ) );
         assertEquals( "objectClass", nfd.getMayAttributeTypes().get( 3 ) );
 
-        // invalid value
-        value = "( 1.1 OC o MUST m MAY ( c_n ) )";
-        try
-        {
-            nfd = parser.parseNameFormDescription( value );
-            fail( "Exception expected, invalid value c_n" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
         // MAY must only appear once
         value = "( 1.1 OC o MUST m MAY test1 MAY test2 )";
         try
@@ -322,6 +315,20 @@ public class NameFormDescriptionSchemaParserTest extends TestCase
             // expected
         }
 
+        if ( !parser.isQuirksMode() )
+        {
+            // invalid value
+            value = "( 1.1 OC o MUST m MAY ( c_n ) )";
+            try
+            {
+                nfd = parser.parseNameFormDescription( value );
+                fail( "Exception expected, invalid value c_n" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+        }
     }
 
 
@@ -409,26 +416,29 @@ public class NameFormDescriptionSchemaParserTest extends TestCase
         assertNotNull( nfd.getStructuralObjectClass() );
         assertEquals( 1, nfd.getMustAttributeTypes().size() );
 
-        value = "( 1.2.3.4.5.6.7.8.9.0 MUST m )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            nfd = parser.parseNameFormDescription( value );
-            fail( "Exception expected, OC is required" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+            value = "( 1.2.3.4.5.6.7.8.9.0 MUST m )";
+            try
+            {
+                nfd = parser.parseNameFormDescription( value );
+                fail( "Exception expected, OC is required" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
 
-        value = "( 1.2.3.4.5.6.7.8.9.0 OC o )";
-        try
-        {
-            nfd = parser.parseNameFormDescription( value );
-            fail( "Exception expected, MUST is required" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
+            value = "( 1.2.3.4.5.6.7.8.9.0 OC o )";
+            try
+            {
+                nfd = parser.parseNameFormDescription( value );
+                fail( "Exception expected, MUST is required" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -477,7 +487,7 @@ public class NameFormDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
-    public void testMultiThreaded() throws Exception
+    public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
             {
@@ -487,6 +497,38 @@ public class NameFormDescriptionSchemaParserTest extends TestCase
                 "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE OC bcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789a MUST ( 3.4.5.6.7.8.9.0.1.2 $ cdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789ab ) MAY ( 4.5.6.7.8.9.0.1.2.3 $ defghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789abc ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
 
+    }
+
+
+    /**
+     * Tests quirks mode.
+     */
+    public void testQuirksMode() throws ParseException
+    {
+        SchemaParserTestUtils.testQuirksMode( parser, "OC o MUST m" );
+
+        try
+        {
+            parser.setQuirksMode( true );
+
+            // ensure all other test pass in quirks mode
+            testNumericOid();
+            testNames();
+            testDescription();
+            testObsolete();
+            testOc();
+            testMust();
+            testMay();
+            testExtensions();
+            testFull();
+            testUniqueElements();
+            testRequiredElements();
+            testMultiThreaded();
+        }
+        finally
+        {
+            parser.setQuirksMode( false );
+        }
     }
 
 }

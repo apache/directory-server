@@ -50,13 +50,13 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
     }
 
 
-    public void testNumericOid() throws Exception
+    public void testNumericOid() throws ParseException
     {
         SchemaParserTestUtils.testNumericOid( parser, "SYNTAX 1.1" );
     }
 
 
-    public void testNames() throws Exception
+    public void testNames() throws ParseException
     {
         SchemaParserTestUtils.testNames( parser, "1.1", "SYNTAX 1.1" );
     }
@@ -99,30 +99,6 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
         mrd = parser.parseMatchingRuleDescription( value );
         assertEquals( "0.1.2.3.4.5.6.7.8.9", mrd.getSyntax() );
 
-        // non-numeric not allowed
-        value = "( test )";
-        try
-        {
-            parser.parse( value );
-            fail( "Exception expected, invalid SYNTAX test" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // SYNTAX is required
-        value = "( 1.1 )";
-        try
-        {
-            mrd = parser.parseMatchingRuleDescription( value );
-            fail( "Exception expected, SYNTAX is required" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
         // SYNTAX must only appear once
         value = "( 1.1 SYNTAX 2.2 SYNTAX 3.3 )";
         try
@@ -135,6 +111,32 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
             assertTrue( true );
         }
 
+        if ( !parser.isQuirksMode() )
+        {
+            // non-numeric not allowed
+            value = "( test )";
+            try
+            {
+                parser.parse( value );
+                fail( "Exception expected, SYNTAX is require" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+
+            // SYNTAX is required
+            value = "( 1.1 )";
+            try
+            {
+                mrd = parser.parseMatchingRuleDescription( value );
+                fail( "Exception expected, SYNTAX is required" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+        }
     }
 
 
@@ -200,17 +202,19 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
         mrd = parser.parseMatchingRuleDescription( value );
         assertNotNull( mrd.getSyntax() );
 
-        value = "( 1.2.3.4.5.6.7.8.9.0 )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            parser.parseMatchingRuleDescription( value );
-            fail( "Exception expected, SYNTAX is required" );
+            value = "( 1.2.3.4.5.6.7.8.9.0 )";
+            try
+            {
+                parser.parseMatchingRuleDescription( value );
+                fail( "Exception expected, SYNTAX is required" );
+            }
+            catch ( ParseException pe )
+            {
+                assertTrue( true );
+            }
         }
-        catch ( ParseException pe )
-        {
-            assertTrue( true );
-        }
-
     }
 
 
@@ -252,17 +256,31 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
      * This is a real matching rule from Sun Directory 5.2. It has an invalid 
      * syntax, no DOTs allowed in NAME value. 
      */
-    public void testSun2()
+    public void testSun2() throws ParseException
     {
         String value = "( 1.3.6.1.4.1.42.2.27.9.4.34.3.6 NAME 'caseExactSubstringMatch-2.16.840.1.113730.3.3.2.11.3' DESC 'en' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            parser.parseMatchingRuleDescription( value );
-            fail( "Exception expected, invalid NAME value 'caseExactSubstringMatch-2.16.840.1.113730.3.3.2.11.3' (contains DOTs)" );
+            try
+            {
+                parser.parseMatchingRuleDescription( value );
+                fail( "Exception expected, invalid NAME value 'caseExactSubstringMatch-2.16.840.1.113730.3.3.2.11.3' (contains DOTs)" );
+            }
+            catch ( ParseException pe )
+            {
+                assertTrue( true );
+            }
         }
-        catch ( ParseException pe )
+        else
         {
-            assertTrue( true );
+            MatchingRuleDescription mrd = parser.parseMatchingRuleDescription( value );
+            assertEquals( "1.3.6.1.4.1.42.2.27.9.4.34.3.6", mrd.getNumericOid() );
+            assertEquals( 1, mrd.getNames().size() );
+            assertEquals( "caseExactSubstringMatch-2.16.840.1.113730.3.3.2.11.3", mrd.getNames().get( 0 ) );
+            assertEquals( "en", mrd.getDescription() );
+            assertFalse( mrd.isObsolete() );
+            assertEquals( "1.3.6.1.4.1.1466.115.121.1.15", mrd.getSyntax() );
+            assertEquals( 0, mrd.getExtensions().size() );
         }
     }
 
@@ -270,7 +288,7 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
-    public void testMultiThreaded() throws Exception
+    public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
             {
@@ -279,6 +297,39 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
                 "( 2.5.13.5 NAME 'caseExactMatch' DESC 'Case Exact Matching on Directory String [defined in X.520]' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )",
                 "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE SYNTAX 0.1.2.3.4.5.6.7.8.9 X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
+    }
+
+
+    /**
+     * Tests quirks mode.
+     */
+    public void testQuirksMode() throws ParseException
+    {
+        SchemaParserTestUtils.testQuirksMode( parser, "SYNTAX 1.1" );
+
+        try
+        {
+            parser.setQuirksMode( true );
+
+            // ensure all other test pass in quirks mode
+            testNumericOid();
+            testNames();
+            testDescription();
+            testObsolete();
+            testSyntax();
+            testExtensions();
+            testFull();
+            testUniqueElements();
+            testRequiredElements();
+            testRfc1();
+            testSun1();
+            testSun2();
+            testMultiThreaded();
+        }
+        finally
+        {
+            parser.setQuirksMode( false );
+        }
     }
 
 }

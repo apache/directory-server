@@ -50,13 +50,13 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
     }
 
 
-    public void testNumericOid() throws Exception
+    public void testNumericOid() throws ParseException
     {
         SchemaParserTestUtils.testNumericOid( parser, "APPLIES 1.1" );
     }
 
 
-    public void testNames() throws Exception
+    public void testNames() throws ParseException
     {
         SchemaParserTestUtils.testNames( parser, "1.1", "APPLIES 1.1" );
     }
@@ -175,36 +175,12 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
             // expected
         }
 
-        // invalid start
-        value = "( 1.1 APPLIES ( test1 $ -test2 ) )";
-        try
-        {
-            mrud = parser.parseMatchingRuleUseDescription( value );
-            fail( "Exception expected, invalid APPLIES '-test' (starts with hypen)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
         // empty APPLIES
         value = "( 1.1 APPLIES )";
         try
         {
             mrud = parser.parseMatchingRuleUseDescription( value );
             fail( "Exception expected, no APPLIES value" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // APPLIES is required
-        value = "( 1.1 )";
-        try
-        {
-            mrud = parser.parseMatchingRuleUseDescription( value );
-            fail( "Exception expected, APPLIES is required" );
         }
         catch ( ParseException pe )
         {
@@ -221,6 +197,33 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
         catch ( ParseException pe )
         {
             // expected
+        }
+
+        if ( !parser.isQuirksMode() )
+        {
+            // APPLIES is required
+            value = "( 1.1 )";
+            try
+            {
+                mrud = parser.parseMatchingRuleUseDescription( value );
+                fail( "Exception expected, APPLIES is required" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+
+            // invalid start
+            value = "( 1.1 APPLIES ( test1 $ -test2 ) )";
+            try
+            {
+                mrud = parser.parseMatchingRuleUseDescription( value );
+                fail( "Exception expected, invalid APPLIES '-test' (starts with hypen)" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -290,17 +293,19 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
         mrud = parser.parseMatchingRuleUseDescription( value );
         assertEquals( 1, mrud.getApplicableAttributes().size() );
 
-        value = "( 1.2.3.4.5.6.7.8.9.0 )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            parser.parseMatchingRuleUseDescription( value );
-            fail( "Exception expected, APPLIES is required" );
+            value = "( 1.2.3.4.5.6.7.8.9.0 )";
+            try
+            {
+                parser.parseMatchingRuleUseDescription( value );
+                fail( "Exception expected, APPLIES is required" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
     }
 
 
@@ -328,7 +333,7 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
-    public void testMultiThreaded() throws Exception
+    public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
             {
@@ -337,6 +342,37 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
                 "( 2.5.13.1 NAME 'distinguishedNameMatch' APPLIES ( memberOf $ dITRedirect $ associatedName $ secretary $ documentAuthor $ manager $ seeAlso $ roleOccupant $ owner $ member $ distinguishedName $ aliasedObjectName $ namingContexts $ subschemaSubentry $ modifiersName $ creatorsName ) )",
                 "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE APPLIES ( 0.1.2.3.4.5.6.7.8.9 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
+    }
+
+
+    /**
+     * Tests quirks mode.
+     */
+    public void testQuirksMode() throws ParseException
+    {
+        SchemaParserTestUtils.testQuirksMode( parser, "APPLIES 1.1" );
+
+        try
+        {
+            parser.setQuirksMode( true );
+
+            // ensure all other test pass in quirks mode
+            testNumericOid();
+            testNames();
+            testDescription();
+            testObsolete();
+            testApplies();
+            testExtensions();
+            testFull();
+            testUniqueElements();
+            testRequiredElements();
+            testOpenldap1();
+            testMultiThreaded();
+        }
+        finally
+        {
+            parser.setQuirksMode( false );
+        }
     }
 
 }

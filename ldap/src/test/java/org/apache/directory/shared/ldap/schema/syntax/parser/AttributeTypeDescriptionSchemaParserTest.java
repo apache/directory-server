@@ -22,6 +22,7 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.schema.UsageEnum;
@@ -702,17 +703,19 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         assertNull( atd.getSyntax() );
         assertNotNull( atd.getSuperType() );
 
-        value = "( 1.2.3.4.5.6.7.8.9.0 )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, SYNTAX or SUP is required" );
+            value = "( 1.2.3.4.5.6.7.8.9.0 )";
+            try
+            {
+                parser.parseAttributeTypeDescription( value );
+                fail( "Exception expected, SYNTAX or SUP is required" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
     }
 
 
@@ -737,39 +740,41 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         assertTrue( atd.isCollective() );
         assertEquals( UsageEnum.USER_APPLICATIONS, atd.getUsage() );
 
-        value = "( 1.1 SYNTAX 1.1 COLLECTIVE USAGE directoryOperation )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, COLLECTIVE requires USAGE userApplications" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+            value = "( 1.1 SYNTAX 1.1 COLLECTIVE USAGE directoryOperation )";
+            try
+            {
+                parser.parseAttributeTypeDescription( value );
+                fail( "Exception expected, COLLECTIVE requires USAGE userApplications" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
 
-        value = "( 1.1 SYNTAX 1.1 COLLECTIVE USAGE dSAOperation )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, COLLECTIVE requires USAGE userApplications" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+            value = "( 1.1 SYNTAX 1.1 COLLECTIVE USAGE dSAOperation )";
+            try
+            {
+                parser.parseAttributeTypeDescription( value );
+                fail( "Exception expected, COLLECTIVE requires USAGE userApplications" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
 
-        value = "( 1.1 SYNTAX 1.1 COLLECTIVE USAGE distributedOperation )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, COLLECTIVE requires USAGE userApplications" );
+            value = "( 1.1 SYNTAX 1.1 COLLECTIVE USAGE distributedOperation )";
+            try
+            {
+                parser.parseAttributeTypeDescription( value );
+                fail( "Exception expected, COLLECTIVE requires USAGE userApplications" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
     }
 
 
@@ -799,26 +804,29 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
         assertFalse( atd.isUserModifiable() );
         assertEquals( UsageEnum.DISTRIBUTED_OPERATION, atd.getUsage() );
 
-        value = "( 1.1 SYNTAX 1.1 NO-USER-MODIFICATION USAGE userApplications )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, NO-USER-MODIFICATION requires an operational USAGE" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+            value = "( 1.1 SYNTAX 1.1 NO-USER-MODIFICATION USAGE userApplications )";
+            try
+            {
+                parser.parseAttributeTypeDescription( value );
+                fail( "Exception expected, NO-USER-MODIFICATION requires an operational USAGE" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
 
-        value = "( 1.1 SYNTAX 1.1 NO-USER-MODIFICATION )";
-        try
-        {
-            parser.parseAttributeTypeDescription( value );
-            fail( "Exception expected, NO-USER-MODIFICATION requires an operational USAGE" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
+            value = "( 1.1 SYNTAX 1.1 NO-USER-MODIFICATION )";
+            try
+            {
+                parser.parseAttributeTypeDescription( value );
+                fail( "Exception expected, NO-USER-MODIFICATION requires an operational USAGE" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -882,7 +890,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the parse of a simple AttributeType
      */
-    public void testAddAttributeType() throws Exception
+    public void testAddAttributeType() throws ParseException
     {
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
             + "DESC 'bogus description' SUP name SINGLE-VALUE )";
@@ -899,7 +907,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the parse of a simple AttributeType with the schema extension.
      */
-    public void testAttributeTypeWithSchemaExtension() throws Exception
+    public void testAttributeTypeWithSchemaExtension() throws ParseException
     {
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
             + "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'blah' )";
@@ -917,7 +925,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
-    public void testMultiThreaded() throws Exception
+    public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
             {
@@ -926,6 +934,89 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
                 "( 2.5.4.3 NAME ( 'cn' 'commonName' ) DESC 'RFC2256: common name(s) for which the entity is known by'  SUP name EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 USAGE userApplications )",
                 "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE SUP abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 EQUALITY 2.3.4.5.6.7.8.9.0.1 ORDERING 3.4.5.6.7.8.9.0.1.2 SUBSTR 4.5.6.7.8.9.0.1.2.3 SYNTAX 5.6.7.8.9.0.1.2.3.4{1234567890} SINGLE-VALUE NO-USER-MODIFICATION USAGE dSAOperation X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
+    }
+
+
+    /**
+     * Tests quirks mode.
+     */
+    public void testQuirksMode() throws ParseException
+    {
+        SchemaParserTestUtils.testQuirksMode( parser, "SYNTAX 1.1" );
+
+        try
+        {
+            String value = null;
+            AttributeTypeDescription atd = null;
+
+            parser.setQuirksMode( true );
+
+            // ensure all other test pass in quirks mode
+            testNumericOid();
+            testNames();
+            testDescription();
+            testObsolete();
+            testSuperType();
+            testEquality();
+            testOrdering();
+            testSubstring();
+            testSingleValue();
+            testCollective();
+            testNoUserModification();
+            testUsage();
+            testExtensions();
+            testFull();
+            testUniqueElements();
+            testRequiredElements();
+            testCollecitveConstraint();
+            testNoUserModificatonConstraint();
+            testIgnoreElementOrder();
+            testRfcUid();
+            testAddAttributeType();
+            testMultiThreaded();
+
+            // NAME with special chars
+            value = "( 1.2.3 SYNTAX te_st NAME 't-e_s.t;' )";
+            atd = parser.parseAttributeTypeDescription( value );
+            Assert.assertEquals( 1, atd.getNames().size() );
+            Assert.assertEquals( "t-e_s.t;", atd.getNames().get( 0 ) );
+
+            // SYNTAX with underscore
+            value = "( 1.1 SYNTAX te_st )";
+            atd = parser.parseAttributeTypeDescription( value );
+            assertEquals( "te_st", atd.getSyntax() );
+
+            // SUPERTYPE with underscore
+            value = "( 1.1 SYNTAX 1.1 SUP te_st )";
+            atd = parser.parseAttributeTypeDescription( value );
+            assertEquals( "te_st", atd.getSuperType() );
+
+            // EQUALITY with underscore
+            value = "( 1.1 SYNTAX 1.1 EQUALITY te_st )";
+            atd = parser.parseAttributeTypeDescription( value );
+            assertEquals( "te_st", atd.getEqualityMatchingRule() );
+
+            // SUBSTR with underscore
+            value = "( 1.1 SYNTAX 1.1 SUBSTR te_st )";
+            atd = parser.parseAttributeTypeDescription( value );
+            assertEquals( "te_st", atd.getSubstringsMatchingRule() );
+
+            // ORDERING with underscore
+            value = "( 1.1 SYNTAX 1.1 ORDERING te_st )";
+            atd = parser.parseAttributeTypeDescription( value );
+            assertEquals( "te_st", atd.getOrderingMatchingRule() );
+
+            // Netscape attribute 
+            value = "( nsAdminGroupName-oid NAME 'nsAdminGroupName' DESC 'Netscape defined attribute type' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'Netscape' )";
+            atd = parser.parseAttributeTypeDescription( value );
+            assertEquals( "nsAdminGroupName-oid", atd.getNumericOid() );
+            assertEquals( 1, atd.getNames().size() );
+            assertEquals( "nsAdminGroupName", atd.getNames().get( 0 ) );
+        }
+        finally
+        {
+            parser.setQuirksMode( false );
+        }
     }
 
 }

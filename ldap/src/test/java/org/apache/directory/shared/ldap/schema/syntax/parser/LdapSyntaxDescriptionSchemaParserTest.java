@@ -118,7 +118,6 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
         assertEquals( 2, lsd.getExtensions().get( "X-TEST-b" ).size() );
         assertEquals( "test2-1", lsd.getExtensions().get( "X-TEST-b" ).get( 0 ) );
         assertEquals( "test2-2", lsd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
-
     }
 
 
@@ -156,7 +155,7 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the parse of a simple AttributeType with the schema extension.
      */
-    public void testSyntaxWithExtensions() throws Exception
+    public void testSyntaxWithExtensions() throws ParseException
     {
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 DESC 'bogus description' X-SCHEMA 'blah' X-IS-HUMAN-READABLE 'true' )";
         LdapSyntaxDescription desc = parser.parseLdapSyntaxDescription( substrate );
@@ -169,7 +168,7 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
-    public void testMultiThreaded() throws Exception
+    public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
             {
@@ -180,4 +179,32 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
     }
 
+
+    /**
+     * Tests quirks mode.
+     */
+    public void testQuirksMode() throws ParseException
+    {
+        SchemaParserTestUtils.testQuirksMode( parser, "" );
+
+        try
+        {
+            parser.setQuirksMode( true );
+
+            // ensure all other test pass in quirks mode
+            testNumericOid();
+            testNames();
+            testDescription();
+            testExtensions();
+            testFull();
+            testUniqueElements();
+            testRfcBinary();
+            testSyntaxWithExtensions();
+            testMultiThreaded();
+        }
+        finally
+        {
+            parser.setQuirksMode( false );
+        }
+    }
 }
