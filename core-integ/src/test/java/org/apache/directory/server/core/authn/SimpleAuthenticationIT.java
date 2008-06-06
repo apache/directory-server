@@ -65,7 +65,8 @@ public class SimpleAuthenticationIT
         {
             LdapDN dn = new LdapDN( "uid=admin,ou=system" );
             dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-            return null; // TODO service.getJndiContext( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ) );
+            return new ServerLdapContext( service, 
+                service.getSession( new LdapDN( dn ), "secret".getBytes() ), new LdapDN() );
         }
 
         throw new IllegalStateException( "Cannot acquire rootDSE before the service has been started!" );
@@ -156,12 +157,12 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    @Ignore ( "broken until authentication is fixed" )
     public void test3UseAkarasulu() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+        LdapContext ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
 
         Attributes attrs = ctx.getAttributes( "" );
         Attribute ou = attrs.get( "ou" );
@@ -193,11 +194,11 @@ public class SimpleAuthenticationIT
      * @throws Exception if anything goes wrong
      */
     @Test
-    @Ignore ( "broken until authentication is fixed" )
     public void test8PassPrincAuthTypeSimple() throws Exception
     {
         String userDn = "uid=admin,ou=system";
-        // TODO assertNotNull( service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn ) );
+        assertNotNull( new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) ) );
     }
 
 
@@ -208,12 +209,12 @@ public class SimpleAuthenticationIT
      * @throws Exception if anything goes wrong
      */
     @Test
-    @Ignore ( "broken until authentication is fixed" )
     public void test10TestNonAdminUser() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        // TODO assertNotNull( service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn ) );
+        assertNotNull( new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) ) );
     }
 
 
