@@ -28,20 +28,38 @@ package org.apache.directory.server.core.avltree;
  */
 public class LinkedAvlNode<T> 
 {
-    T key; // The data in the node
-    LinkedAvlNode<T> left; // Left child
-    LinkedAvlNode<T> right; // Right child
+    /** The data stored in the node */
+    T key;
+    
+    /** The left child */
+    LinkedAvlNode<T> left;
+    
+    /** The right child */
+    LinkedAvlNode<T> right;
+    
+    /** The next node, superior to the current node */
     LinkedAvlNode<T> next;
+
+    /** The previous node, inferior to the current node */
     LinkedAvlNode<T> previous;
     
-    transient int depth, index;
+    transient int depth;
+    transient int index;
+    
     boolean isLeft;
     transient int height = 1;
     
+    
+    /**
+     * Creates a new instance of LinkedAvlNode, containing a given value.
+     *
+     * @param theKey the stored value on the topmost node
+     */
     public LinkedAvlNode( T theKey )
     {
         key = theKey;
-        left = right = null;
+        left = null;
+        right = null;
     }
 
 
