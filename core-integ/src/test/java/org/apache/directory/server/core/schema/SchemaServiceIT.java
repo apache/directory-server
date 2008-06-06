@@ -379,7 +379,7 @@ public class SchemaServiceIT
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ "+" } );
+        controls.setReturningAttributes( new String[]{ "*", "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getRootContext( service ).search(
@@ -399,42 +399,6 @@ public class SchemaServiceIT
         
         assertNotNull( attrs );
         
-        // We should have 14 attributes in the result :
-        // - attributeTypes
-        // - cn
-        // - subtreeSpecification
-        // - creatorsName
-        // - createTimestamp
-        // - dITContentRules
-        // - dITStructureRules
-        // - ldapSyntaxes
-        // - matchingRules
-        // - matchingRuleUse
-        // - modifiersName
-        // - modifyTimestamp
-        // - nameForms
-        // - objectClass
-        // - objectClasses
-        // - comparators
-        // - normalizers
-        // - syntaxCheckers
-        assertEquals( 18, attrs.size() );
-        
-        assertNotNull( attrs.get( "attributeTypes" ) );
-        assertNotNull( attrs.get( "cn" ) );
-        assertNotNull( attrs.get( "creatorsName" ) );
-        assertNotNull( attrs.get( "createTimestamp" ) );
-        assertNotNull( attrs.get( "dITContentRules" ) );
-        assertNotNull( attrs.get( "dITStructureRules" ) );
-        assertNotNull( attrs.get( "ldapSyntaxes" ) );
-        assertNotNull( attrs.get( "matchingRules" ) );
-        assertNotNull( attrs.get( "matchingRuleUse" ) );
-        assertNotNull( attrs.get( "modifiersName" ) );
-        assertNotNull( attrs.get( "modifyTimestamp" ) );
-        assertNotNull( attrs.get( "nameForms" ) );
-        assertNotNull( attrs.get( "objectClass" ) );
-        assertNotNull( attrs.get( "objectClasses" ) );
-        assertNotNull( attrs.get( "subtreeSpecification" ) );
     }
 
     
