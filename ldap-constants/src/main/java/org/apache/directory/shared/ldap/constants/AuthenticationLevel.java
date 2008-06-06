@@ -41,7 +41,7 @@ public enum AuthenticationLevel
     /**
      * Strong authentication (bound with encrypted cerdentials)
      */
-    STRONG( 2, "string" );
+    STRONG( 2, "strong" );
     
     private int level;
     
