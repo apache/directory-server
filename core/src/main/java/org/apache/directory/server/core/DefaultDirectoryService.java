@@ -81,6 +81,7 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -648,6 +649,55 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * We handle the ModDN/ModRDN operation for the revert here. 
+     */
+    private void moddn( LdapDN oldDn, LdapDN newDn, boolean delOldRdn ) throws Exception
+    {
+        if ( oldDn.size() == 0 )
+        {
+            throw new LdapNoPermissionException( "can't rename the rootDSE" );
+        }
+
+        // calculate parents
+        LdapDN oldBase = ( LdapDN ) oldDn.clone();
+        oldBase.remove( oldDn.size() - 1 );
+        LdapDN newBase = ( LdapDN ) newDn.clone();
+        newBase.remove( newDn.size() - 1 );
+
+        // Compute the RDN for each of the DN
+        Rdn newRdn = newDn.getRdn( newDn.size() - 1 );
+        Rdn oldRdn = oldDn.getRdn( oldDn.size() - 1 );
+
+        /*
+         * We need to determine if this rename operation corresponds to a simple
+         * RDN name change or a move operation.  If the two names are the same
+         * except for the RDN then it is a simple modifyRdn operation.  If the
+         * names differ in size or have a different baseDN then the operation is
+         * a move operation.  Furthermore if the RDN in the move operation 
+         * changes it is both an RDN change and a move operation.
+         */
+        if ( ( oldDn.size() == newDn.size() ) && oldBase.equals( newBase ) )
+        {
+            adminSession.rename( oldDn, newRdn, delOldRdn );
+        }
+        else
+        {
+            LdapDN target = ( LdapDN ) newDn.clone();
+            target.remove( newDn.size() - 1 );
+
+            if ( newRdn.equals( oldRdn ) )
+            {
+                adminSession.move( oldDn, target );
+            }
+            else
+            {
+                adminSession.moveAndRename( oldDn, target, new Rdn( newRdn ), delOldRdn );
+            }
+        }
+    }
+    
+    
     public long revert( long revision ) throws Exception
     {
         if ( changeLog == null || ! changeLog.isEnabled() )
@@ -678,12 +728,15 @@ public class DefaultDirectoryService implements DirectoryService
          *
          * First of all just stop using JNDI and construct the operations to
          * feed into the interceptor pipeline.
+         * 
+         * TODO review this code.
          */
 
         try
         {
             LOG.warn( PARTIAL_IMPL_WARNING );
             cursor.afterLast();
+            
             while ( cursor.previous() ) // apply ldifs in reverse order
             {
                 ChangeLogEvent event = cursor.get();
@@ -695,31 +748,30 @@ public class DefaultDirectoryService implements DirectoryService
                         adminSession.add( ServerEntryUtils.toServerEntry( reverse.getAttributes(), 
                             new LdapDN( reverse.getDn() ), registries )  );
                         break;
+                        
                     case( ChangeType.DELETE_ORDINAL ):
                         adminSession.delete( new LdapDN ( reverse.getDn() ) );
                         break;
+                        
                     case( ChangeType.MODIFY_ORDINAL ):
                         adminSession.modify( new LdapDN( reverse.getDn() ), 
                             ServerEntryUtils.toServerModification( reverse.getModificationItemsArray(), 
                                 registries.getAttributeTypeRegistry() ) );
                         break;
+                        
                     case( ChangeType.MODDN_ORDINAL ):
-                        if ( reverse.getNewRdn() != null )
-                        {
-                            adminSession.moveAndRename( new LdapDN( reverse.getDn() ), 
-                                new LdapDN( reverse.getNewSuperior() ), new Rdn( reverse.getNewRdn() ), 
-                                reverse.isDeleteOldRdn() );
-                        }
-                        else
-                        {
-                            adminSession.move( new LdapDN( reverse.getDn() ), 
-                                new LdapDN( reverse.getNewSuperior() ) );
-                        }
+                        // NO BREAK - both ModDN and ModRDN handling is the same
+                    
                     case( ChangeType.MODRDN_ORDINAL ):
-                        adminSession.rename( new LdapDN( reverse.getDn() ), 
-                            new Rdn( reverse.getNewRdn() ), reverse.isDeleteOldRdn() );
+                        LdapDN forwardDn = new LdapDN( event.getForwardLdif().getDn() );
+                        LdapDN reverseDn = new LdapDN( event.getReverseLdif().getDn() );
+                        
+                        moddn( reverseDn, forwardDn, reverse.isDeleteOldRdn() );
+
                         break;
+                        
                     default:
+                        LOG.error( "ChangeType unknown" );
                         throw new NotImplementedException( "Reverts of change type " + reverse.getChangeType()
                                 + " has not yet been implemented!");
                 }
@@ -727,8 +779,10 @@ public class DefaultDirectoryService implements DirectoryService
         }
         catch ( IOException e )
         {
-            throw new NamingException( "Encountered a failure while trying to revert to a previous revision: "
-                    + revision );
+            String message = "Encountered a failure while trying to revert to a previous revision: "
+                + revision;
+            LOG.error( message );
+            throw new NamingException( message );
         }
 
         return changeLog.getCurrentRevision();
