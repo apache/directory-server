@@ -25,6 +25,8 @@ import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.*;
+
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -35,7 +37,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -79,7 +80,8 @@ public class SimpleAuthenticationIT
         {
             LdapDN dn = new LdapDN( bindDn );
             dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-            return null; // TODO service.getJndiContext( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ) );
+            return new ServerLdapContext( service, 
+                service.getSession( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ) ), new LdapDN() );
         }
 
         throw new IllegalStateException( "Cannot acquire rootDSE before the service has been started!" );
@@ -92,7 +94,8 @@ public class SimpleAuthenticationIT
         {
             LdapDN dn = new LdapDN( "uid=admin,ou=system" );
             dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-            return null; // TODO service.getJndiContext( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ), "ou=system" );
+            return new ServerLdapContext( service, 
+                service.getSession( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ) ), new LdapDN( "ou=system" ) ); 
         }
 
         throw new IllegalStateException( "Cannot acquire rootDSE before the service has been started!" );
@@ -105,7 +108,8 @@ public class SimpleAuthenticationIT
         {
             LdapDN dn = new LdapDN( bindDn );
             dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-            return null; // TODO service.getJndiContext( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ), "ou=system" );
+            return new ServerLdapContext( service, 
+                service.getSession( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ) ), new LdapDN( "ou=system" ) ); 
         }
 
         throw new IllegalStateException( "Cannot acquire rootDSE before the service has been started!" );
@@ -219,12 +223,13 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    @Ignore ( "broken until authentication is fixed" )
     public void test11InvalidateCredentialCache() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+        
+        LdapContext ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
         assertNotNull( ctx );
         Attributes attrs = ctx.getAttributes( "" );
         Attribute ou = attrs.get( "ou" );
@@ -255,20 +260,21 @@ public class SimpleAuthenticationIT
         // close and try with old password (should fail)
         ctx.close();
 
-        // TODO - fix it
-        //        try
-//        {
-//            // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
-//            fail( "Authentication with old password should fail" );
-//        }
-//        catch ( NamingException e )
-//        {
-//            // we should fail
-//        }
+        try
+        {
+            new ServerLdapContext( service, 
+                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail
+        }
 
         // close and try again now with new password (should fail)
         ctx.close();
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "newpwd".getBytes(), "simple", userDn );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "newpwd".getBytes() ), new LdapDN( userDn ) ); 
         attrs = ctx.getAttributes( "" );
         ou = attrs.get( "ou" );
         assertTrue( ou.contains( "Engineering" ) );
@@ -293,12 +299,12 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    @Ignore ( "broken until authentication is fixed" )
     public void testSHA() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+        LdapContext ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) ); 
 
         // Check that we can get the attributes
         Attributes attrs = ctx.getAttributes( "" );
@@ -315,7 +321,8 @@ public class SimpleAuthenticationIT
 
         try
         {
-            ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+            ctx = new ServerLdapContext( service, 
+                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )
@@ -331,7 +338,8 @@ public class SimpleAuthenticationIT
         }
 
         // try again now with new password (should be successfull)
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -339,7 +347,8 @@ public class SimpleAuthenticationIT
         // close and try again now with new password, to check that the
         // cache is updated (should be successfull)
         ctx.close();
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) ); 
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -347,12 +356,12 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    @Ignore ( "broken until authentication is fixed" )
     public void testSSHA() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+        LdapContext ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
 
         // Check that we can get the attributes
         Attributes attrs = ctx.getAttributes( "" );
@@ -369,7 +378,8 @@ public class SimpleAuthenticationIT
 
         try
         {
-            ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+            ctx = new ServerLdapContext( service, 
+                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )
@@ -385,14 +395,16 @@ public class SimpleAuthenticationIT
         }
 
         // try again now with new password (should be successfull)
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
 
         // close and try again now with new password, to check that the
         // cache is updated (should be successfull)
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -400,12 +412,12 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    @Ignore ( "broken until authentication is fixed" )
     public void testMD5() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+        LdapContext ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
 
         // Check that we can get the attributes
         Attributes attrs = ctx.getAttributes( "" );
@@ -422,7 +434,8 @@ public class SimpleAuthenticationIT
 
         try
         {
-            ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+            ctx = new ServerLdapContext( service, 
+                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )
@@ -438,14 +451,16 @@ public class SimpleAuthenticationIT
         }
 
         // try again now with new password (should be successfull)
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
 
         // try again now with new password, to check that the
         // cache is updated (should be successfull)
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -453,12 +468,12 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    @Ignore ( "broken until authentication is fixed" )
     public void testSMD5() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+        LdapContext ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
 
         // Check that we can get the attributes
         Attributes attrs = ctx.getAttributes( "" );
@@ -475,7 +490,8 @@ public class SimpleAuthenticationIT
 
         try
         {
-            ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+            ctx = new ServerLdapContext( service, 
+                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )
@@ -491,14 +507,16 @@ public class SimpleAuthenticationIT
         }
 
         // try again now with new password (should be successfull)
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
 
         // try again now with new password, to check that the
         // cache is updated (should be successfull)
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -506,12 +524,12 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    @Ignore ( "broken until authentication is fixed" )
     public void testCRYPT() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+        LdapContext ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
 
         // Check that we can get the attributes
         Attributes attrs = ctx.getAttributes( "" );
@@ -528,7 +546,8 @@ public class SimpleAuthenticationIT
 
         try
         {
-            ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+            ctx = new ServerLdapContext( service, 
+                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )
@@ -544,14 +563,16 @@ public class SimpleAuthenticationIT
         }
 
         // try again now with new password (should be successfull)
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
 
         // try again now with new password, to check that the
         // cache is updated (should be successfull)
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) ); 
         attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
@@ -559,19 +580,20 @@ public class SimpleAuthenticationIT
 
 
     @Test
-    @Ignore ( "broken until authentication is fixed" )
     public void testInvalidateCredentialCacheForUpdatingAnotherUsersPassword() throws Exception
     {
         apply( getRootDSE(), getUserAddLdif() );
 
         // bind as akarasulu
         String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+        LdapContext ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
         ctx.close();
 
         // bind as admin
         userDn = "uid=admin,ou=system";
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
 
         // now modify the password for akarasulu (while we're admin)
         AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "newpwd" );
@@ -581,7 +603,8 @@ public class SimpleAuthenticationIT
 
         try
         {
-            ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+            ctx = new ServerLdapContext( service, 
+                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
             fail( "Authentication with old password should fail" );
         }
         catch ( Exception e )

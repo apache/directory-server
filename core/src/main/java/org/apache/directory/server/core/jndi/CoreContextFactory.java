@@ -46,16 +46,7 @@ public class CoreContextFactory implements InitialContextFactory
     public synchronized Context getInitialContext( Hashtable env ) throws NamingException
     {
         env = ( Hashtable<String, Object> ) env.clone();
-        LdapDN principalDn = null;
-        if ( env.containsKey( Context.SECURITY_PRINCIPAL ) )
-        {
-            if ( env.get( Context.SECURITY_PRINCIPAL ) instanceof LdapDN )
-            {
-                principalDn = ( LdapDN ) env.get( Context.SECURITY_PRINCIPAL );
-            }
-        }
-
-        String principal = getPrincipal( env );
+        LdapDN principalDn = new LdapDN( getPrincipal( env ) );
         byte[] credential = getCredential( env );
         String authentication = getAuthentication( env );
         String providerUrl = getProviderUrl( env );
