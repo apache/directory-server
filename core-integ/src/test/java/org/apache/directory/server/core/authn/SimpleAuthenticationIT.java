@@ -22,6 +22,8 @@ package org.apache.directory.server.core.authn;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
+
 import static org.apache.directory.server.core.integ.IntegrationUtils.*;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -131,11 +133,11 @@ public class SimpleAuthenticationIT
      * @throws NamingException if there are failures
      */
     @Test
-    @Ignore ( "broken until authentication is fixed" )
     public void testAdminAccountCreation() throws Exception
     {
         String userDn = "uid=admin,ou=system";
-        LdapContext ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", "ou=system" );
+        LdapContext ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( "ou=system" ) );
         Attributes attrs = ctx.getAttributes( "uid=admin" );
         performAdminAccountChecks( attrs );
         assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), StringTools.getBytesUtf8( "secret" ) ) );
@@ -144,7 +146,8 @@ public class SimpleAuthenticationIT
         service.shutdown();
         service.startup();
 
-        ctx = null; // TODO service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", "ou=system" );
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( "ou=system" ) );
         attrs = ctx.getAttributes( "uid=admin" );
         performAdminAccountChecks( attrs );
         assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), StringTools.getBytesUtf8( "secret" ) ) );

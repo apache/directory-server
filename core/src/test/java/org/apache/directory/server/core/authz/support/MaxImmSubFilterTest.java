@@ -777,6 +777,12 @@ public class MaxImmSubFilterTest
         {
             return null;
         }
+
+        public CoreSession getAdminSession() throws Exception
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
     

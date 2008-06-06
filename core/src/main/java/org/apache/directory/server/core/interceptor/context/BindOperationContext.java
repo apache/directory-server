@@ -33,6 +33,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -91,6 +92,22 @@ public class BindOperationContext implements OperationContext
         this.session = session;
     }
 
+    
+    public AuthenticationLevel getAuthenticationLevel()
+    {
+        if ( saslMechanism == null && dn.isEmpty() )
+        {
+            return AuthenticationLevel.NONE;
+        }
+        
+        if ( saslMechanism != null )
+        {
+            return AuthenticationLevel.STRONG;
+        }
+        
+        return AuthenticationLevel.SIMPLE;
+    }
+    
     
     /**
      * @return the SASL mechanisms

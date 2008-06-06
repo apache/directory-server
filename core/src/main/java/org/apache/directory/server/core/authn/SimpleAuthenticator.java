@@ -35,12 +35,14 @@ import javax.naming.NamingException;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
@@ -101,12 +103,14 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     
     /** Declare a default for this cache. 100 entries seems to be enough */
     private static final int DEFAULT_CACHE_SIZE = 100;
-
+    
     /**
      * Define the interceptors we should *not* go through when we will have to request the backend
      * about a userPassword.
      */
     private static final Collection<String> USERLOOKUP_BYPASS;
+    
+    
     static
     {
         Set<String> c = new HashSet<String>();
@@ -136,6 +140,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         credentialCache = new LRUMap( DEFAULT_CACHE_SIZE );
     }
 
+    
     /**
      * Creates a new instance, with an initial cache size
      * @param cacheSize the size of the credential cache
@@ -147,6 +152,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         credentialCache = new LRUMap( cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE );
     }
 
+    
     /**
      * A private class to store all informations about the existing
      * password found in the cache or get from the backend.
@@ -176,6 +182,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         	this.salt = salt;
         }
     }
+    
     
     /**
      * Get the password either from cache or from backend.
@@ -326,12 +333,14 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
     
+    
     private static void split( byte[] all, int offset, byte[] left, byte[] right )
     {
         System.arraycopy( all, offset, left, 0, left.length );
         System.arraycopy( all, offset + left.length, right, 0, right.length );
     }
 
+    
     /**
      * Decopose the stored password in an algorithm, an eventual salt
      * and the password itself.
@@ -402,6 +411,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
     
+    
     /**
      * Get the algorithm from the stored password. 
      * It can be found on the beginning of the stored password, between 
@@ -457,6 +467,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
 
+    
     /**
      * Compute the hashed password given an algorithm, the credentials and 
      * an optional salt.
@@ -491,6 +502,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
 
+    
     private byte[] encryptPassword( byte[] credentials, EncryptionMethod encryptionMethod )
     {
         byte[] salt = encryptionMethod.salt;
@@ -527,6 +539,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
 
+    
     /**
      * Local function which request the password from the backend
      * @param principalDn the principal to lookup
@@ -540,7 +553,17 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         try
         {
-            userEntry = opContext.lookup( opContext.getDn(), USERLOOKUP_BYPASS );
+            /*
+             * NOTE: at this point the BindOperationContext does not has a 
+             * null session since the user has not yet authenticated so we
+             * cannot use opContext.lookup() yet.  This is a very special
+             * case where we cannot rely on the opContext to perform a new
+             * sub operation.
+             */
+            LookupOperationContext lookupContext = 
+                new LookupOperationContext( getDirectoryService().getAdminSession(), opContext.getDn() );
+            lookupContext.setByPassed( USERLOOKUP_BYPASS );
+            userEntry = getDirectoryService().getOperationManager().lookup( lookupContext );
 
             if ( userEntry == null )
             {
@@ -580,6 +603,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
 
+    
     /**
      * Get the algorithm of a password, which is stored in the form "{XYZ}...".
      * The method returns null, if the argument is not in this form. It returns
@@ -675,6 +699,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
 
+    
     /**
      * Remove the principal form the cache. This is used when the user changes
      * his password.

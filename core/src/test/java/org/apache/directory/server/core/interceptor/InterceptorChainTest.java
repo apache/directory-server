@@ -589,5 +589,11 @@ public class InterceptorChainTest extends TestCase
         {
             return null;
         }
+
+
+        public CoreSession getAdminSession() throws Exception
+        {
+            return null;
+        }
     }
 }

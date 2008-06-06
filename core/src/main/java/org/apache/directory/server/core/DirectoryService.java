@@ -138,6 +138,9 @@ public interface DirectoryService extends ServerEntryFactory
     boolean isStarted();
 
     
+    CoreSession getAdminSession() throws Exception;
+    
+    
     /**
      * Gets a logical session to perform operations on this DirectoryService
      * as the anonymous user.  This bypasses authentication without 

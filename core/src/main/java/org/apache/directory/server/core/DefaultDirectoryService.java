@@ -571,6 +571,12 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
     
+    public CoreSession getAdminSession()
+    {
+        return adminSession;
+    }
+    
+    
     public CoreSession getSession() 
     {
         return new DefaultCoreSession( new LdapPrincipal(), this );

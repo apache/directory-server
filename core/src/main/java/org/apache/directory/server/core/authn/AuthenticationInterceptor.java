@@ -417,7 +417,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
         
         // pick the first matching authenticator type
-        Collection<Authenticator> authenticators = getAuthenticators( opContext.getSaslMechanism() );
+        Collection<Authenticator> authenticators = getAuthenticators( opContext.getAuthenticationLevel().getName() );
 
         if ( authenticators == null )
         {
