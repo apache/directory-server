@@ -166,7 +166,6 @@ public class BadSubentryServiceIT
     @Test
     public void testTrackingOfSubentryOperationals() throws Exception
     {
-        
         LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRoles();
         sysRoot.createSubcontext( "cn=collectiveAttributeTestSubentry",
