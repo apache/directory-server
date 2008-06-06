@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,7 +55,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.StringTools;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -202,7 +201,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Adding the entry {} for DN = '{}'", opContext.getEntry(), opContext.getDn().getUpName() );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -214,7 +213,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Deleting name = '{}'", opContext.getDn().getUpName() );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -227,7 +226,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Matching name = '{}'", opContext.getDn().getUpName() );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -239,7 +238,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Getting root DSE" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -251,7 +250,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Getting suffix for name = '{}'", opContext.getDn().getUpName() );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -263,7 +262,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Testing if entry name = '{}' exists", opContext.getDn().getUpName() );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -275,7 +274,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Listing base = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -287,7 +286,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Listing suffixes" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -299,16 +298,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            List<String> attrIds = opContext.getAttrsId();
-
-            if ( ( attrIds != null ) && ( attrIds.size() != 0 ) )
-            {
-                String attrs = StringTools.listToString( attrIds );
-                LOG.debug( "Lookup name = '" + opContext.getDn().getUpName() + "', attributes = " + attrs );
-            } else
-            {
-                LOG.debug( "Lookup name = '" + opContext.getDn().getUpName() + "', no attributes " );
-            }
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -335,7 +325,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( opContext.toString() );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -348,9 +338,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Modifying name = '" + opContext.getDn().getUpName() + "', new RDN = '" +
-                    opContext.getNewRdn() + "', " +
-                    "oldRDN = '" + opContext.getDelOldDn() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -364,10 +352,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Moving name = '" + opContext.getDn().getUpName() + "' to name = '" +
-                    opContext.getParent() + "', new RDN = '" +
-                    opContext.getNewRdn() + "', oldRDN = '" +
-                    opContext.getDelOldDn() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -380,8 +365,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Moving name = '" + opContext.getDn().getUpName() + " to name = '" +
-                    opContext.getParent().getUpName() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -394,7 +378,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Search for base = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         checkAuthenticated( opContext );
@@ -423,7 +407,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "bind: principal: " + opContext.getDn() );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
         if ( opContext.getSession() != null && opContext.getSession().getEffectivePrincipal() != null )
