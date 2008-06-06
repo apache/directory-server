@@ -20,6 +20,7 @@ package org.apache.directory.server.core.integ.state;
 
 
 import java.io.IOException;
+
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.integ.InheritableSettings;
@@ -33,26 +34,43 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A test service state where the server is running and has not been used for
- * any integration test since it was created.
+ * The state of a running test service which has been used for running
+ * integration tests and has been reverted to contain the same content as it
+ * did when created and started.  It is not really pristine however for all
+ * practical purposes of integration testing it appears to be the same as
+ * when first started.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class StartedPristineState extends AbstractState
+public class StartedNormalState extends AbstractState
 {
-    private static final Logger LOG = LoggerFactory.getLogger( StartedPristineState.class );
+    private static final Logger LOG = LoggerFactory.getLogger( StartedNormalState.class );
 
 
     /**
      * 
-     * Creates a new instance of StartedPristineState.
+     * Creates a new instance of StartedNormalState.
      *
      * @param context the test's context
      */
-    public StartedPristineState( TestServiceContext context )
+    public StartedNormalState( TestServiceContext context )
     {
         super( context );
+    }
+
+
+    /**
+     * Action where an attempt is made to destroy the service. This
+     * entails nulling out reference to it and triggering garbage
+     * collection.
+     */
+    public void destroy()
+    {
+        LOG.debug( "calling destroy()" );
+        context.setService( null );
+        context.setState( context.getNonExistentState() );
+        System.gc();
     }
 
 
@@ -95,6 +113,20 @@ public class StartedPristineState extends AbstractState
 
 
     /**
+     * Action where an attempt is made to revert the service to it's
+     * initial start up state by using a previous snapshot.
+     *
+     * @throws Exception on failures to revert the state of the core
+     * directory service
+     */
+    public void revert() throws Exception
+    {
+        LOG.debug( "calling revert()" );
+        context.getService().revert();
+    }
+
+
+    /**
      * Action where an attempt is made to run a test against the service.
      *
      * All annotations should have already been processed for
@@ -119,40 +151,6 @@ public class StartedPristineState extends AbstractState
 
         switch ( settings.getMode() )
         {
-            case PRISTINE:
-                // Inject the LDIFs, if any 
-                injectLdifs( context.getService(), settings );
-                
-                TestServiceContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
-                
-                try
-                {
-                    shutdown();
-                }
-                catch ( Exception e )
-                {
-                    // @TODO - we might want to check the revision of the service before
-                    // we presume that it has been soiled.  Some tests may simply perform
-                    // some read operations or checks on the service and may not alter it
-                    notifier.testAborted( settings.getDescription(), e );
-                    return;
-                }
-                
-                try
-                {
-                    cleanup();
-                }
-                catch ( IOException ioe )
-                {
-                    LOG.error( "Failed to cleanup new server instance: " + ioe );
-                    notifier.testAborted( settings.getDescription(), ioe );
-                    return;
-                }
-
-                destroy();
-                context.setState( context.getNonExistentState() );
-                return;
-                
             case ROLLBACK:
                 try
                 {
@@ -171,11 +169,10 @@ public class StartedPristineState extends AbstractState
                 injectLdifs( context.getService(), settings );
                 
                 TestServiceContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
-                context.setState( context.getStartedNormalState() );
-
+                
                 try
                 {
-                    context.getState().revert();
+                    revert();
                 }
                 catch ( Exception e )
                 {
@@ -185,8 +182,42 @@ public class StartedPristineState extends AbstractState
                     notifier.testAborted( settings.getDescription(), e );
                     return;
                 }
+                
                 return;
+                
+            case RESTART :
+                // Inject the LDIFs, if any 
+                injectLdifs( context.getService(), settings );
+                
 
+                TestServiceContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
+
+                try
+                {
+                    shutdown();
+                }
+                catch ( Exception e )
+                {
+                    // @TODO - we might want to check the revision of the service before
+                    // we presume that it has been soiled.  Some tests may simply perform
+                    // some read operations or checks on the service and may not alter it
+                    notifier.testAborted( settings.getDescription(), e );
+                    return;
+                }
+                
+                try
+                {
+                    startup();
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( "Failed to create and start new server instance: " + e );
+                    notifier.testAborted( settings.getDescription(), e );
+                    return;
+                }
+                
+                return;
+                
             default:
                 return;
         }

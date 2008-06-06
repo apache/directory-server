@@ -18,11 +18,14 @@
  */
 package org.apache.directory.server.core.integ.state;
 
+
+import java.io.IOException;
+
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.InheritableSettings;
-import org.apache.directory.server.core.integ.SetupMode;
+import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
 import org.junit.runner.notification.RunNotifier;
@@ -36,56 +39,74 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NonExistentState implements TestServiceState
+public class NonExistentState extends AbstractState
 {
     private static final Logger LOG = LoggerFactory.getLogger( NonExistentState.class );
-    private final TestServiceContext context;
-    private static final String DESTROY_ERR = "Cannot destroy when service is in NonExistant state";
-    private static final String CLEANUP_ERROR = "Cannot cleanup when service is in NonExistant state";
-    private static final String STARTUP_ERR = "Cannot startup when service is in NonExistant state";
-    private static final String SHUTDOWN_ERR = "Cannot shutdown service in NonExistant state.";
-    private static final String REVERT_ERROR = "Cannot revert when service is in NonExistant state";
 
 
+    /**
+     * Creates a new instance of NonExistentState.
+     *
+     * @param context the test context
+     */
     public NonExistentState( TestServiceContext context )
     {
-        this.context = context;
+        super( context );
     }
 
 
-    public void create( DirectoryServiceFactory factory ) throws NamingException
+    /**
+     * Action where an attempt is made to create the service.  Service
+     * creation in this system is the combined instantiation and
+     * configuration which takes place when the factory is used to get
+     * a new instance of the service.
+     *
+     * @param settings The inherited settings
+     * @throws NamingException if we can't create the service
+     */
+    public void create( InheritableSettings settings ) throws NamingException
     {
         LOG.debug( "calling create()" );
-        context.setService( factory.newInstance() );
-        context.setState( context.getStoppedDirtyState() );
+
+        try
+        {
+            DirectoryServiceFactory factory = settings.getFactory();
+            context.setService( factory.newInstance() );
+        }
+        catch ( InstantiationException ie )
+        {
+            throw new NamingException( ie.getMessage() );
+        }
+        catch ( IllegalAccessException iae )
+        {
+            throw new NamingException( iae.getMessage() );
+        }
     }
 
 
-    public void destroy()
+    /**
+     * Action where an attempt is made to erase the contents of the
+     * working directory used by the service for various files including
+     * partition database files.
+     *
+     * @throws IOException on errors while deleting the working directory
+     */
+    public void cleanup() throws IOException
     {
-        LOG.error( DESTROY_ERR );
-        throw new IllegalStateException( DESTROY_ERR );
+        LOG.debug( "calling cleanup()" );
+        doDelete( context.getService().getWorkingDirectory() );
     }
 
 
-    public void cleanup()
+    /**
+     * Action where an attempt is made to start up the service.
+     *
+     * @throws Exception on failures to start the core directory service
+     */
+    public void startup() throws Exception
     {
-        LOG.error( CLEANUP_ERROR );
-        throw new IllegalStateException( CLEANUP_ERROR );
-    }
-
-
-    public void startup()
-    {
-        LOG.error( STARTUP_ERR );
-        throw new IllegalStateException( STARTUP_ERR );
-    }
-
-
-    public void shutdown()
-    {
-        LOG.error( SHUTDOWN_ERR );
-        throw new IllegalStateException( SHUTDOWN_ERR );
+        LOG.debug( "calling startup()" );
+        context.getService().startup();
     }
 
 
@@ -107,54 +128,87 @@ public class NonExistentState implements TestServiceState
      */
     public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
     {
-        LOG.debug( "calling test(): {}", settings.getDescription().getDisplayName() );
+        LOG.debug( "calling test(): {}, mode {}", settings.getDescription().getDisplayName(), settings.getMode() );
 
-        if ( settings.getMode() == SetupMode.NOSERVICE || testMethod.isIgnored() )
+        if ( testMethod.isIgnored() )
         {
-            // no state change here
-            TestServiceContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
+            // The test is ignored
             return;
         }
 
-        if ( settings.getMode() == SetupMode.RESTART || settings.getMode() == SetupMode.CUMULATIVE )
+        switch ( settings.getMode() )
         {
-            try
-            {
-                context.getState().create( settings.getFactory() );
-                context.getState().startup();
-            }
-            catch ( Exception e )
-            {
-                LOG.error( "Failed to create and start new server instance: " + e );
-                notifier.testAborted( settings.getDescription(), e );
+            case CUMULATIVE:
+            case RESTART:
+                try
+                {
+                    create( settings );
+                }
+                catch ( NamingException ne )
+                {
+                    LOG.error( "Failed to create and start new server instance: " + ne );
+                    notifier.testAborted( settings.getDescription(), ne );
+                    return;
+                }
+
+                try
+                {
+                    startup();
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( "Failed to create and start new server instance: " + e );
+                    notifier.testAborted( settings.getDescription(), e );
+                    return;
+                }
+
+                
+                context.setState( context.getStartedNormalState() );
+                context.getState().test( testClass, testMethod, notifier, settings );
                 return;
-            }
-        }
 
-        if ( settings.getMode() == SetupMode.PRISTINE || settings.getMode() == SetupMode.ROLLBACK )
-        {
-            try
-            {
-                context.getState().create( settings.getFactory() );
-                context.getState().cleanup();
-                context.getState().startup();
-            }
-            catch ( Exception e )
-            {
-                LOG.error( "Failed to create, cleanup and start new server instance: " + e );
-                notifier.testAborted( settings.getDescription(), e );
+
+            case PRISTINE:
+            case ROLLBACK:
+                try
+                {
+                    create( settings );
+                }
+                catch ( NamingException ne )
+                {
+                    LOG.error( "Failed to create and start new server instance: " + ne );
+                    notifier.testAborted( settings.getDescription(), ne );
+                    return;
+                }
+
+                try
+                {
+                    cleanup();
+                }
+                catch ( IOException ioe )
+                {
+                    LOG.error( "Failed to create and start new server instance: " + ioe );
+                    notifier.testAborted( settings.getDescription(), ioe );
+                    return;
+                }
+
+                try
+                {
+                    startup();
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( "Failed to create and start new server instance: " + e );
+                    notifier.testAborted( settings.getDescription(), e );
+                    return;
+                }
+
+                context.setState( context.getStartedPristineState() );
+                context.getState().test( testClass, testMethod, notifier, settings );
                 return;
-            }
+
+            default:
+                return;
         }
-
-        // state object what ever it is will change state so we just return
-        context.getState().test( testClass, testMethod, notifier, settings );
-    }
-
-
-    public void revert()
-    {
-        LOG.error( REVERT_ERROR );
-        throw new IllegalStateException( REVERT_ERROR );
     }
 }

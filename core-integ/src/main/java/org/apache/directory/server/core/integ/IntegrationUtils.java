@@ -19,12 +19,17 @@
 package org.apache.directory.server.core.integ;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -34,12 +39,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 
 
 /**
@@ -50,6 +51,7 @@ import java.util.List;
  */
 public class IntegrationUtils
 {
+    /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger( IntegrationUtils.class );
 
 
@@ -156,9 +158,11 @@ public class IntegrationUtils
             case( ChangeType.ADD_ORDINAL ):
                 root.createSubcontext( dn, entry.getAttributes() );
                 break;
+                
             case( ChangeType.DELETE_ORDINAL ):
                 root.destroySubcontext( entry.getDn() );
                 break;
+                
             case( ChangeType.MODDN_ORDINAL ):
                 LdapDN target = new LdapDN( entry.getNewSuperior() );
                 if ( entry.getNewRdn() != null )
@@ -181,6 +185,7 @@ public class IntegrationUtils
 
                 root.rename( dn, target );
                 break;
+                
             case( ChangeType.MODRDN_ORDINAL ):
                 target = ( LdapDN ) dn.clone();
                 target.remove( dn.size() - 1 );
@@ -197,6 +202,7 @@ public class IntegrationUtils
 
                 root.rename( dn, target );
                 break;
+
             case( ChangeType.MODIFY_ORDINAL ):
                 root.modifyAttributes( dn, entry.getModificationItemsArray() );
                 break;

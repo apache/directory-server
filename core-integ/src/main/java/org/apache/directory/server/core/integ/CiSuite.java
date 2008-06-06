@@ -19,17 +19,17 @@
 package org.apache.directory.server.core.integ;
 
 
-import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
+import java.util.List;
+
 import static org.apache.directory.server.core.integ.state.TestServiceContext.cleanup;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.destroy;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
 import org.junit.internal.requests.IgnoredClassRunner;
 import org.junit.internal.runners.InitializationError;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
-
-import java.util.List;
 
 
 /**

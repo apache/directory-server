@@ -18,14 +18,13 @@
  */
 package org.apache.directory.server.core.integ.state;
 
-import org.apache.directory.server.core.integ.DirectoryServiceFactory;
+import java.io.IOException;
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.integ.InheritableSettings;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
 import org.junit.runner.notification.RunNotifier;
-
-import javax.naming.NamingException;
-import java.io.IOException;
 
 
 /**
@@ -43,13 +42,14 @@ public interface TestServiceState
      * configuration which takes place when the factory is used to get
      * a new instance of the service.
      *
-     * @param factory the factory to use for creating a configured service
+     * @param settings The inherited settings
+     * @throws NamingException if we can't create the service
      */
-    void create( DirectoryServiceFactory factory ) throws NamingException;
+    void create( InheritableSettings settings ) throws NamingException;
 
 
     /**
-     * Action where an attempt is made to destroy the service.  This
+     * Action where an attempt is made to destroy the service. This
      * entails nulling out reference to it and triggering garbage
      * collection.
      */
@@ -69,7 +69,7 @@ public interface TestServiceState
     /**
      * Action where an attempt is made to start up the service.
      *
-     * @throws NamingException on failures to start the core directory service
+     * @throws Exception on failures to start the core directory service
      */
     void startup() throws Exception;
 
@@ -77,7 +77,7 @@ public interface TestServiceState
     /**
      * Action where an attempt is made to shutdown the service.
      *
-     * @throws NamingException on failures to stop the core directory service
+     * @throws Exception on failures to stop the core directory service
      */
     void shutdown() throws Exception;
 
@@ -102,7 +102,7 @@ public interface TestServiceState
      * Action where an attempt is made to revert the service to it's
      * initial start up state by using a previous snapshot.
      *
-     * @throws NamingException on failures to revert the state of the core
+     * @throws Exception on failures to revert the state of the core
      * directory service
      */
     void revert() throws Exception;

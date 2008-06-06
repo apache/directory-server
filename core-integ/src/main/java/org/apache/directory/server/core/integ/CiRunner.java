@@ -19,11 +19,12 @@
 package org.apache.directory.server.core.integ;
 
 
-//port static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
+import java.lang.reflect.Method;
+
 import static org.apache.directory.server.core.integ.state.TestServiceContext.cleanup;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.destroy;
-import static org.apache.directory.server.core.integ.state.TestServiceContext.test;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.test;
 import org.junit.internal.runners.InitializationError;
 import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.Description;
@@ -31,8 +32,6 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Method;
 
 
 /**
@@ -75,6 +74,7 @@ public class CiRunner extends JUnit4ClassRunner
     {
         super.run( notifier );
         Level cleanupLevel = getSettings().getCleanupLevel();
+        
         if ( cleanupLevel == Level.CLASS )
         {
             try
@@ -101,6 +101,7 @@ public class CiRunner extends JUnit4ClassRunner
         test( getTestClass(), wrapMethod( method ), notifier, new InheritableSettings( description, getSettings() ) );
 
         Level cleanupLevel = getSettings().getCleanupLevel();
+        
         if ( cleanupLevel == Level.METHOD )
         {
             try
