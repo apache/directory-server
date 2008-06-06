@@ -739,6 +739,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
+                    serverEntry.setDn( base );
                     return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
                 }
                 else
@@ -755,6 +756,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
+                    serverEntry.setDn( base );
                     EntryFilteringCursor cursor = new BaseEntryFilteringCursor( 
                         new SingletonCursor<ServerEntry>( serverEntry ), opContext );
                     return cursor;
