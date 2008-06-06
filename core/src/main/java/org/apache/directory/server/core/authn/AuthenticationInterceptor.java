@@ -190,7 +190,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if ( ( result != null ) && ( result.size() > 0 ) )
         {
             return result;
-        } else
+        } 
+        else
         {
             return null;
         }
@@ -201,9 +202,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Adding the entry " +
-                    opContext.getEntry() +
-                    " for DN = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Adding the entry {} for DN = '{}'", opContext.getEntry(), opContext.getDn().getUpName() );
         }
 
         checkAuthenticated( opContext );
@@ -215,7 +214,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Deleting name = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Deleting name = '{}'", opContext.getDn().getUpName() );
         }
 
         checkAuthenticated( opContext );
@@ -228,7 +227,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Matching name = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Matching name = '{}'", opContext.getDn().getUpName() );
         }
 
         checkAuthenticated( opContext );
@@ -252,7 +251,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Getting suffix for name = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Getting suffix for name = '{}'", opContext.getDn().getUpName() );
         }
 
         checkAuthenticated( opContext );
@@ -264,7 +263,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Testing if entry name = '" + opContext.getDn().getUpName() + "' exists" );
+            LOG.debug( "Testing if entry name = '{}' exists", opContext.getDn().getUpName() );
         }
 
         checkAuthenticated( opContext );

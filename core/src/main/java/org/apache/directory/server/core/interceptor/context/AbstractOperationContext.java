@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -58,7 +59,13 @@ public abstract class AbstractOperationContext implements OperationContext
     /** the Interceptors bypassed by this operation */
     private Collection<String> bypassed;
     
+    private LdapPrincipal authorizedPrincipal;
+    
     private CoreSession session;
+    
+    private OperationContext next;
+    
+    private OperationContext previous;
 
 
     /**
@@ -304,5 +311,61 @@ public abstract class AbstractOperationContext implements OperationContext
         LookupOperationContext opContext = newLookupContext( dn );
         opContext.setByPassed( byPassed );
         return session.getDirectoryService().getOperationManager().lookup( opContext );
+    }
+    
+
+    public LdapPrincipal getEffectivePrincipal()
+    {
+        if ( authorizedPrincipal != null )
+        {
+            return authorizedPrincipal;
+        }
+        
+        return session.getEffectivePrincipal();
+    }
+    
+    
+    // -----------------------------------------------------------------------
+    // OperationContext Linked List Methods
+    // -----------------------------------------------------------------------
+    
+    
+    public boolean isFirstOperation()
+    {
+        return previous == null;
+    }
+    
+    
+    public OperationContext getFirstOperation()
+    {
+        if ( previous == null )
+        {
+            return this;
+        }
+        
+        return previous.getFirstOperation();
+    }
+    
+    
+    public OperationContext getLastOperation()
+    {
+        if ( next == null )
+        {
+            return this;
+        }
+        
+        return next.getLastOperation();
+    }
+    
+    
+    public OperationContext getNextOperation()
+    {
+        return next;
+    }
+    
+    
+    public OperationContext getPreviousOperation()
+    {
+        return previous;
     }
 }

@@ -25,7 +25,9 @@ import java.util.Collection;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -39,21 +41,61 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface OperationContext
 {
     /**
-     * Checks to see if this operation is an indirect system issued operation.
-     * Collateral operations often result from direct operations.
-     *
-     * @return true if the operation represents a collateral request
+     * Checks to see if this operation is the first operation in a chain of 
+     * operations performed on the DirectoryService.  The first operation in  
+     * a sequence of operations, is not a byproduct of another operation 
+     * unlike operations following in the sequence.  The other operations 
+     * following the first, occur as a side effect to complete this first 
+     * operation.
+     * 
+     * @return true if the operation is the first, false otherwise
      */
-    boolean isCollateralOperation();
+    boolean isFirstOperation();
+    
+    
+    /**
+     * Gets the first, direct operation issued against the DirectoryService.
+     *
+     * @return the first, direct operation issued 
+     */
+    OperationContext getFirstOperation();
+    
+    
+    /**
+     * Gets the previous, operation issued on the DirectoryService.
+     *
+     * @return the previous, operation issued
+     */
+    OperationContext getPreviousOperation();
+    
+    
+    /**
+     * Gets the next, indirect operation issued on the DirectoryService.
+     *
+     * @return the next, indirect operation issued 
+     */
+    OperationContext getNextOperation();
+    
+    
+    /**
+     * Gets the last, operation issued on the DirectoryService.
+     *
+     * @return the last, operation issued
+     */
+    OperationContext getLastOperation();
 
 
     /**
-     * Sets this operation context to represent an operation that results as a
-     * byproduct of another directly issued request.
-     *
-     * @param collateralOperation true if this is collateral, false otherwise
+     * Gets the effective principal for this operation which may not be the 
+     * same as the authenticated principal when the session for this context
+     * has an explicit authorization id, or this operation was applied with 
+     * the proxy authorization control.
+     * 
+     * @see CoreSession#getAuthenticatedPrincipal()
+     * @see CoreSession#getEffectivePrincipal()
+     * @return the effective principal for this operation
      */
-    void setCollateralOperation( boolean collateralOperation );
+    LdapPrincipal getEffectivePrincipal();
 
 
     /**
@@ -221,4 +263,13 @@ public interface OperationContext
     
     
     ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
+    
+    
+//    AddOperationContext newAddContext( ServerEntry entry );
+//    
+//    
+//    void add( ServerEntry entry, Collection<String> bypass ) throws Exception;
+//    
+//    
+//    void add( AddOperationContext addContext ) throws Exception;
 }

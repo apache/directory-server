@@ -382,6 +382,48 @@ public class MaxImmSubFilterTest
             // TODO Auto-generated method stub
             
         }
+
+
+        public LdapPrincipal getEffectivePrincipal()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public OperationContext getFirstOperation()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public OperationContext getLastOperation()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public OperationContext getNextOperation()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public OperationContext getPreviousOperation()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public boolean isFirstOperation()
+        {
+            // TODO Auto-generated method stub
+            return false;
+        }
     }
 
     class MockDirectoryService implements DirectoryService
