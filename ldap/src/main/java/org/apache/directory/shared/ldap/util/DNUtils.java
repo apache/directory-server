@@ -19,14 +19,12 @@
  */
 package org.apache.directory.shared.ldap.util;
 
-import org.apache.directory.shared.ldap.util.Position;
-import org.apache.directory.shared.ldap.util.StringTools;
-
 
 /**
  * Utility class used by the LdapDN Parser.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class DNUtils
 {
@@ -123,28 +121,52 @@ public class DNUtils
         };
 
     /**
-     * ' ' | '"' | '#' | '+' | ',' | [0-9] | ';' | '<' | '=' | '>' | [A-F] | '\' |
-     * [a-f] 0x22 | 0x23 | 0x2B | 0x2C | [0x30-0x39] | 0x3B | 0x3C | 0x3D | 0x3E |
+     * ' ' | '"' | '#' | '+' | ',' | [0-9] | ';' | '<' | '=' | '>' | [A-F] | '\' | [a-f]
+     * 0x22 | 0x23 | 0x2B | 0x2C | [0x30-0x39] | 0x3B | 0x3C | 0x3D | 0x3E |
      * [0x41-0x46] | 0x5C | [0x61-0x66]
      */
     private static final boolean[] PAIR_CHAR =
         { 
-            false, false, false, false, false, false, false, false, 
-            false, false, false, false, false, false, false, false, 
-            false, false, false, false, false, false, false, false, 
-            false, false, false, false, false, false, false, false, 
-            true,  false, true,  true,  false, false, false, false, 
-            false, false, false, true,  true,  false, false, false, 
-            true,  true,  true,  true,  true,  true,  true,  true, 
-            true,  true,  false, true,  true,  true,  true,  false, 
-            false, true,  true,  true,  true,  true,  true,  false, 
-            false, false, false, false, false, false, false, false, 
-            false, false, false, false, false, false, false, false, 
-            false, false, false, false, true,  false, false, false, 
-            false, true,  true,  true,  true,  true,  true,  false, 
-            false, false, false, false, false, false, false, false, 
-            false, false, false, false, false, false, false, false, 
-            false, false, false, false, false, false, false, false 
+            false, false, false, false, false, false, false, false, // 00 -> 07
+            false, false, false, false, false, false, false, false, // 08 -> 0F
+            false, false, false, false, false, false, false, false, // 10 -> 17
+            false, false, false, false, false, false, false, false, // 18 -> 1F
+            true,  false, true,  true,  false, false, false, false, // 20 -> 27 ( ' ', '"', '#' )
+            false, false, false, true,  true,  false, false, false, // 28 -> 2F ( '+', ',' )
+            true,  true,  true,  true,  true,  true,  true,  true,  // 30 -> 37 ( '0'..'7' )
+            true,  true,  false, true,  true,  true,  true,  false, // 38 -> 3F ( '8', '9', ';', '<', '=', '>' ) 
+            false, true,  true,  true,  true,  true,  true,  false, // 40 -> 47 ( 'A', 'B', 'C', 'D', 'E', 'F' )
+            false, false, false, false, false, false, false, false, // 48 -> 4F
+            false, false, false, false, false, false, false, false, // 50 -> 57
+            false, false, false, false, true,  false, false, false, // 58 -> 5F ( '\' )
+            false, true,  true,  true,  true,  true,  true,  false, // 60 -> 67 ( 'a', 'b', 'c', 'd', 'e', 'f' )
+            false, false, false, false, false, false, false, false, // 68 -> 6F
+            false, false, false, false, false, false, false, false, // 70 -> 77
+            false, false, false, false, false, false, false, false  // 78 -> 7F
+        };
+
+    /**
+     * ' ' | '"' | '#' | '+' | ',' | ';' | '<' | '=' | '>' | '\' |
+     * 0x22 | 0x23 | 0x2B | 0x2C | 0x3B | 0x3C | 0x3D | 0x3E | 0x5C
+     */
+    private static final boolean[] PAIR_CHAR_ONLY =
+        { 
+            false, false, false, false, false, false, false, false, // 00 -> 07
+            false, false, false, false, false, false, false, false, // 08 -> 0F
+            false, false, false, false, false, false, false, false, // 10 -> 17
+            false, false, false, false, false, false, false, false, // 18 -> 1F
+            true,  false, true,  true,  false, false, false, false, // 20 -> 27 ( ' ', '"', '#' )
+            false, false, false, true,  true,  false, false, false, // 28 -> 2F ( '+', ',' )
+            false, false, false, false, false, false, false, false, // 30 -> 37
+            false, false, false, true,  true,  true,  true,  false, // 38 -> 3F ( ';', '<', '=', '>' ) 
+            false, false, false, false, false, false, false, false, // 40 -> 47
+            false, false, false, false, false, false, false, false, // 48 -> 4F
+            false, false, false, false, false, false, false, false, // 50 -> 57
+            false, false, false, false, true,  false, false, false, // 58 -> 5F ( '\' )
+            false, false, false, false, false, false, false, false, // 60 -> 67
+            false, false, false, false, false, false, false, false, // 68 -> 6F
+            false, false, false, false, false, false, false, false, // 70 -> 77
+            false, false, false, false, false, false, false, false  // 78 -> 7F
         };
 
     /**
@@ -202,7 +224,7 @@ public class DNUtils
         {
             byte c = bytes[index];
 
-            if ( ( ( c | 0x7F ) != 0x7F ) || ( SAFE_INIT_CHAR[c] == false ) )
+            if ( ( ( c | 0x7F ) != 0x7F ) || ( !SAFE_INIT_CHAR[c] ) )
             {
                 return -1;
             }
@@ -213,7 +235,7 @@ public class DNUtils
             {
                 c = bytes[index];
 
-                if ( ( ( c | 0x7F ) != 0x7F ) || ( SAFE_CHAR[c] == false ) )
+                if ( ( ( c | 0x7F ) != 0x7F ) || ( !SAFE_CHAR[c] ) )
                 {
                     break;
                 }
@@ -244,13 +266,13 @@ public class DNUtils
         {
             byte b = bytes[index++];
 
-            if ( StringTools.isAlpha( b ) == false )
+            if ( StringTools.isAlpha( b ) )
             {
-                return -1;
+                return index-1;
             }
             else
             {
-                return index;
+                return -1;
             }
         }
     }
@@ -274,19 +296,23 @@ public class DNUtils
         {
             byte c = bytes[index];
 
-            if ( ( ( c | 0x7F ) != 0x7F )  || ( PAIR_CHAR[c] == false ) )
+            if ( ( ( c | 0x7F ) != 0x7F )  || ( !PAIR_CHAR[c] ) )
             {
                 return false;
             }
             else
             {
-                if ( StringTools.isHex( bytes, index++ ) )
+                if ( PAIR_CHAR_ONLY[c] )
+                {
+                    return true;
+                }
+                else if ( StringTools.isHex( bytes, index++ ) )
                 {
                     return StringTools.isHex( bytes, index );
                 }
                 else
                 {
-                    return true;
+                    return false;
                 }
             }
         }
@@ -320,19 +346,23 @@ public class DNUtils
         {
             byte c = bytes[index];
 
-            if ( ( ( c | 0x7F ) != 0x7F )  || ( PAIR_CHAR[c] == false ) )
+            if ( ( ( c | 0x7F ) != 0x7F )  || ( !PAIR_CHAR[c] ) )
             {
                 return PARSING_ERROR;
             }
             else
             {
-                if ( StringTools.isHex( bytes, index++ ) )
+                if ( PAIR_CHAR_ONLY[c] )
+                {
+                    return 1;
+                }
+                else if ( StringTools.isHex( bytes, index++ ) )
                 {
                     return StringTools.isHex( bytes, index ) ? 2 : PARSING_ERROR;
                 }
                 else
                 {
-                    return 1;
+                    return PARSING_ERROR;
                 }
             }
         }
@@ -532,7 +562,7 @@ public class DNUtils
         {
             byte c = bytes[index];
 
-            if ( ( ( c | 0x7F ) != 0x7F )  || ( BASE64_CHAR[c] == false ) )
+            if ( ( ( c | 0x7F ) != 0x7F )  || ( !BASE64_CHAR[c] ) )
             {
                 return -1;
             }
@@ -543,7 +573,7 @@ public class DNUtils
             {
                 c = bytes[index];
 
-                if ( ( ( c | 0x7F ) != 0x7F )  || ( BASE64_CHAR[c] == false ) )
+                if ( ( ( c | 0x7F ) != 0x7F )  || ( !BASE64_CHAR[c] ) )
                 {
                     break;
                 }
