@@ -73,21 +73,6 @@ public class ModifyOperationContext extends AbstractOperationContext
 
 
     /**
-     * Creates a new instance of ModifyOperationContext.
-     *
-     * @param dn the dn of the entry to be modified
-     * @param modItems the modifications to be performed on the entry
-     * @param collateralOperation true if op is collateral, false otherwise
-     */
-    public ModifyOperationContext( CoreSession session, LdapDN dn, 
-        List<Modification> modItems, boolean collateralOperation )
-    {
-        super( session, dn, collateralOperation );
-        this.modItems = modItems;
-    }
-
-
-    /**
      * Set the modified attributes
      * @param modItems The modified attributes
      */

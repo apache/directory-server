@@ -46,34 +46,11 @@ public class DeleteOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of DeleteOperationContext.
      *
-     * @param collateralOperation true if this is a side effect operation
-     */
-    public DeleteOperationContext( CoreSession session, boolean collateralOperation )
-    {
-        super( session, collateralOperation );
-    }
-
-
-    /**
-     * Creates a new instance of DeleteOperationContext.
-     *
      * @param deleteDn The entry DN to delete
      */
     public DeleteOperationContext( CoreSession session, LdapDN deleteDn )
     {
         super( session, deleteDn );
-    }
-
-
-    /**
-     * Creates a new instance of DeleteOperationContext.
-     *
-     * @param deleteDn The entry DN to delete
-     * @param collateralOperation true if this is a side effect operation
-     */
-    public DeleteOperationContext( CoreSession session, LdapDN deleteDn, boolean collateralOperation )
-    {
-        super( session, deleteDn, collateralOperation );
     }
 
 

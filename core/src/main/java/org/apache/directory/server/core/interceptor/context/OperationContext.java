@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.naming.ldap.Control;
 
@@ -28,6 +29,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -265,11 +267,17 @@ public interface OperationContext
     ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
     
     
+    void modify( LdapDN dn, List<Modification> mods, Collection<String> bypass ) throws Exception;
+    
+    
+    void add( ServerEntry entry, Collection<String> bypass ) throws Exception;
+    
+    
+    void delete( LdapDN dn, Collection<String> bypass ) throws Exception;
+    
+    
 //    AddOperationContext newAddContext( ServerEntry entry );
-//    
-//    
-//    void add( ServerEntry entry, Collection<String> bypass ) throws Exception;
-//    
-//    
+    
+    
 //    void add( AddOperationContext addContext ) throws Exception;
 }

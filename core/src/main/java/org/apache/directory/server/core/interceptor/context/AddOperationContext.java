@@ -68,38 +68,15 @@ public class AddOperationContext extends AbstractOperationContext
 
 
     /**
-     * Creates a new instance of AddOperationContext.
-     *
-     * @param collateralOperation whether or not this is a side-effect
-     */
-    public AddOperationContext( CoreSession session, boolean collateralOperation )
-    {
-        super( session, collateralOperation );
-    }
-
-
-    /**
-     * Creates a new instance of AddOperationContext.
-     *
-     * @param dn the name of the entry being added
-     * @param collateralOperation whether or not this is a side-effect
-     */
-    public AddOperationContext( CoreSession session, LdapDN dn, boolean collateralOperation )
-    {
-        super( session, dn, collateralOperation );
-    }
-
-
-    /**
      * Creates a new instance of ModifyOperationContext.
      *
      * @param dn the name of the entry being added
      * @param entry the entry being added
      * @param collateralOperation whether or not this is a side-effect
      */
-    public AddOperationContext( CoreSession session, LdapDN dn, ServerEntry entry, boolean collateralOperation )
+    public AddOperationContext( CoreSession session, LdapDN dn, ServerEntry entry )
     {
-        super( session, dn, collateralOperation );
+        super( session, dn );
         this.entry = entry;
     }
 

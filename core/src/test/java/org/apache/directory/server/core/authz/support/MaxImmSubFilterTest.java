@@ -65,6 +65,7 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -182,21 +183,21 @@ public class MaxImmSubFilterTest
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, 
             PROTECTED_ITEMS, EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
-        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, new MockProxy( 1 ), null, null, null,
+        assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, new MockOperation( 1 ), null, null, null,
             null, ENTRY_NAME, null, null, ENTRY, null, null ).size() );
 
-        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, new MockProxy( 3 ), null, null, null,
+        assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, new MockOperation( 3 ), null, null, null,
             null, ENTRY_NAME, null, null, ENTRY, null, null ).size() );
     }
 
     
-    class MockProxy implements OperationContext
+    class MockOperation implements OperationContext
     {
         final int count;
         final CoreSession session; 
 
 
-        public MockProxy( int count ) throws Exception 
+        public MockOperation( int count ) throws Exception 
         {
             this.count = count;
             this.session = new DefaultCoreSession( new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), 
@@ -423,6 +424,27 @@ public class MaxImmSubFilterTest
         {
             // TODO Auto-generated method stub
             return false;
+        }
+
+
+        public void add( ServerEntry entry, Collection<String> bypass ) throws Exception
+        {
+            // TODO Auto-generated method stub
+            
+        }
+
+
+        public void delete( LdapDN dn, Collection<String> bypass ) throws Exception
+        {
+            // TODO Auto-generated method stub
+            
+        }
+
+
+        public void modify( LdapDN dn, List<Modification> mods, Collection<String> bypass ) throws Exception
+        {
+            // TODO Auto-generated method stub
+            
         }
     }
 

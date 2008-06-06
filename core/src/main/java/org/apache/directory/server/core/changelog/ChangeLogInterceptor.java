@@ -85,12 +85,13 @@ public class ChangeLogInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
     // Overridden (only change inducing) intercepted methods
     // -----------------------------------------------------------------------
+    
 
     public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         next.add( opContext );
 
-        if ( ! changeLog.isEnabled() || opContext.isCollateralOperation() )
+        if ( ! changeLog.isEnabled() || ! opContext.isFirstOperation() )
         {
             return;
         }
@@ -123,14 +124,14 @@ public class ChangeLogInterceptor extends BaseInterceptor
         // must save the entry if change log is enabled
         ServerEntry serverEntry = null;
 
-        if ( changeLog.isEnabled() && ! opContext.isCollateralOperation() )
+        if ( changeLog.isEnabled() && opContext.isFirstOperation() )
         {
             serverEntry = getAttributes( opContext );
         }
 
         next.delete( opContext );
 
-        if ( ! changeLog.isEnabled() || opContext.isCollateralOperation() )
+        if ( ! changeLog.isEnabled() || ! opContext.isFirstOperation() )
         {
             return;
         }
@@ -175,7 +176,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         Modification modification = ServerEntryUtils.getModificationItem( opContext.getModItems(), entryDeleted );
         boolean isDelete = ( modification != null );
 
-        if ( ! isDelete && ( changeLog.isEnabled() && ! opContext.isCollateralOperation() ) )
+        if ( ! isDelete && ( changeLog.isEnabled() && opContext.isFirstOperation() ) )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
             serverEntry = getAttributes( opContext );
@@ -185,7 +186,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         // @TODO: needs big consideration!!!
         // NOTE: perhaps we need to log this as a system operation that cannot and should not be reapplied?
-        if ( isDelete || ! changeLog.isEnabled() || opContext.isCollateralOperation() )
+        if ( isDelete || ! changeLog.isEnabled() || ! opContext.isFirstOperation() )
         {
             if ( isDelete )
             {
@@ -221,7 +222,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     {
         ServerEntry serverEntry = null;
         
-        if ( changeLog.isEnabled() && ! renameContext.isCollateralOperation() )
+        if ( changeLog.isEnabled() && renameContext.isFirstOperation() )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
             serverEntry = getAttributes( renameContext );
@@ -229,7 +230,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         next.rename( renameContext );
 
-        if ( ! changeLog.isEnabled() || renameContext.isCollateralOperation() )
+        if ( ! changeLog.isEnabled() || ! renameContext.isFirstOperation() )
         {
             return;
         }
@@ -251,7 +252,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     {
         ClonedServerEntry serverEntry = null;
         
-        if ( changeLog.isEnabled() && ! opCtx.isCollateralOperation() )
+        if ( changeLog.isEnabled() && opCtx.isFirstOperation() )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
             serverEntry = opCtx.lookup( opCtx.getDn(), ByPassConstants.LOOKUP_BYPASS );
@@ -259,7 +260,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         next.moveAndRename( opCtx );
 
-        if ( ! changeLog.isEnabled() || opCtx.isCollateralOperation() )
+        if ( ! changeLog.isEnabled() || ! opCtx.isFirstOperation() )
         {
             return;
         }
@@ -281,7 +282,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     {
         next.move( opCtx );
 
-        if ( ! changeLog.isEnabled() || opCtx.isCollateralOperation() )
+        if ( ! changeLog.isEnabled() || ! opCtx.isFirstOperation() )
         {
             return;
         }

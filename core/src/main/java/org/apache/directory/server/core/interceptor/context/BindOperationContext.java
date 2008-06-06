@@ -23,13 +23,17 @@ package org.apache.directory.server.core.interceptor.context;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.ldap.Control;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -405,5 +409,23 @@ public class BindOperationContext implements OperationContext
     public OperationContext getPreviousOperation()
     {
         return previous;
+    }
+
+
+    public void add( ServerEntry entry, Collection<String> bypass ) throws Exception
+    {
+        throw new NotImplementedException();
+    }
+
+
+    public void delete( LdapDN dn, Collection<String> bypass ) throws Exception
+    {
+        throw new NotImplementedException();
+    }
+
+
+    public void modify( LdapDN dn, List<Modification> mods, Collection<String> bypass ) throws Exception
+    {
+        throw new NotImplementedException();
     }
 }

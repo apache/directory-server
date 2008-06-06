@@ -960,8 +960,6 @@ public class SchemaOperationControl
         LdapDN name = new LdapDN( "cn=schemaModifications,ou=schema" );
         name.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
-        ModifyOperationContext modifyContext = new ModifyOperationContext( opContext.getSession(), name, mods, true );
-        modifyContext.setByPassed( SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
-        opContext.getSession().getDirectoryService().getOperationManager().modify( modifyContext );
+        opContext.modify( name, mods, SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
     }
 }

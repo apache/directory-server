@@ -35,8 +35,6 @@ import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.schema.bootstrap.Schema;
@@ -151,9 +149,7 @@ public class SchemaSubentryModifier
         ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, 
             opContext.getSession().getDirectoryService().getRegistries() );
 
-        AddOperationContext addContext = new AddOperationContext( opContext.getSession(), dn, entry, true );
-        addContext.setByPassed( BYPASS );
-        opContext.getSession().getDirectoryService().getOperationManager().add( addContext );
+        opContext.add( entry, BYPASS );
     }
     
     
@@ -166,9 +162,7 @@ public class SchemaSubentryModifier
         ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, 
             opContext.getSession().getDirectoryService().getRegistries() );
 
-        AddOperationContext addContext = new AddOperationContext( opContext.getSession(), dn, entry, true );
-        addContext.setByPassed( BYPASS );
-        opContext.getSession().getDirectoryService().getOperationManager().add( addContext );
+        opContext.add( entry, BYPASS );
     }
     
     
@@ -180,9 +174,7 @@ public class SchemaSubentryModifier
         Attributes attrs = getAttributes( syntaxCheckerDescription );
         ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, 
             opContext.getSession().getDirectoryService().getRegistries() );
-        AddOperationContext addContext = new AddOperationContext( opContext.getSession(), dn, entry, true );
-        addContext.setByPassed( BYPASS );
-        opContext.getSession().getDirectoryService().getOperationManager().add( addContext );
+        opContext.add( entry, BYPASS );
     }
     
     
@@ -194,18 +186,14 @@ public class SchemaSubentryModifier
             opContext.getSession().getDirectoryService().getRegistries() );
         entry.setDn( dn );
 
-        AddOperationContext addContext = new AddOperationContext( opContext.getSession(), dn, entry, true );
-        addContext.setByPassed( BYPASS );
-        opContext.getSession().getDirectoryService().getOperationManager().add( addContext );
+        opContext.add( entry, BYPASS );
     }
 
 
     public void deleteSchemaObject( OperationContext opContext, SchemaObject obj ) throws Exception
     {
         LdapDN dn = getDn( obj );
-        DeleteOperationContext delContext = new DeleteOperationContext( opContext.getSession(), dn, true );
-        delContext.setByPassed( BYPASS );
-        opContext.getSession().getDirectoryService().getOperationManager().delete( delContext );
+        opContext.delete( dn, BYPASS );
     }
 
     
@@ -214,9 +202,7 @@ public class SchemaSubentryModifier
         String schemaName = getSchema( normalizerDescription );
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
-        DeleteOperationContext delContext = new DeleteOperationContext( opContext.getSession(), dn, true );
-        delContext.setByPassed( BYPASS );
-        opContext.getSession().getDirectoryService().getOperationManager().delete( delContext );
+        opContext.delete( dn, BYPASS );
     }
 
 
@@ -225,9 +211,7 @@ public class SchemaSubentryModifier
         String schemaName = getSchema( syntaxCheckerDescription );
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
-        DeleteOperationContext delContext = new DeleteOperationContext( opContext.getSession(), dn, true );
-        delContext.setByPassed( BYPASS );
-        opContext.getSession().getDirectoryService().getOperationManager().delete( delContext );
+        opContext.delete( dn, BYPASS );
     }
 
 
@@ -236,9 +220,7 @@ public class SchemaSubentryModifier
         String schemaName = getSchema( comparatorDescription );
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
-        DeleteOperationContext delContext = new DeleteOperationContext( opContext.getSession(), dn, true );
-        delContext.setByPassed( BYPASS );
-        opContext.getSession().getDirectoryService().getOperationManager().delete( delContext );
+        opContext.delete( dn, BYPASS );
     }
 
 

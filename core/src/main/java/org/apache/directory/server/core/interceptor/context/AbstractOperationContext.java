@@ -23,6 +23,7 @@ package org.apache.directory.server.core.interceptor.context;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.ldap.Control;
@@ -30,6 +31,8 @@ import javax.naming.ldap.Control;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -53,11 +56,8 @@ public abstract class AbstractOperationContext implements OperationContext
     /** The associated response's controls */
     private Map<String, Control> responseControls = new HashMap<String, Control>(4);
 
-    /** A flag to tell that this is a collateral operation */
-    private boolean collateralOperation;
-    
     /** the Interceptors bypassed by this operation */
-    private Collection<String> bypassed;
+    private Collection<String> byPassed;
     
     private LdapPrincipal authorizedPrincipal;
     
@@ -89,33 +89,6 @@ public abstract class AbstractOperationContext implements OperationContext
     }
 
 
-    /**
-     * Creates a new instance of AbstractOperationContext.
-     *
-     * @param dn the associated DN
-     * @param collateralOperation true if op is collateral, false otherwise
-     */
-    public AbstractOperationContext( CoreSession session, LdapDN dn, boolean collateralOperation )
-    {
-        this.dn = dn;
-        this.session = session;
-        this.collateralOperation = collateralOperation;
-    }
-
-
-    /**
-     * Creates an operation context where the operation is considered a side
-     * effect of a direct operation.
-     *
-     * @param collateralOperation true if this is a side effect operation
-     */
-    public AbstractOperationContext( CoreSession session, boolean collateralOperation )
-    {
-        this.session = session;
-        this.collateralOperation = collateralOperation;
-    }
-    
-    
     public CoreSession getSession()
     {
         return session;
@@ -126,21 +99,11 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         this.session = session;
     }
-
-
-    /**
-     * Tells if the current operation is considered a side effect of the
-     * current context
-     */
-    public boolean isCollateralOperation()
+    
+    
+    protected void setAuthorizedPrincipal( LdapPrincipal authorizedPrincipal )
     {
-        return collateralOperation;
-    }
-
-
-    public void setCollateralOperation( boolean collateralOperation )
-    {
-        this.collateralOperation = collateralOperation;
+        this.authorizedPrincipal = authorizedPrincipal;
     }
 
 
@@ -251,12 +214,12 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public Collection<String> getByPassed()
     {
-        if ( bypassed == null )
+        if ( byPassed == null )
         {
             return Collections.emptyList();
         }
         
-        return Collections.unmodifiableCollection( bypassed );
+        return Collections.unmodifiableCollection( byPassed );
     }
     
     
@@ -267,7 +230,7 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public void setByPassed( Collection<String> byPassed )
     {
-        this.bypassed = byPassed;
+        this.byPassed = byPassed;
     }
 
     
@@ -279,7 +242,7 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public boolean isBypassed( String interceptorName )
     {
-        return bypassed != null && bypassed.contains( interceptorName );
+        return byPassed != null && byPassed.contains( interceptorName );
     }
 
 
@@ -290,18 +253,61 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public boolean hasBypass()
     {
-        return bypassed != null && !bypassed.isEmpty();
+        return byPassed != null && !byPassed.isEmpty();
+    }
+
+    
+    private void setup( AbstractOperationContext opContext )
+    {
+        opContext.setPreviousOperation( this );
+        next = opContext;
+        opContext.setByPassed( byPassed );
+        opContext.setAuthorizedPrincipal( authorizedPrincipal );
     }
     
     
+    public void add( ServerEntry entry, Collection<String> byPassed ) throws Exception
+    {
+        AddOperationContext opContext = new AddOperationContext( session, entry );
+        setup( opContext );
+        opContext.setByPassed( byPassed );
+        session.getDirectoryService().getOperationManager().add( opContext );
+    }
+    
+    
+    public void delete( LdapDN dn, Collection<String> byPassed ) throws Exception
+    {
+        DeleteOperationContext opContext = new DeleteOperationContext( session, dn );
+        setup( opContext );
+        opContext.setByPassed( byPassed );
+        session.getDirectoryService().getOperationManager().delete( opContext );
+    }
+    
+    
+    public void modify( LdapDN dn, List<Modification> mods, Collection<String> byPassed ) throws Exception
+    {
+        ModifyOperationContext opContext = new ModifyOperationContext( session, dn, mods );
+        setup( opContext );
+        opContext.setByPassed( byPassed );
+        session.getDirectoryService().getOperationManager().modify( opContext );
+    }
+    
+    
+    // TODO - need synchronization here and where we update links
     public LookupOperationContext newLookupContext( LdapDN dn )
     {
-        return new LookupOperationContext( session, dn );
+        LookupOperationContext opContext = new LookupOperationContext( session, dn );
+        setup( opContext );
+        return opContext;
     }
 
 
     public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
+        if ( opContext != next )
+        {
+            throw new IllegalStateException( "Cannot execute indirect lookup if it is not the next operation." );
+        }
         return session.getDirectoryService().getOperationManager().lookup( opContext );
     }
 
@@ -364,8 +370,20 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
+    protected void setNextOperation( OperationContext next )
+    {
+        this.next = next;
+    }
+    
+    
     public OperationContext getPreviousOperation()
     {
         return previous;
+    }
+    
+    
+    protected void setPreviousOperation( OperationContext previous )
+    {
+        this.previous = previous;
     }
 }
