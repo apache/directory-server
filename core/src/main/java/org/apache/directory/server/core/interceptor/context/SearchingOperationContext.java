@@ -176,8 +176,23 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     }
 
     
-    
-    
+    /**
+     * Creates a new instance of a SearchingOperationContext using one level 
+     * scope, with attributes to return.
+     *
+     * @param dn The DN to get the suffix from
+     * @param aliasDerefMode the alias dereferencing mode to use
+     * @throws NamingException 
+     */
+    public SearchingOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode,
+        Set<AttributeTypeOptions> returningAttributes )
+    {
+        super( session, dn );
+        this.aliasDerefMode = aliasDerefMode;
+        this.returningAttributes = returningAttributes;
+    }
+
+
     /**
      * @see Object#toString()
      */

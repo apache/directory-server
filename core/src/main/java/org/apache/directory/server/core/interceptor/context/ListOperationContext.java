@@ -20,8 +20,11 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import java.util.Set;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
 
@@ -66,6 +69,21 @@ public class ListOperationContext extends SearchingOperationContext
     }
 
     
+    /**
+     * Creates a new instance of ListOperationContext with attributes to return.
+     *
+     * @param session the session associated with this {@link OperationContext}
+     * @param dn the base DN 
+     * @param aliasDerefMode the alias dereferencing mode to use
+     * @param returningAttributes the attributes to return
+     */
+    public ListOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode,
+        Set<AttributeTypeOptions> returningAttributes )
+    {
+        super( session, dn, aliasDerefMode, returningAttributes );
+    }
+
+
     /**
      * @return the operation name
      */

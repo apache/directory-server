@@ -30,8 +30,17 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -46,6 +55,7 @@ import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
  * The default CoreSession implementation.
  * 
  * TODO - has not been completed yet
+ * TODO - need to supply controls and other parameters to setup opContexts
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -70,8 +80,7 @@ public class DefaultCoreSession implements CoreSession
      */
     public void add( ServerEntry entry ) throws Exception
     {
-        // TODO Auto-generated method stub
-
+        directoryService.getOperationManager().add( new AddOperationContext( this, entry ) );
     }
 
 
@@ -80,8 +89,7 @@ public class DefaultCoreSession implements CoreSession
      */
     public void compare( LdapDN dn, String oid, Object value ) throws Exception
     {
-        // TODO Auto-generated method stub
-
+        directoryService.getOperationManager().compare( new CompareOperationContext( this, dn, oid, value ) );
     }
 
 
@@ -90,8 +98,7 @@ public class DefaultCoreSession implements CoreSession
      */
     public void delete( LdapDN dn ) throws Exception
     {
-        // TODO Auto-generated method stub
-
+        directoryService.getOperationManager().delete( new DeleteOperationContext( this, dn ) );
     }
 
 
@@ -202,8 +209,8 @@ public class DefaultCoreSession implements CoreSession
     public EntryFilteringCursor list( LdapDN dn, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes ) throws Exception
     {
-        // TODO Auto-generated method stub
-        return null;
+        return directoryService.getOperationManager().list( 
+            new ListOperationContext( this, dn, aliasDerefMode, returningAttributes ) );
     }
 
 
@@ -213,8 +220,10 @@ public class DefaultCoreSession implements CoreSession
     public EntryFilteringCursor list( LdapDN dn, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception
     {
-        // TODO Auto-generated method stub
-        return null;
+        ListOperationContext opContext = new ListOperationContext( this, dn, aliasDerefMode, returningAttributes );
+        opContext.setSizeLimit( sizeLimit );
+        opContext.setTimeLimit( timeLimit );
+        return directoryService.getOperationManager().list( opContext );
     }
 
 
@@ -223,8 +232,7 @@ public class DefaultCoreSession implements CoreSession
      */
     public ClonedServerEntry lookup( LdapDN dn ) throws Exception
     {
-        LookupOperationContext opContext = new LookupOperationContext( this, dn );
-        return directoryService.getOperationManager().lookup( opContext );
+        return directoryService.getOperationManager().lookup( new LookupOperationContext( this, dn ) );
     }
 
 
@@ -233,18 +241,7 @@ public class DefaultCoreSession implements CoreSession
      */
     public void modify( LdapDN dn, List<Modification> mods ) throws Exception
     {
-        // TODO Auto-generated method stub
-
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#modify(org.apache.directory.shared.ldap.name.LdapDN, java.util.List, boolean)
-     */
-    public void modify( LdapDN dn, List<Modification> mods, boolean collateral ) throws Exception
-    {
-        // TODO Auto-generated method stub
-
+        directoryService.getOperationManager().modify( new ModifyOperationContext( this, dn, mods ) );
     }
 
 
@@ -253,8 +250,7 @@ public class DefaultCoreSession implements CoreSession
      */
     public void move( LdapDN dn, LdapDN newParent ) throws Exception
     {
-        // TODO Auto-generated method stub
-
+        directoryService.getOperationManager().move( new MoveOperationContext( this, dn, newParent ) );
     }
 
 
@@ -263,8 +259,8 @@ public class DefaultCoreSession implements CoreSession
      */
     public void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn ) throws Exception
     {
-        // TODO Auto-generated method stub
-
+        directoryService.getOperationManager().moveAndRename( 
+            new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn ) );
     }
 
 
@@ -273,8 +269,7 @@ public class DefaultCoreSession implements CoreSession
      */
     public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
     {
-        // TODO Auto-generated method stub
-
+        directoryService.getOperationManager().rename( new RenameOperationContext( this, dn, newRdn, deleteOldRdn ) );
     }
 
 
@@ -284,8 +279,8 @@ public class DefaultCoreSession implements CoreSession
     public EntryFilteringCursor search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes ) throws Exception
     {
-        // TODO Auto-generated method stub
-        return null;
+        return directoryService.getOperationManager().search( new SearchOperationContext( this, dn, scope, filter, 
+            aliasDerefMode, returningAttributes ) );
     }
 
 
@@ -295,8 +290,11 @@ public class DefaultCoreSession implements CoreSession
     public EntryFilteringCursor search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception
     {
-        // TODO Auto-generated method stub
-        return null;
+        SearchOperationContext opContext = new SearchOperationContext( this, dn, scope, filter, 
+            aliasDerefMode, returningAttributes );
+        opContext.setSizeLimit( sizeLimit );
+        opContext.setTimeLimit( timeLimit );
+        return directoryService.getOperationManager().search( opContext );
     }
 
 

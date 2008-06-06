@@ -225,23 +225,6 @@ public interface CoreSession
     
 
     /**
-     * Modifies an entry within the server by applying a list of modifications 
-     * to the entry as a collateral operation.  This means such operations 
-     * avoid certain house keeping operations.
-     * 
-     * TODO determine if this overload should even be here since this is used 
-     * internally by services in the server.
-     *
-     * @param dn the distinguished name of the entry to modify
-     * @param mods the list of modifications to apply
-     * @param collateral whether or not the operation is a side effect of 
-     * another modify
-     * @throws Exception if there are failures while modifying the entry
-     */
-    void modify( LdapDN dn, List<Modification> mods, boolean collateral ) throws Exception;
-    
-
-    /**
      * Moves an entry or a branch of entries at a specified distinguished name
      * to a position under a new parent.
      * 

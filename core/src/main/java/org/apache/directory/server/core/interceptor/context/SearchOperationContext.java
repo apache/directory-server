@@ -20,14 +20,17 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
-import javax.naming.NamingException;
+import java.util.Set;
+
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 
 
 /**
@@ -54,16 +57,35 @@ public class SearchOperationContext extends SearchingOperationContext
 
     /**
      * Creates a new instance of SearchOperationContext.
+     * 
      * @param aliasDerefMode the alias dereferencing mode
      * @param dn the dn of the search base
      * @param filter the filter AST to use for the search
      * @param searchControls the search controls
-     * @throws NamingException 
      */
     public SearchOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode, ExprNode filter,
-                                   SearchControls searchControls ) throws NamingException
+                                   SearchControls searchControls ) throws Exception
     {
         super( session, dn, aliasDerefMode, searchControls );
+        this.filter = filter;
+    }
+
+
+    /**
+     * Creates a new instance of SearchOperationContext.
+     * 
+     * @param session the session this operation is associated with
+     * @param dn the search base
+     * @param scope the search scope
+     * @param filter the filter AST to use for the search
+     * @param aliasDerefMode the alias dereferencing mode
+     * @param returningAttributes the attributes to return
+     */
+    public SearchOperationContext( CoreSession session, LdapDN dn, SearchScope scope,
+        ExprNode filter, AliasDerefMode aliasDerefMode, Set<AttributeTypeOptions> returningAttributes )
+    {
+        super( session, dn, aliasDerefMode, returningAttributes );
+        super.setScope( scope );
         this.filter = filter;
     }
 
