@@ -132,9 +132,7 @@ public class TriggerInterceptor extends BaseInterceptor
             LdapDN parentDn = ( LdapDN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
             
-            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), parentDn );
-            lookupContext.setByPassed( ByPassConstants.LOOKUP_BYPASS );
-            entry = opContext.getSession().getDirectoryService().getOperationManager().lookup( lookupContext );
+            entry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
         }
 
         EntryAttribute subentries = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );

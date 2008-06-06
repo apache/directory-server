@@ -30,6 +30,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -78,9 +79,10 @@ public class CollectiveAttributesSchemaChecker
         }
     }
     
+    
     public void checkModify( OperationContext opContext, LdapDN normName, List<Modification> mods ) throws Exception
     {
-        ServerEntry originalEntry = nexus.lookup( new LookupOperationContext( opContext.getSession(), normName ) );
+        ServerEntry originalEntry = opContext.lookup( normName, ByPassConstants.LOOKUP_BYPASS );
         ServerEntry targetEntry = ServerEntryUtils.toServerEntry( 
             SchemaUtils.getTargetEntry( ServerEntryUtils.toModificationItemImpl( mods ), ServerEntryUtils.toAttributesImpl( originalEntry ) ),
             normName,

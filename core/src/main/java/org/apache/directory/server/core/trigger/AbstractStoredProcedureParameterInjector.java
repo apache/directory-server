@@ -32,6 +32,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.Generic_LDAP_CONTEXT;
@@ -111,8 +112,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         {
             Generic_LDAP_CONTEXT ldapCtxParam = ( Generic_LDAP_CONTEXT ) param;
             LdapDN ldapCtxName = ldapCtxParam.getCtxName();
-            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), ldapCtxName );
-            return opContext.getSession().getDirectoryService().getOperationManager().lookup( lookupContext );
+            return opContext.lookup( ldapCtxName, ByPassConstants.LOOKUP_BYPASS );
         }
     };
 }

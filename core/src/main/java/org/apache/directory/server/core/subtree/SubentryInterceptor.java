@@ -48,6 +48,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
@@ -414,7 +415,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // get the name of the administrative point and its administrativeRole attributes
             LdapDN apName = ( LdapDN ) name.clone();
             apName.remove( name.size() - 1 );
-            ServerEntry ap = nexus.lookup( new LookupOperationContext( addContext.getSession(), apName ) );
+            ServerEntry ap = addContext.lookup( apName, ByPassConstants.LOOKUP_BYPASS );
             EntryAttribute administrativeRole = ap.get( "administrativeRole" );
 
             // check that administrativeRole has something valid in it for us
@@ -587,7 +588,7 @@ public class SubentryInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         LdapDN name = opContext.getDn();
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getSession(), name ) );
+        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
         EntryAttribute objectClasses = entry.get( objectClassType );
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
@@ -746,7 +747,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         LdapDN name = opContext.getDn();
 
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getSession(), name ) );
+        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 
         EntryAttribute objectClasses = entry.get( objectClassType );
 
@@ -822,7 +823,7 @@ public class SubentryInterceptor extends BaseInterceptor
         LdapDN oriChildName = opContext.getDn();
         LdapDN parent = opContext.getParent();
 
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getSession(), oriChildName ) );
+        ServerEntry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
 
         EntryAttribute objectClasses = entry.get( objectClassType );
 
@@ -897,7 +898,7 @@ public class SubentryInterceptor extends BaseInterceptor
         LdapDN oriChildName = opContext.getDn();
         LdapDN newParentName = opContext.getParent();
 
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getSession(), oriChildName ) );
+        ServerEntry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
 
         EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -1013,7 +1014,7 @@ public class SubentryInterceptor extends BaseInterceptor
         LdapDN name = opContext.getDn();
         List<Modification> mods = opContext.getModItems();
 
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getSession(), name ) );
+        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 
         ServerEntry oldEntry = ( ServerEntry ) entry.clone();
         EntryAttribute objectClasses = entry.get( objectClassType );
@@ -1101,7 +1102,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( !objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
             {
-                ServerEntry newEntry = nexus.lookup( new LookupOperationContext( opContext.getSession(), name ) );
+                ServerEntry newEntry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 
                 List<Modification> subentriesOpAttrMods = getModsOnEntryModification( name, oldEntry, newEntry );
 

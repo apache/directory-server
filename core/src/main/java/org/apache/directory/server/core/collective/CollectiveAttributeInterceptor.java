@@ -35,6 +35,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -195,7 +196,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         {
             String subentryDnStr = ( String ) value.get();
             LdapDN subentryDn = new LdapDN( subentryDnStr );
-            ServerEntry subentry = nexus.lookup( new LookupOperationContext( opContext.getSession(), subentryDn ) );
+            ServerEntry subentry = opContext.lookup( subentryDn, ByPassConstants.LOOKUP_BYPASS );
             
             for ( AttributeType attributeType:subentry.getAttributeTypes() )
             {

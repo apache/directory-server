@@ -275,7 +275,7 @@ public class EventInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         LdapDN name = opContext.getDn();
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getSession(), name ) );
+        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 
         next.delete( opContext );
         //super.delete( next, opContext );
@@ -308,7 +308,7 @@ public class EventInterceptor extends BaseInterceptor
     private void notifyOnModify( OperationContext opContext, LdapDN name, List<Modification> mods, ServerEntry oriEntry )
         throws Exception
     {
-        ServerEntry entry = nexus.lookup( new LookupOperationContext( opContext.getSession(), name ) );
+        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
         Set<EventSourceRecord> selecting = getSelectingSources( name, entry );
 
         if ( selecting.isEmpty() )

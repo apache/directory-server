@@ -46,6 +46,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
@@ -1098,7 +1099,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
 
-        ClonedServerEntry entry = nexus.lookup( opContext.newLookupContext( oriChildName ) );
+        ClonedServerEntry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
@@ -1113,7 +1114,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
 
-        ClonedServerEntry entry = nexus.lookup( opContext.newLookupContext( oriChildName ) );
+        ClonedServerEntry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
@@ -1130,7 +1131,7 @@ public class SchemaInterceptor extends BaseInterceptor
         Rdn newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
 
-        ServerEntry entry = nexus.lookup( opContext.newLookupContext( name ) );
+        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 
         if ( name.startsWith( schemaBaseDN ) )
         {
@@ -1156,7 +1157,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
         else
         {
-            entry = nexus.lookup( opContext.newLookupContext( name ) );
+            entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
         }
 
         // First, we get the entry from the backend. If it does not exist, then we throw an exception

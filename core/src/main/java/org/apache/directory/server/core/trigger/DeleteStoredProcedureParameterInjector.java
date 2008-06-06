@@ -74,11 +74,6 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
          * especially subentry related ones like "triggerExecutionSubentries".
          */
-        LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), deletedEntryName );
-        lookupContext.setByPassed( ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
-        ClonedServerEntry deletedEntry = opContext.getSession().getDirectoryService()
-            .getOperationManager().lookup( lookupContext );
-        
-        return deletedEntry;
+        return opContext.lookup( deletedEntryName, ByPassConstants.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
     }
 }

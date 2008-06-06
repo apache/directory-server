@@ -42,6 +42,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -172,7 +173,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             
             try
             {
-                attrs = nextInterceptor.lookup( opContext.newLookupContext( parentDn ) );
+                attrs = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS );
             }
             catch ( Exception e )
             {
@@ -312,7 +313,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         assertHasEntry( nextInterceptor, opContext, msg, opContext.getDn() );
 
-        ServerEntry entry = nexus.lookup( opContext.newLookupContext( opContext.getDn() ) );
+        ServerEntry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
         List<Modification> items = opContext.getModItems();
 
         for ( Modification item : items )
