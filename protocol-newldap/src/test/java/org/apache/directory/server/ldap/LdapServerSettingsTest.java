@@ -25,9 +25,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
+import org.apache.directory.server.newldap.ExtendedOperationHandler;
+import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.SimpleMechanismHandler;
+import org.apache.directory.server.newldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 
 import java.util.List;
