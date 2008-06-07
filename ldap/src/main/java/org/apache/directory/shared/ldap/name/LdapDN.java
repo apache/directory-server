@@ -36,7 +36,6 @@ import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.name.DefaultStringNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -60,6 +59,7 @@ import org.slf4j.LoggerFactory;
  * is the first RDN (RDN[n]).
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LdapDN implements Name, Externalizable
 {
@@ -76,10 +76,10 @@ public class LdapDN implements Name, Externalizable
     private static final long serialVersionUID = 1L;
 
     /** Value returned by the compareTo method if values are not equals */
-    public final static int NOT_EQUALS = -1;
+    public static final int NOT_EQUAL = -1;
 
     /** Value returned by the compareTo method if values are equals */
-    public final static int EQUALS = 0;
+    public static final int EQUAL = 0;
 
     /** A flag used to tell if the DN has been normalized */
     private boolean normalized;
@@ -114,7 +114,6 @@ public class LdapDN implements Name, Externalizable
      */
     public LdapDN()
     {
-        super();
         upName = "";
         normName = "";
         normalized = true;
@@ -148,6 +147,7 @@ public class LdapDN implements Name, Externalizable
      * is a String
      *
      * @param list of String name components.
+     * @throws InvalidNameException If the nameComponent is incorrect
      */
     public LdapDN( List<String> list ) throws InvalidNameException
     {
@@ -167,8 +167,8 @@ public class LdapDN implements Name, Externalizable
     /**
      * Creates an ldap name using a list of name components.
      *
-     * @param nameComponents
-     *            List of String name components.
+     * @param nameComponents List of String name components.
+     * @throws InvalidNameException If the nameComponent is incorrect
      */
     public LdapDN( Iterator<String> nameComponents ) throws InvalidNameException
     {
@@ -217,6 +217,9 @@ public class LdapDN implements Name, Externalizable
      * Create a DN when deserializing it.
      * 
      * Note : this constructor is used only by the deserialization method.
+     * @param upName The user provided name
+     * @param normName the normalized name
+     * @param bytes the name as a byte[]
      */
     /* No protection */ LdapDN( String upName, String normName, byte[] bytes )
     {
@@ -497,9 +500,10 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Gets the hashcode of this name.
+     * Gets the hash code of this name.
      *
      * @see java.lang.Object#hashCode()
+     * @return the instance hash code
      */
     public int hashCode()
     {
@@ -1143,13 +1147,13 @@ public class LdapDN implements Name, Externalizable
         // RDN normalized name. The very same for upName.
         if (rdns.size() == 1 )
         {
-        	normName = newRdn.toString();
-        	upName = newRdn.getUpName();
+            normName = newRdn.toString();
+            upName = newRdn.getUpName();
         }
         else
         {
-        	normName = newRdn + "," + normName;
-        	upName = newRdn.getUpName() + "," + upName;
+            normName = newRdn + "," + normName;
+            upName = newRdn.getUpName() + "," + upName;
         }
         
         bytes = StringTools.getBytesUtf8( normName );
@@ -1237,6 +1241,7 @@ public class LdapDN implements Name, Externalizable
 
     /**
      * @see java.lang.Object#equals(java.lang.Object)
+     * @return <code>true</code> if the two instances are equals
      */
     public boolean equals( Object obj )
     {
@@ -1278,17 +1283,17 @@ public class LdapDN implements Name, Externalizable
     {
         if ( obj instanceof LdapDN )
         {
-            LdapDN ldapDN = ( LdapDN ) obj;
+            LdapDN dn = ( LdapDN ) obj;
 
-            if ( ldapDN.size() != size() )
+            if ( dn.size() != size() )
             {
-                return size() - ldapDN.size();
+                return size() - dn.size();
             }
 
             for ( int i = rdns.size(); i > 0; i-- )
             {
                 Rdn rdn1 = rdns.get( i - 1 );
-                Rdn rdn2 = ldapDN.rdns.get( i - 1 );
+                Rdn rdn2 = dn.rdns.get( i - 1 );
                 int res = rdn1.compareTo( rdn2 );
 
                 if ( res != 0 )
@@ -1297,7 +1302,7 @@ public class LdapDN implements Name, Externalizable
                 }
             }
 
-            return EQUALS;
+            return EQUAL;
         }
         else
         {
@@ -1329,8 +1334,8 @@ public class LdapDN implements Name, Externalizable
                 if ( oidNormalizer != null )
                 {
                     return new AttributeTypeAndValue( atav.getUpType(), oidNormalizer.getAttributeTypeOid(), 
-                    		atav.getUpValue(),
-                    		oidNormalizer.getNormalizer().normalize( atav.getNormValue() ) );
+                            atav.getUpValue(),
+                            oidNormalizer.getNormalizer().normalize( atav.getNormValue() ) );
 
                 }
                 else
@@ -1389,11 +1394,8 @@ public class LdapDN implements Name, Externalizable
             Rdn rdnCopy = ( Rdn ) rdn.clone();
             rdn.clear();
 
-            Iterator<AttributeTypeAndValue> atavs = rdnCopy.iterator();
-
-            while ( atavs.hasNext() )
+            for ( AttributeTypeAndValue val:rdnCopy )
             {
-            	AttributeTypeAndValue val = atavs.next();
                 AttributeTypeAndValue newAtav = atavOidToName( val, oidsMap );
                 rdn.addAttributeTypeAndValue( val.getUpType(), newAtav.getNormType(), val.getUpValue(), newAtav.getNormValue() );
             }
@@ -1471,7 +1473,6 @@ public class LdapDN implements Name, Externalizable
      * @param dn The DN to transform.
      * @param oidsMap The mapping between names and oids.
      * @return A normalized form of the DN.
-     * @throws InvalidNameException If the DN is invalid.
      * @throws NamingException If something went wrong.
      */
     public static LdapDN normalize( LdapDN dn, Map<String, OidNormalizer> oidsMap ) throws NamingException
@@ -1513,8 +1514,8 @@ public class LdapDN implements Name, Externalizable
      * 'commonname' share the same OID.
      *
      * @param oidsMap The mapping between names and oids.
-     * @throws InvalidNameException If the DN is invalid.
      * @throws NamingException If something went wrong.
+     * @return The normalized DN
      */
     public LdapDN normalize( Map<String, OidNormalizer> oidsMap ) throws NamingException
     {
@@ -1581,6 +1582,9 @@ public class LdapDN implements Name, Externalizable
      * 
      * for each rdn :
      * <li>call the RDN write method</li>
+     *
+     *@param out The stream in which the DN will be serialized
+     *@throws IOException If the serialization fail
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
@@ -1634,8 +1638,12 @@ public class LdapDN implements Name, Externalizable
      * We read back the data to create a new LdapDN. The structure 
      * read is exposed in the {@link LdapDN#writeExternal(ObjectOutput)} 
      * method<p>
+     * 
+     * @param in The stream from which the DN is read
+     * @throws IOException If the stream can't be read
+     * @throws ClassNotFoundException If the RDN can't be created 
      */
-    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    public void readExternal( ObjectInput in ) throws IOException , ClassNotFoundException
     {
         // Read the UPName
         upName = in.readUTF();

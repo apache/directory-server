@@ -20,12 +20,11 @@
 
 package org.apache.directory.shared.ldap.ldif;
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.util.StringTools;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
@@ -33,12 +32,15 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.Control;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -52,9 +54,12 @@ import java.util.Map;
  * - DN modified entries
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LdifEntry implements Cloneable, Serializable
 {
+    private static final long serialVersionUID = 2L;
+    
     /** Used in toArray() */
     public static final ModificationItemImpl[] EMPTY_MODS = new ModificationItemImpl[0];
 
@@ -168,14 +173,12 @@ public class LdifEntry implements Cloneable, Serializable
     /**
      * Add a modification item (used by modify operations)
      * 
-     * @param modOp
-     *            The operation. One of : DirContext.ADD_ATTRIBUTE
+     * @param modOp The operation. One of : DirContext.ADD_ATTRIBUTE
      *            DirContext.REMOVE_ATTRIBUTE DirContext.REPLACE_ATTRIBUTE
      * 
-     * @param attr
-     *            The attribute to be added
+     * @param attr The attribute to be added
      */
-    public void addModificationItem( int modOp, Attribute attr ) throws NamingException
+    public void addModificationItem( int modOp, Attribute attr )
     {
         if ( changeType == ChangeType.Modify )
         {
@@ -192,12 +195,11 @@ public class LdifEntry implements Cloneable, Serializable
      *            The operation. One of : DirContext.ADD_ATTRIBUTE
      *            DirContext.REMOVE_ATTRIBUTE DirContext.REPLACE_ATTRIBUTE
      * 
-     * @param id
-     *            The attribute's ID
-     * @param value
-     *            The attribute's value
+     * @param modOp The modification operation value
+     * @param id The attribute's ID
+     * @param value The attribute's value
      */
-    public void addModificationItem( int modOp, String id, Object value ) throws NamingException
+    public void addModificationItem( int modOp, String id, Object value )
     {
         if ( changeType == ChangeType.Modify )
         {
@@ -446,6 +448,11 @@ public class LdifEntry implements Cloneable, Serializable
         return changeType == ChangeType.Modify;
     }
 
+    /**
+     * Tells if the current entry is a added one
+     *
+     * @return <code>true</code> if the entry is added
+     */
     public boolean isEntry()
     {
         return changeType == ChangeType.Add;
@@ -472,6 +479,8 @@ public class LdifEntry implements Cloneable, Serializable
 
     /**
      * Clone method
+     * @return a clone of the current instance
+     * @exception CloneNotSupportedException If there is some problem while cloning the instance
      */
     public LdifEntry clone() throws CloneNotSupportedException
     {
@@ -481,8 +490,8 @@ public class LdifEntry implements Cloneable, Serializable
         {
             for ( ModificationItemImpl modif:modificationList )
             {
-                ModificationItemImpl modifClone = new ModificationItemImpl( modif.getModificationOp(), (Attribute) modif.getAttribute()
-                        .clone() );
+                ModificationItemImpl modifClone = new ModificationItemImpl( modif.getModificationOp(), 
+                    (Attribute) modif.getAttribute().clone() );
                 clone.modificationList.add( modifClone );
             }
         }
@@ -492,8 +501,8 @@ public class LdifEntry implements Cloneable, Serializable
             for ( String key:modificationItems.keySet() )
             {
                 ModificationItemImpl modif = modificationItems.get( key );
-                ModificationItemImpl modifClone = new ModificationItemImpl( modif.getModificationOp(), (Attribute) modif.getAttribute()
-                        .clone() );
+                ModificationItemImpl modifClone = new ModificationItemImpl( modif.getModificationOp(), 
+                    (Attribute) modif.getAttribute().clone() );
                 clone.modificationItems.put( key, modifClone );
             }
 
@@ -509,23 +518,32 @@ public class LdifEntry implements Cloneable, Serializable
     
     /**
      * Dumps the attributes
+     * @return A String representing the attributes
      */
     private String dumpAttributes()
     {
         StringBuffer sb = new StringBuffer();
+        Attribute attribute = null;
         
         try
         {
-            for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
+            for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); 
+                  attrs.hasMoreElements(); 
+                  attribute = attrs.nextElement())
             {
-                Attribute attribute = attrs.nextElement();
-    
-                sb.append( "        ").append( attribute.getID() ).append( ":\n" );
-    
-                for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
+                if ( attribute == null )
                 {
-                    Object value = values.nextElement();
-                    
+                    sb.append( "        Null attribute\n" );
+                    continue;
+                }
+                
+                sb.append( "        ").append( attribute.getID() ).append( ":\n" );
+                Object value = null;
+                
+                for ( NamingEnumeration<?> values = attribute.getAll(); 
+                      values.hasMoreElements(); 
+                      value = values.nextElement())
+                {
                     if ( value instanceof String )
                     {
                         sb.append(  "            " ).append( (String)value ).append('\n' );
@@ -547,6 +565,7 @@ public class LdifEntry implements Cloneable, Serializable
     
     /**
      * Dumps the modifications
+     * @return A String representing the modifications
      */
     private String dumpModificationItems()
     {
@@ -569,6 +588,9 @@ public class LdifEntry implements Cloneable, Serializable
                 case DirContext.REPLACE_ATTRIBUTE :
                     sb.append( "REPLACE \n" );
                     break;
+                    
+                default :
+                    break; // Do nothing
             }
             
             Attribute attribute = modif.getAttribute();
@@ -579,10 +601,11 @@ public class LdifEntry implements Cloneable, Serializable
             {
                 try
                 {
-                    for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
+                    Object value = null;
+                    for ( NamingEnumeration<?> values = attribute.getAll(); 
+                          values.hasMoreElements(); 
+                          value = values.nextElement() )
                     {
-                        Object value = values.nextElement();
-    
                         if ( value instanceof String )
                         {
                             sb.append(  "                " ).append( (String)value ).append('\n' );
@@ -605,7 +628,7 @@ public class LdifEntry implements Cloneable, Serializable
 
     
     /**
-     * Return a String representing the Entry
+     * @return a String representing the Entry
      */
     public String toString()
     {
@@ -641,12 +664,15 @@ public class LdifEntry implements Cloneable, Serializable
                 sb.append( "    Delete old RDN : " ).append( deleteOldRdn ? "true\n" : "false\n" );
                 sb.append( "    New RDN : " ).append( newRdn ).append( '\n' );
                 
-                if ( StringTools.isEmpty( newSuperior ) == false )
+                if ( !StringTools.isEmpty( newSuperior ) )
                 {
                     sb.append( "    New superior : " ).append( newSuperior ).append( '\n' );
                 }
 
                 break;
+                
+            default :
+                break; // Do nothing
         }
         
         return sb.toString();
@@ -654,7 +680,84 @@ public class LdifEntry implements Cloneable, Serializable
     
     
     /**
+     * @see Object#hashCode()
+     * 
+     * @return the instance's hash code
+     */
+    public int hashCode()
+    {
+        int result = 37;
+
+        if ( dn != null )
+        {
+            result = result*17 + dn.hashCode();
+        }
+        
+        if ( changeType != null )
+        {
+            result = result*17 + changeType.hashCode();
+            
+            // Check each different cases
+            switch ( changeType )
+            {
+                case Add :
+                    // Checks the attributes
+                    if ( attributes != null )
+                    {
+                        result = result * 17 + attributes.hashCode();
+                    }
+                    
+                    break;
+
+                case Delete :
+                    // Nothing to compute
+                    break;
+                    
+                case Modify :
+                    if ( modificationList != null )
+                    {
+                        result = result * 17 + modificationList.hashCode();
+                        
+                        for ( ModificationItem modification:modificationList )
+                        {
+                            result = result * 17 + modification.hashCode();
+                        }
+                    }
+                    
+                    break;
+                    
+                case ModDn :
+                case ModRdn :
+                    result = result * 17 + ( deleteOldRdn ? 1 : -1 ); 
+                    
+                    if ( newRdn != null )
+                    {
+                        result = result*17 + newRdn.hashCode();
+                    }
+                    
+                    if ( newSuperior != null )
+                    {
+                        result = result*17 + newSuperior.hashCode();
+                    }
+                    
+                    break;
+                    
+                default :
+                    break; // do nothing
+            }
+        }
+
+        if ( control != null )
+        {
+            result = result * 17 + control.hashCode();
+        }
+
+        return result;
+    }
+    
+    /**
      * @see Object#equals(Object)
+     * @return <code>true</code> if both values are equal
      */
     public boolean equals( Object o )
     {
@@ -666,7 +769,7 @@ public class LdifEntry implements Cloneable, Serializable
         
         if ( o == null )
         {
-            return false;
+           return false;
         }
         
         if ( ! (o instanceof LdifEntry ) )
@@ -818,6 +921,9 @@ public class LdifEntry implements Cloneable, Serializable
                 }
                 
                 break;
+                
+            default :
+                break; // do nothing
         }
         
         if ( control != null )

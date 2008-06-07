@@ -19,28 +19,42 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax.parser;
 
+
 import java.io.StringReader;
 import java.text.ParseException;
 
+import org.apache.directory.shared.ldap.schema.parser.ParserMonitor;
+import org.apache.directory.shared.ldap.schema.parser.ParserMonitorAdapter;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 
+
+/**
+ * 
+ * TODO AbstractSchemaParser.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public abstract class AbstractSchemaParser
 {
 
+    /** the monitor to use for this parser */
+    protected ParserMonitor monitor = new ParserMonitorAdapter();
 
     /** the antlr generated parser being wrapped */
     protected ReusableAntlrSchemaParser parser;
 
     /** the antlr generated lexer being wrapped */
     protected ReusableAntlrSchemaLexer lexer;
-    
-    
-    protected AbstractSchemaParser() 
+
+
+    protected AbstractSchemaParser()
     {
         lexer = new ReusableAntlrSchemaLexer( new StringReader( "" ) );
         parser = new ReusableAntlrSchemaParser( lexer );
     }
-    
+
+
     /**
      * Initializes the plumbing by creating a pipe and coupling the parser/lexer
      * pair with it. param spec the specification to be parsed
@@ -51,7 +65,45 @@ public abstract class AbstractSchemaParser
         lexer.prepareNextInput( in );
         parser.resetState();
     }
-    
+
+
+    /**
+     * Sets the parser monitor.
+     * 
+     * @param monitor the new parser monitor
+     */
+    public void setParserMonitor( ParserMonitor monitor )
+    {
+        this.monitor = monitor;
+        parser.setParserMonitor( monitor );
+    }
+
+
+    /**
+     * Sets the quirks mode. 
+     * 
+     * If enabled the parser accepts non-numeric OIDs and some 
+     * special characters in descriptions.
+     * 
+     * @param enabled the new quirks mode
+     */
+    public void setQuirksMode( boolean enabled )
+    {
+        parser.setQuirksMode( enabled );
+    }
+
+
+    /**
+     * Checks if quirks mode is enabled.
+     * 
+     * @return true, if is quirks mode is enabled
+     */
+    public boolean isQuirksMode()
+    {
+        return parser.isQuirksMode();
+    }
+
+
     public abstract AbstractSchemaDescription parse( String schemaDescription ) throws ParseException;
-    
+
 }

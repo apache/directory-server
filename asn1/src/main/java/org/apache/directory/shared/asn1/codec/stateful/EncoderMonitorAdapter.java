@@ -24,7 +24,7 @@ package org.apache.directory.shared.asn1.codec.stateful;
  * Document me.
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
- *         $Rev$
+ * @version $Rev$, $Date$
  */
 public class EncoderMonitorAdapter implements EncoderMonitor
 {

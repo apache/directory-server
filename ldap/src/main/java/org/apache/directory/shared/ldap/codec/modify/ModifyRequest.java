@@ -20,6 +20,17 @@
 package org.apache.directory.shared.ldap.codec.modify;
 
 
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.DirContext;
+
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
@@ -32,18 +43,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
 
 
 /**
@@ -71,6 +70,7 @@ import javax.naming.directory.DirContext;
  * AttributeValue ::= OCTET STRING
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class ModifyRequest extends LdapMessage
 {
@@ -319,18 +319,15 @@ public class ModifyRequest extends LdapMessage
 
         if ( ( modifications != null ) && ( modifications.size() != 0 ) )
         {
-            Iterator<ModificationItemImpl> modificationsIterator = modifications.iterator();
             modificationSequenceLength = new LinkedList<Integer>();
             modificationLength = new LinkedList<Integer>();
             valuesLength = new LinkedList<Integer>();
 
-            while ( modificationsIterator.hasNext() )
+            for ( ModificationItemImpl modification:modifications )
             {
                 // Modification sequence length initialized with the operation
                 int localModificationSequenceLength = 1 + 1 + 1;
                 int localValuesLength = 0;
-
-                ModificationItemImpl modification = modificationsIterator.next();
 
                 // Modification length initialized with the type
                 int typeLength = modification.getAttribute().getID().length();
@@ -442,14 +439,11 @@ public class ModifyRequest extends LdapMessage
             // The modifications list
             if ( ( modifications != null ) && ( modifications.size() != 0 ) )
             {
-                Iterator<ModificationItemImpl> modificationIterator = modifications.iterator();
                 int modificationNumber = 0;
 
                 // Compute the modifications length
-                while ( modificationIterator.hasNext() )
+                for ( ModificationItemImpl modification:modifications )
                 {
-                    ModificationItemImpl modification = modificationIterator.next();
-
                     // The modification sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
                     int localModificationSequenceLength = modificationSequenceLength

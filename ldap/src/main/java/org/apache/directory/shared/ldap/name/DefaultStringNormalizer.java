@@ -32,10 +32,11 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * types only.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class DefaultStringNormalizer implements Normalizer
 {
-    public static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     
     private static final DefaultStringNormalizer NORMALIZER = new DefaultStringNormalizer();
     
@@ -61,6 +62,14 @@ public class DefaultStringNormalizer implements Normalizer
         return str;
     }
 
+    
+    /**
+     * Normalize the given String
+     *
+     * @param string The string to normalize
+     * @return The normalized object
+     * @throws NamingException If the normalization throws an error
+     */
     public static Object normalizeString( String string ) throws NamingException
     {
         return NORMALIZER.normalize( string );

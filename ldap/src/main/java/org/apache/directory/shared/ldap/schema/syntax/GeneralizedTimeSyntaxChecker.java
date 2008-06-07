@@ -22,8 +22,8 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import java.util.regex.Pattern;
 
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -110,7 +110,7 @@ public class GeneralizedTimeSyntaxChecker extends AbstractSyntaxChecker
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {

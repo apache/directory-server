@@ -20,33 +20,46 @@
 package org.apache.directory.shared.asn1.ber.grammar;
 
 
-import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
-
-
 /**
  * This interface is used to store the different states of a grammar. While
  * tracing debugging information, the methods to dump the current state as a
  * string are called.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public interface IStates
 {
     /** The initial state of every grammar */
-    static int INIT_GRAMMAR_STATE = 0;
+    int INIT_GRAMMAR_STATE = 0;
 
     /** The ending state for every grammars */
-    static int GRAMMAR_END = -1;
+    int GRAMMAR_END = -1;
 
     /** The END_STATE */
-    static int END_STATE = -1;
+    int END_STATE = -1;
 
-    /** Get the current state */
+    /** 
+     * Get the current state's name 
+     * 
+     * @param state the current state
+     * @return the associated name for this state
+     */
     String getState( int state );
 
-    /** Return the grammar name from a grammar */
+    /** 
+     * Return the grammar name of a grammar
+     * 
+     * @param grammar the grammar from which we want the name
+     * @return the grammar's name
+     */
     String getGrammarName( IGrammar grammar );
 
-    /** Return the grammar name from a grammar number */
+    /** 
+     * Return the grammar name from a grammar number 
+     * 
+     * @param grammar the grammar number from which we want the name
+     * @return the grammar's name
+     */
     String getGrammarName( int grammar );
 }

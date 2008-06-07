@@ -31,7 +31,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class BranchNode extends AbstractExprNode
+public class BranchNode extends AbstractExprNode
 {
     /** child node list for this branch node */
     protected List<ExprNode> children = null;
@@ -41,26 +41,29 @@ public abstract class BranchNode extends AbstractExprNode
      * Creates a BranchNode using a logical operator and a list of children.
      * 
      * @param childList the child nodes under this branch node.
+     * @param assertionType the node's type
      */
-    public BranchNode( List<ExprNode> children, AssertionType assertionType )
+    protected BranchNode( List<ExprNode> childList, AssertionType assertionType )
     {
         super( assertionType );
 
-        if ( null == children )
+        if ( null == childList )
         {
             this.children = new ArrayList<ExprNode>( 2 );
         }
         else
         {
-            this.children = children;
+            this.children = childList;
         }
     }
 
 
     /**
      * Creates a BranchNode using a logical operator.
+     * 
+     * @param assertionType the node's type
      */
-    public BranchNode( AssertionType assertionType )
+    protected BranchNode( AssertionType assertionType )
     {
         this( null, assertionType );
     }
@@ -142,12 +145,14 @@ public abstract class BranchNode extends AbstractExprNode
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
      *      org.apache.directory.shared.ldap.filter.FilterVisitor)
+     *      
+     * @return The modified element
      */
     public final Object accept( FilterVisitor visitor )
     {
         if ( visitor.isPrefix() )
         {
-            List<ExprNode> children = visitor.getOrder( this, this.children );
+            List<ExprNode> childrenList = visitor.getOrder( this, this.children );
             ExprNode result = null;
 
             if ( visitor.canVisit( this ) )
@@ -155,7 +160,7 @@ public abstract class BranchNode extends AbstractExprNode
                 result = (ExprNode)visitor.visit( this );
             }
 
-            for ( ExprNode node:children )
+            for ( ExprNode node:childrenList )
             {
                 node.accept( visitor );
             }
@@ -170,7 +175,7 @@ public abstract class BranchNode extends AbstractExprNode
             }
             else
             {
-            	return null;
+                return null;
             }
         }
     }
@@ -180,6 +185,7 @@ public abstract class BranchNode extends AbstractExprNode
      * (non-Javadoc)
      * 
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {
@@ -217,7 +223,7 @@ public abstract class BranchNode extends AbstractExprNode
         
         if ( other.getClass() != this.getClass() )
         {
-        	return false;
+            return false;
         }
 
         BranchNode otherExprNode = ( BranchNode ) other;
@@ -231,18 +237,18 @@ public abstract class BranchNode extends AbstractExprNode
 
         if ( children.size() != otherChildren.size() )
         {
-        	return false;
+            return false;
         }
         
         for ( int i = 0; i < children.size(); i++ )
         {
-        	ExprNode child = children.get( i );
-        	ExprNode otherChild = children.get( i );
-        	
-        	if ( !child.equals( otherChild ) )
-        	{
-        		return false;
-        	}
+            ExprNode child = children.get( i );
+            ExprNode otherChild = children.get( i );
+            
+            if ( !child.equals( otherChild ) )
+            {
+                return false;
+            }
         }
         
         return true;

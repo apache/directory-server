@@ -33,6 +33,7 @@ import antlr.TokenStreamException;
  * A parser for ApacheDS comparator descriptions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class ComparatorDescriptionSchemaParser extends AbstractSchemaParser
 {
@@ -42,7 +43,6 @@ public class ComparatorDescriptionSchemaParser extends AbstractSchemaParser
      */
     public ComparatorDescriptionSchemaParser()
     {
-        super();
     }
 
 

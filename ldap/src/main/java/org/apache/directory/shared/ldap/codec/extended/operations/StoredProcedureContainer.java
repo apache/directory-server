@@ -28,6 +28,7 @@ import org.apache.directory.shared.asn1.ber.AbstractContainer;
  * A container for the StoredProcedure codec
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class StoredProcedureContainer extends AbstractContainer
 {

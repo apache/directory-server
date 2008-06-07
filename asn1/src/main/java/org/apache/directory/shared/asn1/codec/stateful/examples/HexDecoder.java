@@ -30,7 +30,7 @@ import org.apache.directory.shared.asn1.codec.stateful.AbstractStatefulDecoder;
  * Document me.
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
- *         $Rev$
+ * @version $Rev$
  */
 public class HexDecoder extends AbstractStatefulDecoder
 {

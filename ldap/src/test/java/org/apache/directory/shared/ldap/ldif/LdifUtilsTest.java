@@ -53,8 +53,8 @@ import java.util.List;
  */
 public class LdifUtilsTest
 {
-	private String testString = "this is a test";
-	
+    private String testString = "this is a test";
+    
     /**
      * Helper method to build a basic entry used by the Modify tests
      */
@@ -75,181 +75,181 @@ public class LdifUtilsTest
     }
 
     
-	/**
-	 * Tests the method IsLdifSafe with a String starting with the
-	 * char NUL (ASCII code 0)
-	 */
-	@Test
-	public void testIsLdifSafeStartingWithNUL()
-    {
-		char c = ( char ) 0;
-		
-		assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
-    }
-	
-	/**
-	 * Tests the method IsLdifSafe with a String starting with the
-	 * char LF (ASCII code 10)
-	 */
+    /**
+     * Tests the method IsLdifSafe with a String starting with the
+     * char NUL (ASCII code 0)
+     */
     @Test
-	public void testIsLdifSafeStartingWithLF()
+    public void testIsLdifSafeStartingWithNUL()
     {
-		char c = ( char ) 10;
-		
-		assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
+        char c = ( char ) 0;
+        
+        assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
     }
-
-	/**
-	 * Tests the method IsLdifSafe with a String starting with the
-	 * char CR (ASCII code 13)
-	 */
+    
+    /**
+     * Tests the method IsLdifSafe with a String starting with the
+     * char LF (ASCII code 10)
+     */
     @Test
-	public void testIsLdifSafeStartingWithCR()
+    public void testIsLdifSafeStartingWithLF()
     {
-		char c = ( char ) 13;
-		
-		assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
+        char c = ( char ) 10;
+        
+        assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
     }
 
-	/**
-	 * Tests the method IsLdifSafe with a String starting with the
-	 * char SPACE (ASCII code 32)
-	 */
+    /**
+     * Tests the method IsLdifSafe with a String starting with the
+     * char CR (ASCII code 13)
+     */
     @Test
-	public void testIsLdifSafeStartingWithSpace()
+    public void testIsLdifSafeStartingWithCR()
     {
-		char c = ( char ) 32;
-		
-		assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
+        char c = ( char ) 13;
+        
+        assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
     }
-	
-	/**
-	 * Tests the method IsLdifSafe with a String starting with the
-	 * char COLON (:) (ASCII code 58)
-	 */
+
+    /**
+     * Tests the method IsLdifSafe with a String starting with the
+     * char SPACE (ASCII code 32)
+     */
     @Test
-	public void testIsLdifSafeStartingWithColon()
+    public void testIsLdifSafeStartingWithSpace()
     {
-		char c = ( char ) 58;
-		
-		assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
+        char c = ( char ) 32;
+        
+        assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
     }
-	
-	/**
-	 * Tests the method IsLdifSafe with a String starting with the
-	 * char LESS_THAN (<) (ASCII code 60)
-	 */
+    
+    /**
+     * Tests the method IsLdifSafe with a String starting with the
+     * char COLON (:) (ASCII code 58)
+     */
     @Test
-	public void testIsLdifSafeStartingWithLessThan()
+    public void testIsLdifSafeStartingWithColon()
     {
-		char c = ( char ) 60;
-		
-		assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
+        char c = ( char ) 58;
+        
+        assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
     }
-	
-	/**
-	 * Tests the method IsLdifSafe with a String starting with the
-	 * char with ASCII code 127
-	 */
+    
+    /**
+     * Tests the method IsLdifSafe with a String starting with the
+     * char LESS_THAN (<) (ASCII code 60)
+     */
     @Test
-	public void testIsLdifSafeStartingWithCharGreaterThan127()
+    public void testIsLdifSafeStartingWithLessThan()
     {
-		char c = ( char ) 127;
-		
-		assertTrue( LdifUtils.isLDIFSafe( c + testString ) );
+        char c = ( char ) 60;
+        
+        assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
     }
-	
-	/**
-	 * Tests the method IsLdifSafe with a String starting with the
-	 * char with ASCII code greater than 127
-	 */
+    
+    /**
+     * Tests the method IsLdifSafe with a String starting with the
+     * char with ASCII code 127
+     */
     @Test
-	public void testIsLdifSafeStartingWithCharGreaterThan127Bis()
+    public void testIsLdifSafeStartingWithCharGreaterThan127()
     {
-		char c = ( char ) 222;
-		
-		assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
+        char c = ( char ) 127;
+        
+        assertTrue( LdifUtils.isLDIFSafe( c + testString ) );
     }
-	
-	/**
-	 * Tests the method IsLdifSafe with a String containing the
-	 * char NUL (ASCII code 0)
-	 */
+    
+    /**
+     * Tests the method IsLdifSafe with a String starting with the
+     * char with ASCII code greater than 127
+     */
     @Test
-	public void testIsLdifSafeContainsNUL()
+    public void testIsLdifSafeStartingWithCharGreaterThan127Bis()
     {
-		char c = ( char ) 0;
-		
-		assertFalse( LdifUtils.isLDIFSafe( testString + c + testString ) );
+        char c = ( char ) 222;
+        
+        assertFalse( LdifUtils.isLDIFSafe( c + testString ) );
     }
-	
-	/**
-	 * Tests the method IsLdifSafe with a String containing the
-	 * char LF (ASCII code 10)
-	 */
+    
+    /**
+     * Tests the method IsLdifSafe with a String containing the
+     * char NUL (ASCII code 0)
+     */
     @Test
-	public void testIsLdifSafeContainsLF()
+    public void testIsLdifSafeContainsNUL()
     {
-		char c = ( char ) 10;
-		
-		assertFalse( LdifUtils.isLDIFSafe( testString + c + testString ) );
+        char c = ( char ) 0;
+        
+        assertFalse( LdifUtils.isLDIFSafe( testString + c + testString ) );
     }
-	
-	/**
-	 * Tests the method IsLdifSafe with a String containing the
-	 * char CR (ASCII code 13)
-	 */
+    
+    /**
+     * Tests the method IsLdifSafe with a String containing the
+     * char LF (ASCII code 10)
+     */
     @Test
-	public void testIsLdifSafeContainsCR()
+    public void testIsLdifSafeContainsLF()
     {
-		char c = ( char ) 13;
-		
-		assertFalse( LdifUtils.isLDIFSafe( testString + c + testString ) );
+        char c = ( char ) 10;
+        
+        assertFalse( LdifUtils.isLDIFSafe( testString + c + testString ) );
     }
-	
-	/**
-	 * Tests the method IsLdifSafe with a String containing the
-	 * char with ASCII code 127
-	 */
+    
+    /**
+     * Tests the method IsLdifSafe with a String containing the
+     * char CR (ASCII code 13)
+     */
     @Test
-	public void testIsLdifSafeContainsCharGreaterThan127()
+    public void testIsLdifSafeContainsCR()
     {
-		char c = ( char ) 127;
-		
-		assertTrue( LdifUtils.isLDIFSafe( testString + c + testString ) );
+        char c = ( char ) 13;
+        
+        assertFalse( LdifUtils.isLDIFSafe( testString + c + testString ) );
     }
-	
-	/**
-	 * Tests the method IsLdifSafe with a String containing a
-	 * char with ASCII code greater than 127
-	 */
+    
+    /**
+     * Tests the method IsLdifSafe with a String containing the
+     * char with ASCII code 127
+     */
     @Test
-	public void testIsLdifSafeContainsCharGreaterThan127Bis()
+    public void testIsLdifSafeContainsCharGreaterThan127()
     {
-		char c = ( char ) 328;
-		
-		assertFalse( LdifUtils.isLDIFSafe( testString + c + testString ) );
+        char c = ( char ) 127;
+        
+        assertTrue( LdifUtils.isLDIFSafe( testString + c + testString ) );
     }
-	
-	/**
-	 * Tests the method IsLdifSafe with a String ending with the
-	 * char SPACE (ASCII code 32)
-	 */
+    
+    /**
+     * Tests the method IsLdifSafe with a String containing a
+     * char with ASCII code greater than 127
+     */
     @Test
-	public void testIsLdifSafeEndingWithSpace()
+    public void testIsLdifSafeContainsCharGreaterThan127Bis()
     {
-		char c = ( char ) 32;
-		
-		assertFalse( LdifUtils.isLDIFSafe( testString  + c) );
+        char c = ( char ) 328;
+        
+        assertFalse( LdifUtils.isLDIFSafe( testString + c + testString ) );
     }
-	
-	/**
-	 * Tests the method IsLdifSafe with a correct String
-	 */
+    
+    /**
+     * Tests the method IsLdifSafe with a String ending with the
+     * char SPACE (ASCII code 32)
+     */
     @Test
-	public void testIsLdifSafeCorrectString()
-    {		
-		assertTrue( LdifUtils.isLDIFSafe( testString ) );
+    public void testIsLdifSafeEndingWithSpace()
+    {
+        char c = ( char ) 32;
+        
+        assertFalse( LdifUtils.isLDIFSafe( testString  + c) );
+    }
+    
+    /**
+     * Tests the method IsLdifSafe with a correct String
+     */
+    @Test
+    public void testIsLdifSafeCorrectString()
+    {        
+        assertTrue( LdifUtils.isLDIFSafe( testString ) );
     }
     
     
@@ -1065,14 +1065,14 @@ public class LdifUtilsTest
     public void testReverseMultipleModifications() throws NamingException
     {
         String initialEntryLdif = 
-        		"dn: cn=test, ou=system\n" + 
-        		"objectclass: top\n" + 
-        		"objectclass: person\n" + 
-        		"cn: test\n" + 
-        		"sn: joe doe\n" + 
-        		"l: USA\n" + 
-        		"ou: apache\n" + 
-        		"ou: acme corp\n"; 
+                "dn: cn=test, ou=system\n" + 
+                "objectclass: top\n" + 
+                "objectclass: person\n" + 
+                "cn: test\n" + 
+                "sn: joe doe\n" + 
+                "l: USA\n" + 
+                "ou: apache\n" + 
+                "ou: acme corp\n"; 
         
         LdifReader reader = new LdifReader();
         List<LdifEntry> entries = reader.parseLdif( initialEntryLdif );

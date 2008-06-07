@@ -25,6 +25,7 @@ package org.apache.directory.shared.asn1.ber.grammar;
  * Those informations are not mandatory, but they can be usefull for debugging.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public abstract class GrammarAction implements IAction
 {

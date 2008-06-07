@@ -99,11 +99,6 @@ IDENTIFIER options { testLiterals=true; }
         ( 'a' .. 'z') ( 'a' .. 'z' | '0' .. '9' | '-' | ';' )*
     ;
 
-//XSTRING 
-//	: 
-//		"x-" ( 'a' .. 'z' ) ( 'a' .. 'z' | '-' | '_' )*
-//	;
-
 DESC
     :
         "desc" WS QUOTE ( ~'\'' )+ QUOTE

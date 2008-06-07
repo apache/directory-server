@@ -39,14 +39,14 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 public interface StatefulDecoder
 {
     /**
-     * Decodes a peice of encoded data. The nature of this call, synchronous
+     * Decodes a piece of encoded data. The nature of this call, synchronous
      * verses asynchonous, with respect to driving the actual decoding of the
      * encoded data argument is determined by an implementation. A return from
-     * this method does not guarrantee any callbacks: zero or more callbacks may
+     * this method does not guarantee any callbacks: zero or more callbacks may
      * occur during this call.
      * 
-     * @param encoded
-     *            an object representing a peice of encoded data
+     * @param encoded an object representing a piece of encoded data
+     * @throws DecoderException if the encoded element can't be decoded
      */
     void decode( Object encoded ) throws DecoderException;
 

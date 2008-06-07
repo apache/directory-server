@@ -29,6 +29,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
  * as authentication type 1 and 2 are reserved actually in LDAP V3
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public abstract class LdapAuthentication extends AbstractAsn1Object
 {

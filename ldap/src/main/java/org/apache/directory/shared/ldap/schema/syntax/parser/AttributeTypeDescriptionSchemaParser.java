@@ -27,12 +27,14 @@ import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
+import antlr.TokenStreamRecognitionException;
 
 
 /**
  * A parser for RFC 4512 attribute type descriptions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class AttributeTypeDescriptionSchemaParser extends AbstractSchemaParser
 {
@@ -42,7 +44,6 @@ public class AttributeTypeDescriptionSchemaParser extends AbstractSchemaParser
      */
     public AttributeTypeDescriptionSchemaParser()
     {
-        super();
     }
     
 
@@ -101,6 +102,12 @@ public class AttributeTypeDescriptionSchemaParser extends AbstractSchemaParser
             msg += "\nAntlr message: " + re.getMessage();
             msg += "\nAntlr column: " + re.getColumn();
             throw new ParseException( msg, re.getColumn() );
+        }
+        catch ( TokenStreamRecognitionException tsre )
+        {
+            String msg = "Parser failure on attribute type description:\n\t" + attributeTypeDescription;
+            msg += "\nAntlr message: " + tsre.getMessage();
+            throw new ParseException( msg, 0 );
         }
         catch ( TokenStreamException tse )
         {

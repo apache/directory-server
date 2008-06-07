@@ -66,7 +66,7 @@ public class AttributeTypeUsageSyntaxChecker extends AbstractSyntaxChecker
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {
@@ -103,10 +103,8 @@ public class AttributeTypeUsageSyntaxChecker extends AbstractSyntaxChecker
                 {
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             
             case( 'u' ):
                 return "userApplications".equals( strValue );

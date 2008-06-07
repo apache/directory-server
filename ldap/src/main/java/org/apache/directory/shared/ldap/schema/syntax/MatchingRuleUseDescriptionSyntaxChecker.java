@@ -50,7 +50,7 @@ public class MatchingRuleUseDescriptionSyntaxChecker extends AbstractSyntaxCheck
     /** The Syntax OID, according to RFC 4517, par. 3.3.20 */
     private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.31";
 
-	/** The schema parser used to parse the MatchingRuleUseDescription Syntax */
+    /** The schema parser used to parse the MatchingRuleUseDescription Syntax */
     private MatchingRuleUseDescriptionSchemaParser schemaParser = new MatchingRuleUseDescriptionSchemaParser();
 
 
@@ -82,7 +82,7 @@ public class MatchingRuleUseDescriptionSyntaxChecker extends AbstractSyntaxCheck
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {

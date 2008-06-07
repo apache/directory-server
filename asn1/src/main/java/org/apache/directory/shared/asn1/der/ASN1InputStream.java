@@ -48,6 +48,10 @@ public class ASN1InputStream extends FilterInputStream
         }
 
 
+        /**
+         * Compute the instance hash code
+         * @return the instance's hashcode 
+         */
         public int hashCode()
         {
             return 0;

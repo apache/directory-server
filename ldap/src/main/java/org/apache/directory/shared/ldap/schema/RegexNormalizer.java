@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  */
 public class RegexNormalizer implements Normalizer
 {
-    public static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     
     /** the perl 5 regex engine */
     private final Pattern[] regexes;

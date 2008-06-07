@@ -56,6 +56,9 @@ public class RdnSerializer
      * <li>length</li> The ATAV user provided length
      * <li>Call the ATAV write method</li> The ATAV itself
      *  
+     * @param rdn The RDN to serialize
+     * @param out the stream in which the RDN will be serialized
+     * @throws IOException If we can't write in this stream
      */
     public static void serialize( Rdn rdn, ObjectOutput out ) throws IOException
     {
@@ -86,14 +89,19 @@ public class RdnSerializer
         out.flush();
     }
     
+    
     /**
      * Deserialize a RDN instance
      * 
      * We read back the data to create a new RDB. The structure 
      * read is exposed in the {@link Rdn#writeExternal(ObjectOutput)} 
      * method<p>
+     * 
+     * @param in The input stream from which the RDN is read
+     * @return a deserialized RDN
+     * @throws IOException If the stream can't be read
      */
-    public static Rdn deserialize( ObjectInput in ) throws IOException, ClassNotFoundException
+    public static Rdn deserialize( ObjectInput in ) throws IOException
     {
         // Read the ATAV number
         int nbAtavs = in.readInt();

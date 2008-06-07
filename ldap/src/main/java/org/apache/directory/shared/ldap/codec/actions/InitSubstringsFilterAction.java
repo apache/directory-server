@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * The action used to initialize the Substrings filter
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class InitSubstringsFilterAction extends GrammarAction
 {

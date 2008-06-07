@@ -145,7 +145,7 @@ tokens
      */
     public void init( Map<String, OidNormalizer> oidsMap )
     {
-    	this.oidsMap = oidsMap;
+        this.oidsMap = oidsMap;
     }
 
     /**

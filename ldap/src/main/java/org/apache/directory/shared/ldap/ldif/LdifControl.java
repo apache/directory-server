@@ -30,10 +30,11 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * file.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LdifControl implements Control
 {
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /** The control OID */
     private OID oid;
@@ -59,6 +60,7 @@ public class LdifControl implements Control
 
     /**
      * Returns the criticality of the current control
+     * @return <code>true</code> if the control is critical
      */
     public boolean isCritical()
     {
@@ -78,6 +80,7 @@ public class LdifControl implements Control
 
     /**
      * Return the control's OID as a String
+     * @return The control's OID
      */
     public String getID()
     {
@@ -87,8 +90,7 @@ public class LdifControl implements Control
     /**
      * Set the control's OID
      * 
-     * @param oid
-     *            The control's OID
+     * @param oid The control's OID
      */
     public void setOid( OID oid )
     {
@@ -97,6 +99,7 @@ public class LdifControl implements Control
 
     /**
      * Returns the BER encoded value of the control
+     * @return the BER encoded value
      */
     public byte[] getEncodedValue()
     {

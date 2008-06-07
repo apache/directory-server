@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
  * called upName.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class AttributeTypeAndValue implements Cloneable, Comparable, Externalizable
 {
@@ -201,10 +202,13 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
      * Note that the upValue should <b>not</b> be null or empty, or resolved
      * to an empty string after having trimmed it. 
      *
-     * @param upType The Usrr Provided type
+     * @param upType The User Provided type
      * @param normType The normalized type
      * @param upValue The User Provided value
      * @param normValue The normalized value
+     * @param start Start of this ATAV in the RDN
+     * @param length Length of this ATAV
+     * @param upName The user provided name
      */
     /**No protection*/ AttributeTypeAndValue( 
                             String upType, 
@@ -344,8 +348,8 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
     /**
      * Store the value of a AttributeTypeAndValue.
      *
-     * @param value
-     *            The value of the AttributeTypeAndValue
+     * @param value The user provided value of the AttributeTypeAndValue
+     * @param normValue The normalized value
      */
     public void setValue( Object upValue, Object normValue )
     {
@@ -538,11 +542,11 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
     /**
      * Compare two values
      *
-     * @param val1
-     *            First String
-     * @param val2
-     *            Second String
-     * @return true if both strings are equals or null.
+     * @param val1 First value
+     * @param val2 Second value
+     * @param sensitivity A flag to define the case sensitivity
+     * @return -1 if the first value is inferior to the second one, +1 if
+     * its superior, 0 if both values are equal
      */
     private int compareValue( Object val1, Object val2, boolean sensitivity )
     {
@@ -608,7 +612,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
     {
         if ( normValue instanceof String )
         {
-        	// The result will be gathered in a stringBuilder
+            // The result will be gathered in a stringBuilder
             StringBuilder sb = new StringBuilder();
             
             // First, store the type and the '=' char
@@ -620,93 +624,93 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
             
             if ( normalizedValue.length() > 0 )
             {
-            	char[] chars = normalizedValue.toCharArray();
+                char[] chars = normalizedValue.toCharArray();
 
-            	// Loop first assuming the DN won't contain any
-            	// char needing to be escaped. This is the case
-            	// for 99.99% of all DN (blind bet, of course ...) 
-            	for ( char c:chars )
-            	{
+                // Loop first assuming the DN won't contain any
+                // char needing to be escaped. This is the case
+                // for 99.99% of all DN (blind bet, of course ...) 
+                for ( char c:chars )
+                {
                     if ( ( c < 0) || ( c > 128 ) )
                     {
-                    	escaped = true;
-                    	break;
+                        escaped = true;
+                        break;
                     }
                     else if ( DN_ESCAPED_CHARS[ c ] )
                     {
-                    	escaped = true;
-                    	break;
+                        escaped = true;
+                        break;
                     }
-            	}
+                }
 
-            	// Here, we have a char to escape. Start again the loop...
-            	if ( escaped )
-            	{
-	                for ( int i = 0; i < valueLength; i++ )
-	                {
-	                    char c = chars[i];
-	                    
-	                    if ( ( c < 0) || ( c > 128 ) )
-	                    {
-		                    // For chars which are not ASCII, use their hexa value prefixed by an '\'
-	                        byte[] bb = StringTools.getBytesUtf8( normalizedValue.substring( i, i + 1 ) );
-	                        
-	                        for ( byte b:bb )
-	                        {
-	                            sb.append( '\\' ).
-	                                append( StringTools.dumpHex( (byte)(( b & 0x00F0 ) >> 4) ) ).
-	                                append( StringTools.dumpHex( b ) );
-	                        }
-	                    }
-	                    else if ( DN_ESCAPED_CHARS[ c ] ) 
-	                    {
-	                    	// Some chars need to be escaped even if they are US ASCII
-	                    	// Just prefix them with a '\'
-	                    	// Special cases are ' ' (space), '#') which need a special
-	                    	// treatment.
-	                        if ( c == ' ' )
-	                        {
-	                            if ( ( i == 0 ) || ( i == valueLength - 1 ) )
-	                            {
-	                                sb.append( '\\' ).append(  c  );
-	                            }
-	                            else
-	                            {
-	                                sb.append( ' ' );
-	                            }
-	
-	                            continue;
-	                        }
-	                        else if ( c == '#' )
-	                        {
-	                            if ( i == 0 )
-	                            {
-	                                sb.append( "\\#" );
-	                                continue;
-	                            }
-	                            else
-	                            {
-	                                sb.append( '#' );
-	                            }
-	                            
-	                            continue;
-	                        }
-	
-	                        sb.append( '\\' ).append( c );
-	                    }
-	                    else
-	                    {
-	                    	// Standard ASCII chars are just appended
-	                        sb.append( c );
-	                    }
-	                }
-	            }
-            	else
-            	{
-            		// The String does not contain any escaped char : 
-            		// just append it. 
-            		sb.append( normalizedValue );
-            	}
+                // Here, we have a char to escape. Start again the loop...
+                if ( escaped )
+                {
+                    for ( int i = 0; i < valueLength; i++ )
+                    {
+                        char c = chars[i];
+                        
+                        if ( ( c < 0) || ( c > 128 ) )
+                        {
+                            // For chars which are not ASCII, use their hexa value prefixed by an '\'
+                            byte[] bb = StringTools.getBytesUtf8( normalizedValue.substring( i, i + 1 ) );
+                            
+                            for ( byte b:bb )
+                            {
+                                sb.append( '\\' ).
+                                    append( StringTools.dumpHex( (byte)(( b & 0x00F0 ) >> 4) ) ).
+                                    append( StringTools.dumpHex( b ) );
+                            }
+                        }
+                        else if ( DN_ESCAPED_CHARS[ c ] ) 
+                        {
+                            // Some chars need to be escaped even if they are US ASCII
+                            // Just prefix them with a '\'
+                            // Special cases are ' ' (space), '#') which need a special
+                            // treatment.
+                            if ( c == ' ' )
+                            {
+                                if ( ( i == 0 ) || ( i == valueLength - 1 ) )
+                                {
+                                    sb.append( '\\' ).append(  c  );
+                                }
+                                else
+                                {
+                                    sb.append( ' ' );
+                                }
+    
+                                continue;
+                            }
+                            else if ( c == '#' )
+                            {
+                                if ( i == 0 )
+                                {
+                                    sb.append( "\\#" );
+                                    continue;
+                                }
+                                else
+                                {
+                                    sb.append( '#' );
+                                }
+                                
+                                continue;
+                            }
+    
+                            sb.append( '\\' ).append( c );
+                        }
+                        else
+                        {
+                            // Standard ASCII chars are just appended
+                            sb.append( c );
+                        }
+                    }
+                }
+                else
+                {
+                    // The String does not contain any escaped char : 
+                    // just append it. 
+                    sb.append( normalizedValue );
+                }
             }
             
             return sb.toString();
@@ -723,6 +727,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
      * Gets the hashcode of this object.
      *
      * @see java.lang.Object#hashCode()
+     * @return The instance hash code
      */
     public int hashCode()
     {

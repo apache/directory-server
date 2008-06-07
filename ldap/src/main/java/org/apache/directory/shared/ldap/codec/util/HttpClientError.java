@@ -31,7 +31,7 @@ package org.apache.directory.shared.ldap.codec.util;
  */
 public class HttpClientError extends Error
 {
-    final static long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
 
     /**

@@ -90,6 +90,16 @@ public class PrepareString
         WORD
     }
     
+    
+    /**
+     * A private constructor, to avoid instance creation of this static class.
+     */
+    private PrepareString()
+    {
+        // Do nothing
+    }
+    
+    
     /**
      * Tells if a char is a combining mark.
      *
@@ -127,8 +137,9 @@ public class PrepareString
     *
     * The first step is already done, the step (3) is not done.
     *
-    * @param str
-    * @return Normalised string.
+    * @param str The String to normalize
+    * @param type The string type
+    * @return A normalized string.
     * @throws IOException
     */
    public static String normalize( String str, StringType type ) throws IOException
@@ -166,7 +177,10 @@ public class PrepareString
      * - transform to spaces
      * - lowercase
      * 
-     * @param array The char array to transform
+     * @param c The char to map
+     * @param target The array which will collect the transformed char
+     * @param pos The current position in the target
+     * @param lowerCase A mask to lowercase the char, if necessary
      * @return The transformed StringBuilder
      */
     private static int map( char c, char[] target, int pos, char lowerCase )
@@ -3948,6 +3962,7 @@ public class PrepareString
                 }
                 
                 target[pos++] = c;
+                break;
         }
 
         return pos - start;
@@ -3963,7 +3978,7 @@ public class PrepareString
      *  - Table C.8 of RFC 3454
      *  - character U-FFFD
      *
-     * @param str The String to analyze
+     * @param c The char to analyze
      * @throws InvalidCharacterException If any character is prohibited
      */
     private static void checkProhibited( char c ) throws InvalidCharacterException
@@ -4118,6 +4133,8 @@ public class PrepareString
             case 0xFF00 :
             case 0xFFE7 :
                 throw new InvalidCharacterException( c );
+            default:
+                break;
         }
         
         // RFC 3454, Table A.1, intervals
@@ -4528,6 +4545,8 @@ public class PrepareString
             case 0x206E : // NATIONAL DIGIT SHAPES
             case 0x206F : // NOMINAL DIGIT SHAPES
                 throw new InvalidCharacterException( c );
+            default :
+                break;
         }
         
         if ( c == 0xFFFD ) 
@@ -4591,7 +4610,7 @@ public class PrepareString
      * will be trasnformed to :
      * "+(33)1123456789"
      *
-     * @param array The telephone number char array
+     * @param str The telephone number
      * @return The modified telephone number String
      */
     private static String insignifiantCharTelephoneNumber( String str )
@@ -4630,6 +4649,7 @@ public class PrepareString
                     }
                 
                     array[pos++] = c;
+                    break;
             }
         }
         
@@ -4644,7 +4664,7 @@ public class PrepareString
      * will be transformed to :
      * "123456789"
      *
-     * @param array The numeric char array
+     * @param str The numeric String
      * @return The modified numeric StringBuilder
      */
     private static String insignifiantCharNumericString( String str )
@@ -4687,8 +4707,10 @@ public class PrepareString
      * This method use a finite state machine to parse
      * the text.
      * 
-     * @param array The char array  representing the string
+     * @param str The String to modify
+     * @param caseSensitive A flag telling if the chars must be lowercased
      * @return The modified StringBuilder
+     * @throws InvalidCharacterException If an invalid character is found in the String
      */
     private static String insignifiantSpacesString( String str, boolean caseSensitive ) throws InvalidCharacterException
     {
@@ -4723,7 +4745,7 @@ public class PrepareString
         char c = '\0';
         
         // First remove starting spaces
-        for (; i < limit; i++ )
+        for ( i=0; i < limit; i++ )
         {
             c = target[i];
             
@@ -4778,7 +4800,7 @@ public class PrepareString
         // a list of chars and spaces. We will consider that
         // we have couples of chars and spaces :
         // (char * space*)*. We have a special case :
-        // a space followed by a comining char.
+        // a space followed by a combining char.
         boolean spaceSeen = false;
         boolean space2Seen = false;
         

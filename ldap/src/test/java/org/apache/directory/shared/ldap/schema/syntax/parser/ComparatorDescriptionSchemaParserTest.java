@@ -50,7 +50,7 @@ public class ComparatorDescriptionSchemaParserTest extends TestCase
     }
 
 
-    public void testNumericOid() throws Exception
+    public void testNumericOid() throws ParseException
     {
         SchemaParserTestUtils.testNumericOid( parser, "FQCN org.apache.directory.SimpleComparator" );
     }
@@ -58,29 +58,25 @@ public class ComparatorDescriptionSchemaParserTest extends TestCase
 
     public void testDescription() throws ParseException
     {
-        SchemaParserTestUtils
-            .testDescription( parser, "1.1", "FQCN org.apache.directory.SimpleComparator" );
+        SchemaParserTestUtils.testDescription( parser, "1.1", "FQCN org.apache.directory.SimpleComparator" );
     }
 
 
     public void testFqcn() throws ParseException
     {
-
         String value = null;
         ComparatorDescription cd = null;
 
-        // FQCN simple p
+        // FQCN simple
         value = "( 1.1 FQCN org.apache.directory.SimpleComparator )";
         cd = parser.parseComparatorDescription( value );
         assertNotNull( cd.getFqcn() );
         assertEquals( "org.apache.directory.SimpleComparator", cd.getFqcn() );
-
     }
 
 
     public void testBytecode() throws ParseException
     {
-
         String value = null;
         ComparatorDescription cd = null;
 
@@ -90,6 +86,17 @@ public class ComparatorDescriptionSchemaParserTest extends TestCase
         assertNotNull( cd.getBytecode() );
         assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", cd.getBytecode() );
 
+        // FQCN simple, no spaces
+        value = "(1.1 FQCNorg.apache.directory.SimpleComparator BYTECODEABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====)";
+        cd = parser.parseComparatorDescription( value );
+        assertNotNull( cd.getBytecode() );
+        assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", cd.getBytecode() );
+
+        // FQCN simple, tabs
+        value = "\t(\t1.1\tFQCN\torg.apache.directory.SimpleComparator\tBYTECODE\tABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====\t)\t";
+        cd = parser.parseComparatorDescription( value );
+        assertNotNull( cd.getBytecode() );
+        assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", cd.getBytecode() );
     }
 
 
@@ -101,6 +108,7 @@ public class ComparatorDescriptionSchemaParserTest extends TestCase
 
     public void testFull()
     {
+        // TODO
     }
 
 
@@ -111,6 +119,7 @@ public class ComparatorDescriptionSchemaParserTest extends TestCase
      */
     public void testUniqueElements()
     {
+        // TODO
     }
 
 
@@ -121,14 +130,44 @@ public class ComparatorDescriptionSchemaParserTest extends TestCase
      */
     public void testRequiredElements()
     {
+        // TODO
     }
 
 
     /**
      * Tests the multithreaded use of a single parser.
      */
-    public void testMultiThreaded() throws Exception
+    public void testMultiThreaded() throws ParseException
     {
+        // TODO
+    }
+
+
+    /**
+     * Tests quirks mode.
+     */
+    public void testQuirksMode() throws ParseException
+    {
+        SchemaParserTestUtils.testQuirksMode( parser, "FQCN org.apache.directory.SimpleComparator" );
+
+        try
+        {
+            parser.setQuirksMode( true );
+
+            // ensure all other test pass in quirks mode
+            testNumericOid();
+            testDescription();
+            testFqcn();
+            testBytecode();
+            testExtensions();
+            testFull();
+            testUniqueElements();
+            testMultiThreaded();
+        }
+        finally
+        {
+            parser.setQuirksMode( false );
+        }
     }
 
 }

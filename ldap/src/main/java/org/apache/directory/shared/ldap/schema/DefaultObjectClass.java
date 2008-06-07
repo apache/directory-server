@@ -20,10 +20,10 @@
 package org.apache.directory.shared.ldap.schema;
 
 
-import java.util.List;
-import java.util.ArrayList;
-
 import java.io.Serializable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -35,7 +35,7 @@ import java.io.Serializable;
  */
 public class DefaultObjectClass extends AbstractSchemaObject implements ObjectClass, Serializable
 {
-    static final long serialVersionUID = -4744807759763092241L;
+    private static final long serialVersionUID = -4744807759763092241L;
 
     /** empty array of ObjectClasses so we do not have to recreate objects */
     private static final ObjectClass[] EMPTY_OCLASS_ARR = new ObjectClass[0];
@@ -109,19 +109,19 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
 
     public boolean isStructural()
     {
-    	return type == ObjectClassTypeEnum.STRUCTURAL;
+        return type == ObjectClassTypeEnum.STRUCTURAL;
     }
 
 
     public boolean isAbstract()
     {
-    	return type == ObjectClassTypeEnum.ABSTRACT;
+        return type == ObjectClassTypeEnum.ABSTRACT;
     }
 
     
     public boolean isAuxiliary()
     {
-    	return type == ObjectClassTypeEnum.AUXILIARY;
+        return type == ObjectClassTypeEnum.AUXILIARY;
     }
 
     

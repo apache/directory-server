@@ -33,6 +33,7 @@ import org.apache.directory.shared.ldap.codec.LdapConstants;
  * And Filter Object to store the And filter.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class AndFilter extends ConnectorFilter
 {

@@ -20,8 +20,8 @@
 package org.apache.directory.shared.ldap.schema;
 
 
-import javax.naming.NamingException;
 import java.io.Serializable;
+import javax.naming.NamingException;
 
 
 /**
@@ -75,6 +75,8 @@ public abstract class AbstractAttributeType extends AbstractSchemaObject impleme
 
     /**
      * @see AttributeType#isSingleValue()
+     * @return true if only one value can exist for this AttributeType, false
+     *         otherwise
      */
     public boolean isSingleValue()
     {
@@ -84,6 +86,7 @@ public abstract class AbstractAttributeType extends AbstractSchemaObject impleme
 
     /**
      * @see AttributeType#isCollective()
+     * @return true if the attribute is collective, false otherwise
      */
     public boolean isCollective()
     {
@@ -93,6 +96,7 @@ public abstract class AbstractAttributeType extends AbstractSchemaObject impleme
 
     /**
      * @see AttributeType#isCanUserModify()
+     * @return true if users can modify it, false if only the directory can.
      */
     public boolean isCanUserModify()
     {
@@ -102,6 +106,7 @@ public abstract class AbstractAttributeType extends AbstractSchemaObject impleme
 
     /**
      * @see AttributeType#getUsage()
+     * @return a type safe UsageEnum
      */
     public UsageEnum getUsage()
     {
@@ -111,6 +116,7 @@ public abstract class AbstractAttributeType extends AbstractSchemaObject impleme
 
     /**
      * @see AttributeType#getLength()
+     * @return the length of the attribute
      */
     public int getLength()
     {
@@ -189,29 +195,41 @@ public abstract class AbstractAttributeType extends AbstractSchemaObject impleme
     // -----------------------------------------------------------------------
     // Additional Methods
     // -----------------------------------------------------------------------
-
-
-    public boolean isAncestorOf( AttributeType attributeType ) throws NamingException
+    /**
+     * Checks to see if this AttributeType is the ancestor of another
+     * attributeType.
+     *
+     * @param descendant the perspective descendant to check
+     * @return true if the descendant is truly a derived from this AttributeType
+     * @throws NamingException if there are problems resolving superior types
+     */
+    public boolean isAncestorOf( AttributeType descendant ) throws NamingException
     {
-        //noinspection SimplifiableIfStatement
-        if ( attributeType == null || equals( attributeType ) )
+        if ( ( descendant == null ) || equals( descendant ) )
         {
             return false;
         }
 
-        return isAncestorOrEqual( this, attributeType );
+        return isAncestorOrEqual( this, descendant );
     }
 
 
-    public boolean isDescentantOf( AttributeType attributeType ) throws NamingException
+    /**
+     * Checks to see if this AttributeType is the descendant of another
+     * attributeType.
+     *
+     * @param ancestor the perspective ancestor to check
+     * @return true if this AttributeType truly descends from the ancestor
+     * @throws NamingException if there are problems resolving superior types
+     */
+    public boolean isDescentantOf( AttributeType ancestor ) throws NamingException
     {
-        //noinspection SimplifiableIfStatement
-        if ( attributeType == null || equals( attributeType ) )
+        if ( ( ancestor == null ) || equals( ancestor ) )
         {
             return false;
         }
 
-        return isAncestorOrEqual( attributeType, this );
+        return isAncestorOrEqual( ancestor, this );
     }
 
 
@@ -227,12 +245,11 @@ public abstract class AbstractAttributeType extends AbstractSchemaObject impleme
      */
     private boolean isAncestorOrEqual( AttributeType ancestor, AttributeType descendant ) throws NamingException
     {
-        if ( ancestor == null || descendant == null )
+        if ( ( ancestor == null ) || ( descendant == null ) )
         {
             return false;
         }
 
-        //noinspection SimplifiableIfStatement
         if ( ancestor.equals( descendant ) )
         {
             return true;

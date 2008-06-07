@@ -181,6 +181,7 @@ public class ModificationItemImpl extends ModificationItem
     
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

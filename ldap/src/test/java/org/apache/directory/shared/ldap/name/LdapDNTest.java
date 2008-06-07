@@ -61,6 +61,7 @@ import static org.junit.Assert.assertSame;
  * Test the class LdapDN
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class LdapDNTest
 {
@@ -1534,6 +1535,10 @@ public class LdapDNTest
            }
 
 
+           /**
+            * Compute the instance's hash code
+            * @return the instance's hash code 
+            */
            public int hashCode()
            {
                return super.hashCode();

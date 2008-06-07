@@ -25,25 +25,39 @@ package org.apache.directory.shared.ldap.schema.syntax;
  * RFC 4512 - 4.1.3. Matching Rule Description
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class MatchingRuleDescription extends AbstractSchemaDescription
 {
-
+    /** The matching rule's description */
     private String syntax;
 
 
+    /**
+     * 
+     * Creates a new instance of MatchingRuleDescription.
+     *
+     */
     public MatchingRuleDescription()
     {
         syntax = null;
     }
 
 
+    /**
+     * @return The matchingRule's syntax description
+     */
     public String getSyntax()
     {
         return syntax;
     }
 
 
+    /**
+     * Set the matchingRule's syntax description
+     *
+     * @param syntax The description
+     */
     public void setSyntax( String syntax )
     {
         this.syntax = syntax;

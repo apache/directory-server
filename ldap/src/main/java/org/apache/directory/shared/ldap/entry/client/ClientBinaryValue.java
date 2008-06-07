@@ -19,6 +19,14 @@
 package org.apache.directory.shared.ldap.entry.client;
 
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Arrays;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.AbstractValue;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -27,14 +35,6 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
-
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.Arrays;
 
 
 /**
@@ -49,7 +49,7 @@ import java.util.Arrays;
 public class ClientBinaryValue extends AbstractValue<byte[]>
 {
     /** Used for serialization */
-    public static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 2L;
     
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ClientBinaryValue.class );
@@ -247,8 +247,7 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
 
     /**
      * @see Object#hashCode()
-     * @throws IllegalStateException on failures to extract the comparator, or the
-     * normalizers needed to perform the required comparisons based on the schema
+     * @return the instance's hashcode 
      */
     public int hashCode()
     {

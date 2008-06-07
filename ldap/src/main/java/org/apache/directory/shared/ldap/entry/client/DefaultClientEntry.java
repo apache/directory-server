@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.shared.ldap.entry.AbstractEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -40,8 +42,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
 
 
 /**
@@ -56,7 +56,7 @@ import javax.naming.NamingException;
 public final class DefaultClientEntry extends AbstractEntry<String> implements ClientEntry, Externalizable
 {
     /** Used for serialization */
-    public static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 2L;
     
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultClientEntry.class );
@@ -1042,9 +1042,10 @@ public final class DefaultClientEntry extends AbstractEntry<String> implements C
     
     
     /**
-    * Get the hashcode of this ClientEntry.
-    *
-    * @see java.lang.Object#hashCode()
+     * Get the hash code of this ClientEntry.
+     *
+     * @see java.lang.Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

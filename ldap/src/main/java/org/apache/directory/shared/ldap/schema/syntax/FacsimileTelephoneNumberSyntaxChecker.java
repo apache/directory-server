@@ -54,13 +54,13 @@ public class FacsimileTelephoneNumberSyntaxChecker extends TelephoneNumberSyntax
     private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.22";
     
     /** Fax parameters possible values */
-    private final static String TWO_DIMENSIONAL  = "twoDimensional";
-    private final static String FINE_RESOLUTION  = "fineResolution";
-    private final static String UNLIMITED_LENGTH = "unlimitedLength";
-    private final static String B4_LENGTH        = "b4Length";
-    private final static String A3_LENGTH        = "a3Width";
-    private final static String B4_WIDTH         = "b4Width";
-    private final static String UNCOMPRESSED     = "uncompressed";
+    private static final String TWO_DIMENSIONAL  = "twoDimensional";
+    private static final String FINE_RESOLUTION  = "fineResolution";
+    private static final String UNLIMITED_LENGTH = "unlimitedLength";
+    private static final String B4_LENGTH        = "b4Length";
+    private static final String A3_LENGTH        = "a3Width";
+    private static final String B4_WIDTH         = "b4Width";
+    private static final String UNCOMPRESSED     = "uncompressed";
     
     /** A set which contaons all the possible fax parameters values */
     private static Set<String> faxParameters = new HashSet<String>();
@@ -103,7 +103,7 @@ public class FacsimileTelephoneNumberSyntaxChecker extends TelephoneNumberSyntax
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {

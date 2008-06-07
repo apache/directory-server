@@ -98,9 +98,9 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
     public ExtendedResponse createExtendedResponse( String id, byte[] berValue, int offset, int length )
         throws NamingException
     {
-    	StoredProcedureResponse resp = ( StoredProcedureResponse ) getResultResponse();
-    	resp.setResponse( berValue );
-    	resp.setOid( id );
+        StoredProcedureResponse resp = ( StoredProcedureResponse ) getResultResponse();
+        resp.setResponse( berValue );
+        resp.setOid( id );
         return resp;
     }
 

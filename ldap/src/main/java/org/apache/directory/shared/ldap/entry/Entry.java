@@ -19,12 +19,12 @@
 package org.apache.directory.shared.ldap.entry;
 
 
-import org.apache.directory.shared.ldap.name.LdapDN;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.NamingException;
 
-import java.util.Iterator;
-import java.util.List;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**

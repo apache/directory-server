@@ -83,7 +83,7 @@ public class NameFormDescriptionSyntaxChecker extends AbstractSyntaxChecker
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {

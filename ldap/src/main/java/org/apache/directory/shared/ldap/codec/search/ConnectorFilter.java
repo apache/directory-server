@@ -20,13 +20,12 @@
 package org.apache.directory.shared.ldap.codec.search;
 
 
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.asn1.codec.EncoderException;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+
+import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.asn1.codec.EncoderException;
 
 
 /**
@@ -34,6 +33,7 @@ import java.util.List;
  * OR/AND/NOT filters.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public abstract class ConnectorFilter extends Filter
 {
@@ -109,12 +109,8 @@ public abstract class ConnectorFilter extends Filter
 
         if ( ( filterSet != null ) && ( filterSet.size() != 0 ) )
         {
-            Iterator<Filter> filterIterator = filterSet.iterator();
-
-            while ( filterIterator.hasNext() )
+            for ( Filter filter:filterSet )
             {
-                Filter filter = filterIterator.next();
-
                 connectorFilterLength += filter.computeLength();
             }
         }
@@ -142,12 +138,8 @@ public abstract class ConnectorFilter extends Filter
         // encode each filter
         if ( ( filterSet != null ) && ( filterSet.size() != 0 ) )
         {
-            Iterator<Filter> filterIterator = filterSet.iterator();
-
-            while ( filterIterator.hasNext() )
+            for ( Filter filter:filterSet )
             {
-                Filter filter = filterIterator.next();
-
                 filter.encode( buffer );
             }
         }

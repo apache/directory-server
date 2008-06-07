@@ -20,13 +20,10 @@
 package org.apache.directory.shared.ldap.util;
 
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
-import org.apache.directory.shared.ldap.schema.Normalizer;
+import java.text.ParseException;
+
+import java.util.Arrays;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -35,9 +32,14 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.List;
+
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
+import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
 /**
@@ -54,17 +56,19 @@ public class AttributeUtils
      * @param type the attributeType of the attribute to remove
      * @param entry the entry to remove the attribute from 
      * @return the Attribute that is removed
-     * @throws NamingException if there are problems accessing the attribute
      */
     public static Attribute removeAttribute( AttributeType type, Attributes entry )
     {
         Attribute attr = entry.get( type.getOid() );
+        
         if ( attr == null )
         {
-            String[] aliases = type.getNames();
-            for ( int ii = 0; ii < aliases.length; ii++ )
+            String[] aliases = type.getNamesRef();
+            
+            for ( String alias:aliases )
             {
-                attr = entry.get( aliases[ii] );
+                attr = entry.get( alias );
+
                 if ( attr != null )
                 {
                     return entry.remove( attr.getID() );
@@ -242,9 +246,9 @@ public class AttributeUtils
         }
 
         // optimization bypass to avoid cost of the loop below
-        if ( type.getNames().length == 1 )
+        if ( type.getNamesRef().length == 1 )
         {
-            attr = attrs.get( type.getNames()[0] );
+            attr = attrs.get( type.getNamesRef()[0] );
             
             if ( attr != null )
             {
@@ -253,7 +257,7 @@ public class AttributeUtils
         }
         
         // iterate through aliases
-        for ( String alias:type.getNames() )
+        for ( String alias:type.getNamesRef() )
         {
             attr = attrs.get( alias );
             
@@ -277,11 +281,11 @@ public class AttributeUtils
     public static final ModificationItem getModificationItem( List<ModificationItemImpl> mods, AttributeType type )
     {
         // optimization bypass to avoid cost of the loop below
-        if ( type.getNames().length == 1 )
+        if ( type.getNamesRef().length == 1 )
         {
             for ( ModificationItem mod:mods )
             {
-                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNames()[0] ) )
+                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNamesRef()[0] ) )
                 {
                     return mod;
                 }
@@ -298,11 +302,11 @@ public class AttributeUtils
         }
         
         // iterate through aliases
-        for ( int ii = 0; ii < type.getNames().length; ii++ )
+        for ( int ii = 0; ii < type.getNamesRef().length; ii++ )
         {
             for ( ModificationItem mod:mods )
             {
-                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNames()[ii] ) )
+                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNamesRef()[ii] ) )
                 {
                     return mod;
                 }
@@ -410,6 +414,7 @@ public class AttributeUtils
                             pos++;
                             
                             state = 1;
+                            break;
                     }
                 }
             }
@@ -444,7 +449,6 @@ public class AttributeUtils
      * @param attr The attribute to check
      * @param value The value to look for
      * @return true if the value is present in the attribute
-     * @throws NamingException
      */
     public static boolean containsValueCaseIgnore( Attribute attr, Object value )
     {
@@ -509,9 +513,9 @@ public class AttributeUtils
         throws NamingException
     {
         // quick bypass test
-        for ( int ii = 0; ii < compared.length; ii++ )
+        for ( Object object:compared )
         {
-            if ( attr.contains( compared ) )
+            if ( attr.contains( object ) )
             {
                 return true;
             }
@@ -521,12 +525,14 @@ public class AttributeUtils
 
         if ( type.getSyntax().isHumanReadable() )
         {
-            for ( int jj = 0; jj < compared.length; jj++ )
+            for ( Object object:compared )
             {
-                String comparedStr = ( String ) normalizer.normalize( compared[jj] );
+                String comparedStr = ( String ) normalizer.normalize( object );
+                
                 for ( int ii = attr.size(); ii >= 0; ii-- )
                 {
                     String value = ( String ) attr.get( ii );
+                    
                     if ( comparedStr.equals( normalizer.normalize( value ) ) )
                     {
                         return true;
@@ -536,9 +542,10 @@ public class AttributeUtils
         }
         else
         {
-            for ( int jj = 0; jj < compared.length; jj++ )
+            for ( Object object:compared )
             {
-                byte[] comparedBytes = ( byte[] ) compared[jj];
+                byte[] comparedBytes = ( byte[] )object;
+                
                 for ( int ii = attr.size(); ii >= 0; ii-- )
                 {
                     if ( ArrayUtils.isEquals( comparedBytes, attr.get( ii ) ) )
@@ -572,7 +579,7 @@ public class AttributeUtils
     {
         String id;
 
-        if ( attr0 == null && attr1 == null )
+        if ( ( attr0 == null ) && ( attr1 == null ) )
         {
             throw new IllegalArgumentException( "Cannot figure out attribute ID if both args are null" );
         }
@@ -595,20 +602,14 @@ public class AttributeUtils
 
         Attribute attr = new AttributeImpl( id );
 
-        if ( attr0 != null )
+        for ( int ii = 0; ii < attr0.size(); ii++ )
         {
-            for ( int ii = 0; ii < attr0.size(); ii++ )
-            {
-                attr.add( attr0.get( ii ) );
-            }
+            attr.add( attr0.get( ii ) );
         }
 
-        if ( attr1 != null )
+        for ( int ii = 0; ii < attr1.size(); ii++ )
         {
-            for ( int ii = 0; ii < attr1.size(); ii++ )
-            {
-                attr.remove( attr1.get( ii ) );
-            }
+            attr.remove( attr1.get( ii ) );
         }
 
         return attr;
@@ -924,14 +925,14 @@ public class AttributeUtils
         parseNumber( str, pos );
         
         // We must have at least one '.' number
-        if ( StringTools.isCharASCII( str, pos.start, '.' ) == false )
+        if ( !StringTools.isCharASCII( str, pos.start, '.' ) )
         {
             throw new ParseException( "Invalid OID, missing '.'", pos.start );
         }
         
         pos.start++;
         
-        if ( parseNumber( str, pos ) == false )
+        if ( !parseNumber( str, pos ) )
         {
             throw new ParseException( "Invalid OID, missing a number after a '.'", pos.start );
         }
@@ -939,14 +940,14 @@ public class AttributeUtils
         while ( true )
         {
             // Break if we get something which is not a '.'
-            if ( StringTools.isCharASCII( str, pos.start, '.' ) == false )
+            if ( !StringTools.isCharASCII( str, pos.start, '.' ) )
             {
                 break;
             }
             
             pos.start++;
             
-            if ( parseNumber( str, pos ) == false )
+            if ( !parseNumber( str, pos ) )
             {
                 throw new ParseException( "Invalid OID, missing a number after a '.'", pos.start );
             }
@@ -1230,6 +1231,7 @@ public class AttributeUtils
                             pos++;
 
                             state = 1;
+                            break;
                     }
                 }
             }

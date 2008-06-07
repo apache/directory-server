@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.codec.ControlDecoder;
  * A decoder for SubEntryControls.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class SubEntryControlDecoder extends Asn1Decoder implements ControlDecoder
 {

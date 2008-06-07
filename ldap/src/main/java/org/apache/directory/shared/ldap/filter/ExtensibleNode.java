@@ -129,6 +129,8 @@ public class ExtensibleNode extends LeafNode
 
     /**
      * Sets the matching rule id as an OID string.
+     * 
+     * @param matchingRuleId The maching rule ID
      */
     public void setMatchingRuleId( String matchingRuleId )
     {
@@ -156,6 +158,8 @@ public class ExtensibleNode extends LeafNode
 
     /**
      * Sets the value.
+     * 
+     * @param value the value
      */
     public final void setValue( String value)
     {
@@ -164,16 +168,8 @@ public class ExtensibleNode extends LeafNode
 
     
     /**
-     * @see ExprNode#printRefinementToBuffer(StringBuilder)
-     */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
-    {
-        throw new UnsupportedOperationException( "ExtensibleNode can't be part of a refinement" );
-    }
-
-
-    /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {
@@ -190,11 +186,12 @@ public class ExtensibleNode extends LeafNode
 
     /**
      * @see java.lang.Object#toString()
+     * @return A string representing the AndNode
      */
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
+        StringBuilder buf = new StringBuilder();
+        
         buf.append( '(' ).append( getAttribute() );
         buf.append( "-" );
         buf.append( dnAttributes );

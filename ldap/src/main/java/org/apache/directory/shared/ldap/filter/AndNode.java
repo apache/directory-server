@@ -36,9 +36,9 @@ public class AndNode extends BranchNode
      * 
      * @param childList the child nodes under this branch node.
      */
-    public AndNode( List<ExprNode> children )
+    public AndNode( List<ExprNode> childList )
     {
-        super( children, AssertionType.AND );
+        super( childList, AssertionType.AND );
     }
 
 
@@ -97,23 +97,27 @@ public class AndNode extends BranchNode
     
     /**
      * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     * 
+     * @param buf the buffer to append to.
+     * @return The buffer in which the refinement has been appended
+     * @throws UnsupportedOperationException if this node isn't a part of a refinement.
      */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
+    public StringBuilder printRefinementToBuffer( StringBuilder buf )
     {
         buf.append( "and: {" );
         boolean isFirst = true;
         
         for ( ExprNode node:children )
         {
-        	if ( isFirst )
-        	{
-        		isFirst = false;
-        	}
-        	else
-        	{
-        		buf.append( ", " );
-        	}
-        	
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buf.append( ", " );
+            }
+            
             node.printRefinementToBuffer( buf );
         }
         
@@ -127,6 +131,7 @@ public class AndNode extends BranchNode
      * down.
      * 
      * @see java.lang.Object#toString()
+     * @return A string representing the AndNode
      */
     public String toString()
     {
@@ -137,7 +142,7 @@ public class AndNode extends BranchNode
 
         for ( ExprNode child:getChildren() )
         {
-        	buf.append( child );
+            buf.append( child );
         }
         
         buf.append( ')' );
@@ -148,6 +153,7 @@ public class AndNode extends BranchNode
 
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {
@@ -186,18 +192,18 @@ public class AndNode extends BranchNode
 
         if ( children.size() != otherChildren.size() )
         {
-        	return false;
+            return false;
         }
         
         for ( int i = 0; i < children.size(); i++ )
         {
-        	ExprNode child = children.get( i );
-        	ExprNode otherChild = children.get( i );
-        	
-        	if ( !child.equals( otherChild ) )
-        	{
-        		return false;
-        	}
+            ExprNode child = children.get( i );
+            ExprNode otherChild = children.get( i );
+            
+            if ( !child.equals( otherChild ) )
+            {
+                return false;
+            }
         }
         
         return true;

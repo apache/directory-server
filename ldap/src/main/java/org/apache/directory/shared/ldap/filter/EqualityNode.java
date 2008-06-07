@@ -44,16 +44,21 @@ public class EqualityNode<T> extends SimpleNode<T>
 
 
     /**
-     * @see Object#hashCode()
+     * Creates a new Equality object.
+     * 
+     * @param attribute the attribute name
+     * @param value the value to test for
+     * @param assertionType The node's type
      */
-    public int hashCode()
+    protected EqualityNode( String attribute, Value<T> value, AssertionType assertionType )
     {
-        return super.hashCode();
+        super( attribute, value, assertionType );
     }
 
-    
+
     /**
      * @see Object#toString()
+     * @return A string representing the AndNode
      */
     public String toString()
     {

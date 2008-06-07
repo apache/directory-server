@@ -34,10 +34,19 @@ public enum ChangeType
     ModRdn( 3 ),
     Delete( 4 );
     
+    /** Add ordinal value */
     public static final int ADD_ORDINAL = 0;
+
+    /** Modify ordinal value */
     public static final int MODIFY_ORDINAL = 1;
+
+    /** ModDN ordinal value */
     public static final int MODDN_ORDINAL = 2;
+
+    /** ModRDN ordinal value */
     public static final int MODRDN_ORDINAL = 3;
+
+    /** Delete ordinal value */
     public static final int DELETE_ORDINAL = 4;
 
     /* the ordinal value for a change type */
@@ -60,7 +69,7 @@ public enum ChangeType
      * 
      * @return the changeType
      */
-    public final int getChangeType()
+    public int getChangeType()
     {
         return changeType;
     }

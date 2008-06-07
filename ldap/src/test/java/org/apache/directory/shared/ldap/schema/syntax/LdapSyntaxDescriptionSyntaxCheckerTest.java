@@ -40,12 +40,16 @@ public class LdapSyntaxDescriptionSyntaxCheckerTest extends TestCase
     {
         assertTrue( checker.isValidSyntax( ( "( 1.3.6.1.4.1.1466.115.121.1.15 )" ) ) );
         assertTrue( checker.isValidSyntax( ( "( 1.3.6.1.4.1.1466.115.121.1.15 DESC 'Directory String' )" ) ) );
-        assertTrue( checker.isValidSyntax( ( "( 1.3.6.1.4.1.1466.115.121.1.15 DESC 'Directory String' X-ABC-DEF 'test' )" ) ) );
+        assertTrue( checker
+            .isValidSyntax( ( "( 1.3.6.1.4.1.1466.115.121.1.15 DESC 'Directory String' X-ABC-DEF 'test' )" ) ) );
 
         // spaces
         assertTrue( checker.isValidSyntax( "(1.3.6.1.4.1.1466.115.121.1.15)" ) );
-        assertTrue( checker.isValidSyntax( "(      1.3.6.1.4.1.1466.115.121.1.15        DESC 'Directory String' X-ABC-DEF     'test'     )" ) );
-        
+        assertTrue( checker
+            .isValidSyntax( "(      1.3.6.1.4.1.1466.115.121.1.15        DESC 'Directory String' X-ABC-DEF     'test'     )" ) );
+
+        // lowercase DESC
+        assertTrue( checker.isValidSyntax( "( 1.3.6.1.4.1.1466.115.121.1.15 desc 'Directory String' )" ) );
     }
 
 
@@ -53,10 +57,10 @@ public class LdapSyntaxDescriptionSyntaxCheckerTest extends TestCase
     {
         // null 
         assertFalse( checker.isValidSyntax( null ) );
-        
+
         // empty 
         assertFalse( checker.isValidSyntax( "" ) );
-        
+
         // missing/invalid OID
         assertFalse( checker.isValidSyntax( "()" ) );
         assertFalse( checker.isValidSyntax( "(  )" ) );
@@ -73,13 +77,11 @@ public class LdapSyntaxDescriptionSyntaxCheckerTest extends TestCase
         // missing quotes
         assertFalse( checker.isValidSyntax( "( 1.3.6.1.4.1.1466.115.121.1.15 DESC Directory String )" ) );
 
-        // lowercase DESC
-        assertFalse( checker.isValidSyntax( "( 1.3.6.1.4.1.1466.115.121.1.15 desc 'Directory String' )" ) );
-
         // invalid extension
         assertFalse( checker.isValidSyntax( "( 1.3.6.1.4.1.1466.115.121.1.15 DESC 'Directory String' X-ABC-DEF )" ) );
-        assertFalse( checker.isValidSyntax( "( 1.3.6.1.4.1.1466.115.121.1.15 DESC 'Directory String' X-ABC-123 'test' )" ) );
-        
+        assertFalse( checker
+            .isValidSyntax( "( 1.3.6.1.4.1.1466.115.121.1.15 DESC 'Directory String' X-ABC-123 'test' )" ) );
+
     }
 
 }

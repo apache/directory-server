@@ -236,12 +236,12 @@ ss_specificationFilter
     
 filter
 {
-	log.debug( "entered filter()" );
+    log.debug( "entered filter()" );
 }
-	:
-	( filterToken:FILTER { FilterParser.parse( filterToken.getText() ); } )
-	;
-	exception
+    :
+    ( filterToken:FILTER { FilterParser.parse( filterToken.getText() ); } )
+    ;
+    exception
     catch [Exception e]
     {
         throw new RecognitionException( "filterParser failed. " + e.getMessage() );

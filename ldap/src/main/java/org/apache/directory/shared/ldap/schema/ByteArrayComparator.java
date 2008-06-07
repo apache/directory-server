@@ -29,18 +29,16 @@ import java.util.Comparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ByteArrayComparator implements Comparator
+public class ByteArrayComparator implements Comparator<byte[]>
 {
-    public static final ByteArrayComparator INSTANCE = new ByteArrayComparator();
+    /** A static instance of this comparator */
+    public static final Comparator<byte[]> INSTANCE = new ByteArrayComparator();
 
-    /* (non-Javadoc)
+    /**
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
-    public int compare( Object o1, Object o2 )
+    public int compare( byte[] b1, byte[] b2 )
     {
-        byte[] b1 = ( byte[] ) o1;
-        byte[] b2 = ( byte[] ) o2;
-
         // -------------------------------------------------------------------
         // Handle some basis cases
         // -------------------------------------------------------------------

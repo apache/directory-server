@@ -44,9 +44,9 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
  */
 public class ExtendedRequestImplTest extends TestCase
 {
-	private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
+    private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
-	/**
+    /**
      * Tests the same object referrence for equality.
      */
     public void testEqualsSameObj()

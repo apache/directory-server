@@ -333,7 +333,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
                 // Must use a tempBuffer here because the 
                 // exception could occur after some characters
                 // were added to the buffer.
-            	StringBuilder tempBuffer = new StringBuilder();
+                StringBuilder tempBuffer = new StringBuilder();
                 refinement.printRefinementToBuffer( tempBuffer );
                 buffer.append( tempBuffer );
             }

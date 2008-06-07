@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * this class. As it is a singleton, these declaration are only done once.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class SubEntryControlGrammar extends AbstractGrammar
 {
@@ -63,7 +64,8 @@ public class SubEntryControlGrammar extends AbstractGrammar
         super.transitions = new GrammarTransition[SubEntryControlStatesEnum.LAST_SUB_ENTRY_STATE][256];
 
         super.transitions[SubEntryControlStatesEnum.START_STATE][UniversalTag.BOOLEAN_TAG] = 
-            new GrammarTransition( SubEntryControlStatesEnum.START_STATE, SubEntryControlStatesEnum.SUB_ENTRY_VISIBILITY_STATE, UniversalTag.BOOLEAN_TAG, 
+            new GrammarTransition( SubEntryControlStatesEnum.START_STATE, 
+                                    SubEntryControlStatesEnum.SUB_ENTRY_VISIBILITY_STATE, UniversalTag.BOOLEAN_TAG, 
                 new GrammarAction( "SubEntryControl visibility" )
             {
                 public void action( IAsn1Container container ) throws DecoderException

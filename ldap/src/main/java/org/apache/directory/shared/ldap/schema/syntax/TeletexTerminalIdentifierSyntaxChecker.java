@@ -71,7 +71,7 @@ public class TeletexTerminalIdentifierSyntaxChecker extends AbstractSyntaxChecke
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {

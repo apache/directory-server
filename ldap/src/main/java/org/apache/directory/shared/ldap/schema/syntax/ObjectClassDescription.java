@@ -31,6 +31,7 @@ import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
  * RFC 4512 - 4.1.1. Object Class Description
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class ObjectClassDescription extends AbstractSchemaDescription
 {

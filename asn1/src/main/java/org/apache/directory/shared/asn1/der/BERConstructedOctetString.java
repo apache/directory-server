@@ -55,7 +55,7 @@ public class BERConstructedOctetString extends DEROctetString
     /**
      * Convert a vector of octet strings into a single byte string.
      */
-    static private byte[] toBytes( Vector<DEREncodable> octs )
+    private static byte[] toBytes( Vector<DEREncodable> octs )
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 

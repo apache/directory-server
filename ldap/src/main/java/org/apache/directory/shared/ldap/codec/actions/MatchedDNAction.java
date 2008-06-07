@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * The action used to set the LdapResult matched DN.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class MatchedDNAction extends GrammarAction
 {
@@ -108,8 +109,11 @@ public class MatchedDNAction extends GrammarAction
                     break;
                     
                 default :
-                    log.warn( "The matched DN should not be set when the result code is one of NoSuchObject, AliasProblem, InvalidDNSyntax or AliasDreferencingProblem" );
+                    log.warn( "The matched DN should not be set when the result code is one of NoSuchObject," + 
+                        " AliasProblem, InvalidDNSyntax or AliasDreferencingProblem" );
+
                     ldapResult.setMatchedDN( LdapDN.EMPTY_LDAPDN );
+                    break;
             }
         }
 

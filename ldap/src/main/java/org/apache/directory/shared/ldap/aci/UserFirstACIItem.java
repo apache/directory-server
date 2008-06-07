@@ -89,8 +89,8 @@ public class UserFirstACIItem extends ACIItem
 
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
+        StringBuilder buf = new StringBuilder();
+        
         // identificationTag
         buf.append( "{ identificationTag \"" );
         buf.append( getIdentificationTag() );
@@ -116,15 +116,15 @@ public class UserFirstACIItem extends ACIItem
         
         for ( UserClass userClass:userClasses )
         {
-        	if ( isFirst )
-        	{
-        		isFirst = false;
-        	}
-        	else
-        	{
-        		buf.append( ", " );
-        	}
-        	
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buf.append( ", " );
+            }
+            
             buf.append( userClass.toString() );
         }
 
@@ -137,15 +137,15 @@ public class UserFirstACIItem extends ACIItem
         
         for ( UserPermission permission:userPermissions )
         {
-        	if ( isFirst )
-        	{
-        		isFirst = false;
-        	}
-        	else
-        	{
-        		buf.append( ", " );
-        	}
-        	
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buf.append( ", " );
+            }
+            
             buf.append( permission.toString() );
         }
         

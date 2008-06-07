@@ -19,12 +19,6 @@
  */
 package org.apache.directory.shared.converter.schema;
 
-
-import org.apache.directory.shared.converter.schema.antlrSchemaLexer;
-import org.apache.directory.shared.converter.schema.antlrSchemaParser;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
-
-import java.util.List;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,15 +28,37 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.Writer;
 import java.text.ParseException;
+import java.util.List;
+
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
+
+/*
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.Writer;
+import java.text.ParseException;
+import java.util.List;
+
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
+
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+*/
 
 
 /**
  * A reusable wrapper for antlr generated schema parsers.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class SchemaParser
 {

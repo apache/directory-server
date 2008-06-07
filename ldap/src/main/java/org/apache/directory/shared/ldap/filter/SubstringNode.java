@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.filter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import javax.naming.NamingException;
 
@@ -114,10 +113,10 @@ public class SubstringNode extends LeafNode
      * Set the initial pattern
      * @param initialPattern The initial pattern
      */
-	public void setInitial( String initialPattern ) 
-	{
-		this.initialPattern = initialPattern;
-	}
+    public void setInitial( String initialPattern ) 
+    {
+        this.initialPattern = initialPattern;
+    }
 
     /**
      * Gets the final fragment or suffix.
@@ -134,10 +133,10 @@ public class SubstringNode extends LeafNode
      * Set the final pattern
      * @param finalPattern The final pattern
      */
-	public void setFinal( String finalPattern ) 
-	{
-		this.finalPattern = finalPattern;
-	}
+    public void setFinal( String finalPattern ) 
+    {
+        this.finalPattern = finalPattern;
+    }
 
 
     /**
@@ -155,10 +154,10 @@ public class SubstringNode extends LeafNode
      * Set the any patterns
      * @param anyPattern The any patterns
      */
-	public void setAny( List<String> anyPattern ) 
-	{
-		this.anyPattern = anyPattern;
-	}
+    public void setAny( List<String> anyPattern ) 
+    {
+        this.anyPattern = anyPattern;
+    }
 
 
     /**
@@ -176,10 +175,9 @@ public class SubstringNode extends LeafNode
      * 
      * @param normalizer the normalizer to use for pattern component normalization
      * @return the equivalent compiled regular expression
-     * @throws PatternSyntaxException if the regular expression is invalid
      * @throws NamingException if there are problems while normalizing
      */
-    public final Pattern getRegex( Normalizer normalizer ) throws PatternSyntaxException, NamingException
+    public final Pattern getRegex( Normalizer normalizer ) throws NamingException
     {
         if ( ( anyPattern != null ) && ( anyPattern.size() > 0 ) )
         {
@@ -232,6 +230,7 @@ public class SubstringNode extends LeafNode
 
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {
@@ -256,11 +255,12 @@ public class SubstringNode extends LeafNode
 
     /**
      * @see java.lang.Object#toString()
+     * @return A string representing the AndNode
      */
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
+        StringBuilder buf = new StringBuilder();
+        
         buf.append( '(' ).append( getAttribute() ).append( '=' );
 
         if ( null != initialPattern )
@@ -274,11 +274,11 @@ public class SubstringNode extends LeafNode
 
         if ( null != anyPattern )
         {
-	        for ( String any:anyPattern )
-	        {
-	            buf.append( any );
-	            buf.append( '*' );
-	        }
+            for ( String any:anyPattern )
+            {
+                buf.append( any );
+                buf.append( '*' );
+            }
         }
 
         if ( null != finalPattern )
@@ -291,14 +291,5 @@ public class SubstringNode extends LeafNode
         buf.append( ')' );
         
         return buf.toString();
-    }
-
-
-    /**
-     * @see ExprNode#printRefinementToBuffer(StringBuilder)
-     */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
-    {
-        throw new UnsupportedOperationException( "SubstringNode can't be part of a refinement" );
     }
 }

@@ -19,6 +19,18 @@
  */
 package org.apache.directory.shared.ldap.ldif;
 
+import java.io.UnsupportedEncodingException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -27,25 +39,17 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.StringTools;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
  * Some LDIF useful methods
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LdifUtils
 {
-	/** The array that will be used to match the first char.*/
+    /** The array that will be used to match the first char.*/
     private static boolean[] LDIF_SAFE_STARTING_CHAR_ALPHABET = new boolean[128];
     
     /** The array that will be used to match the other chars.*/
@@ -56,28 +60,28 @@ public class LdifUtils
     
     static
     {
-    	// Initialization of the array that will be used to match the first char.
-    	for (int i = 0; i < 128; i++) 
+        // Initialization of the array that will be used to match the first char.
+        for (int i = 0; i < 128; i++) 
         {
-    		LDIF_SAFE_STARTING_CHAR_ALPHABET[i] = true;
-		}
-    	
+            LDIF_SAFE_STARTING_CHAR_ALPHABET[i] = true;
+        }
+        
         LDIF_SAFE_STARTING_CHAR_ALPHABET[0] = false; // 0 (NUL)
-    	LDIF_SAFE_STARTING_CHAR_ALPHABET[10] = false; // 10 (LF)
-    	LDIF_SAFE_STARTING_CHAR_ALPHABET[13] = false; // 13 (CR)
-    	LDIF_SAFE_STARTING_CHAR_ALPHABET[32] = false; // 32 (SPACE)
-    	LDIF_SAFE_STARTING_CHAR_ALPHABET[58] = false; // 58 (:)
-    	LDIF_SAFE_STARTING_CHAR_ALPHABET[60] = false; // 60 (>)
-    	
-    	// Initialization of the array that will be used to match the other chars.
-    	for (int i = 0; i < 128; i++) 
+        LDIF_SAFE_STARTING_CHAR_ALPHABET[10] = false; // 10 (LF)
+        LDIF_SAFE_STARTING_CHAR_ALPHABET[13] = false; // 13 (CR)
+        LDIF_SAFE_STARTING_CHAR_ALPHABET[32] = false; // 32 (SPACE)
+        LDIF_SAFE_STARTING_CHAR_ALPHABET[58] = false; // 58 (:)
+        LDIF_SAFE_STARTING_CHAR_ALPHABET[60] = false; // 60 (>)
+        
+        // Initialization of the array that will be used to match the other chars.
+        for (int i = 0; i < 128; i++) 
         {
-    		LDIF_SAFE_OTHER_CHARS_ALPHABET[i] = true;
-		}
-    	
+            LDIF_SAFE_OTHER_CHARS_ALPHABET[i] = true;
+        }
+        
         LDIF_SAFE_OTHER_CHARS_ALPHABET[0] = false; // 0 (NUL)
-    	LDIF_SAFE_OTHER_CHARS_ALPHABET[10] = false; // 10 (LF)
-    	LDIF_SAFE_OTHER_CHARS_ALPHABET[13] = false; // 13 (CR)
+        LDIF_SAFE_OTHER_CHARS_ALPHABET[10] = false; // 10 (LF)
+        LDIF_SAFE_OTHER_CHARS_ALPHABET[13] = false; // 13 (CR)
     }
 
     /**
@@ -87,19 +91,19 @@ public class LdifUtils
      * The data does not need to be encoded if all the following are true:
      * 
      * The data cannot start with the following char values:
-     * 		00 (NUL)
-     * 		10 (LF)
-     * 		13 (CR)
-     * 		32 (SPACE)
-     * 		58 (:)
-     * 		60 (<)
-     * 		Any character with value greater than 127
+     *         00 (NUL)
+     *         10 (LF)
+     *         13 (CR)
+     *         32 (SPACE)
+     *         58 (:)
+     *         60 (<)
+     *         Any character with value greater than 127
      * 
      * The data cannot contain any of the following char values:
-     * 		00 (NUL)
-     * 		10 (LF)
-     * 		13 (CR)
-     * 		Any character with value greater than 127
+     *         00 (NUL)
+     *         10 (LF)
+     *         13 (CR)
+     *         Any character with value greater than 127
      * 
      * The data cannot end with a space.
      * 
@@ -108,27 +112,27 @@ public class LdifUtils
      */
     public static boolean isLDIFSafe( String str )
     {
-    	// Checking the first char
-    	char currentChar = str.charAt(0);
+        // Checking the first char
+        char currentChar = str.charAt(0);
         
-    	if ( ( currentChar > 127 ) || !LDIF_SAFE_STARTING_CHAR_ALPHABET[currentChar] )
-    	{
-    		return false;
-    	}
-    	
-    	// Checking the other chars
-    	for (int i = 1; i < str.length(); i++)
-    	{
-        	currentChar = str.charAt(i);
-        	
-        	if ( ( currentChar > 127 ) || !LDIF_SAFE_OTHER_CHARS_ALPHABET[currentChar] )
-        	{
-        		return false;
-        	}
-		}
-    	
-    	// The String cannot end with a space
-    	return ( currentChar != ' ' );
+        if ( ( currentChar > 127 ) || !LDIF_SAFE_STARTING_CHAR_ALPHABET[currentChar] )
+        {
+            return false;
+        }
+        
+        // Checking the other chars
+        for (int i = 1; i < str.length(); i++)
+        {
+            currentChar = str.charAt(i);
+            
+            if ( ( currentChar > 127 ) || !LDIF_SAFE_OTHER_CHARS_ALPHABET[currentChar] )
+            {
+                return false;
+            }
+        }
+        
+        // The String cannot end with a space
+        return ( currentChar != ' ' );
     }
     
     /**
@@ -148,6 +152,7 @@ public class LdifUtils
      * 
      * @param ldif The LDIF string containing an attribute value
      * @return An Attributes instance
+     * @exception NamingException If the LDIF String cannot be converted to an Attributes
      */
     public static Attributes convertAttributesFromLdif( String ldif ) throws NamingException
     {
@@ -165,22 +170,22 @@ public class LdifUtils
      */
     public static String convertToLdif( Attributes attrs, int length ) throws NamingException
     {
-		StringBuilder sb = new StringBuilder();
-		
-		NamingEnumeration<? extends Attribute> ne = attrs.getAll();
-		
-		while ( ne.hasMore() )
-		{
-			Object attribute = ne.next();
+        StringBuilder sb = new StringBuilder();
+        
+        NamingEnumeration<? extends Attribute> ne = attrs.getAll();
+        
+        while ( ne.hasMore() )
+        {
+            Object attribute = ne.next();
             
-			if ( attribute instanceof Attribute ) 
+            if ( attribute instanceof Attribute ) 
             {
-				sb.append( convertToLdif( (Attribute) attribute, length ) );
-			}			
-		}
-		
-		return sb.toString();
-	}
+                sb.append( convertToLdif( (Attribute) attribute, length ) );
+            }            
+        }
+        
+        return sb.toString();
+    }
     
     /**
      * Convert an Entry to LDIF
@@ -196,6 +201,7 @@ public class LdifUtils
     /**
      * Convert an Entry to LDIF
      * @param entry the entry to convert
+     * @param length The maximum line's length 
      * @return the corresponding LDIF as a String
      * @throws NamingException If a naming exception is encountered.
      */
@@ -299,6 +305,9 @@ public class LdifUtils
                             sb.append( "replace: " );
                             break;
                             
+                        default :
+                            break; // Do nothing
+                            
                     }
                     
                     sb.append( modification.getAttribute().getID() );
@@ -309,6 +318,9 @@ public class LdifUtils
                 }
                 break;
                 
+            default :
+                break; // Do nothing
+                
         }
         
         sb.append( '\n' );
@@ -317,20 +329,22 @@ public class LdifUtils
     }
     
     /**
-     * Base64 encode a String  
+     * Base64 encode a String
+     * @param str The string to encode
+     * @return the base 64 encoded string
      */
     private static String encodeBase64( String str )
     {
-        char[] encoded;
+        char[] encoded =null;
         
         try
         {
             // force encoding using UTF-8 charset, as required in RFC2849 note 7
-            encoded = Base64.encode( ( ( String ) str ).getBytes( "UTF-8" ) );
+            encoded = Base64.encode( str.getBytes( "UTF-8" ) );
         }
         catch ( UnsupportedEncodingException e )
         {
-            encoded = Base64.encode( ( ( String ) str ).getBytes() );
+            encoded = Base64.encode( str.getBytes() );
         }
         
         return new String( encoded );
@@ -356,74 +370,74 @@ public class LdifUtils
      * @return the corresponding LDIF code as a String
      * @throws NamingException If a naming exception is encountered.
      */
-	public static String convertToLdif( Attribute attr, int length ) throws NamingException
-	{
-		StringBuilder sb = new StringBuilder();
-		
-		// iterating on the attribute's values
-		for ( int i = 0; i < attr.size(); i++ )
+    public static String convertToLdif( Attribute attr, int length ) throws NamingException
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        // iterating on the attribute's values
+        for ( int i = 0; i < attr.size(); i++ )
         {
-			StringBuilder lineBuffer = new StringBuilder();
-			
-            lineBuffer.append( attr.getID() );
-			
-			Object value = attr.get( i );
+            StringBuilder lineBuffer = new StringBuilder();
             
-			// First, deal with null value (which is valid)
-			if ( value == null )
-			{
-                lineBuffer.append( ':' );
-			}
-			else if ( value instanceof byte[] )
+            lineBuffer.append( attr.getID() );
+            
+            Object value = attr.get( i );
+            
+            // First, deal with null value (which is valid)
+            if ( value == null )
             {
-            	// It is binary, so we have to encode it using Base64 before adding it
-            	char[] encoded = Base64.encode( ( byte[] ) value );
-            	
-            	lineBuffer.append( ":: " + new String( encoded ) );                        	
+                lineBuffer.append( ':' );
+            }
+            else if ( value instanceof byte[] )
+            {
+                // It is binary, so we have to encode it using Base64 before adding it
+                char[] encoded = Base64.encode( ( byte[] ) value );
+                
+                lineBuffer.append( ":: " + new String( encoded ) );                            
             }
             else if ( value instanceof String )
             {
-            	// It's a String but, we have to check if encoding isn't required
-            	String str = (String) value;
+                // It's a String but, we have to check if encoding isn't required
+                String str = (String) value;
                 
-            	if ( !LdifUtils.isLDIFSafe( str ) )
-            	{
+                if ( !LdifUtils.isLDIFSafe( str ) )
+                {
                     lineBuffer.append( ":: " + encodeBase64( (String)value ) );
-            	}
-            	else
-            	{
-            		lineBuffer.append( ": " + value );
-            	}
+                }
+                else
+                {
+                    lineBuffer.append( ": " + value );
+                }
             }
             
             lineBuffer.append( "\n" );
             sb.append( stripLineToNChars( lineBuffer.toString(), length ) );
         }
-		
-		return sb.toString();
-	}
-	
-	
-	/**
-	 * Strips the String every n specified characters
-	 * @param str the string to strip
-	 * @param nbChars the number of characters
-	 * @return the stripped String
-	 */
-	public static String stripLineToNChars( String str, int nbChars)
-	{
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * Strips the String every n specified characters
+     * @param str the string to strip
+     * @param nbChars the number of characters
+     * @return the stripped String
+     */
+    public static String stripLineToNChars( String str, int nbChars)
+    {
         int strLength = str.length();
 
         if ( strLength <= nbChars )
-		{
-			return str;
-		}
+        {
+            return str;
+        }
         
         if ( nbChars < 2 )
         {
             throw new IllegalArgumentException( "The length of each line must be at least 2 chars long" );
         }
-		
+        
         // We will first compute the new size of the LDIF result
         // It's at least nbChars chars plus one for \n
         int charsPerLine = nbChars - 1;
@@ -460,18 +474,17 @@ public class LdifUtils
         System.arraycopy( orig, posSrc, buffer, posDst, remaining == 0 ? charsPerLine : remaining );
         
         return new String( buffer );
-	}
-	
-	
+    }
+    
+    
     /**
      * Compute a reverse LDIF of an AddRequest. It's simply a delete request
      * of the added entry
      *
      * @param dn the dn of the added entry
      * @return a reverse LDIF
-     * @throws NamingException If something went wrong
      */
-    public static LdifEntry reverseAdd( LdapDN dn ) throws NamingException
+    public static LdifEntry reverseAdd( LdapDN dn )
     {
         LdifEntry entry = new LdifEntry();
         entry.setChangeType( ChangeType.Delete );
@@ -487,9 +500,8 @@ public class LdifUtils
      * @param dn The deleted entry DN
      * @param deletedEntry The entry which has been deleted
      * @return A reverse LDIF
-     * @throws NamingException If something went wrong
      */
-    public static LdifEntry reverseDel( LdapDN dn, Attributes deletedEntry ) throws NamingException
+    public static LdifEntry reverseDel( LdapDN dn, Attributes deletedEntry )
     {
         LdifEntry entry = new LdifEntry();
         
@@ -519,8 +531,8 @@ public class LdifUtils
     public static LdifEntry reverseModifyDn( LdapDN newSuperiorDn, LdapDN modifiedDn ) throws NamingException
     {
         LdifEntry entry = new LdifEntry();
-        LdapDN currentParent;
-        LdapDN newDn;
+        LdapDN currentParent = null;
+        LdapDN newDn = null;
 
         if ( newSuperiorDn == null )
         {
@@ -551,11 +563,20 @@ public class LdifUtils
     }
 
 
+    /**
+     * Revert a DN to it's previous version by removing the first RDN and adding the given RDN
+     *
+     * @param t0 The initial Attributes
+     * @param t0_dn The initial DN
+     * @param t1_rdn The new RDN
+     * @return A new LDIF entry with a reverted DN
+     * @throws NamingException If the name reverting failed
+     */
     public static LdifEntry reverseRename( Attributes t0, LdapDN t0_dn, Rdn t1_rdn ) throws NamingException
     {
         LdifEntry entry = new LdifEntry();
-        LdapDN parent;
-        LdapDN newDn;
+        LdapDN parent = null;
+        LdapDN newDn = null;
 
         if ( t1_rdn == null )
         {
@@ -659,7 +680,7 @@ public class LdifUtils
     }
 
 
-    private static boolean reverseDoDeleteOldRdn( Attributes t0_entry, Rdn t1_rdn ) throws NamingException
+    private static boolean reverseDoDeleteOldRdn( Attributes t0_entry, Rdn t1_rdn )
     {
         // Consider simple example changes (rename or move does not matter)
         // -------------------------------------------------------------------
@@ -790,6 +811,10 @@ public class LdifUtils
                     reverseModification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, previous );
                     reverseModifications.add( 0, reverseModification );
                     break;
+                    
+                default :
+                    break; // Do nothing
+                    
             }
 
             AttributeUtils.applyModification( clonedEntry, modification );

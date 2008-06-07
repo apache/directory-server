@@ -17,7 +17,6 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.shared.ldap.util;
 
 
@@ -209,5 +208,4 @@ public class DummySSLSocketFactory extends SSLSocketFactory
             throw e;
         }
     }
-
 }

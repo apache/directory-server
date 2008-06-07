@@ -29,6 +29,7 @@ import javax.naming.NamingException;
  * enforce a syntax within the Eve server.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public interface SyntaxChecker
 {

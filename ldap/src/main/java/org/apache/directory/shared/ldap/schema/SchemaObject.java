@@ -60,7 +60,7 @@ public interface SchemaObject extends Serializable
      * 
      * @return the names for this SchemaObject
      */
-    String[] getNames();
+    String[] getNamesRef();
 
 
     /**

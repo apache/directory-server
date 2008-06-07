@@ -97,6 +97,7 @@ public class AssertionNode extends AbstractExprNode
      * Always returns true since an AssertionNode has no children.
      * 
      * @see org.apache.directory.shared.ldap.filter.ExprNode#isLeaf()
+     * @return true if the node is a leaf,false otherwise
      */
     public boolean isLeaf()
     {
@@ -115,6 +116,7 @@ public class AssertionNode extends AbstractExprNode
 
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {
@@ -140,16 +142,17 @@ public class AssertionNode extends AbstractExprNode
 
     /**
      * @see Object#toString
+     * @return A string representing the AndNode
      */
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
-    	buf.append( "(@" );
-    	buf.append( desc );
-    	buf.append( super.toString() );
-    	buf.append( ')' );
-    	
+        StringBuilder buf = new StringBuilder();
+        
+        buf.append( "(@" );
+        buf.append( desc );
+        buf.append( super.toString() );
+        buf.append( ')' );
+        
         return buf.toString();
     }
 }

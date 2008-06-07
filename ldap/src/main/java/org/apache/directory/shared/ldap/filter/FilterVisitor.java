@@ -49,6 +49,7 @@ public interface FilterVisitor
      * Visits a filter expression AST using a specific visitation order.
      * 
      * @param node the node to visit
+     * @return node the resulting modified node
      */
     Object visit( ExprNode node );
 

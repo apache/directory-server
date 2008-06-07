@@ -218,6 +218,7 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
 
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

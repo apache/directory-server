@@ -68,8 +68,8 @@ public class UserPermission extends Permission
 
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
+        StringBuilder buf = new StringBuilder();
+        
         buf.append( "{ " );
 
         if ( getPrecedence() >= 0 && getPrecedence() <= 255 )
@@ -85,15 +85,15 @@ public class UserPermission extends Permission
         
         for ( ProtectedItem item:protectedItems )
         {
-        	if ( isFirst )
-        	{
-        		isFirst = false;
-        	}
-        	else
-        	{
-        		buf.append( ", " );
-        	}
-        	
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buf.append( ", " );
+            }
+            
             buf.append( item.toString() );
         }
         
@@ -103,16 +103,16 @@ public class UserPermission extends Permission
         
         for ( GrantAndDenial grantAndDenial:getGrantsAndDenials() )
         {
-        	if ( isFirst )
-        	{
-        		isFirst = false;
-        	}
-        	else
-        	{
-        		buf.append( ", " );
-        	}
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buf.append( ", " );
+            }
 
-        	buf.append( grantAndDenial.toString() );
+            buf.append( grantAndDenial.toString() );
         }
         
         buf.append( " } }" );

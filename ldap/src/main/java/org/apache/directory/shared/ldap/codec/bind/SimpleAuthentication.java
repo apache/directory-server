@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * A ldapObject which stores the Simple authentication for a BindRequest.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class SimpleAuthentication extends LdapAuthentication
 {

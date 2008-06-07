@@ -30,6 +30,7 @@ import java.util.List;
  * RFC 4512 - 4.1.4. Matching Rule Use Description
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class MatchingRuleUseDescription extends AbstractSchemaDescription
 {

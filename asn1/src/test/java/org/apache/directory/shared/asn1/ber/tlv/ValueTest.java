@@ -23,20 +23,21 @@ package org.apache.directory.shared.asn1.ber.tlv;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.primitives.BitString;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.asn1.util.IntegerDecoder;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 
 /**
  * This class is used to test the Value class
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class ValueTest extends TestCase
 {
@@ -244,13 +245,13 @@ public class ValueTest extends TestCase
                 -256, -255, -128, -127, -1, 0, 1, 127, 128, 255, 256, 32767, 32768, 65535, 65536, 8388607, 8388608,
                 16777215, 16777216, Integer.MAX_VALUE };
 
-        for ( int i = 0; i < testedInt.length; i++ )
+        for ( int i:testedInt )
         {
-            encoded = Value.getBytes( testedInt[i] );
+            encoded = Value.getBytes( i );
 
             int value = new BigInteger( encoded ).intValue();
 
-            Assert.assertEquals( testedInt[i], value );
+            Assert.assertEquals( i, value );
         }
     }
 
@@ -263,13 +264,13 @@ public class ValueTest extends TestCase
                 -256, -255, -128, -127, -1, 0, 1, 127, 128, 255, 256, 32767, 32768, 65535, 65536, 8388607, 8388608,
                 16777215, 16777216, Integer.MAX_VALUE };
 
-        for ( int i = 0; i < testedInt.length; i++ )
+        for ( int i:testedInt )
         {
-            encoded = new BigInteger( Integer.toString( testedInt[i] ) ).toByteArray();
+            encoded = new BigInteger( Integer.toString( i ) ).toByteArray();
 
             int value = IntegerDecoder.parse( new Value( encoded ) );
 
-            Assert.assertEquals( testedInt[i], value );
+            Assert.assertEquals( i, value );
         }
     }
     
@@ -301,7 +302,7 @@ public class ValueTest extends TestCase
         }
         catch ( EncoderException ee )
         {
-            
+            fail();
         }
         
         assertEquals( "0x03 0x03 0x06 0x80 0x00 ", Asn1StringUtils.dumpBytes( buffer.array() )  );

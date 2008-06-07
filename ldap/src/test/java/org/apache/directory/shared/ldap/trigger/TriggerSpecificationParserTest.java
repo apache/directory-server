@@ -193,8 +193,8 @@ public class TriggerSpecificationParserTest extends TestCase
         TriggerSpecification triggerSpecification = null;
         
         String spec = "AFTER Delete " +
-        	"CALL \"BackupUtilities.backupDeletedEntry\" ($ldapContext \"ou=Backup,ou=System\", $name, $deletedEntry); " +
-        	"CALL \"BackupUtilities.recreateDeletedEntry\" ($name, $deletedEntry);";
+            "CALL \"BackupUtilities.backupDeletedEntry\" ($ldapContext \"ou=Backup,ou=System\", $name, $deletedEntry); " +
+            "CALL \"BackupUtilities.recreateDeletedEntry\" ($name, $deletedEntry);";
 
         triggerSpecification = parser.parse( spec );
         

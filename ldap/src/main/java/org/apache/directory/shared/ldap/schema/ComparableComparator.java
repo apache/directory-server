@@ -20,8 +20,8 @@
 package org.apache.directory.shared.ldap.schema;
 
 
-import java.util.Comparator;
 import java.io.Serializable;
+import java.util.Comparator;
 
 
 /**
@@ -30,10 +30,9 @@ import java.io.Serializable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@SuppressWarnings("unchecked")
 public class ComparableComparator implements Comparator, Serializable
 {
-    static final long serialVersionUID = -5295278271807198471L;
+    private static final long serialVersionUID = -5295278271807198471L;
 
 
     /**

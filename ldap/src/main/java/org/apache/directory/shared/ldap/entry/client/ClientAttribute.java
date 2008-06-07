@@ -19,10 +19,10 @@
 package org.apache.directory.shared.ldap.entry.client;
 
 
+import javax.naming.NamingException;
+
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
-
-import javax.naming.NamingException;
 
 
 /**

@@ -89,8 +89,8 @@ public class ItemFirstACIItem extends ACIItem
 
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
+        StringBuilder buf = new StringBuilder();
+        
         // identificationTag
         buf.append( "{ identificationTag \"" );
         buf.append( getIdentificationTag() );

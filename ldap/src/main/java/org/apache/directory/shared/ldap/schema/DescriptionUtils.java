@@ -73,6 +73,8 @@ public class DescriptionUtils
      *            the attributeType to generate a description for
      * @return the AttributeTypeDescription Syntax for the attributeType in a
      *         pretty formated string
+     * @throws NamingException If an error is raised while accessing some of the attributeType
+     * data 
      */
     public static String getDescription( AttributeType attributeType ) throws NamingException
     {
@@ -173,6 +175,8 @@ public class DescriptionUtils
      *            the DIT content rule specification
      * @return the specification according to the DITContentRuleDescription
      *         syntax
+     * @throws NamingException If an error is raised while accessing some of the dITConentRule
+     * data 
      */
     public static String getDescription( DITContentRule dITContentRule ) throws NamingException
     {
@@ -197,51 +201,59 @@ public class DescriptionUtils
             buf.append( '\n' );
         }
 
-        // print out all the auxillary object class oids
+        // print out all the auxiliary object class oids
         ObjectClass[] aux = dITContentRule.getAuxObjectClasses();
+        
         if ( aux != null && aux.length > 0 )
         {
             buf.append( "AUX\n" );
-            for ( int ii = 0; ii < aux.length; ii++ )
+            
+            for ( ObjectClass objectClass: aux )
             {
                 buf.append( '\t' );
-                buf.append( aux[ii].getOid() );
+                buf.append( objectClass.getOid() );
                 buf.append( '\n' );
             }
         }
 
         AttributeType[] must = dITContentRule.getMustNames();
+        
         if ( must != null && must.length > 0 )
         {
             buf.append( "MUST\n" );
-            for ( int ii = 0; ii < must.length; ii++ )
+            
+            for ( AttributeType attributeType:must )
             {
                 buf.append( '\t' );
-                buf.append( must[ii].getOid() );
+                buf.append( attributeType.getOid() );
                 buf.append( '\n' );
             }
         }
 
         AttributeType[] may = dITContentRule.getMayNames();
+        
         if ( may != null && may.length > 0 )
         {
             buf.append( "MAY\n" );
-            for ( int ii = 0; ii < may.length; ii++ )
+            
+            for ( AttributeType attributeType:may )
             {
                 buf.append( '\t' );
-                buf.append( may[ii].getOid() );
+                buf.append( attributeType.getOid() );
                 buf.append( '\n' );
             }
         }
 
         AttributeType[] not = dITContentRule.getNotNames();
+        
         if ( not != null && not.length > 0 )
         {
             buf.append( "NOT\n" );
-            for ( int ii = 0; ii < not.length; ii++ )
+            
+            for ( AttributeType attributeType:not )
             {
                 buf.append( '\t' );
-                buf.append( not[ii].getOid() );
+                buf.append( attributeType.getOid() );
                 buf.append( '\n' );
             }
         }
@@ -270,6 +282,8 @@ public class DescriptionUtils
      * @param matchingRule
      *            the MatchingRule to generate the description for
      * @return the MatchingRuleDescription string
+     * @throws NamingException If an error is raised while accessing some of the matchingRule
+     * data 
      */
     public static String getDescription( MatchingRule matchingRule ) throws NamingException
     {
@@ -331,6 +345,8 @@ public class DescriptionUtils
      * @param matchingRuleUse The matching rule from which we want to generate
      *  a MatchingRuleUseDescription.
      * @return The generated MatchingRuleUseDescription
+     * @throws NamingException If an error is raised while accessing some of the matchingRuleUse
+     * data 
      */
     public static String getDescription( MatchingRuleUse matchingRuleUse ) throws NamingException
     {
@@ -400,6 +416,8 @@ public class DescriptionUtils
      * @param nameForm
      *            the NameForm to generate the description for
      * @return the NameFormDescription string
+     * @throws NamingException If an error is raised while accessing some of the nameForm
+     * data 
      */
     public static String getDescription( NameForm nameForm ) throws NamingException
     {
@@ -430,21 +448,24 @@ public class DescriptionUtils
 
         buf.append( "MUST\n" );
         AttributeType[] must = nameForm.getMustUse();
-        for ( int ii = 0; ii < must.length; ii++ )
+        
+        for ( AttributeType attributeType:must )
         {
             buf.append( '\t' );
-            buf.append( must[ii].getOid() );
+            buf.append( attributeType.getOid() );
             buf.append( '\n' );
         }
 
         AttributeType[] may = nameForm.getMayUse();
+
         if ( may != null && may.length > 0 )
         {
             buf.append( "MAY\n" );
-            for ( int ii = 0; ii < must.length; ii++ )
+        
+            for ( AttributeType attributeType:may )
             {
                 buf.append( '\t' );
-                buf.append( may[ii].getOid() );
+                buf.append( attributeType.getOid() );
                 buf.append( '\n' );
             }
         }
@@ -477,6 +498,8 @@ public class DescriptionUtils
      * @param objectClass
      *            the ObjectClass to generate a description for
      * @return the description in the ObjectClassDescription syntax
+     * @throws NamingException If an error is raised while accessing some of the objectClass
+     * data 
      */
     public static String getDescription( ObjectClass objectClass ) throws NamingException
     {
@@ -502,13 +525,15 @@ public class DescriptionUtils
         }
 
         ObjectClass[] sups = objectClass.getSuperClasses();
+
         if ( sups != null && sups.length > 0 )
         {
             buf.append( "SUP\n" );
-            for ( int ii = 0; ii < sups.length; ii++ )
+            
+            for ( ObjectClass sup:sups )
             {
                 buf.append( '\t' );
-                buf.append( sups[ii].getOid() );
+                buf.append( sup.getOid() );
                 buf.append( '\n' );
             }
         }
@@ -523,22 +548,25 @@ public class DescriptionUtils
         if ( must != null && must.length > 0 )
         {
             buf.append( "MUST\n" );
-            for ( int ii = 0; ii < must.length; ii++ )
+            
+            for ( AttributeType attributeType:must )
             {
                 buf.append( '\t' );
-                buf.append( must[ii].getOid() );
+                buf.append( attributeType.getOid() );
                 buf.append( '\n' );
             }
         }
 
         AttributeType[] may = objectClass.getMayList();
+        
         if ( may != null && may.length > 0 )
         {
             buf.append( "MAY\n" );
-            for ( int ii = 0; ii < may.length; ii++ )
+
+            for ( AttributeType attributeType:may )
             {
                 buf.append( '\t' );
-                buf.append( may[ii].getOid() );
+                buf.append( attributeType.getOid() );
                 buf.append( '\n' );
             }
         }
@@ -568,6 +596,8 @@ public class DescriptionUtils
      * @param dITStructureRule
      *            the DITStructureRule to generate the description for
      * @return the description in the DITStructureRuleDescription syntax
+     * @throws NamingException If an error is raised while accessing some of the dITStructureRule
+     * data 
      */
     public static String getDescription( DITStructureRule dITStructureRule ) throws NamingException
     {
@@ -600,10 +630,11 @@ public class DescriptionUtils
         if ( sups != null && sups.length > 0 )
         {
             buf.append( "SUP\n" );
-            for ( int ii = 0; ii < sups.length; ii++ )
+            
+            for ( DITStructureRule sup:sups )
             {
                 buf.append( '\t' );
-                buf.append( sups[ii].getOid() );
+                buf.append( sup.getOid() );
                 buf.append( '\n' );
             }
         }

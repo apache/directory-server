@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
  */
 public class ArrayNamingEnumerationTest extends TestCase
 {
-	/**
+    /**
      * Tests ArrayNamingEnumeration using an null array.
      */
     public void testUsingNullArray()

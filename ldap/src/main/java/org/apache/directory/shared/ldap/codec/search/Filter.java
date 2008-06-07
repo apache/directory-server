@@ -29,6 +29,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
  * filters.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public abstract class Filter extends AbstractAsn1Object
 {

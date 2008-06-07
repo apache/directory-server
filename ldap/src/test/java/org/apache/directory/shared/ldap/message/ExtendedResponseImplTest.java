@@ -47,9 +47,9 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class ExtendedResponseImplTest extends TestCase
 {
-	private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
+    private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
-	/**
+    /**
      * Creates and populates a ExtendedResponseImpl stub for testing purposes.
      * 
      * @return a populated ExtendedResponseImpl stub

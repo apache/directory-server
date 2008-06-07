@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * The action used to set the LdapResult result code.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class ResultCodeAction extends GrammarAction
 {
@@ -134,6 +135,7 @@ public class ResultCodeAction extends GrammarAction
             default:
                 log.warn( "The resultCode " + resultCode + " is unknown." );
                 ldapResult.setResultCode( ResultCodeEnum.OTHER );
+                break;
         }
 
         if ( IS_DEBUG )

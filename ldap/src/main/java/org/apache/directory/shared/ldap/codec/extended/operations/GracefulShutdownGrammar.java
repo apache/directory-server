@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class GracefulShutdownGrammar extends AbstractGrammar
 {
@@ -82,7 +83,9 @@ public class GracefulShutdownGrammar extends AbstractGrammar
          * Creates the GracefulShutdown object
          */
         super.transitions[IStates.INIT_GRAMMAR_STATE][UniversalTag.SEQUENCE_TAG] = 
-            new GrammarTransition( IStates.INIT_GRAMMAR_STATE, GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_STATE, UniversalTag.SEQUENCE_TAG,
+            new GrammarTransition( IStates.INIT_GRAMMAR_STATE, 
+                GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_STATE, 
+                UniversalTag.SEQUENCE_TAG,
                 new GrammarAction( "Init GracefulShutdown" )
             {
                 public void action( IAsn1Container container )
@@ -191,7 +194,8 @@ public class GracefulShutdownGrammar extends AbstractGrammar
          * Set the delay value into the GracefulShutdown
          * object.
          */
-        super.transitions[GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_STATE][GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] = 
+        super.transitions[GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_STATE]
+                         [GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG] = 
             new GrammarTransition( GracefulShutdownStatesEnum.GRACEFUL_SHUTDOWN_SEQUENCE_STATE, 
                                     GracefulShutdownStatesEnum.DELAY_STATE, 
                                     GracefulActionConstants.GRACEFUL_ACTION_DELAY_TAG, 

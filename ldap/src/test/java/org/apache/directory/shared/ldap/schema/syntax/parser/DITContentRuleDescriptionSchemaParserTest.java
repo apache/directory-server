@@ -156,7 +156,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "top2", dcrd.getAuxiliaryObjectClasses().get( 2 ) );
 
         // AUX multi mixed no space
-        value = "( 1.1 AUX (TOP-1$1.2.3.4$TOP-2) )";
+        value = "(1.1 AUX(TOP-1$1.2.3.4$TOP-2))";
         dcrd = parser.parseDITContentRuleDescription( value );
         assertEquals( 3, dcrd.getAuxiliaryObjectClasses().size() );
         assertEquals( "TOP-1", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
@@ -173,27 +173,22 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
 
         // no quote allowed
         value = "( 1.1 AUX 'top' )";
-        try
-        {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid AUX 'top' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        dcrd = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, dcrd.getAuxiliaryObjectClasses().size() );
+        assertEquals( "top", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
 
-        // no quote allowed
+        // quoted value
         value = "( 1.1 AUX '1.2.3.4' )";
-        try
-        {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid AUX '1.2.3.4' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        dcrd = parser.parseDITContentRuleDescription( value );
+        assertEquals( 1, dcrd.getAuxiliaryObjectClasses().size() );
+        assertEquals( "1.2.3.4", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
+
+        // no $ separator
+        value = "( 1.1 AUX ( top1 top2 ) )";
+        dcrd = parser.parseDITContentRuleDescription( value );
+        assertEquals( 2, dcrd.getAuxiliaryObjectClasses().size() );
+        assertEquals( "top1", dcrd.getAuxiliaryObjectClasses().get( 0 ) );
+        assertEquals( "top2", dcrd.getAuxiliaryObjectClasses().get( 1 ) );
 
         // invalid character
         value = "( 1.1 AUX 1.2.3.4.A )";
@@ -201,30 +196,6 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         {
             dcrd = parser.parseDITContentRuleDescription( value );
             fail( "Exception expected, invalid AUX '1.2.3.4.A' (invalid character)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // invalid start
-        value = "( 1.1 AUX ( top1 $ -top2 ) )";
-        try
-        {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid AUX '-top' (starts with hypen)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // invalid separator
-        value = "( 1.1 AUX ( top1 top2 ) )";
-        try
-        {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid separator (no DOLLAR)" );
         }
         catch ( ParseException pe )
         {
@@ -242,6 +213,21 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         {
             // expected
         }
+
+        if ( !parser.isQuirksMode() )
+        {
+            // invalid start
+            value = "( 1.1 AUX ( top1 $ -top2 ) )";
+            try
+            {
+                dcrd = parser.parseDITContentRuleDescription( value );
+                fail( "Exception expected, invalid AUX '-top' (starts with hypen)" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+        }
     }
 
 
@@ -255,7 +241,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
     {
         String value = null;
         DITContentRuleDescription dcrd = null;
-        
+
         // no MUST
         value = "( 1.1 )";
         dcrd = parser.parseDITContentRuleDescription( value );
@@ -268,25 +254,13 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "1.2.3", dcrd.getMustAttributeTypes().get( 0 ) );
 
         // MUST mulitple
-        value = "(1.1 MUST (cn$sn       $11.22.33.44.55         $  objectClass   ))";
+        value = "(1.1 MUST (cn\rsn       $11.22.33.44.55            objectClass\t))";
         dcrd = parser.parseDITContentRuleDescription( value );
         assertEquals( 4, dcrd.getMustAttributeTypes().size() );
         assertEquals( "cn", dcrd.getMustAttributeTypes().get( 0 ) );
         assertEquals( "sn", dcrd.getMustAttributeTypes().get( 1 ) );
         assertEquals( "11.22.33.44.55", dcrd.getMustAttributeTypes().get( 2 ) );
         assertEquals( "objectClass", dcrd.getMustAttributeTypes().get( 3 ) );
-
-        // invalid value
-        value = "( 1.1 MUST ( c_n ) )";
-        try
-        {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid value c_n" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
 
         // no MUST values
         value = "( 1.1 MUST )";
@@ -298,6 +272,21 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         catch ( ParseException pe )
         {
             // expected
+        }
+
+        if ( !parser.isQuirksMode() )
+        {
+            // invalid value
+            value = "( 1.1 MUST ( c_n ) )";
+            try
+            {
+                dcrd = parser.parseDITContentRuleDescription( value );
+                fail( "Exception expected, invalid value c_n" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
 
@@ -333,18 +322,22 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "11.22.33.44.55", dcrd.getMayAttributeTypes().get( 2 ) );
         assertEquals( "objectClass", dcrd.getMayAttributeTypes().get( 3 ) );
 
-        // invalid value
-        value = "( 1.1 MAY ( c_n ) )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid value c_n" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
+            // invalid value
+            value = "( 1.1 MAY ( c_n ) )";
+            try
+            {
+                dcrd = parser.parseDITContentRuleDescription( value );
+                fail( "Exception expected, invalid value c_n" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
+
 
     /**
      * Test NOT and its values.
@@ -357,19 +350,19 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         String value = null;
         DITContentRuleDescription dcrd = null;
 
-        // no MAY
+        // no NOT
         value = "( 1.1 )";
         dcrd = parser.parseDITContentRuleDescription( value );
         assertEquals( 0, dcrd.getNotAttributeTypes().size() );
 
-        // MAY simple numericoid
+        // NOT simple numericoid
         value = "( 1.1 NOT 1.2.3 )";
         dcrd = parser.parseDITContentRuleDescription( value );
         assertEquals( 1, dcrd.getNotAttributeTypes().size() );
         assertEquals( "1.2.3", dcrd.getNotAttributeTypes().get( 0 ) );
 
-        // MAY mulitple
-        value = "(1.1 NOT (cn$sn       $11.22.33.44.55         $  objectClass   ))";
+        // NOT mulitple
+        value = "(1.1 NOT (cn\nsn\t$11.22.33.44.55         $  objectClass   ))";
         dcrd = parser.parseDITContentRuleDescription( value );
         assertEquals( 4, dcrd.getNotAttributeTypes().size() );
         assertEquals( "cn", dcrd.getNotAttributeTypes().get( 0 ) );
@@ -377,19 +370,22 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "11.22.33.44.55", dcrd.getNotAttributeTypes().get( 2 ) );
         assertEquals( "objectClass", dcrd.getNotAttributeTypes().get( 3 ) );
 
-        // invalid value
-        value = "( 1.1 NOT ( c_n ) )";
-        try
+        if ( !parser.isQuirksMode() )
         {
-            dcrd = parser.parseDITContentRuleDescription( value );
-            fail( "Exception expected, invalid value c_n" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
+            // invalid value
+            value = "( 1.1 NOT ( c_n ) )";
+            try
+            {
+                dcrd = parser.parseDITContentRuleDescription( value );
+                fail( "Exception expected, invalid value c_n" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
         }
     }
-    
+
 
     /**
      * Test extensions.
@@ -449,7 +445,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "test2-2", dcrd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
     }
 
-    
+
     /**
      * Test unique elements.
      * 
@@ -458,24 +454,17 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
     public void testUniqueElements()
     {
         String[] testValues = new String[]
-            { 
-                "( 1.1 NAME 'test1' NAME 'test2' )", 
-                "( 1.1 DESC 'test1' DESC 'test2' )",
-                "( 1.1 OBSOLETE OBSOLETE )", 
-                "( 1.1 AUX test1 AUX test2 )",
-                "( 1.1 MUST test1 MUST test2 )",
-                "( 1.1 MAY test1 MAY test2 )",
-                "( 1.1 NOT test1 NOT test2 )",
-                "( 1.1 X-TEST 'test1' X-TEST 'test2' )" 
-            };
+            { "( 1.1 NAME 'test1' NAME 'test2' )", "( 1.1 DESC 'test1' DESC 'test2' )", "( 1.1 OBSOLETE OBSOLETE )",
+                "( 1.1 AUX test1 AUX test2 )", "( 1.1 MUST test1 MUST test2 )", "( 1.1 MAY test1 MAY test2 )",
+                "( 1.1 NOT test1 NOT test2 )", "( 1.1 X-TEST 'test1' X-TEST 'test2' )" };
         SchemaParserTestUtils.testUnique( parser, testValues );
     }
-    
-    
+
+
     /**
      * Tests the multithreaded use of a single parser.
      */
-    public void testMultiThreaded() throws Exception
+    public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
             {
@@ -485,6 +474,37 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
                 "( 1.2.3.4.5.6.7.8.9.0 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE AUX ( 2.3.4.5.6.7.8.9.0.1 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) MUST ( 3.4.5.6.7.8.9.0.1.2 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) MAY ( 4.5.6.7.8.9.0.1.2.3 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) NOT ( 5.6.7.8.9.0.1.2.3.4 $ abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
 
+    }
+
+
+    /**
+     * Tests quirks mode.
+     */
+    public void testQuirksMode() throws ParseException
+    {
+        SchemaParserTestUtils.testQuirksMode( parser, "" );
+
+        try
+        {
+            parser.setQuirksMode( true );
+
+            // ensure all other test pass in quirks mode
+            testNumericOid();
+            testDescription();
+            testObsolete();
+            testAux();
+            testMust();
+            testMay();
+            testNot();
+            testExtensions();
+            testFull();
+            testUniqueElements();
+            testMultiThreaded();
+        }
+        finally
+        {
+            parser.setQuirksMode( false );
+        }
     }
 
 }

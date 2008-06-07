@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
  * Little helper class.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class Asn1StringUtils
 {
@@ -76,10 +77,10 @@ public class Asn1StringUtils
 
         StringBuffer sb = new StringBuffer();
 
-        for ( int i = 0; i < buffer.length; i++ )
+        for ( byte b:buffer )
         {
-            sb.append( "0x" ).append( ( char ) ( HEX_CHAR[( buffer[i] & 0x00F0 ) >> 4] ) ).append(
-                ( char ) ( HEX_CHAR[buffer[i] & 0x000F] ) ).append( " " );
+            sb.append( "0x" ).append( ( char ) ( HEX_CHAR[( b & 0x00F0 ) >> 4] ) ).append(
+                ( char ) ( HEX_CHAR[b & 0x000F] ) ).append( " " );
         }
 
         return sb.toString();

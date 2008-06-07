@@ -29,7 +29,6 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.binary.Hex;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder;
-import org.apache.directory.shared.asn1.codec.stateful.examples.HexDecoder;
 
 
 /**

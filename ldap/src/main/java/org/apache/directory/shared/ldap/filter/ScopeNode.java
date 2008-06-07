@@ -62,6 +62,7 @@ public class ScopeNode extends AbstractExprNode
      * Always returns true since a scope node has no children.
      * 
      * @see ExprNode#isLeaf()
+     * @return <code>true</code>
      */
     public boolean isLeaf()
     {
@@ -103,17 +104,11 @@ public class ScopeNode extends AbstractExprNode
 
 
     /**
-     * @see ExprNode#printRefinementToBuffer(StringBuilder)
-     */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
-    {
-        throw new UnsupportedOperationException( "ScopeNode can't be part of a refinement" );
-    }
-
-
-    /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
      *      org.apache.directory.shared.ldap.filter.FilterVisitor)
+     * 
+     * @param visitor the filter expression tree structure visitor
+     * @return The modified element
      */
     public Object accept( FilterVisitor visitor )
     {
@@ -123,13 +118,14 @@ public class ScopeNode extends AbstractExprNode
         }
         else
         {
-        	return null;
+            return null;
         }
     }
-    
+
 
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {
@@ -146,12 +142,13 @@ public class ScopeNode extends AbstractExprNode
 
     /**
      * @see Object#toString()
+     * @return A string representing the AndNode
      */
     public String toString()
     {
-    	StringBuilder buf = new StringBuilder();
-    	
-    	buf.append( "(#{" );
+        StringBuilder buf = new StringBuilder();
+        
+        buf.append( "(#{" );
 
         switch ( scope )
         {
@@ -172,16 +169,17 @@ public class ScopeNode extends AbstractExprNode
 
             default:
                 buf.append( "UNKNOWN" );
+                break;
         }
-    	
-    	buf.append( ", '" );
-    	buf.append( baseDn );
-    	buf.append( "', " );
-    	buf.append( aliasDerefAliases );
-    	buf.append( "}" );
-    	buf.append( super.toString() );
-    	buf.append( ')' );
-    	
-    	return buf.toString();
+        
+        buf.append( ", '" );
+        buf.append( baseDn );
+        buf.append( "', " );
+        buf.append( aliasDerefAliases );
+        buf.append( "}" );
+        buf.append( super.toString() );
+        buf.append( ')' );
+        
+        return buf.toString();
     }
 }

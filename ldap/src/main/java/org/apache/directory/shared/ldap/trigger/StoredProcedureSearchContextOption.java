@@ -62,8 +62,9 @@ public class StoredProcedureSearchContextOption implements StoredProcedureOption
         return "searchContext { scope " + searchScope + " } \"" + baseObject + "\""; 
     }
 
-    /* (non-Javadoc)
+    /**
      * @see java.lang.Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

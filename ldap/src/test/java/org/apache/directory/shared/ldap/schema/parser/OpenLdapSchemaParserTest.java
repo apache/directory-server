@@ -65,9 +65,9 @@ public class OpenLdapSchemaParserTest extends TestCase
             + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.25 )";
 
         parser.parse( attributeTypeData );
-        List attributeTypeList = parser.getAttributeTypes();
-        Map attributeTypes = mapAttributeTypes( attributeTypeList );
-        AttributeTypeLiteral type = ( AttributeTypeLiteral ) attributeTypes.get( "2.5.4.14" );
+        List<AttributeTypeLiteral> attributeTypeList = parser.getAttributeTypes();
+        Map<String, AttributeTypeLiteral> attributeTypes = mapAttributeTypes( attributeTypeList );
+        AttributeTypeLiteral type = attributeTypes.get( "2.5.4.14" );
 
         assertNotNull( type );
         assertEquals( "2.5.4.14", type.getOid() );
@@ -77,13 +77,12 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
-    private Map mapAttributeTypes( List attributeTypeList )
+    private Map<String, AttributeTypeLiteral> mapAttributeTypes( List<AttributeTypeLiteral> attributeTypeList )
     {
-        Map m = new HashMap();
+        Map<String, AttributeTypeLiteral> m = new HashMap<String, AttributeTypeLiteral>();
         
-        for ( int ii = 0 ; ii < attributeTypeList.size(); ii++ )
+        for ( AttributeTypeLiteral type : attributeTypeList )
         {
-            AttributeTypeLiteral type = ( AttributeTypeLiteral ) attributeTypeList.get( ii );
             m.put( type.getOid(), type );
         }
         
@@ -97,9 +96,9 @@ public class OpenLdapSchemaParserTest extends TestCase
             + "        DESC 'RFC2256: knowledge information'\n" + "        EQUALITY caseIgnoreMatch\n"
             + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
         parser.parse( attributeTypeData );
-        List attributeTypeList = parser.getAttributeTypes();
-        Map attributeTypes = mapAttributeTypes( attributeTypeList );
-        AttributeTypeLiteral type = ( AttributeTypeLiteral ) attributeTypes.get( "2.5.4.2" );
+        List<AttributeTypeLiteral> attributeTypeList = parser.getAttributeTypes();
+        Map<String, AttributeTypeLiteral> attributeTypes = mapAttributeTypes( attributeTypeList );
+        AttributeTypeLiteral type = attributeTypes.get( "2.5.4.2" );
 
         assertNotNull( type );
         assertEquals( "2.5.4.2", type.getOid() );
@@ -116,14 +115,14 @@ public class OpenLdapSchemaParserTest extends TestCase
             + "        DESC 'RFC2256: \"knowledge\" information'\n" + "        EQUALITY caseIgnoreMatch\n"
             + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
         parser.parse( attributeTypeData );
-        List attributeTypeList = parser.getAttributeTypes();
-        Map attributeTypes = mapAttributeTypes( attributeTypeList );
-        AttributeTypeLiteral type = ( AttributeTypeLiteral ) attributeTypes.get( "2.5.4.2" );
+        List<AttributeTypeLiteral> attributeTypeList = parser.getAttributeTypes();
+        Map<String, AttributeTypeLiteral> attributeTypes = mapAttributeTypes( attributeTypeList );
+        AttributeTypeLiteral type = attributeTypes.get( "2.5.4.2" );
 
         assertNotNull( type );
         assertEquals( "2.5.4.2", type.getOid() );
         assertEquals( "knowledgeInformation", type.getNames()[0] );
-        assertEquals( "RFC2256: \\\"knowledge\\\" information", type.getDescription() );
+        assertEquals( "RFC2256: \"knowledge\" information", type.getDescription() );
         assertEquals( "1.3.6.1.4.1.1466.115.121.1.15", type.getSyntax() );
         assertEquals( 32768, type.getLength() );
     }
@@ -136,9 +135,9 @@ public class OpenLdapSchemaParserTest extends TestCase
             + "        DESC 'RFC2256: knowledge information'\n" + "        EQUALITY caseIgnoreMatch\n"
             + "        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )";
         parser.parse( attributeTypeData );
-        List attributeTypeList = parser.getAttributeTypes();
-        Map attributeTypes = mapAttributeTypes( attributeTypeList );
-        AttributeTypeLiteral type = ( AttributeTypeLiteral ) attributeTypes.get( "2.5.4.2" );
+        List<AttributeTypeLiteral> attributeTypeList = parser.getAttributeTypes();
+        Map<String, AttributeTypeLiteral> attributeTypes = mapAttributeTypes( attributeTypeList );
+        AttributeTypeLiteral type = attributeTypes.get( "2.5.4.2" );
 
         assertNotNull( type );
         assertEquals( "2.5.4.2", type.getOid() );
@@ -149,14 +148,13 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
-    private Map mapObjectClasses( List attributeTypeList )
+    private Map<String, ObjectClassLiteral> mapObjectClasses( List<ObjectClassLiteral> objectClassList )
     {
-        Map m = new HashMap();
+        Map<String, ObjectClassLiteral> m = new HashMap<String, ObjectClassLiteral>();
         
-        for ( int ii = 0 ; ii < attributeTypeList.size(); ii++ )
+        for ( ObjectClassLiteral objectClassLiteral : objectClassList )
         {
-            ObjectClassLiteral type = ( ObjectClassLiteral ) attributeTypeList.get( ii );
-            m.put( type.getOid(), type );
+            m.put( objectClassLiteral.getOid(), objectClassLiteral );
         }
         
         return m;
@@ -169,9 +167,9 @@ public class OpenLdapSchemaParserTest extends TestCase
             + "        SUP top STRUCTURAL\n" + "        MUST ( sn $ cn )\n"
             + "        MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) )";
         parser.parse( objectClassData );
-        List objectClassesList = parser.getObjectClassTypes();
-        Map objectClasses = mapObjectClasses( objectClassesList );
-        ObjectClassLiteral objectClass = ( ObjectClassLiteral ) objectClasses.get( "2.5.6.6" );
+        List<ObjectClassLiteral> objectClassesList = parser.getObjectClassTypes();
+        Map<String, ObjectClassLiteral> objectClasses = mapObjectClasses( objectClassesList );
+        ObjectClassLiteral objectClass = objectClasses.get( "2.5.6.6" );
 
         assertNotNull( objectClass );
         assertEquals( "2.5.6.6", objectClass.getOid() );
@@ -199,9 +197,9 @@ public class OpenLdapSchemaParserTest extends TestCase
             + "\t\tpagerTelephoneNumber $ organizationalStatus $\n"
             + "\t\tmailPreferenceOption $ personalSignature )\n" + "\t)";
         parser.parse( objectClassData );
-        List objectClassesList = parser.getObjectClassTypes();
-        Map objectClasses = mapObjectClasses( objectClassesList );
-        ObjectClassLiteral objectClass = ( ObjectClassLiteral ) objectClasses.get( "0.9.2342.19200300.100.4.4" );
+        List<ObjectClassLiteral> objectClassesList = parser.getObjectClassTypes();
+        Map<String, ObjectClassLiteral> objectClasses = mapObjectClasses( objectClassesList );
+        ObjectClassLiteral objectClass = objectClasses.get( "0.9.2342.19200300.100.4.4" );
 
         assertNotNull( objectClass );
         assertEquals( "0.9.2342.19200300.100.4.4", objectClass.getOid() );
@@ -229,6 +227,6 @@ public class OpenLdapSchemaParserTest extends TestCase
         assertEquals( "organizationalStatus", objectClass.getMay()[16] );
         assertEquals( "mailPreferenceOption", objectClass.getMay()[17] );
         assertEquals( "personalSignature", objectClass.getMay()[18] );
-
     }
+
 }

@@ -29,7 +29,7 @@ package org.apache.directory.shared.ldap.codec.util;
  */
 public class URIException extends Exception
 {
-    final static long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
 
     // ----------------------------------------------------------- constructors

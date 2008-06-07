@@ -20,6 +20,8 @@
 package org.apache.directory.shared.asn1.ber;
 
 
+import java.nio.ByteBuffer;
+
 import org.apache.directory.shared.asn1.ber.grammar.IStates;
 import org.apache.directory.shared.asn1.ber.tlv.ITLVBerDecoderMBean;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -30,8 +32,6 @@ import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
-
 
 /**
  * A BER TLV Tag component decoder. This decoder instanciate a Tag. The tag
@@ -39,7 +39,8 @@ import java.nio.ByteBuffer;
  * delivered but should copy the data if they need it over the long term.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- */
+ * @version $Rev$, $Date$
+*/
 public class Asn1Decoder implements ITLVBerDecoderMBean
 {
     // ~ Static fields/initializers
@@ -95,7 +96,6 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * the result and other informations.
      * @return <code>true</code> if there are more bytes to read, <code>false 
      * </code> otherwise
-     * @throws DecoderException If something went wrong.
      */
     private boolean treatTagStartState( ByteBuffer stream, IAsn1Container container )
     {
@@ -166,6 +166,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * Check if the TLV tree is fully decoded
      * 
      * @param container The container
+     * @return <code>true</code> if the TLV has been decoded
      */
     private boolean isTLVDecoded( IAsn1Container container )
     {
@@ -264,7 +265,6 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * the result and other informations.
      * @return <code>true</code> if there are more bytes to read, <code>false 
      * </code> otherwise
-     * @throws DecoderException Thrown if anything went wrong
      */
     private boolean treatLengthPendingState( ByteBuffer stream, IAsn1Container container )
     {
@@ -288,7 +288,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
                 tlv.incLengthBytesRead();
                 length = ( length << 8 ) | ( octet & 0x00FF );
                 
-                if ( stream.hasRemaining() == false )
+                if ( !stream.hasRemaining() )
                 {
                     tlv.setLength( length );
                     
@@ -520,7 +520,6 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * the result and other informations.
      * @return <code>true</code> if there are more bytes to read, <code>false 
      * </code> otherwise
-     * @throws DecoderException Thrown if anything went wrong
      */
     private boolean treatValueStartState( ByteBuffer stream, IAsn1Container container )
     {
@@ -568,7 +567,6 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
      * @return <code>MORE</code> if some bytes remain in the buffer when the
      * value has been decoded, <code>END</code> if whe still need to get some 
      * more bytes.
-     * @throws DecoderException Thrown if anything went wrong
      */
     private boolean treatValuePendingState( ByteBuffer stream, IAsn1Container container )
     {
@@ -806,6 +804,9 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
                     hasRemaining = false;
 
+                    break;
+                    
+                default :
                     break;
             }
         }

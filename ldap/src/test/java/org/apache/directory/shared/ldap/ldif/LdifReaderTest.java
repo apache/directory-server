@@ -139,7 +139,7 @@ public class LdifReaderTest extends TestCase
             " is is still a comment\n" + 
             "\n" + 
             "version:\n" + 
-	    " 1\n" + 
+            " 1\n" + 
             "# end";
 
         LdifReader reader = new LdifReader();
@@ -259,7 +259,7 @@ public class LdifReaderTest extends TestCase
         testReaderAttrIdCaseInsensitive( ldif );
     }
 
-    private void testReaderAttrIdCaseInsensitive( String ldif )
+    public void testReaderAttrIdCaseInsensitive( String ldif )
             throws NamingException
     {
         LdifReader reader = new LdifReader();

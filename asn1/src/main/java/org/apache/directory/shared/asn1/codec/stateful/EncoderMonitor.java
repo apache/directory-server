@@ -24,12 +24,12 @@ package org.apache.directory.shared.asn1.codec.stateful;
  * Document me.
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
- *         $Rev$
+ * @version $Rev$, $Date$
  */
 public interface EncoderMonitor
 {
     /** Use this if you don't want to recreate this as just a NOOP monitor */
-    public EncoderMonitor INSTANCE = new EncoderMonitorAdapter();
+    EncoderMonitor INSTANCE = new EncoderMonitorAdapter();
 
 
     /**
@@ -77,10 +77,9 @@ public interface EncoderMonitor
     /**
      * Monitors callbacks that deliver a fully decoded object.
      * 
-     * @param encoder
-     *            the stateful encoder driving the callback
-     * @param decoded
-     *            the object that was decoded
+     * @param encoder the stateful encoder driving the callback
+     * @param cb the callback to call when the encoder has done its job
+     * @param decoded the object that was decoded
      */
     void callbackOccured( StatefulEncoder encoder, EncoderCallback cb, Object decoded );
 

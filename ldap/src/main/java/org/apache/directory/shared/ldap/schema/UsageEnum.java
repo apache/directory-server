@@ -86,26 +86,26 @@ public enum UsageEnum
         }
         catch( IllegalArgumentException iae )
         {
-        	if ( "directoryOperation".equals( usage ) )
-        	{
-        		return DIRECTORY_OPERATION;
-        	}
-        	else if ( "distributedOperation".equals( usage ) )
-        	{
-        		return DISTRIBUTED_OPERATION;
-        	}
-        	else if ( "dSAOperation".equals( usage ) )
-        	{
-        		return DSA_OPERATION;	
-        	}
-        	else if ( "userApplications".equals( usage ) ) 
-        	{
-        		return USER_APPLICATIONS;
-        	}
-        	else 
-        	{
-        		return null;
-        	}
+            if ( "directoryOperation".equals( usage ) )
+            {
+                return DIRECTORY_OPERATION;
+            }
+            else if ( "distributedOperation".equals( usage ) )
+            {
+                return DISTRIBUTED_OPERATION;
+            }
+            else if ( "dSAOperation".equals( usage ) )
+            {
+                return DSA_OPERATION;    
+            }
+            else if ( "userApplications".equals( usage ) ) 
+            {
+                return USER_APPLICATIONS;
+            }
+            else 
+            {
+                return null;
+            }
         }
     }
     

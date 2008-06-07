@@ -51,7 +51,7 @@ public class ClientBinaryValueTest
     
     private static final Normalizer BINARY_NORMALIZER = new Normalizer()
     {
-        public static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
         
         public Object normalize( Object value ) throws NamingException
         {

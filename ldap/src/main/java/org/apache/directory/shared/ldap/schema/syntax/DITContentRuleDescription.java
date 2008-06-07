@@ -29,6 +29,7 @@ import java.util.List;
  * RFC 4512 - 4.1.6.  DIT Content Rule Description
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class DITContentRuleDescription extends AbstractSchemaDescription
 {

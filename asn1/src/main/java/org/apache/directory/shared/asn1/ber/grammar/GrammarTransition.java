@@ -28,6 +28,7 @@ import org.apache.directory.shared.asn1.util.Asn1StringUtils;
  * state, and the action to execute while transiting.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class GrammarTransition
 {
@@ -49,7 +50,9 @@ public class GrammarTransition
     /**
      * Creates a new GrammarTransition object.
      * 
-     * @param currentState The current transition
+     * @param previousState the previous state
+     * @param currentState The current state
+     * @param currentTag the current TLV's tag
      * @param action The action to execute. It could be null.
      */
     public GrammarTransition( int previousState, int currentState, int currentTag, IAction action )

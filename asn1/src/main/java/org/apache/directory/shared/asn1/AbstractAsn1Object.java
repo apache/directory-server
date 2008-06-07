@@ -30,6 +30,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
  * An abstract class which implements basic TLV operations.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public abstract class AbstractAsn1Object implements Asn1Object
 {
@@ -47,7 +48,7 @@ public abstract class AbstractAsn1Object implements Asn1Object
 
     
     /** The identifier of the asqsocaited TLV */
-    private transient int tlvId;
+    private int tlvId;
 
     // ~ Methods
     // ------------------------------------------------------------------------------------
@@ -97,9 +98,9 @@ public abstract class AbstractAsn1Object implements Asn1Object
     /**
      * Encode the object to a PDU.
      * 
-     * @param buffer
-     *            The buffer where to put the PDU
+     * @param buffer The buffer where to put the PDU
      * @return The PDU.
+     * @throws EncoderException if the buffer can't be encoded
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {

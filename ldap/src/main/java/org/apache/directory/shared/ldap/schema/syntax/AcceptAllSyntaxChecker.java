@@ -59,6 +59,8 @@ public class AcceptAllSyntaxChecker implements SyntaxChecker
     
     /**
      * @see SyntaxChecker#getSyntaxOid()
+     * 
+     * @return the OID syntax
      */
     public String getSyntaxOid()
     {
@@ -70,6 +72,9 @@ public class AcceptAllSyntaxChecker implements SyntaxChecker
      * Returns true every time.
      * 
      * @see SyntaxChecker#isValidSyntax(Object)
+     * 
+     * @param value the value of some attribute with the syntax
+     * @return true if the value is in the valid syntax, false otherwise
      */
     public boolean isValidSyntax( Object value )
     {
@@ -81,6 +86,9 @@ public class AcceptAllSyntaxChecker implements SyntaxChecker
      * Does nothing but return immediately and no exceptions are ever thrown.
      * 
      * @see SyntaxChecker#assertSyntax(Object)
+     * 
+     * @param value the value of some attribute with the syntax
+     * @throws NamingException if the value does not conform to the attribute syntax.
      */
     public void assertSyntax( Object value ) throws NamingException
     {

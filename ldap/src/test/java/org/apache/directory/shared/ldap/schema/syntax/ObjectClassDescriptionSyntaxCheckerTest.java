@@ -38,6 +38,7 @@ public class ObjectClassDescriptionSyntaxCheckerTest extends TestCase
     public void testValid()
     {
         assertTrue( checker.isValidSyntax( "( 2.5.6.6 )" ) );
+        assertTrue( checker.isValidSyntax( "( 2.5.6.6 NAME person )" ) );
         assertTrue( checker.isValidSyntax( "( 2.5.6.6 NAME 'person' )" ) );
         assertTrue( checker.isValidSyntax( "( 2.5.6.6 NAME 'person' DESC 'RFC2256: a person' )" ) );
         assertTrue( checker.isValidSyntax( "( 2.5.6.6 NAME 'person' DESC 'RFC2256: a person' SUP top )" ) );
@@ -70,9 +71,6 @@ public class ObjectClassDescriptionSyntaxCheckerTest extends TestCase
 
         // missing right parenthesis
         assertFalse( checker.isValidSyntax( "( 2.5.6.6 NAME 'person'" ) );
-
-        // missing quotes
-        assertFalse( checker.isValidSyntax( "( 2.5.6.6 NAME person )" ) );
 
         // lowercase NAME, DESC, SUP
         assertFalse( checker.isValidSyntax( "( 2.5.6.6 name 'person' desc 'RFC2256: a person' sup top " ) );

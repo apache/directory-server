@@ -589,7 +589,7 @@ public class PropertiesUtils
         
         if ( entry != null )
         {
-        	values = entry.getAttributes();
+            values = entry.getAttributes();
         }
         return values;
     }

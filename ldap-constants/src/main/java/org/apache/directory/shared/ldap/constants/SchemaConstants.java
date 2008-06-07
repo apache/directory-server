@@ -40,7 +40,7 @@ public interface SchemaConstants
     String[] ALL_OPERATIONAL_ATTRIBUTES_ARRAY = new String[]{ ALL_OPERATIONAL_ATTRIBUTES };
     
     // ---- ObjectClasses -----------------------------------------------------
-	// Krb5Principal
+    // Krb5Principal
     String KRB5_PRINCIPAL_OC = "krb5Principal";
     String KRB5_PRINCIPAL_OC_OID = "1.3.6.1.4.1.5322.10.2.1";
     
@@ -343,7 +343,7 @@ public interface SchemaConstants
     // Ref
     String REF_AT = "ref";
     String REF_AT_OID = "2.16.840.1.113730.3.1.34";
-    	
+
     // DisplayName
     String DISPLAY_NAME_AT = "displayName";
     String DISPLAY_NAME_AT_OID = "2.16.840.1.113730.3.1.241";

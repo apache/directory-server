@@ -89,7 +89,7 @@ public class Base64
      *            data to decode.
      * @return the decoded binary data.
      */
-    public static byte[] decode( char[] a_data )
+    public static byte[] decode( char[] data )
     {
         // as our input could contain non-BASE64 data (newlines,
         // whitespace of any sort, whatever) we must first adjust
@@ -98,12 +98,13 @@ public class Base64
         // (b) think that we miscalculated our data length
         // just because of extraneous throw-away junk
 
-        int l_tempLen = a_data.length;
-        for ( int ii = 0; ii < a_data.length; ii++ )
+        int tempLen = data.length;
+        
+        for ( char c:data)
         {
-            if ( ( a_data[ii] > 255 ) || s_codes[a_data[ii]] < 0 )
+            if ( ( c > 255 ) || s_codes[c] < 0 )
             {
-                --l_tempLen; // ignore non-valid chars and padding
+                --tempLen; // ignore non-valid chars and padding
             }
         }
         // calculate required length:
@@ -111,14 +112,14 @@ public class Base64
         // -- plus 2 bytes if there are 3 extra base64 chars,
         // or plus 1 byte if there are 2 extra.
 
-        int l_len = ( l_tempLen / 4 ) * 3;
+        int l_len = ( tempLen / 4 ) * 3;
 
-        if ( ( l_tempLen % 4 ) == 3 )
+        if ( ( tempLen % 4 ) == 3 )
         {
             l_len += 2;
         }
 
-        if ( ( l_tempLen % 4 ) == 2 )
+        if ( ( tempLen % 4 ) == 2 )
         {
             l_len += 1;
         }
@@ -130,9 +131,9 @@ public class Base64
         int l_index = 0;
 
         // we now go through the entire array (NOT using the 'tempLen' value)
-        for ( int ii = 0; ii < a_data.length; ii++ )
+        for ( char c:data )
         {
-            int l_value = ( a_data[ii] > 255 ) ? -1 : s_codes[a_data[ii]];
+            int l_value = ( c > 255 ) ? -1 : s_codes[c];
 
             if ( l_value >= 0 ) // skip over non-code
             {

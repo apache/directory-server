@@ -27,6 +27,7 @@ package org.apache.directory.shared.ldap.schema.syntax;
  * the BASE64 encoded bytecode of the class.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public abstract class AbstractAdsSchemaDescription extends AbstractSchemaDescription
 {

@@ -115,10 +115,10 @@ public class DecoderStack extends AbstractStatefulDecoder
      * Decodes an encoded object by calling decode on the decoder at the bottom
      * of the stack. Callbacks are chained to feed the output of one decoder
      * into the input decode method of another. If the stack is empty then the
-     * arguement is delivered without change to this StatefulDecoder's callback.
+     * argument is delivered without change to this StatefulDecoder's callback.
      * 
-     * @see org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder#
-     *      decode(java.lang.Object)
+     * @param encoded an object representing a piece of encoded data
+     * @throws DecoderException if the encoded element can't be decoded
      */
     public synchronized void decode( Object encoded ) throws DecoderException
     {

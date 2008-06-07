@@ -29,27 +29,21 @@ import java.util.List;
  * RFC 4512 - 4.1.5. LDAP Syntaxes
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class LdapSyntaxDescription extends AbstractSchemaDescription
 {
 
+    /**
+     * 
+     * Creates a new instance of LdapSyntaxDescription.
+     *
+     */
     public LdapSyntaxDescription()
     {
         this.numericOid = "";
         description = "";
         extensions = new LinkedHashMap<String, List<String>>();
-    }
-
-
-    public List<String> getNames()
-    {
-        throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
-    }
-
-
-    public void setNames( List<String> names )
-    {
-        throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
     }
 
 

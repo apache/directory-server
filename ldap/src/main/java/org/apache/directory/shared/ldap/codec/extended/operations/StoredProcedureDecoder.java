@@ -28,6 +28,7 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
  * StoredProcedure Decoder
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class StoredProcedureDecoder extends Asn1Decoder
 {

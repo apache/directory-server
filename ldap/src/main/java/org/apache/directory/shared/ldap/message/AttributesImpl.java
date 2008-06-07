@@ -20,9 +20,9 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -43,10 +43,11 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class AttributesImpl implements Attributes
 {
-    static transient final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     
     /**
      * An iterator which returns Attributes.  
+     * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
      */
     public class AttributeIterator<T> implements Iterator<Attribute>
     {

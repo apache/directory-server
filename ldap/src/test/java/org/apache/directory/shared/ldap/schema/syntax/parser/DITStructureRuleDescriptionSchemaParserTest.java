@@ -196,29 +196,25 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
         dsrd = parser.parseDITStructureRuleDescription( value );
         assertEquals( "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789", dsrd.getForm() );
 
-        // no quote allowed
+        // descr, no space
+        value = "(1 FORMabc)";
+        dsrd = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "abc", dsrd.getForm() );
+
+        // descr, tab
+        value = "\t(\t1\tFORM\tabc\t)\t";
+        dsrd = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "abc", dsrd.getForm() );
+
+        // quoted value
         value = "( 1 FORM '1.2.3.4.5.6.7.8.9.0' )";
-        try
-        {
-            dsrd = parser.parseDITStructureRuleDescription( value );
-            fail( "Exception expected, invalid FORM '1.2.3.4.5.6.7.8.9.0' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        dsrd = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "1.2.3.4.5.6.7.8.9.0", dsrd.getForm() );
 
         // no quote allowed
-        value = "( 1 FORM 'test' )";
-        try
-        {
-            dsrd = parser.parseDITStructureRuleDescription( value );
-            fail( "Exception expected, invalid FORM 'test' (quoted)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
+        value = "( 1 FORM ('test') )";
+        dsrd = parser.parseDITStructureRuleDescription( value );
+        assertEquals( "test", dsrd.getForm() );
 
         // invalid character
         value = "( 1 FORM 1.2.3.4.A )";
@@ -232,19 +228,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
             // expected
         }
 
-        // invalid start
-        value = "( 1 FORM -test ) )";
-        try
-        {
-            dsrd = parser.parseDITStructureRuleDescription( value );
-            fail( "Exception expected, invalid FORM '-test' (starts with hypen)" );
-        }
-        catch ( ParseException pe )
-        {
-            // expected
-        }
-
-        // no multi value
+        // no multiple values
         value = "( 1 FORM ( test1 test2 ) )";
         try
         {
@@ -256,6 +240,20 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
             // expected
         }
 
+        if ( !parser.isQuirksMode() )
+        {
+            // invalid start
+            value = "( 1 FORM -test ) )";
+            try
+            {
+                dsrd = parser.parseDITStructureRuleDescription( value );
+                fail( "Exception expected, invalid FORM '-test' (starts with hypen)" );
+            }
+            catch ( ParseException pe )
+            {
+                // expected
+            }
+        }
     }
 
 
@@ -287,7 +285,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( new Integer( 1 ), dsrd.getSuperRules().get( 0 ) );
 
         // SUP multi number
-        value = "( 1 FORM 1.1 SUP (12345 67890) )";
+        value = "( 1 FORM 1.1 SUP(12345 67890))";
         dsrd = parser.parseDITStructureRuleDescription( value );
         assertEquals( 2, dsrd.getSuperRules().size() );
         assertEquals( new Integer( 12345 ), dsrd.getSuperRules().get( 0 ) );
@@ -353,9 +351,9 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
         assertTrue( dsrd.isObsolete() );
         assertEquals( "2.3.4.5.6.7.8.9.0.1", dsrd.getForm() );
         assertEquals( 3, dsrd.getSuperRules().size() );
-        assertEquals( new Integer(1), dsrd.getSuperRules().get( 0 ) );
-        assertEquals( new Integer(1234567890), dsrd.getSuperRules().get( 1 ) );
-        assertEquals( new Integer(5), dsrd.getSuperRules().get( 2 ) );
+        assertEquals( new Integer( 1 ), dsrd.getSuperRules().get( 0 ) );
+        assertEquals( new Integer( 1234567890 ), dsrd.getSuperRules().get( 1 ) );
+        assertEquals( new Integer( 5 ), dsrd.getSuperRules().get( 2 ) );
         assertEquals( 2, dsrd.getExtensions().size() );
         assertNotNull( dsrd.getExtensions().get( "X-TEST-a" ) );
         assertEquals( 2, dsrd.getExtensions().get( "X-TEST-a" ).size() );
@@ -367,7 +365,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
         assertEquals( "test2-2", dsrd.getExtensions().get( "X-TEST-b" ).get( 1 ) );
     }
 
-    
+
     /**
      * Test unique elements.
      * 
@@ -376,18 +374,13 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
     public void testUniqueElements()
     {
         String[] testValues = new String[]
-            { 
-                "( 1 FORM 1.1 NAME 'test1' NAME 'test2' )", 
-                "( 1 FORM 1.1 DESC 'test1' DESC 'test2' )",
-                "( 1 FORM 1.1 OBSOLETE OBSOLETE )", 
-                "( 1 FORM 1.1 FORM test1 FORM test2 )",
-                "( 1 FORM 1.1 SUP 1 SUP 2 )",
-                "( 1 FORM 1.1 X-TEST 'test1' X-TEST 'test2' )" 
-            };
+            { "( 1 FORM 1.1 NAME 'test1' NAME 'test2' )", "( 1 FORM 1.1 DESC 'test1' DESC 'test2' )",
+                "( 1 FORM 1.1 OBSOLETE OBSOLETE )", "( 1 FORM 1.1 FORM test1 FORM test2 )",
+                "( 1 FORM 1.1 SUP 1 SUP 2 )", "( 1 FORM 1.1 X-TEST 'test1' X-TEST 'test2' )" };
         SchemaParserTestUtils.testUnique( parser, testValues );
     }
-    
-    
+
+
     /**
      * Test required elements.
      * 
@@ -412,14 +405,14 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
         {
             // expected
         }
-        
+
     }
 
 
     /**
      * Tests the multithreaded use of a single parser.
      */
-    public void testMultiThreaded() throws Exception
+    public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
             {
@@ -429,6 +422,34 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
                 "( 1234567890 NAME ( 'abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789' 'test' ) DESC 'Descripton \u00E4\u00F6\u00FC\u00DF \u90E8\u9577' OBSOLETE FORM 2.3.4.5.6.7.8.9.0.1 SUP ( 1 1234567890 5 ) X-TEST-a ('test1-1' 'test1-2') X-TEST-b ('test2-1' 'test2-2') )" };
         SchemaParserTestUtils.testMultiThreaded( parser, testValues );
 
+    }
+
+
+    /**
+     * Tests quirks mode.
+     */
+    public void testQuirksMode() throws ParseException
+    {
+        try
+        {
+            parser.setQuirksMode( true );
+
+            // ensure all other test pass in quirks mode
+            testNumericRuleId();
+            testNames();
+            testDescription();
+            testObsolete();
+            testForm();
+            testSup();
+            testExtensions();
+            testFull();
+            testUniqueElements();
+            testMultiThreaded();
+        }
+        finally
+        {
+            parser.setQuirksMode( false );
+        }
     }
 
 }

@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.schema.UsageEnum;
  * RFC 4512 - 4.1.2. Attribute Types
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
 public class AttributeTypeDescription extends AbstractSchemaDescription
 {

@@ -35,13 +35,13 @@ public abstract class SimpleNode<T> extends LeafNode
     /** the value */
     protected Value<T> value;
 
-    /**
-     * Constants for comparisons
-     *
-     * TODO - why are these here if not used?
-     */
-    public final static boolean EVAL_GREATER = true;
-    public final static boolean EVAL_LESSER = false;
+    /* TODO - why are these here if not used? */
+    /** Constants for comparisons : > */
+    public static final boolean EVAL_GREATER = true;
+    
+    /* TODO - why are these here if not used? */
+    /** Constants for comparisons : < */
+    public static final boolean EVAL_LESSER = false;
 
 
     /**
@@ -105,8 +105,10 @@ public abstract class SimpleNode<T> extends LeafNode
 
     /**
      * @see ExprNode#printRefinementToBuffer(StringBuilder)
+     * @return The buffer in which the refinement has been appended
+     * @throws UnsupportedOperationException if this node isn't a part of a refinement.
      */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
+    public StringBuilder printRefinementToBuffer( StringBuilder buf )
     {
         if ( getAttribute() == null || !SchemaConstants.OBJECT_CLASS_AT.equalsIgnoreCase( getAttribute() ) )
         {
@@ -121,6 +123,7 @@ public abstract class SimpleNode<T> extends LeafNode
 
     /**
      * @see Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

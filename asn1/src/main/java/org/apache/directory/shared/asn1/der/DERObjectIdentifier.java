@@ -62,6 +62,7 @@ public class DERObjectIdentifier extends DERObject
                         default:
                             objId.append( '2' );
                             value -= 80;
+                            break;
                     }
                     first = false;
                 }

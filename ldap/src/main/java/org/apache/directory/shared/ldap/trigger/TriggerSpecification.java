@@ -51,7 +51,7 @@ public class TriggerSpecification
         }
         if ( spSpecs.size() == 0 )
         {
-        	throw new IllegalArgumentException( "TriggerSpecification cannot be initialized with emtpy SPSPec list." );
+            throw new IllegalArgumentException( "TriggerSpecification cannot be initialized with emtpy SPSPec list." );
         }
         this.ldapOperation = ldapOperation;
         this.actionTime = actionTime;
@@ -69,72 +69,76 @@ public class TriggerSpecification
     }
 
     public List<SPSpec> getSPSpecs() {
-		return spSpecs;
-	}
+        return spSpecs;
+    }
     
     public static class SPSpec
     {
-    	private String name;
+        private String name;
         
         private List<StoredProcedureOption> options;
         
         private List<StoredProcedureParameter> parameters;
 
         public SPSpec(String name, List<StoredProcedureOption> options, List<StoredProcedureParameter> parameters) {
-			super();
-			this.name = name;
-			this.options = options;
-			this.parameters = parameters;
-		}
+            super();
+            this.name = name;
+            this.options = options;
+            this.parameters = parameters;
+        }
         
-		public String getName() {
-			return name;
-		}
+        public String getName() {
+            return name;
+        }
 
-		public List<StoredProcedureOption> getOptions() {
-			return options;
-		}
+        public List<StoredProcedureOption> getOptions() {
+            return options;
+        }
 
-		public List<StoredProcedureParameter> getParameters() {
-			return parameters;
-		}
+        public List<StoredProcedureParameter> getParameters() {
+            return parameters;
+        }
 
-		@Override
-		public int hashCode() {
-			int h = 37;
-			
-			h = h*17 + ((name == null) ? 0 : name.hashCode());
-			h = h*17 + ((options == null) ? 0 : options.hashCode());
-			h = h*17 + ((parameters == null) ? 0 : parameters.hashCode());
-			return h;
-		}
+        @Override
+        /**
+         * Compute the instance's hash code
+         * @return the instance's hash code 
+         */
+        public int hashCode() {
+            int h = 37;
+            
+            h = h*17 + ((name == null) ? 0 : name.hashCode());
+            h = h*17 + ((options == null) ? 0 : options.hashCode());
+            h = h*17 + ((parameters == null) ? 0 : parameters.hashCode());
+            return h;
+        }
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			final SPSpec other = (SPSpec) obj;
-			if (name == null) {
-				if (other.name != null)
-					return false;
-			} else if (!name.equals(other.name))
-				return false;
-			if (options == null) {
-				if (other.options != null)
-					return false;
-			} else if (!options.equals(other.options))
-				return false;
-			if (parameters == null) {
-				if (other.parameters != null)
-					return false;
-			} else if (!parameters.equals(other.parameters))
-				return false;
-			return true;
-		}
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            final SPSpec other = (SPSpec) obj;
+            if (name == null) {
+                if (other.name != null)
+                    return false;
+            } else if (!name.equals(other.name))
+                return false;
+            if (options == null) {
+                if (other.options != null)
+                    return false;
+            } else if (!options.equals(other.options))
+                return false;
+            if (parameters == null) {
+                if (other.parameters != null)
+                    return false;
+            } else if (!parameters.equals(other.parameters))
+                return false;
+            return true;
+        }
 
     }
     

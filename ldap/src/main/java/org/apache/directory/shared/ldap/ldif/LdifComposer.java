@@ -42,5 +42,5 @@ public interface LdifComposer
      *            the entry to export to ldif
      * @return the ldif of an entry
      */
-    String compose( MultiMap an_entry );
+    String compose( MultiMap<String,?> an_entry );
 }

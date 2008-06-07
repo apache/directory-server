@@ -488,6 +488,8 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
         
         sb.append( "        typesOnly : " ).append( typesOnly ).append( '\n' );
 
+        sb.append( "        Size Limit : " );
+
         if ( sizeLimit == 0 )
         {
             sb.append( "no limit" );

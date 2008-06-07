@@ -20,6 +20,11 @@
 package org.apache.directory.shared.ldap.codec;
 
 
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
@@ -30,17 +35,12 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
-import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 
 /**
  * A ldapObject to store the LdapResult
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class LdapResult extends AbstractAsn1Object
 {
@@ -278,15 +278,11 @@ public class LdapResult extends AbstractAsn1Object
 
         if ( ( referrals != null ) && ( referrals.size() != 0 ) )
         {
-            Iterator<LdapURL> referralIterator = referrals.iterator();
-
             referralsLength = 0;
 
             // Each referral
-            while ( referralIterator.hasNext() )
+            for ( LdapURL referral:referrals )
             {
-                LdapURL referral = referralIterator.next();
-
                 referralsLength += 1 + TLV.getNbBytes( referral.getNbBytes() ) + referral.getNbBytes();
             }
 
@@ -338,13 +334,9 @@ public class LdapResult extends AbstractAsn1Object
             buffer.put( TLV.getBytes( referralsLength ) );
 
             // Each referral
-            Iterator<LdapURL> referralIterator = referrals.iterator();
-
-            while ( referralIterator.hasNext() )
+            for ( LdapURL referral:referrals )
             {
-                LdapURL referral = referralIterator.next();
-
-                // Ecode the current referral
+                // Encode the current referral
                 Value.encode( buffer, referral.getBytesReference() );
             }
         }
@@ -607,6 +599,8 @@ public class LdapResult extends AbstractAsn1Object
                         sb.append( "Unknown error code : " ).append( resultCode );
                         break;
                 }
+            
+            break;
         }
 
         sb.append( "            Matched DN : '" ).append( matchedDN == null ? "": matchedDN.toString() ).append( "'\n" );

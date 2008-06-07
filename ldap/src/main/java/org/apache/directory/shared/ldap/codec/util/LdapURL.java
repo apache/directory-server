@@ -20,11 +20,6 @@
 package org.apache.directory.shared.ldap.codec.util;
 
 
-import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.StringTools;
-
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
@@ -39,6 +34,10 @@ import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.SearchControls;
+
+import org.apache.directory.shared.ldap.filter.FilterParser;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -62,11 +61,19 @@ import javax.naming.directory.SearchControls;
  * xtoken     = ("X-" / "x-") token
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$, 
  */
 public class LdapURL
 {
+
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
+
+    /** The constant for "ldaps://" scheme. */
+    public static final String LDAPS_SCHEME = "ldaps://";
+
+    /** The constant for "ldap://" scheme. */
+    public static final String LDAP_SCHEME = "ldap://";
 
     /** A null LdapURL */
     public static final LdapURL EMPTY_URL = new LdapURL();
@@ -115,7 +122,7 @@ public class LdapURL
      */
     public LdapURL()
     {
-        super();
+        scheme = LDAP_SCHEME;
         host = null;
         port = -1;
         dn = null;
@@ -133,6 +140,7 @@ public class LdapURL
      */
     public void parse( char[] chars ) throws LdapURLEncodingException
     {
+        scheme = LDAP_SCHEME;
         host = null;
         port = -1;
         dn = null;
@@ -156,8 +164,8 @@ public class LdapURL
         int pos = 0;
 
         // The scheme
-        if ( ( ( pos = StringTools.areEquals( chars, 0, "ldap://" ) ) == StringTools.NOT_EQUAL )
-            && ( ( pos = StringTools.areEquals( chars, 0, "ldaps://" ) ) == StringTools.NOT_EQUAL ) )
+        if ( ( ( pos = StringTools.areEquals( chars, 0, LDAP_SCHEME ) ) == StringTools.NOT_EQUAL )
+            && ( ( pos = StringTools.areEquals( chars, 0, LDAPS_SCHEME ) ) == StringTools.NOT_EQUAL ) )
         {
             throw new LdapURLEncodingException( "A LdapUrl must start with \"ldap://\" or \"ldaps://\"" );
         }
@@ -178,7 +186,7 @@ public class LdapURL
         }
 
         // An optional '/'
-        if ( StringTools.isCharASCII( chars, pos, '/' ) == false )
+        if ( !StringTools.isCharASCII( chars, pos, '/' ) )
         {
             throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
                 + "', '/' expected" );
@@ -203,7 +211,7 @@ public class LdapURL
         }
 
         // Optionals attributes
-        if ( StringTools.isCharASCII( chars, pos, '?' ) == false )
+        if ( !StringTools.isCharASCII( chars, pos, '?' ) )
         {
             throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
                 + "', '?' expected" );
@@ -222,7 +230,7 @@ public class LdapURL
         }
 
         // Optional scope
-        if ( StringTools.isCharASCII( chars, pos, '?' ) == false )
+        if ( !StringTools.isCharASCII( chars, pos, '?' ) )
         {
             throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
                 + "', '?' expected" );
@@ -241,7 +249,7 @@ public class LdapURL
         }
 
         // Optional filter
-        if ( StringTools.isCharASCII( chars, pos, '?' ) == false )
+        if ( !StringTools.isCharASCII( chars, pos, '?' ) )
         {
             throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
                 + "', '?' expected" );
@@ -265,7 +273,7 @@ public class LdapURL
         }
 
         // Optional extensions
-        if ( StringTools.isCharASCII( chars, pos, '?' ) == false )
+        if ( !StringTools.isCharASCII( chars, pos, '?' ) )
         {
             throw new LdapURLEncodingException( "Bad character, position " + pos + ", '" + chars[pos]
                 + "', '?' expected" );
@@ -517,7 +525,7 @@ public class LdapURL
     private int parsePort( char[] chars, int pos )
     {
 
-        if ( StringTools.isDigit( chars, pos ) == false )
+        if ( !StringTools.isDigit( chars, pos ) )
         {
             return -1;
         }
@@ -665,7 +673,7 @@ public class LdapURL
      * 
      * @param bytes array of URL safe characters
      * @return array of original bytes
-     * @throws DecoderException Thrown if URL decoding is unsuccessful
+     * @throws UrlDecoderException Thrown if URL decoding is unsuccessful
      */
     private static final byte[] decodeUrl( byte[] bytes ) throws UrlDecoderException
     {
@@ -816,7 +824,7 @@ public class LdapURL
 
                         String decodedAttr = decode( attribute );
 
-                        if ( hAttributes.contains( decodedAttr ) == false )
+                        if ( !hAttributes.contains( decodedAttr ) )
                         {
                             attributes.add( decodedAttr );
                             hAttributes.add( decodedAttr );
@@ -863,7 +871,7 @@ public class LdapURL
 
                 String decodedAttr = decode( attribute );
 
-                if ( hAttributes.contains( decodedAttr ) == false )
+                if ( !hAttributes.contains( decodedAttr ) )
                 {
                     attributes.add( decodedAttr );
                     hAttributes.add( decodedAttr );
@@ -1004,7 +1012,7 @@ public class LdapURL
      * extensions ::= extension [ ',' extension ]* 
      * extension ::= [ '!' ] ( token | ( 'x-' | 'X-' ) token ) ) [ '=' exvalue ]
      * 
-     * @param char The char array to be checked
+     * @param chars The char array to be checked
      * @param pos the starting position
      * @return -1 if the char array does not contains valid extensions or
      *         critical extensions
@@ -1093,7 +1101,7 @@ public class LdapURL
                 else if ( StringTools.isCharASCII( chars, i, '!' ) )
                 {
 
-                    if ( isNewExtension == false )
+                    if ( !isNewExtension )
                     {
 
                         // '!' must appears first
@@ -1180,6 +1188,7 @@ public class LdapURL
 
                 default:
                     sb.append( c );
+                break;
             }
         }
 
@@ -1194,8 +1203,9 @@ public class LdapURL
      */
     public String toString()
     {
+        StringBuffer sb = new StringBuffer();
 
-        StringBuffer sb = new StringBuffer( "ldap://" );
+        sb.append( scheme );
 
         sb.append( ( host == null ) ? "" : host );
 
@@ -1209,8 +1219,8 @@ public class LdapURL
             sb.append( '/' ).append( urlEncode( dn.toString(), false ) );
 
             if ( ( attributes.size() != 0 )
-                || ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || ( extensions.size() != 0 ) || ( criticalExtensions
-                    .size() != 0 ) ) )
+                || ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || 
+                    ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) ) )
             {
                 sb.append( '?' );
 
@@ -1251,6 +1261,10 @@ public class LdapURL
                     case SearchControls.SUBTREE_SCOPE:
                         sb.append( "sub" );
                         break;
+                        
+                        
+                    default :
+                        break;
                 }
 
                 if ( ( filter != null ) || ( ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) ) )
@@ -1273,7 +1287,7 @@ public class LdapURL
                             for ( String key:extensions.keySet() )
                             {
 
-                                if ( isFirst == false )
+                                if ( !isFirst )
                                 {
                                     sb.append( ',' );
                                 }
@@ -1294,7 +1308,7 @@ public class LdapURL
                             for ( String key:criticalExtensions.keySet() )
                             {
 
-                                if ( isFirst == false )
+                                if ( !isFirst )
                                 {
                                     sb.append( ",!" );
                                 }
@@ -1385,6 +1399,9 @@ public class LdapURL
 
 
     /**
+     * Returns the scope, one of {@link SearchControls.OBJECT_SCOPE}, 
+     * {@link SearchControls.ONELEVEL_SCOPE} or {@link SearchControls.SUBTREE_SCOPE}.
+     * 
      * @return Returns the scope.
      */
     public int getScope()
@@ -1442,6 +1459,10 @@ public class LdapURL
         return string;
     }
 
+    /**
+     * Compute the instance's hash code
+     * @return the instance's hash code 
+     */
     public int hashCode()
     {
         return this.toString().hashCode();
@@ -1465,4 +1486,149 @@ public class LdapURL
         final LdapURL other = ( LdapURL ) obj;
         return this.toString().equals( other.toString() );
     }
+
+    
+    /**
+     * Sets the scheme. Must be "ldap://" or "ldaps://", otherwise "ldap://" is assumed as default.
+     * 
+     * @param scheme the new scheme
+     */
+    public void setScheme( String scheme )
+    {
+        if ( scheme != null && LDAP_SCHEME.equals( scheme ) || LDAPS_SCHEME.equals( scheme ) )
+        {
+            this.scheme = scheme;
+        }
+        else
+        {
+            this.scheme = LDAP_SCHEME;
+        }
+
+    }
+
+
+    /**
+     * Sets the host.
+     * 
+     * @param host the new host
+     */
+    public void setHost( String host )
+    {
+        this.host = host;
+    }
+
+
+    /**
+     * Sets the port. Must be between 1 and 65535, otherwise -1 is assumed as default.
+     * 
+     * @param port the new port
+     */
+    public void setPort( int port )
+    {
+        if ( port < 1 || port > 65535 )
+        {
+            this.port = -1;
+        }
+        else
+        {
+            this.port = port;
+        }
+    }
+
+
+    /**
+     * Sets the dn.
+     * 
+     * @param dn the new dn
+     */
+    public void setDn( LdapDN dn )
+    {
+        this.dn = dn;
+    }
+
+
+    /**
+     * Sets the attributes, null removes all existing attributes.
+     * 
+     * @param attributes the new attributes
+     */
+    public void setAttributes( List<String> attributes )
+    {
+        if ( attributes == null )
+        {
+            this.attributes.clear();
+        }
+        else
+        {
+            this.attributes = attributes;
+        }
+    }
+
+
+    /**
+     * Sets the scope. Must be one of {@link SearchControls.OBJECT_SCOPE}, 
+     * {@link SearchControls.ONELEVEL_SCOPE} or {@link SearchControls.SUBTREE_SCOPE},
+     * otherwise {@link SearchControls.OBJECT_SCOPE} is assumed as default.
+     * 
+     * @param scope the new scope
+     */
+    public void setScope( int scope )
+    {
+        if ( scope == SearchControls.ONELEVEL_SCOPE || scope == SearchControls.SUBTREE_SCOPE )
+        {
+            this.scope = scope;
+        }
+        else
+        {
+            this.scope = SearchControls.OBJECT_SCOPE;
+        }
+    }
+
+
+    /**
+     * Sets the filter.
+     * 
+     * @param filter the new filter
+     */
+    public void setFilter( String filter )
+    {
+        this.filter = filter;
+    }
+
+
+    /**
+     * Sets the extensions, null removes all existing extensions.
+     * 
+     * @param extensions the extensions
+     */
+    public void setExtensions( Map<String, String> extensions )
+    {
+        if ( extensions == null )
+        {
+            this.extensions.clear();
+        }
+        else
+        {
+            this.extensions = extensions;
+        }
+    }
+
+
+    /**
+     * Sets the critical extensions, null removes all existing critical extensions.
+     * 
+     * @param criticalExtensions the critical extensions
+     */
+    public void setCriticalExtensions( Map<String, String> criticalExtensions )
+    {
+        if ( criticalExtensions == null )
+        {
+            this.criticalExtensions.clear();
+        }
+        else
+        {
+            this.criticalExtensions = criticalExtensions;
+        }
+    }
+
 }

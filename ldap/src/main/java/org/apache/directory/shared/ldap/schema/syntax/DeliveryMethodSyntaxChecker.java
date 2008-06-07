@@ -57,7 +57,7 @@ public class DeliveryMethodSyntaxChecker extends AbstractSyntaxChecker
         };
 
     /** The Set which contains the delivery methods */
-    private final static Set<String> DELIVERY_METHODS = new HashSet<String>();
+    private static final Set<String> DELIVERY_METHODS = new HashSet<String>();
     
     /** Initialization of the delivery methods set */
     static
@@ -96,8 +96,13 @@ public class DeliveryMethodSyntaxChecker extends AbstractSyntaxChecker
      * Check if the string contains a delivery method which has 
      * not already been found.
      * 
+     * @param strValue The string we want to look into for a PDM 
+     * @param pos The current position in the string
+     * @param pdms The set containing all the PDM
+     * @return if a Prefered Delivery Method is found in the given string, returns 
+     * its position, otherwise, returns -1
      */
-    private int isPdm( String strValue, int pos, Set<String> pmds )
+    private int isPdm( String strValue, int pos, Set<String> pdms )
     {
         int start = pos;
         
@@ -112,23 +117,23 @@ public class DeliveryMethodSyntaxChecker extends AbstractSyntaxChecker
             return -1;
         }
         
-        String pmd = strValue.substring( start, pos );
+        String pdm = strValue.substring( start, pos );
         
-        if ( ! DELIVERY_METHODS.contains( pmd ) )
+        if ( ! DELIVERY_METHODS.contains( pdm ) )
         {
             // The delivery method is unknown
             return -1;
         }
         else
         {
-            if ( pmds.contains( pmd ) )
+            if ( pdms.contains( pdm ) )
             {
                 // The delivery method has already been found
                 return -1;
             }
             else
             {
-                pmds.add( pmd );
+                pdms.add( pdm );
                 return pos;
             }
         }
@@ -139,7 +144,7 @@ public class DeliveryMethodSyntaxChecker extends AbstractSyntaxChecker
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {

@@ -20,8 +20,8 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -63,7 +63,7 @@ public class DirectoryStringSyntaxChecker extends AbstractSyntaxChecker
      */
     public boolean isValidSyntax( Object value )
     {
-        String strValue;
+        String strValue = null;
 
         if ( value == null )
         {
