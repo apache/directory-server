@@ -789,7 +789,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN newName = ( LdapDN ) name.clone();
         newName.remove( name.size() - 1 );
 
-        newName.add( ( String ) renameContext.getNewRdn().getValue() );
+        newName.add( renameContext.getNewRdn() );
 
         // bypass authz code if we are disabled
         if ( !enabled )

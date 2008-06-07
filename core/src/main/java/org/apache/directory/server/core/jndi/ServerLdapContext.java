@@ -111,7 +111,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         ServerLdapContext ctx = null;
         try
         {
-            ctx = new ServerLdapContext( getService(), getPrincipal(), ( LdapDN ) getDn() );
+            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), ( LdapDN ) getDn() );
         }
         catch ( Exception e )
         {
@@ -255,7 +255,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public void ldapUnbind() throws NamingException
     {
-        LdapDN principalDn = super.getPrincipal().getJndiName();
+        LdapDN principalDn = getSession().getEffectivePrincipal().getJndiName();
         UnbindOperationContext opCtx = new UnbindOperationContext( getSession(), principalDn );
         opCtx.addRequestControls( requestControls );
         try
@@ -301,7 +301,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         
         try
         {
-            ctx = new ServerLdapContext( getService(), getPrincipal(), new LdapDN() );
+            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), new LdapDN() );
         }
         catch ( Exception e )
         {

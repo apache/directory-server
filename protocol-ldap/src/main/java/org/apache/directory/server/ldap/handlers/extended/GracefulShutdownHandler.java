@@ -101,12 +101,12 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
 
         // make sue only the administrator can issue this shutdown request if 
         // not we respond to the requestor with with insufficientAccessRights(50)
-        if ( !slc.getPrincipal().getName().equalsIgnoreCase( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ) )
+        if ( !slc.getSession().getEffectivePrincipal().getName().equalsIgnoreCase( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ) )
         {
             if ( LOG.isInfoEnabled() )
             {
                 LOG.info( "Rejected with insufficientAccessRights to attempt for server shutdown by "
-                    + slc.getPrincipal().getName() );
+                    + slc.getSession().getEffectivePrincipal().getName() );
             }
 
             requestor

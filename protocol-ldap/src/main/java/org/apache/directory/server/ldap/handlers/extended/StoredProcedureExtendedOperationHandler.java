@@ -101,7 +101,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         StoredProcedure spBean = decodeBean( req.getPayload() );
         
         String procedure = StringTools.utf8ToString( spBean.getProcedure() );
-        CoreSession coreSession = ctx.getService().getSession( ctx.getPrincipal() );
+        CoreSession coreSession = ctx.getSession();
         ClonedServerEntry spUnit = manager.findStoredProcUnit( coreSession, procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
         

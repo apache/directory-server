@@ -302,7 +302,7 @@ public class DefaultSearchHandler extends SearchHandler
             // ===============================================================
 
             boolean allowAnonymousBinds = ldapServer.isAllowAnonymousAccess();
-            boolean isAnonymousUser = ctx.getPrincipal().getName().trim().equals( "" );
+            boolean isAnonymousUser = ctx.getSession().getEffectivePrincipal().getName().trim().equals( "" );
 
             if ( isAnonymousUser && !allowAnonymousBinds && !isRootDSESearch )
             {
@@ -328,7 +328,7 @@ public class DefaultSearchHandler extends SearchHandler
             {
                 controls = getSearchControls( req, ids, false, maxSize, maxTime );
             }
-            else if ( ctx.getPrincipal().getName()
+            else if ( ctx.getSession().getEffectivePrincipal().getName()
                 .trim().equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ) )
             {
                 controls = getSearchControls( req, ids, true, maxSize, maxTime );

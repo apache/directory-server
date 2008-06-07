@@ -110,9 +110,6 @@ public abstract class ServerContext implements EventContext
     /** The set of registered NamingListeners */
     private final Set<NamingListener> listeners = new HashSet<NamingListener>();
 
-    /** The Principal associated with this context */
-    private LdapPrincipal principal;
-
     /** The request controls to set on operations before performing them */
     protected Control[] requestControls = EMPTY_CONTROLS;
 
@@ -157,14 +154,17 @@ public abstract class ServerContext implements EventContext
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
         dn = props.getProviderDn();
 
-        // need to issue a bind operation here
-        doBindOperation( props.getBindDn(), props.getCredentials(), props.getSaslMechanism(), props
-            .getSaslAuthId() );
+        /*
+         * Need do bind operation here, and opContext returned contains the 
+         * newly created session.
+         */
+        BindOperationContext opContext = doBindOperation( props.getBindDn(), props.getCredentials(), 
+            props.getSaslMechanism(), props.getSaslAuthId() );
 
-        session = new DefaultCoreSession( principal, service );
+        session = opContext.getSession();
         setReferralHandlingMode( env );
         
-        if ( !nexusProxy.hasEntry( new EntryOperationContext( session, dn ) ) )
+        if ( ! nexusProxy.hasEntry( new EntryOperationContext( session, dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
@@ -210,8 +210,12 @@ public abstract class ServerContext implements EventContext
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
         this.nexusProxy = new PartitionNexusProxy( service );
-        this.principal = principal;
         session = new DefaultCoreSession( principal, service );
+        
+        if ( ! nexusProxy.hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
+        {
+            throw new NameNotFoundException( dn + " does not exist" );
+        }
     }
 
 
@@ -223,8 +227,12 @@ public abstract class ServerContext implements EventContext
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
         this.nexusProxy = new PartitionNexusProxy( service );
-        this.principal = session.getEffectivePrincipal();
         this.session = session;
+        
+        if ( ! nexusProxy.hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
+        {
+            throw new NameNotFoundException( dn + " does not exist" );
+        }
     }
 
 
@@ -485,13 +493,13 @@ public abstract class ServerContext implements EventContext
     }
 
     
-    protected CoreSession getSession()
+    public CoreSession getSession()
     {
         return session;
     }
     
     
-    protected DirectoryService getDirectoryService()
+    public DirectoryService getDirectoryService()
     {
         return service;
     }
@@ -521,37 +529,11 @@ public abstract class ServerContext implements EventContext
     }
 
 
-    /**
-     * Gets the principal of the authenticated user which also happens to own
-     *
-     * @return the principal associated with this context
-     */
-    public LdapPrincipal getPrincipal()
-    {
-        return principal;
-    }
-
-
-    /**
-     * Sets the principal of the authenticated user which also happens to own.
-     * This method can be invoked only once to keep this property safe.  This
-     * method has been changed to be public but it can only be set by the
-     * AuthenticationInterceptor to prevent malicious code from changing the
-     * effective principal.
-     *
-     * @param wrapper the wrapper - has to go
-     * @todo get ride of using this wrapper and protect this call with a security manager
-     */
-    public void setPrincipal( LdapPrincipal principal )
-    {
-        this.principal = principal;
-    }
-
-
     // ------------------------------------------------------------------------
     // Protected Accessor Methods
     // ------------------------------------------------------------------------
 
+    
     /**
      * Gets the RootNexus proxy.
      *
@@ -714,7 +696,7 @@ public abstract class ServerContext implements EventContext
         
         try
         {
-            ctx = new ServerLdapContext( service, principal, target );
+            ctx = new ServerLdapContext( service, session.getEffectivePrincipal(), target );
         }
         catch ( Exception e )
         {
@@ -1115,7 +1097,7 @@ public abstract class ServerContext implements EventContext
         
         try
         {
-            ctx = new ServerLdapContext( service, principal, target );
+            ctx = new ServerLdapContext( service, session.getEffectivePrincipal(), target );
         }
         catch ( Exception e )
         {

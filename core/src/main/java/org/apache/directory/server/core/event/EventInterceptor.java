@@ -345,7 +345,7 @@ public class EventInterceptor extends BaseInterceptor
 
     private void notifyOnNameChange( OperationContext opContext, LdapDN oldName, LdapDN newName ) throws Exception
     {
-        ClonedServerEntry entry = opContext.lookup( newName, null );
+        ClonedServerEntry entry = opContext.lookup( newName, ByPassConstants.LOOKUP_COLLECTIVE_BYPASS );
         Set<EventSourceRecord> selecting = getSelectingSources( oldName, entry );
 
         if ( selecting.isEmpty() )

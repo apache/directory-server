@@ -34,14 +34,11 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashSet;
 
 
 /**
@@ -91,11 +88,11 @@ public class AuthorizationServiceAsNonAdminIT
     {
         LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
-        LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
+        LdapContext rootDSE = getContext( akarasulu.getDn(), service, "" );
 
         try
         {
-            sysRoot.rename( "uid=admin", "uid=alex" );
+            rootDSE.rename( "uid=admin,ou=system", "uid=alex,ou=system" );
             fail( "admin should not be able to rename his account" );
         }
         catch ( LdapNoPermissionException e )
@@ -115,7 +112,7 @@ public class AuthorizationServiceAsNonAdminIT
     {
         LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
-        LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
+        LdapContext rootDSE = getContext( akarasulu.getDn(), service, "" );
 
         Attributes attributes = new AttributesImpl();
         attributes.put( "userPassword", "replaced" );
@@ -123,7 +120,7 @@ public class AuthorizationServiceAsNonAdminIT
         //noinspection EmptyCatchBlock
         try
         {
-            sysRoot.modifyAttributes( "uid=admin", DirContext.REPLACE_ATTRIBUTE, attributes );
+            rootDSE.modifyAttributes( "uid=admin,ou=system", DirContext.REPLACE_ATTRIBUTE, attributes );
             fail( "User 'uid=admin,ou=system' should not be able to modify attributes on admin" );
         }
         catch ( Exception e )
@@ -133,35 +130,27 @@ public class AuthorizationServiceAsNonAdminIT
 
 
     /**
-     * Makes sure the admin can see all entries we know of on a subtree search.
+     * Makes sure non-admin cannot search under ou=system.
      *
      * @throws NamingException if there are problems
      */
     @Test
-    public void testSearchSubtreeByNonAdmin() throws Exception
+    public void testNoSearchByNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
         getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
-        LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
+        LdapContext rootDSE = getContext( akarasulu.getDn(), service, "" );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        HashSet<String> set = new HashSet<String>();
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(objectClass=*)", controls );
         
-        while ( list.hasMore() )
+        try
         {
-            SearchResult result = list.next();
-            set.add( result.getName() );
+            rootDSE.search( "ou=system", "(objectClass=*)", controls );
         }
-
-        // @todo this assertion fails now - is this the expected behavoir?
-//        assertTrue( set.contains( "ou=system" ) );
-//        assertTrue( set.contains( "ou=groups,ou=system" ) );
-//        assertFalse( set.contains( "cn=administrators,ou=groups,ou=system" ) );
-//        assertTrue( set.contains( "ou=users,ou=system" ) );
-//        assertFalse( set.contains( "uid=akarasulu,ou=users,ou=system" ) );
-//        assertFalse( set.contains( "uid=admin,ou=system" ) );
+        catch ( LdapNoPermissionException e )
+        {
+            assertNotNull( e );
+        }
     }
 }

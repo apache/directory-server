@@ -296,7 +296,7 @@ public class SessionRegistry
                 slc = ( ServerLdapContext ) ctx;
             }
             
-            boolean isAnonymousUser = slc.getPrincipal().getName().trim().equals( "" );
+            boolean isAnonymousUser = slc.getSession().getEffectivePrincipal().getName().trim().equals( "" );
 
             // if the user principal is anonymous and the configuration does not allow anonymous binds we
             // prevent the operation by blowing a NoPermissionsException

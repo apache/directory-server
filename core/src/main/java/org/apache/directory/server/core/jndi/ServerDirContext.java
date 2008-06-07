@@ -556,7 +556,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         
         try
         {
-            ctx = new ServerLdapContext( getService(), getPrincipal(), target );
+            ctx = new ServerLdapContext( getService(), getSession().getEffectivePrincipal(), target );
         }
         catch ( Exception e )
         {
