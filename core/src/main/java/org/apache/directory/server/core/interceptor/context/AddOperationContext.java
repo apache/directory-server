@@ -58,7 +58,7 @@ public class AddOperationContext extends AbstractOperationContext
 
 
     /**
-     * Creates a new instance of ModifyOperationContext.
+     * Creates a new instance of AddOperationContext.
      */
     public AddOperationContext( CoreSession session, ServerEntry entry )
     {
