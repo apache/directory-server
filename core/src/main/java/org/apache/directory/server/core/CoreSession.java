@@ -99,6 +99,14 @@ public interface CoreSession
      * @return the referral handling mode for this session
      */
     ReferralHandlingMode getReferralHandlingMode();
+
+    
+    /**
+     * Sets the referral handling mode for this CoreSession.
+     *
+     * @param referralHandlingMode the referral handling mode for this session
+     */
+    void setReferralHandlingMode( ReferralHandlingMode referralHandlingMode );
     
     
     /**

@@ -446,6 +446,13 @@ public class MaxImmSubFilterTest
             // TODO Auto-generated method stub
             
         }
+
+
+        public boolean hasEntry( LdapDN dn, Collection<String> byPass ) throws Exception
+        {
+            // TODO Auto-generated method stub
+            return false;
+        }
     }
 
     class MockDirectoryService implements DirectoryService

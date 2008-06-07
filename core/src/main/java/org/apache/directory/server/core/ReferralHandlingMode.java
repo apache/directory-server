@@ -20,6 +20,9 @@
 package org.apache.directory.server.core;
 
 
+import javax.naming.Context;
+
+
 /**
  * Enumeration for referral handling modes.
  *
@@ -30,18 +33,70 @@ public enum ReferralHandlingMode
 {
     THROW( "throw" ), FOLLOW( "follow" ), IGNORE( "ignore" ), THROW_FINDING_BASE( "throw-finding-base" );
     
-    
+    /** 
+     * The JNDI Context.REFERRAL key's value.
+     * 
+     * @see {@link Context#REFERRAL}
+     */
     private final String jndiValue;
     
     
+    /**
+     * Creates a new instance of ReferralHandlingMode.
+     *
+     * @see {@link Context#REFERRAL}
+     * @param jndiValue the JNDI Context.REFERRAL key's value
+     */
     private ReferralHandlingMode( String jndiValue )
     {
         this.jndiValue = jndiValue;
     }
     
     
+    /**
+     * Gets the equivalent JNDI Context.REFERRAL key's value for this enumeration constant.
+     *
+     * @see {@link Context#REFERRAL}
+     * @return the equivalent JNDI Context.REFERRAL key's value
+     */
     public String getJndiValue()
     {
         return jndiValue;
+    }
+    
+    
+    /**
+     * Gets the enumeration constant for the JNDI Context.REFERRAL key's value.
+     *
+     * @see {@link Context#REFERRAL}
+     * @param jndiValue the JNDI Context.REFERRAL key's value
+     * @return the referral handling mode enumeration constant
+     * @throws IllegalArgumentException if the value is not a recognized value
+     */
+    public static final ReferralHandlingMode getModeFromJndi( String jndiValue )
+    {
+        jndiValue = jndiValue.trim().toLowerCase();
+        
+        if ( jndiValue.equals( "throw" ) )
+        {
+            return THROW;
+        }
+        
+        if ( jndiValue.equals( "follow" ) )
+        {
+            return FOLLOW;
+        }
+        
+        if ( jndiValue.equals( "ignore" ) )
+        {
+            return IGNORE;
+        }
+        
+        if ( jndiValue.equals( "throw-finding-base" ) )
+        {
+            return THROW_FINDING_BASE;
+        }
+        
+        throw new IllegalArgumentException( "Unknown JNDI Context.REFERRAL value of " + jndiValue );
     }
 }

@@ -23,6 +23,7 @@ package org.apache.directory.server.core.jndi;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -128,6 +129,7 @@ public abstract class ServerContext implements EventContext
     // Constructors
     // ------------------------------------------------------------------------
 
+    
     /**
      * Must be called by all subclasses to initialize the nexus proxy and the
      * environment settings to be used by this Context implementation.  This
@@ -142,8 +144,7 @@ public abstract class ServerContext implements EventContext
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
-    @SuppressWarnings(value =
-        { "unchecked" })
+    @SuppressWarnings(value = { "unchecked" })
     protected ServerContext( DirectoryService service, Hashtable<String, Object> env ) throws Exception
     {
         this.service = service;
@@ -152,6 +153,7 @@ public abstract class ServerContext implements EventContext
         this.nexusProxy = new PartitionNexusProxy( service );
 
         this.env = env;
+        
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
         dn = props.getProviderDn();
 
@@ -160,10 +162,31 @@ public abstract class ServerContext implements EventContext
             .getSaslAuthId() );
 
         session = new DefaultCoreSession( principal, service );
+        setReferralHandlingMode( env );
         
         if ( !nexusProxy.hasEntry( new EntryOperationContext( session, dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
+        }
+    }
+    
+    
+    /**
+     * Sets the referral handling mode on the CoreSession based on the 
+     * presence of a {@link Context#REFERRAL} environment property.
+     *
+     * @param env the environment to check
+     */
+    private void setReferralHandlingMode( Hashtable<String,Object> env )
+    {
+        if ( env.containsKey( Context.REFERRAL ) )
+        {
+            Object value = env.get( Context.REFERRAL );
+            
+            if ( value != null )
+            {
+                session.setReferralHandlingMode( ReferralHandlingMode.getModeFromJndi( ( String ) value ) );
+            }
         }
     }
 
@@ -598,6 +621,18 @@ public abstract class ServerContext implements EventContext
      */
     public Object addToEnvironment( String propName, Object propVal ) throws NamingException
     {
+        if ( propName.equals( Context.REFERRAL ) )
+        {
+            if ( propVal != null )
+            {
+                session.setReferralHandlingMode( ReferralHandlingMode.getModeFromJndi( ( String ) propVal ) );
+            }
+            else
+            {
+                session.setReferralHandlingMode( ReferralHandlingMode.IGNORE );
+            }
+        }
+        
         return env.put( propName, propVal );
     }
 
@@ -607,6 +642,11 @@ public abstract class ServerContext implements EventContext
      */
     public Object removeFromEnvironment( String propName ) throws NamingException
     {
+        if ( propName.equals( Context.REFERRAL ) )
+        {
+            session.setReferralHandlingMode( ReferralHandlingMode.IGNORE );
+        }
+        
         return env.remove( propName );
     }
 

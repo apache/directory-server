@@ -445,4 +445,22 @@ public class BindOperationContext implements OperationContext
     {
         throw new NotImplementedException();
     }
+
+
+    private void setup( AbstractOperationContext opContext )
+    {
+        opContext.setPreviousOperation( this );
+        next = opContext;
+        opContext.setByPassed( opContext.getByPassed() );
+        opContext.setAuthorizedPrincipal( authorizedPrincipal );
+    }
+    
+    
+    public boolean hasEntry( LdapDN dn, Collection<String> byPassed ) throws Exception
+    {
+        EntryOperationContext opContext = new EntryOperationContext( session, dn );
+        setup( opContext );
+        opContext.setByPassed( byPassed );
+        return session.getDirectoryService().getOperationManager().hasEntry( opContext );
+    }
 }

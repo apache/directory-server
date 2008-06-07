@@ -196,7 +196,15 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         {
             String subentryDnStr = ( String ) value.get();
             LdapDN subentryDn = new LdapDN( subentryDnStr );
-            ServerEntry subentry = opContext.lookup( subentryDn, ByPassConstants.LOOKUP_BYPASS );
+            
+            /*
+             * TODO - Instead of hitting disk here can't we leverage the 
+             * SubentryService to get us cached sub-entries so we're not
+             * wasting time with a lookup here? It is ridiculous to waste
+             * time looking up this sub-entry. 
+             */
+            
+            ServerEntry subentry = opContext.lookup( subentryDn, ByPassConstants.LOOKUP_COLLECTIVE_BYPASS );
             
             for ( AttributeType attributeType:subentry.getAttributeTypes() )
             {

@@ -266,6 +266,15 @@ public abstract class AbstractOperationContext implements OperationContext
     }
     
     
+    public boolean hasEntry( LdapDN dn, Collection<String> byPassed ) throws Exception
+    {
+        EntryOperationContext opContext = new EntryOperationContext( session, dn );
+        setup( opContext );
+        opContext.setByPassed( byPassed );
+        return session.getDirectoryService().getOperationManager().hasEntry( opContext );
+    }
+    
+    
     public void add( ServerEntry entry, Collection<String> byPassed ) throws Exception
     {
         AddOperationContext opContext = new AddOperationContext( session, entry );

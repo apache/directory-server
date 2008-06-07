@@ -29,6 +29,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -261,19 +262,30 @@ public interface OperationContext
     LookupOperationContext newLookupContext( LdapDN dn );
 
     
-    ClonedServerEntry lookup( LdapDN dn, Collection<String> bypass ) throws Exception;
+    ClonedServerEntry lookup( LdapDN dn, Collection<String> byPass ) throws Exception;
     
     
     ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
     
     
-    void modify( LdapDN dn, List<Modification> mods, Collection<String> bypass ) throws Exception;
+    void modify( LdapDN dn, List<Modification> mods, Collection<String> byPass ) throws Exception;
     
     
-    void add( ServerEntry entry, Collection<String> bypass ) throws Exception;
+    void add( ServerEntry entry, Collection<String> byPass ) throws Exception;
     
     
-    void delete( LdapDN dn, Collection<String> bypass ) throws Exception;
+    void delete( LdapDN dn, Collection<String> byPass ) throws Exception;
+
+
+    /**
+     * Checks to see if an entry exists.
+     *
+     * @param dn the distinguished name of the entry to check
+     * @param byPass collection of {@link Interceptor}'s to bypass for this check
+     * @return true if the entry exists, false if it does not
+     * @throws Exception on failure to perform this operation
+     */
+    boolean hasEntry( LdapDN dn, Collection<String> byPass ) throws Exception;
     
     
 //    AddOperationContext newAddContext( ServerEntry entry );

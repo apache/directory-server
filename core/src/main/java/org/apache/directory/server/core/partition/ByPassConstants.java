@@ -31,6 +31,7 @@ import org.apache.directory.server.core.changelog.ChangeLogInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
@@ -46,11 +47,22 @@ import org.apache.directory.server.core.trigger.TriggerInterceptor;
  */
 public class ByPassConstants
 {
-
     /**
      * safe to use set of bypass instructions to lookup raw entries
      */
     public final static Collection<String> LOOKUP_BYPASS;
+
+    /**
+     * safe to use set of bypass instructions to lookup raw entries while
+     * also avoiding hit on collective attributes {@link Interceptor}: used 
+     * by collective attributes interceptor.
+     */
+    public static final Collection<String> LOOKUP_COLLECTIVE_BYPASS;
+
+    /**
+     * bypass instructions used by ExceptionInterceptor
+     */
+    public final static Collection<String> HAS_ENTRY_BYPASS;
 
     /**
      * safe to use set of bypass instructions to getMatchedDn
@@ -88,6 +100,32 @@ public class ByPassConstants
         c.add( SubentryInterceptor.class.getName() );
         c.add( EventInterceptor.class.getName() );
         LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
+
+        c = new HashSet<String>();
+        c.add( NormalizationInterceptor.class.getName() );
+        c.add( AuthenticationInterceptor.class.getName() );
+        c.add( ReferralInterceptor.class.getName() );
+        c.add( AciAuthorizationInterceptor.class.getName() );
+        c.add( DefaultAuthorizationInterceptor.class.getName() );
+        c.add( ExceptionInterceptor.class.getName() );
+        c.add( OperationalAttributeInterceptor.class.getName() );
+        c.add( SchemaInterceptor.class.getName() );
+        c.add( SubentryInterceptor.class.getName() );
+        c.add( EventInterceptor.class.getName() );
+        HAS_ENTRY_BYPASS = Collections.unmodifiableCollection( c );
+
+        c = new HashSet<String>();
+        c.add( NormalizationInterceptor.class.getName() );
+        c.add( AuthenticationInterceptor.class.getName() );
+        c.add( ReferralInterceptor.class.getName() );
+        c.add( AciAuthorizationInterceptor.class.getName() );
+        c.add( DefaultAuthorizationInterceptor.class.getName() );
+        c.add( CollectiveAttributeInterceptor.class.getName() );
+        c.add( OperationalAttributeInterceptor.class.getName() );
+        c.add( SchemaInterceptor.class.getName() );
+        c.add( SubentryInterceptor.class.getName() );
+        c.add( EventInterceptor.class.getName() );
+        LOOKUP_COLLECTIVE_BYPASS = Collections.unmodifiableCollection( c );
 
         c = new HashSet<String>();
         c.add( AuthenticationInterceptor.class.getName() );

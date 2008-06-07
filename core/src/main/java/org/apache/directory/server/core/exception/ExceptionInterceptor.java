@@ -558,7 +558,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             return;
         }
         
-        if ( !nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), dn ) ) )
+        if ( ! opContext.hasEntry( dn, ByPassConstants.HAS_ENTRY_BYPASS ) )
         {
             LdapNameNotFoundException e;
 
