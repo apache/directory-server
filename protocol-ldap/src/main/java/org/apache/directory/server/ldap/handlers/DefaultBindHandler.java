@@ -258,24 +258,7 @@ public class DefaultBindHandler extends BindHandler
      */
     private void handleSimpleAuth( IoSession session, BindRequest bindRequest ) throws NamingException
     {
-        LdapServer ldapServer = ( LdapServer )
-                session.getAttribute( LdapServer.class.toString() );
-
-        @SuppressWarnings( "unchecked" )
-        Set<String> supportedMechanisms = ldapServer.getSupportedMechanisms();
         LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
-
-        // First, deal with Simple Authentication
-        // Guard clause:  Reject SIMPLE mechanism.
-        if ( !supportedMechanisms.contains( SupportedSaslMechanisms.SIMPLE ) )
-        {
-            LOG.error( "Bind error : SIMPLE authentication not supported. Please check the server.xml configuration file (supportedMechanisms field)" );
-
-            bindResult.setResultCode( ResultCodeEnum.STRONG_AUTH_REQUIRED );
-            bindResult.setErrorMessage( "Simple binds are disabled." );
-            session.write( bindRequest.getResultResponse() );
-            return;
-        }
 
         // Initialize the environment which will be used to create the context
         Hashtable<String, Object> env = getEnvironment( bindRequest, AuthenticationLevel.SIMPLE.toString() );
