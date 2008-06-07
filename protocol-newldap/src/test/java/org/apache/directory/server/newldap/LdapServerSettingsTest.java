@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.ldap;
+package org.apache.directory.server.newldap;
 
 
 import org.junit.Test;
