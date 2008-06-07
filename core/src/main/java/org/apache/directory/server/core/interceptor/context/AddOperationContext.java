@@ -41,6 +41,8 @@ public class AddOperationContext extends AbstractOperationContext
 
     /**
      * Creates a new instance of AddOperationContext.
+     * 
+     * @param session the current Session 
      */
     public AddOperationContext( CoreSession session )
     {
@@ -50,6 +52,9 @@ public class AddOperationContext extends AbstractOperationContext
 
     /**
      * Creates a new instance of AddOperationContext.
+     * 
+     * @param session the current Session 
+     * @param dn the name of the entry being added
      */
     public AddOperationContext( CoreSession session, LdapDN dn )
     {
@@ -59,6 +64,9 @@ public class AddOperationContext extends AbstractOperationContext
 
     /**
      * Creates a new instance of AddOperationContext.
+     * 
+     * @param session the current Session 
+     * @param entry the entry being added
      */
     public AddOperationContext( CoreSession session, ServerEntry entry )
     {
@@ -70,9 +78,9 @@ public class AddOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of ModifyOperationContext.
      *
+     * @param session the current Session 
      * @param dn the name of the entry being added
      * @param entry the entry being added
-     * @param collateralOperation whether or not this is a side-effect
      */
     public AddOperationContext( CoreSession session, LdapDN dn, ServerEntry entry )
     {
@@ -92,6 +100,7 @@ public class AddOperationContext extends AbstractOperationContext
 
     /**
      * Set the added attributes
+     * 
      * @param entry The added attributes
      */
     public void setEntry( ServerEntry entry )
