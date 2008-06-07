@@ -32,7 +32,7 @@
     The LDAPv3 protocol provider for ApacheDS
   </description>
 
-  <name>ApacheDS Protocol Ldap</name>
+  <name>ApacheDS Protocol New Ldap</name>
   <packaging>jar</packaging>  
 
   <dependencies>
