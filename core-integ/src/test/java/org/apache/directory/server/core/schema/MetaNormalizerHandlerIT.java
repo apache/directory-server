@@ -610,8 +610,7 @@ public class MetaNormalizerHandlerIT
 
         public String[] getNamesRef()
         {
-            // TODO Auto-generated method stub
-            return null;
+            return new String[] { "dummy" };
         }
     }
 }

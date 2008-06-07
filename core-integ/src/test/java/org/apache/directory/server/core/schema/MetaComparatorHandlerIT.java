@@ -607,8 +607,7 @@ public class MetaComparatorHandlerIT
 
         public String[] getNamesRef()
         {
-            // TODO Auto-generated method stub
-            return null;
+            return new String[] { "dummy" };
         }
     }
 }
