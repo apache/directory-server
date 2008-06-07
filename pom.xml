@@ -358,6 +358,7 @@
     <module>protocol-shared</module>
     <module>protocol-ntp</module>
     <module>protocol-ldap</module>
+    <module>protocol-newldap</module>
     <module>protocol-kerberos</module>
     <module>protocol-dhcp</module>
     <module>protocol-dns</module>
