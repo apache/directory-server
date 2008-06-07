@@ -36,7 +36,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.sp.StoredProcEngine;
 import org.apache.directory.server.core.sp.StoredProcEngineConfig;
@@ -102,7 +102,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         
         String procedure = StringTools.utf8ToString( spBean.getProcedure() );
         CoreSession coreSession = ctx.getService().getSession( ctx.getPrincipal() );
-        ServerEntry spUnit = manager.findStoredProcUnit( coreSession, procedure );
+        ClonedServerEntry spUnit = manager.findStoredProcUnit( coreSession, procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
         
         List<Object> valueList = new ArrayList<Object>( spBean.getParameters().size() );

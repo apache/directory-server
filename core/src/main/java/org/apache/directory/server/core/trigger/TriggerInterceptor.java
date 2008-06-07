@@ -29,7 +29,6 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
@@ -600,7 +599,7 @@ public class TriggerInterceptor extends BaseInterceptor
         
         try
         {
-            ServerEntry spUnit = manager.findStoredProcUnit( opContext.getSession(), procedure );
+            ClonedServerEntry spUnit = manager.findStoredProcUnit( opContext.getSession(), procedure );
             StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
             return engine.invokeProcedure( opContext.getSession(), procedure, values );
         }
