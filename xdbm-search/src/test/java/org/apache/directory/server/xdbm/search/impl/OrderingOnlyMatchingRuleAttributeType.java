@@ -38,6 +38,8 @@ import jdbm.helper.StringComparator;
  */
 public class OrderingOnlyMatchingRuleAttributeType implements AttributeType
 {
+    private static final long serialVersionUID = 1L;
+
 
     public boolean isSingleValue()
     {
@@ -91,6 +93,8 @@ public class OrderingOnlyMatchingRuleAttributeType implements AttributeType
     {
         return new MatchingRule()
         {
+            private static final long serialVersionUID = 1L;
+
 
             public Syntax getSyntax() throws NamingException
             {
@@ -98,7 +102,8 @@ public class OrderingOnlyMatchingRuleAttributeType implements AttributeType
             }
 
 
-            public Comparator getComparator() throws NamingException
+            @SuppressWarnings("unchecked")
+            public Comparator<String> getComparator() throws NamingException
             {
                 return new StringComparator();
             }
@@ -122,12 +127,6 @@ public class OrderingOnlyMatchingRuleAttributeType implements AttributeType
             }
 
 
-            public String[] getNames()
-            {
-                return new String[0];
-            }
-
-
             public String getName()
             {
                 return null;
@@ -148,6 +147,12 @@ public class OrderingOnlyMatchingRuleAttributeType implements AttributeType
 
             public void setSchema( String schemaName )
             {
+            }
+
+
+            public String[] getNamesRef()
+            {
+                return null;
             }
         };
     }
@@ -209,5 +214,11 @@ public class OrderingOnlyMatchingRuleAttributeType implements AttributeType
 
     public void setSchema( String schemaName )
     {
+    }
+
+
+    public String[] getNamesRef()
+    {
+        return new String[] { "bogus" } ;
     }
 }

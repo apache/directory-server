@@ -35,6 +35,9 @@ import javax.naming.NamingException;
  */
 public class BogusSyntax implements Syntax
 {
+    private static final long serialVersionUID = 1L;
+
+
     public boolean isHumanReadable()
     {
         return false;
@@ -85,5 +88,11 @@ public class BogusSyntax implements Syntax
 
     public void setSchema( String schemaName )
     {
+    }
+
+
+    public String[] getNamesRef()
+    {
+        return new String[] { "bogus" };
     }
 }
