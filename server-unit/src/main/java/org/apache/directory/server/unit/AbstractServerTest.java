@@ -20,36 +20,51 @@
 package org.apache.directory.server.unit;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.handlers.bind.CramMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.GssapiMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.server.ldap.handlers.bind.*;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.mina.util.AvailablePortFinder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 
@@ -126,9 +141,9 @@ public abstract class AbstractServerTest extends TestCase
         
         LdifReader ldifReader = new LdifReader( in );
         List<LdifEntry> entries = new ArrayList<LdifEntry>();
-        while ( ldifReader.hasNext() )
+
+        for ( LdifEntry entry:ldifReader )
         {
-            LdifEntry entry = ldifReader.next();
             rootDSE.createSubcontext( entry.getDn(), entry.getAttributes() );
             
             if ( verifyEntries )
@@ -170,7 +185,7 @@ public abstract class AbstractServerTest extends TestCase
                 if ( ! readAttribute.contains( origAttribute.get( ii ) ) )
                 {
                     LOG.error( "Failed to verify entry addition of {}. {} attribute in original " +
-                    		"entry missing from read entry.", entry.getDn(), id );
+                            "entry missing from read entry.", entry.getDn(), id );
                     throw new AssertionFailedError( "Failed to verify entry addition of " + entry.getDn()  );
                 }
             }
@@ -266,7 +281,7 @@ public abstract class AbstractServerTest extends TestCase
     {
         Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
 
-        mechanismHandlerMap.put( SupportedSaslMechanisms.SIMPLE, new SimpleMechanismHandler() );
+        mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
 
         CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
         cramMd5MechanismHandler.setDirectoryService( directoryService );
@@ -400,7 +415,7 @@ public abstract class AbstractServerTest extends TestCase
         }
     }
 
-
+    
     /**
      * Imports the LDIF entries packaged with the Eve JNDI provider jar into
      * the newly created system partition to prime it up for operation.  Note
@@ -411,15 +426,22 @@ public abstract class AbstractServerTest extends TestCase
      * adding those entries to the system partition
      * @param in the input stream with the ldif
      */
-    protected void importLdif( InputStream in ) throws Exception
+    protected void importLdif( InputStream in ) throws NamingException
     {
-        Iterator<LdifEntry> iterator = new LdifReader( in );
-
-        while ( iterator.hasNext() )
+        try
         {
-            LdifEntry entry = iterator.next();
-            LdapDN dn = new LdapDN( entry.getDn() );
-            rootDSE.createSubcontext( dn, entry.getAttributes() );
+            for ( LdifEntry ldifEntry:new LdifReader( in ) )
+            {
+                LdapDN dn = new LdapDN( ldifEntry.getDn() );
+                rootDSE.createSubcontext( dn, ldifEntry.getAttributes() );
+            }
+        }
+        catch ( Exception e )
+        {
+            String msg = "failed while trying to parse system ldif file";
+            NamingException ne = new LdapConfigurationException( msg );
+            ne.setRootCause( e );
+            throw ne;
         }
     }
 

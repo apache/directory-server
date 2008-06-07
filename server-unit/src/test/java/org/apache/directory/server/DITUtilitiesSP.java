@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
 
 public class DITUtilitiesSP
 {
-	private static final Logger log = LoggerFactory.getLogger( DITUtilitiesSP.class );
-	
-	/**
+    private static final Logger log = LoggerFactory.getLogger( DITUtilitiesSP.class );
+    
+    /**
      * Recursively deletes a subtree including the apex given.
      * 
      * If you do not want to wait for the developers to implement the

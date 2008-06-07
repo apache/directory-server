@@ -54,15 +54,17 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 
 /**
@@ -640,8 +642,6 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-        
         // Test a simple addition
         entry.add( atCN, "test1" );
         assertNotNull( entry.get( atCN ) );
@@ -748,7 +748,6 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
         
         byte[] b1 = StringTools.getBytesUtf8( "test1" );
@@ -853,8 +852,6 @@ public class DefaultServerEntryTest
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
-        
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         
         // Test a simple addition
         entry.add( "CN", "test1" );
@@ -965,7 +962,6 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         ServerEntry entry = new DefaultServerEntry( registries, dn );
         
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
         
         byte[] b1 = StringTools.getBytesUtf8( "test1" );
@@ -1077,8 +1073,6 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-        
         // Test a simple addition
         entry.add( "cn", atCN, "test1" );
         assertNotNull( entry.get( atCN ) );
@@ -1185,7 +1179,6 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         ServerEntry entry = new DefaultServerEntry( registries, dn );
         
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
         
         byte[] b1 = StringTools.getBytesUtf8( "test1" );
@@ -2560,9 +2553,8 @@ public class DefaultServerEntryTest
             assertTrue( true );
         }
         
-        // Ajout de serverAttributes
-        AttributeType atL = registries.getAttributeTypeRegistry().lookup( "localityName" );
-        AttributeType atC = registries.getAttributeTypeRegistry().lookup( "countryName" );
+        // Adding some serverAttributes
+        //AttributeType atCo = registries.getAttributeTypeRegistry().lookup( "countryName" );
         AttributeType atGN = registries.getAttributeTypeRegistry().lookup( "givenname" );
         AttributeType atStreet = registries.getAttributeTypeRegistry().lookup( "2.5.4.9" );
 
@@ -2630,8 +2622,6 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-
         // Test an empty AT
         entry.put( atCN, (String)null );
         assertEquals( 1, entry.size() );
@@ -2689,8 +2679,6 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         
-        AttributeType atPwd = registries.getAttributeTypeRegistry().lookup( "userPassword" );
-
         // Test an empty AT
         entry.put( atPwd, (byte[])null );
         assertEquals( 1, entry.size() );
@@ -2754,7 +2742,6 @@ public class DefaultServerEntryTest
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         
         // Adding a null value to an attribute
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         entry.put( atCN, (Value<?>)null );
         
         assertEquals( 1, entry.size() );
@@ -2815,8 +2802,6 @@ public class DefaultServerEntryTest
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
-        
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         
         // Adding a null value should be possible
         entry.put( "cn", (String)null );
@@ -2942,8 +2927,6 @@ public class DefaultServerEntryTest
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
-        
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         
         // Test that we get an error when the ID or AT are null
         try
@@ -3091,8 +3074,6 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-        
         // Test that we get an error when the ID or AT are null
         try
         {
@@ -3170,8 +3151,6 @@ public class DefaultServerEntryTest
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
-        
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         
         // Test that we get an error when the ID or AT are null
         try
@@ -3506,7 +3485,6 @@ public class DefaultServerEntryTest
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         
-        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         AttributeType atPassword = registries.getAttributeTypeRegistry().lookup( "userPassword" );
         
         byte[] b1 = StringTools.getBytesUtf8( "test1" );
@@ -3573,7 +3551,6 @@ public class DefaultServerEntryTest
         assertNull( result );
         
         // Now, check what we get when adding one existing AT
-        AttributeType atSN = registries.getAttributeTypeRegistry().lookup( "sn" );
         result = entry.set( atSN );
         
         assertNull( result );
@@ -3583,8 +3560,6 @@ public class DefaultServerEntryTest
         assertEquals( "sn", ((ServerAttribute)sa).getAttributeType().getName() );
         
         // Add two AT now
-        AttributeType atL = registries.getAttributeTypeRegistry().lookup( "localityName" );
-        AttributeType atC = registries.getAttributeTypeRegistry().lookup( "countryName" );
         AttributeType atGN = registries.getAttributeTypeRegistry().lookup( "givenname" );
         AttributeType atStreet = registries.getAttributeTypeRegistry().lookup( "2.5.4.9" );
         result = entry.set( atL, atC, atGN, atStreet );
@@ -3669,8 +3644,6 @@ public class DefaultServerEntryTest
         assertEquals( "sn", sa.getId() );
         
         // Add different upIds now
-        AttributeType atL = registries.getAttributeTypeRegistry().lookup( "localityName" );
-        AttributeType atC = registries.getAttributeTypeRegistry().lookup( "countryName" );
         AttributeType atGN = registries.getAttributeTypeRegistry().lookup( "givenname" );
         AttributeType atStreet = registries.getAttributeTypeRegistry().lookup( "2.5.4.9" );
         

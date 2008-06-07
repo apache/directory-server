@@ -138,8 +138,8 @@ public class ExceptionInterceptor extends BaseInterceptor
     public void add( NextInterceptor nextInterceptor, AddOperationContext opContext )
         throws Exception
     {
-    	LdapDN name = opContext.getDn();
-    	
+        LdapDN name = opContext.getDn();
+        
         if ( subschemSubentryDn.getNormName().equals( name.getNormName() ) )
         {
             throw new LdapNameAlreadyBoundException( 
@@ -162,13 +162,13 @@ public class ExceptionInterceptor extends BaseInterceptor
         
         synchronized( notAliasCache )
         {
-        	notAnAlias = notAliasCache.containsKey( parentDn.getNormName() );
+            notAnAlias = notAliasCache.containsKey( parentDn.getNormName() );
         }
         
         if ( ! notAnAlias )
         {
-        	// We don't know if the parent is an alias or not, so we will launch a 
-        	// lookup, and update the cache if it's not an alias
+            // We don't know if the parent is an alias or not, so we will launch a 
+            // lookup, and update the cache if it's not an alias
             ServerEntry attrs;
             
             try
@@ -196,10 +196,10 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
             else
             {
-            	synchronized ( notAliasCache )
-            	{
-            		notAliasCache.put( parentDn.getNormName(), parentDn );
-            	}
+                synchronized ( notAliasCache )
+                {
+                    notAliasCache.put( parentDn.getNormName(), parentDn );
+                }
             }
         }
 
@@ -213,8 +213,8 @@ public class ExceptionInterceptor extends BaseInterceptor
      */
     public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws Exception
     {
-    	LdapDN name = opContext.getDn();
-    	
+        LdapDN name = opContext.getDn();
+        
         if ( name.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
             throw new LdapOperationNotSupportedException( 
@@ -247,10 +247,10 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         synchronized( notAliasCache )
         {
-        	if ( notAliasCache.containsKey( name.getNormName() ) )
-        	{
-        		notAliasCache.remove( name.getNormName() );
-        	}
+            if ( notAliasCache.containsKey( name.getNormName() ) )
+            {
+                notAliasCache.remove( name.getNormName() );
+            }
         }
         
         nextInterceptor.delete( opContext );
@@ -344,10 +344,10 @@ public class ExceptionInterceptor extends BaseInterceptor
         // it would also be more complex.
         synchronized( notAliasCache )
         {
-        	if ( notAliasCache.containsKey( opContext.getDn().getNormName() ) )
-        	{
-        		notAliasCache.remove( opContext.getDn().getNormName() );
-        	}
+            if ( notAliasCache.containsKey( opContext.getDn().getNormName() ) )
+            {
+                notAliasCache.remove( opContext.getDn().getNormName() );
+            }
         }
 
         nextInterceptor.modify( opContext );
@@ -390,10 +390,10 @@ public class ExceptionInterceptor extends BaseInterceptor
         // Remove the previous entry from the notAnAlias cache
         synchronized( notAliasCache )
         {
-        	if ( notAliasCache.containsKey( dn.getNormName() ) )
-        	{
-        		notAliasCache.remove( dn.getNormName() );
-        	}
+            if ( notAliasCache.containsKey( dn.getNormName() ) )
+            {
+                notAliasCache.remove( dn.getNormName() );
+            }
         }
 
         nextInterceptor.rename( opContext );
@@ -446,10 +446,10 @@ public class ExceptionInterceptor extends BaseInterceptor
         // Remove the original entry from the NotAlias cache, if needed
         synchronized( notAliasCache )
         {
-        	if ( notAliasCache.containsKey( oriChildName.getNormName() ) )
-        	{
-        		notAliasCache.remove( oriChildName.getNormName() );
-        	}
+            if ( notAliasCache.containsKey( oriChildName.getNormName() ) )
+            {
+                notAliasCache.remove( oriChildName.getNormName() );
+            }
         }
                 
         nextInterceptor.move( opContext );
@@ -500,10 +500,10 @@ public class ExceptionInterceptor extends BaseInterceptor
         // Remove the original entry from the NotAlias cache, if needed
         synchronized( notAliasCache )
         {
-        	if ( notAliasCache.containsKey( oriChildName.getNormName() ) )
-        	{
-        		notAliasCache.remove( oriChildName.getNormName() );
-        	}
+            if ( notAliasCache.containsKey( oriChildName.getNormName() ) )
+            {
+                notAliasCache.remove( oriChildName.getNormName() );
+            }
         }
         
         nextInterceptor.moveAndRename( opContext );
@@ -521,16 +521,16 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             EntryFilteringCursor cursor =  nextInterceptor.search( opContext );
 	        
-	        if ( ! cursor.next() )
-	        {
-	            if ( !base.isEmpty() && !( subschemSubentryDn.toNormName() ).equalsIgnoreCase( base.toNormName() ) )
-	            {
-	                // We just check that the entry exists only if we didn't found any entry
-	                assertHasEntry( nextInterceptor, opContext, "Attempt to search under non-existant entry:" , base );
-	            }
-	        }
+            if ( ! cursor.next() )
+            {
+                if ( !base.isEmpty() && !( subschemSubentryDn.toNormName() ).equalsIgnoreCase( base.toNormName() ) )
+                {
+                    // We just check that the entry exists only if we didn't found any entry
+                    assertHasEntry( nextInterceptor, opContext, "Attempt to search under non-existant entry:" , base );
+                }
+            }
 
-	        return cursor;
+            return cursor;
         }
         catch ( Exception ne )
         {

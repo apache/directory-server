@@ -20,16 +20,6 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.naming.NamingException;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,12 +27,23 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
+import javax.naming.NamingException;
+
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
+import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.util.StringTools;
+
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -80,7 +81,7 @@ public class ServerBinaryValueTest
         mr.comparator = new ByteArrayComparator();
         mr.normalizer = new Normalizer()
         {
-            public static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1L;
             
             public Object normalize( Object value ) throws NamingException
             {
@@ -126,11 +127,11 @@ public class ServerBinaryValueTest
         }
         
         // create a AT without any syntax
-        AttributeType at = new TestServerEntryUtils.AT( "1.1.3.1" );
+        AttributeType attribute = new TestServerEntryUtils.AT( "1.1.3.1" );
         
         try
         {
-            new ServerBinaryValue( at );
+            new ServerBinaryValue( attribute );
             fail();
         }
         catch ( IllegalArgumentException ae )
@@ -145,9 +146,9 @@ public class ServerBinaryValueTest
      */
     @Test public void testServerBinaryValueNullValue()
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
         
-        ServerBinaryValue value = new ServerBinaryValue( at, null );
+        ServerBinaryValue value = new ServerBinaryValue( attribute, null );
         
         assertNull( value.getReference() );
         assertTrue( value.isNull() );
@@ -159,9 +160,9 @@ public class ServerBinaryValueTest
      */
     @Test public void testServerBinaryValueEmptyValue()
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
         
-        ServerBinaryValue value = new ServerBinaryValue( at, StringTools.EMPTY_BYTES );
+        ServerBinaryValue value = new ServerBinaryValue( attribute, StringTools.EMPTY_BYTES );
         
         assertEquals( StringTools.EMPTY_BYTES, value.getReference() );
         assertFalse( value.isNull() );
@@ -173,9 +174,9 @@ public class ServerBinaryValueTest
      */
     @Test public void testServerBinaryValueNoValue()
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
         byte[] val = new byte[]{0x01};
-        ServerBinaryValue value = new ServerBinaryValue( at );
+        ServerBinaryValue value = new ServerBinaryValue( attribute );
         
         value.set( val );
         assertTrue( Arrays.equals( val, value.getReference() ) );
@@ -189,9 +190,9 @@ public class ServerBinaryValueTest
      */
     @Test public void testServerBinaryValue()
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
         byte[] val = new byte[]{0x01};
-        ServerBinaryValue value = new ServerBinaryValue( at, val );
+        ServerBinaryValue value = new ServerBinaryValue( attribute, val );
         
         assertTrue( Arrays.equals( val, value.getReference() ) );
         assertFalse( value.isNull() );
@@ -208,7 +209,7 @@ public class ServerBinaryValueTest
         AttributeType at1 = TestServerEntryUtils.getBytesAttributeType();
         ServerBinaryValue sbv = new ServerBinaryValue( at1, null );
         
-        ServerBinaryValue sbv1 = (ServerBinaryValue)sbv.clone();
+        ServerBinaryValue sbv1 = sbv.clone();
         
         assertEquals( sbv, sbv1 );
         
@@ -218,7 +219,7 @@ public class ServerBinaryValueTest
         assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, sbv.get() ) );
         
         sbv.set(  BYTES2 );
-        sbv1 = (ServerBinaryValue)sbv.clone();
+        sbv1 = sbv.clone();
         
         assertEquals( sbv, sbv1 );
         
@@ -262,17 +263,17 @@ public class ServerBinaryValueTest
     /**
      * Test the getNormalizedValue method
      */
-    @Test public void testGetNormalizedValue() throws NamingException
+    @Test public void testGetNormalizedValue()
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
         
-        ServerBinaryValue value = new ServerBinaryValue( at, null );
+        ServerBinaryValue value = new ServerBinaryValue( attribute, null );
         assertNull( value.getNormalizedValue() );
 
-        value = new ServerBinaryValue( at, StringTools.EMPTY_BYTES );
+        value = new ServerBinaryValue( attribute, StringTools.EMPTY_BYTES );
         assertTrue( Arrays.equals(  StringTools.EMPTY_BYTES, value.getNormalizedValue() ) );
 
-        value = new ServerBinaryValue( at, BYTES2 );
+        value = new ServerBinaryValue( attribute, BYTES2 );
         assertTrue( Arrays.equals( BYTES1, value.getNormalizedValue() ) );
     }
     
@@ -280,17 +281,17 @@ public class ServerBinaryValueTest
     /**
      * Test the getNormalizedValue method
      */
-    @Test public void testGetNormalizedValueCopy() throws NamingException
+    @Test public void testGetNormalizedValueCopy()
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
         
-        ServerBinaryValue value = new ServerBinaryValue( at, null );
+        ServerBinaryValue value = new ServerBinaryValue( attribute, null );
         assertNull( value.getNormalizedValueCopy() );
 
-        value = new ServerBinaryValue( at, StringTools.EMPTY_BYTES );
+        value = new ServerBinaryValue( attribute, StringTools.EMPTY_BYTES );
         assertTrue( Arrays.equals(  StringTools.EMPTY_BYTES, value.getNormalizedValueCopy() ) );
 
-        value = new ServerBinaryValue( at, BYTES2 );
+        value = new ServerBinaryValue( attribute, BYTES2 );
         assertTrue( Arrays.equals( BYTES1, value.getNormalizedValueCopy() ) );
     }
     
@@ -298,17 +299,17 @@ public class ServerBinaryValueTest
     /**
      * Test the getNormalizedValue method
      */
-    @Test public void testGetNormalizedValueReference() throws NamingException
+    @Test public void testGetNormalizedValueReference()
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
         
-        ServerBinaryValue value = new ServerBinaryValue( at, null );
+        ServerBinaryValue value = new ServerBinaryValue( attribute, null );
         assertNull( value.getNormalizedValueReference() );
 
-        value = new ServerBinaryValue( at, StringTools.EMPTY_BYTES );
+        value = new ServerBinaryValue( attribute, StringTools.EMPTY_BYTES );
         assertTrue( Arrays.equals(  StringTools.EMPTY_BYTES, value.getNormalizedValueReference() ) );
 
-        value = new ServerBinaryValue( at, BYTES2 );
+        value = new ServerBinaryValue( attribute, BYTES2 );
         assertTrue( Arrays.equals( BYTES1, value.getNormalizedValueReference() ) );
     }
     
@@ -317,12 +318,12 @@ public class ServerBinaryValueTest
      * Test the getAttributeType method
      */
     @Test
-    public void testgetAttributeType() throws NamingException
+    public void testgetAttributeType()
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
-        ServerBinaryValue sbv = new ServerBinaryValue( at );
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
+        ServerBinaryValue sbv = new ServerBinaryValue( attribute );
         
-        assertEquals( at, sbv.getAttributeType() );
+        assertEquals( attribute, sbv.getAttributeType() );
     }    
 
     
@@ -331,20 +332,20 @@ public class ServerBinaryValueTest
      * 
      * The SyntaxChecker does not accept values longer than 5 chars.
      */
-    @Test public void testIsValid() throws NamingException
+    @Test public void testIsValid()
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
         
-        ServerBinaryValue value = new ServerBinaryValue( at, null );
+        ServerBinaryValue value = new ServerBinaryValue( attribute, null );
         assertTrue( value.isValid() );
         
-        value = new ServerBinaryValue( at, StringTools.EMPTY_BYTES );
+        value = new ServerBinaryValue( attribute, StringTools.EMPTY_BYTES );
         assertTrue( value.isValid() );
 
-        value = new ServerBinaryValue( at, new byte[]{0x01, 0x02} );
+        value = new ServerBinaryValue( attribute, new byte[]{0x01, 0x02} );
         assertTrue( value.isValid() );
 
-        value = new ServerBinaryValue( at, new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06} );
+        value = new ServerBinaryValue( attribute, new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06} );
         assertFalse( value.isValid() );
     }
     
@@ -353,12 +354,12 @@ public class ServerBinaryValueTest
      * Tests to make sure the hashCode method is working properly.
      * @throws Exception on errors
      */
-    @Test public void testHashCode() throws Exception
+    @Test public void testHashCode()
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
-        ServerBinaryValue v0 = new ServerBinaryValue( at, new byte[]{0x01, 0x02} );
-        ServerBinaryValue v1 = new ServerBinaryValue( at, new byte[]{(byte)0x81, (byte)0x82} );
-        ServerBinaryValue v2 = new ServerBinaryValue( at, new byte[]{0x01, 0x02} );
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
+        ServerBinaryValue v0 = new ServerBinaryValue( attribute, new byte[]{0x01, 0x02} );
+        ServerBinaryValue v1 = new ServerBinaryValue( attribute, new byte[]{(byte)0x81, (byte)0x82} );
+        ServerBinaryValue v2 = new ServerBinaryValue( attribute, new byte[]{0x01, 0x02} );
         assertEquals( v0.hashCode(), v1.hashCode() );
         assertEquals( v1.hashCode(), v2.hashCode() );
         assertEquals( v0.hashCode(), v2.hashCode() );
@@ -369,7 +370,7 @@ public class ServerBinaryValueTest
         assertTrue( v1.isValid() );
         assertTrue( v2.isValid() );
 
-        ServerBinaryValue v3 = new ServerBinaryValue( at, new byte[]{0x01, 0x03} );
+        ServerBinaryValue v3 = new ServerBinaryValue( attribute, new byte[]{0x01, 0x03} );
         assertFalse( v3.equals( v0 ) );
         assertFalse( v3.equals( v1 ) );
         assertFalse( v3.equals( v2 ) );
@@ -383,8 +384,8 @@ public class ServerBinaryValueTest
     @Test
     public void testSame() throws NamingException
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
-        ServerBinaryValue sbv = new ServerBinaryValue( at );
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
+        ServerBinaryValue sbv = new ServerBinaryValue( attribute );
 
         sbv.normalize();
         assertTrue( sbv.isSame() );
@@ -409,14 +410,14 @@ public class ServerBinaryValueTest
     @Test
     public void testInstanceOf() throws NamingException
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
-        ServerBinaryValue sbv = new ServerBinaryValue( at );
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
+        ServerBinaryValue sbv = new ServerBinaryValue( attribute );
         
-        assertTrue( sbv.instanceOf( at ) );
+        assertTrue( sbv.instanceOf( attribute ) );
         
-        at = TestServerEntryUtils.getIA5StringAttributeType();
+        attribute = TestServerEntryUtils.getIA5StringAttributeType();
         
-        assertFalse( sbv.instanceOf( at ) );
+        assertFalse( sbv.instanceOf( attribute ) );
     }    
     
 
@@ -426,8 +427,8 @@ public class ServerBinaryValueTest
     @Test
     public void testNormalize() throws NamingException
     {
-        AttributeType at = TestServerEntryUtils.getBytesAttributeType();
-        ServerBinaryValue sbv = new ServerBinaryValue( at );
+        AttributeType attribute = TestServerEntryUtils.getBytesAttributeType();
+        ServerBinaryValue sbv = new ServerBinaryValue( attribute );
 
         sbv.normalize();
         assertEquals( null, sbv.getNormalizedValue() );

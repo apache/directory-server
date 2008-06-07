@@ -34,8 +34,6 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
  */
 public class ServerModification implements Modification
 {
-    public static final long serialVersionUID = 1L;
-    
     /** The modification operation */
     private ModificationOperation operation;
     
@@ -123,6 +121,7 @@ public class ServerModification implements Modification
     
     /**
      * Compute the modification @see Object#hashCode
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

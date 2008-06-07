@@ -532,9 +532,9 @@
   </reporting>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang</developerConnection>
-    <url>http://svn.apache.org/viewvc/directory/project/tags/10/apacheds-parent</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk</developerConnection>
+    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk</url>
   </scm>
 
   <repositories>

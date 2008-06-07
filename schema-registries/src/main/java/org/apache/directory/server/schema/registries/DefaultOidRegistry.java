@@ -123,13 +123,13 @@ public class DefaultOidRegistry implements OidRegistry
      */
     public boolean hasOid( String name )
     {
-    	if ( StringTools.isEmpty( name ) )
-    	{
-    		return false;
-    	}
-    	
-    	String normalized = name.trim().toLowerCase();
-    	
+        if ( StringTools.isEmpty( name ) )
+        {
+            return false;
+        }
+        
+        String normalized = name.trim().toLowerCase();
+        
         return byName.containsKey( normalized );
     }
 
@@ -216,17 +216,17 @@ public class DefaultOidRegistry implements OidRegistry
     {
         if ( !OID.isOID( oid ) )
         {
-        	String message = "Swap the parameter order: the oid " + 
-    		"does not start with a digit, or is not an OID!";
-        	
-        	LOG.debug( message );
+            String message = "Swap the parameter order: the oid " + 
+            "does not start with a digit, or is not an OID!";
+            
+            LOG.debug( message );
             throw new NamingException( message );
         }
         
         if ( StringTools.isEmpty( name ) )
         {
-        	String message = "The name is empty";
-        	LOG.error( message );
+            String message = "The name is empty";
+            LOG.error( message );
             throw new NamingException( message );
         }
 
@@ -263,11 +263,11 @@ public class DefaultOidRegistry implements OidRegistry
             
             if ( value.contains( lowerCase ) )
             {
-            	return;
+                return;
             }
             else
             {
-            	value.add( lowerCase );
+                value.add( lowerCase );
             }
         }
 
@@ -282,16 +282,16 @@ public class DefaultOidRegistry implements OidRegistry
 
     public void unregister( String numericOid ) throws NamingException
     {
-    	// First, remove the <OID, names> from the byOID map
+        // First, remove the <OID, names> from the byOID map
         List<String> names = byOid.remove( numericOid );
         
         // Then remove all the <name, OID> from the byName map
         if ( names != null )
         {
-        	for ( String name:names )
-        	{
-        		byName.remove( name );
-        	}
+            for ( String name:names )
+            {
+                byName.remove( name );
+            }
         }
 
         // Last, remove the <OID, OID> from the byName map

@@ -19,11 +19,11 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
-
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
+
+import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
 /**
@@ -95,7 +95,7 @@ public interface ServerAttribute extends ClientAttribute
      * @param upId The attribute ID
      * @param attributeType The associated attributeType
      */
-    public void setUpId( String upId, AttributeType attributeType );
+    void setUpId( String upId, AttributeType attributeType );
     
     
     /**

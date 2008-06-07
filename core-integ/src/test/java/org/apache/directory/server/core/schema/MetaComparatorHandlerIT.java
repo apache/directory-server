@@ -604,5 +604,11 @@ public class MetaComparatorHandlerIT
         public void setSchema( String schemaName )
         {
         }
+
+        public String[] getNamesRef()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 }

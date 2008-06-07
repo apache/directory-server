@@ -150,6 +150,7 @@ public class CSNVector
     /**
      * Returns the hash code of this vector, calculated from each {@link CSN}
      * element. 
+     * @return the instance's hashcode 
      */
     public int hashCode()
     {

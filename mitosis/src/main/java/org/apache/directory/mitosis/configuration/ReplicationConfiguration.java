@@ -141,8 +141,8 @@ public class ReplicationConfiguration
      * @return <tt>0</tt> if automatic replication is disabled
      */
     public int getReplicationInterval() {
-		return replicationInterval;
-	}
+        return replicationInterval;
+    }
 
 
     /**

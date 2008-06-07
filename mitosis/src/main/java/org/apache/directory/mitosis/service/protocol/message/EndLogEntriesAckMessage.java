@@ -51,6 +51,10 @@ public class EndLogEntriesAckMessage extends ResponseMessage
     }
 
 
+    /**
+     * Compute the instance's hash code
+     * @return the instance's hashcode 
+     */
     public int hashCode()
     {
         return new HashCodeBuilder( 247639103, -470023671 ).appendSuper( super.hashCode() ).toHashCode();

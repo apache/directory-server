@@ -657,14 +657,11 @@ public class ImportCommand extends ToolCommand
         if ( ldifReader.containsEntries() )
         {
             // Parse the file and inject every entry
-            Iterator<LdifEntry> entries = ldifReader.iterator();
             long t0 = System.currentTimeMillis();
             int nbAdd = 0;
 
-            while ( entries.hasNext() )
+            for ( LdifEntry entry:ldifReader )
             {
-                LdifEntry entry = entries.next();
-
                 // Check if we have had some error, has next() does not throw any exception
                 if ( ldifReader.hasError() )
                 {
@@ -709,14 +706,11 @@ public class ImportCommand extends ToolCommand
         else
         {
             // Parse the file and inject every modification
-            Iterator<LdifEntry> entries = ldifReader.iterator();
             long t0 = System.currentTimeMillis();
             int nbMod = 0;
 
-            while ( entries.hasNext() )
+            for ( LdifEntry entry:ldifReader )
             {
-                LdifEntry entry = entries.next();
-
                 // Check if we have had some error, has next() does not throw any exception
                 if ( ldifReader.hasError() )
                 {

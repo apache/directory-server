@@ -82,7 +82,7 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
                 + " has already been registered!" );
         }
 
-        if ( objectClass.getNames() != null && objectClass.getNames().length > 0 )
+        if ( objectClass.getNamesRef() != null && objectClass.getNamesRef().length > 0 )
         {
             oidRegistry.register( objectClass.getName(), objectClass.getOid() );
         }

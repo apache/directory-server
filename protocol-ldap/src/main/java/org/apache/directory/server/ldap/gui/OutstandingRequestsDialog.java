@@ -110,9 +110,9 @@ public class OutstandingRequestsDialog extends JDialog
 
 
     /**
-     * This method initializes jPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel    
+     *     
+     * @return javax.swing.JPanel    
      */
     private JPanel getJPanel()
     {
@@ -129,9 +129,9 @@ public class OutstandingRequestsDialog extends JDialog
 
 
     /**
-     * This method initializes jScrollPane	
-     * 	
-     * @return javax.swing.JScrollPane	
+     * This method initializes jScrollPane    
+     *     
+     * @return javax.swing.JScrollPane    
      */
     private JScrollPane getJScrollPane()
     {
@@ -145,9 +145,9 @@ public class OutstandingRequestsDialog extends JDialog
 
 
     /**
-     * This method initializes jTable	
-     * 	
-     * @return javax.swing.JTable	
+     * This method initializes jTable    
+     *     
+     * @return javax.swing.JTable    
      */
     private JTable getJTable()
     {
@@ -203,9 +203,9 @@ public class OutstandingRequestsDialog extends JDialog
 
 
     /**
-     * This method initializes jPanel1	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel1    
+     *     
+     * @return javax.swing.JPanel    
      */
     private JPanel getJPanel1()
     {
@@ -220,9 +220,9 @@ public class OutstandingRequestsDialog extends JDialog
 
 
     /**
-     * This method initializes jButton	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes jButton    
+     *     
+     * @return javax.swing.JButton    
      */
     private JButton getJButton()
     {
@@ -244,9 +244,9 @@ public class OutstandingRequestsDialog extends JDialog
 
 
     /**
-     * This method initializes jPanel2	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel2    
+     *     
+     * @return javax.swing.JPanel    
      */
     private JPanel getJPanel2()
     {
@@ -265,9 +265,9 @@ public class OutstandingRequestsDialog extends JDialog
 
 
     /**
-     * This method initializes jTextArea	
-     * 	
-     * @return javax.swing.JTextArea	
+     * This method initializes jTextArea    
+     *     
+     * @return javax.swing.JTextArea    
      */
     private JTextArea getJTextArea()
     {
@@ -283,9 +283,9 @@ public class OutstandingRequestsDialog extends JDialog
 
 
     /**
-     * This method initializes jButton1	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes jButton1    
+     *     
+     * @return javax.swing.JButton    
      */
     private JButton getJButton1()
     {
@@ -309,9 +309,9 @@ public class OutstandingRequestsDialog extends JDialog
 
 
     /**
-     * This method initializes jButton2	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes jButton2    
+     *     
+     * @return javax.swing.JButton    
      */
     private JButton getJButton2()
     {

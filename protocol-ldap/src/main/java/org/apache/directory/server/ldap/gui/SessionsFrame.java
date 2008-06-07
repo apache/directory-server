@@ -144,9 +144,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel    
+     *     
+     * @return javax.swing.JPanel    
      */
     private JPanel getMainPanel()
     {
@@ -163,9 +163,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jScrollPane	
-     * 	
-     * @return javax.swing.JScrollPane	
+     * This method initializes jScrollPane    
+     *     
+     * @return javax.swing.JScrollPane    
      */
     private JScrollPane getSessionsPane()
     {
@@ -180,9 +180,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jTable	
-     * 	
-     * @return javax.swing.JTable	
+     * This method initializes jTable    
+     *     
+     * @return javax.swing.JTable    
      */
     private JTable getSessionsTable()
     {
@@ -215,9 +215,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel    
+     *     
+     * @return javax.swing.JPanel    
      */
     private JPanel getFilterPanel()
     {
@@ -235,9 +235,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jButton	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes jButton    
+     *     
+     * @return javax.swing.JButton    
      */
     private JButton getFilterButton()
     {
@@ -251,9 +251,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jTextField	
-     * 	
-     * @return javax.swing.JTextField	
+     * This method initializes jTextField    
+     *     
+     * @return javax.swing.JTextField    
      */
     private JTextField getFilterText()
     {
@@ -266,9 +266,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jJMenuBar	
-     * 	
-     * @return javax.swing.JMenuBar	
+     * This method initializes jJMenuBar    
+     *     
+     * @return javax.swing.JMenuBar    
      */
     private JMenuBar getMainMenuBar()
     {
@@ -283,9 +283,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jMenu	
-     * 	
-     * @return javax.swing.JMenu	
+     * This method initializes jMenu    
+     *     
+     * @return javax.swing.JMenu    
      */
     private JMenu getMenuFile()
     {
@@ -300,9 +300,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jMenuItem	
-     * 	
-     * @return javax.swing.JMenuItem	
+     * This method initializes jMenuItem    
+     *     
+     * @return javax.swing.JMenuItem    
      */
     private JMenuItem getExitItem()
     {
@@ -324,9 +324,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jMenu	
-     * 	
-     * @return javax.swing.JMenu	
+     * This method initializes jMenu    
+     *     
+     * @return javax.swing.JMenu    
      */
     private JMenu getMenuSession()
     {
@@ -348,9 +348,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jMenuItem	
-     * 	
-     * @return javax.swing.JMenuItem	
+     * This method initializes jMenuItem    
+     *     
+     * @return javax.swing.JMenuItem    
      */
     private JMenuItem getCloseItem()
     {
@@ -380,9 +380,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jMenu	
-     * 	
-     * @return javax.swing.JMenu	
+     * This method initializes jMenu    
+     *     
+     * @return javax.swing.JMenu    
      */
     private JMenu getMenuSendNoD()
     {
@@ -399,9 +399,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jMenuItem	
-     * 	
-     * @return javax.swing.JMenuItem	
+     * This method initializes jMenuItem    
+     *     
+     * @return javax.swing.JMenuItem    
      */
     private JMenuItem getUnavailableItem()
     {
@@ -431,9 +431,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jMenuItem	
-     * 	
-     * @return javax.swing.JMenuItem	
+     * This method initializes jMenuItem    
+     *     
+     * @return javax.swing.JMenuItem    
      */
     private JMenuItem getProtocolErrorItem()
     {
@@ -463,9 +463,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jMenuItem	
-     * 	
-     * @return javax.swing.JMenuItem	
+     * This method initializes jMenuItem    
+     *     
+     * @return javax.swing.JMenuItem    
      */
     private JMenuItem getStrongAuthRequiredItem()
     {
@@ -497,9 +497,9 @@ public class SessionsFrame extends JFrame
 
 
     //    /**
-    //     * This method initializes jPopupMenu	
-    //     * 	
-    //     * @return javax.swing.JPopupMenu	
+    //     * This method initializes jPopupMenu    
+    //     *     
+    //     * @return javax.swing.JPopupMenu    
     //     */
     //    private JPopupMenu getSessionsPopupMenu()
     //    {
@@ -514,9 +514,9 @@ public class SessionsFrame extends JFrame
     //    }
 
     /**
-     * This method initializes jPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel    
+     *     
+     * @return javax.swing.JPanel    
      */
     private JPanel getSouthPanel()
     {
@@ -532,9 +532,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jMenuItem	
-     * 	
-     * @return javax.swing.JMenuItem	
+     * This method initializes jMenuItem    
+     *     
+     * @return javax.swing.JMenuItem    
      */
     private JMenuItem getShowRequests()
     {
@@ -564,9 +564,9 @@ public class SessionsFrame extends JFrame
 
 
     //    /**
-    //     * This method initializes jMenuItem	
-    //     * 	
-    //     * @return javax.swing.JMenuItem	
+    //     * This method initializes jMenuItem    
+    //     *     
+    //     * @return javax.swing.JMenuItem    
     //     */
     //    private JMenuItem getJMenuItem()
     //    {
@@ -580,9 +580,9 @@ public class SessionsFrame extends JFrame
     //
     //
     //    /**
-    //     * This method initializes jMenu	
-    //     * 	
-    //     * @return javax.swing.JMenu	
+    //     * This method initializes jMenu    
+    //     *     
+    //     * @return javax.swing.JMenu    
     //     */
     //    private JMenu getJMenu()
     //    {
@@ -599,9 +599,9 @@ public class SessionsFrame extends JFrame
     //
     //
     //    /**
-    //     * This method initializes jMenuItem1	
-    //     * 	
-    //     * @return javax.swing.JMenuItem	
+    //     * This method initializes jMenuItem1    
+    //     *     
+    //     * @return javax.swing.JMenuItem    
     //     */
     //    private JMenuItem getJMenuItem1()
     //    {
@@ -615,9 +615,9 @@ public class SessionsFrame extends JFrame
     //
     //
     //    /**
-    //     * This method initializes jMenuItem2	
-    //     * 	
-    //     * @return javax.swing.JMenuItem	
+    //     * This method initializes jMenuItem2    
+    //     *     
+    //     * @return javax.swing.JMenuItem    
     //     */
     //    private JMenuItem getJMenuItem2()
     //    {
@@ -631,9 +631,9 @@ public class SessionsFrame extends JFrame
     //
     //
     //    /**
-    //     * This method initializes jMenuItem3	
-    //     * 	
-    //     * @return javax.swing.JMenuItem	
+    //     * This method initializes jMenuItem3    
+    //     *     
+    //     * @return javax.swing.JMenuItem    
     //     */
     //    private JMenuItem getJMenuItem3()
     //    {
@@ -647,9 +647,9 @@ public class SessionsFrame extends JFrame
     //
     //
     //    /**
-    //     * This method initializes jMenuItem4	
-    //     * 	
-    //     * @return javax.swing.JMenuItem	
+    //     * This method initializes jMenuItem4    
+    //     *     
+    //     * @return javax.swing.JMenuItem    
     //     */
     //    private JMenuItem getJMenuItem4()
     //    {
@@ -662,9 +662,9 @@ public class SessionsFrame extends JFrame
     //    }
 
     /**
-     * This method initializes jButton2	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes jButton2    
+     *     
+     * @return javax.swing.JButton    
      */
     private JButton getRefreshButton()
     {
@@ -704,9 +704,9 @@ public class SessionsFrame extends JFrame
     }
 
     /**
-     * This method initializes jMenuItem	
-     * 	
-     * @return javax.swing.JMenuItem	
+     * This method initializes jMenuItem    
+     *     
+     * @return javax.swing.JMenuItem    
      */
     private JMenuItem getUnbindItem()
     {
@@ -808,9 +808,9 @@ public class SessionsFrame extends JFrame
 
 
     /**
-     * This method initializes jMenuItem	
-     * 	
-     * @return javax.swing.JMenuItem	
+     * This method initializes jMenuItem    
+     *     
+     * @return javax.swing.JMenuItem    
      */
     private JMenuItem getBindItem()
     {

@@ -58,6 +58,7 @@ public class SchemaPartitionExtractor
         }
 
         Iterator<String> ii = listing.iterator();
+        
         while ( ii.hasNext() )
         {
             extract( ii.next() );

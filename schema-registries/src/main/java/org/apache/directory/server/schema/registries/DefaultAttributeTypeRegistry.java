@@ -97,7 +97,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
                 + " has already been registered!" );
         }
 
-        String[] names = attributeType.getNames();
+        String[] names = attributeType.getNamesRef();
         for ( String name : names )
         {
             oidRegistry.register( name, attributeType.getOid() );
@@ -133,7 +133,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
                 binaries.add( type.getOid() );
 
                 // add the lowercased name for the names for the attributeType
-                String[] names = type.getNames();
+                String[] names = type.getNamesRef();
 
                 for ( String name : names )
                 {
@@ -256,7 +256,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
         
         MatchingRule matchingRule = type.getEquality();
         mapping.remove( type.getOid() );
-        String[] aliases = type.getNames();
+        String[] aliases = type.getNamesRef();
         for ( String aliase : aliases )
         {
             mapping.remove( aliase );
@@ -281,7 +281,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
         }
 
         mapping.put( type.getOid(), oidNormalizer );
-        String[] aliases = type.getNames();
+        String[] aliases = type.getNamesRef();
         for ( String aliase : aliases )
         {
             mapping.put( aliase, oidNormalizer );

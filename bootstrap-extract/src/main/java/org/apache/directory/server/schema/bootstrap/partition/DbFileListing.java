@@ -22,15 +22,15 @@ package org.apache.directory.server.schema.bootstrap.partition;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Enumeration;
-import java.net.URL;
 
 
 /**
@@ -78,8 +78,13 @@ public class DbFileListing
     {
 
         boolean userIndexMode = false;
-        String line;
-        BufferedReader in = new BufferedReader( new InputStreamReader( getUniqueResourceAsStream( "DBFILES", "bootstrap partition database file list.  Be sure there is exactly one bootstrap partition jar in your classpath." ) ) );
+        String line = null;
+        BufferedReader in = new BufferedReader( 
+            new InputStreamReader( 
+                getUniqueResourceAsStream( 
+                    "DBFILES", 
+                    "bootstrap partition database file list. " + 
+                    "Be sure there is exactly one bootstrap partition jar in your classpath." ) ) );
         try
         {
             while ( ( line = in.readLine() ) != null )

@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -43,9 +45,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
-
 
 /**
  * A default implementation of a ServerEntry which should suite most
@@ -59,7 +58,7 @@ import javax.naming.directory.InvalidAttributeValueException;
 public final class DefaultServerEntry extends AbstractEntry<AttributeType> implements ServerEntry, Externalizable
 {
     /** Used for serialization */
-    public static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 2L;
     
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultServerEntry.class );
@@ -71,7 +70,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     private static transient AttributeType OBJECT_CLASS_AT;
     
     /** A mutex to manage synchronization*/
-    private transient static Object MUTEX = new Object();
+    private static transient Object MUTEX = new Object();
 
 
     //-------------------------------------------------------------------------
@@ -96,7 +95,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     /**
      * Get the UpId if it was null.
      */
-    public static String getUpId( String upId, AttributeType attributeType ) throws NamingException
+    public static String getUpId( String upId, AttributeType attributeType )
     {
         String normUpId = StringTools.trim( upId );
 
@@ -159,7 +158,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * 
      * Updates the serverAttributeMap.
      */
-    private void createAttribute( String upId, AttributeType attributeType, byte[]... values ) throws NamingException, InvalidAttributeValueException
+    private void createAttribute( String upId, AttributeType attributeType, byte[]... values ) 
     {
         ServerAttribute attribute = new DefaultServerAttribute( attributeType, values );
         attribute.setUpId( upId, attributeType );
@@ -173,7 +172,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * 
      * Updates the serverAttributeMap.
      */
-    private void createAttribute( String upId, AttributeType attributeType, String... values ) throws NamingException, InvalidAttributeValueException
+    private void createAttribute( String upId, AttributeType attributeType, String... values ) 
     {
         ServerAttribute attribute = new DefaultServerAttribute( attributeType, values );
         attribute.setUpId( upId, attributeType );
@@ -187,7 +186,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * 
      * Updates the serverAttributeMap.
      */
-    private void createAttribute( String upId, AttributeType attributeType, Value<?>... values ) throws NamingException, InvalidAttributeValueException
+    private void createAttribute( String upId, AttributeType attributeType, Value<?>... values ) 
     {
         ServerAttribute attribute = new DefaultServerAttribute( attributeType, values );
         attribute.setUpId( upId, attributeType );
@@ -1032,7 +1031,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     /**
      * Returns the attribute associated with an AttributeType
      * 
-     * @param the AttributeType we are looking for
+     * @param attributeType the AttributeType we are looking for
      * @return the associated attribute
      */
     public EntryAttribute get( AttributeType attributeType )
@@ -2289,6 +2288,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     * Gets the hashCode of this ServerEntry.
     *
     * @see java.lang.Object#hashCode()
+     * @return the instance's hash code 
      */
     public int hashCode()
     {

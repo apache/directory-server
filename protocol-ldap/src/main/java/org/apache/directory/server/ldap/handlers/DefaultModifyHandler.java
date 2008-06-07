@@ -74,22 +74,22 @@ public class DefaultModifyHandler extends ModifyHandler
             // Process the modifications
             if ( req.getModificationItems() != null )
             {
-            	int nbItems = req.getModificationItems().size();
+                int nbItems = req.getModificationItems().size();
 
-            	if ( nbItems != 0 )
-            	{
-            		ModificationItemImpl[] mods = new ModificationItemImpl[nbItems];
+                if ( nbItems != 0 )
+                {
+                    ModificationItemImpl[] mods = new ModificationItemImpl[nbItems];
                     //noinspection SuspiciousToArrayCall
                     ctx.modifyAttributes( req.getName(), req.getModificationItems().toArray( mods ) );
-            	}
-            	else
-            	{
-            		 // What should we do if we don't have any modification ???
-            	}
+                }
+                else
+                {
+                     // What should we do if we don't have any modification ???
+                }
             }
             else
             {
-            	// What should we do if we don't have any modification ???
+                // What should we do if we don't have any modification ???
             }
 
             result.setResultCode( ResultCodeEnum.SUCCESS );

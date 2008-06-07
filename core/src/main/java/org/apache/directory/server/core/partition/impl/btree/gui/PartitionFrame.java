@@ -324,8 +324,7 @@ public class PartitionFrame extends JFrame
         {
             public void actionPerformed( ActionEvent an_event )
             {
-                if ( LOG.isDebugEnabled() )
-                    LOG.debug( "action command = " + an_event.getActionCommand() );
+                LOG.debug( "action command = {}", an_event.getActionCommand() );
 
                 try
                 {
@@ -463,11 +462,9 @@ public class PartitionFrame extends JFrame
         try
         {
             in = new FileReader( selected );
-            Iterator list = new LdifReader( in );
 
-            while ( list.hasNext() )
+            for ( LdifEntry entry:new LdifReader( in ) )
             {
-                LdifEntry entry = ( LdifEntry ) list.next();
                 String updn = entry.getDn();
                 
                 LdapDN ndn = new LdapDN( StringTools.deepTrimToLower( updn ) );

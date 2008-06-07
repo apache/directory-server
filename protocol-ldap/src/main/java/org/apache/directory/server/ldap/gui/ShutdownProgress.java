@@ -119,9 +119,9 @@ public class ShutdownProgress extends JDialog implements Runnable
 
 
     /**
-     * This method initializes jPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel    
+     *     
+     * @return javax.swing.JPanel    
      */
     private JPanel getJPanel()
     {
@@ -135,9 +135,9 @@ public class ShutdownProgress extends JDialog implements Runnable
 
 
     /**
-     * This method initializes jButton	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes jButton    
+     *     
+     * @return javax.swing.JButton    
      */
     private JButton getJButton()
     {
@@ -159,9 +159,9 @@ public class ShutdownProgress extends JDialog implements Runnable
 
 
     /**
-     * This method initializes jProgressBar	
-     * 	
-     * @return javax.swing.JProgressBar	
+     * This method initializes jProgressBar    
+     *     
+     * @return javax.swing.JProgressBar    
      */
     private JProgressBar getJProgressBar()
     {

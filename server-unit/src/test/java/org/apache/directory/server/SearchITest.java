@@ -187,7 +187,7 @@ public class SearchITest extends AbstractServerTest
     {
         ctx.unbind( RDN );
         ctx.close();
-    	
+        
         ctx = null;
         super.tearDown();
     }
@@ -1036,7 +1036,7 @@ public class SearchITest extends AbstractServerTest
         }
         catch ( NamingException ne )
         {
-        	assertTrue( true );
+            assertTrue( true );
         }
     }
     
@@ -1157,5 +1157,24 @@ public class SearchITest extends AbstractServerTest
         }
 
         result.close();
+    }
+    
+    
+    /**
+     * Test for DIRSERVER-1183.
+     * 
+     * @see https://issues.apache.org/jira/browse/DIRSERVER-1183
+     * @throws Exception
+     */
+    public void testDIRSERVER_1183() throws Exception
+    {
+    	Attributes attrs = new AttributesImpl( "objectClass", "inetOrgPerson", true );
+    	attrs.get( "objectClass" ).add( "organizationalPerson" );
+    	attrs.get( "objectClass" ).add( "person" );
+    	attrs.put( "givenName", "Jim" );
+    	attrs.put( "sn", "Bean" );
+    	attrs.put( "cn", "\"Jim, Bean\"" );
+    	
+    	ctx.createSubcontext( "cn=\"Jim, Bean\"", attrs );
     }
 }

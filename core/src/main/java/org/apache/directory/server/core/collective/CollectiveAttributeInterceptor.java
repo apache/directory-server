@@ -82,7 +82,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             
             if ( name.isNormalized() == false )
             {
-            	name = LdapDN.normalize( name, atRegistry.getNormalizerMapping() );
+                name = LdapDN.normalize( name, atRegistry.getNormalizerMapping() );
             }
             
             String[] retAttrs = operation.getSearchControls().getReturningAttributes();

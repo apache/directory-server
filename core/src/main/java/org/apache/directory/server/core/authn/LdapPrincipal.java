@@ -88,7 +88,8 @@ public final class LdapPrincipal implements Principal, Serializable
     {
         this.name = name;
         this.authenticationLevel = authenticationLevel;
-        this.userPassword = userPassword;
+        this.userPassword = new byte[ userPassword.length ];
+        System.arraycopy( userPassword, 0, this.userPassword, 0, userPassword.length );
     }
 
 
@@ -154,6 +155,7 @@ public final class LdapPrincipal implements Principal, Serializable
 
     public void setUserPassword( byte[] userPassword )
     {
-        this.userPassword = userPassword;
+        this.userPassword = new byte[ userPassword.length ];
+        System.arraycopy( userPassword, 0, this.userPassword, 0, userPassword.length );
     }
 }

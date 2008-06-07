@@ -27,11 +27,12 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$ $Date$
  */
 public class UniqueResourceException extends RuntimeException
 {
-    public static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private final String resourceName;
     private final List<URL> urls;

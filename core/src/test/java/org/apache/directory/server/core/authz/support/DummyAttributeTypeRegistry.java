@@ -148,7 +148,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                             return null;
                         }
 
-                        public String[] getNames()
+                        public String[] getNamesRef()
                         {
                             return null;
                         }
@@ -211,7 +211,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 }
 
 
-                public String[] getNames()
+                public String[] getNamesRef()
                 {
                     return new String[]
                         { id };
@@ -304,7 +304,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                             return null;
                         }
 
-                        public String[] getNames()
+                        public String[] getNamesRef()
                         {
                             return null;
                         }
@@ -370,7 +370,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                                     return null;
                                 }
 
-                                public String[] getNames()
+                                public String[] getNamesRef()
                                 {
                                     return null;
                                 }
@@ -424,7 +424,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                             return null;
                         }
 
-                        public String[] getNames()
+                        public String[] getNamesRef()
                         {
                             return null;
                         }
@@ -487,7 +487,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 }
 
 
-                public String[] getNames()
+                public String[] getNamesRef()
                 {
                     return new String[]
                         { id };

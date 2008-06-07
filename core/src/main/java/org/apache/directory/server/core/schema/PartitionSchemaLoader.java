@@ -528,7 +528,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         while ( list.next() )
         {
-        	ServerEntry result = list.get();
+            ServerEntry result = list.get();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );

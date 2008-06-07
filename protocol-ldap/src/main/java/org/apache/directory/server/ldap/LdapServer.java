@@ -808,7 +808,6 @@ public class LdapServer extends DirectoryBackedService
         return saslMechanismHandlers;
     }
 
-
     public void setSaslMechanismHandlers( Map<String, MechanismHandler> saslMechanismHandlers )
     {
         this.saslMechanismHandlers = saslMechanismHandlers;

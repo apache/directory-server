@@ -148,6 +148,10 @@ public class Replica
     }
 
 
+    /**
+     * Compute the instance's hash code
+     * @return the instance's hashcode 
+     */
     public int hashCode()
     {
         return id.hashCode();

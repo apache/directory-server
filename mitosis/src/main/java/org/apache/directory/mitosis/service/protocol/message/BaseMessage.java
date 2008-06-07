@@ -58,6 +58,10 @@ public abstract class BaseMessage
     }
 
 
+    /**
+     * Compute the instance's hash code
+     * @return the instance's hashcode 
+     */
     public int hashCode()
     {
         return new HashCodeBuilder( -1364566505, -1158072471 ).append( this.sequence ).toHashCode();

@@ -51,6 +51,10 @@ public class BeginLogEntriesMessage extends BaseMessage
     }
 
 
+    /**
+     * Compute the instance's hash code
+     * @return the instance's hashcode 
+     */
     public int hashCode()
     {
         return new HashCodeBuilder( -1480829129, 951761287 ).appendSuper( super.hashCode() ).toHashCode();

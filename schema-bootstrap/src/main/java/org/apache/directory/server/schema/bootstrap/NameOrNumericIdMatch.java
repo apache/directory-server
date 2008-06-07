@@ -118,9 +118,9 @@ public class NameOrNumericIdMatch implements MatchingRule
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SchemaObject#getNames()
+     * @see org.apache.directory.shared.ldap.schema.SchemaObject#getNamesRef()
      */
-    public String[] getNames()
+    public String[] getNamesRef()
     {
         return NAMES;
     }

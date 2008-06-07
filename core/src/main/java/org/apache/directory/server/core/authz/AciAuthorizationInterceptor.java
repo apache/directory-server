@@ -20,6 +20,16 @@
 package org.apache.directory.server.core.authz;
 
 
+import javax.naming.directory.SearchControls;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
@@ -71,16 +81,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.directory.SearchControls;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -229,8 +229,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = 
-        	directoryService.getPartitionNexus().getRootDSE( null ).
-        		get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+            directoryService.getPartitionNexus().getRootDSE( null ).
+                get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         LdapDN subschemaSubentryDnName = new LdapDN( (String)(subschemaSubentry.get()) );
         subschemaSubentryDnName.normalize( atRegistry.getNormalizerMapping() );
         subschemaSubentryDn = subschemaSubentryDnName.toNormName();
@@ -371,8 +371,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will contain the subentryACI attributes that effect subentries
         LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( dn.size() - 1 );
-        ServerEntry administrativeEntry = opContext.lookup( parentDn, 
-            Collections.singletonList( SchemaConstants.SUBENTRY_ACI_AT ) ).getOriginalEntry();
+        ServerEntry administrativeEntry = opContext.lookup( parentDn, ByPassConstants.LOOKUP_BYPASS ).getOriginalEntry();
         
         EntryAttribute subentryAci = administrativeEntry.get( subentryAciType );
 
@@ -501,8 +500,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws Exception
     {
-    	LdapDN name = deleteContext.getDn();
-    	
+        LdapDN name = deleteContext.getDn();
+        
         LdapPrincipal principal = deleteContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
 
@@ -761,7 +760,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         
         if ( !principalDn.isNormalized() )
         {
-        	principalDn.normalize( atRegistry.getNormalizerMapping() );
+            principalDn.normalize( atRegistry.getNormalizerMapping() );
         }
         
         if ( isPrincipalAnAdministrator( principalDn ) || !enabled )
@@ -1031,7 +1030,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
     	LdapDN name = opContext.getDn();
     	String oid = opContext.getOid();
-    	Value<?> value = (Value<?>)opContext.getValue();
+    	Value<?> value = ( Value<?> ) opContext.getValue();
 
         ClonedServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 

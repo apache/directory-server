@@ -71,26 +71,26 @@ public class NameAndOptionalUIDComparator implements Comparator
         
         if ( ( obj0 instanceof String ) && ( obj1 instanceof String) )
         {
-        	dnstr0 = (String)obj0;
-        	dnstr1 = (String)obj1;
-        	
-        	int dash0 = dnstr0.lastIndexOf( '#' );
-        	int dash1 = dnstr1.lastIndexOf( '#' );
-        	
-        	if ( ( dash0 == -1 ) && ( dash1 == -1 ) )
-        	{
-        		// no UID part
-        		try
-        		{
-        			return getDn( dnstr0 ).compareTo( getDn ( dnstr1 ) );
-        		}
-        		catch ( NamingException ne )
-        		{
-        			return -1;
-        		}
-        	}
-        	else
-        	{
+            dnstr0 = (String)obj0;
+            dnstr1 = (String)obj1;
+            
+            int dash0 = dnstr0.lastIndexOf( '#' );
+            int dash1 = dnstr1.lastIndexOf( '#' );
+            
+            if ( ( dash0 == -1 ) && ( dash1 == -1 ) )
+            {
+                // no UID part
+                try
+                {
+                    return getDn( dnstr0 ).compareTo( getDn ( dnstr1 ) );
+                }
+                catch ( NamingException ne )
+                {
+                    return -1;
+                }
+            }
+            else
+            {
                 // Now, check that we don't have another '#'
                 if ( dnstr0.indexOf( '#' ) != dash0 )
                 {
@@ -98,7 +98,7 @@ public class NameAndOptionalUIDComparator implements Comparator
                     // escaped.
                     return -1;
                 }
-        		
+                
                 if ( dnstr1.indexOf( '#' ) != dash0 )
                 {
                     // Yes, we have one : this is not allowed, it should have been
@@ -116,14 +116,14 @@ public class NameAndOptionalUIDComparator implements Comparator
                 
                 if ( dash0 > 0 )
                 {
-                	try
-                	{
-                		dn0 = new LdapDN( dnstr0.substring( 0, dash0 ) );
-                	}
-                	catch ( NamingException ne )
-                	{
-                		return -1;
-                	}
+                    try
+                    {
+                        dn0 = new LdapDN( dnstr0.substring( 0, dash0 ) );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        return -1;
+                    }
                 }
                 else
                 {
@@ -137,14 +137,14 @@ public class NameAndOptionalUIDComparator implements Comparator
                 
                 if ( dash1 > 0 )
                 {
-                	try
+                    try
                     {
-                		dn1 = new LdapDN( dnstr0.substring( 0, dash1 ) );
-                	}
-                	catch ( NamingException ne )
-                	{
-                		return 1;
-                	}
+                        dn1 = new LdapDN( dnstr0.substring( 0, dash1 ) );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        return 1;
+                    }
                 }
                 else
                 {
@@ -155,15 +155,15 @@ public class NameAndOptionalUIDComparator implements Comparator
                 
                 if ( dnComp != 0 )
                 {
-                	return dnComp;
+                    return dnComp;
                 }
                 
                 return uid0.compareTo( uid1 );
-        	}
+            }
         }
         else
         {
-        	return -1;
+            return -1;
         }
     }
 

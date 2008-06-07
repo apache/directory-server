@@ -208,7 +208,10 @@ public class AddEntryDialog extends JDialog implements ActionListener
             public Object getCellEditorValue()
             {
                 if ( log.isDebugEnabled() )
+                {
                     log.debug( "Editor returning '" + l_textField.getText() + "'" );
+                }
+                
                 return l_textField.getText();
             }
         };

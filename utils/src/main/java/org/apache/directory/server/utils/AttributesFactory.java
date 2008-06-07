@@ -421,7 +421,7 @@ public class AttributesFactory
     
     private final void injectCommon( SchemaObject object, ServerEntry entry, Registries registries ) throws NamingException
     {
-        injectNames( object.getNames(), entry, registries );
+        injectNames( object.getNamesRef(), entry, registries );
         entry.put( MetaSchemaConstants.M_OBSOLETE_AT, getBoolean( object.isObsolete() ) );
         entry.put( MetaSchemaConstants.M_OID_AT, object.getOid() );
         

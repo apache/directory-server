@@ -20,6 +20,15 @@
 package org.apache.directory.server.core.authz.support;
 
 
+import javax.naming.directory.SearchControls;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;

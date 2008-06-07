@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.core.entry;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,25 +29,25 @@ import java.io.ObjectOutputStream;
 
 import javax.naming.NamingException;
 
-import jdbm.helper.Serializer;
-
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.name.LdapDNSerializer;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.LdapDNSerializer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jdbm.helper.Serializer;
+
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev$, $Date$
  */
 public class ServerEntrySerializer implements Serializer
 {
-    public static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ServerEntrySerializer.class );
@@ -62,10 +61,10 @@ public class ServerEntrySerializer implements Serializer
     private transient Registries registries;
 
     /** Flag used for ServerStringValue */
-    private transient static final boolean HR_VALUE = true;
+    private static final transient boolean HR_VALUE = true;
 
     /** Flag used for streamed values */
-    private transient static final boolean STREAMED_VALUE = true;
+    private static final transient boolean STREAMED_VALUE = true;
 
 
     /**
@@ -120,7 +119,7 @@ public class ServerEntrySerializer implements Serializer
         // Then the attributes.
         out.writeInt( entry.size() );
 
-        // Iterate through the attrbutes. We store the Attribute
+        // Iterate through the attributes. We store the Attribute
         // here, to be able to restore it in the readExternal :
         // we need access to the registries, which are not available
         // in the ServerAttribute class.
@@ -188,7 +187,7 @@ public class ServerEntrySerializer implements Serializer
 
             if ( ssv.get() == null )
             {
-                // Write two empry string for UP nad normalized
+                // Write two empty string for UP and normalized
                 out.writeUTF( "" );
                 out.writeUTF( "" );
             }
@@ -245,8 +244,7 @@ public class ServerEntrySerializer implements Serializer
      *  [UP value]
      *  [Norm value] (will be null if normValue == upValue)
      */
-    private Value<?> deserializeValue( ObjectInput in, AttributeType attributeType ) throws IOException,
-        NamingException
+    private Value<?> deserializeValue( ObjectInput in, AttributeType attributeType ) throws IOException
     {
         boolean isValid = in.readBoolean();
         boolean isHR = in.readBoolean();
@@ -373,11 +371,6 @@ public class ServerEntrySerializer implements Serializer
             }
 
             return serverEntry;
-        }
-        catch ( ClassNotFoundException cnfe )
-        {
-            // TODO Handle this exception
-            return null;
         }
         catch ( NamingException ne )
         {

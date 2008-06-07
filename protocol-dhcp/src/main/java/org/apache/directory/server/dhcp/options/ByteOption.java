@@ -35,30 +35,30 @@ package org.apache.directory.server.dhcp.options;
  * 
  */
 public abstract class ByteOption extends DhcpOption {
-	/**
-	 * The byte value (represented as a short because of the unsignedness).
-	 */
-	private short byteValue;
+    /**
+     * The byte value (represented as a short because of the unsignedness).
+     */
+    private short byteValue;
 
-	/*
-	 * @see org.apache.directory.server.dhcp.options.DhcpOption#setData(byte[])
-	 */
-	public void setData(byte[] data) {
-		byteValue = (short) (data[0] & 0xff);
-	}
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#setData(byte[])
+     */
+    public void setData(byte[] data) {
+        byteValue = (short) (data[0] & 0xff);
+    }
 
-	/*
-	 * @see org.apache.directory.server.dhcp.options.DhcpOption#getData()
-	 */
-	public byte[] getData() {
-		return new byte[]{(byte) (byteValue & 0xff)};
-	}
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getData()
+     */
+    public byte[] getData() {
+        return new byte[]{(byte) (byteValue & 0xff)};
+    }
 
-	public short getByteValue() {
-		return byteValue;
-	}
+    public short getByteValue() {
+        return byteValue;
+    }
 
-	public void setShortValue(short shortValue) {
-		this.byteValue = shortValue;
-	}
+    public void setShortValue(short shortValue) {
+        this.byteValue = shortValue;
+    }
 }

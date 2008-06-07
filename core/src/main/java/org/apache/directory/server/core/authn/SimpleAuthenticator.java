@@ -34,20 +34,20 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.normalization.NormalizationInterceptor;
-import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
-import org.apache.directory.server.core.exception.ExceptionInterceptor;
-import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
-import org.apache.directory.server.core.schema.SchemaInterceptor;
-import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.event.EventInterceptor;
+import org.apache.directory.server.core.exception.ExceptionInterceptor;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.normalization.NormalizationInterceptor;
+import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
+import org.apache.directory.server.core.referral.ReferralInterceptor;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
@@ -177,8 +177,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         
         private EncryptionMethod( LdapSecurityConstants algorithm, byte[] salt )
         {
-        	this.algorithm = algorithm;
-        	this.salt = salt;
+            this.algorithm = algorithm;
+            this.salt = salt;
         }
     }
     
@@ -284,7 +284,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 LOG.debug( "{} Authenticated", opContext.getDn() );
             }
             
-        	return principal;
+            return principal;
         }
         
         // Let's see if the stored password was encrypted
@@ -379,7 +379,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                     // in two parts, after having decoded the password.
                     // The salt will be stored into the EncryptionMethod structure
                     // The salt is at the end of the credentials, and is 8 bytes long
-                    byte[] passwordAndSalt = Base64.decode( new String( credentials, pos, credentials.length - pos, "UTF-8" ).toCharArray() );
+                    byte[] passwordAndSalt = Base64.decode( new String( credentials, pos, credentials.length - pos, "UTF-8" ).
+                        toCharArray() );
                     
                     encryptionMethod.salt = new byte[8];
                     byte[] password = new byte[passwordAndSalt.length - encryptionMethod.salt.length];
@@ -528,7 +529,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                     salt[1] = ( byte ) ( i2 < 12 ? ( i2 + '.' ) : i2 < 38 ? ( i2 + 'A' - 12 ) : ( i2 + 'a' - 38 ) );
                 }
 
-                String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( credentials ), StringTools.utf8ToString( salt ) );
+                String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( credentials ), 
+                    StringTools.utf8ToString( salt ) );
                 String crypted = saltWithCrypted.substring( 2 );
                 
                 return StringTools.getBytesUtf8( crypted );
@@ -621,8 +623,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         String sPassword = StringTools.utf8ToString( password );
         int rightParen = sPassword.indexOf( '}' );
 
-        if ( ( sPassword != null ) &&
-             ( sPassword.length() > 2 ) &&
+        if ( ( sPassword.length() > 2 ) &&
              ( sPassword.charAt( 0 ) == '{' ) &&
              ( rightParen > -1 ) )
         {

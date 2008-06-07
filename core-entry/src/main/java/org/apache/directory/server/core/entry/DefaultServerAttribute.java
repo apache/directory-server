@@ -19,6 +19,9 @@
 package org.apache.directory.server.core.entry;
 
 
+import javax.naming.NamingException;
+import javax.naming.directory.InvalidAttributeValueException;
+
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -30,9 +33,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
-
 
 /**
  * A server side entry attribute aware of schema.
@@ -42,59 +42,32 @@ import javax.naming.directory.InvalidAttributeValueException;
  */
 public final class DefaultServerAttribute extends DefaultClientAttribute implements ServerAttribute
 {
-    /** Used for serialization */
-    public static final long serialVersionUID = 2L;
-    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultServerAttribute.class );
     
     /** The associated AttributeType */
-    protected transient AttributeType attributeType;
+    private AttributeType attributeType;
     
     
     // -----------------------------------------------------------------------
     // utility methods
     // -----------------------------------------------------------------------
     /**
-     *  Check the attributeType member. It should not be null, 
-     *  and it should contains a syntax.
-     */
-    protected String getErrorMessage( AttributeType attributeType )
-    {
-        try
-        {
-            if ( attributeType == null )
-            {
-                return "The AttributeType parameter should not be null";
-            }
-            
-            if ( attributeType.getSyntax() == null )
-            {
-                return "There is no Syntax associated with this attributeType";
-            }
-
-            return null;
-        }
-        catch ( NamingException ne )
-        {
-            return "This AttributeType is incorrect";
-        }
-    }
-    
-    
-    /**
      * Private helper method used to set an UpId from an attributeType
+     * 
+     * @param at The attributeType for which we want the upID
+     * @return the ID of the given attributeType
      */
-    private String getUpId( AttributeType attributeType )
+    private String getUpId( AttributeType at )
     {
-        String upId = attributeType.getName();
+        String atUpId = at.getName();
         
-        if ( upId == null )
+        if ( atUpId == null )
         {
-            upId = attributeType.getOid();
+            atUpId = at.getOid();
         }
         
-        return upId;
+        return atUpId;
     }
     
     
@@ -123,7 +96,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
         
         String normId = StringTools.lowerCaseAscii( trimmedId );
         
-        for ( String name:attributeType.getNames() )
+        for ( String name:attributeType.getNamesRef() )
         {
             if ( normId.equalsIgnoreCase( name ) )
             {
@@ -171,7 +144,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 // In this case, it must be equals to the attributeType OID.
                 String normId = StringTools.lowerCaseAscii( StringTools.trim( id ) );
                 
-                for ( String atName:attributeType.getNames() )
+                for ( String atName:attributeType.getNamesRef() )
                 {
                     if ( atName.equalsIgnoreCase( normId ) )
                     {
@@ -190,7 +163,8 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 else
                 {
                     // The id is incorrect : this is not allowed 
-                    throw new IllegalArgumentException( "The ID '" + id + "'is incompatible with the AttributeType's id '" + attributeType.getName() + "'" );
+                    throw new IllegalArgumentException( "The ID '" + id + "'is incompatible with the AttributeType's id '" + 
+                        attributeType.getName() + "'" );
                 }
             }
         }
@@ -239,9 +213,9 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 // In this case, it must be equals to the attributeType OID.
                 String normUpId = StringTools.lowerCaseAscii( StringTools.trim( upId ) );
                 
-                for ( String id:attributeType.getNames() )
+                for ( String atId:attributeType.getNamesRef() )
                 {
-                    if ( id.equalsIgnoreCase( normUpId ) )
+                    if ( atId.equalsIgnoreCase( normUpId ) )
                     {
                         // Found ! We can store the upId and get out
                         super.setUpId( upId );
@@ -317,9 +291,9 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 // In this case, it must be equals to the attributeType OID.
                 String normUpId = StringTools.lowerCaseAscii( StringTools.trim( upId ) );
                 
-                for ( String id:attributeType.getNames() )
+                for ( String atId:attributeType.getNamesRef() )
                 {
-                    if ( id.equalsIgnoreCase( normUpId ) )
+                    if ( atId.equalsIgnoreCase( normUpId ) )
                     {
                         // Found ! We can store the upId and get out
                         super.setUpId( upId );
@@ -406,6 +380,8 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     // an initial value as a string or a byte[]
     /**
      * Create a new instance of a EntryAttribute, without ID nor value.
+     * 
+     * @param attributeType the attributeType for the empty attribute added into the entry
      */
     public DefaultServerAttribute( AttributeType attributeType )
     {
@@ -420,6 +396,9 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
 
     /**
      * Create a new instance of a EntryAttribute, without value.
+     * 
+     * @param upId the ID for the added attributeType
+     * @param attributeType the added AttributeType
      */
     public DefaultServerAttribute( String upId, AttributeType attributeType )
     {
@@ -444,7 +423,6 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      *
      * @param attributeType the attribute type according to the schema
      * @param vals an initial set of values for this attribute
-     * @throws NamingException if there are problems creating the new attribute
      */
     public DefaultServerAttribute( AttributeType attributeType, Value<?>... vals )
     {
@@ -461,10 +439,9 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      * 
      * Otherwise, the value is stored, but as a reference. It's not a copy.
      *
-     * @param upId
+     * @param upId the ID of the added attribute
      * @param attributeType the attribute type according to the schema
      * @param vals an initial set of values for this attribute
-     * @throws NamingException if there are problems creating the new attribute
      */
     public DefaultServerAttribute( String upId, AttributeType attributeType, Value<?>... vals )
     {
@@ -481,6 +458,9 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
 
     /**
      * Create a new instance of a EntryAttribute, without ID but with some values.
+     * 
+     * @param attributeType The attributeType added on creation
+     * @param vals The added value for this attribute
      */
     public DefaultServerAttribute( AttributeType attributeType, String... vals )
     {
@@ -490,6 +470,10 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
 
     /**
      * Create a new instance of a EntryAttribute.
+     * 
+     * @param upId the ID for the added attribute
+     * @param attributeType The attributeType added on creation
+     * @param vals the added values for this attribute
      */
     public DefaultServerAttribute( String upId, AttributeType attributeType, String... vals )
     {
@@ -506,6 +490,9 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
 
     /**
      * Create a new instance of a EntryAttribute, with some byte[] values.
+     * 
+     * @param attributeType The attributeType added on creation
+     * @param vals The value for the added attribute
      */
     public DefaultServerAttribute( AttributeType attributeType, byte[]... vals )
     {
@@ -515,6 +502,10 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
 
     /**
      * Create a new instance of a EntryAttribute, with some byte[] values.
+     * 
+     * @param upId the ID for the added attribute
+     * @param attributeType the AttributeType to be added
+     * @param vals the values for the added attribute
      */
     public DefaultServerAttribute( String upId, AttributeType attributeType, byte[]... vals )
     {
@@ -533,6 +524,8 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      * Clone an attribute. All the element are duplicated, so a modification on
      * the original object won't affect the cloned object, as a modification
      * on the cloned object has no impact on the original object
+     * 
+     * @return a clone of the current attribute
      */
     public ServerAttribute clone()
     {
@@ -595,6 +588,8 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
 
     /**
      * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value...)
+     * 
+     * @return the number of added values into this attribute
      */
     public int add( Value<?>... vals )
     {
@@ -947,6 +942,8 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     
     /**
      * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value...)
+     * 
+     * @return <code>true</code> if all the values shave been removed from this attribute
      */
     public boolean remove( Value<?>... vals )
     {
@@ -1000,6 +997,8 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
 
     /**
      * @see EntryAttribute#remove(byte[]...)
+     * 
+     * @return <code>true</code> if all the values shave been removed from this attribute
      */
     public boolean remove( byte[]... vals )
     {
@@ -1022,6 +1021,8 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
 
     /**
      * @see EntryAttribute#remove(String...)
+     * 
+     * @return <code>true</code> if all the values shave been removed from this attribute
      */
     public boolean remove( String... vals )
     {
@@ -1050,6 +1051,8 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
      * on the internal values.
      *  
      * @see Object#hashCode()
+     * 
+     * @return the instance's hash code 
      */
     public int hashCode()
     {
@@ -1066,6 +1069,8 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
 
     /**
      * @see Object#equals(Object)
+     * 
+     * @return <code>true</code> if the two objects are equal
      */
     public boolean equals( Object obj )
     {
@@ -1104,7 +1109,9 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     
     
     /**
-     * @see Object#toString() 
+     * @see Object#toString()
+     * 
+     * @return A String representation of this instance
      */
     public String toString()
     {

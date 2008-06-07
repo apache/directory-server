@@ -255,9 +255,9 @@ public class TriggerInterceptor extends BaseInterceptor
     
     public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
-    	LdapDN name = addContext.getDn();
-    	ServerEntry entry = addContext.getEntry();
-    	
+        LdapDN name = addContext.getDn();
+        ServerEntry entry = addContext.getEntry();
+        
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
@@ -290,8 +290,8 @@ public class TriggerInterceptor extends BaseInterceptor
     
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws Exception
     {
-    	LdapDN name = deleteContext.getDn();
-    	
+        LdapDN name = deleteContext.getDn();
+        
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
@@ -579,16 +579,16 @@ public class TriggerInterceptor extends BaseInterceptor
     private Object executeTrigger( OperationContext opContext, TriggerSpecification tsec, 
         StoredProcedureParameterInjector injector ) throws Exception
     {
-    	List<Object> returnValues = new ArrayList<Object>();
-    	List<SPSpec> spSpecs = tsec.getSPSpecs();
+        List<Object> returnValues = new ArrayList<Object>();
+        List<SPSpec> spSpecs = tsec.getSPSpecs();
         for ( SPSpec spSpec : spSpecs )
         {
-        	List<Object> arguments = new ArrayList<Object>();
-        	arguments.addAll( injector.getArgumentsToInject( opContext, spSpec.getParameters() ) );
+            List<Object> arguments = new ArrayList<Object>();
+            arguments.addAll( injector.getArgumentsToInject( opContext, spSpec.getParameters() ) );
             Object[] values = arguments.toArray();
             Object returnValue = executeProcedure( opContext, spSpec.getName(), values );
             returnValues.add( returnValue );
-		}
+        }
         
         return returnValues; 
     }

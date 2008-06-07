@@ -20,6 +20,10 @@
 package org.apache.directory.server.core.authz;
 
 
+import javax.naming.directory.SearchControls;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;

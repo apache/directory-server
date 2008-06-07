@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.authn;
 
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -49,7 +52,7 @@ public interface Authenticator
      * Returns the type of this authenticator (e.g. <tt>'simple'</tt>,
      * <tt>'none'</tt>,...).
      */
-    public String getAuthenticatorType();
+    String getAuthenticatorType();
 
 
     /**
@@ -63,7 +66,7 @@ public interface Authenticator
      * Called by {@link AuthenticationInterceptor} to indicate that this
      * authenticator is being removed from service.
      */
-    public void destroy();
+    void destroy();
 
     
     /**
@@ -74,7 +77,7 @@ public interface Authenticator
      * 
      * @param bindDn the already normalized distinguished name of the bind principal
      */
-    public void invalidateCache( LdapDN bindDn );
+    void invalidateCache( LdapDN bindDn );
 
     
     /**

@@ -30,20 +30,20 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  * @version $Rev: 552077 $, $Date: 2007-06-29 21:23:39 -0500 (Fr, 29 Jun 2007) $
  */
 public class UnrecognizedOption extends DhcpOption {
-	private final byte tag;
+    private final byte tag;
 
-	public UnrecognizedOption() {
-		tag = -1;
-	}
+    public UnrecognizedOption() {
+        tag = -1;
+    }
 
-	/*
-	 * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
-	 */
-	public byte getTag() {
-		return tag;
-	}
+    /*
+     * @see org.apache.directory.server.dhcp.options.DhcpOption#getTag()
+     */
+    public byte getTag() {
+        return tag;
+    }
 
-	public UnrecognizedOption(byte tag) {
-		this.tag = tag;
-	}
+    public UnrecognizedOption(byte tag) {
+        this.tag = tag;
+    }
 }

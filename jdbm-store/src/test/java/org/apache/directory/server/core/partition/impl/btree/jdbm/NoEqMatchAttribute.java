@@ -148,4 +148,10 @@ public class NoEqMatchAttribute implements AttributeType
     {
         //To change body of implemented methods use File | Settings | File Templates.
     }
+
+
+    public String[] getNamesRef()
+    {
+        return null;
+    }
 }

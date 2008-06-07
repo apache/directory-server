@@ -205,19 +205,19 @@ class ObjectClassImpl extends AbstractSchemaObject implements MutableSchemaObjec
     
     public boolean isStructural()
     {
-    	return objectClassType == ObjectClassTypeEnum.STRUCTURAL;
+        return objectClassType == ObjectClassTypeEnum.STRUCTURAL;
     }
 
 
     public boolean isAbstract()
     {
-    	return objectClassType == ObjectClassTypeEnum.ABSTRACT;
+        return objectClassType == ObjectClassTypeEnum.ABSTRACT;
     }
 
     
     public boolean isAuxiliary()
     {
-    	return objectClassType == ObjectClassTypeEnum.AUXILIARY;
+        return objectClassType == ObjectClassTypeEnum.AUXILIARY;
     }
 
     

@@ -177,7 +177,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     }
 
     
-	public void setLdapProvider( LdapServer provider)
+    public void setLdapProvider( LdapServer provider)
     {
-	}
+    }
 }

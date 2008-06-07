@@ -162,11 +162,11 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     
     protected void registerOids( SchemaObject obj ) throws Exception
     {
-        String[] names = obj.getNames();
+        String[] names = obj.getNamesRef();
         
         if ( names != null )
         {
-            for ( String name: names )
+            for ( String name:names )
             {
                 targetRegistries.getOidRegistry().register( name, obj.getOid() );
             }

@@ -104,39 +104,39 @@ public class CompareOperationContext extends AbstractOperationContext
     /**
      * @return The compared OID
      */
-	public String getOid() 
-	{
-		return oid;
-	}
+    public String getOid() 
+    {
+        return oid;
+    }
 
 	
-	/**
-	 * Set the compared OID
-	 * @param oid The compared OID
-	 */
-	public void setOid( String  oid ) 
-	{
-		this.oid = oid;
-	}
+    /**
+     * Set the compared OID
+     * @param oid The compared OID
+     */
+    public void setOid( String  oid ) 
+    {
+        this.oid = oid;
+    }
 
 	
-	/**
-	 * @return The value to compare
-	 */
-	public Object getValue() 
-	{
-		return value;
-	}
+    /**
+     * @return The value to compare
+     */
+    public Object getValue() 
+    {
+        return value;
+    }
 
 	
-	/**
-	 * Set the value to compare
-	 * @param value The value to compare
-	 */
-	public void setValue( Object value ) 
-	{
-		this.value = value;
-	}
+    /**
+     * Set the value to compare
+     * @param value The value to compare
+     */
+    public void setValue( Object value ) 
+    {
+        this.value = value;
+    }
 
 
     /**
@@ -148,20 +148,20 @@ public class CompareOperationContext extends AbstractOperationContext
     }
 
     
-	/**
+    /**
      * @see Object#toString()
      */
     public String toString()
     {
         return "CompareContext for DN '" + getDn().getUpName() + "'" + 
-        	( ( oid != null ) ? ", oid : <" + oid + ">" : "" ) +
-        	( ( value != null ) ? ", value :'" +
-        			( ( value instanceof String ) ?
-        					value :
-        					( ( value instanceof byte[] ) ?
-        							StringTools.dumpBytes( (byte[])value ) : 
-        								"unknown value type" ) )
-        				+ "'"
-        			: "" );
+            ( ( oid != null ) ? ", oid : <" + oid + ">" : "" ) +
+            ( ( value != null ) ? ", value :'" +
+                    ( ( value instanceof String ) ?
+                            value :
+                            ( ( value instanceof byte[] ) ?
+                                    StringTools.dumpBytes( (byte[])value ) : 
+                                        "unknown value type" ) )
+                        + "'"
+                    : "" );
     }
 }

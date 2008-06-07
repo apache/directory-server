@@ -56,6 +56,15 @@ import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -225,6 +234,7 @@ public class DefaultServerAttributeTest
         assertNull( ((ServerStringValue)value).get() );
     }
     
+
     @Test public void testGetAttribute() throws Exception
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
@@ -1166,7 +1176,7 @@ public class DefaultServerAttributeTest
      * Test method put( Value... )
      */
     @Test
-    public void testPutValueArray() throws InvalidAttributeValueException, Exception
+    public void testPutValueArray() throws Exception
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
         
@@ -1299,7 +1309,7 @@ public class DefaultServerAttributeTest
      * Test method remove( Value... )
      */
     @Test
-    public void testRemoveValueArray() throws InvalidAttributeValueException, Exception
+    public void testRemoveValueArray() throws Exception
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
 
@@ -1369,7 +1379,7 @@ public class DefaultServerAttributeTest
      * Test method remove( byte... )
      */
     @Test
-    public void testRemoveByteArray() throws InvalidAttributeValueException, Exception
+    public void testRemoveByteArray() throws Exception
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atPwd );
 
@@ -1399,7 +1409,7 @@ public class DefaultServerAttributeTest
      * Test method remove( String... )
      */
     @Test
-    public void testRemoveStringArray() throws InvalidAttributeValueException, Exception
+    public void testRemoveStringArray() throws Exception
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
 
@@ -1638,7 +1648,6 @@ public class DefaultServerAttributeTest
     public void testGetAttributeType() throws Exception
     {
         ServerAttribute attr = new DefaultServerAttribute( atSN );
-        
         assertEquals( atSN, attr.getAttributeType() );
     }
 

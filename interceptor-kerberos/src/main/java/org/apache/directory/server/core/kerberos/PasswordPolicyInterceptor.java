@@ -121,20 +121,20 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
         {
             if ( log.isDebugEnabled() )
             {
-            	switch ( mod.getOperation() )
-	            {
-	                case ADD_ATTRIBUTE:
-	                    operation = "Adding";
-	                    break;
-	                    
-	                case REMOVE_ATTRIBUTE:
-	                    operation = "Removing";
-	                    break;
-	                    
-	                case REPLACE_ATTRIBUTE:
-	                    operation = "Replacing";
-	                    break;
-	            }
+                switch ( mod.getOperation() )
+                {
+                    case ADD_ATTRIBUTE:
+                        operation = "Adding";
+                        break;
+                        
+                    case REMOVE_ATTRIBUTE:
+                        operation = "Removing";
+                        break;
+                        
+                    case REPLACE_ATTRIBUTE:
+                        operation = "Replacing";
+                        break;
+                }
             }
 
             ServerAttribute attr = (ServerAttribute)mod.getAttribute();
@@ -181,7 +181,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
 
             if ( log.isDebugEnabled() )
             {
-            	log.debug( operation + " for entry '" + name.getUpName() + "' the attribute " + mod.getAttribute() );
+                log.debug( operation + " for entry '" + name.getUpName() + "' the attribute " + mod.getAttribute() );
             }
         }
 
