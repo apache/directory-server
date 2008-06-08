@@ -259,6 +259,12 @@ public class CompareRequestImplTest extends TestCase
             public void addAll( Control[] controls ) throws MessageException
             {
             }
+
+
+            public boolean hasControl( String oid )
+            {
+                return false;
+            }
         };
 
         CompareRequestImpl req1 = new CompareRequestImpl( 5 );

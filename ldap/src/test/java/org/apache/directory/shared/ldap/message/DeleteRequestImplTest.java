@@ -198,6 +198,12 @@ public class DeleteRequestImplTest extends TestCase
             public void addAll( Control[] controls ) throws MessageException
             {
             }
+
+
+            public boolean hasControl( String oid )
+            {
+                return false;
+            }
         };
 
         DeleteRequestImpl req1 = new DeleteRequestImpl( 5 );

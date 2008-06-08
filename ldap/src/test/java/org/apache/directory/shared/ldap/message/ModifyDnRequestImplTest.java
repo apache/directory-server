@@ -341,6 +341,12 @@ public class ModifyDnRequestImplTest extends TestCase
             public void addAll( Control[] controls ) throws MessageException
             {
             }
+
+
+            public boolean hasControl( String oid )
+            {
+                return false;
+            }
         };
 
         ModifyDnRequestImpl req1 = getRequest();

@@ -151,6 +151,12 @@ public class SearchResponseReferenceImplTest extends TestCase
             public void addAll( Control[] controls ) throws MessageException
             {
             }
+
+
+            public boolean hasControl( String oid )
+            {
+                return false;
+            }
         };
 
         SearchResponseReferenceImpl resp1 = new SearchResponseReferenceImpl( 5 );

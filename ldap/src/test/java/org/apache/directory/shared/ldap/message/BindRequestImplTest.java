@@ -317,6 +317,12 @@ public class BindRequestImplTest extends TestCase
             public void addAll( Control[] controls ) throws MessageException
             {
             }
+
+
+            public boolean hasControl( String oid )
+            {
+                return false;
+            }
         };
 
         BindRequestImpl req1 = new BindRequestImpl( 5 );
