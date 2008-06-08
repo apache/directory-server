@@ -73,6 +73,8 @@ public class MoveOperationContext extends AbstractOperationContext
         {
             throw new IllegalArgumentException( modifyDnRequest + " represents a move and rename operation." );
         }
+        
+        super.setReferralHandlingMode( modifyDnRequest );
     }
 
 

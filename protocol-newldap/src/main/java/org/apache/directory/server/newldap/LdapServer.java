@@ -51,6 +51,7 @@ import org.apache.directory.server.newldap.handlers.NewAddHandler;
 import org.apache.directory.server.newldap.handlers.NewBindHandler;
 import org.apache.directory.server.newldap.handlers.NewCompareHandler;
 import org.apache.directory.server.newldap.handlers.NewDeleteHandler;
+import org.apache.directory.server.newldap.handlers.NewModifyDnHandler;
 import org.apache.directory.server.newldap.handlers.SearchHandler;
 import org.apache.directory.server.newldap.handlers.UnbindHandler;
 import org.apache.directory.server.newldap.handlers.bind.*;
@@ -192,7 +193,7 @@ public class LdapServer extends DirectoryBackedService
     private LdapRequestHandler<DeleteRequest> deleteHandler;
     private ExtendedHandler extendedHandler;
     private ModifyHandler modifyHandler;
-    private ModifyDnHandler modifyDnHandler;
+    private LdapRequestHandler<ModifyDnRequest> modifyDnHandler;
     private SearchHandler searchHandler;
     private UnbindHandler unbindHandler;
 
@@ -279,7 +280,7 @@ public class LdapServer extends DirectoryBackedService
         
         if ( getModifyDnHandler() == null )
         {
-            setModifyDnHandler( new DefaultModifyDnHandler() );
+            setModifyDnHandler( new NewModifyDnHandler() );
         }
         
         if ( getSearchHandler() == null )
@@ -971,12 +972,11 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public void setModifyDnHandler( ModifyDnHandler modifyDnHandler )
+    public void setModifyDnHandler( LdapRequestHandler<ModifyDnRequest> modifyDnHandler )
     {
         this.handler.removeMessageHandler( ModifyDnRequest.class );
         this.modifyDnHandler = modifyDnHandler;
-        this.modifyDnHandler.setProtocolProvider( this );
-        //noinspection unchecked
+        this.modifyDnHandler.setLdapServer( this );
         this.handler.addMessageHandler( ModifyDnRequest.class, this.modifyDnHandler );
     }
 

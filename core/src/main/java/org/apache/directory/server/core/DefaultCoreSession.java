@@ -371,20 +371,25 @@ public class DefaultCoreSession implements CoreSession
 
     public void move( ModifyDnRequest modifyDnRequest ) throws Exception
     {
-        directoryService.getOperationManager().move( new MoveOperationContext( this, modifyDnRequest ) );
+        MoveOperationContext opContext = new MoveOperationContext( this, modifyDnRequest );
+        directoryService.getOperationManager().move( opContext );
+        modifyDnRequest.getResultResponse().addAll( opContext.getResponseControls() );
     }
 
 
     public void moveAndRename( ModifyDnRequest modifyDnRequest ) throws Exception
     {
-        directoryService.getOperationManager().moveAndRename( 
-            new MoveAndRenameOperationContext( this, modifyDnRequest ) );
+        MoveAndRenameOperationContext opContext = new MoveAndRenameOperationContext( this, modifyDnRequest );
+        directoryService.getOperationManager().moveAndRename( opContext );
+        modifyDnRequest.getResultResponse().addAll( opContext.getResponseControls() );
     }
 
 
     public void rename( ModifyDnRequest modifyDnRequest ) throws Exception
     {
-        directoryService.getOperationManager().rename( new RenameOperationContext( this, modifyDnRequest ) );
+        RenameOperationContext opContext = new RenameOperationContext( this, modifyDnRequest );
+        directoryService.getOperationManager().rename( opContext );
+        modifyDnRequest.getResultResponse().addAll( opContext.getResponseControls() );
     }
 
 
