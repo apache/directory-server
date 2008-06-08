@@ -20,11 +20,8 @@
 package org.apache.directory.server.newldap.handlers;
 
 
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
-import org.apache.directory.shared.ldap.message.AbandonableRequest;
-import org.apache.mina.common.IoSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -35,17 +32,11 @@ import org.slf4j.LoggerFactory;
  */
 public class NewAbandonHandler extends LdapRequestHandler<AbandonRequest>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( NewAbandonHandler.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-    
-    /* (non-Javadoc)
-     * @see org.apache.mina.handler.demux.MessageHandler#messageReceived(
-     * org.apache.mina.common.IoSession, java.lang.Object)
+    /**
+     * @see org.apache.directory.server.newldap.handlers.LdapRequestHandler#
+     * handle(org.apache.directory.server.newldap.LdapSession, org.apache.directory.shared.ldap.message.Request)
      */
-    public void messageReceived( IoSession session, AbandonRequest request ) throws Exception
+    public void handle( LdapSession session, AbandonRequest request ) throws Exception
     {
         int abandonedId = request.getAbandoned();
 
@@ -54,23 +45,6 @@ public class NewAbandonHandler extends LdapRequestHandler<AbandonRequest>
             return;
         }
 
-        AbandonableRequest abandonedRequest = getOutstandingRequest( session, abandonedId );
-
-        if ( abandonedRequest == null )
-        {
-            if ( LOG.isWarnEnabled() )
-            {
-                LOG.warn( "{}: Cannot find outstanding request {} to abandon.", session, request.getAbandoned() );
-            }
-            
-            return;
-        }
-
-        abandonedRequest.abandon();
-        
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "{}: Request {} was successfully flagged as abandoned.", abandonedRequest );
-        }
+        session.abandonOutstandingRequest( request.getMessageId() );
     }
 }

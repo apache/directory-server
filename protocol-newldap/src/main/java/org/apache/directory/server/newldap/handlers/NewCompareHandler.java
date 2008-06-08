@@ -25,62 +25,68 @@ import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.AddRequest;
+import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-
 import org.apache.mina.common.IoSession;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * A single reply handler for {@link AddRequest}s.
+ * A single reply handler for {@link CompareRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 664302 $
  */
-public class DefaultAddHandler extends AddHandler
+public class NewCompareHandler extends LdapRequestHandler<CompareRequest>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( AddHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( NewCompareHandler.class );
+    
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-
-    protected void addMessageReceived( IoSession session, AddRequest req ) throws Exception
+    
+    public void handle( LdapSession session, CompareRequest req ) throws Exception
     {
         LdapResult result = req.getResultResponse().getLdapResult();
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Received an Add message:  {}", req.toString() );
-        }
 
         try
         {
             LdapContext ctx = getSessionRegistry().getLdapContext( session, null, true );
+            ServerLdapContext newCtx = ( ServerLdapContext ) ctx.lookup( "" );
 
             if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
             {
-                ctx.addToEnvironment( Context.REFERRAL, "ignore" );
+                newCtx.addToEnvironment( Context.REFERRAL, "ignore" );
             }
             else
             {
-                ctx.addToEnvironment( Context.REFERRAL, "throw" );
+                newCtx.addToEnvironment( Context.REFERRAL, "throw" );
             }
 
             // Inject controls into the context
-            setRequestControls( ctx, req );
-            ctx.createSubcontext( req.getEntry(), req.getAttributes() );
-            result.setResultCode( ResultCodeEnum.SUCCESS );
-            req.getResultResponse().addAll( ctx.getResponseControls() );
+            setRequestControls( newCtx, req );
+
+            if ( newCtx.compare( req.getName(), req.getAttributeId(), req.getAssertionValue() ) )
+            {
+                result.setResultCode( ResultCodeEnum.COMPARE_TRUE );
+            }
+            else
+            {
+                result.setResultCode( ResultCodeEnum.COMPARE_FALSE );
+            }
+
+            result.setMatchedDn( req.getName() );
+            req.getResultResponse().addAll( newCtx.getResponseControls() );
             session.write( req.getResultResponse() );
         }
         catch ( ReferralException e )
@@ -88,9 +94,10 @@ public class DefaultAddHandler extends AddHandler
             ReferralImpl refs = new ReferralImpl();
             result.setReferral( refs );
             result.setResultCode( ResultCodeEnum.REFERRAL );
-            result.setErrorMessage( "Encountered referral attempting to handle add request." );
-            /* coming up null causing a NPE */
-            // result.setMatchedDn( e.getResolvedName().toString() );
+            result.setErrorMessage( "Encountered referral attempting to handle compare request." );
+
+            result.setMatchedDn( (LdapDN)e.getResolvedName() );
+
             do
             {
                 refs.addLdapUrl( ( String ) e.getReferralInfo() );
@@ -98,11 +105,11 @@ public class DefaultAddHandler extends AddHandler
             while ( e.skipReferral() );
             session.write( req.getResultResponse() );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
-            String msg = "failed to add entry " + req.getEntry() + ": " + e.getMessage();
+            String msg = "failed to compare entry " + req.getName() + ": " + e.getMessage();
 
-            if ( LOG.isDebugEnabled() )
+            if ( IS_DEBUG )
             {
                 msg += ":\n" + ExceptionUtils.getStackTrace( e );
             }
@@ -121,11 +128,16 @@ public class DefaultAddHandler extends AddHandler
             result.setResultCode( code );
             result.setErrorMessage( msg );
 
-            if ( ( e.getResolvedName() != null )
-                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
-                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
+            if ( e instanceof NamingException )
             {
-                result.setMatchedDn( (LdapDN)e.getResolvedName() );
+                NamingException ne = ( NamingException ) e;
+
+                if ( ( ne.getResolvedName() != null )
+                    && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
+                        || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
+                {
+                    result.setMatchedDn( (LdapDN)ne.getResolvedName() );
+                }
             }
 
             session.write( req.getResultResponse() );

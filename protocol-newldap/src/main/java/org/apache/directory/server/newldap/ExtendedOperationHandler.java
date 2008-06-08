@@ -23,7 +23,6 @@ package org.apache.directory.server.newldap;
 import java.util.Set;
 
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
-import org.apache.mina.common.IoSession;
 
 
 /**
@@ -57,12 +56,12 @@ public interface ExtendedOperationHandler
     /**
      * Handles the specified extended operation.
      * 
-     * @param session the MINA session object related with current connection
+     * @param session the session object related with current connection
      * @param req the LDAP Extended operation request
      * 
      * @throws Exception if failed to handle the operation
      */
-    void handleExtendedOperation( IoSession session, SessionRegistry registry, ExtendedRequest req ) throws Exception;
+    void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception;
 
 
     /**

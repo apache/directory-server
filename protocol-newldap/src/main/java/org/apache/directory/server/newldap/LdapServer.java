@@ -26,21 +26,14 @@ import java.security.KeyStore;
 import java.security.Provider;
 import java.security.Security;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.security.CoreKeyStoreSpi;
-import org.apache.directory.server.newldap.handlers.AbandonHandler;
-import org.apache.directory.server.newldap.handlers.AddHandler;
-import org.apache.directory.server.newldap.handlers.BindHandler;
 import org.apache.directory.server.newldap.handlers.CompareHandler;
-import org.apache.directory.server.newldap.handlers.DefaultAbandonHandler;
-import org.apache.directory.server.newldap.handlers.DefaultAddHandler;
-import org.apache.directory.server.newldap.handlers.DefaultBindHandler;
 import org.apache.directory.server.newldap.handlers.DefaultCompareHandler;
 import org.apache.directory.server.newldap.handlers.DefaultDeleteHandler;
 import org.apache.directory.server.newldap.handlers.DefaultExtendedHandler;
@@ -50,8 +43,12 @@ import org.apache.directory.server.newldap.handlers.DefaultSearchHandler;
 import org.apache.directory.server.newldap.handlers.DefaultUnbindHandler;
 import org.apache.directory.server.newldap.handlers.DeleteHandler;
 import org.apache.directory.server.newldap.handlers.ExtendedHandler;
+import org.apache.directory.server.newldap.handlers.LdapRequestHandler;
 import org.apache.directory.server.newldap.handlers.ModifyDnHandler;
 import org.apache.directory.server.newldap.handlers.ModifyHandler;
+import org.apache.directory.server.newldap.handlers.NewAbandonHandler;
+import org.apache.directory.server.newldap.handlers.NewAddHandler;
+import org.apache.directory.server.newldap.handlers.NewBindHandler;
 import org.apache.directory.server.newldap.handlers.SearchHandler;
 import org.apache.directory.server.newldap.handlers.UnbindHandler;
 import org.apache.directory.server.newldap.handlers.bind.*;
@@ -102,6 +99,7 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
+import org.apache.mina.handler.demux.MessageHandler;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.apache.mina.util.SessionLog;
 import org.slf4j.Logger;
@@ -129,14 +127,10 @@ public class LdapServer extends DirectoryBackedService
     /** The default maximum time limit. */
     private static final int MAX_TIME_LIMIT_DEFAULT = 10000;
 
-    /**
-     * The default service pid.
-     */
+    /** The default service pid. */
     private static final String SERVICE_PID_DEFAULT = "org.apache.directory.server.newldap";
 
-    /**
-     * The default service name.
-     */
+    /** The default service name. */
     private static final String SERVICE_NAME_DEFAULT = "ApacheDS LDAP Service";
 
     /** The default IP port. */
@@ -145,20 +139,28 @@ public class LdapServer extends DirectoryBackedService
     /** the constant service name of this ldap protocol provider **/
     public static final String SERVICE_NAME = "ldap";
 
+    
+    
     /** a set of supported controls */
     private Set<String> supportedControls;
 
-    /** The maximum size limit. */
-    private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
+    /** 
+     * The maximum size limit. 
+     * @see {@link LdapServer#MAX_SIZE_LIMIT_DEFAULT }
+     */
+    private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; 
 
-    /** The maximum time limit. */
-    private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
+    /** 
+     * The maximum time limit.
+     * @see {@link LdapServer#MAX_TIME_LIMIT_DEFAULT }
+     */
+    private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; 
 
-    /** Whether LDAPS is enabled. */
+    /** Whether LDAPS is enabled: disabled by default. */
     private boolean enableLdaps;
 
-    /** Whether to allow anonymous access. */
-    private boolean allowAnonymousAccess = true; // allow by default
+    /** Whether to allow anonymous access: enabled by default. */
+    private boolean allowAnonymousAccess = true;
 
     /** The extended operation handlers. */
     private final Collection<ExtendedOperationHandler> extendedOperationHandlers =
@@ -181,9 +183,9 @@ public class LdapServer extends DirectoryBackedService
     /** The list of realms serviced by this host. */
     private List<String> saslRealms;
 
-    private AbandonHandler abandonHandler;
-    private AddHandler addHandler;
-    private BindHandler bindHandler;
+    private LdapRequestHandler<AbandonRequest> abandonHandler;
+    private LdapRequestHandler<AddRequest> addHandler;
+    private LdapRequestHandler<BindRequest> bindHandler;
     private CompareHandler compareHandler;
     private DeleteHandler deleteHandler;
     private ExtendedHandler extendedHandler;
@@ -193,15 +195,13 @@ public class LdapServer extends DirectoryBackedService
     private UnbindHandler unbindHandler;
 
 
-    private SessionRegistry registry;
-
     /** the underlying provider codec factory */
     private ProtocolCodecFactory codecFactory;
 
     /** the MINA protocol handler */
     private final LdapProtocolHandler handler = new LdapProtocolHandler();
 
-    /** tracks state of the server */
+    /** tracks start state of the server */
     private boolean started;
 
 
@@ -240,18 +240,17 @@ public class LdapServer extends DirectoryBackedService
     {
         if ( getAbandonHandler() == null )
         {
-            setAbandonHandler( new DefaultAbandonHandler() );
+            setAbandonHandler( new NewAbandonHandler() );
         }
         
         if ( getAddHandler() == null )
         {
-            setAddHandler( new DefaultAddHandler() );
+            setAddHandler( new NewAddHandler() );
         }
         
         if ( getBindHandler() == null )
         {
-            DefaultBindHandler handler = new DefaultBindHandler();
-            handler.setSessionRegistry( registry );
+            NewBindHandler handler = new NewBindHandler();
             handler.setSaslMechanismHandlers( saslMechanismHandlers );
             setBindHandler( handler );
         }
@@ -842,11 +841,6 @@ public class LdapServer extends DirectoryBackedService
     {
         super.setDirectoryService( directoryService );
         this.codecFactory = new ProtocolCodecFactoryImpl( directoryService );
-        Hashtable<String,Object> copy = new Hashtable<String,Object>();
-        copy.put( Context.PROVIDER_URL, "" );
-        copy.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        copy.put( DirectoryService.JNDI_KEY, directoryService );
-        this.registry = new SessionRegistry( this, copy );
     }
 
 
@@ -862,51 +856,47 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public AbandonHandler getAbandonHandler()
+    public MessageHandler<AbandonRequest> getAbandonHandler()
     {
         return abandonHandler;
     }
 
 
-    public void setAbandonHandler( AbandonHandler abandonHandler )
+    public void setAbandonHandler( LdapRequestHandler<AbandonRequest> abandonHandler )
     {
         this.handler.removeMessageHandler( AbandonRequest.class );
         this.abandonHandler = abandonHandler;
-        this.abandonHandler.setProtocolProvider( this );
-        //noinspection unchecked
+        this.abandonHandler.setLdapServer( this );
         this.handler.addMessageHandler( AbandonRequest.class, this.abandonHandler );
     }
 
 
-    public AddHandler getAddHandler()
+    public LdapRequestHandler<AddRequest> getAddHandler()
     {
         return addHandler;
     }
 
 
-    public void setAddHandler( AddHandler addHandler )
+    public void setAddHandler( LdapRequestHandler<AddRequest> addHandler )
     {
         this.handler.removeMessageHandler( AddRequest.class );
         this.addHandler = addHandler;
-        this.addHandler.setProtocolProvider( this );
-        //noinspection unchecked
+        this.addHandler.setLdapServer( this );
         this.handler.addMessageHandler( AddRequest.class, this.addHandler );
     }
 
 
-    public BindHandler getBindHandler()
+    public LdapRequestHandler<BindRequest> getBindHandler()
     {
         return bindHandler;
     }
 
 
-    public void setBindHandler( BindHandler bindHandler )
+    public void setBindHandler( LdapRequestHandler<BindRequest> bindHandler )
     {
         this.handler.removeMessageHandler( BindRequest.class );
         this.bindHandler = bindHandler;
-        this.bindHandler.setProtocolProvider( this );
-        this.bindHandler.setDirectoryService( getDirectoryService() );
-        //noinspection unchecked
+        this.bindHandler.setLdapServer( this );
         this.handler.addMessageHandler( BindRequest.class, this.bindHandler );
     }
 
@@ -1023,12 +1013,6 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public SessionRegistry getRegistry()
-    {
-        return registry;
-    }
-
-
     public boolean isStarted()
     {
         return started;
@@ -1073,7 +1057,7 @@ public class LdapServer extends DirectoryBackedService
                         AttributeType type = attrRegistry.lookup( id );
                         return ! type.getSyntax().isHumanReadable();
                     }
-                    catch ( NamingException e )
+                    catch ( Exception e )
                     {
                         return false;
                     }
@@ -1081,20 +1065,53 @@ public class LdapServer extends DirectoryBackedService
             }) );
         }
     }
+    
+    
+    Map<IoSession, LdapSession> ldapSessions = new ConcurrentHashMap<IoSession, LdapSession>( 100 );
 
+    
+    public LdapSession removeLdapSession( IoSession session )
+    {
+        LdapSession ldapSession = null; 
+        
+        synchronized ( ldapSessions )
+        {
+            ldapSession = ldapSessions.remove( session );
+        }
+        
+        if ( ldapSession != null )
+        {
+            ldapSession.abandonAllOutstandingRequests();
+        }
+        
+        return ldapSession;
+    }
+    
+    
+    public LdapSession getLdapSession( IoSession session )
+    {
+        return ldapSessions.get( session );
+    }
+    
+    
     private class LdapProtocolHandler extends DemuxingIoHandler
     {
         public void sessionCreated( IoSession session ) throws Exception
         {
-            session.setAttribute( LdapServer.class.toString(), LdapServer.this );
+            LdapSession ldapSession = new LdapSession( session );
             IoFilterChain filters = session.getFilterChain();
             filters.addLast( "codec", new ProtocolCodecFilter( codecFactory ) );
+            
+            synchronized( ldapSessions )
+            {
+                ldapSessions.put( session, ldapSession );
+            }
         }
 
 
         public void sessionClosed( IoSession session )
         {
-            registry.remove( session );
+            removeLdapSession( session );
         }
 
 
@@ -1159,7 +1176,7 @@ public class LdapServer extends DirectoryBackedService
             SessionLog.warn( session,
                 "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
             session.write( NoticeOfDisconnect.PROTOCOLERROR );
-            registry.remove( session );
+            removeLdapSession( session );
             session.close();
         }
     }

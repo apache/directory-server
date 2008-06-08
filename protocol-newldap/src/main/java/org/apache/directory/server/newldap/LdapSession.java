@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
@@ -41,7 +40,8 @@ import org.slf4j.LoggerFactory;
 public class LdapSession
 {
     private static final Logger LOG = LoggerFactory.getLogger( LdapSession.class );
-    private static boolean IS_DEBUG = LOG.isDebugEnabled();
+    private static final AbandonableRequest[] EMPTY_ABANDONABLES = new AbandonableRequest[0]; 
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
     private final String outstandingLock;
     private final IoSession ioSession;
@@ -60,6 +60,12 @@ public class LdapSession
         this.ioSession = ioSession;
         this.outstandingLock = "OutstandingRequestLock: " + ioSession.toString();
         this.outstandingRequests = new ConcurrentHashMap<Integer, AbandonableRequest>();
+    }
+    
+    
+    public boolean isAuthenticated()
+    {
+        return coreSession != null;
     }
     
     
@@ -96,36 +102,56 @@ public class LdapSession
         this.coreSession = coreSession;
     }
     
+    
+    /**
+     * Abandons all outstanding requests associated with this session.
+     */
+    public void abandonAllOutstandingRequests()
+    {
+        synchronized ( outstandingLock )
+        {
+            AbandonableRequest[] abandonables = outstandingRequests.values().toArray( EMPTY_ABANDONABLES );
+            
+            for ( AbandonableRequest abandonable : abandonables )
+            {
+                abandonOutstandingRequest( abandonable.getMessageId() );
+            }
+        }
+    }
+    
 
-    public boolean abandonOutstandingRequest( AbandonRequest abandonRequest )
+    /**
+     * Abandons a specific request by messageId.
+     */
+    public AbandonableRequest abandonOutstandingRequest( Integer messageId )
     {
         AbandonableRequest request = null;
         
         synchronized ( outstandingLock )
         {
-            request = outstandingRequests.remove( abandonRequest.getMessageId() );
+            request = outstandingRequests.remove( messageId );
         }
 
         if ( request == null )
         {
-            LOG.warn( "AbandonableRequest not found in outstandingRequests: {}", abandonRequest );
-            return false;
+            LOG.warn( "AbandonableRequest with messageId {} not found in outstandingRequests.", messageId );
+            return null;
         }
         
         if ( request.isAbandoned() )
         {
-            LOG.warn( "AbandonableRequest has already been abandoned: {}", abandonRequest );
-            return false;
+            LOG.warn( "AbandonableRequest with messageId {} has already been abandoned", messageId );
+            return request;
         }
 
         request.abandon();
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "AbandonRequest successful: {}", abandonRequest );
+            LOG.debug( "AbandonRequest on AbandonableRequest wth messageId {} was successful.", messageId );
         }
         
-        return true;
+        return request;
     }
 
     

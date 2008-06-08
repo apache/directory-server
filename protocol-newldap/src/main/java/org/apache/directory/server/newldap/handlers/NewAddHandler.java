@@ -23,21 +23,19 @@ package org.apache.directory.server.newldap.handlers;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
 
-import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
-import org.apache.directory.shared.ldap.message.Request;
-import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.mina.common.IoSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.directory.server.newldap.LdapProtocolUtils.*;
 
@@ -50,33 +48,25 @@ import static org.apache.directory.server.newldap.LdapProtocolUtils.*;
  */
 public class NewAddHandler extends LdapRequestHandler<AddRequest>
 {
-    /* (non-Javadoc)
-     * @see org.apache.mina.handler.demux.MessageHandler#messageReceived(org.apache.mina.common.IoSession, 
-     * java.lang.Object)
+    private static final Logger LOG = LoggerFactory.getLogger( NewAddHandler.class );
+    
+    
+    /**
+     * (non-Javadoc)
+     * @see org.apache.directory.server.newldap.handlers.LdapRequestHandler#
+     * handle(org.apache.directory.server.newldap.LdapSession, org.apache.directory.shared.ldap.message.Request)
      */
-    public void messageReceived( IoSession session, AddRequest request ) throws Exception
+    public void handle( LdapSession session, AddRequest request ) throws Exception
     {
         LdapResult result = request.getResultResponse().getLdapResult();
-        CoreSession coreSession = getCoreSession( session );
-        
-        if ( ! getLdapServer().isAllowAnonymousAccess() )
-        {
-            throw new LdapNoPermissionException( "Anonymous binds have been disabled!" );
-        }
-        
-        if ( coreSession == null )
-        {
-            coreSession = getLdapServer().getDirectoryService().getSession();
-            setCoreSession( session, coreSession );
-        }
-        
+
         try
         {
             ServerEntry entry = ServerEntryUtils.toServerEntry( request.getAttributes(), request.getEntry(), 
-                coreSession.getDirectoryService().getRegistries() );
-            AddOperationContext opContext = new AddOperationContext( coreSession, entry );
+                session.getCoreSession().getDirectoryService().getRegistries() );
+            AddOperationContext opContext = new AddOperationContext( session.getCoreSession(), entry );
             setRequestControls( opContext, request );
-            coreSession.getDirectoryService().getOperationManager().add( opContext );
+            session.getCoreSession().getDirectoryService().getOperationManager().add( opContext );
             setResponseControls( opContext, request.getResultResponse() );
         }
         catch( ReferralException e )
@@ -97,7 +87,7 @@ public class NewAddHandler extends LdapRequestHandler<AddRequest>
             }
             while ( e.skipReferral() );
             
-            session.write( request.getResultResponse() );
+            session.getIoSession().write( request.getResultResponse() );
         }
         catch ( Throwable t )
         {
@@ -115,10 +105,10 @@ public class NewAddHandler extends LdapRequestHandler<AddRequest>
             result.setResultCode( resultCode );
             
             String msg = session + "failed to add entry " + request.getEntry() + ": " + t.getMessage();
-//            if ( LOG.isDebugEnabled() )
-//            {
-//                msg += ":\n" + ExceptionUtils.getStackTrace( t );
-//            }
+            if ( LOG.isDebugEnabled() )
+            {
+                msg += ":\n" + ExceptionUtils.getStackTrace( t );
+            }
 
             result.setErrorMessage( msg );
             result.setErrorMessage( msg );
@@ -138,18 +128,15 @@ public class NewAddHandler extends LdapRequestHandler<AddRequest>
                     {
                         result.setMatchedDn( ( LdapDN ) ne.getResolvedName() );
                     }
-                    else
-                    {
-//                        coreSession.getMatchedDn( request.getEntry() );
-                    }
                 }
                 else
                 {
-                    
+                    // TODO - add ability to get the matched DN from the core via the session
+//                  coreSession.getMatchedDn( request.getEntry() );
                 }
             }
 
-            session.write( request.getResultResponse() );
+            session.getIoSession().write( request.getResultResponse() );
         }
     }
 }

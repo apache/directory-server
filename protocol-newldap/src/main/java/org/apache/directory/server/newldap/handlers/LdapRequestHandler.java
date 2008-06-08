@@ -20,28 +20,27 @@
 package org.apache.directory.server.newldap.handlers;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.newldap.LdapProtocolConstants;
 import org.apache.directory.server.newldap.LdapServer;
-import org.apache.directory.shared.ldap.message.AbandonableRequest;
+import org.apache.directory.server.newldap.LdapSession;
+import org.apache.directory.shared.ldap.codec.bind.BindRequest;
 import org.apache.directory.shared.ldap.message.Request;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 
 
 /**
- * A base class for all handlers.
+ * A base class for all LDAP request handlers.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 541827 $
  */
-public abstract class LdapRequestHandler<T extends Request> implements MessageHandler<T>, LdapProtocolConstants
+public abstract class LdapRequestHandler<T extends Request> implements MessageHandler<T>
 {
-    private Object outstandingLock;
-    private LdapServer ldapServer;
+    protected LdapServer ldapServer;
 
 
     public final LdapServer getLdapServer()
@@ -50,72 +49,60 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     }
 
 
-    public final void setLdapServer( LdapServer provider )
+    public final void setLdapServer( LdapServer ldapServer )
     {
-        this.ldapServer = provider;
+        this.ldapServer = ldapServer;
     }
-    
-    
-    public final CoreSession getCoreSession( IoSession session )
+
+
+    /**
+     * TODO - add notes about how this protects against unauthorized access
+     * and sets up the ldapSession's coreConte.
+     */
+    public final void messageReceived( IoSession session, T message ) throws Exception
     {
-        return ( CoreSession ) session.getAttribute( CORE_SESSION_KEY );
-    }
-    
-    
-    public final void setCoreSession( IoSession session, CoreSession coreSession )
-    {
-        session.setAttribute( CORE_SESSION_KEY, coreSession );
-    }
-    
-    
-    @SuppressWarnings("unchecked")
-    public final AbandonableRequest getOutstandingRequest( IoSession session, Integer id )
-    {
-        synchronized( outstandingLock )
+        LdapSession ldapSession = ldapServer.getLdapSession( session );
+
+        if ( ! ( message instanceof BindRequest ) )
         {
-            Map<Integer, AbandonableRequest> outstanding = ( Map<Integer, AbandonableRequest> ) session.getAttribute( OUTSTANDING_KEY );
+            CoreSession coreSession = null;
             
-            if ( outstanding == null )
+            /*
+             * All requests except bind automatically presume the authentication 
+             * is anonymous if the session has not been authenticated.  Hence a
+             * default bind is presumed as the anonymous identity.
+             */
+            if ( ldapSession.isAuthenticated() )
             {
-                return null;
+                coreSession = ldapSession.getCoreSession();
+            }
+            else
+            {
+                coreSession = getLdapServer().getDirectoryService().getSession();
+                ldapSession.setCoreSession( coreSession );
             }
             
-            return outstanding.get( id );
+            /*
+             * Perform checks to see if anonymous access is allowed and enforce 
+             * anonymous policy.
+             */
+            if ( coreSession.isAnonymous() && ! ldapServer.isAllowAnonymousAccess() )
+            {
+                if ( message instanceof ResultResponseRequest )
+                {
+                    ResultResponse response = ( ( ResultResponseRequest ) message ).getResultResponse();
+                    response.getLdapResult().setErrorMessage( "Anonymous access disabled." );
+                    response.getLdapResult().setResultCode( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+                    ldapSession.getIoSession().write( response );
+                }
+                
+                return;
+            }
         }
+
+        handle( ldapSession, message );
     }
 
     
-    @SuppressWarnings("unchecked")
-    public final AbandonableRequest removeOutstandingRequest( IoSession session, Integer id )
-    {
-        synchronized( outstandingLock )
-        {
-            Map<Integer, AbandonableRequest> outstanding = ( Map<Integer, AbandonableRequest> ) session.getAttribute( OUTSTANDING_KEY );
-            
-            if ( outstanding == null )
-            {
-                return null;
-            }
-            
-            return outstanding.remove( id );
-        }
-    }
-
-    
-    @SuppressWarnings("unchecked")
-    public void setOutstandingRequest( IoSession session, AbandonableRequest request )
-    {
-        synchronized( outstandingLock )
-        {
-            Map<Integer, AbandonableRequest> outstanding = ( Map<Integer, AbandonableRequest> ) session.getAttribute( OUTSTANDING_KEY );
-            
-            if ( outstanding == null )
-            {
-                outstanding = new HashMap<Integer, AbandonableRequest>();
-                session.setAttribute( OUTSTANDING_KEY, outstanding );
-            }
-            
-            outstanding.put( request.getMessageId(), request );
-        }
-    }
+    public abstract void handle( LdapSession session, T message ) throws Exception;
 }
