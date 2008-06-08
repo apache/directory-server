@@ -20,21 +20,18 @@
 package org.apache.directory.server.newldap.handlers;
 
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
-import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ManageDsaITControl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.mina.common.IoSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,58 +40,25 @@ import org.slf4j.LoggerFactory;
  * A single reply handler for {@link ModifyRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 664302 $
  */
-public class DefaultModifyHandler extends ModifyHandler
+public class NewModifyHandler extends LdapRequestHandler<ModifyRequest>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( ModifyHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( NewModifyHandler.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    public void modifyMessageReceived( IoSession session, ModifyRequest req ) throws Exception
+    
+    public void handle( LdapSession session, ModifyRequest req ) throws Exception
     {
         LdapResult result = req.getResultResponse().getLdapResult();
 
         try
         {
-            LdapContext ctx = getSessionRegistry().getLdapContext( session, null, true );
-            if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
-            {
-                ctx.addToEnvironment( Context.REFERRAL, "ignore" );
-            }
-            else
-            {
-                ctx.addToEnvironment( Context.REFERRAL, "throw" );
-            }
-
-            // Inject controls into the context
-            setRequestControls( ctx, req );
-
-            // Process the modifications
-            if ( req.getModificationItems() != null )
-            {
-                int nbItems = req.getModificationItems().size();
-
-                if ( nbItems != 0 )
-                {
-                    ModificationItemImpl[] mods = new ModificationItemImpl[nbItems];
-                    //noinspection SuspiciousToArrayCall
-                    ctx.modifyAttributes( req.getName(), req.getModificationItems().toArray( mods ) );
-                }
-                else
-                {
-                     // What should we do if we don't have any modification ???
-                }
-            }
-            else
-            {
-                // What should we do if we don't have any modification ???
-            }
-
+            session.getCoreSession().modify( req );
             result.setResultCode( ResultCodeEnum.SUCCESS );
-            req.getResultResponse().addAll( ctx.getResponseControls() );
-            session.write( req.getResultResponse() );
+            session.getIoSession().write( req.getResultResponse() );
         }
         catch ( ReferralException e )
         {
@@ -109,7 +73,7 @@ public class DefaultModifyHandler extends ModifyHandler
                 refs.addLdapUrl( ( String ) e.getReferralInfo() );
             }
             while ( e.skipReferral() );
-            session.write( req.getResultResponse() );
+            session.getIoSession().write( req.getResultResponse() );
         }
         catch ( NamingException e )
         {
@@ -140,7 +104,7 @@ public class DefaultModifyHandler extends ModifyHandler
                 result.setMatchedDn( (LdapDN)e.getResolvedName() );
             }
 
-            session.write( req.getResultResponse() );
+            session.getIoSession().write( req.getResultResponse() );
         }
     }
 }
