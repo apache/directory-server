@@ -26,6 +26,7 @@ import java.util.Set;
 
 import javax.naming.ldap.Control;
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -129,6 +130,27 @@ public interface CoreSession
      * @return true if the identity is anonymous false otherwise
      */
     boolean isAnonymous();
+    
+    
+    /**
+     * Returns true if the effective principal associated with this session is 
+     * the administrator.
+     * 
+     * @see {@link ServerDNConstants#ADMIN_SYSTEM_DN}
+     * @return true if authorized as the administrator, false otherwise
+     */
+    boolean isAdministrator();
+    
+    
+    /**
+     * Returns true if the effective principal associated with this session is 
+     * the administrator or is within the administrators group.
+     *
+     * @see {@link ServerDNConstants#ADMIN_SYSTEM_DN}
+     * @see {@link ServerDNConstants#ADMINISTRATORS_GROUP_DN}
+     * @return true if authorized as an administrator, false otherwise
+     */
+    boolean isAnAdministrator();
     
     
     /**

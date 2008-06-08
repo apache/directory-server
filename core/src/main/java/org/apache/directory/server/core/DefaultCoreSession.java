@@ -26,6 +26,7 @@ import java.util.Set;
 
 import javax.naming.ldap.Control;
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -41,6 +42,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -206,6 +208,41 @@ public class DefaultCoreSession implements CoreSession
     {
         // TODO Auto-generated method stub
         return true;
+    }
+    
+    
+    /**
+     * TODO - perhaps we should just use a flag that is calculated on creation
+     * of this session
+     *  
+     * @see org.apache.directory.server.core.CoreSession#isAdministrator()
+     */
+    public boolean isAdministrator()
+    {
+        String normName = getEffectivePrincipal().getJndiName().toNormName(); 
+        return normName.equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+    }
+
+
+    /**
+     * TODO - this method impl does not check to see if the principal is in 
+     * the administrators group - it only returns true of the principal is
+     * the actual admin user.  need to make it check groups.
+     * 
+     * TODO - perhaps we should just use a flag that is calculated on creation
+     * of this session
+     *  
+     * @see org.apache.directory.server.core.CoreSession#isAnAdministrator()
+     */
+    public boolean isAnAdministrator()
+    {
+        if ( isAdministrator() )
+        {
+            return true;
+        }
+        
+        // TODO fix this so it checks groups
+        return false;
     }
 
 
