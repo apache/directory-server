@@ -23,9 +23,7 @@ package org.apache.directory.server.newldap.handlers;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
 
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.AddRequest;
@@ -34,10 +32,9 @@ import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.directory.server.newldap.LdapProtocolUtils.*;
 
 
 /**
@@ -62,12 +59,7 @@ public class NewAddHandler extends LdapRequestHandler<AddRequest>
 
         try
         {
-            ServerEntry entry = ServerEntryUtils.toServerEntry( request.getAttributes(), request.getEntry(), 
-                session.getCoreSession().getDirectoryService().getRegistries() );
-            AddOperationContext opContext = new AddOperationContext( session.getCoreSession(), entry );
-            setRequestControls( opContext, request );
-            session.getCoreSession().getDirectoryService().getOperationManager().add( opContext );
-            setResponseControls( opContext, request.getResultResponse() );
+            session.getCoreSession().add( request, ReferralHandlingMode.THROW );
         }
         catch( ReferralException e )
         {
@@ -128,11 +120,6 @@ public class NewAddHandler extends LdapRequestHandler<AddRequest>
                     {
                         result.setMatchedDn( ( LdapDN ) ne.getResolvedName() );
                     }
-                }
-                else
-                {
-                    // TODO - add ability to get the matched DN from the core via the session
-//                  coreSession.getMatchedDn( request.getEntry() );
                 }
             }
 
