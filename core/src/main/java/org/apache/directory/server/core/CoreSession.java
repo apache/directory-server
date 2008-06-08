@@ -118,6 +118,14 @@ public interface CoreSession
     
     
     /**
+     * Gets whether or not this user is anonymous.
+     *
+     * @return true if the identity is anonymous false otherwise
+     */
+    boolean isAnonymous();
+    
+    
+    /**
      * Gets the authentication level associated with this session.
      * 
      * @return the authentication level associated with the session

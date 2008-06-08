@@ -314,4 +314,10 @@ public class DefaultCoreSession implements CoreSession
     {
         return referralHandlingMode;
     }
+
+
+    public boolean isAnonymous()
+    {
+        return getEffectivePrincipal().getJndiName().isEmpty();
+    }
 }
