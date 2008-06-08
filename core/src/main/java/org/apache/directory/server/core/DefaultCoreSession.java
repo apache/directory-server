@@ -365,7 +365,9 @@ public class DefaultCoreSession implements CoreSession
 
     public void modify( ModifyRequest modifyRequest ) throws Exception
     {
-        directoryService.getOperationManager().modify( new ModifyOperationContext( this, modifyRequest ) );
+        ModifyOperationContext opContext = new ModifyOperationContext( this, modifyRequest );
+        directoryService.getOperationManager().modify( opContext );
+        modifyRequest.getResultResponse().addAll( opContext.getResponseControls() );
     }
 
 
@@ -395,6 +397,9 @@ public class DefaultCoreSession implements CoreSession
 
     public EntryFilteringCursor search( SearchRequest searchRequest ) throws Exception
     {
-        return directoryService.getOperationManager().search( new SearchOperationContext( this, searchRequest ) );
+        SearchOperationContext opContext = new SearchOperationContext( this, searchRequest );
+        EntryFilteringCursor cursor = directoryService.getOperationManager().search( opContext );
+        searchRequest.getResultResponse().addAll( opContext.getResponseControls() );
+        return cursor;
     }
 }
