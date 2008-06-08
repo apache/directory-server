@@ -22,7 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.message.UnbindRequest;
 
 
 /**
@@ -39,21 +39,17 @@ public class UnbindOperationContext extends AbstractOperationContext
      */
     public UnbindOperationContext( CoreSession session )
     {
-        super( session );
+        super( session, session.getEffectivePrincipal().getJndiName() );
     }
     
 
-    /**
-     * Creates a new instance of UnbindOperationContext.
-     *
-     * @param principalDn The principal DN to unbind
-     */
-    public UnbindOperationContext( CoreSession session, LdapDN principalDn )
+    public UnbindOperationContext( CoreSession session, UnbindRequest unbindRequest )
     {
-        super( session, principalDn );
+        super( session, session.getEffectivePrincipal().getJndiName() );
+        this.setRequestControls( unbindRequest.getControls() );
     }
-    
 
+    
     /**
      * @return the operation name
      */

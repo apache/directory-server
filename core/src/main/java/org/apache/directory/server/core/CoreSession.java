@@ -43,6 +43,7 @@ import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -409,4 +410,10 @@ public interface CoreSession
 
 
     EntryFilteringCursor search( SearchRequest searchRequest ) throws Exception;
+
+
+    void unbind() throws Exception;
+    
+    
+    void unbind( UnbindRequest unbindRequest ) throws Exception;
 }

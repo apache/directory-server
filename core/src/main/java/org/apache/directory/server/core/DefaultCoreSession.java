@@ -42,6 +42,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -54,6 +55,7 @@ import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -438,5 +440,18 @@ public class DefaultCoreSession implements CoreSession
         EntryFilteringCursor cursor = directoryService.getOperationManager().search( opContext );
         searchRequest.getResultResponse().addAll( opContext.getResponseControls() );
         return cursor;
+    }
+
+
+    public void unbind() throws Exception
+    {
+        directoryService.getOperationManager().unbind( new UnbindOperationContext( this ) );
+    }
+
+
+    public void unbind( UnbindRequest unbindRequest )
+    {
+        // TODO Auto-generated method stub
+        
     }
 }
