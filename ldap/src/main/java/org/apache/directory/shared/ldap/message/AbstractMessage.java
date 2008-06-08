@@ -93,6 +93,15 @@ public abstract class AbstractMessage implements Message
         return Collections.unmodifiableMap( controls );
     }
 
+    
+    /**
+     * @see org.apache.directory.shared.ldap.message.Message#hasControl(java.lang.String)
+     */
+    public boolean hasControl( String oid )
+    {
+        return controls.containsKey( oid );
+    }
+    
 
     /**
      * Adds a control to this Message.

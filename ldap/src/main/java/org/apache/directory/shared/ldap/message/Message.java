@@ -51,6 +51,15 @@ public interface Message
      */
     Map<String, Control> getControls();
 
+    
+    /**
+     * Checks whether or not this message has the specified control.
+     *
+     * @param oid the OID of the control
+     * @return true if this message has the control, false if it does not
+     */
+    boolean hasControl( String oid );
+    
 
     /**
      * Adds a control to this Message.
