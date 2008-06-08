@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -51,6 +52,13 @@ public class DeleteOperationContext extends AbstractOperationContext
     public DeleteOperationContext( CoreSession session, LdapDN deleteDn )
     {
         super( session, deleteDn );
+    }
+
+
+    public DeleteOperationContext( CoreSession session, DeleteRequest deleteRequest )
+    {
+        super( session, deleteRequest.getName() );
+        this.requestControls = deleteRequest.getControls();
     }
 
 

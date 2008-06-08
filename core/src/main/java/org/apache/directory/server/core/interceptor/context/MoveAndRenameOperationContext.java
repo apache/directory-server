@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
@@ -59,6 +60,19 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     {
         super( session, oldDn, newRdn, delOldRdn );
         this.parent = parent;
+    }
+
+
+    public MoveAndRenameOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
+    {
+        // super sets the newRdn and the delOldRdn members and tests
+        super( session, modifyDnRequest );
+        this.parent = modifyDnRequest.getNewSuperior();
+        
+        if ( parent == null )
+        {
+            throw new IllegalStateException( "NewSuperior must not be null: " + modifyDnRequest );
+        }
     }
 
 

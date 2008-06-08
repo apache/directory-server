@@ -22,6 +22,8 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -86,6 +88,16 @@ public class AddOperationContext extends AbstractOperationContext
     {
         super( session, dn );
         this.entry = entry;
+    }
+
+
+    public AddOperationContext( CoreSession session, AddRequest addRequest ) throws Exception
+    {
+        super( session );
+        this.entry = ServerEntryUtils.toServerEntry( addRequest.getAttributes(), addRequest.getEntry(), 
+            session.getDirectoryService().getRegistries() );
+        this.dn = addRequest.getEntry();
+        this.requestControls = addRequest.getControls();
     }
 
 

@@ -22,6 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -57,6 +58,24 @@ public class MoveOperationContext extends AbstractOperationContext
     }
 
     
+    public MoveOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
+    {
+        super( session, modifyDnRequest.getName() );
+        this.parent = modifyDnRequest.getNewSuperior();
+        
+        if ( parent == null )
+        {
+            throw new IllegalArgumentException( "The new superior cannot be null for " + modifyDnRequest );
+        }
+        
+        this.requestControls = modifyDnRequest.getControls();
+        if ( modifyDnRequest.getNewRdn() != null )
+        {
+            throw new IllegalArgumentException( modifyDnRequest + " represents a move and rename operation." );
+        }
+    }
+
+
     /**
      *  @return The parent DN
      */

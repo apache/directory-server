@@ -25,6 +25,7 @@ import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.OperationManager;
+import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.cursor.Cursor;
@@ -452,6 +453,20 @@ public class MaxImmSubFilterTest
         {
             // TODO Auto-generated method stub
             return false;
+        }
+
+
+        public ReferralHandlingMode getReferralHandlingMode()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public void setReferralHandlingMode( ReferralHandlingMode referralHandlingMode )
+        {
+            // TODO Auto-generated method stub
+            
         }
     }
 

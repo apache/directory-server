@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -45,27 +46,30 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public abstract class AbstractOperationContext implements OperationContext
 {
-    private static final Control[] EMPTY_CONTROLS = new Control[0];
+    protected static final Control[] EMPTY_CONTROLS = new Control[0];
 
     /** The DN associated with the context */
-    private LdapDN dn;
+    protected LdapDN dn;
     
     /** The associated request's controls */
-    private Map<String, Control> requestControls = new HashMap<String, Control>(4);
+    protected Map<String, Control> requestControls = new HashMap<String, Control>(4);
 
     /** The associated response's controls */
-    private Map<String, Control> responseControls = new HashMap<String, Control>(4);
+    protected Map<String, Control> responseControls = new HashMap<String, Control>(4);
 
     /** the Interceptors bypassed by this operation */
-    private Collection<String> byPassed;
+    protected Collection<String> byPassed;
     
-    private LdapPrincipal authorizedPrincipal;
+    protected LdapPrincipal authorizedPrincipal;
     
-    private CoreSession session;
+    /** an operation can override the session's referral handling mode */
+    protected ReferralHandlingMode referralHandlingMode;
     
-    private OperationContext next;
+    protected CoreSession session;
     
-    private OperationContext previous;
+    protected OperationContext next;
+    
+    protected OperationContext previous;
 
 
     /**
@@ -198,6 +202,12 @@ public abstract class AbstractOperationContext implements OperationContext
         {
             this.requestControls.put( c.getID(), c );
         }
+    }
+
+    
+    public void setRequestControls( Map<String, Control> requestControls )
+    {
+        this.requestControls = requestControls;
     }
 
     
@@ -394,5 +404,23 @@ public abstract class AbstractOperationContext implements OperationContext
     protected void setPreviousOperation( OperationContext previous )
     {
         this.previous = previous;
+    }
+
+
+    /**
+     * @param referralHandlingMode the referralHandlingMode to set
+     */
+    public void setReferralHandlingMode( ReferralHandlingMode referralHandlingMode )
+    {
+        this.referralHandlingMode = referralHandlingMode;
+    }
+
+
+    /**
+     * @return the referralHandlingMode
+     */
+    public ReferralHandlingMode getReferralHandlingMode()
+    {
+        return referralHandlingMode;
     }
 }

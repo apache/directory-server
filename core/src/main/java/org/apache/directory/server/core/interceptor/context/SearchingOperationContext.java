@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,33 +54,35 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
 {
     /** The LoggerFactory used by this Interceptor */
     private static Logger LOG = LoggerFactory.getLogger( SearchingOperationContext.class );
+    
+    private static String[] EMPTY_STR_ARRAY = new String[0];
 
     /** A flag describing the way alias should be handled */
-    private AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
+    protected AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
 
     /** The sizeLimit for this search operation */
-    private long sizeLimit = 0;
+    protected long sizeLimit = 0;
     
     /** The timeLimit for this search operation */
-    private int timeLimit = 0;
+    protected int timeLimit = 0;
     
     /** The scope for this search : default to One Level */
-    private SearchScope scope = ONELEVEL;
+    protected SearchScope scope = ONELEVEL;
 
     /** A flag set if the returned attributes set contains '+' */
-    private boolean allOperationalAttributes = false;
+    protected boolean allOperationalAttributes = false;
     
     /** A flag set if the returned attributes set contains '*' */
-    private boolean allUserAttributes = false;
+    protected boolean allUserAttributes = false;
     
     /** A flag set if the returned attributes set contains '1.1' */
-    private boolean noAttributes = false;
+    protected boolean noAttributes = false;
     
     /** A set containing the returning attributeTypesOptions */
-    private Set<AttributeTypeOptions> returningAttributes; 
+    protected Set<AttributeTypeOptions> returningAttributes; 
     
     /** A flag if the search operation is abandoned */
-    private boolean abandoned = false;
+    protected boolean abandoned = false;
     
     
     /**
@@ -115,27 +118,20 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     }
 
     
-    /**
-     * Creates a new instance of ListOperationContext.
-     *
-     * @param dn The DN to get the suffix from
-     * @param aliasDerefMode the alias dereferencing mode to use
-     * @throws NamingException 
-     */
-    public SearchingOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode, 
-        SearchControls searchControls ) throws NamingException
+    protected void setReturningAttributes( Collection<String> attributesIds ) 
+        throws Exception
     {
-        super( session, dn );
-        this.aliasDerefMode = aliasDerefMode;
-        this.scope = SearchScope.getSearchScope( searchControls );
-        this.timeLimit = searchControls.getTimeLimit();
-        this.sizeLimit = searchControls.getCountLimit();
-        
-        if ( searchControls.getReturningAttributes() != null )
+        setReturningAttributes( attributesIds.toArray( EMPTY_STR_ARRAY ) );
+    }
+    
+    
+    protected void setReturningAttributes( String[] attributesIds ) throws Exception
+    {
+        if ( attributesIds != null )
         {
             returningAttributes = new HashSet<AttributeTypeOptions>();
             
-            for ( String returnAttribute : searchControls.getReturningAttributes() )
+            for ( String returnAttribute : attributesIds )
             {
                 if ( returnAttribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
                 {
@@ -172,6 +168,29 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
                     // Unknown attributes should be silently ignored, as RFC 2251 states
                 }
             }
+        }
+    }
+    
+    
+    /**
+     * Creates a new instance of ListOperationContext.
+     *
+     * @param dn The DN to get the suffix from
+     * @param aliasDerefMode the alias dereferencing mode to use
+     * @throws NamingException 
+     */
+    public SearchingOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode, 
+        SearchControls searchControls ) throws Exception
+    {
+        super( session, dn );
+        this.aliasDerefMode = aliasDerefMode;
+        this.scope = SearchScope.getSearchScope( searchControls );
+        this.timeLimit = searchControls.getTimeLimit();
+        this.sizeLimit = searchControls.getCountLimit();
+        
+        if ( searchControls.getReturningAttributes() != null )
+        {
+            setReturningAttributes( searchControls.getReturningAttributes() );
         }
     }
 

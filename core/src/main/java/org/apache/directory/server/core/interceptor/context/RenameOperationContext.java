@@ -22,6 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
@@ -65,6 +66,21 @@ public class RenameOperationContext extends AbstractOperationContext
         super( session, oldDn );
         this.newRdn = newRdn;
         this.delOldDn = delOldDn;
+    }
+
+
+    public RenameOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
+    {
+        super( session, modifyDnRequest.getName() );
+        this.newRdn = modifyDnRequest.getNewRdn();
+        
+        if ( newRdn == null )
+        {
+            throw new IllegalStateException( "newRdn must not be null for a rename: " + modifyDnRequest );
+        }
+        
+        this.delOldDn = modifyDnRequest.getDeleteOldRdn();
+        this.requestControls = modifyDnRequest.getControls();
     }
 
 

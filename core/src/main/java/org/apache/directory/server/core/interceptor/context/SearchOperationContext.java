@@ -29,6 +29,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 
@@ -51,7 +52,43 @@ public class SearchOperationContext extends SearchingOperationContext
      */
     public SearchOperationContext( CoreSession session )
     {
-    	super( session );
+        super( session );
+    }
+
+
+    /**
+     * Creates a new instance of SearchOperationContext.
+     * @throws Exception 
+     */
+    public SearchOperationContext( CoreSession session, SearchRequest searchRequest ) throws Exception
+    {
+        super( session );
+        
+        this.dn = searchRequest.getBase();
+        this.filter = searchRequest.getFilter();
+        this.abandoned = searchRequest.isAbandoned();
+        this.aliasDerefMode = searchRequest.getDerefAliases();
+        
+        this.requestControls = searchRequest.getControls();
+        
+        // TODO - fix this and use one Scope enumerated type
+        switch( searchRequest.getScope() )
+        {
+            case BASE_OBJECT:
+                this.scope = SearchScope.OBJECT;
+                break;
+            case SINGLE_LEVEL:
+                this.scope = SearchScope.ONELEVEL;
+                break;
+            case WHOLE_SUBTREE:
+                this.scope = SearchScope.SUBTREE;
+                break;
+        }
+        
+        this.sizeLimit = searchRequest.getSizeLimit();
+        this.timeLimit = searchRequest.getTimeLimit();
+        this.noAttributes = searchRequest.getTypesOnly();
+        setReturningAttributes( searchRequest.getAttributes() );
     }
 
 

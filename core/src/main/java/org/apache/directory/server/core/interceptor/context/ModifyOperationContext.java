@@ -24,14 +24,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -69,6 +72,16 @@ public class ModifyOperationContext extends AbstractOperationContext
     {
         super( session, dn );
         this.modItems = modItems;
+    }
+
+
+    public ModifyOperationContext( CoreSession session, ModifyRequest modifyRequest ) throws Exception
+    {
+        super( session, modifyRequest.getName() );
+        this.modItems = ServerEntryUtils.toServerModification( 
+            modifyRequest.getModificationItems().toArray( new ModificationItem[0]), 
+            session.getDirectoryService().getRegistries().getAttributeTypeRegistry() );
+        this.requestControls = modifyRequest.getControls();
     }
 
 

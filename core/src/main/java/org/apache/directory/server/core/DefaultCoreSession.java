@@ -45,7 +45,14 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.AddRequest;
+import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.CompareRequest;
+import org.apache.directory.shared.ldap.message.DeleteRequest;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -319,5 +326,68 @@ public class DefaultCoreSession implements CoreSession
     public boolean isAnonymous()
     {
         return getEffectivePrincipal().getJndiName().isEmpty();
+    }
+
+
+    public AddResponse add( AddRequest addRequest, ReferralHandlingMode referralHandlingMode ) throws Exception
+    {
+        AddOperationContext opContext = new AddOperationContext( this, addRequest );
+        opContext.setReferralHandlingMode( referralHandlingMode );
+        directoryService.getOperationManager().add( opContext );
+        addRequest.getResultResponse().addAll( opContext.getResponseControls() );
+        return ( AddResponse ) addRequest.getResultResponse();
+    }
+
+
+    public void compare( CompareRequest compareRequest ) throws Exception
+    {
+        directoryService.getOperationManager().compare( new CompareOperationContext( this, compareRequest ) );
+    }
+
+
+    public void delete( DeleteRequest deleteRequest ) throws Exception
+    {
+        directoryService.getOperationManager().delete( new DeleteOperationContext( this, deleteRequest ) );
+    }
+
+
+    public ClonedServerEntry lookup( LdapDN dn, Control[] requestControls, ReferralHandlingMode refMode,
+        LdapDN authorized ) throws Exception
+    {
+        LookupOperationContext opContext = new LookupOperationContext( this, dn );
+        opContext.setReferralHandlingMode( refMode );
+        opContext.addRequestControls( requestControls );
+        return directoryService.getOperationManager().lookup( opContext );
+    }
+
+
+    public void modify( ModifyRequest modifyRequest ) throws Exception
+    {
+        directoryService.getOperationManager().modify( new ModifyOperationContext( this, modifyRequest ) );
+    }
+
+
+    public void move( ModifyDnRequest modifyDnRequest ) throws Exception
+    {
+        directoryService.getOperationManager().move( new MoveOperationContext( this, modifyDnRequest ) );
+    }
+
+
+    public void moveAndRename( ModifyDnRequest modifyDnRequest ) throws Exception
+    {
+        directoryService.getOperationManager().moveAndRename( 
+            new MoveAndRenameOperationContext( this, modifyDnRequest ) );
+    }
+
+
+    public void rename( ModifyDnRequest modifyDnRequest ) throws Exception
+    {
+        directoryService.getOperationManager().rename( new RenameOperationContext( this, modifyDnRequest ) );
+    }
+
+
+    public EntryFilteringCursor search( SearchRequest searchRequest ) throws Exception
+    {
+        return directoryService.getOperationManager().search( new SearchOperationContext( this, searchRequest ) );
     }
 }

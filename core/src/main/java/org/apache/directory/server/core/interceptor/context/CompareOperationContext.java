@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -101,6 +102,15 @@ public class CompareOperationContext extends AbstractOperationContext
     }
 
     
+    public CompareOperationContext( CoreSession session, CompareRequest compareRequest )
+    {
+        super( session, compareRequest.getName() );
+        this.oid = compareRequest.getAttributeId();
+        this.value = compareRequest.getAssertionValue();
+        this.requestControls = compareRequest.getControls();
+    }
+
+
     /**
      * @return The compared OID
      */

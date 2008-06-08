@@ -30,6 +30,7 @@ import javax.naming.ldap.Control;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -82,6 +83,8 @@ public class BindOperationContext implements OperationContext
     private OperationContext next;
     
     private OperationContext previous;
+
+    private ReferralHandlingMode referralHandlingMode;
 
     
     /**
@@ -462,5 +465,17 @@ public class BindOperationContext implements OperationContext
         setup( opContext );
         opContext.setByPassed( byPassed );
         return session.getDirectoryService().getOperationManager().hasEntry( opContext );
+    }
+
+
+    public ReferralHandlingMode getReferralHandlingMode()
+    {
+        return referralHandlingMode;
+    }
+
+
+    public void setReferralHandlingMode( ReferralHandlingMode referralHandlingMode )
+    {
+        this.referralHandlingMode = referralHandlingMode;
     }
 }

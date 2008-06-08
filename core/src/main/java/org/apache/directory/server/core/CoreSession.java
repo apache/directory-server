@@ -31,11 +31,18 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.AddRequest;
+import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.CompareRequest;
+import org.apache.directory.shared.ldap.message.DeleteRequest;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -199,6 +206,9 @@ public interface CoreSession
     void add( ServerEntry entry ) throws Exception;
     
     
+    AddResponse add( AddRequest addRequest, ReferralHandlingMode referralHandlingMode ) throws Exception;
+    
+    
     /**
      * Checks to see if an attribute in an entry contains a value.
      *
@@ -210,6 +220,9 @@ public interface CoreSession
     void compare( LdapDN dn, String oid, Object value ) throws Exception;
     
     
+    void compare( CompareRequest compareRequest ) throws Exception;
+
+    
     /**
      * Deletes an entry in the server.
      *
@@ -217,6 +230,9 @@ public interface CoreSession
      * @throws Exception if there are failures while deleting the entry
      */
     void delete( LdapDN dn ) throws Exception;
+    
+    
+    void delete( DeleteRequest deleteRequest ) throws Exception;
     
     
     /**
@@ -229,6 +245,10 @@ public interface CoreSession
     ClonedServerEntry lookup( LdapDN dn ) throws Exception;
 
     
+    ClonedServerEntry lookup( LdapDN dn, Control[] requestControls, ReferralHandlingMode refMode, 
+        LdapDN authorized ) throws Exception;
+
+    
     /**
      * Modifies an entry within the server by applying a list of modifications 
      * to the entry.
@@ -239,7 +259,10 @@ public interface CoreSession
      */
     void modify( LdapDN dn, List<Modification> mods ) throws Exception;
     
+    
+    void modify( ModifyRequest modifyRequest ) throws Exception;
 
+    
     /**
      * Moves an entry or a branch of entries at a specified distinguished name
      * to a position under a new parent.
@@ -249,6 +272,13 @@ public interface CoreSession
      * @exception if there are failures while moving the entry/branch
      */
     void move( LdapDN dn, LdapDN newParent ) throws Exception;
+    
+    
+    void move( ModifyDnRequest modifyDnRequest ) throws Exception;
+    
+    
+//    void move( LdapDN dn, LdapDN newParent, Control[] requestControls, ReferralHandlingMode refMode, 
+//        LdapDN authorized ) throws Exception;
     
     
     /**
@@ -266,6 +296,13 @@ public interface CoreSession
     void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
     
     
+    void moveAndRename( ModifyDnRequest modifyDnRequest ) throws Exception;
+    
+    
+//    void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn, 
+//        Control[] requestControls, ReferralHandlingMode refMode, LdapDN authorized ) throws Exception;
+    
+    
     /**
      * Renames an entry by changing it's relative distinguished name.  This 
      * has the side effect of changing the distinguished name of all entries
@@ -279,6 +316,13 @@ public interface CoreSession
      * @throws Exception if there are failures while renaming the entry
      */
     void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
+    
+    
+    void rename( ModifyDnRequest modifyDnRequest ) throws Exception;
+    
+    
+//    void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn,
+//        Control[] requestControls, ReferralHandlingMode refMode, LdapDN authorized ) throws Exception;
     
     
     /**
@@ -341,4 +385,7 @@ public interface CoreSession
      */
     EntryFilteringCursor search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception;
+
+
+    EntryFilteringCursor search( SearchRequest searchRequest ) throws Exception;
 }
