@@ -37,7 +37,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
@@ -206,7 +205,7 @@ public interface CoreSession
     void add( ServerEntry entry ) throws Exception;
     
     
-    AddResponse add( AddRequest addRequest, ReferralHandlingMode referralHandlingMode ) throws Exception;
+    void add( AddRequest addRequest ) throws Exception;
     
     
     /**
@@ -220,7 +219,7 @@ public interface CoreSession
     void compare( LdapDN dn, String oid, Object value ) throws Exception;
     
     
-    void compare( CompareRequest compareRequest ) throws Exception;
+    boolean compare( CompareRequest compareRequest ) throws Exception;
 
     
     /**

@@ -34,6 +34,8 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.message.ManageDsaITControl;
+import org.apache.directory.shared.ldap.message.Request;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -422,5 +424,18 @@ public abstract class AbstractOperationContext implements OperationContext
     public ReferralHandlingMode getReferralHandlingMode()
     {
         return referralHandlingMode;
+    }
+    
+    
+    protected void setReferralHandlingMode( Request req )
+    {
+        if ( req.hasControl( ManageDsaITControl.CONTROL_OID ) )
+        {
+            this.referralHandlingMode = ReferralHandlingMode.IGNORE;
+        }
+        else
+        {
+            this.referralHandlingMode = ReferralHandlingMode.THROW;
+        }
     }
 }

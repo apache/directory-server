@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.message.AddResponse;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
@@ -329,25 +328,28 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    public AddResponse add( AddRequest addRequest, ReferralHandlingMode referralHandlingMode ) throws Exception
+    public void add( AddRequest addRequest ) throws Exception
     {
         AddOperationContext opContext = new AddOperationContext( this, addRequest );
-        opContext.setReferralHandlingMode( referralHandlingMode );
         directoryService.getOperationManager().add( opContext );
         addRequest.getResultResponse().addAll( opContext.getResponseControls() );
-        return ( AddResponse ) addRequest.getResultResponse();
     }
 
 
-    public void compare( CompareRequest compareRequest ) throws Exception
+    public boolean compare( CompareRequest compareRequest ) throws Exception
     {
-        directoryService.getOperationManager().compare( new CompareOperationContext( this, compareRequest ) );
+        CompareOperationContext opContext = new CompareOperationContext( this, compareRequest );
+        boolean result = directoryService.getOperationManager().compare( opContext );
+        compareRequest.getResultResponse().addAll( opContext.getResponseControls() );
+        return result;
     }
 
 
     public void delete( DeleteRequest deleteRequest ) throws Exception
     {
-        directoryService.getOperationManager().delete( new DeleteOperationContext( this, deleteRequest ) );
+        DeleteOperationContext opContext = new DeleteOperationContext( this, deleteRequest );
+        directoryService.getOperationManager().delete( opContext );
+        deleteRequest.getResultResponse().addAll( opContext.getResponseControls() );
     }
 
 

@@ -98,6 +98,7 @@ public class AddOperationContext extends AbstractOperationContext
             session.getDirectoryService().getRegistries() );
         this.dn = addRequest.getEntry();
         this.requestControls = addRequest.getControls();
+        setReferralHandlingMode( addRequest );
     }
 
 

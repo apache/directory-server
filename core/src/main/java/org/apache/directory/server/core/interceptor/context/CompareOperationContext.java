@@ -108,6 +108,7 @@ public class CompareOperationContext extends AbstractOperationContext
         this.oid = compareRequest.getAttributeId();
         this.value = compareRequest.getAssertionValue();
         this.requestControls = compareRequest.getControls();
+        setReferralHandlingMode( compareRequest );
     }
 
 

@@ -89,6 +89,7 @@ public class SearchOperationContext extends SearchingOperationContext
         this.timeLimit = searchRequest.getTimeLimit();
         this.noAttributes = searchRequest.getTypesOnly();
         setReturningAttributes( searchRequest.getAttributes() );
+        setReferralHandlingMode( searchRequest );
     }
 
 

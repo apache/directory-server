@@ -59,9 +59,10 @@ public class DeleteOperationContext extends AbstractOperationContext
     {
         super( session, deleteRequest.getName() );
         this.requestControls = deleteRequest.getControls();
+        super.setReferralHandlingMode( deleteRequest );
     }
-
-
+    
+    
     /**
      * @return the operation name
      */
