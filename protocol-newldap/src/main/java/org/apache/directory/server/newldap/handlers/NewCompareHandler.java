@@ -20,22 +20,18 @@
 package org.apache.directory.server.newldap.handlers;
 
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
-import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.mina.common.IoSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,22 +57,7 @@ public class NewCompareHandler extends LdapRequestHandler<CompareRequest>
 
         try
         {
-            LdapContext ctx = getSessionRegistry().getLdapContext( session, null, true );
-            ServerLdapContext newCtx = ( ServerLdapContext ) ctx.lookup( "" );
-
-            if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
-            {
-                newCtx.addToEnvironment( Context.REFERRAL, "ignore" );
-            }
-            else
-            {
-                newCtx.addToEnvironment( Context.REFERRAL, "throw" );
-            }
-
-            // Inject controls into the context
-            setRequestControls( newCtx, req );
-
-            if ( newCtx.compare( req.getName(), req.getAttributeId(), req.getAssertionValue() ) )
+            if ( session.getCoreSession().compare( req ) )
             {
                 result.setResultCode( ResultCodeEnum.COMPARE_TRUE );
             }
@@ -86,8 +67,7 @@ public class NewCompareHandler extends LdapRequestHandler<CompareRequest>
             }
 
             result.setMatchedDn( req.getName() );
-            req.getResultResponse().addAll( newCtx.getResponseControls() );
-            session.write( req.getResultResponse() );
+            session.getIoSession().write( req.getResultResponse() );
         }
         catch ( ReferralException e )
         {
@@ -103,7 +83,7 @@ public class NewCompareHandler extends LdapRequestHandler<CompareRequest>
                 refs.addLdapUrl( ( String ) e.getReferralInfo() );
             }
             while ( e.skipReferral() );
-            session.write( req.getResultResponse() );
+            session.getIoSession().write( req.getResultResponse() );
         }
         catch ( Exception e )
         {
@@ -140,7 +120,7 @@ public class NewCompareHandler extends LdapRequestHandler<CompareRequest>
                 }
             }
 
-            session.write( req.getResultResponse() );
+            session.getIoSession().write( req.getResultResponse() );
         }
     }
 }
