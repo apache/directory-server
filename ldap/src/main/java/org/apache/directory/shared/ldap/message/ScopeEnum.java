@@ -22,6 +22,7 @@ package org.apache.directory.shared.ldap.message;
 
 import javax.naming.directory.SearchControls;
 
+
 /**
  * Type-safe scope parameter enumeration.
  * 
@@ -42,6 +43,7 @@ public enum ScopeEnum
     /** Stores the integer value of each element of the enumeration */
     private int value;
 
+    
     /**
      * Private construct so no other instances can be created other than the
      * public static constants in this class.
@@ -54,6 +56,7 @@ public enum ScopeEnum
         this.value = value;
     }
 
+    
     /**
      * Gets the LdapValue for the scope enumeration as opposed to the JNDI value
      * which is returned using getValue().
@@ -66,6 +69,7 @@ public enum ScopeEnum
         return value;
     }
 
+    
     /**
      * Gets the type safe enumeration constant corresponding to a SearchControls
      * scope value.
@@ -93,6 +97,7 @@ public enum ScopeEnum
         }
     }
 
+    
     /**
      * Gets the enum corresponding to the given integer value. 
      *
