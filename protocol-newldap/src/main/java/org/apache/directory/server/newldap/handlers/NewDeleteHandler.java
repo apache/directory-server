@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NewDeleteHandler extends LdapRequestHandler<DeleteRequest>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( DeleteHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( NewDeleteHandler.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();

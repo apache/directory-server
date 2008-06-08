@@ -23,7 +23,6 @@ package org.apache.directory.server.newldap.handlers;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
 
-import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.AddRequest;
@@ -59,7 +58,7 @@ public class NewAddHandler extends LdapRequestHandler<AddRequest>
 
         try
         {
-            session.getCoreSession().add( request, ReferralHandlingMode.THROW );
+            session.getCoreSession().add( request );
         }
         catch( ReferralException e )
         {
