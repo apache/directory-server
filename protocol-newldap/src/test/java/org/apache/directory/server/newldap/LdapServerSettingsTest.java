@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 import org.apache.directory.server.newldap.ExtendedOperationHandler;
 import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.newldap.handlers.bind.SimpleMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.PlainMechanismHandler;
 import org.apache.directory.server.newldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 
@@ -77,7 +77,7 @@ public class LdapServerSettingsTest
     {
         LdapServer server = new LdapServer();
         Map<String, MechanismHandler> handlers = new HashMap<String,MechanismHandler>();
-        MechanismHandler handler = new SimpleMechanismHandler();
+        MechanismHandler handler = new PlainMechanismHandler();
         handlers.put( SupportedSaslMechanisms.PLAIN, handler );
         server.setSaslMechanismHandlers( handlers );
         assertEquals( handler, server.getMechanismHandler( SupportedSaslMechanisms.PLAIN ) );

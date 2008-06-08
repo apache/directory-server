@@ -20,7 +20,7 @@
 package org.apache.directory.server.newldap.handlers.bind;
 
 
-import org.apache.mina.common.IoSession;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.message.BindRequest;
 
 import javax.security.sasl.SaslServer;
@@ -34,9 +34,9 @@ import javax.security.sasl.SaslServer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class SimpleMechanismHandler implements MechanismHandler
+public class PlainMechanismHandler implements MechanismHandler
 {
-    public SaslServer handleMechanism( IoSession session, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception
     {
         return null;
     }

@@ -24,7 +24,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.mina.common.IoSession;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.sasl.Sasl;
@@ -70,7 +69,7 @@ public class CramMd5MechanismHandler implements MechanismHandler
              */
             Map<String, String> saslProps = new HashMap<String, String>();
 
-            CallbackHandler callbackHandler = new CramMd5CallbackHandler( directoryService, session, bindRequest );
+            CallbackHandler callbackHandler = new CramMd5CallbackHandler( session, bindRequest );
 
             ss = Sasl.createSaslServer( SupportedSaslMechanisms.CRAM_MD5, "ldap", saslHost, saslProps, callbackHandler );
             session.getIoSession().setAttribute( SASL_CONTEXT, ss );

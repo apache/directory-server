@@ -20,9 +20,9 @@
 package org.apache.directory.server.newldap.handlers.bind.ntlm;
 
 
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.mina.common.IoSession;
 
 import javax.security.sasl.SaslServer;
 
@@ -54,13 +54,13 @@ public class NtlmMechanismHandler implements MechanismHandler
     }
 
 
-    public SaslServer handleMechanism( IoSession session, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
 
-        if ( session.containsAttribute( SASL_CONTEXT ) )
+        if ( session.getIoSession().containsAttribute( SASL_CONTEXT ) )
         {
-            ss = ( SaslServer ) session.getAttribute( SASL_CONTEXT );
+            ss = ( SaslServer ) session.getIoSession().getAttribute( SASL_CONTEXT );
         }
         else
         {
@@ -69,8 +69,8 @@ public class NtlmMechanismHandler implements MechanismHandler
                 initProvider();
             }
             
-            ss = new NtlmSaslServer( provider, bindRequest, session );
-            session.setAttribute( SASL_CONTEXT, ss );
+            ss = new NtlmSaslServer( provider, bindRequest, session.getIoSession() );
+            session.getIoSession().setAttribute( SASL_CONTEXT, ss );
         }
 
         return ss;

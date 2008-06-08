@@ -21,9 +21,9 @@ package org.apache.directory.server.newldap.handlers.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.mina.common.IoSession;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.sasl.Sasl;
@@ -49,23 +49,23 @@ public class DigestMd5MechanismHandler implements MechanismHandler
     }
 
     
-    public SaslServer handleMechanism( IoSession session, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
 
-        if ( session.containsAttribute( SASL_CONTEXT ) )
+        if ( session.getIoSession().containsAttribute( SASL_CONTEXT ) )
         {
-            ss = ( SaslServer ) session.getAttribute( SASL_CONTEXT );
+            ss = ( SaslServer ) session.getIoSession().getAttribute( SASL_CONTEXT );
         }
         else
         {
-            String saslHost = ( String ) session.getAttribute( "saslHost" );
-            Map<String, String> saslProps = ( Map<String, String> ) session.getAttribute( "saslProps" );
+            String saslHost = ( String ) session.getIoSession().getAttribute( "saslHost" );
+            Map<String, String> saslProps = ( Map<String, String> ) session.getIoSession().getAttribute( "saslProps" );
 
-            CallbackHandler callbackHandler = new DigestMd5CallbackHandler( directoryService, session, bindRequest );
+            CallbackHandler callbackHandler = new DigestMd5CallbackHandler( directoryService, bindRequest );
 
             ss = Sasl.createSaslServer( SupportedSaslMechanisms.DIGEST_MD5, "ldap", saslHost, saslProps, callbackHandler );
-            session.setAttribute( SASL_CONTEXT, ss );
+            session.getIoSession().setAttribute( SASL_CONTEXT, ss );
         }
 
         return ss;

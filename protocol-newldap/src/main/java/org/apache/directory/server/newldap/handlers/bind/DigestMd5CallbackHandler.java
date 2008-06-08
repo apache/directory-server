@@ -21,15 +21,14 @@ package org.apache.directory.server.newldap.handlers.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
-import javax.naming.ldap.LdapContext;
 import javax.security.sasl.AuthorizeCallback;
-import java.util.Hashtable;
 
 
 /**
@@ -54,30 +53,18 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
      * @param bindRequest the bind message
      * @param directoryService the directory service core
      */
-    public DigestMd5CallbackHandler( DirectoryService directoryService, IoSession session, BindRequest bindRequest )
+    public DigestMd5CallbackHandler( DirectoryService directoryService, BindRequest bindRequest )
     {
         super( directoryService );
-        this.session = session;
         this.bindRequest = bindRequest;
     }
 
 
+    // TODO - should return not be a byte[]
     protected String lookupPassword( String username, String realm )
     {
-        Hashtable<String, Object> env = getEnvironment( session );
-
-        LdapContext ctx = getContext( session, bindRequest, env );
-
         // TODO - Use realm with multi-realm support.
-
-        GetBindDn getDn = new GetBindDn( username );
-
-        // Don't actually want the entry, rather the hacked in dn.
-        getDn.execute( ctx, null );
-        bindDn = getDn.getBindDn();
-        userPassword = getDn.getUserPassword();
-
-        return userPassword;
+        throw new NotImplementedException();
     }
 
 

@@ -21,9 +21,9 @@ package org.apache.directory.server.newldap.handlers.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.mina.common.IoSession;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
@@ -51,22 +51,22 @@ public class GssapiMechanismHandler implements MechanismHandler
     }
 
     
-    public SaslServer handleMechanism( IoSession session, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
 
-        if ( session.containsAttribute( SASL_CONTEXT ) )
+        if ( session.getIoSession().containsAttribute( SASL_CONTEXT ) )
         {
-            ss = ( SaslServer ) session.getAttribute( SASL_CONTEXT );
+            ss = ( SaslServer ) session.getIoSession().getAttribute( SASL_CONTEXT );
         }
         else
         {
-            Subject subject = ( Subject ) session.getAttribute( "saslSubject" );
+            Subject subject = ( Subject ) session.getIoSession().getAttribute( "saslSubject" );
 
-            final Map<String, String> saslProps = ( Map<String, String> ) session.getAttribute( "saslProps" );
-            final String saslHost = ( String ) session.getAttribute( "saslHost" );
+            final Map<String, String> saslProps = ( Map<String, String> ) session.getIoSession().getAttribute( "saslProps" );
+            final String saslHost = ( String ) session.getIoSession().getAttribute( "saslHost" );
 
-            final CallbackHandler callbackHandler = new GssapiCallbackHandler( directoryService, session, bindRequest );
+            final CallbackHandler callbackHandler = new GssapiCallbackHandler( directoryService, session.getIoSession(), bindRequest );
 
             ss = ( SaslServer ) Subject.doAs( subject, new PrivilegedExceptionAction<SaslServer>()
             {
@@ -76,7 +76,7 @@ public class GssapiMechanismHandler implements MechanismHandler
                 }
             } );
 
-            session.setAttribute( SASL_CONTEXT, ss );
+            session.getIoSession().setAttribute( SASL_CONTEXT, ss );
         }
 
         return ss;

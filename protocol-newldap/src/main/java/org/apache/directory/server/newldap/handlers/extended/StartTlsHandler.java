@@ -38,14 +38,13 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.directory.server.core.security.CoreKeyStoreSpi;
 import org.apache.directory.server.newldap.ExtendedOperationHandler;
 import org.apache.directory.server.newldap.LdapServer;
-import org.apache.directory.server.newldap.SessionRegistry;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.mina.common.IoFilterChain;
-import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.SSLFilter;
 
 import org.slf4j.Logger;
@@ -78,11 +77,11 @@ public class StartTlsHandler implements ExtendedOperationHandler
     }
     
 
-    public void handleExtendedOperation( IoSession session, SessionRegistry registry, ExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
     {
         LOG.info( "Handling StartTLS request." );
         
-        IoFilterChain chain = session.getFilterChain();
+        IoFilterChain chain = session.getIoSession().getFilterChain();
         SSLFilter sslFilter = ( SSLFilter ) chain.get( "sslFilter" );
         if( sslFilter == null )
         {
@@ -91,7 +90,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
         }
         else
         {
-            sslFilter.startSSL( session );
+            sslFilter.startSSL( session.getIoSession() );
         }
         
         ExtendedResponse res = new ExtendedResponseImpl( req.getMessageId() );
@@ -101,8 +100,8 @@ public class StartTlsHandler implements ExtendedOperationHandler
         res.setResponse( new byte[ 0 ] );
 
         // Send a response.
-        session.setAttribute( SSLFilter.DISABLE_ENCRYPTION_ONCE );
-        session.write( res );
+        session.getIoSession().setAttribute( SSLFilter.DISABLE_ENCRYPTION_ONCE );
+        session.getIoSession().write( res );
     }
     
     
@@ -193,5 +192,11 @@ public class StartTlsHandler implements ExtendedOperationHandler
         {
             throw new RuntimeException( "Failed to initialize SSLContext", e );
         }
+    }
+
+
+    public void setLdapServer( LdapServer ldapServer )
+    {
+        // do nothing
     }
 }

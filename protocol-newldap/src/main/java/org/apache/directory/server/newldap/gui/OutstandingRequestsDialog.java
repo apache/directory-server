@@ -31,10 +31,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JButton;
 
-import org.apache.directory.server.newldap.SessionRegistry;
+import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
-import org.apache.directory.shared.ldap.message.Request;
-import org.apache.mina.common.IoSession;
 import javax.swing.JTextArea;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -51,8 +50,8 @@ public class OutstandingRequestsDialog extends JDialog
     private JPanel jPanel1;
     private JButton jButton;
 
-    final IoSession session;
-    final SessionRegistry registry;
+    final LdapSession session;
+    final LdapServer ldapServer;
 
     private JPanel jPanel2;
     private JTextArea jTextArea;
@@ -66,17 +65,17 @@ public class OutstandingRequestsDialog extends JDialog
      * @param session the MINA IoSession to get outstanding requests for
      * @param sessionRegistry the session registry
      */
-    public OutstandingRequestsDialog( JFrame owner, IoSession session, SessionRegistry sessionRegistry )
+    public OutstandingRequestsDialog( JFrame owner, LdapSession session, LdapServer ldapServer )
     {
         super( owner, true );
         this.session = session;
-        this.registry = sessionRegistry;
+        this.ldapServer = ldapServer;
 
         StringBuffer buf = new StringBuffer();
         buf.append( "Outstanding Requests: " );
-        buf.append( ( ( InetSocketAddress ) session.getRemoteAddress() ).getHostName() );
+        buf.append( ( ( InetSocketAddress ) session.getIoSession().getRemoteAddress() ).getHostName() );
         buf.append( ":" );
-        buf.append( ( ( InetSocketAddress ) session.getRemoteAddress() ).getPort() );
+        buf.append( ( ( InetSocketAddress ) session.getIoSession().getRemoteAddress() ).getPort() );
         setTitle( buf.toString() );
         initialize();
     }
@@ -185,7 +184,7 @@ public class OutstandingRequestsDialog extends JDialog
     private void setRequestsModel()
     {
         AbandonableRequest[] requests;
-        Map<Integer, Request> reqsMap = registry.getOutstandingRequests( session );
+        Map<Integer, AbandonableRequest> reqsMap = session.getOutstandingRequests();
         
         if ( reqsMap != null )
         {
@@ -328,7 +327,7 @@ public class OutstandingRequestsDialog extends JDialog
                     AbandonableRequest req = ( ( OutstandingRequestsModel ) jTable.getModel() )
                         .getAbandonableRequest( row );
                     req.abandon();
-                    registry.removeOutstandingRequest( session, req.getMessageId() );
+                    session.abandonOutstandingRequest( req.getMessageId() );
                     setRequestsModel();
                 }
             } );

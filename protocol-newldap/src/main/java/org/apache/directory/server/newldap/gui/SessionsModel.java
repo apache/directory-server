@@ -25,7 +25,7 @@ import java.net.InetSocketAddress;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-import org.apache.mina.common.IoSession;
+import org.apache.directory.server.newldap.LdapSession;
 
 
 public class SessionsModel implements TableModel
@@ -34,16 +34,16 @@ public class SessionsModel implements TableModel
         { "client address", "client port", "server address", "server port" };
     final Class<?>[] columnClasses = new Class[]
         { String.class, Integer.class, String.class, Integer.class };
-    final IoSession[] sessions;
+    final LdapSession[] sessions;
 
 
-    SessionsModel(IoSession[] sessions)
+    SessionsModel( LdapSession[] sessions )
     {
         this.sessions = sessions;
     }
 
 
-    IoSession getIoSession( int row )
+    LdapSession getLdapSession( int row )
     {
         return sessions[row];
     }
@@ -81,18 +81,18 @@ public class SessionsModel implements TableModel
 
     public Object getValueAt( int rowIndex, int columnIndex )
     {
-        IoSession session = sessions[rowIndex];
+        LdapSession session = sessions[rowIndex];
 
         switch ( columnIndex )
         {
             case ( 0 ):
-                return ( ( InetSocketAddress ) session.getRemoteAddress() ).getHostName();
+                return ( ( InetSocketAddress ) session.getIoSession().getRemoteAddress() ).getHostName();
             case ( 1 ):
-                return new Integer( ( ( InetSocketAddress ) session.getRemoteAddress() ).getPort() );
+                return new Integer( ( ( InetSocketAddress ) session.getIoSession().getRemoteAddress() ).getPort() );
             case ( 2 ):
-                return ( ( InetSocketAddress ) session.getLocalAddress() ).getHostName();
+                return ( ( InetSocketAddress ) session.getIoSession().getLocalAddress() ).getHostName();
             case ( 3 ):
-                return new Integer( ( ( InetSocketAddress ) session.getLocalAddress() ).getPort() );
+                return new Integer( ( ( InetSocketAddress ) session.getIoSession().getLocalAddress() ).getPort() );
             default:
                 throw new IndexOutOfBoundsException( "column index max is " + ( columns.length - 1 ) );
         }

@@ -20,6 +20,7 @@
 package org.apache.directory.server.newldap;
 
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -179,6 +180,15 @@ public class LdapSession
         synchronized( outstandingLock )
         {
             outstandingRequests.remove( request.getMessageId() );
+        }
+    }
+    
+    
+    public Map<Integer, AbandonableRequest> getOutstandingRequests()
+    {
+        synchronized( outstandingLock )
+        {
+            return Collections.unmodifiableMap( outstandingRequests );
         }
     }
 }

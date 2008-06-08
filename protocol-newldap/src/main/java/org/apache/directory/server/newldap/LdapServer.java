@@ -1028,6 +1028,12 @@ public class LdapServer extends DirectoryBackedService
     Map<IoSession, LdapSession> ldapSessions = new ConcurrentHashMap<IoSession, LdapSession>( 100 );
 
     
+    public LdapSession[] getSessions()
+    {
+        return ldapSessions.values().toArray( new LdapSession[0] );
+    }
+    
+    
     public LdapSession removeLdapSession( IoSession session )
     {
         LdapSession ldapSession = null; 

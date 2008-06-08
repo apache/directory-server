@@ -45,7 +45,8 @@ import javax.swing.JMenuItem;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.directory.server.newldap.SessionRegistry;
+import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.extended.GracefulShutdownHandler;
 import org.apache.directory.shared.ldap.message.extended.GracefulDisconnect;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
@@ -88,20 +89,20 @@ public class SessionsFrame extends JFrame
     private JMenuItem showRequests;
     private JButton refreshButton;
 
-    private IoSession selected;
+    private LdapSession selected;
     private JMenuItem unbindItem;
     private JMenuItem bindItem;
-    private SessionRegistry registry;
+    private LdapServer ldapServer;
 
 
     /**
      * This is the default constructor
-     * @param registry the session registry
+     * @param ldapServer the session registry
      */
-    public SessionsFrame( SessionRegistry registry )
+    public SessionsFrame( LdapServer ldapServer )
     {
         super();
-        this.registry = registry;
+        this.ldapServer = ldapServer;
         initialize();
     }
 
@@ -190,7 +191,7 @@ public class SessionsFrame extends JFrame
         {
             sessionsTable = new JTable();
             sessionsTable.setSelectionMode( javax.swing.ListSelectionModel.SINGLE_SELECTION );
-            sessionsTable.setModel( new SessionsModel( registry.getSessions() ) );
+            sessionsTable.setModel( new SessionsModel( ldapServer.getSessions() ) );
             sessionsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
             {
                 public void valueChanged( ListSelectionEvent e )
@@ -202,7 +203,7 @@ public class SessionsFrame extends JFrame
                     }
                     else
                     {
-                        selected = ( ( SessionsModel ) sessionsTable.getModel() ).getIoSession( row );
+                        selected = ( ( SessionsModel ) sessionsTable.getModel() ).getLdapSession( row );
                         closeItem.setEnabled( true );
                         menuSendNoD.setEnabled( true );
                         showRequests.setEnabled( true );
@@ -362,7 +363,7 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    registry.terminateSession( selected );
+                    ldapServer.removeLdapSession( selected.getIoSession() );
                     try
                     {
                         Thread.sleep( 250 );
@@ -413,7 +414,7 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    selected.write( NoticeOfDisconnect.UNAVAILABLE );
+                    selected.getIoSession().write( NoticeOfDisconnect.UNAVAILABLE );
                     try
                     {
                         Thread.sleep( 250 );
@@ -445,7 +446,7 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    selected.write( NoticeOfDisconnect.PROTOCOLERROR );
+                    selected.getIoSession().write( NoticeOfDisconnect.PROTOCOLERROR );
                     try
                     {
                         Thread.sleep( 250 );
@@ -477,11 +478,11 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    WriteFuture future = selected.write( NoticeOfDisconnect.STRONGAUTHREQUIRED );
+                    WriteFuture future = selected.getIoSession().write( NoticeOfDisconnect.STRONGAUTHREQUIRED );
                     try
                     {
                         future.join( 1000 );
-                        CloseFuture cfuture = selected.close();
+                        CloseFuture cfuture = selected.getIoSession().close();
                         cfuture.join( 1000 );
                     }
                     catch ( Exception e1 )
@@ -547,7 +548,7 @@ public class SessionsFrame extends JFrame
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
                     OutstandingRequestsDialog dialog =
-                            new OutstandingRequestsDialog( SessionsFrame.this, selected, registry );
+                            new OutstandingRequestsDialog( SessionsFrame.this, selected, ldapServer );
                     dialog.addWindowListener( new WindowAdapter()
                     {
                         public void windowClosed( WindowEvent e )
@@ -690,7 +691,7 @@ public class SessionsFrame extends JFrame
     private void refresh()
     {
         LOG.info( "Refreshing Sessions UI" );
-        sessionsTable.setModel( new SessionsModel( registry.getSessions() ) );
+        sessionsTable.setModel( new SessionsModel( ldapServer.getSessions() ) );
         closeItem.setEnabled( false );
         menuSendNoD.setEnabled( false );
         showRequests.setEnabled( false );

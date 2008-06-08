@@ -20,8 +20,8 @@
 package org.apache.directory.server.newldap.handlers.bind;
 
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.newldap.LdapSession;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.message.BindRequest;
 
 import org.slf4j.Logger;
@@ -52,23 +52,16 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
      * @param bindRequest the bind message
      * @param directoryService the directory service core
      */
-    public CramMd5CallbackHandler( DirectoryService directoryService,  LdapSession session, BindRequest bindRequest )
+    public CramMd5CallbackHandler( LdapSession session, BindRequest bindRequest )
     {
-        super( directoryService );
+        super( session.getCoreSession().getDirectoryService() );
         this.session = session;
     }
 
 
     protected String lookupPassword( String username, String realm )
     {
-        GetBindDn getDn = new GetBindDn( username );
-
-        // Don't actually want the entry, rather the hacked in dn.
-        getDn.execute( session, null );
-        bindDn = getDn.getBindDn();
-        userPassword = getDn.getUserPassword();
-
-        return userPassword;
+        throw new NotImplementedException();
     }
 
 
