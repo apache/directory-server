@@ -49,6 +49,8 @@ import org.apache.directory.server.newldap.handlers.ModifyHandler;
 import org.apache.directory.server.newldap.handlers.NewAbandonHandler;
 import org.apache.directory.server.newldap.handlers.NewAddHandler;
 import org.apache.directory.server.newldap.handlers.NewBindHandler;
+import org.apache.directory.server.newldap.handlers.NewCompareHandler;
+import org.apache.directory.server.newldap.handlers.NewDeleteHandler;
 import org.apache.directory.server.newldap.handlers.SearchHandler;
 import org.apache.directory.server.newldap.handlers.UnbindHandler;
 import org.apache.directory.server.newldap.handlers.bind.*;
@@ -186,8 +188,8 @@ public class LdapServer extends DirectoryBackedService
     private LdapRequestHandler<AbandonRequest> abandonHandler;
     private LdapRequestHandler<AddRequest> addHandler;
     private LdapRequestHandler<BindRequest> bindHandler;
-    private CompareHandler compareHandler;
-    private DeleteHandler deleteHandler;
+    private LdapRequestHandler<CompareRequest> compareHandler;
+    private LdapRequestHandler<DeleteRequest> deleteHandler;
     private ExtendedHandler extendedHandler;
     private ModifyHandler modifyHandler;
     private ModifyDnHandler modifyDnHandler;
@@ -257,12 +259,12 @@ public class LdapServer extends DirectoryBackedService
         
         if ( getCompareHandler() == null )
         {
-            setCompareHandler( new DefaultCompareHandler() );
+            setCompareHandler( new NewCompareHandler() );
         }
         
         if ( getDeleteHandler() == null )
         {
-            setDeleteHandler( new DefaultDeleteHandler() );
+            setDeleteHandler( new NewDeleteHandler() );
         }
         
         if ( getExtendedHandler() == null )
@@ -901,34 +903,32 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public CompareHandler getCompareHandler()
+    public LdapRequestHandler<CompareRequest> getCompareHandler()
     {
         return compareHandler;
     }
 
 
-    public void setCompareHandler( CompareHandler compareHandler )
+    public void setCompareHandler( LdapRequestHandler<CompareRequest> compareHandler )
     {
         this.handler.removeMessageHandler( CompareRequest.class );
         this.compareHandler = compareHandler;
-        this.compareHandler.setProtocolProvider( this );
-        //noinspection unchecked
+        this.compareHandler.setLdapServer( this );
         this.handler.addMessageHandler( CompareRequest.class, this.compareHandler );
     }
 
 
-    public DeleteHandler getDeleteHandler()
+    public LdapRequestHandler<DeleteRequest> getDeleteHandler()
     {
         return deleteHandler;
     }
 
 
-    public void setDeleteHandler( DeleteHandler deleteHandler )
+    public void setDeleteHandler( LdapRequestHandler<DeleteRequest> deleteHandler )
     {
         this.handler.removeMessageHandler( DeleteRequest.class );
         this.deleteHandler = deleteHandler;
-        this.deleteHandler.setProtocolProvider( this );
-        //noinspection unchecked
+        this.deleteHandler.setLdapServer( this );
         this.handler.addMessageHandler( DeleteRequest.class, this.deleteHandler );
     }
 
@@ -943,7 +943,7 @@ public class LdapServer extends DirectoryBackedService
     {
         this.handler.removeMessageHandler( ExtendedRequest.class );
         this.extendedHandler = extendedHandler;
-        this.extendedHandler.setProtocolProvider( this );
+        this.extendedHandler.setLdapServer( this );
         //noinspection unchecked
         this.handler.addMessageHandler( ExtendedRequest.class, this.extendedHandler );
     }
