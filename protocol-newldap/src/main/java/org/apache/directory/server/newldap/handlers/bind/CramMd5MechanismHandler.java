@@ -21,6 +21,7 @@ package org.apache.directory.server.newldap.handlers.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
@@ -50,17 +51,18 @@ public class CramMd5MechanismHandler implements MechanismHandler
     }
 
     
-    public SaslServer handleMechanism( IoSession session, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
 
-        if ( session.containsAttribute( SASL_CONTEXT ) )
+        // TODO - don't use session properties anymore
+        if ( session.getIoSession().containsAttribute( SASL_CONTEXT ) )
         {
-            ss = ( SaslServer ) session.getAttribute( SASL_CONTEXT );
+            ss = ( SaslServer ) session.getIoSession().getAttribute( SASL_CONTEXT );
         }
         else
         {
-            String saslHost = ( String ) session.getAttribute( "saslHost" );
+            String saslHost = ( String ) session.getIoSession().getAttribute( "saslHost" );
 
             /*
              * Sasl will throw an exception is Sasl.QOP properties are set.
@@ -71,7 +73,7 @@ public class CramMd5MechanismHandler implements MechanismHandler
             CallbackHandler callbackHandler = new CramMd5CallbackHandler( directoryService, session, bindRequest );
 
             ss = Sasl.createSaslServer( SupportedSaslMechanisms.CRAM_MD5, "ldap", saslHost, saslProps, callbackHandler );
-            session.setAttribute( SASL_CONTEXT, ss );
+            session.getIoSession().setAttribute( SASL_CONTEXT, ss );
         }
 
         return ss;

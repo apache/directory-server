@@ -69,7 +69,7 @@ import java.util.Iterator;
  */
 public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( SearchHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( NewSearchHandler.class );
 
     
     /** Speedup for logs */

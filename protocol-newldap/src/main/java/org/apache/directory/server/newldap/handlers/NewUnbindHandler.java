@@ -20,8 +20,11 @@
 package org.apache.directory.server.newldap.handlers;
 
 
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.message.UnbindRequest;
-import org.apache.mina.common.IoSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,13 +34,22 @@ import org.apache.mina.common.IoSession;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class UnbindHandler extends AbstractLdapHandler
+public class NewUnbindHandler extends LdapRequestHandler<UnbindRequest>
 {
-    public final void messageReceived( IoSession session, Object request ) throws Exception
+    private static final Logger LOG = LoggerFactory.getLogger( NewUnbindHandler.class );
+
+
+    public void handle( LdapSession session, UnbindRequest request ) throws Exception
     {
-        unbindMessageReceived( session, ( UnbindRequest ) request );
+        try
+        {
+            session.getCoreSession().unbind( request );
+            session.getIoSession().close();
+            ldapServer.removeLdapSession( session.getIoSession() );
+        }
+        catch ( Throwable t )
+        {
+            LOG.error( "failed to unbind session properly", t );
+        }
     }
-
-
-    protected abstract void unbindMessageReceived( IoSession session, UnbindRequest unbindRequest ) throws Exception;
 }

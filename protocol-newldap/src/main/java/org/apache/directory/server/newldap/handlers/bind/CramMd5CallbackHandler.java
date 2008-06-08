@@ -21,15 +21,14 @@ package org.apache.directory.server.newldap.handlers.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.mina.common.IoSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
-import javax.naming.ldap.LdapContext;
 import javax.security.sasl.AuthorizeCallback;
-import java.util.Hashtable;
 
 
 /**
@@ -40,8 +39,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
 {
     private static final Logger LOG = LoggerFactory.getLogger( CramMd5CallbackHandler.class );
 
-    private IoSession session;
-    private BindRequest bindRequest;
+    private LdapSession session;
 
     private String bindDn;
     private String userPassword;
@@ -54,24 +52,19 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
      * @param bindRequest the bind message
      * @param directoryService the directory service core
      */
-    public CramMd5CallbackHandler( DirectoryService directoryService,  IoSession session, BindRequest bindRequest )
+    public CramMd5CallbackHandler( DirectoryService directoryService,  LdapSession session, BindRequest bindRequest )
     {
         super( directoryService );
         this.session = session;
-        this.bindRequest = bindRequest;
     }
 
 
     protected String lookupPassword( String username, String realm )
     {
-        Hashtable<String, Object> env = getEnvironment( session );
-
-        LdapContext ctx = getContext( session, bindRequest, env );
-
         GetBindDn getDn = new GetBindDn( username );
 
         // Don't actually want the entry, rather the hacked in dn.
-        getDn.execute( ctx, null );
+        getDn.execute( session, null );
         bindDn = getDn.getBindDn();
         userPassword = getDn.getUserPassword();
 
@@ -86,7 +79,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
             LOG.debug( "Converted username " + getUsername() + " to DN " + bindDn + " with password " + userPassword );
         }
 
-        session.setAttribute( Context.SECURITY_PRINCIPAL, bindDn );
+        session.getIoSession().setAttribute( Context.SECURITY_PRINCIPAL, bindDn );
 
         authorizeCB.setAuthorizedID( bindDn );
         authorizeCB.setAuthorized( true );

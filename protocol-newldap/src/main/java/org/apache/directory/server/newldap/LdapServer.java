@@ -33,27 +33,17 @@ import javax.naming.ldap.Control;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.security.CoreKeyStoreSpi;
-import org.apache.directory.server.newldap.handlers.CompareHandler;
-import org.apache.directory.server.newldap.handlers.DefaultCompareHandler;
-import org.apache.directory.server.newldap.handlers.DefaultDeleteHandler;
-import org.apache.directory.server.newldap.handlers.DefaultExtendedHandler;
-import org.apache.directory.server.newldap.handlers.DefaultModifyDnHandler;
-import org.apache.directory.server.newldap.handlers.DefaultModifyHandler;
-import org.apache.directory.server.newldap.handlers.DefaultSearchHandler;
-import org.apache.directory.server.newldap.handlers.DefaultUnbindHandler;
-import org.apache.directory.server.newldap.handlers.DeleteHandler;
-import org.apache.directory.server.newldap.handlers.ExtendedHandler;
+import org.apache.directory.server.newldap.handlers.NewExtendedHandler;
+import org.apache.directory.server.newldap.handlers.NewModifyHandler;
+import org.apache.directory.server.newldap.handlers.NewSearchHandler;
+import org.apache.directory.server.newldap.handlers.NewUnbindHandler;
 import org.apache.directory.server.newldap.handlers.LdapRequestHandler;
-import org.apache.directory.server.newldap.handlers.ModifyDnHandler;
-import org.apache.directory.server.newldap.handlers.ModifyHandler;
 import org.apache.directory.server.newldap.handlers.NewAbandonHandler;
 import org.apache.directory.server.newldap.handlers.NewAddHandler;
 import org.apache.directory.server.newldap.handlers.NewBindHandler;
 import org.apache.directory.server.newldap.handlers.NewCompareHandler;
 import org.apache.directory.server.newldap.handlers.NewDeleteHandler;
 import org.apache.directory.server.newldap.handlers.NewModifyDnHandler;
-import org.apache.directory.server.newldap.handlers.SearchHandler;
-import org.apache.directory.server.newldap.handlers.UnbindHandler;
 import org.apache.directory.server.newldap.handlers.bind.*;
 import org.apache.directory.server.newldap.handlers.ssl.LdapsInitializer;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
@@ -191,11 +181,11 @@ public class LdapServer extends DirectoryBackedService
     private LdapRequestHandler<BindRequest> bindHandler;
     private LdapRequestHandler<CompareRequest> compareHandler;
     private LdapRequestHandler<DeleteRequest> deleteHandler;
-    private ExtendedHandler extendedHandler;
-    private ModifyHandler modifyHandler;
+    private LdapRequestHandler<ExtendedRequest> extendedHandler;
+    private LdapRequestHandler<ModifyRequest> modifyHandler;
     private LdapRequestHandler<ModifyDnRequest> modifyDnHandler;
-    private SearchHandler searchHandler;
-    private UnbindHandler unbindHandler;
+    private LdapRequestHandler<SearchRequest> searchHandler;
+    private LdapRequestHandler<UnbindRequest> unbindHandler;
 
 
     /** the underlying provider codec factory */
@@ -270,12 +260,12 @@ public class LdapServer extends DirectoryBackedService
         
         if ( getExtendedHandler() == null )
         {
-            setExtendedHandler( new DefaultExtendedHandler() );
+            setExtendedHandler( new NewExtendedHandler() );
         }
         
         if ( getModifyHandler() == null )
         {
-            setModifyHandler( new DefaultModifyHandler() );
+            setModifyHandler( new NewModifyHandler() );
         }
         
         if ( getModifyDnHandler() == null )
@@ -285,12 +275,12 @@ public class LdapServer extends DirectoryBackedService
         
         if ( getSearchHandler() == null )
         {
-            setSearchHandler( new DefaultSearchHandler() );
+            setSearchHandler( new NewSearchHandler() );
         }
         
         if ( getUnbindHandler() == null )
         {
-            setUnbindHandler( new DefaultUnbindHandler() );
+            setUnbindHandler( new NewUnbindHandler() );
         }
     }
 
@@ -407,9 +397,8 @@ public class LdapServer extends DirectoryBackedService
 
         for ( ExtendedOperationHandler h : extendedOperationHandlers )
         {
-            extendedHandler.addHandler( h );
             LOG.info( "Added Extended Request Handler: " + h.getOid() );
-            h.setLdapProvider( this );
+            h.setLdapServer( this );
             nexus.registerSupportedExtensions( h.getExtensionOids() );
         }
 
@@ -480,8 +469,7 @@ public class LdapServer extends DirectoryBackedService
     {
         if ( started )
         {
-            extendedHandler.addHandler( eoh );
-            eoh.setLdapProvider( this );
+            eoh.setLdapServer( this );
             PartitionNexus nexus = getDirectoryService().getPartitionNexus();
             nexus.registerSupportedExtensions( eoh.getExtensionOids() );
         }
@@ -501,27 +489,20 @@ public class LdapServer extends DirectoryBackedService
      */
     public void removeExtendedOperationHandler( String oid )
     {
-        if ( started )
-        {
-            extendedHandler.removeHandler( oid );
+        // need to do something like this to make this work right
+        //            PartitionNexus nexus = getDirectoryService().getPartitionNexus();
+        //            nexus.unregisterSupportedExtensions( eoh.getExtensionOids() );
 
-            // need to do something like this to make this work right
-            //            PartitionNexus nexus = getDirectoryService().getPartitionNexus();
-            //            nexus.unregisterSupportedExtensions( eoh.getExtensionOids() );
-        }
-        else
+        ExtendedOperationHandler handler = null;
+        for ( ExtendedOperationHandler h : extendedOperationHandlers )
         {
-            ExtendedOperationHandler handler = null;
-            for ( ExtendedOperationHandler h : extendedOperationHandlers )
+            if ( h.getOid().equals( oid ) )
             {
-                if ( h.getOid().equals( oid ) )
-                {
-                    handler = h;
-                    break;
-                }
+                handler = h;
+                break;
             }
-            extendedOperationHandlers.remove( handler );
         }
+        extendedOperationHandlers.remove( handler );
     }
 
 
@@ -535,34 +516,15 @@ public class LdapServer extends DirectoryBackedService
      */
     public ExtendedOperationHandler getExtendedOperationHandler( String oid )
     {
-        if ( started )
+        for ( ExtendedOperationHandler h : extendedOperationHandlers )
         {
-            return extendedHandler.getHandler( oid );
-        }
-        else
-        {
-            for ( ExtendedOperationHandler h : extendedOperationHandlers )
+            if ( h.getOid().equals( oid ) )
             {
-                if ( h.getOid().equals( oid ) )
-                {
-                    return h;
-                }
+                return h;
             }
         }
 
         return null;
-    }
-
-
-    /**
-     * Returns a {@link Map} of all registered OID-{@link ExtendedOperationHandler}
-     * pairs.
-     *
-     * @return map of all extended operation handlers
-     */
-    public Map<String,ExtendedOperationHandler> getExtendedOperationHandlerMap()
-    {
-        return extendedHandler.getHandlerMap();
     }
 
 
@@ -934,39 +896,37 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public ExtendedHandler getExtendedHandler()
+    public LdapRequestHandler<ExtendedRequest> getExtendedHandler()
     {
         return extendedHandler;
     }
 
 
-    public void setExtendedHandler( ExtendedHandler extendedHandler )
+    public void setExtendedHandler( LdapRequestHandler<ExtendedRequest> extendedHandler )
     {
         this.handler.removeMessageHandler( ExtendedRequest.class );
         this.extendedHandler = extendedHandler;
         this.extendedHandler.setLdapServer( this );
-        //noinspection unchecked
         this.handler.addMessageHandler( ExtendedRequest.class, this.extendedHandler );
     }
 
 
-    public ModifyHandler getModifyHandler()
+    public LdapRequestHandler<ModifyRequest> getModifyHandler()
     {
         return modifyHandler;
     }
 
 
-    public void setModifyHandler( ModifyHandler modifyHandler )
+    public void setModifyHandler( LdapRequestHandler<ModifyRequest> modifyHandler )
     {
         this.handler.removeMessageHandler( ModifyRequest.class );
         this.modifyHandler = modifyHandler;
-        this.modifyHandler.setProtocolProvider( this );
-        //noinspection unchecked
+        this.modifyHandler.setLdapServer( this );
         this.handler.addMessageHandler( ModifyRequest.class, this.modifyHandler );
     }
 
 
-    public ModifyDnHandler getModifyDnHandler()
+    public LdapRequestHandler<ModifyDnRequest> getModifyDnHandler()
     {
         return modifyDnHandler;
     }
@@ -981,34 +941,32 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public SearchHandler getSearchHandler()
+    public LdapRequestHandler<SearchRequest> getSearchHandler()
     {
         return searchHandler;
     }
 
 
-    public void setSearchHandler( SearchHandler searchHandler )
+    public void setSearchHandler( LdapRequestHandler<SearchRequest> searchHandler )
     {
         this.handler.removeMessageHandler( SearchRequest.class );
         this.searchHandler = searchHandler;
-        this.searchHandler.setProtocolProvider( this );
-        //noinspection unchecked
+        this.searchHandler.setLdapServer( this );
         this.handler.addMessageHandler( SearchRequest.class, this.searchHandler );
     }
 
 
-    public UnbindHandler getUnbindHandler()
+    public LdapRequestHandler<UnbindRequest> getUnbindHandler()
     {
         return unbindHandler;
     }
 
 
-    public void setUnbindHandler( UnbindHandler unbindHandler )
+    public void setUnbindHandler( LdapRequestHandler<UnbindRequest> unbindHandler )
     {
         this.handler.removeMessageHandler( UnbindRequest.class );
         this.unbindHandler = unbindHandler;
-        this.unbindHandler.setProtocolProvider( this );
-        //noinspection unchecked
+        this.unbindHandler.setLdapServer( this );
         this.handler.addMessageHandler( UnbindRequest.class, this.unbindHandler );
     }
 
@@ -1082,6 +1040,18 @@ public class LdapServer extends DirectoryBackedService
         if ( ldapSession != null )
         {
             ldapSession.abandonAllOutstandingRequests();
+        }
+        
+        if ( ! session.isClosing() || session.isConnected() )
+        {
+            try
+            {
+                session.close();
+            }
+            catch ( Throwable t )
+            {
+                LOG.warn( "Failed to close IoSession for LdapSession." );
+            }
         }
         
         return ldapSession;

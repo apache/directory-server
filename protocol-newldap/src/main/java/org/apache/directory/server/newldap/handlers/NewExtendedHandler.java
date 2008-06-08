@@ -21,25 +21,25 @@ package org.apache.directory.server.newldap.handlers;
 
 
 import org.apache.directory.server.newldap.ExtendedOperationHandler;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.mina.common.IoSession;
 
 
 /**
 * A single reply handler for {@link ExtendedRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 664302 $
  */
-public class DefaultExtendedHandler extends ExtendedHandler
+public class NewExtendedHandler extends LdapRequestHandler<ExtendedRequest>
 {
-    public void extendedMessageReceived( IoSession session, ExtendedRequest req ) throws Exception
+    public void handle( LdapSession session, ExtendedRequest req ) throws Exception
     {
-        ExtendedOperationHandler handler = getHandler( req.getOid() );
+        ExtendedOperationHandler handler = getLdapServer().getExtendedOperationHandler( req.getOid() );
 
         if ( handler == null )
         {
@@ -49,24 +49,23 @@ public class DefaultExtendedHandler extends ExtendedHandler
             LdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setErrorMessage( msg );
-            session.write( req.getResultResponse() );
+            session.getIoSession().write( req.getResultResponse() );
+            return;
         }
-        else
+        
+        try
         {
-            try
-            {
-                handler.handleExtendedOperation( session, getSessionRegistry(), req );
-            }
-            catch ( Exception e )
-            {
-                LdapResult result = req.getResultResponse().getLdapResult();
-                result.setResultCode( ResultCodeEnum.OTHER );
-                result.setErrorMessage( "Extended operation handler for the specified EXTENSION_OID (" + req.getOid()
-                    + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
-                ExtendedResponse resp = ( ExtendedResponse ) req.getResultResponse();
-                resp.setResponse( new byte[0] );
-                session.write( req.getResultResponse() );
-            }
+            handler.handleExtendedOperation( session, req );
+        }
+        catch ( Exception e )
+        {
+            LdapResult result = req.getResultResponse().getLdapResult();
+            result.setResultCode( ResultCodeEnum.OTHER );
+            result.setErrorMessage( "Extended operation handler for the specified EXTENSION_OID (" + req.getOid()
+                + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
+            ExtendedResponse resp = ( ExtendedResponse ) req.getResultResponse();
+            resp.setResponse( new byte[0] );
+            session.getIoSession().write( req.getResultResponse() );
         }
     }
 }
