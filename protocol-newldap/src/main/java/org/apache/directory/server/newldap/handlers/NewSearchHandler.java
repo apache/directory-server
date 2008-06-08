@@ -21,8 +21,10 @@ package org.apache.directory.server.newldap.handlers;
 
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -63,117 +65,38 @@ import java.util.Iterator;
  * A handler for processing search requests.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 664302 $
  */
-public class DefaultSearchHandler extends SearchHandler
+public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( SearchHandler.class );
-    private static final String DEREFALIASES_KEY = JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES;
 
+    
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    /**
-     * Builds the JNDI search controls for a SearchRequest.
-     *
-     * @param req the search request.
-     * @param ids the ids to return
-     * @return the SearchControls to use with the ApacheDS server side JNDI provider
-     * @param isAdmin whether or not user is an admin
-     * @param maxSize the maximum size for the search in # of entries returned
-     * @param maxTime the maximum length of time for the search in seconds
-     */
-    private SearchControls getSearchControls( SearchRequest req, String[] ids, boolean isAdmin, int maxSize, int maxTime )
-    {
-        // prepare all the search controls
-        SearchControls controls = new SearchControls();
-
-        // take the minimum of system limit with request specified value
-        if ( isAdmin )
-        {
-            controls.setCountLimit( req.getSizeLimit() );
-
-            // The setTimeLimit needs a number of milliseconds
-            // when the search control is expressed in seconds
-            int timeLimit = req.getTimeLimit();
-
-            // Just check that we are not exceeding the maximum for a long
-            if ( timeLimit > Integer.MAX_VALUE / 1000 )
-            {
-                timeLimit = 0;
-            }
-
-            // The maximum time we can wait is around 24 days ...
-            // Is it enough ? ;)
-            controls.setTimeLimit( timeLimit * 1000 );
-        }
-        else
-        {
-            controls.setCountLimit( Math.min( req.getSizeLimit(), maxSize ) );
-            controls.setTimeLimit( Math.min( req.getTimeLimit(), maxTime ) );
-        }
-
-        controls.setSearchScope( req.getScope().getValue() );
-        controls.setReturningObjFlag( req.getTypesOnly() );
-        controls.setReturningAttributes( ids );
-        controls.setDerefLinkFlag( true );
-        
-        return controls;
-    }
-
-
-    /**
-     * Determines if a search request is on the RootDSE of the server.
-     * 
-     * It is a RootDSE search if :
-     * - the base DN is empty
-     * - and the scope is BASE OBJECT
-     * - and the filter is (ObjectClass = *)
-     * 
-     * (RFC 4511, 5.1, par. 1 & 2)
-     *
-     * @param req the request issued
-     * @return true if the search is on the RootDSE false otherwise
-     */
-    private static boolean isRootDSESearch( SearchRequest req )
-    {
-        boolean isBaseIsRoot = req.getBase().isEmpty();
-        boolean isBaseScope = req.getScope() == ScopeEnum.BASE_OBJECT;
-        boolean isRootDSEFilter = false;
-        
-        if ( req.getFilter() instanceof PresenceNode )
-        {
-            String attribute = ( ( PresenceNode ) req.getFilter() ).getAttribute();
-            isRootDSEFilter = attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) ||
-                                attribute.equals( SchemaConstants.OBJECT_CLASS_AT_OID );
-        }
-        
-        return isBaseIsRoot && isBaseScope && isRootDSEFilter;
-    }
-
     
-    private void handlePersistentSearch( IoSession session, SearchRequest req, ServerLdapContext ctx, 
-        SearchControls controls, PersistentSearchControl psearchControl, 
-        NamingEnumeration<SearchResult> list ) throws NamingException 
+    private void handlePersistentSearch( LdapSession session, SearchRequest req, 
+        PersistentSearchControl psearchControl, EntryFilteringCursor list ) throws NamingException 
     {
-        // there are no limits for psearch processing
-        controls.setCountLimit( 0 );
-        controls.setTimeLimit( 0 );
-
-        if ( !psearchControl.isChangesOnly() )
+        /*
+         * We want the search to complete first before we start listening to 
+         * events when the control does NOT specify changes ONLY mode.
+         */
+        
+        if ( ! psearchControl.isChangesOnly() )
         {
-            list = ctx.search( req.getBase(), req.getFilter(),
-                controls );
+            list = session.getCoreSession().search( req );
             
             if ( list instanceof AbandonListener )
             {
                 req.addAbandonListener( ( AbandonListener ) list );
             }
             
-            if ( list.hasMore() )
+            list.beforeFirst();
+            if ( list.next() )
             {
-                Iterator<Response> it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(),
-                        session, getSessionRegistry() );
+                Iterator<Response> it = new SearchResponseIterator( req, list, session );
                 
                 while ( it.hasNext() )
                 {
@@ -186,13 +109,13 @@ public class DefaultSearchHandler extends SearchHandler
 
                         if ( rcode != ResultCodeEnum.SUCCESS )
                         {
-                            session.write( resp );
+                            session.getIoSession().write( resp );
                             return;
                         }
                         // if search was fine then we returned all entries so now
                         // instead of returning the DONE response we break from the
                         // loop and user the notification listener to send back
-                        // notificationss to the client in never ending search
+                        // notifications to the client in never ending search
                         else
                         {
                             break;
@@ -200,40 +123,36 @@ public class DefaultSearchHandler extends SearchHandler
                     }
                     else
                     {
-                        session.write( resp );
+                        session.getIoSession().write( resp );
                     }
                 }
             }
         }
 
         // now we process entries for ever as they change
-        PersistentSearchListener handler = new PersistentSearchListener( getSessionRegistry(),
-                ctx, session, req );
-        ctx.addNamingListener( req.getBase(), req.getFilter().toString(), controls, handler );
+        PersistentSearchListener handler = new PersistentSearchListener( session, req );
+        getLdapServer().getDirectoryService().addNamingListener( req.getBase(), req.getFilter().toString(), handler );
         return;
     }
 
+    
     /**
      * Main message handing method for search requests.
      */
-    public void searchMessageReceived( IoSession session, SearchRequest req ) throws Exception
+    public void handle( LdapSession session, SearchRequest req ) throws Exception
     {
-        LdapServer ldapServer = ( LdapServer )
-                session.getAttribute(  LdapServer.class.toString() );
-
         if ( IS_DEBUG )
         {
             LOG.debug( "Message received:  {}", req.toString() );
         }
 
-        ServerLdapContext ctx;
-        NamingEnumeration<SearchResult> list = null;
+        EntryFilteringCursor list = null;
         String[] ids = null;
         Collection<String> retAttrs = new HashSet<String>();
         retAttrs.addAll( req.getAttributes() );
 
         // add the search request to the registry of outstanding requests for this session
-        getSessionRegistry().addOutstandingRequest( session, req );
+        session.registerOutstandingRequest( req );
 
         // check the attributes to see if a referral's ref attribute is included
         if ( retAttrs.size() > 0 && !retAttrs.contains( SchemaConstants.REF_AT ) )
@@ -248,96 +167,14 @@ public class DefaultSearchHandler extends SearchHandler
 
         try
         {
-            // ===============================================================
-            // Find session context
-            // ===============================================================
-
             boolean isRootDSESearch = isRootDSESearch( req );
 
-            // bypass checks to disallow anonymous binds for search on RootDSE with base obj scope
             if ( isRootDSESearch )
             {
-                LdapContext unknown = getSessionRegistry().getLdapContextOnRootDSEAccess( session, null );
-
-                if ( !( unknown instanceof ServerLdapContext ) )
-                {
-                    ctx = ( ServerLdapContext ) unknown.lookup( "" );
-                }
-                else
-                {
-                    ctx = ( ServerLdapContext ) unknown;
-                }
-            }
-            // all those search operations are subject to anonymous bind checks when anonymous binda are disallowed
-            else
-            {
-                LdapContext unknown = getSessionRegistry().getLdapContext( session, null, true );
-
-                if ( !( unknown instanceof ServerLdapContext ) )
-                {
-                    ctx = ( ServerLdapContext ) unknown.lookup( "" );
-                }
-                else
-                {
-                    ctx = ( ServerLdapContext ) unknown;
-                }
-            }
-
-            // Inject controls into the context
-            setRequestControls( ctx, req );
-
-            ctx.addToEnvironment( DEREFALIASES_KEY, req.getDerefAliases().getJndiValue() );
-
-            if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
-            {
-                ctx.addToEnvironment( Context.REFERRAL, "ignore" );
             }
             else
             {
-                ctx.addToEnvironment( Context.REFERRAL, "throw-finding-base" );
             }
-
-            // ===============================================================
-            // Handle anonymous binds
-            // ===============================================================
-
-            boolean allowAnonymousBinds = ldapServer.isAllowAnonymousAccess();
-            boolean isAnonymousUser = ctx.getSession().getEffectivePrincipal().getName().trim().equals( "" );
-
-            if ( isAnonymousUser && !allowAnonymousBinds && !isRootDSESearch )
-            {
-                LdapResult result = req.getResultResponse().getLdapResult();
-                result.setResultCode( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
-                String msg = "Bind failure: Anonymous binds have been disabled!";
-                result.setErrorMessage( msg );
-                session.write( req.getResultResponse() );
-                return;
-            }
-
-
-            // ===============================================================
-            // Set search limits differently based on user's identity
-            // ===============================================================
-
-            int maxSize = ldapServer.getMaxSizeLimit();
-            int maxTime = ldapServer.getMaxTimeLimit();
-
-            SearchControls controls;
-            
-            if ( isAnonymousUser )
-            {
-                controls = getSearchControls( req, ids, false, maxSize, maxTime );
-            }
-            else if ( ctx.getSession().getEffectivePrincipal().getName()
-                .trim().equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ) )
-            {
-                controls = getSearchControls( req, ids, true, maxSize, maxTime );
-            }
-            else
-            {
-                controls = getSearchControls( req, ids, false, maxSize, maxTime );
-            }
-
 
             // ===============================================================
             // Handle psearch differently
@@ -348,7 +185,7 @@ public class DefaultSearchHandler extends SearchHandler
             
             if ( psearchControl != null )
             {
-                handlePersistentSearch( session, req, ctx, controls, psearchControl, list );
+                handlePersistentSearch( session, req, psearchControl, list );
                 return;
             }
 
@@ -360,21 +197,22 @@ public class DefaultSearchHandler extends SearchHandler
              * Iterate through all search results building and sending back responses
              * for each search result returned.
              */
-            list = ctx.search( req.getBase(), req.getFilter(), controls );
+            list = session.getCoreSession().search( req );
             
+            // TODO - fix this (need to make Cursors abandonable)
             if ( list instanceof AbandonListener )
             {
                 req.addAbandonListener( ( AbandonListener ) list );
             }
 
-            if ( list.hasMore() )
+            list.beforeFirst();
+            if ( list.next() )
             {
-                Iterator<Response> it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(),
-                        session, getSessionRegistry() );
+                Iterator<Response> it = new SearchResponseIterator( req, list, session );
                 
                 while ( it.hasNext() )
                 {
-                    session.write( it.next() );
+                    session.getIoSession().write( it.next() );
                 }
             }
             else
@@ -384,7 +222,7 @@ public class DefaultSearchHandler extends SearchHandler
                 
                 for ( ResultResponse resultResponse : Collections.singleton( req.getResultResponse() ) )
                 {
-                    session.write( resultResponse );
+                    session.getIoSession().write( resultResponse );
                 }
             }
         }
@@ -402,8 +240,8 @@ public class DefaultSearchHandler extends SearchHandler
             }
             while ( e.skipReferral() );
             
-            session.write( req.getResultResponse() );
-            getSessionRegistry().removeOutstandingRequest( session, req.getMessageId() );
+            session.getIoSession().write( req.getResultResponse() );
+            session.unregisterOutstandingRequest( req );
         }
         catch ( NamingException e )
         {
@@ -455,10 +293,10 @@ public class DefaultSearchHandler extends SearchHandler
 
             for ( ResultResponse resultResponse : Collections.singleton( req.getResultResponse() ) )
             {
-                session.write( resultResponse );
+                session.getIoSession().write( resultResponse );
             }
             
-            getSessionRegistry().removeOutstandingRequest( session, req.getMessageId() );
+            session.unregisterOutstandingRequest( req );
         }
         finally
         {
@@ -474,5 +312,83 @@ public class DefaultSearchHandler extends SearchHandler
                 }
             }
         }
+    }
+
+
+    /**
+     * Based on the request and the max limits for time configured in the 
+     * server, this returns the minimum allowed time limit.
+     *
+     * @param session the session
+     * @param req the search request
+     * @return the minimum allowed time limit
+     */
+    private int getTimeLimit( LdapSession session, SearchRequest req )
+    {
+        if ( session.getCoreSession().isAnAdministrator() )
+        {
+            // The setTimeLimit needs a number of milliseconds
+            // when the search control is expressed in seconds
+            int timeLimit = req.getTimeLimit();
+
+            // Just check that we are not exceeding the maximum for a long
+            if ( timeLimit > Integer.MAX_VALUE / 1000 )
+            {
+                timeLimit = 0;
+            }
+            
+            return timeLimit * 1000;
+        }
+        
+        return Math.min( req.getTimeLimit(), getLdapServer().getMaxTimeLimit() );
+    }
+    
+
+    /**
+     * Based on the request and the max limits for size configured in the 
+     * server, this returns the minimum allowed size limit.
+     *
+     * @param session the session
+     * @param req the search request
+     * @return the minimum allowed size limit
+     */
+    private int getSizeLimit( LdapSession session, SearchRequest req )
+    {
+        if ( session.getCoreSession().isAnAdministrator() )
+        {
+            return req.getSizeLimit();
+        }        
+
+        return Math.min( req.getSizeLimit(), getLdapServer().getMaxSizeLimit() );
+    }
+
+
+    /**
+     * Determines if a search request is on the RootDSE of the server.
+     * 
+     * It is a RootDSE search if :
+     * - the base DN is empty
+     * - and the scope is BASE OBJECT
+     * - and the filter is (ObjectClass = *)
+     * 
+     * (RFC 4511, 5.1, par. 1 & 2)
+     *
+     * @param req the request issued
+     * @return true if the search is on the RootDSE false otherwise
+     */
+    private static boolean isRootDSESearch( SearchRequest req )
+    {
+        boolean isBaseIsRoot = req.getBase().isEmpty();
+        boolean isBaseScope = req.getScope() == ScopeEnum.BASE_OBJECT;
+        boolean isRootDSEFilter = false;
+        
+        if ( req.getFilter() instanceof PresenceNode )
+        {
+            String attribute = ( ( PresenceNode ) req.getFilter() ).getAttribute();
+            isRootDSEFilter = attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) ||
+                                attribute.equals( SchemaConstants.OBJECT_CLASS_AT_OID );
+        }
+        
+        return isBaseIsRoot && isBaseScope && isRootDSEFilter;
     }
 }
