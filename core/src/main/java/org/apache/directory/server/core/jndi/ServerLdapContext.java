@@ -256,7 +256,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public void ldapUnbind() throws NamingException
     {
         LdapDN principalDn = getSession().getEffectivePrincipal().getJndiName();
-        UnbindOperationContext opCtx = new UnbindOperationContext( getSession(), principalDn );
+        UnbindOperationContext opCtx = new UnbindOperationContext( getSession() );
         opCtx.addRequestControls( requestControls );
         try
         {
