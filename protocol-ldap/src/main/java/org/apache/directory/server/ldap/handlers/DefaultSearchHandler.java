@@ -53,6 +53,8 @@ import javax.naming.ReferralException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
+
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -360,7 +362,7 @@ public class DefaultSearchHandler extends SearchHandler
              * Iterate through all search results building and sending back responses
              * for each search result returned.
              */
-            list = ctx.search( req.getBase(), req.getFilter(), controls );
+            list = ctx.search( req.getBase(), req.getFilter(), controls, ( InetSocketAddress ) session.getRemoteAddress() );
             
             if ( list instanceof AbandonListener )
             {

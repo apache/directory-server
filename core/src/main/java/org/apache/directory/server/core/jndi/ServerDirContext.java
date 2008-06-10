@@ -63,6 +63,7 @@ import javax.naming.event.NamingListener;
 import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirectoryManager;
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -656,6 +657,26 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         LdapDN target = buildTarget( name );
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
         return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, filter, cons ) );
+    }
+
+
+    /**
+     * A search overload that is used for optimizing search handling in the
+     * LDAP protocol provider which deals with an ExprNode instance rather than
+     * a String for the filter.
+     *
+     * @param name the relative name of the object serving as the search base
+     * @param filter the search filter as an expression tree
+     * @param cons the search controls to use
+     * @return an enumeration over the SearchResults
+     * @throws NamingException if there are problems performing the search
+     */
+    public NamingEnumeration<SearchResult> search( Name name, ExprNode filter, SearchControls cons, InetSocketAddress clientAddress )
+        throws NamingException
+    {
+        LdapDN target = buildTarget( name );
+        AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
+        return ServerEntryUtils.toSearchResultEnum( doSearchOperation( target, aliasDerefMode, filter, cons, clientAddress ) );
     }
 
 

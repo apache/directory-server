@@ -75,6 +75,7 @@ import javax.naming.ldap.Control;
 import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirectoryManager;
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -258,6 +259,36 @@ public abstract class ServerContext implements EventContext
         // setup the op context and populate with request controls
         SearchOperationContext opCtx = new SearchOperationContext( registries, dn, aliasDerefMode, filter,
             searchControls );
+        opCtx.addRequestControls( requestControls );
+
+        // execute search operation
+        NamingEnumeration<ServerSearchResult> results = nexusProxy.search( opCtx );
+
+        // clear the request controls and set the response controls 
+        requestControls = EMPTY_CONTROLS;
+        responseControls = opCtx.getResponseControls();
+
+        return results;
+    }
+
+
+    /**
+     * Used to encapsulate [de]marshalling of controls before and after list operations.
+     * @param dn
+     * @param aliasDerefMode
+     * @param filter
+     * @param searchControls
+     * @return NamingEnumeration
+     */
+    protected NamingEnumeration<ServerSearchResult> doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
+        ExprNode filter, SearchControls searchControls, InetSocketAddress clientAddress ) throws NamingException
+    {
+        // setup the op context and populate with request controls
+        SearchOperationContext opCtx = new SearchOperationContext( registries, dn, aliasDerefMode, filter,
+            searchControls );
+
+        opCtx.put( "client_hostname", clientAddress.getHostName() );
+        opCtx.put( "client_port", String.valueOf( clientAddress.getPort() ) );
         opCtx.addRequestControls( requestControls );
 
         // execute search operation

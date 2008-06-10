@@ -51,12 +51,16 @@ public abstract class AbstractOperationContext implements OperationContext
     /** The associated response's controls */
     private Map<String, Control> responseControls = new HashMap<String, Control>(4);
 
+    /** Area for storing various user specified parameters */
+    private Map<String, Object> parameters = new HashMap<String, Object>(2);
+
     /** A flag to tell that this is a collateral operation */
     private boolean collateralOperation;
     
     /** The global registries reference */
     private Registries registries;
 
+    
     /**
      * Creates a new instance of AbstractOperationContext.
      *
@@ -109,6 +113,31 @@ public abstract class AbstractOperationContext implements OperationContext
         this.registries = registries;
     }
 
+    
+    /**
+     * Gets a user specified parameter associated with this operation.
+     * 
+     * @param key the key for the parameter
+     * @return the value if one exists for this parameter
+     */
+    public Object get( String key )
+    {
+    	return parameters.get( key );
+    }
+    
+
+    /**
+     * Sets a user specified parameter associated with this operation.
+     * 
+     * @param key the key for the parameter
+     * @param value the value of the parameter
+     * @return the existing value which is replaced for this parameter
+     */
+    public Object put( String key, Object value )
+    {
+    	return parameters.put( key, value );
+    }
+    
 
     /**
      * Tells if the current operation is considered a side effect of the
