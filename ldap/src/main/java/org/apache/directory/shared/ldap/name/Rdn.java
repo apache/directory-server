@@ -300,7 +300,7 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
                for ( AttributeTypeAndValue currentAtav:rdn.atavs )
                {
                    atavs.add( (AttributeTypeAndValue)currentAtav.clone() );
-                   atavTypes.put( currentAtav.getUpType(), currentAtav );
+                   atavTypes.put( currentAtav.getNormType(), currentAtav );
                }
                
                return;
@@ -693,7 +693,7 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
                    for ( AttributeTypeAndValue currentAtav:this.atavs )
                    {
                        rdn.atavs.add( (AttributeTypeAndValue)currentAtav.clone() );
-                       rdn.atavTypes.put( currentAtav.getUpType(), currentAtav );
+                       rdn.atavTypes.put( currentAtav.getNormType(), currentAtav );
                    }
 
                    break;

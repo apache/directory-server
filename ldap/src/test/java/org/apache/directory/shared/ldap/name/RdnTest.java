@@ -20,6 +20,12 @@
 package org.apache.directory.shared.ldap.name;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,13 +39,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 
 
@@ -420,7 +419,7 @@ public class RdnTest
         Rdn rdn6 = new Rdn( " a = b + a = y " );
         assertTrue( rdn5.compareTo( rdn6 ) != 0 );
     }
-    
+
 
     /**
      * Test for DIRSHARED-3.
@@ -447,7 +446,8 @@ public class RdnTest
         assertEquals( 1, rdn2.compareTo( rdn1 ) );
 
     }
-    
+
+
     /**
      * Compares with a null RDN.
      * 
@@ -1257,6 +1257,7 @@ public class RdnTest
         assertEquals( "a=", new Rdn( "a=" ).toString() );
     }
 
+
     /**
      * test an RDN with escaped comma
      */
@@ -1275,4 +1276,43 @@ public class RdnTest
         assertEquals( "a=\"b\\,c\"", new Rdn( "a=\"b\\,c\"" ).getUpName() );
         assertEquals( "a=b\\,c", new Rdn( "a=\"b\\,c\"" ).toString() );
     }
+
+
+    /**
+     * Tests the equals and compareTo results of cloned multi-valued RDNs.
+     * Test for DIRSHARED-9.
+     * 
+     * @throws InvalidNameException
+     */
+    @Test
+    public void testComparingOfClonedMultiValuedRDNs() throws InvalidNameException
+    {
+        // Use upper case attribute types to test if normalized types are used 
+        // for comparison
+        Rdn rdn = new Rdn( " A = b + C = d" );
+        Rdn clonedRdn = ( Rdn ) rdn.clone();
+
+        assertEquals( 0, rdn.compareTo( clonedRdn ) );
+        assertEquals( true, rdn.equals( clonedRdn ) );
+    }
+
+
+    /**
+     * Tests the equals and compareTo results of copy constructed multi-valued RDNs.
+     * Test for DIRSHARED-9.
+     * 
+     * @throws InvalidNameException
+     */
+    @Test
+    public void testComparingOfCopyConstructedMultiValuedRDNs() throws InvalidNameException
+    {
+        // Use upper case attribute types to test if normalized types are used 
+        // for comparison
+        Rdn rdn = new Rdn( " A = b + C = d" );
+        Rdn copiedRdn = new Rdn( rdn );
+
+        assertEquals( 0, rdn.compareTo( copiedRdn ) );
+        assertEquals( true, rdn.equals( copiedRdn ) );
+    }
+
 }
