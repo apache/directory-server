@@ -33,6 +33,7 @@ import org.apache.directory.server.core.cursor.CursorIterator;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -804,6 +805,18 @@ public class MaxImmSubFilterTest
         {
             // TODO Auto-generated method stub
             return null;
+        }
+
+        public EventService getEventService()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        public void setEventService( EventService eventService )
+        {
+            // TODO Auto-generated method stub
+            
         }
     }
 
