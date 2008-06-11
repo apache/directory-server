@@ -316,7 +316,7 @@ public class RdnTest
     {
         Rdn rdn1 = new Rdn( " a = b + c = d + a = f + g = h " );
         Rdn rdn2 = null;
-        assertEquals( 1, rdn1.compareTo( rdn2 ) );
+        assertTrue( rdn1.compareTo( rdn2 ) > 0 );
     }
 
 
@@ -390,8 +390,9 @@ public class RdnTest
         Rdn rdn1 = new Rdn( " a = f + g = h + c = d " );
         Rdn rdn2 = new Rdn( " c = d + a = h + g = h " );
 
-        assertEquals( 1, rdn1.compareTo( rdn2 ) );
-        assertEquals( 1, rdn2.compareTo( rdn1 ) );
+        assertTrue( rdn1.compareTo( rdn2 ) < 0 );
+        assertTrue( rdn2.compareTo( rdn1 ) > 0 );
+        assertEquals( 0, rdn1.compareTo( rdn2 ) + rdn2.compareTo( rdn1 ) );
     }
 
 
@@ -402,34 +403,40 @@ public class RdnTest
      * @throws InvalidNameException
      */
     @Test
-    public void test_DIRSHARED_2() throws InvalidNameException
+    public void testCompareSecondAtav() throws InvalidNameException
     {
         // the second ATAV differs
         Rdn rdn1 = new Rdn( " a = b + c = d " );
         Rdn rdn2 = new Rdn( " a = b + c = y " );
-        assertTrue( rdn1.compareTo( rdn2 ) != 0 );
+        assertTrue( rdn1.compareTo( rdn2 ) < 0 );
+        assertTrue( rdn2.compareTo( rdn1 ) > 0 );
+        assertEquals( 0, rdn1.compareTo( rdn2 ) + rdn2.compareTo( rdn1 ) );
 
         // the third ATAV differs
         Rdn rdn3 = new Rdn( " a = b + c = d + e = f " );
         Rdn rdn4 = new Rdn( " a = b + c = d + e = y " );
-        assertTrue( rdn3.compareTo( rdn4 ) != 0 );
+        assertTrue( rdn3.compareTo( rdn4 ) < 0 );
+        assertTrue( rdn4.compareTo( rdn3 ) > 0 );
+        assertEquals( 0, rdn3.compareTo( rdn4 ) + rdn4.compareTo( rdn3 ) );
 
         // the second ATAV differs in value only
         Rdn rdn5 = new Rdn( " a = b + a = c " );
         Rdn rdn6 = new Rdn( " a = b + a = y " );
-        assertTrue( rdn5.compareTo( rdn6 ) != 0 );
+        assertTrue( rdn5.compareTo( rdn6 ) < 0 );
+        assertTrue( rdn6.compareTo( rdn5 ) > 0 );
+        assertEquals( 0, rdn5.compareTo( rdn6 ) + rdn6.compareTo( rdn5 ) );
     }
 
 
     /**
-     * Test for DIRSHARED-3.
+     * Test for DIRSHARED-2.
      * The compare operation should return a correct value (1 or -1)
      * depending on the ATAVs, not on their position.
      * 
      * @throws InvalidNameException
      */
     @Test
-    public void test_DIRSHARED_3() throws InvalidNameException
+    public void testCompareIndependentFromOrder() throws InvalidNameException
     {
         Rdn rdn1 = new Rdn( " a = b + c = d " );
         Rdn rdn2 = new Rdn( " c = d + a = b " );
@@ -437,14 +444,84 @@ public class RdnTest
 
         rdn1 = new Rdn( " a = b + c = e " );
         rdn2 = new Rdn( " c = d + a = b " );
-        assertEquals( 1, rdn1.compareTo( rdn2 ) );
-        assertEquals( 1, rdn2.compareTo( rdn1 ) );
+        assertTrue( rdn1.compareTo( rdn2 ) > 0 );
+        assertTrue( rdn2.compareTo( rdn1 ) < 0 );
+        assertEquals( 0, rdn1.compareTo( rdn2 ) + rdn2.compareTo( rdn1 ) );
 
         rdn1 = new Rdn( " a = b + c = d " );
         rdn2 = new Rdn( " e = f + g = h " );
-        assertEquals( 1, rdn1.compareTo( rdn2 ) );
-        assertEquals( 1, rdn2.compareTo( rdn1 ) );
+        assertTrue( rdn1.compareTo( rdn2 ) < 0 );
+        assertTrue( rdn2.compareTo( rdn1 ) > 0 );
+        assertEquals( 0, rdn1.compareTo( rdn2 ) + rdn2.compareTo( rdn1 ) );
+    }
 
+
+    /**
+     * Test for DIRSHARED-3.
+     * Tests that compareTo() is invertable for single-valued RDNs.
+     * 
+     * @throws InvalidNameException
+     */
+    @Test
+    public void testCompareInvertableNC2NC() throws InvalidNameException
+    {
+        Rdn rdn1 = new Rdn( " a = b " );
+        Rdn rdn2 = new Rdn( " a = c " );
+        assertTrue( rdn1.compareTo( rdn2 ) < 0 );
+        assertTrue( rdn2.compareTo( rdn1 ) > 0 );
+        assertEquals( 0, rdn1.compareTo( rdn2 ) + rdn2.compareTo( rdn1 ) );
+
+    }
+
+
+    /**
+     * Test for DIRSHARED-3.
+     * Tests that compareTo() is invertable for multi-valued RDNs with different values.
+     * 
+     * @throws InvalidNameException
+     */
+    @Test
+    public void testCompareInvertableNCS2NCSDifferentValues() throws InvalidNameException
+    {
+        Rdn rdn1 = new Rdn( " a = b + a = c " );
+        Rdn rdn2 = new Rdn( " a = b + a = y " );
+        assertTrue( rdn1.compareTo( rdn2 ) < 0 );
+        assertTrue( rdn2.compareTo( rdn1 ) > 0 );
+        assertEquals( 0, rdn1.compareTo( rdn2 ) + rdn2.compareTo( rdn1 ) );
+    }
+
+
+    /**
+     * Test for DIRSHARED-3.
+     * Tests that compareTo() is invertable for multi-valued RDNs with different types.
+     * 
+     * @throws InvalidNameException
+     */
+    @Test
+    public void testCompareInvertableNCS2NCSDifferentTypes() throws InvalidNameException
+    {
+        Rdn rdn1 = new Rdn( " a = b + c = d  " );
+        Rdn rdn2 = new Rdn( " e = f + g = h " );
+        assertTrue( rdn1.compareTo( rdn2 ) < 0 );
+        assertTrue( rdn2.compareTo( rdn1 ) > 0 );
+        assertEquals( 0, rdn1.compareTo( rdn2 ) + rdn2.compareTo( rdn1 ) );
+    }
+
+
+    /**
+     * Test for DIRSHARED-3.
+     * Tests that compareTo() is invertable for multi-valued RDNs with different order.
+     * 
+     * @throws InvalidNameException
+     */
+    @Test
+    public void testCompareInvertableNCS2NCSUnordered() throws InvalidNameException
+    {
+        Rdn rdn1 = new Rdn( " c = d + a = b " );
+        Rdn rdn2 = new Rdn( " a = b + e = f " );
+        assertTrue( rdn1.compareTo( rdn2 ) < 0 );
+        assertTrue( rdn2.compareTo( rdn1 ) > 0 );
+        assertEquals( 0, rdn1.compareTo( rdn2 ) + rdn2.compareTo( rdn1 ) );
     }
 
 
