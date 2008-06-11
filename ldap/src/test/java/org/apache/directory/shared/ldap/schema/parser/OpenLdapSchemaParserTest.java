@@ -20,15 +20,16 @@
 package org.apache.directory.shared.ldap.schema.parser;
 
 
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
-import org.apache.directory.shared.ldap.schema.parser.AttributeTypeLiteral;
-import org.apache.directory.shared.ldap.schema.parser.ObjectClassLiteral;
-import org.apache.directory.shared.ldap.schema.parser.OpenLdapSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.OpenLdapObjectIdentifierMacro;
 
 
 /**
@@ -80,12 +81,12 @@ public class OpenLdapSchemaParserTest extends TestCase
     private Map<String, AttributeTypeLiteral> mapAttributeTypes( List<AttributeTypeLiteral> attributeTypeList )
     {
         Map<String, AttributeTypeLiteral> m = new HashMap<String, AttributeTypeLiteral>();
-        
+
         for ( AttributeTypeLiteral type : attributeTypeList )
         {
             m.put( type.getOid(), type );
         }
-        
+
         return m;
     }
 
@@ -151,12 +152,12 @@ public class OpenLdapSchemaParserTest extends TestCase
     private Map<String, ObjectClassLiteral> mapObjectClasses( List<ObjectClassLiteral> objectClassList )
     {
         Map<String, ObjectClassLiteral> m = new HashMap<String, ObjectClassLiteral>();
-        
+
         for ( ObjectClassLiteral objectClassLiteral : objectClassList )
         {
             m.put( objectClassLiteral.getOid(), objectClassLiteral );
         }
-        
+
         return m;
     }
 
@@ -227,6 +228,112 @@ public class OpenLdapSchemaParserTest extends TestCase
         assertEquals( "organizationalStatus", objectClass.getMay()[16] );
         assertEquals( "mailPreferenceOption", objectClass.getMay()[17] );
         assertEquals( "personalSignature", objectClass.getMay()[18] );
+    }
+
+
+    public void testParseOpenLdapCoreSchema() throws Exception
+    {
+        InputStream input = getClass().getResourceAsStream( "core.schema" );
+        parser.parse( input );
+
+        List<AttributeTypeLiteral> attributeTypes = parser.getAttributeTypes();
+        List<ObjectClassLiteral> objectClassTypes = parser.getObjectClassTypes();
+        Map<String, OpenLdapObjectIdentifierMacro> objectIdentifierMacros = parser.getObjectIdentifierMacros();
+
+        assertEquals( 52, attributeTypes.size() );
+        assertEquals( 27, objectClassTypes.size() );
+        assertEquals( 0, objectIdentifierMacros.size() );
+    }
+
+
+    public void testParseOpenLdapInetOrgPersonSchema() throws Exception
+    {
+        InputStream input = getClass().getResourceAsStream( "inetorgperson.schema" );
+        parser.parse( input );
+
+        List<AttributeTypeLiteral> attributeTypes = parser.getAttributeTypes();
+        List<ObjectClassLiteral> objectClassTypes = parser.getObjectClassTypes();
+        Map<String, OpenLdapObjectIdentifierMacro> objectIdentifierMacros = parser.getObjectIdentifierMacros();
+
+        assertEquals( 9, attributeTypes.size() );
+        assertEquals( 1, objectClassTypes.size() );
+        assertEquals( 0, objectIdentifierMacros.size() );
+    }
+
+
+    public void testParseOpenLdapCollectiveSchema() throws Exception
+    {
+        InputStream input = getClass().getResourceAsStream( "collective.schema" );
+        parser.parse( input );
+
+        List<AttributeTypeLiteral> attributeTypes = parser.getAttributeTypes();
+        List<ObjectClassLiteral> objectClassTypes = parser.getObjectClassTypes();
+        Map<String, OpenLdapObjectIdentifierMacro> objectIdentifierMacros = parser.getObjectIdentifierMacros();
+
+        assertEquals( 13, attributeTypes.size() );
+        assertEquals( 0, objectClassTypes.size() );
+        assertEquals( 0, objectIdentifierMacros.size() );
+        for ( AttributeTypeLiteral attributeTypeLiteral : attributeTypes )
+        {
+            assertTrue( attributeTypeLiteral.isCollective() );
+        }
+    }
+
+
+    public void testOpenLdapObjectIdentifiereMacros() throws Exception
+    {
+        InputStream input = getClass().getResourceAsStream( "dyngroup.schema" );
+        parser.parse( input );
+
+        List<AttributeTypeLiteral> attributeTypes = parser.getAttributeTypes();
+        List<ObjectClassLiteral> objectClassTypes = parser.getObjectClassTypes();
+        Map<String, OpenLdapObjectIdentifierMacro> objectIdentifierMacros = parser.getObjectIdentifierMacros();
+
+        assertEquals( 2, attributeTypes.size() );
+        assertEquals( 2, objectClassTypes.size() );
+        assertEquals( 8, objectIdentifierMacros.size() );
+
+        // check that all macros are resolved
+        for ( OpenLdapObjectIdentifierMacro macro : objectIdentifierMacros.values() )
+        {
+            assertTrue( macro.isResolved() );
+            assertNotNull( macro.getResolvedOid() );
+            assertTrue( macro.getResolvedOid().matches( "[0-9]+(\\.[0-9]+)+" ) );
+        }
+
+        // check that OIDs in attribute types and object classes are resolved
+        for ( ObjectClassLiteral objectClassLiteral : objectClassTypes )
+        {
+            List<String> asList = Arrays.asList( objectClassLiteral.getNames() );
+            if ( asList.contains( "groupOfURLs" ) )
+            {
+                assertEquals( "2.16.840.1.113730.3.2.33", objectClassLiteral.getOid() );
+            }
+            else if ( asList.contains( "dgIdentityAux" ) )
+            {
+                assertEquals( "1.3.6.1.4.1.4203.666.11.8.2.1", objectClassLiteral.getOid() );
+            }
+            else
+            {
+                fail( "object class 'groupOfURLs' or 'dgIdentityAux' expected" );
+            }
+        }
+        for ( AttributeTypeLiteral attributeTypeLiteral : attributeTypes )
+        {
+            List<String> asList = Arrays.asList( attributeTypeLiteral.getNames() );
+            if ( asList.contains( "memberURL" ) )
+            {
+                assertEquals( "2.16.840.1.113730.3.1.198", attributeTypeLiteral.getOid() );
+            }
+            else if ( asList.contains( "dgIdentity" ) )
+            {
+                assertEquals( "1.3.6.1.4.1.4203.666.11.8.1.1", attributeTypeLiteral.getOid() );
+            }
+            else
+            {
+                fail( "attribute type 'memberURL' or 'dgIdentity' expected" );
+            }
+        }
     }
 
 }
