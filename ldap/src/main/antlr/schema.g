@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.schema.UsageEnum;
 class AntlrSchemaLexer extends Lexer;
 
 options    {
-    k = 5 ;
+    k = 8 ;
     exportVocab=AntlrSchema ;
     charVocabulary = '\u0000'..'\uFFFE';
     caseSensitive = false ;
@@ -82,6 +82,16 @@ ABSTRACT : ( "abstract" (WHSP)? ) ;
 STRUCTURAL : ( "structural" (WHSP)? ) ;
 protected AUXILIARY : ( "auxiliary" (WHSP)? ) ;
 
+OBJECTIDENTIFIER : 
+    ( "objectidentifier" 
+      WHSP
+      ( oiName:UNQUOTED_STRING ) 
+      WHSP
+      ( oiValue:UNQUOTED_STRING ) 
+    ) 
+    { setText( oiName.getText() + " " + oiValue.getText() ); }
+    ;
+
 OBJECTCLASS : ( "objectclass" (WHSP)? ) ;
 ATTRIBUTETYPE : ( "attributetype" (WHSP)? ) ;
 
@@ -112,7 +122,7 @@ AUX_OR_AUXILIARY :
 
 protected VALUES : ( VALUE | LPAR  VALUE ( (DOLLAR)? VALUE )* RPAR ) ;
 protected VALUE : (WHSP)? ( QUOTED_STRING | UNQUOTED_STRING ) (options {greedy=true;}: WHSP)? ;
-protected UNQUOTED_STRING : (options{greedy=true;}: 'a'..'z' | '0'..'9' | '-' | '_' | ';' | '.' )+ ;
+protected UNQUOTED_STRING : (options{greedy=true;}: 'a'..'z' | '0'..'9' | '-' | '_' | ';' | '.' | ':' )+ ;
 protected QUOTED_STRING : ( QUOTE (~'\'')* QUOTE ) ;
 protected FQCN_VALUE : ( FQCN_IDENTIFIER ( '.' FQCN_IDENTIFIER )* ) ;
 protected FQCN_IDENTIFIER : ( FQCN_LETTER ( FQCN_LETTERORDIGIT )* ) ;
@@ -221,18 +231,38 @@ options    {
 
 }
 
-openLdapSchema returns [List<AbstractSchemaDescription> list = new ArrayList<AbstractSchemaDescription>()]
+openLdapSchema returns [List<Object> list = new ArrayList<Object>()]
     {
-        AbstractSchemaDescription atd = null;
-        AbstractSchemaDescription ocd = null;
+        AttributeTypeDescription atd = null;
+        ObjectClassDescription ocd = null;
+        OpenLdapObjectIdentifierMacro oloid = null;
     }
     :
-    ( 
+    (
+        oloid = openLdapObjectIdentifier { list.add( oloid ); }
+        |
         atd = openLdapAttributeType { list.add( atd ); }
         |
         ocd = openLdapObjectClass { list.add( ocd ); }
     )*
     ;
+
+openLdapObjectIdentifier returns [OpenLdapObjectIdentifierMacro oloid]
+    {
+        matchedProduction( "openLdapObjectIdentifier()" );
+    }
+    :
+    (
+        oi:OBJECTIDENTIFIER 
+        {
+            String[] nameAndValue = oi.getText().split( " " );
+            oloid = new OpenLdapObjectIdentifierMacro();
+            oloid.setName( nameAndValue[0] );
+            oloid.setRawOidOrNameSuffix( nameAndValue[1] );
+        }
+    )
+    ;
+    
 
 openLdapObjectClass returns [ObjectClassDescription ocd]
     {
