@@ -752,43 +752,28 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
                    // We have more than one value. We will
                    // go through all of them.
 
-                   for ( AttributeTypeAndValue current:atavs )
+                   // the types are already normalized and sorted in the atavs TreeSet
+                   // so we could compare the 1st with the 1st, then the 2nd with the 2nd, etc.
+                   Iterator<AttributeTypeAndValue> localIterator = atavs.iterator();
+                   Iterator<AttributeTypeAndValue> paramIterator = rdn.atavs.iterator();
+                   
+                   while(localIterator.hasNext() || paramIterator.hasNext())
                    {
-                       String type = current.getNormType();
-
-                       if ( rdn.atavTypes.containsKey( type ) )
+                       if(!localIterator.hasNext())
                        {
-                           List<AttributeTypeAndValue> atavLocalList = ( List<AttributeTypeAndValue> ) atavTypes.get( type );
-                           List<AttributeTypeAndValue> atavParamList = ( List<AttributeTypeAndValue> ) rdn.atavTypes.get( type );
-
-                           // We have to verify that each value of the
-                           // first list are present in
-                           // the second list
-                           for ( AttributeTypeAndValue atavLocal:atavLocalList )
-                           {
-                               boolean found = false;
-
-                               for ( AttributeTypeAndValue atavParam:atavParamList )
-                               {
-                                   if ( atavLocal.compareTo( atavParam ) == EQUAL )
-                                   {
-                                       found = true;
-                                       break;
-                                   }
-                               }
-
-                               if ( !found )
-                               {
-                                   // The ATAV does not exist in the second RDN
-                                   return SUPERIOR;
-                               }
-                           }
-                       }
-                       else
-                       {
-                           // We can't find an atav in the rdn : the current
-                           // one is superior
                            return SUPERIOR;
+                       }
+                       if(!paramIterator.hasNext())
+                       {
+                           return INFERIOR;
+                       }
+                       
+                       AttributeTypeAndValue localAtav = localIterator.next();
+                       AttributeTypeAndValue paramAtav = paramIterator.next();
+                       int result = localAtav.compareTo( paramAtav );
+                       if ( result != EQUAL )
+                       {
+                           return result;
                        }
                    }
 
