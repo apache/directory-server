@@ -36,6 +36,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.EventInterceptor;
+import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
@@ -237,6 +238,7 @@ public class DefaultDirectoryService implements DirectoryService
     private Partition systemPartition;
     private Set<Partition> partitions = new HashSet<Partition>();
     private List<? extends LdifEntry> testEntries = new ArrayList<LdifEntry>(); // List<Attributes>
+    private EventService eventService;
 
 
 
@@ -1480,5 +1482,17 @@ public class DefaultDirectoryService implements DirectoryService
             // do nothing
             return null;
         }
+    }
+
+
+    public EventService getEventService()
+    {
+        return eventService;
+    }
+
+
+    public void setEventService( EventService eventService )
+    {
+        this.eventService = eventService;
     }
 }

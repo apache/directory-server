@@ -24,6 +24,7 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryFactory;
+import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
@@ -106,6 +107,12 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     void setSchemaService( SchemaService schemaService );
+    
+    
+    EventService getEventService();
+    
+    
+    void setEventService( EventService eventService );
 
 
     /**
