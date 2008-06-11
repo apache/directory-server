@@ -118,15 +118,15 @@ public class LeafEvaluator implements Evaluator
         }
         else if ( ( node instanceof EqualityNode ) || ( node instanceof ApproximateNode ) )
         {
-            return evalEquality( ( EqualityNode ) node, entry );
+            return evalEquality( ( EqualityNode<?> ) node, entry );
         }
         else if ( node instanceof GreaterEqNode )
         {
-            return evalGreaterOrLesser( ( GreaterEqNode ) node, entry, COMPARE_GREATER );
+            return evalGreaterOrLesser( ( GreaterEqNode<?> ) node, entry, COMPARE_GREATER );
         }
         else if ( node instanceof LessEqNode )
         {
-            return evalGreaterOrLesser( ( LessEqNode ) node, entry, COMPARE_LESSER );
+            return evalGreaterOrLesser( ( LessEqNode<?> ) node, entry, COMPARE_LESSER );
         }
         else if ( node instanceof SubstringNode )
         {
@@ -154,7 +154,8 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws javax.naming.NamingException if there is a database access failure
      */
-    private boolean evalGreaterOrLesser( SimpleNode node, ServerEntry entry, boolean isGreaterOrLesser )
+    @SuppressWarnings("unchecked")
+    private boolean evalGreaterOrLesser( SimpleNode<?> node, ServerEntry entry, boolean isGreaterOrLesser )
         throws NamingException
     {
         String attrId = node.getAttribute();
@@ -241,7 +242,8 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws javax.naming.NamingException if there is a database access failure
      */
-    private boolean evalEquality( EqualityNode node, ServerEntry entry ) throws NamingException
+    @SuppressWarnings("unchecked")
+    private boolean evalEquality( EqualityNode<?> node, ServerEntry entry ) throws NamingException
     {
         Normalizer normalizer = getNormalizer( node.getAttribute() );
         Comparator comparator = getComparator( node.getAttribute() );
@@ -304,7 +306,7 @@ public class LeafEvaluator implements Evaluator
      * @return the comparator for equality matching
      * @throws javax.naming.NamingException if there is a failure
      */
-    private Comparator getComparator( String attrId ) throws NamingException
+    private Comparator<?> getComparator( String attrId ) throws NamingException
     {
         MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
         return mrule.getComparator();

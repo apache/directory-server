@@ -21,7 +21,6 @@ package org.apache.directory.server.core.event;
 
 
 import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -30,7 +29,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * Evaluates ScopeNode assertions on candidates using a database.
+ * Evaluates ScopeNode assertions on candidates.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

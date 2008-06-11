@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 
 
 /**
- * Tests if an entry is eligable for return by evaluating a filter expression on
+ * Tests if an entry is eligible for return by evaluating a filter expression on
  * the candidate.  The evaluation can proceed by applying the filter on the 
  * attributes of the entry itself or indices can be used for rapid evaluation.
  * 

@@ -36,7 +36,6 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
@@ -44,7 +43,6 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.normalization.NormalizingVisitor;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
@@ -72,7 +70,7 @@ import javax.naming.event.ObjectChangeListener;
 
 
 /**
- * An interceptor based serivice for notifying NamingListeners of EventContext
+ * An interceptor based service for notifying NamingListeners of EventContext
  * and EventDirContext changes.
  *
  * @org.apache.xbean.XBean
@@ -84,7 +82,6 @@ public class EventInterceptor extends BaseInterceptor
 {
     private static Logger log = LoggerFactory.getLogger( EventInterceptor.class );
 
-    private PartitionNexus nexus;
     private Map<NamingListener, Object> sources = new HashMap<NamingListener, Object>();
     private Evaluator evaluator;
     private AttributeTypeRegistry attributeRegistry;
@@ -98,7 +95,6 @@ public class EventInterceptor extends BaseInterceptor
         OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
         attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         evaluator = new ExpressionEvaluator( oidRegistry, attributeRegistry );
-        nexus = directoryService.getPartitionNexus();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
         visitor = new NormalizingVisitor( ncn, directoryService.getRegistries() );
     }
