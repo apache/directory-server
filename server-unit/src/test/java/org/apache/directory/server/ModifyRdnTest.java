@@ -84,15 +84,16 @@ public class ModifyRdnTest extends AbstractServerTest
         attributes.put( attribute );
         attributes.put( "ou", ou );
         attributes.put( "description", ou + " is an organizational unit." );
-   
+
         return attributes;
     }
-   
-   
+
+
     /**
      * Create context
      */
-    @Before public void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         super.setUp();
 
@@ -110,7 +111,8 @@ public class ModifyRdnTest extends AbstractServerTest
     /**
      * Close context
      */
-    @After public void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         ctx.close();
         ctx = null;
@@ -121,8 +123,9 @@ public class ModifyRdnTest extends AbstractServerTest
 
     /**
      * Just a little test to check wether opening the connection succeeds.
-     *
-    @Test public void testSetUpTearDown()
+     */
+    @Test
+    public void testSetUpTearDown()
     {
         assertNotNull( ctx );
     }
@@ -132,8 +135,9 @@ public class ModifyRdnTest extends AbstractServerTest
      * Modify Rdn of an entry, delete its old rdn value.
      * 
      * @throws NamingException
-     *
-    @Test public void testModifyRdnAndDeleteOld() throws NamingException
+     */
+    @Test
+    public void testModifyRdnAndDeleteOld() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -173,14 +177,16 @@ public class ModifyRdnTest extends AbstractServerTest
         ctx.unbind( newRdn );
     }
 
+
     /**
      * Modify Rdn of an entry, without deleting its old rdn value.
      * 
      * The JNDI property is set with 'False'
      * 
      * @throws NamingException
-     *
-    @Test public void testModifyRdnAndDontDeleteOldFalse() throws NamingException
+     */
+    @Test
+    public void testModifyRdnAndDontDeleteOldFalse() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -213,19 +219,21 @@ public class ModifyRdnTest extends AbstractServerTest
         // Check values of cn
         Attribute cn = tori.getAttributes( "" ).get( "cn" );
         assertTrue( cn.contains( newCn ) );
-        assertTrue( cn.contains( oldCn ) ); // old value is gone
+        assertTrue( cn.contains( oldCn ) ); // old value is still there
         assertEquals( 2, cn.size() );
 
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
     }
 
+
     /**
      * Modify Rdn of an entry, keep its old rdn value.
      * 
      * @throws NamingException
-     *
-    @Test public void testModifyRdnAndKeepOld() throws NamingException
+     */
+    @Test
+    public void testModifyRdnAndKeepOld() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -271,8 +279,9 @@ public class ModifyRdnTest extends AbstractServerTest
      * cn has another value as well.
      * 
      * @throws NamingException
-     *
-    @Test public void testModifyRdnAndDeleteOldVariant() throws NamingException
+     */
+    @Test
+    public void testModifyRdnAndDeleteOldVariant() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -325,8 +334,9 @@ public class ModifyRdnTest extends AbstractServerTest
      * Modify DN of an entry, changing RDN from cn to sn.
      * 
      * @throws NamingException
-     *
-    @Test public void testModifyRdnDifferentAttribute() throws NamingException
+     */
+    @Test
+    public void testModifyRdnDifferentAttribute() throws NamingException
     {
 
         // Create a person, cn value is rdn
@@ -368,9 +378,8 @@ public class ModifyRdnTest extends AbstractServerTest
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
     }
-    
-    
-              
+
+
     /**
      * Test for DIRSERVER-1086.
      * Modify Rdn of an entry that has a child entry, delete its old rdn value.
@@ -444,14 +453,14 @@ public class ModifyRdnTest extends AbstractServerTest
     /**
      * Test for DIRSERVER-1096.
      * Modify the RDN of an entry with an escaped new RDN. 
-     * Ensure that the attribute itself contains the not-escaped value.
+     * Ensure that the attribute itself contains the unescaped value.
      *
      * @throws Exception
-     *
+     */
     @Test
     public void testModifyRdnWithEncodedNewRdn() throws Exception
     {
-        // Create a person, cn value is rdn
+        // Create a person "cn=Tori Amos", cn value is rdn
         String cnVal = "Tori Amos";
         String snVal = "Amos";
         String oldRdn = "cn=" + cnVal;
@@ -482,7 +491,10 @@ public class ModifyRdnTest extends AbstractServerTest
         DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
         assertNotNull( newCtx );
 
-        // Check that cn contains the unecnoded value
+        // Check that the DN contains the escaped value
+        assertEquals( "cn=" + newCnEscapedVal + "," + ctx.getNameInNamespace(), newCtx.getNameInNamespace() );
+
+        // Check that cn contains the unescaped value
         Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( "Number of cn occurences", 1, cn.size() );
         assertTrue( cn.contains( newCnVal ) );
@@ -490,6 +502,5 @@ public class ModifyRdnTest extends AbstractServerTest
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
     }
-*/
-}
 
+}
