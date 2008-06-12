@@ -23,10 +23,13 @@ package org.apache.directory.server;
 import java.util.Hashtable;
 
 import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -81,15 +84,16 @@ public class ModifyRdnTest extends AbstractServerTest
         attributes.put( attribute );
         attributes.put( "ou", ou );
         attributes.put( "description", ou + " is an organizational unit." );
-   
+
         return attributes;
     }
-   
-   
+
+
     /**
      * Create context
      */
-    @Before public void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         super.setUp();
 
@@ -107,7 +111,8 @@ public class ModifyRdnTest extends AbstractServerTest
     /**
      * Close context
      */
-    @After public void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         ctx.close();
         ctx = null;
@@ -119,7 +124,8 @@ public class ModifyRdnTest extends AbstractServerTest
     /**
      * Just a little test to check wether opening the connection succeeds.
      */
-    @Test public void testSetUpTearDown()
+    @Test
+    public void testSetUpTearDown()
     {
         assertNotNull( ctx );
     }
@@ -130,7 +136,8 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    @Test public void testModifyRdnAndDeleteOld() throws NamingException
+    @Test
+    public void testModifyRdnAndDeleteOld() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -170,6 +177,7 @@ public class ModifyRdnTest extends AbstractServerTest
         ctx.unbind( newRdn );
     }
 
+
     /**
      * Modify Rdn of an entry, without deleting its old rdn value.
      * 
@@ -177,7 +185,8 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    @Test public void testModifyRdnAndDontDeleteOldFalse() throws NamingException
+    @Test
+    public void testModifyRdnAndDontDeleteOldFalse() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -210,19 +219,21 @@ public class ModifyRdnTest extends AbstractServerTest
         // Check values of cn
         Attribute cn = tori.getAttributes( "" ).get( "cn" );
         assertTrue( cn.contains( newCn ) );
-        assertTrue( cn.contains( oldCn ) ); // old value is gone
+        assertTrue( cn.contains( oldCn ) ); // old value is still there
         assertEquals( 2, cn.size() );
 
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
     }
 
+
     /**
      * Modify Rdn of an entry, keep its old rdn value.
      * 
      * @throws NamingException
      */
-    @Test public void testModifyRdnAndKeepOld() throws NamingException
+    @Test
+    public void testModifyRdnAndKeepOld() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -269,7 +280,8 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    @Test public void testModifyRdnAndDeleteOldVariant() throws NamingException
+    @Test
+    public void testModifyRdnAndDeleteOldVariant() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -323,7 +335,8 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    @Test public void testModifyRdnDifferentAttribute() throws NamingException
+    @Test
+    public void testModifyRdnDifferentAttribute() throws NamingException
     {
 
         // Create a person, cn value is rdn
@@ -365,18 +378,16 @@ public class ModifyRdnTest extends AbstractServerTest
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
     }
-    
-    
-              
+
+
     /**
      * Test for DIRSERVER-1086.
      * Modify Rdn of an entry that has a child entry, delete its old rdn value.
+     * Ensure that the tree is not broken.
      *
      * @throws NamingException
      */
-    /*
-    @Test 
-    @Ignore( "Was commented out before for some failure to investigate" )
+    @Test
     public void testModifyRdnAndDeleteOldWithChild() throws NamingException
     {
         // Create an organizational unit, ou value is rdn
@@ -384,19 +395,19 @@ public class ModifyRdnTest extends AbstractServerTest
         String oldRdn = "ou=" + oldOu;
         Attributes attributes = this.getOrganizationalUnitAttributes( oldOu );
         DirContext createdCtx = ctx.createSubcontext( oldRdn, attributes );
-  
+
         // Create a child
         String childCn = "Tori Amos";
         String childRdn = "cn=" + childCn;
         Attributes childAttributes = this.getPersonAttributes( "Amos", childCn );
         createdCtx.createSubcontext( childRdn, childAttributes );
-  
+
         // modify Rdn
         String newOu = "Singers";
         String newRdn = "ou=" + newOu;
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
         ctx.rename( oldRdn, newRdn );
-  
+
         // Check, whether old Entry does not exists
         try
         {
@@ -408,61 +419,61 @@ public class ModifyRdnTest extends AbstractServerTest
             // expected behaviour
             assertTrue( true );
         }
-  
+
         // Check, whether new Entry exists
         DirContext org = ( DirContext ) ctx.lookup( newRdn );
         assertNotNull( org );
-  
+
         // Check values of ou
         Attribute ou = org.getAttributes( "" ).get( "ou" );
         assertTrue( ou.contains( newOu ) );
         assertTrue( !ou.contains( oldOu ) ); // old value is gone
         assertEquals( 1, ou.size() );
-  
+
         // Perform a search under renamed ou and check whether exactly one child entry exist
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        searchControls.setReturningAttributes( new String[]{"objectClass"} );
+        searchControls.setReturningAttributes( new String[]
+            { "objectClass" } );
         NamingEnumeration<SearchResult> results = org.search( "", "(objectClass=*)", searchControls );
         assertTrue( results.hasMore() );
         results.next();
         assertTrue( !results.hasMore() );
-  
+
         // Check whether Tori exists
         DirContext tori = ( DirContext ) org.lookup( childRdn );
         assertNotNull( tori );
-  
+
         // Remove entry (use new rdn)
+        ctx.unbind( childRdn + "," + newRdn );
         ctx.unbind( newRdn );
     }
-    */
 
 
     /**
      * Test for DIRSERVER-1096.
-     * Modify the RDN of an entry with an encoded new RDN. 
-     * Ensure that the attribute itself contains the unencoded value.
+     * Modify the RDN of an entry with an escaped new RDN. 
+     * Ensure that the attribute itself contains the unescaped value.
      *
      * @throws Exception
      */
-    
-    /*
-    @Test    
-    @Ignore( "Was commented out before for some failure to investigate" )
+    @Test
     public void testModifyRdnWithEncodedNewRdn() throws Exception
     {
-        // Create a person, cn value is rdn
+        // Create a person "cn=Tori Amos", cn value is rdn
         String cnVal = "Tori Amos";
         String snVal = "Amos";
         String oldRdn = "cn=" + cnVal;
         Attributes attributes = this.getPersonAttributes( snVal, cnVal );
         ctx.createSubcontext( oldRdn, attributes );
 
-        // modify Rdn from cn=Tori Amos to cn=Ä\+
+        // modify Rdn from cn=Tori Amos to cn=<A Umlaut>\+
         String newCnVal = new String( new byte[]
-             { ( byte ) 0xC3, ( byte ) 0x84, '\\', '+' }, "UTF-8" );
+            { ( byte ) 0xC3, ( byte ) 0x84, '+' }, "UTF-8" );
+        String newCnEscapedVal = new String( new byte[]
+            { ( byte ) 0xC3, ( byte ) 0x84, '\\', '+' }, "UTF-8" );
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
-        String newRdn = "cn=" + newCnVal;
+        String newRdn = "cn=" + newCnEscapedVal;
         ctx.rename( oldRdn, newRdn );
 
         // Check, whether old Entry does not exists
@@ -475,12 +486,15 @@ public class ModifyRdnTest extends AbstractServerTest
         {
             // expected behaviour
         }
-        
+
         // Check, whether new Entry exists
         DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
         assertNotNull( newCtx );
 
-        // Check that cn contains the unecnoded value
+        // Check that the DN contains the escaped value
+        assertEquals( "cn=" + newCnEscapedVal + "," + ctx.getNameInNamespace(), newCtx.getNameInNamespace() );
+
+        // Check that cn contains the unescaped value
         Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( "Number of cn occurences", 1, cn.size() );
         assertTrue( cn.contains( newCnVal ) );
@@ -488,6 +502,5 @@ public class ModifyRdnTest extends AbstractServerTest
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
     }
-    */
-}
 
+}
