@@ -25,9 +25,11 @@ import java.util.Hashtable;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
@@ -338,7 +340,6 @@ public class ModifyRdnTest extends AbstractServerTest
     @Test
     public void testModifyRdnDifferentAttribute() throws NamingException
     {
-
         // Create a person, cn value is rdn
         String cnVal = "Tori Amos";
         String snVal = "Amos";
@@ -377,6 +378,40 @@ public class ModifyRdnTest extends AbstractServerTest
 
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
+    }
+
+
+    /**
+     * Modify DN of an entry, changing RDN from cn to sn, 
+     * delete old RDn, must fail because cn can not be deleted.
+     * 
+     * @throws NamingException
+     */
+    @Test
+    public void testModifyRdnDifferentAttributeDeleteOldFails() throws NamingException
+    {
+        // Create a person, cn value is rdn
+        String cnVal = "Tori Amos";
+        String snVal = "Amos";
+        String oldRdn = "cn=" + cnVal;
+        Attributes attributes = this.getPersonAttributes( snVal, cnVal );
+        ctx.createSubcontext( oldRdn, attributes );
+
+        // modify Rdn from cn=... to sn=...
+        String newRdn = "sn=" + snVal;
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        try
+        {
+            ctx.rename( oldRdn, newRdn );
+            fail( "Rename must fail, mandatory attirbute cn can not be deleted." );
+        }
+        catch ( SchemaViolationException ignored )
+        {
+            // expected behaviour
+        }
+
+        // Remove entry (use old rdn)
+        ctx.unbind( oldRdn );
     }
 
 
@@ -501,6 +536,478 @@ public class ModifyRdnTest extends AbstractServerTest
 
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1162 and DIRSERVER-1085.
+     * 
+     * Modify single valued RDN to a multi valued RDN.
+     * - Old Rdn: cn
+     * - New Rdn: cn+sn
+     * - Keep old Rdn
+     * - Attributes: cn, sn, description must exist 
+     * 
+     * @throws NamingException
+     */
+    @Test
+    public void testModifyMultiValuedRdnVariant1() throws NamingException
+    {
+        Attributes attributes = createPerson( "cn" );
+        String oldRdn = getRdn( attributes, "cn" );
+        String newRdn = getRdn( attributes, "cn", "sn" );
+
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+        ctx.rename( oldRdn, newRdn );
+
+        // Check whether new Entry exists
+        DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( newCtx );
+
+        // Check attributes
+        Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
+        assertEquals( 1, cnAttr.size() );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
+        assertEquals( 1, snAttr.size() );
+        assertTrue( snAttr.contains( "Amos" ) );
+        Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
+        assertEquals( 1, descriptionAttr.size() );
+
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1162 and DIRSERVER-1085.
+     * 
+     * Modify single valued RDN to a multi valued RDN.
+     * - Old Rdn: cn
+     * - New Rdn: cn+sn
+     * - Delete old Rdn
+     * - Attributes: cn, sn, description must exist 
+     * 
+     * @throws NamingException
+     */
+    @Test
+    public void testModifyMultiValuedRdnVariant2() throws NamingException
+    {
+        Attributes attributes = createPerson( "cn" );
+        String oldRdn = getRdn( attributes, "cn" );
+        String newRdn = getRdn( attributes, "cn", "sn" );
+
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        ctx.rename( oldRdn, newRdn );
+
+        // Check whether new Entry exists
+        DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( newCtx );
+
+        // Check attributes
+        Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
+        assertEquals( 1, cnAttr.size() );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
+        assertEquals( 1, snAttr.size() );
+        assertTrue( snAttr.contains( "Amos" ) );
+        Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
+        assertEquals( 1, descriptionAttr.size() );
+
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1162 and DIRSERVER-1085.
+     * 
+     * Modify single valued RDN to a multi valued RDN.
+     * - Old Rdn: description
+     * - New Rdn: cn+sn
+     * - Keep old Rdn
+     * - Attributes: cn, sn, description must exist 
+     * 
+     * @throws NamingException
+     */
+    @Test
+    public void testModifyMultiValuedRdnVariant3() throws NamingException
+    {
+        Attributes attributes = createPerson( "description" );
+        String oldRdn = getRdn( attributes, "description" );
+        String newRdn = getRdn( attributes, "cn", "sn" );
+
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+        ctx.rename( oldRdn, newRdn );
+
+        // Check whether new Entry exists
+        DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( newCtx );
+
+        // Check attributes
+        Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
+        assertEquals( 1, cnAttr.size() );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
+        assertEquals( 1, snAttr.size() );
+        assertTrue( snAttr.contains( "Amos" ) );
+        Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
+        assertEquals( 1, descriptionAttr.size() );
+
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1162 and DIRSERVER-1085.
+     * 
+     * Modify single valued RDN to a multi valued RDN.
+     * - Old Rdn: description
+     * - New Rdn: cn+sn
+     * - Delete old Rdn
+     * - Attributes: cn, sn must exist; descriptions must not exist 
+     * 
+     * @throws NamingException
+     */
+    @Test
+    public void testModifyMultiValuedRdnVariant4() throws NamingException
+    {
+        Attributes attributes = createPerson( "description" );
+        String oldRdn = getRdn( attributes, "description" );
+        String newRdn = getRdn( attributes, "cn", "sn" );
+
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        ctx.rename( oldRdn, newRdn );
+
+        // Check whether new Entry exists
+        DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( newCtx );
+
+        // Check attributes
+        Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
+        assertEquals( 1, cnAttr.size() );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
+        assertEquals( 1, snAttr.size() );
+        assertTrue( snAttr.contains( "Amos" ) );
+        Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
+        assertNull( descriptionAttr );
+
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1162 and DIRSERVER-1085.
+     * 
+     * Modify single valued RDN to a multi valued RDN.
+     * - Old Rdn: cn
+     * - New Rdn: sn+telephoneNumber
+     * - Keep old Rdn
+     * - Attributes: cn, sn, description, telephoneNumber must exist 
+     * 
+     * @throws NamingException
+     */
+    @Test
+    public void testModifyMultiValuedRdnVariant5() throws NamingException
+    {
+        Attributes attributes = createPerson( "cn" );
+        attributes.put( "telephoneNumber", "12345" );
+        String oldRdn = getRdn( attributes, "cn" );
+        String newRdn = getRdn( attributes, "sn", "telephoneNumber" );
+
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+        ctx.rename( oldRdn, newRdn );
+
+        // Check whether new Entry exists
+        DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( newCtx );
+
+        // Check attributes
+        Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
+        assertEquals( 1, cnAttr.size() );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
+        assertEquals( 1, snAttr.size() );
+        assertTrue( snAttr.contains( "Amos" ) );
+        Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
+        assertEquals( 1, descriptionAttr.size() );
+        Attribute telephoneNumberAttr = newCtx.getAttributes( "" ).get( "telephoneNumber" );
+        assertEquals( 1, telephoneNumberAttr.size() );
+        assertTrue( telephoneNumberAttr.contains( "12345" ) );
+
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1162 and DIRSERVER-1085.
+     * 
+     * Modify single valued RDN to a multi valued RDN.
+     * - Old Rdn: cn
+     * - New Rdn: sn+telephoneNumber
+     * - Delete old Rdn
+     * - Must fail with schema violation, cn cannot be deleted
+     * 
+     * @throws NamingException
+     */
+    @Test
+    public void testModifyMultiValuedRdnVariant6() throws NamingException
+    {
+        Attributes attributes = createPerson( "cn" );
+        attributes.put( "telephoneNumber", "12345" );
+        String oldRdn = getRdn( attributes, "cn" );
+        String newRdn = getRdn( attributes, "sn", "telephoneNumber" );
+
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        try
+        {
+            ctx.rename( oldRdn, newRdn );
+            fail( "Rename must fail, cn can not be deleted from a person." );
+        }
+        catch ( SchemaViolationException ignored )
+        {
+            // expected behaviour
+        }
+
+        // Check that entry was not changed
+        try
+        {
+            ctx.lookup( newRdn );
+            fail( "Previous rename failed as expected, entry must not exist" );
+        }
+        catch ( NameNotFoundException ignored )
+        {
+            // expected behaviour
+        }
+
+        // Check that entry was not changed
+        DirContext oldCtx = ( DirContext ) ctx.lookup( oldRdn );
+        assertNotNull( oldCtx );
+        Attribute cnAttr = oldCtx.getAttributes( "" ).get( "cn" );
+        assertEquals( 1, cnAttr.size() );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        Attribute snAttr = oldCtx.getAttributes( "" ).get( "sn" );
+        assertEquals( 1, snAttr.size() );
+        assertTrue( snAttr.contains( "Amos" ) );
+        Attribute descriptionAttr = oldCtx.getAttributes( "" ).get( "description" );
+        assertEquals( 1, descriptionAttr.size() );
+
+        // Remove entry (use old rdn)
+        ctx.unbind( oldRdn );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1162 and DIRSERVER-1085.
+     * 
+     * Modify multi valued RDN to a single valued RDN.
+     * - Old Rdn: cn+sn
+     * - New Rdn: cn
+     * - Keep old Rdn
+     * - Attributes: cn, sn, description must exist 
+     * 
+     * @throws NamingException
+     */
+    @Test
+    public void testModifyMultiValuedRdnVariant7() throws NamingException
+    {
+        Attributes attributes = createPerson( "cn", "sn" );
+        String oldRdn = getRdn( attributes, "cn", "sn" );
+        String newRdn = getRdn( attributes, "cn" );
+
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+        ctx.rename( oldRdn, newRdn );
+
+        // Check whether new Entry exists
+        DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( newCtx );
+
+        // Check attributes
+        Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
+        assertEquals( 1, cnAttr.size() );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
+        assertEquals( 1, snAttr.size() );
+        assertTrue( snAttr.contains( "Amos" ) );
+        Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
+        assertEquals( 1, descriptionAttr.size() );
+
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1162 and DIRSERVER-1085.
+     * 
+     * Modify multi valued RDN to a single valued RDN.
+     * - Old Rdn: cn+sn
+     * - New Rdn: cn
+     * - Delete old Rdn
+     * - Must fail with schema violation, cn cannot be deleted
+     * 
+     * @throws NamingException
+     */
+    @Test
+    public void testModifyMultiValuedRdnVariant8() throws NamingException
+    {
+        Attributes attributes = createPerson( "cn", "sn" );
+        String oldRdn = getRdn( attributes, "cn", "sn" );
+        String newRdn = getRdn( attributes, "cn" );
+
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        try
+        {
+            ctx.rename( oldRdn, newRdn );
+            fail( "Rename must fail, cn can not be deleted from a person." );
+        }
+        catch ( SchemaViolationException ignored )
+        {
+            // expected behaviour
+        }
+
+        // Check that entry was not changed
+        try
+        {
+            ctx.lookup( newRdn );
+            fail( "Previous rename failed as expected, entry must not exist" );
+        }
+        catch ( NameNotFoundException ignored )
+        {
+            // expected behaviour
+        }
+
+        // Check that entry was not changed
+        DirContext oldCtx = ( DirContext ) ctx.lookup( oldRdn );
+        assertNotNull( oldCtx );
+        Attribute cnAttr = oldCtx.getAttributes( "" ).get( "cn" );
+        assertEquals( 1, cnAttr.size() );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        Attribute snAttr = oldCtx.getAttributes( "" ).get( "sn" );
+        assertEquals( 1, snAttr.size() );
+        assertTrue( snAttr.contains( "Amos" ) );
+        Attribute descriptionAttr = oldCtx.getAttributes( "" ).get( "description" );
+        assertEquals( 1, descriptionAttr.size() );
+
+        // Remove entry (use old rdn)
+        ctx.unbind( oldRdn );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1162 and DIRSERVER-1085.
+     * 
+     * Tries to rename+deleteOldRdn an entry that has an operational attribute
+     * in its RDN. Must fail because an operational attribute can not be
+     * deleted.
+     * 
+     * @throws NamingException
+     */
+    @Test
+    public void testModifyRdnOperationalAttribute() throws NamingException
+    {
+        // create the entry
+        Attributes attributes = createPerson( "cn" );
+        String oldRdn = getRdn( attributes, "cn" );
+
+        // read createTimestamp
+        String createTimestamp = ( String ) ctx.getAttributes( oldRdn, new String[]
+            { "createTimestamp" } ).get( "createTimestamp" ).get();
+
+        // rename to createTimstamp=YYYYMMDDHHMMSSZ
+        String newRdn = "createTimestamp=" + createTimestamp;
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+        ctx.rename( oldRdn, newRdn );
+
+        // rename back to old Rdn, enable deleteOldRdn, 
+        // must fail with NoPermisionException
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        try
+        {
+            ctx.rename( newRdn, oldRdn );
+            fail( "Rename must fail, operational attribute createTimestamp can not be deleted." );
+        }
+        catch ( NoPermissionException ignored )
+        {
+            // expected behaviour
+        }
+
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1162 and DIRSERVER-1085.
+     * 
+     * Tries to rename+deleteOldRdn an entry that has the structural object class
+     * person in its RDN (objectClass=person,ou=system). Must fail because the 
+     * structural object class can not be deleted.
+     * 
+     * @throws NamingException
+     */
+    @Test
+    public void testModifyRdnObjectClassAttribute() throws NamingException
+    {
+        // create the entry
+        Attributes attributes = createPerson( "cn" );
+        String oldRdn = getRdn( attributes, "cn" );
+
+        // rename to objectClass=person
+        String newRdn = "objectClass=person";
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+        ctx.rename( oldRdn, newRdn );
+
+        // rename back to old Rdn, enable deleteOldRdn, 
+        // must fail with NoPermisionException
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        try
+        {
+            ctx.rename( newRdn, oldRdn );
+            fail( "Rename must fail, structural objectClass person can not be deleted." );
+        }
+        catch ( SchemaViolationException ignored )
+        {
+            // expected behaviour
+        }
+
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
+
+
+    private String getRdn( Attributes attributes, String... rdnTypes ) throws NamingException
+    {
+        String rdn = "";
+        for ( String type : rdnTypes )
+        {
+            rdn += type + "=" + attributes.get( type ).get() + "+";
+        }
+        rdn = rdn.substring( 0, rdn.length() - 1 );
+        return rdn;
+    }
+
+
+    private Attributes createPerson( String... rdnTypes ) throws NamingException
+    {
+        Attributes attributes = new AttributesImpl();
+        Attribute attribute = new AttributeImpl( "objectClass" );
+        attribute.add( "top" );
+        attribute.add( "person" );
+        attributes.put( attribute );
+        attributes.put( "cn", "Tori Amos" );
+        attributes.put( "sn", "Amos" );
+        attributes.put( "description", "Tori Amos is a person." );
+
+        String rdn = getRdn( attributes, rdnTypes );
+
+        ctx.createSubcontext( rdn, attributes );
+
+        return attributes;
     }
 
 }

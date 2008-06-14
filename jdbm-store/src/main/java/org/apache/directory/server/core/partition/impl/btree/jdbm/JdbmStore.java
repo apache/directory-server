@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -1588,8 +1589,6 @@ public class JdbmStore
      */
     public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws NamingException
     {
-        String newRdnAttr = newRdn.getNormType();
-        String newRdnValue = ( String ) newRdn.getValue();
         Long id = getEntryId( dn.getNormName() );
         ServerEntry entry = lookup( id );
         LdapDN updn = entry.getDn();
@@ -1603,31 +1602,23 @@ public class JdbmStore
          * new Rdn attribute within this entry.
          */
 
-        AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newRdn.getNormType() );
-        EntryAttribute rdnAttr = entry.get( newRdnAttrType );
-
-        if ( rdnAttr == null )
+        for ( AttributeTypeAndValue newAtav : newRdn )
         {
-            rdnAttr = new DefaultServerAttribute( newRdnAttrType );
-        }
+            String newNormType = newAtav.getNormType();
+            String newNormValue = ( String ) newAtav.getNormValue();
+            AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newNormType );
+            entry.add( newRdnAttrType, ( String ) newAtav.getUpValue() );
 
-        // add the new Rdn value only if it is not already present in the entry
-        if ( !rdnAttr.contains( newRdnValue ) )
-        {
-            rdnAttr.add( ( String ) newRdn.getUpValue() );
-        }
-
-        //entry.put( rdnAttr );
-
-        if ( hasUserIndexOn( newRdn.getNormType() ) )
-        {
-            Index idx = getUserIndex( newRdn.getNormType() );
-            idx.add( newRdnValue, id );
-
-            // Make sure the altered entry shows the existance of the new attrib
-            if ( !existanceIdx.hasValue( newRdn.getNormType(), id ) )
+            if ( hasUserIndexOn( newNormType ) )
             {
-                existanceIdx.add( newRdn.getNormType(), id );
+                Index idx = getUserIndex( newNormType );
+                idx.add( newNormValue, id );
+
+                // Make sure the altered entry shows the existance of the new attrib
+                if ( !existanceIdx.hasValue( newNormType, id ) )
+                {
+                    existanceIdx.add( newNormType, id );
+                }
             }
         }
 
@@ -1643,28 +1634,49 @@ public class JdbmStore
          * lookup.  If so that means we blew away the last value of the old 
          * Rdn attribute.  In this case we need to remove the attrName/id 
          * tuple from the existance index.
+         * 
+         * We only remove an ATAV of the old Rdn if it is not included in the
+         * new Rdn.
          */
 
         if ( deleteOldRdn )
         {
             Rdn oldRdn = updn.getRdn();
-            AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldRdn.getNormType() );
-
-            EntryAttribute oldRdnAttr = entry.get( oldRdnAttrType );
-            oldRdnAttr.remove( ( String ) oldRdn.getUpValue() );
-
-            if ( hasUserIndexOn( oldRdn.getNormType() ) )
+            for ( AttributeTypeAndValue oldAtav : oldRdn )
             {
-                Index idx = getUserIndex( oldRdn.getNormType() );
-                idx.drop( oldRdn.getValue(), id );
-
-                /*
-                 * If there is no value for id in this index due to our
-                 * drop above we remove the oldRdnAttr from the existance idx
-                 */
-                if ( null == idx.reverseLookup( id ) )
+                // check if the new ATAV is part of the old Rdn
+                // if that is the case we do not remove the ATAV
+                boolean mustRemove = true;
+                for ( AttributeTypeAndValue newAtav : newRdn )
                 {
-                    existanceIdx.drop( oldRdn.getNormType(), id );
+                    if ( oldAtav.equals( newAtav ) )
+                    {
+                        mustRemove = false;
+                        break;
+                    }
+                }
+
+                if ( mustRemove )
+                {
+                    String oldNormType = oldAtav.getNormType();
+                    String oldNormValue = ( String ) oldAtav.getNormValue();
+                    AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldNormType );
+                    entry.remove( oldRdnAttrType, oldNormValue );
+
+                    if ( hasUserIndexOn( oldNormType ) )
+                    {
+                        Index idx = getUserIndex( oldNormType );
+                        idx.drop( oldNormValue, id );
+
+                        /*
+                         * If there is no value for id in this index due to our
+                         * drop above we remove the oldRdnAttr from the existance idx
+                         */
+                        if ( null == idx.reverseLookup( id ) )
+                        {
+                            existanceIdx.drop( oldNormType, id );
+                        }
+                    }
                 }
             }
         }

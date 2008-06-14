@@ -20,6 +20,21 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
+import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.SearchControls;
+
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
@@ -77,6 +92,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.message.CascadeControl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -90,21 +106,6 @@ import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.NoPermissionException;
-import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.SearchControls;
-
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -1134,8 +1135,43 @@ public class SchemaInterceptor extends BaseInterceptor
         LdapDN name = opContext.getDn();
         Rdn newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
-
         ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, name ) );
+
+        if ( deleteOldRn )
+        {
+            ServerEntry tmpEntry = ( ServerEntry ) entry.clone();
+            Rdn oldRDN = name.getRdn();
+
+            // Delete the old RDN means we remove some attributes and values.
+            // We must make sure that after this operation all must attributes
+            // are still present in the entry.
+            for ( AttributeTypeAndValue atav : oldRDN )
+            {
+                AttributeType type = atRegistry.lookup( atav.getUpType() );
+                String value = ( String ) atav.getNormValue();
+                tmpEntry.remove( type, value );
+            }
+            for ( AttributeTypeAndValue atav : newRdn )
+            {
+                AttributeType type = atRegistry.lookup( atav.getUpType() );
+                String value = ( String ) atav.getNormValue();
+                if ( !tmpEntry.contains( type, value ) )
+                {
+                    tmpEntry.add( new DefaultServerAttribute( type, value ) );
+                }
+            }
+            check( name, tmpEntry );
+
+            // Check that no operational attributes are removed
+            for ( AttributeTypeAndValue atav : oldRDN )
+            {
+                AttributeType attributeType = atRegistry.lookup( atav.getUpType() );
+                if ( !attributeType.isCanUserModify() )
+                {
+                    throw new NoPermissionException( "Cannot modify the attribute '" + atav.getUpType() + "'" );
+                }
+            }
+        }
 
         if ( name.startsWith( schemaBaseDN ) )
         {
