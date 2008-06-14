@@ -20,38 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import jdbm.RecordManager;
-import jdbm.helper.MRU;
-import jdbm.recman.BaseRecordManager;
-import jdbm.recman.CacheRecordManager;
-
-import org.apache.directory.server.core.entry.DefaultServerAttribute;
-import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.entry.ServerStringValue;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.xdbm.*;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
-import org.apache.directory.shared.ldap.MultiException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,6 +28,43 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.naming.NamingException;
+
+import jdbm.RecordManager;
+import jdbm.helper.MRU;
+import jdbm.recman.BaseRecordManager;
+import jdbm.recman.CacheRecordManager;
+
+import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerStringValue;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
+import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.shared.ldap.MultiException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.NamespaceTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class JdbmStore<E> implements Store<E>
@@ -1501,8 +1506,6 @@ public class JdbmStore<E> implements Store<E>
      */
     public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
     {
-//        String newRdnAttr = newRdn.getNormType();
-        String newRdnValue = ( String ) newRdn.getValue();
         Long id = getEntryId( dn.getNormName() );
         ServerEntry entry = lookup( id );
         LdapDN updn = entry.getDn();
@@ -1516,31 +1519,23 @@ public class JdbmStore<E> implements Store<E>
          * new Rdn attribute within this entry.
          */
 
-        AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newRdn.getNormType() );
-        EntryAttribute rdnAttr = entry.get( newRdnAttrType );
-
-        if ( rdnAttr == null )
+        for ( AttributeTypeAndValue newAtav : newRdn )
         {
-            rdnAttr = new DefaultServerAttribute( newRdnAttrType );
-        }
+            String newNormType = newAtav.getNormType();
+            String newNormValue = ( String ) newAtav.getNormValue();
+            AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newNormType );
+            entry.add( newRdnAttrType, ( String ) newAtav.getUpValue() );
 
-        // add the new Rdn value only if it is not already present in the entry
-        if ( !rdnAttr.contains( newRdnValue ) )
-        {
-            rdnAttr.add( ( String ) newRdn.getUpValue() );
-        }
-
-        //entry.put( rdnAttr );
-
-        if ( hasUserIndexOn( newRdn.getNormType() ) )
-        {
-            Index<?,E> index = getUserIndex( newRdn.getNormType() );
-            ( ( JdbmIndex ) index ).add( newRdnValue, id );
-
-            // Make sure the altered entry shows the existence of the new attrib
-            if ( !existenceIdx.forward( newRdn.getNormType(), id ) )
+            if ( hasUserIndexOn( newNormType ) )
             {
-                existenceIdx.add( newRdn.getNormType(), id );
+                Index<?, E> index = getUserIndex( newNormType );
+                ( ( JdbmIndex ) index ).add( newNormValue, id );
+
+                // Make sure the altered entry shows the existence of the new attrib
+                if ( !existenceIdx.forward( newNormType, id ) )
+                {
+                    existenceIdx.add( newNormType, id );
+                }
             }
         }
 
@@ -1556,28 +1551,49 @@ public class JdbmStore<E> implements Store<E>
          * lookup.  If so that means we blew away the last value of the old 
          * Rdn attribute.  In this case we need to remove the attrName/id 
          * tuple from the existance index.
+         * 
+         * We only remove an ATAV of the old Rdn if it is not included in the
+         * new Rdn.
          */
 
         if ( deleteOldRdn )
         {
             Rdn oldRdn = updn.getRdn();
-            AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldRdn.getNormType() );
-
-            EntryAttribute oldRdnAttr = entry.get( oldRdnAttrType );
-            oldRdnAttr.remove( ( String ) oldRdn.getUpValue() );
-
-            if ( hasUserIndexOn( oldRdn.getNormType() ) )
+            for ( AttributeTypeAndValue oldAtav : oldRdn )
             {
-                Index<?,E> index = getUserIndex( oldRdn.getNormType() );
-                ( ( JdbmIndex ) index ).drop( oldRdn.getValue(), id );
-
-                /*
-                 * If there is no value for id in this index due to our
-                 * drop above we remove the oldRdnAttr from the existance idx
-                 */
-                if ( null == index.reverseLookup( id ) )
+                // check if the new ATAV is part of the old Rdn
+                // if that is the case we do not remove the ATAV
+                boolean mustRemove = true;
+                for ( AttributeTypeAndValue newAtav : newRdn )
                 {
-                    existenceIdx.drop( oldRdn.getNormType(), id );
+                    if ( oldAtav.equals( newAtav ) )
+                    {
+                        mustRemove = false;
+                        break;
+                    }
+                }
+
+                if ( mustRemove )
+                {
+                    String oldNormType = oldAtav.getNormType();
+                    String oldNormValue = ( String ) oldAtav.getNormValue();
+                    AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldNormType );
+                    entry.remove( oldRdnAttrType, oldNormValue );
+
+                    if ( hasUserIndexOn( oldNormType ) )
+                    {
+                        Index<?, E> index = getUserIndex( oldNormType );
+                        ( ( JdbmIndex ) index ).drop( oldNormValue, id );
+
+                        /*
+                         * If there is no value for id in this index due to our
+                         * drop above we remove the oldRdnAttr from the existance idx
+                         */
+                        if ( null == index.reverseLookup( id ) )
+                        {
+                            existenceIdx.drop( oldNormType, id );
+                        }
+                    }
                 }
             }
         }
