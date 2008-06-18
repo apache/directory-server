@@ -108,21 +108,33 @@ public class NormalizationInterceptor extends BaseInterceptor
 
     public void add( NextInterceptor nextInterceptor, AddOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
         nextInterceptor.add( opContext );
     }
 
 
     public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
         nextInterceptor.delete( opContext );
     }
 
 
     public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
         nextInterceptor.modify( opContext );
     }
 
@@ -134,15 +146,27 @@ public class NormalizationInterceptor extends BaseInterceptor
         rdn.normalize( attrNormalizers );
         opContext.setNewRdn( rdn.getRdn() );
 
-        opContext.getDn().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
         nextInterceptor.rename( opContext );
     }
 
 
     public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( attrNormalizers );
-        opContext.getParent().normalize( attrNormalizers);
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
+        if ( ! opContext.getParent().isNormalized() )
+        {
+            opContext.getParent().normalize( attrNormalizers);
+        }
+        
         nextInterceptor.move( opContext );
     }
 
@@ -155,16 +179,28 @@ public class NormalizationInterceptor extends BaseInterceptor
         rdn.normalize( attrNormalizers );
         opContext.setNewRdn( rdn.getRdn() );
 
-        opContext.getDn().normalize( attrNormalizers );
-        opContext.getParent().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
+        if ( ! opContext.getParent().isNormalized() )
+        {
+            opContext.getParent().normalize( attrNormalizers );
+        }
+        
         nextInterceptor.moveAndRename( opContext );
     }
 
 
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+
         ExprNode filter = opContext.getFilter();
-        opContext.getDn().normalize( attrNormalizers );
         ExprNode result = ( ExprNode ) filter.accept( normVisitor );
 
         if ( result == null )
@@ -184,14 +220,22 @@ public class NormalizationInterceptor extends BaseInterceptor
 
     public boolean hasEntry( NextInterceptor nextInterceptor, EntryOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
         return nextInterceptor.hasEntry( opContext );
     }
 
 
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
         return nextInterceptor.list( opContext );
     }
 
@@ -218,7 +262,10 @@ public class NormalizationInterceptor extends BaseInterceptor
     
     public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
         
         if ( opContext.getAttrsId() != null )
         {
@@ -237,28 +284,44 @@ public class NormalizationInterceptor extends BaseInterceptor
     
     public LdapDN getMatchedName ( NextInterceptor nextInterceptor, GetMatchedNameOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
         return nextInterceptor.getMatchedName( opContext );
     }
 
 
     public LdapDN getSuffix ( NextInterceptor nextInterceptor, GetSuffixOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
         return nextInterceptor.getSuffix( opContext );
     }
 
 
     public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
         return next.compare( opContext );
     }
     
     
     public void bind( NextInterceptor next, BindOperationContext opContext )  throws Exception
     {
-        opContext.getDn().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
         next.bind( opContext );
     }
 
@@ -271,7 +334,11 @@ public class NormalizationInterceptor extends BaseInterceptor
 
     public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws Exception
     {
-        opContext.getDn().normalize( attrNormalizers );
+        if ( ! opContext.getDn().isNormalized() )
+        {
+            opContext.getDn().normalize( attrNormalizers );
+        }
+        
         next.removeContextPartition( opContext );
     }
 }
