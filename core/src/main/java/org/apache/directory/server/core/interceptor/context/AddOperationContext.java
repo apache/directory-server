@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.shared.ldap.message.AddRequest;
@@ -37,10 +38,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class AddOperationContext extends AbstractOperationContext
 {
-    /** The added entry  */
-    private ServerEntry entry;
-
-
     /**
      * Creates a new instance of AddOperationContext.
      * 
@@ -73,7 +70,7 @@ public class AddOperationContext extends AbstractOperationContext
     public AddOperationContext( CoreSession session, ServerEntry entry )
     {
         super( session, entry.getDn() );
-        this.entry = entry;
+        this.entry = new ClonedServerEntry( entry );
     }
 
 
@@ -87,15 +84,15 @@ public class AddOperationContext extends AbstractOperationContext
     public AddOperationContext( CoreSession session, LdapDN dn, ServerEntry entry )
     {
         super( session, dn );
-        this.entry = entry;
+        this.entry = new ClonedServerEntry( entry );
     }
 
 
     public AddOperationContext( CoreSession session, AddRequest addRequest ) throws Exception
     {
         super( session );
-        this.entry = ServerEntryUtils.toServerEntry( addRequest.getAttributes(), addRequest.getEntry(), 
-            session.getDirectoryService().getRegistries() );
+        this.entry = new ClonedServerEntry( ServerEntryUtils.toServerEntry( addRequest.getAttributes(), addRequest.getEntry(), 
+            session.getDirectoryService().getRegistries() ) );
         this.dn = addRequest.getEntry();
         this.requestControls = addRequest.getControls();
         setReferralHandlingMode( addRequest );

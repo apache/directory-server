@@ -54,7 +54,7 @@ public abstract class AbstractOperationContext implements OperationContext
     protected LdapDN dn;
     
     /** The entry associated with the target entry of this OperationContext */
-    private ClonedServerEntry entry;
+    protected ClonedServerEntry entry;
     
     /** The associated request's controls */
     protected Map<String, Control> requestControls = new HashMap<String, Control>(4);
