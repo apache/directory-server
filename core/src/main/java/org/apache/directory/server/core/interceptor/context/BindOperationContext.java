@@ -86,6 +86,8 @@ public class BindOperationContext implements OperationContext
 
     private ReferralHandlingMode referralHandlingMode;
 
+    private ClonedServerEntry entry;
+
     
     /**
      * Creates a new instance of BindOperationContext.
@@ -477,5 +479,17 @@ public class BindOperationContext implements OperationContext
     public void setReferralHandlingMode( ReferralHandlingMode referralHandlingMode )
     {
         this.referralHandlingMode = referralHandlingMode;
+    }
+
+
+    public ClonedServerEntry getEntry()
+    {
+        return entry;
+    }
+
+
+    public void setEntry( ClonedServerEntry entry )
+    {
+        this.entry = entry;
     }
 }

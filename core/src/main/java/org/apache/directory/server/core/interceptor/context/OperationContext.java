@@ -117,6 +117,42 @@ public interface OperationContext
 
     
     /**
+     * Gets the server entry associated with the target DN of this 
+     * OperationContext.  The entry associated with the DN may be altered 
+     * during the course of processing an LDAP operation through the 
+     * InterceptorChain.  This place holder is put here to prevent the need
+     * for repetitive lookups of the target entry.  Furthermore the returned
+     * entry may be altered by any Interceptor in the chain and this is why a
+     * ClonedServerEntry is returned instead of a ServerEntry.  A 
+     * ClonedServerEntry has an immutable reference to the original state of
+     * the target entry.  The original state can be accessed via a call to
+     * {@link ClonedServerEntry#getOriginalEntry()}.  The return value may be 
+     * null in which case any lookup performed to access it may set it to 
+     * prevent the need for subsequent lookups.
+     * 
+     * Also note that during the course of handling some operations such as 
+     * those that rename, move or rename and move the entry, may alter the DN 
+     * of this entry.  Interceptor implementors should not presume the DN or 
+     * the values contained in this entry are currently what is present in the 
+     * DIT.  The original entry contained in the ClonedServerEntry shoudl be 
+     * used as the definitive source of information about the state of the 
+     * entry in the DIT before returning from the Partition subsystem.
+     * 
+     * @return target entry associated with the DN of this OperationContext
+     */
+    ClonedServerEntry getEntry();
+    
+    
+    /**
+     * Sets the server entry associated with the target DN of this 
+     * OperationContext.
+     *
+     * @param entry the entry whose DN is associated with this OperationContext.
+     */
+    void setEntry( ClonedServerEntry entry );
+    
+    
+    /**
      * Adds a response control to this operation.
      *
      * @param responseControl the response control to add to this operation

@@ -103,26 +103,6 @@ public class AddOperationContext extends AbstractOperationContext
 
 
     /**
-     * @return The added attributes
-     */
-    public ServerEntry getEntry()
-    {
-        return entry;
-    }
-
-
-    /**
-     * Set the added attributes
-     * 
-     * @param entry The added attributes
-     */
-    public void setEntry( ServerEntry entry )
-    {
-        this.entry = entry;
-    }
-
-
-    /**
      * @return the operation name
      */
     public String getName()

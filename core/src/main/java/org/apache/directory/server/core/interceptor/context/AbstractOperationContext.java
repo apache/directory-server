@@ -53,6 +53,9 @@ public abstract class AbstractOperationContext implements OperationContext
     /** The DN associated with the context */
     protected LdapDN dn;
     
+    /** The entry associated with the target entry of this OperationContext */
+    private ClonedServerEntry entry;
+    
     /** The associated request's controls */
     protected Map<String, Control> requestControls = new HashMap<String, Control>(4);
 
@@ -437,5 +440,23 @@ public abstract class AbstractOperationContext implements OperationContext
         {
             this.referralHandlingMode = ReferralHandlingMode.THROW;
         }
+    }
+
+
+    /**
+     * @param entry the entry to set
+     */
+    public void setEntry( ClonedServerEntry entry )
+    {
+        this.entry = entry;
+    }
+
+
+    /**
+     * @return the entry
+     */
+    public ClonedServerEntry getEntry()
+    {
+        return entry;
     }
 }
