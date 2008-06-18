@@ -158,8 +158,14 @@ public class LdapServer extends DirectoryBackedService
     /** Whether LDAPS is enabled. */
     private boolean enableLdaps;
 
-    /** Whether to allow anonymous access. */
-    private boolean allowAnonymousAccess = true; // allow by default
+    /** Whether to allow anonymous access: allowed by default */
+    private boolean allowAnonymousAccess = true;
+    
+    /** 
+     * Whether or not confidentiality (TLS secured connection) is required: 
+     * disabled by default. 
+     */
+    private boolean confidentialityRequired;
 
     /** The extended operation handlers. */
     private final Collection<ExtendedOperationHandler> extendedOperationHandlers =
@@ -1044,6 +1050,31 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
+     * Sets the mode for this LdapServer to accept requests with or without a
+     * TLS secured connection via either StartTLS extended operations or using
+     * LDAPS.
+     * 
+     * @param confidentialityRequired true to require confidentiality
+     */
+    public void setConfidentialityRequired( boolean confidentialityRequired ) 
+    {
+		this.confidentialityRequired = confidentialityRequired;
+	}
+
+
+    /**
+     * Gets whether or not TLS secured connections are required to perform 
+     * operations on this LdapServer.
+     * 
+     * @return true if TLS secured connections are required, false otherwise
+     */
+	public boolean isConfidentialityRequired() 
+	{
+		return confidentialityRequired;
+	}
+
+
+	/**
      * A snickers based BER Decoder factory.
      */
     private static final class ProtocolCodecFactoryImpl implements ProtocolCodecFactory

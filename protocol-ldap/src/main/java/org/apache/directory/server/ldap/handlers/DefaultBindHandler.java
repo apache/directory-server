@@ -721,7 +721,17 @@ public class DefaultBindHandler extends BindHandler
                 LOG.debug( "Using SASL authentication with mechanism:  {}", bindRequest.getSaslMechanism() );
             }
         }
-
+        
+        // protect against insecure conns when confidentiality is required 
+        if ( ! isConfidentialityRequirementSatisfied( session ) )
+        {
+        	LdapResult result = bindRequest.getResultResponse().getLdapResult();
+        	result.setResultCode( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        	result.setErrorMessage( "Confidentiality (TLS secured connection) is required." );
+        	session.write( bindRequest.getResultResponse() );
+        	return;
+        }
+        
         // Guard clause:  LDAP version 3
         if ( !bindRequest.getVersion3() )
         {

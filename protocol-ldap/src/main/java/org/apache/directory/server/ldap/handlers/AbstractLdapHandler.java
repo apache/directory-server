@@ -24,6 +24,9 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.message.Message;
 import org.apache.directory.shared.ldap.message.MutableControl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.mina.common.IoFilterChain;
+import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 
 import javax.naming.NamingException;
@@ -50,6 +53,33 @@ public abstract class AbstractLdapHandler implements MessageHandler
     public final void setProtocolProvider( LdapServer provider )
     {
         this.ldapServer = provider;
+    }
+    
+    
+    /**
+     * Checks to see if confidentiality requirements are met.  If the 
+     * LdapServer requires confidentiality and the SSLFilter is engaged
+     * this will return true.  If confidentiality is not required this 
+     * will return true.  If confidentially is required and the SSLFilter
+     * is not engaged in the IoFilterChain this will return false.
+     * 
+     * This method is used by handlers to determine whether to send back
+     * {@link ResultCodeEnum#CONFIDENTIALITY_REQUIRED} error responses back
+     * to clients.
+     * 
+     * @param session the MINA IoSession to check for TLS security
+     * @return true if confidentiality requirement is met, false otherwise
+     */
+    public final boolean isConfidentialityRequirementSatisfied( IoSession session )
+    {
+    	
+    	if ( ! ldapServer.isConfidentialityRequired() )
+    	{
+    		return true;
+    	}
+    	
+        IoFilterChain chain = session.getFilterChain();
+        return chain.contains( "sslFilter" );
     }
 
 

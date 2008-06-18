@@ -89,6 +89,15 @@ public class DefaultModifyDnHandler extends ModifyDnHandler
         {
             try
             {
+                // protect against insecure conns when confidentiality is required 
+                if ( ! isConfidentialityRequirementSatisfied( session ) )
+                {
+                	result.setResultCode( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+                	result.setErrorMessage( "Confidentiality (TLS secured connection) is required." );
+                	session.write( req.getResultResponse() );
+                	return;
+                }
+                
                 LdapContext ctx = getSessionRegistry().getLdapContext( session, null, true );
 
                 if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )

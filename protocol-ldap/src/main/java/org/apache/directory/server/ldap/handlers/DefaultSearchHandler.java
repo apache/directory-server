@@ -250,6 +250,16 @@ public class DefaultSearchHandler extends SearchHandler
 
         try
         {
+            // protect against insecure conns when confidentiality is required 
+            if ( ! isConfidentialityRequirementSatisfied( session ) )
+            {
+            	LdapResult result = req.getResultResponse().getLdapResult();
+            	result.setResultCode( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+            	result.setErrorMessage( "Confidentiality (TLS secured connection) is required." );
+            	session.write( req.getResultResponse() );
+            	return;
+            }
+
             // ===============================================================
             // Find session context
             // ===============================================================

@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.handlers;
 
 
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
+import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -55,6 +56,19 @@ public class DefaultExtendedHandler extends ExtendedHandler
         {
             try
             {
+            	if ( ! req.getOid().equals( StartTlsHandler.EXTENSION_OID ) )
+            	{
+	                // protect against insecure conns when confidentiality is required 
+	                if ( ! isConfidentialityRequirementSatisfied( session ) )
+	                {
+	                	LdapResult result = req.getResultResponse().getLdapResult();
+	                	result.setResultCode( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+	                	result.setErrorMessage( "Confidentiality (TLS secured connection) is required." );
+	                	session.write( req.getResultResponse() );
+	                	return;
+	                }
+            	}
+                
                 handler.handleExtendedOperation( session, getSessionRegistry(), req );
             }
             catch ( Exception e )
