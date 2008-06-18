@@ -22,7 +22,6 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -105,13 +104,8 @@ public class DeleteOperationContext extends AbstractOperationContext
      * 
      * @return the entry
      */
-    public ClonedServerEntry getEntry() throws Exception
+    public ClonedServerEntry getEntry()
     {
-        if ( entry == null )
-        {
-            entry = lookup( getDn(), ByPassConstants.LOOKUP_BYPASS );
-        }
-        
         return entry;
     }
 }
