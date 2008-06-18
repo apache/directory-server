@@ -80,21 +80,29 @@ public enum SearchScope
      */
     public static SearchScope getSearchScope( SearchControls searchControls )
     {
-        SearchScope scope = OBJECT;
-        
-        switch( searchControls.getSearchScope() )
+        return getSearchScope( searchControls.getSearchScope() );
+    }
+    
+    
+    /**
+     * Gets the SearchScope enumerated type for the corresponding 
+     * SearchControls scope setting.
+     *
+     * @param searchControls the search controls to get SearchScope for
+     * @return the SearchScope enumerated type for the SearchControls
+     */
+    public static SearchScope getSearchScope( int jndiScope )
+    {
+        switch( jndiScope )
         {
             case( SearchControls.OBJECT_SCOPE ): 
-                scope = OBJECT;
-                break;
+                return OBJECT;
             case( SearchControls.ONELEVEL_SCOPE ):
-                scope = ONELEVEL;
-                break;
+                return ONELEVEL;
             case( SearchControls.SUBTREE_SCOPE ):
-                scope = SUBTREE;
-                break;
+                return SUBTREE;
+            default:
+                throw new IllegalArgumentException( "Unknown JNDI scope constant value: " + jndiScope );
         }
-        
-        return scope;
     }
 }
