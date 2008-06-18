@@ -28,6 +28,7 @@ import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
@@ -51,6 +52,9 @@ public class ModifyOperationContext extends AbstractOperationContext
 {
     /** The modification items */
     private List<Modification> modItems;
+    
+    /** Cloned entry that is modified */
+    private ClonedServerEntry entry;
 
 
     /**
@@ -123,6 +127,18 @@ public class ModifyOperationContext extends AbstractOperationContext
     public String getName()
     {
         return MessageTypeEnum.MODIFY_REQUEST.name();
+    }
+
+    
+    public void setEntry( ClonedServerEntry entry )
+    {
+        this.entry = entry;
+    }
+    
+    
+    public ClonedServerEntry getEntry()
+    {
+        return entry;
     }
 
     
