@@ -28,6 +28,8 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.event.DirectoryListener;
+import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -50,6 +52,7 @@ import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
@@ -75,10 +78,10 @@ import javax.naming.ldap.Control;
 import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirectoryManager;
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 
 /**
@@ -108,7 +111,8 @@ public abstract class ServerContext implements EventContext
     private final LdapDN dn;
 
     /** The set of registered NamingListeners */
-    private final Set<NamingListener> listeners = new HashSet<NamingListener>();
+    private final Map<NamingListener,DirectoryListener> listeners = 
+        new HashMap<NamingListener,DirectoryListener>();
 
     /** The request controls to set on operations before performing them */
     protected Control[] requestControls = EMPTY_CONTROLS;
@@ -565,17 +569,19 @@ public abstract class ServerContext implements EventContext
      */
     public void close() throws NamingException
     {
-        for ( NamingListener listener : listeners )
+        for ( DirectoryListener listener : listeners.values() )
         {
             try
             {
-                ( ( PartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, listener );
+                service.getEventService().removeListener( listener );
             }
             catch ( Exception e )
             {
                 JndiUtils.wrap( e );
             }
         }
+        
+        listeners.clear();
     }
 
 
@@ -1300,18 +1306,23 @@ public abstract class ServerContext implements EventContext
     public void addNamingListener( Name name, int scope, NamingListener namingListener ) throws NamingException
     {
         ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( scope );
+
         try
         {
-            ( ( PartitionNexusProxy ) this.nexusProxy ).addNamingListener( this, buildTarget( name ), filter, controls,
-                namingListener );
+            DirectoryListener listener = new EventListenerAdapter( ( ServerLdapContext ) this, namingListener );
+            NotificationCriteria criteria = new NotificationCriteria();
+            criteria.setFilter( filter );
+            criteria.setScope( SearchScope.getSearchScope( scope ) );
+            criteria.setAliasDerefMode( AliasDerefMode.getEnum( env ) );
+            criteria.setBase( buildTarget( name ) );
+            
+            service.getEventService().addListener( listener );
+            listeners.put( namingListener, listener );
         }
         catch ( Exception e )
         {
             JndiUtils.wrap( e );
         }
-        listeners.add( namingListener );
     }
 
 
@@ -1325,13 +1336,17 @@ public abstract class ServerContext implements EventContext
     {
         try
         {
-            ( ( PartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, namingListener );
+            DirectoryListener listener = listeners.remove( namingListener );
+            
+            if ( listener != null )
+            {
+                service.getEventService().removeListener( listener );
+            }
         }
         catch ( Exception e )
         {
             JndiUtils.wrap( e );
         }
-        listeners.remove( namingListener );
     }
 
 
@@ -1346,7 +1361,7 @@ public abstract class ServerContext implements EventContext
      *
      * @return the set of listeners used for tracking registered name listeners.
      */
-    protected Set<NamingListener> getListeners()
+    protected Map<NamingListener, DirectoryListener> getListeners()
     {
         return listeners;
     }

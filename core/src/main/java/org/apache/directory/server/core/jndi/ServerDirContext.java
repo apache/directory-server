@@ -25,6 +25,8 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.event.DirectoryListener;
+import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -38,6 +40,7 @@ import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -922,6 +925,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     // EventDirContext implementations
     // ------------------------------------------------------------------------
 
+    
     public void addNamingListener( Name name, String filterStr, SearchControls searchControls,
         NamingListener namingListener ) throws NamingException
     {
@@ -940,14 +944,20 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            ( ( PartitionNexusProxy ) getNexusProxy() ).addNamingListener( this, buildTarget( name ), filter,
-                searchControls, namingListener );
+            DirectoryListener listener = new EventListenerAdapter( ( ServerLdapContext ) this, namingListener );
+            NotificationCriteria criteria = new NotificationCriteria();
+            criteria.setFilter( filter );
+            criteria.setScope( SearchScope.getSearchScope( searchControls ) );
+            criteria.setAliasDerefMode( AliasDerefMode.getEnum( getEnvironment() ) );
+            criteria.setBase( buildTarget( name ) );
+            
+            getDirectoryService().getEventService().addListener( listener );
+            getListeners().put( namingListener, listener );
         }
         catch ( Exception e )
         {
             JndiUtils.wrap( e );
         }
-        getListeners().add( namingListener );
     }
 
 

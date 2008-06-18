@@ -469,6 +469,20 @@ public class MaxImmSubFilterTest
             // TODO Auto-generated method stub
             
         }
+
+
+        public ClonedServerEntry getEntry()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public void setEntry( ClonedServerEntry entry )
+        {
+            // TODO Auto-generated method stub
+            
+        }
     }
 
     class MockDirectoryService implements DirectoryService

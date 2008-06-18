@@ -22,12 +22,12 @@ package org.apache.directory.server.core.event;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -46,323 +46,164 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.LeafNode;
-import org.apache.directory.shared.ldap.filter.NotNode;
-import org.apache.directory.shared.ldap.filter.ScopeNode;
-import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Binding;
-import javax.naming.directory.SearchControls;
-import javax.naming.event.EventContext;
-import javax.naming.event.NamespaceChangeListener;
-import javax.naming.event.NamingEvent;
-import javax.naming.event.NamingListener;
-import javax.naming.event.ObjectChangeListener;
-
 
 /**
- * An interceptor based service for notifying NamingListeners of EventContext
- * and EventDirContext changes.
+ * An {@link Interceptor} based service for notifying {@link 
+ * DirectoryListener}s of changes to the DIT.
  *
  * @org.apache.xbean.XBean
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 666516 $
  */
 public class EventInterceptor extends BaseInterceptor
 {
-    private static Logger log = LoggerFactory.getLogger( EventInterceptor.class );
+    private final static Logger LOG = LoggerFactory.getLogger( EventInterceptor.class );
 
-    private Map<NamingListener, Object> sources = new HashMap<NamingListener, Object>();
+    
+    private List<RegistrationEntry> registrations = new CopyOnWriteArrayList<RegistrationEntry>();
+    private DirectoryService ds;
+    private NormalizingVisitor filterNormalizer;
     private Evaluator evaluator;
-    private AttributeTypeRegistry attributeRegistry;
-    private NormalizingVisitor visitor;
-
-
-    public void init( DirectoryService directoryService ) throws Exception
+    private ExecutorService executor;
+    
+    
+    @Override
+    public void init( DirectoryService ds ) throws Exception
     {
-        super.init( directoryService );
-
-        OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
-        attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
-        evaluator = new ExpressionEvaluator( oidRegistry, attributeRegistry );
+        LOG.info( "Initializing ..." );
+        super.init( ds );
+        
+        this.ds = ds;
+        OidRegistry oidRegistry = ds.getRegistries().getOidRegistry();
+        AttributeTypeRegistry attributeRegistry = ds.getRegistries().getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
-        visitor = new NormalizingVisitor( ncn, directoryService.getRegistries() );
+        filterNormalizer = new NormalizingVisitor( ncn, ds.getRegistries() );
+        evaluator = new ExpressionEvaluator( oidRegistry, attributeRegistry );
+        executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, 
+            new ArrayBlockingQueue<Runnable>( 100 ) );
+        
+        this.ds.setEventService( new DefaultEventService() );
+        LOG.info( "Initialization complete." );
     }
 
-
-    /**
-     * Registers a NamingListener with this service for notification of change.
-     *
-     * @param ctx the context used to register on (the source)
-     * @param name the name of the base/target
-     * @param filter the filter to use for evaluating event triggering
-     * @param searchControls the search controls to use when evaluating triggering
-     * @param namingListener the naming listener to register
-     * @throws Exception if there are failures adding the naming listener
-     */
-    @SuppressWarnings("unchecked")
-    public void addNamingListener( EventContext ctx, LdapDN name, ExprNode filter, SearchControls searchControls,
-        NamingListener namingListener ) throws Exception
+    
+    private void fire( final OperationContext opContext, EventType type, final DirectoryListener listener )
     {
-        LdapDN normalizedBaseDn = new LdapDN( name );
-        normalizedBaseDn.normalize( attributeRegistry.getNormalizerMapping() );
-
-        // -------------------------------------------------------------------
-        // must normalize the filter here: need to handle special cases
-        // -------------------------------------------------------------------
-
-        if ( filter.isLeaf() )
+        switch ( type )
         {
-            LeafNode ln = ( LeafNode ) filter;
-
-            if ( !attributeRegistry.hasAttributeType( ln.getAttribute() ) )
-            {
-                StringBuffer buf = new StringBuffer();
-                buf.append( "undefined filter based on undefined attributeType '" );
-                buf.append( ln.getAttribute() );
-                buf.append( "' not evaluted at all.  Only using scope node." );
-                log.warn( buf.toString() );
-                filter = null;
-            }
-            else
-            {
-                filter.accept( visitor );
-            }
-        }
-        else
-        {
-            filter.accept( visitor );
-
-            // Check that after pruning/normalization we have a valid branch node at the top
-            BranchNode child = ( BranchNode ) filter;
-
-            // If the remaining filter branch node has no children set filter to null
-            if ( child.getChildren().size() == 0 )
-            {
-                log.warn( "Undefined branchnode filter without child nodes not evaluted at all. "
-                    + "Only using scope node." );
-                filter = null;
-            }
-
-            // Now for AND & OR nodes with a single child left replace them with their child
-            if ( child.getChildren().size() == 1 && !( child instanceof NotNode ) )
-            {
-                filter = child.getFirstChild();
-            }
-        }
-
-        ScopeNode scope = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, normalizedBaseDn.toNormName(),
-            SearchScope.getSearchScope( searchControls ) );
-
-        if ( filter != null )
-        {
-            BranchNode and = new AndNode();
-            and.addNode( scope );
-            and.addNode( filter );
-            filter = and;
-        }
-        else
-        {
-            filter = scope;
-        }
-
-        EventSourceRecord rec = new EventSourceRecord( name, filter, ctx, searchControls, namingListener );
-        Object obj = sources.get( namingListener );
-
-        if ( obj == null )
-        {
-            sources.put( namingListener, rec );
-        }
-        else if ( obj instanceof EventSourceRecord )
-        {
-            List<Object> list = new ArrayList<Object>();
-            list.add( obj );
-            list.add( rec );
-            sources.put( namingListener, list );
-        }
-        else if ( obj instanceof List )
-        {
-            //noinspection unchecked
-            List<Object> list = ( List<Object> ) obj;
-            list.add( rec );
-        }
-    }
-
-
-    @SuppressWarnings("unchecked")
-    public void removeNamingListener( EventContext ctx, NamingListener namingListener )
-    {
-        Object obj = sources.get( namingListener );
-
-        if ( obj == null )
-        {
-            return;
-        }
-
-        if ( obj instanceof EventSourceRecord )
-        {
-            sources.remove( namingListener );
-        }
-        else if ( obj instanceof List )
-        {
-            List<EventSourceRecord> list = ( List<EventSourceRecord> ) obj;
-
-            for ( int ii = 0; ii < list.size(); ii++ )
-            {
-                EventSourceRecord rec = list.get( ii );
-                if ( rec.getEventContext() == ctx )
+            case ADD:
+                executor.execute( new Runnable() 
                 {
-                    list.remove( ii );
-                }
-            }
-
-            if ( list.isEmpty() )
-            {
-                sources.remove( namingListener );
-            }
+                    public void run()
+                    {
+                        listener.entryAdded( ( AddOperationContext ) opContext );
+                    }
+                });
+                break;
+            case DELETE:
+                executor.execute( new Runnable() 
+                {
+                    public void run()
+                    {
+                        listener.entryDeleted( ( DeleteOperationContext ) opContext );
+                    }
+                });
+                break;
+            case MODIFY:
+                executor.execute( new Runnable() 
+                {
+                    public void run()
+                    {
+                        listener.entryModified( ( ModifyOperationContext ) opContext );
+                    }
+                });
+                break;
+            case MOVE:
+                executor.execute( new Runnable() 
+                {
+                    public void run()
+                    {
+                        listener.entryMoved( ( MoveOperationContext ) opContext );
+                    }
+                });
+                break;
+            case RENAME:
+                executor.execute( new Runnable() 
+                {
+                    public void run()
+                    {
+                        listener.entryRenamed( ( RenameOperationContext ) opContext );
+                    }
+                });
+                break;
         }
-
     }
-
-
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
+    
+    
+    public void add( NextInterceptor next, final AddOperationContext opContext ) throws Exception
     {
         next.add( opContext );
-        //super.add( next, opContext );
-
-        LdapDN name = opContext.getDn();
-        ServerEntry entry = opContext.getEntry();
-
-        Set<EventSourceRecord> selecting = getSelectingSources( name, entry );
+        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), opContext.getEntry() );
 
         if ( selecting.isEmpty() )
         {
             return;
         }
 
-        Iterator<EventSourceRecord> list = selecting.iterator();
-
-        while ( list.hasNext() )
+        for ( final RegistrationEntry registration : selecting )
         {
-            EventSourceRecord rec = list.next();
-            NamingListener listener = rec.getNamingListener();
-
-            if ( listener instanceof NamespaceChangeListener )
+            if ( EventType.isAdd( registration.getCriteria().getEventMask() ) )
             {
-                NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
-                Binding binding = new Binding( name.getUpName(), entry, false );
-                nclistener.objectAdded( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_ADDED, binding,
-                    null, entry ) );
+                fire( opContext, EventType.ADD, registration.getListener() );
             }
         }
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor next, final DeleteOperationContext opContext ) throws Exception
     {
-        LdapDN name = opContext.getDn();
-        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
-
+        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), opContext.getEntry() );
         next.delete( opContext );
-        //super.delete( next, opContext );
-
-        Set<EventSourceRecord> selecting = getSelectingSources( name, entry );
 
         if ( selecting.isEmpty() )
         {
             return;
         }
 
-        Iterator<EventSourceRecord> list = selecting.iterator();
-
-        while ( list.hasNext() )
+        for ( final RegistrationEntry registration : selecting )
         {
-            EventSourceRecord rec = ( EventSourceRecord ) list.next();
-            NamingListener listener = rec.getNamingListener();
-
-            if ( listener instanceof NamespaceChangeListener )
+            if ( EventType.isDelete( registration.getCriteria().getEventMask() ) )
             {
-                NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
-                Binding binding = new Binding( name.getUpName(), entry, false );
-                nclistener.objectRemoved( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_REMOVED, null,
-                    binding, entry ) );
+                fire( opContext, EventType.DELETE, registration.getListener() );
             }
         }
     }
 
 
-    private void notifyOnModify( OperationContext opContext, LdapDN name, List<Modification> mods, ServerEntry oriEntry )
-        throws Exception
-    {
-        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
-        Set<EventSourceRecord> selecting = getSelectingSources( name, entry );
-
-        if ( selecting.isEmpty() )
-        {
-            return;
-        }
-
-        Iterator<EventSourceRecord> list = selecting.iterator();
-
-        while ( list.hasNext() )
-        {
-            EventSourceRecord rec = list.next();
-            NamingListener listener = rec.getNamingListener();
-
-            if ( listener instanceof ObjectChangeListener )
-            {
-                ObjectChangeListener oclistener = ( ObjectChangeListener ) listener;
-                Binding before = new Binding( name.getUpName(), oriEntry, false );
-                Binding after = new Binding( name.getUpName(), entry, false );
-                oclistener.objectChanged( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_CHANGED, after,
-                    before, mods ) );
-            }
-        }
-    }
-
-
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    public void modify( NextInterceptor next, final ModifyOperationContext opContext ) throws Exception
     {
         ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
         next.modify( opContext );
-        notifyOnModify( opContext, opContext.getDn(), opContext.getModItems(), oriEntry );
-    }
-
-
-    private void notifyOnNameChange( OperationContext opContext, LdapDN oldName, LdapDN newName ) throws Exception
-    {
-        ClonedServerEntry entry = opContext.lookup( newName, ByPassConstants.LOOKUP_COLLECTIVE_BYPASS );
-        Set<EventSourceRecord> selecting = getSelectingSources( oldName, entry );
 
         if ( selecting.isEmpty() )
         {
             return;
         }
 
-        Iterator<EventSourceRecord> list = selecting.iterator();
-
-        while ( list.hasNext() )
+        for ( final RegistrationEntry registration : selecting )
         {
-            EventSourceRecord rec = list.next();
-            NamingListener listener = rec.getNamingListener();
-
-            if ( listener instanceof NamespaceChangeListener )
+            if ( EventType.isModify( registration.getCriteria().getEventMask() ) )
             {
-                NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
-                Binding oldBinding = new Binding( oldName.getUpName(), entry, false );
-                Binding newBinding = new Binding( newName.getUpName(), entry, false );
-                nclistener.objectRenamed( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_RENAMED,
-                    newBinding, oldBinding, entry ) );
+                fire( opContext, EventType.MODIFY, registration.getListener() );
             }
         }
     }
@@ -370,133 +211,170 @@ public class EventInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
+        ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
         next.rename( opContext );
-        //super.rename( next, opContext );
 
-        LdapDN newName = ( LdapDN ) opContext.getDn().clone();
-        newName.remove( newName.size() - 1 );
-        newName.add( opContext.getNewRdn() );
-        newName.normalize( attributeRegistry.getNormalizerMapping() );
-        notifyOnNameChange( opContext, opContext.getDn(), newName );
+        if ( selecting.isEmpty() )
+        {
+            return;
+        }
+
+        for ( final RegistrationEntry registration : selecting )
+        {
+            if ( EventType.isRename( registration.getCriteria().getEventMask() ) )
+            {
+                fire( opContext, EventType.RENAME, registration.getListener() );
+            }
+        }
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
+    public void moveAndRename( NextInterceptor next, final MoveAndRenameOperationContext opContext ) throws Exception
     {
+        ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
         next.moveAndRename( opContext );
-        //super.moveAndRename( next, opContext );
 
-        LdapDN newName = ( LdapDN ) opContext.getParent().clone();
-        newName.add( opContext.getNewRdn() );
-        notifyOnNameChange( opContext, opContext.getDn(), newName );
+        if ( selecting.isEmpty() )
+        {
+            return;
+        }
+
+        for ( final RegistrationEntry registration : selecting )
+        {
+            if ( EventType.isMoveAndRename( registration.getCriteria().getEventMask() ) )
+            {
+                executor.execute( new Runnable() 
+                {
+                    public void run()
+                    {
+                        registration.getListener().entryMovedAndRenamed( opContext );
+                    }
+                });
+            }
+        }
     }
 
 
     public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
+        ClonedServerEntry oriEntry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
+        List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
         next.move( opContext );
-        //super.move( next, opContext );
 
-        LdapDN oriChildName = opContext.getDn();
-
-        LdapDN newName = ( LdapDN ) opContext.getParent().clone();
-        newName.add( oriChildName.get( oriChildName.size() - 1 ) );
-        notifyOnNameChange( opContext, oriChildName, newName );
-    }
-
-
-    @SuppressWarnings("unchecked")
-    Set<EventSourceRecord> getSelectingSources( LdapDN name, ServerEntry entry ) throws Exception
-    {
-        if ( sources.isEmpty() )
+        if ( selecting.isEmpty() )
         {
-            return Collections.emptySet();
+            return;
         }
 
-        Set<EventSourceRecord> selecting = new HashSet<EventSourceRecord>();
-        Iterator<Object> list = sources.values().iterator();
-
-        while ( list.hasNext() )
+        for ( final RegistrationEntry registration : selecting )
         {
-            Object obj = list.next();
-
-            if ( obj instanceof EventSourceRecord )
+            if ( EventType.isMove( registration.getCriteria().getEventMask() ) )
             {
-                EventSourceRecord rec = ( EventSourceRecord ) obj;
-
-                if ( evaluator.evaluate( rec.getFilter(), name.toNormName(), entry ) )
-                {
-                    selecting.add( rec );
-                }
+                fire( opContext, EventType.MOVE, registration.getListener() );
             }
-            else if ( obj instanceof List )
-            {
-                List<EventSourceRecord> records = ( List<EventSourceRecord> ) obj;
+        }
+    }
+    
+    
+    List<RegistrationEntry> getSelectingRegistrations( LdapDN name, ServerEntry entry ) throws Exception
+    {
+        if ( registrations.isEmpty() )
+        {
+            return Collections.emptyList();
+        }
 
-                for ( EventSourceRecord rec : records )
-                {
-                    if ( evaluator.evaluate( rec.getFilter(), name.toNormName(), entry ) )
-                    {
-                        selecting.add( rec );
-                    }
-                }
-            }
-            else
+        List<RegistrationEntry> selecting = new ArrayList<RegistrationEntry>();
+        
+        for ( RegistrationEntry registration : registrations )
+        {
+            NotificationCriteria criteria = registration.getCriteria();
+            if ( evaluator.evaluate( criteria.getFilter(), criteria.getBase().toNormName(), entry ) )
             {
-                throw new IllegalStateException( "Unexpected class type of " + obj.getClass() );
+                selecting.add( registration );
             }
         }
 
         return selecting;
     }
-
-    class EventSourceRecord
+    
+    
+    // -----------------------------------------------------------------------
+    // EventService Inner Class
+    // -----------------------------------------------------------------------
+    
+    
+    class DefaultEventService implements EventService
     {
-        private LdapDN base;
-        private SearchControls controls;
-        private ExprNode filter;
-        private EventContext context;
-        private NamingListener listener;
-
-
-        public EventSourceRecord( LdapDN base, ExprNode filter, EventContext context, SearchControls controls,
-            NamingListener listener )
+        /*
+         * Does not need normalization since default values in criteria is used.
+         */
+        public void addListener( DirectoryListener listener )
         {
-            this.filter = filter;
-            this.context = context;
-            this.base = base;
-            this.controls = controls;
+            registrations.add( new RegistrationEntry( listener ) );
+        }
+
+        
+        /*
+         * Normalizes the criteria filter and the base.
+         */
+        public void addListener( DirectoryListener listener, NotificationCriteria criteria ) throws Exception
+        {
+            criteria.getBase().normalize( ds.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            ExprNode result = ( ExprNode ) criteria.getFilter().accept( filterNormalizer );
+            criteria.setFilter( result );
+            registrations.add( new RegistrationEntry( listener, criteria ) );
+        }
+
+        
+        public void removeListener( DirectoryListener listener )
+        {
+            for ( RegistrationEntry entry : registrations )
+            {
+                if ( entry.getListener() == listener )
+                {
+                    registrations.remove( listener );
+                }
+            }
+        }
+    }
+    
+    
+    class RegistrationEntry
+    {
+        private final DirectoryListener listener;
+        private final NotificationCriteria criteria;
+
+        
+        RegistrationEntry( DirectoryListener listener )
+        {
+            this( listener, new NotificationCriteria() );
+        }
+
+        
+        RegistrationEntry( DirectoryListener listener, NotificationCriteria criteria )
+        {
             this.listener = listener;
+            this.criteria = criteria;
         }
 
 
-        public NamingListener getNamingListener()
+        /**
+         * @return the criteria
+         */
+        NotificationCriteria getCriteria()
+        {
+            return criteria;
+        }
+
+
+        /**
+         * @return the listener
+         */
+        DirectoryListener getListener()
         {
             return listener;
-        }
-
-
-        public ExprNode getFilter()
-        {
-            return filter;
-        }
-
-
-        public EventContext getEventContext()
-        {
-            return context;
-        }
-
-
-        public LdapDN getBase()
-        {
-            return base;
-        }
-
-
-        public SearchControls getSearchControls()
-        {
-            return controls;
         }
     }
 }

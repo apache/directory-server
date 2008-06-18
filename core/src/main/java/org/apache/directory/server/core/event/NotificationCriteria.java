@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 /**
  * Contains the set of notification criteria required for triggering the 
  * delivery of change notifications notifications to {@link DirectoryListener}s.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

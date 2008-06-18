@@ -405,7 +405,7 @@ public class SubentryInterceptor extends BaseInterceptor
     public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
         LdapDN name = addContext.getDn();
-        ServerEntry entry = addContext.getEntry();
+        ClonedServerEntry entry = addContext.getEntry();
 
         EntryAttribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -496,6 +496,8 @@ public class SubentryInterceptor extends BaseInterceptor
                 }
             }
 
+            // TODO why are we doing this here if we got the entry from the 
+            // opContext in the first place - got to look into this 
             addContext.setEntry( entry );
         }
         else
@@ -573,6 +575,8 @@ public class SubentryInterceptor extends BaseInterceptor
                 }
             }
 
+            // TODO why are we doing this here if we got the entry from the 
+            // opContext in the first place - got to look into this 
             addContext.setEntry( entry );
 
             next.add( addContext );

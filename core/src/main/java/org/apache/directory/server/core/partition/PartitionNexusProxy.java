@@ -28,14 +28,11 @@ import java.util.Set;
 import javax.naming.Context;
 import javax.naming.ServiceUnavailableException;
 import javax.naming.directory.SearchControls;
-import javax.naming.event.EventContext;
-import javax.naming.event.NamingListener;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
@@ -65,8 +62,8 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A decorator that wraps other {@link PartitionNexus} to enable
@@ -782,38 +779,6 @@ public class PartitionNexusProxy extends PartitionNexus
     public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws Exception
     {
         service.getPartitionNexus().registerSupportedSaslMechanisms( supportedSaslMechanisms );
-    }
-
-
-    // -----------------------------------------------------------------------
-    // EventContext and EventDirContext notification methods
-    // -----------------------------------------------------------------------
-
-    /*
-     * All listener registration/deregistration methods can be reduced down to
-     * the following methods.  Rather then make these actual intercepted methods
-     * we use them as out of band methods to interface with the notification
-     * interceptor.
-     */
-
-    public void addNamingListener( EventContext ctx, LdapDN name, ExprNode filter, SearchControls searchControls,
-            NamingListener namingListener ) throws Exception
-    {
-        InterceptorChain chain = service.getInterceptorChain();
-        EventInterceptor interceptor = ( EventInterceptor ) chain.get( EventInterceptor.class.getName() );
-        interceptor.addNamingListener( ctx, name, filter, searchControls, namingListener );
-    }
-
-
-    public void removeNamingListener( EventContext ctx, NamingListener namingListener ) throws Exception
-    {
-        InterceptorChain chain = service.getInterceptorChain();
-        if ( chain == null )
-        {
-            return;
-        }
-        EventInterceptor interceptor = ( EventInterceptor ) chain.get( EventInterceptor.class.getName() );
-        interceptor.removeNamingListener( ctx, namingListener );
     }
 
 
