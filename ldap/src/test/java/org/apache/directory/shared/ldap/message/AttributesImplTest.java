@@ -29,7 +29,6 @@ import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 /**
  * Test cases for the methods of the LockableAttributeImpl class.

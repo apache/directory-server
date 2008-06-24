@@ -329,7 +329,7 @@ public class ModifyDNRequestTest extends TestCase
         assertEquals( "ou=system", modifyDNRequest.getNewSuperior().toString() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
@@ -483,7 +483,7 @@ public class ModifyDNRequestTest extends TestCase
         assertEquals( "cn=testDNModify", modifyDNRequest.getNewRDN().toString() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

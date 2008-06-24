@@ -542,6 +542,89 @@ public class BindRequestTest extends TestCase
 
 
     /**
+     * Test the decoding of a BindRequest with Sasl authentication, no name, a
+     * credentials and no controls
+     */
+    public void testDecodeBindRequestSaslNoNameCredsNoControls()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x23 );
+        stream.put( new byte[]
+            { 
+            0x30, 0x21,                 // LDAPMessage ::=SEQUENCE {
+              0x02, 0x01, 0x01,         // messageID MessageID
+              0x60, 0x1C,               // CHOICE { ..., bindRequest BindRequest, ...
+                                        // BindRequest ::= APPLICATION[0] SEQUENCE {
+                0x02, 0x01, 0x03,       // version INTEGER (1..127),
+                0x04, 0x00,             // name LDAPDN,
+                ( byte ) 0xA3, 0x15,    // authentication AuthenticationChoice
+                                        // }
+                                        // AuthenticationChoice ::= CHOICE { ... sasl [3]
+                                        // SaslCredentials }
+                                        // SaslCredentials ::= SEQUENCE {
+                                        // mechanism LDAPSTRING,
+                                        // ...
+                  0x04, 0x0B, 
+                    'K', 'E', 'R', 'B', 'E', 'R', 'O', 'S', '_', 'V', '4', 
+                  ( byte ) 0x04, 0x06,  // SaslCredentials ::= SEQUENCE {
+                                        // ...
+                                        // credentials OCTET STRING OPTIONAL }
+                                        // 
+                    'a', 'b', 'c', 'd', 'e', 'f' 
+            } );
+        
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a LdapMessage Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        // Decode the BindRequest PDU
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+
+        // Check the decoded BindRequest
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        BindRequest br = message.getBindRequest();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( 3, br.getVersion() );
+        assertEquals( "", br.getName().toString() );
+        assertEquals( true, ( br.getAuthentication() instanceof SaslCredentials ) );
+        assertEquals( "KERBEROS_V4", ( ( SaslCredentials ) br.getAuthentication() ).getMechanism() );
+        assertEquals( "abcdef", StringTools.utf8ToString( ( ( SaslCredentials ) br.getAuthentication() )
+            .getCredentials() ) );
+
+        // Check the length
+        assertEquals( 0x23, message.computeLength() );
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+
+            String encodedPdu = StringTools.dumpBytes( bb.array() );
+
+            assertEquals( encodedPdu, decodedPdu );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+
+
+    /**
      * Test the decoding of a BindRequest with an empty body
      */
     public void testDecodeBindRequestEmptyBody()
@@ -1129,7 +1212,7 @@ public class BindRequestTest extends TestCase
         assertEquals( 0x2F, message.computeLength() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
@@ -1208,7 +1291,7 @@ public class BindRequestTest extends TestCase
         assertEquals( 0x2D, message.computeLength() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

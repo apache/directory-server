@@ -116,7 +116,7 @@ public class BindRequestPerfTest extends TestCase
             .getSimple() ) );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
@@ -152,7 +152,6 @@ public class BindRequestPerfTest extends TestCase
         LdapDN name = new LdapDN( "uid=akarasulu,dc=example,dc=com" );
         int nbLoops = 10000;
         long t0 = System.currentTimeMillis();
-        ByteBuffer bb=null;
         
         for ( int i = 0; i< nbLoops; i++)
         {
@@ -176,7 +175,7 @@ public class BindRequestPerfTest extends TestCase
             // Check the encoding
             try
             {
-                bb = message.encode( null );
+                message.encode( null );
             }
             catch ( EncoderException ee )
             {

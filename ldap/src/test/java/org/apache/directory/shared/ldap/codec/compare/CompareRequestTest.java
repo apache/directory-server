@@ -460,7 +460,7 @@ public class CompareRequestTest extends TestCase
         assertEquals( "value", compareRequest.getAssertionValue().toString() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

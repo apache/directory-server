@@ -1167,7 +1167,7 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 0, attributeValue.size() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

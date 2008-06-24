@@ -277,16 +277,16 @@ public class SubtreeSpecificationParserTest extends TestCase
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_REFINEMENT );
 
-        SimpleNode n1 = new EqualityNode( "objectClass", new ClientStringValue( "1.2.3" ) );
-        SimpleNode n2 = new EqualityNode( "objectClass", new ClientStringValue( "4.5.6" ) );
-        SimpleNode n3 = new EqualityNode( "objectClass", new ClientStringValue( "person-7" ) );
+        SimpleNode<String> n1 = new EqualityNode<String>( "objectClass", new ClientStringValue( "1.2.3" ) );
+        SimpleNode<String> n2 = new EqualityNode<String>( "objectClass", new ClientStringValue( "4.5.6" ) );
+        SimpleNode<String> n3 = new EqualityNode<String>( "objectClass", new ClientStringValue( "person-7" ) );
         BranchNode n4 = new OrNode();
         n4.addNode( n2 );
         n4.addNode( n3 );
         BranchNode n5 = new AndNode();
         n5.addNode( n1 );
         n5.addNode( n4 );
-        SimpleNode n6 = new EqualityNode( "objectClass", new ClientStringValue( "10.11.12" ) );
+        SimpleNode<String> n6 = new EqualityNode<String>( "objectClass", new ClientStringValue( "10.11.12" ) );
         BranchNode n7 = new NotNode();
         n7.addNode( n6 );
         BranchNode n8 = new AndNode();

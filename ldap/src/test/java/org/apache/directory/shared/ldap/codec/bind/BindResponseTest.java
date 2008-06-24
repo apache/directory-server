@@ -175,7 +175,7 @@ public class BindResponseTest extends TestCase
         assertEquals( 0x3C, message.computeLength() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
@@ -331,7 +331,7 @@ public class BindResponseTest extends TestCase
         assertEquals( "", StringTools.utf8ToString( br.getServerSaslCreds() ) );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

@@ -132,18 +132,18 @@ public class ReferralImplTest extends TestCase
     {
         Referral refs0 = new Referral()
         {
-            public Collection getLdapUrls()
+            public Collection<String> getLdapUrls()
             {
                 return Collections.EMPTY_LIST;
             }
 
 
-            public void addLdapUrl( String a_url )
+            public void addLdapUrl( String url )
             {
             }
 
 
-            public void removeLdapUrl( String a_url )
+            public void removeLdapUrl( String url )
             {
             }
         };

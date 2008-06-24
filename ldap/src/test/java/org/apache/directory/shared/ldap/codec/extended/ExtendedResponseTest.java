@@ -186,7 +186,7 @@ public class ExtendedResponseTest extends TestCase
         assertEquals( "value", StringTools.utf8ToString( ( byte[] ) extendedResponse.getResponse() ) );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
@@ -339,7 +339,7 @@ public class ExtendedResponseTest extends TestCase
         assertEquals( "", extendedResponse.getLdapResult().getErrorMessage() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
@@ -617,7 +617,7 @@ public class ExtendedResponseTest extends TestCase
         assertEquals( "", StringTools.utf8ToString( ( byte[] ) extendedResponse.getResponse() ) );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
@@ -777,7 +777,7 @@ public class ExtendedResponseTest extends TestCase
         assertEquals( "", StringTools.utf8ToString( ( byte[] ) extendedResponse.getResponse() ) );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

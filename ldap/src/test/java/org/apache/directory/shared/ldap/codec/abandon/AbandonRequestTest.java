@@ -108,7 +108,7 @@ public class AbandonRequestTest extends TestCase
         assertEquals( 2, abandonRequest.getAbandonedMessageId() );
 
         // Check the Controls
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 4, controls.size() );
 

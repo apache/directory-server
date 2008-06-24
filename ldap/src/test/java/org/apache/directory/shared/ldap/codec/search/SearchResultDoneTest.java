@@ -167,7 +167,7 @@ public class SearchResultDoneTest extends TestCase
         assertEquals( "", searchResultDone.getLdapResult().getErrorMessage() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

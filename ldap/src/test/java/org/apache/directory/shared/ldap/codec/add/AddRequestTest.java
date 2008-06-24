@@ -144,7 +144,7 @@ public class AddRequestTest extends TestCase
         assertTrue( expectedTypes.contains( attributeValue.getID().toLowerCase() ) );
 
         NamingEnumeration<?> values = attributeValue.getAll();
-        HashSet vals = ( HashSet ) typesVals.get( attributeValue.getID().toLowerCase() );
+        Set<String> vals = ( Set<String> ) typesVals.get( attributeValue.getID().toLowerCase() );
 
         while ( values.hasMore() )
         {
@@ -160,7 +160,7 @@ public class AddRequestTest extends TestCase
         assertTrue( expectedTypes.contains( attributeValue.getID().toLowerCase() ) );
 
         values = attributeValue.getAll();
-        vals = ( HashSet ) typesVals.get( attributeValue.getID().toLowerCase() );
+        vals = ( Set<String> ) typesVals.get( attributeValue.getID().toLowerCase() );
 
         while ( values.hasMore() )
         {
@@ -720,7 +720,7 @@ public class AddRequestTest extends TestCase
         assertEquals( 0x51, message.computeLength() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

@@ -39,7 +39,7 @@ public enum AuthenticationLevel
     SIMPLE( 1, "simple" ),
 
     /**
-     * Strong authentication (bound with encrypted cerdentials)
+     * Strong authentication (bound with encrypted credentials)
      */
     STRONG( 2, "strong" );
     

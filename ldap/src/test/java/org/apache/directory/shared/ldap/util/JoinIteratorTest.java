@@ -54,7 +54,7 @@ public class JoinIteratorTest extends TestCase
 
     public void testSingleArgument()
     {
-        Iterator[] iterators = new Iterator[]
+        Iterator<?>[] iterators = new Iterator<?>[]
             { Collections.singleton( "foo" ).iterator() };
 
         try
@@ -71,7 +71,7 @@ public class JoinIteratorTest extends TestCase
 
     public void testTwoArguments()
     {
-        Iterator[] iterators = new Iterator[]
+        Iterator<?>[] iterators = new Iterator<?>[]
             { Collections.singleton( "foo" ).iterator(), Collections.singleton( "bar" ).iterator() };
 
         JoinIterator iterator = new JoinIterator( iterators );
@@ -89,7 +89,7 @@ public class JoinIteratorTest extends TestCase
         multivalued.add( "foo1" );
         multivalued.add( "foo2" );
 
-        Iterator[] iterators = new Iterator[]
+        Iterator<?>[] iterators = new Iterator<?>[]
             { Collections.singleton( "foo0" ).iterator(), multivalued.iterator(),
                 Collections.singleton( "bar0" ).iterator(), Collections.singleton( "bar1" ).iterator() };
 

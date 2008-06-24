@@ -168,7 +168,7 @@ public class ModifyResponseTest extends TestCase
         assertEquals( "", modifyResponse.getLdapResult().getErrorMessage() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

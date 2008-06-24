@@ -115,7 +115,7 @@ public class SearchResultEntryTest extends TestCase
 
             assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
 
-            NamingEnumeration values = attributeValue.getAll();
+            NamingEnumeration<?> values = attributeValue.getAll();
 
             Set<String> expectedValues = new HashSet<String>();
 
@@ -225,7 +225,7 @@ public class SearchResultEntryTest extends TestCase
 
             assertEquals( expectedAttributes[i].toLowerCase(), attributeValue.getID().toLowerCase() );
 
-            NamingEnumeration values = attributeValue.getAll();
+            NamingEnumeration<?> values = attributeValue.getAll();
 
             Set<String> expectedValues = new HashSet<String>();
 
@@ -334,7 +334,7 @@ public class SearchResultEntryTest extends TestCase
 
             assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
 
-            NamingEnumeration values = attributeValue.getAll();
+            NamingEnumeration<?> values = attributeValue.getAll();
 
             Set<String> expectedValues = new HashSet<String>();
 
@@ -807,7 +807,7 @@ public class SearchResultEntryTest extends TestCase
 
             assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
 
-            NamingEnumeration values = attributeValue.getAll();
+            NamingEnumeration<?> values = attributeValue.getAll();
 
             assertFalse( values.hasMore() );
         }
@@ -888,7 +888,7 @@ public class SearchResultEntryTest extends TestCase
 
         Attribute attributeValue = partialAttributesList.get( "objectclass" );
         assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
-        NamingEnumeration values = attributeValue.getAll();
+        NamingEnumeration<?> values = attributeValue.getAll();
         assertFalse( values.hasMore() );
 
         attributeValue = partialAttributesList.get( "objectclazz" );
@@ -977,13 +977,13 @@ public class SearchResultEntryTest extends TestCase
 
             assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
 
-            NamingEnumeration values = attributeValue.getAll();
+            NamingEnumeration<?> values = attributeValue.getAll();
 
             assertFalse( values.hasMore() );
         }
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
@@ -1071,7 +1071,7 @@ public class SearchResultEntryTest extends TestCase
 
             assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
 
-            NamingEnumeration values = attributeValue.getAll();
+            NamingEnumeration<?> values = attributeValue.getAll();
 
             while ( values.hasMore() )
             {
@@ -1164,7 +1164,7 @@ public class SearchResultEntryTest extends TestCase
 
             assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
 
-            NamingEnumeration values = attributeValue.getAll();
+            NamingEnumeration<?> values = attributeValue.getAll();
 
             while ( values.hasMore() )
             {
@@ -1175,7 +1175,7 @@ public class SearchResultEntryTest extends TestCase
         }
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

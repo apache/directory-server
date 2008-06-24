@@ -170,7 +170,7 @@ public class CompareResponseTest extends TestCase
         assertEquals( "", compareResponse.getLdapResult().getErrorMessage() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

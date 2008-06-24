@@ -1350,8 +1350,8 @@ public class RdnTest
 
         assertTrue( RdnParser.isValid( "a=\"b\\,c\"" ) );
         Rdn rdn = new Rdn( "a=\"b\\,c\"" );
-        assertEquals( "a=\"b\\,c\"", new Rdn( "a=\"b\\,c\"" ).getUpName() );
-        assertEquals( "a=b\\,c", new Rdn( "a=\"b\\,c\"" ).toString() );
+        assertEquals( "a=\"b\\,c\"", rdn.getUpName() );
+        assertEquals( "a=b\\,c", rdn.toString() );
     }
 
 
