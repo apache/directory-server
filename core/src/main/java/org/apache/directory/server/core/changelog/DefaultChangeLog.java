@@ -19,11 +19,9 @@
 package org.apache.directory.server.core.changelog;
 
 
-import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-
-import javax.naming.NamingException;
 
 
 /**
@@ -53,13 +51,13 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public long getCurrentRevision() throws NamingException
+    public long getCurrentRevision() throws Exception
     {
         return store.getCurrentRevision();
     }
 
 
-    public long log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws NamingException
+    public long log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
     {
         if ( ! enabled )
         {
@@ -112,7 +110,7 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public Tag tag( long revision, String description ) throws NamingException
+    public Tag tag( long revision, String description ) throws Exception
     {
         if ( revision < 0 )
         {
@@ -133,19 +131,19 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public Tag tag( long revision ) throws NamingException
+    public Tag tag( long revision ) throws Exception
     {
         return tag( revision, null );
     }
 
 
-    public Tag tag( String description ) throws NamingException
+    public Tag tag( String description ) throws Exception
     {
         return tag( store.getCurrentRevision(), description );
     }
 
 
-    public Tag tag() throws NamingException
+    public Tag tag() throws Exception
     {
         return tag( store.getCurrentRevision(), null );
     }
@@ -163,7 +161,7 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public Tag getLatest() throws NamingException
+    public Tag getLatest() throws Exception
     {
         if ( latest != null )
         {
@@ -179,7 +177,7 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public void init( DirectoryService service ) throws NamingException
+    public void init( DirectoryService service ) throws Exception
     {
         if ( enabled )
         {
@@ -188,7 +186,7 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public void sync() throws NamingException
+    public void sync() throws Exception
     {
         if ( enabled )
         {
@@ -197,7 +195,7 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public void destroy() throws NamingException
+    public void destroy() throws Exception
     {
         if ( enabled )
         {

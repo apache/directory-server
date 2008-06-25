@@ -21,7 +21,6 @@ package org.apache.directory.server.core.changelog;
 
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -65,9 +64,9 @@ public interface ChangeLogSearchEngine
      *
      * @param generalizedTime the generalized time descriptor to find the effective revision for
      * @return the revision that was in effect at a certain time
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      */
-    long lookup( String generalizedTime ) throws NamingException;
+    long lookup( String generalizedTime ) throws Exception;
 
 
     /**
@@ -75,11 +74,11 @@ public interface ChangeLogSearchEngine
      *
      * @param revision to get a ChangeLogEvent for
      * @return the ChangeLogEvent associated with the revision
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    ChangeLogEvent lookup( long revision ) throws NamingException;
+    ChangeLogEvent lookup( long revision ) throws Exception;
 
 
     /**
@@ -91,9 +90,9 @@ public interface ChangeLogSearchEngine
      *
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return an enumeration of all the ChangeLogEvents
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( RevisionOrder order ) throws NamingException;
+    NamingEnumeration<ChangeLogEvent> find( RevisionOrder order ) throws Exception;
 
 
     /**
@@ -102,11 +101,11 @@ public interface ChangeLogSearchEngine
      * @param revision the revision number to get the ChangeLogEvents before
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return an enumeration of all the ChangeLogEvents before and including some revision
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    NamingEnumeration<ChangeLogEvent> findBefore( long revision, RevisionOrder order ) throws NamingException;
+    NamingEnumeration<ChangeLogEvent> findBefore( long revision, RevisionOrder order ) throws Exception;
 
 
     /**
@@ -119,11 +118,11 @@ public interface ChangeLogSearchEngine
      * @param revision the revision number to get the ChangeLogEvents after
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return an enumeration of all the ChangeLogEvents after and including the revision
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    NamingEnumeration<ChangeLogEvent> findAfter( long revision, RevisionOrder order ) throws NamingException;
+    NamingEnumeration<ChangeLogEvent> findAfter( long revision, RevisionOrder order ) throws Exception;
 
 
     /**
@@ -133,12 +132,12 @@ public interface ChangeLogSearchEngine
      * @param endRevision the revision number to start getting the ChangeLogEvents below
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return an enumeration of all the ChangeLogEvents within some revision range inclusive
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the start and end revisions are out of range
      * (less than 0 and greater than the current revision), or if startRevision > endRevision
      */
     NamingEnumeration<ChangeLogEvent> find( long startRevision, long endRevision, RevisionOrder order )
-        throws NamingException;
+        throws Exception;
 
     
     /**
@@ -147,9 +146,9 @@ public interface ChangeLogSearchEngine
      * @param dn the normalized DN of the entry to get ChangeLogEvents for
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return the set of changes that occurred on an entry
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( LdapDN dn, RevisionOrder order ) throws NamingException;
+    NamingEnumeration<ChangeLogEvent> find( LdapDN dn, RevisionOrder order ) throws Exception;
     
     
     /**
@@ -159,9 +158,9 @@ public interface ChangeLogSearchEngine
      * @param scope the scope of the search under the base similar to LDAP search scope
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return the set of changes that occurred on an entry and/or it's descendants depending on the scope
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( LdapDN base, Scope scope, RevisionOrder order ) throws NamingException;
+    NamingEnumeration<ChangeLogEvent> find( LdapDN base, Scope scope, RevisionOrder order ) throws Exception;
     
 
     /**
@@ -170,9 +169,9 @@ public interface ChangeLogSearchEngine
      * @param principal the LDAP principal who triggered the events
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return the set of changes that were triggered by a specific LDAP user
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( LdapPrincipal principal, RevisionOrder order ) throws NamingException;
+    NamingEnumeration<ChangeLogEvent> find( LdapPrincipal principal, RevisionOrder order ) throws Exception;
     
     
     /**
@@ -181,9 +180,9 @@ public interface ChangeLogSearchEngine
      * @param changeType the change type of the ChangeLogEvents to search for
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return the set of ChangeLogEvents of a particular ChangeType
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( ChangeType changeType, RevisionOrder order ) throws NamingException;
+    NamingEnumeration<ChangeLogEvent> find( ChangeType changeType, RevisionOrder order ) throws Exception;
     
     
     /**
@@ -192,9 +191,9 @@ public interface ChangeLogSearchEngine
      * @param attributeType the attributeType definition for the changed attribute to search changes for
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return the set of ChangeLogEvents on a particular attributeType
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( AttributeType attributeType, RevisionOrder order ) throws NamingException;
+    NamingEnumeration<ChangeLogEvent> find( AttributeType attributeType, RevisionOrder order ) throws Exception;
     
 
     /**
@@ -203,9 +202,9 @@ public interface ChangeLogSearchEngine
      * @param objectClass the objectClass definition for the entries to search changes for
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return the set of ChangeLogEvents on a particular attributeType
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( ObjectClass objectClass, RevisionOrder order ) throws NamingException;
+    NamingEnumeration<ChangeLogEvent> find( ObjectClass objectClass, RevisionOrder order ) throws Exception;
     
     
     /**
@@ -237,7 +236,7 @@ public interface ChangeLogSearchEngine
      * @param filter the filter to use for finding the change
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return the set of ChangeLogEvents on entries of a particular objectClass
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( ExprNode filter, RevisionOrder order ) throws NamingException;
+    NamingEnumeration<ChangeLogEvent> find( ExprNode filter, RevisionOrder order ) throws Exception;
 }

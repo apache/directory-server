@@ -24,8 +24,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 
-import javax.naming.NamingException;
-
 
 /**
  * A facade for the change log subsystem.  It exposes the functionality
@@ -58,9 +56,9 @@ public interface ChangeLog
      * Gets the current revision for the server.
      *
      * @return the current revision
-     * @throws NamingException if there is a problem accessing this information
+     * @throws Exception if there is a problem accessing this information
      */
-    long getCurrentRevision() throws NamingException;
+    long getCurrentRevision() throws Exception;
 
 
     /**
@@ -71,9 +69,9 @@ public interface ChangeLog
      * @param forward LDIF of the change going to the next state
      * @param reverse LDIF (anti-operation): the change required to revert this change
      * @return the new revision reached after having applied the forward LDIF
-     * @throws NamingException if there are problems logging the change
+     * @throws Exception if there are problems logging the change
      */
-    long log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws NamingException;
+    long log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception;
 
 
     /**
@@ -131,11 +129,11 @@ public interface ChangeLog
      *
      * @param revision the revision to tag the snapshot
      * @return the Tag associated with the revision
-     * @throws NamingException if there is a problem taking a tag
+     * @throws Exception if there is a problem taking a tag
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    Tag tag( long revision ) throws NamingException;
+    Tag tag( long revision ) throws Exception;
 
 
     /**
@@ -147,11 +145,11 @@ public interface ChangeLog
      * @param revision the revision to tag the snapshot
      * @param description some information about what the snapshot tag represents
      * @return the Tag associated with the revision
-     * @throws NamingException if there is a problem taking a tag
+     * @throws Exception if there is a problem taking a tag
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    Tag tag( long revision, String description ) throws NamingException;
+    Tag tag( long revision, String description ) throws Exception;
 
 
     /**
@@ -159,24 +157,24 @@ public interface ChangeLog
      *
      * @param description some information about what the snapshot tag represents
      * @return the revision at which the tag is created
-     * @throws NamingException if there is a problem taking a tag
+     * @throws Exception if there is a problem taking a tag
      */
-    Tag tag( String description ) throws NamingException;
+    Tag tag( String description ) throws Exception;
 
 
     /**
      * Creates a snapshot of the server at the current revision.
      *
      * @return the revision at which the tag is created
-     * @throws NamingException if there is a problem taking a tag
+     * @throws Exception if there is a problem taking a tag
      */
-    Tag tag() throws NamingException;
+    Tag tag() throws Exception;
 
-    Tag getLatest() throws NamingException;
+    Tag getLatest() throws Exception;
 
-    void init( DirectoryService service ) throws NamingException;
+    void init( DirectoryService service ) throws Exception;
 
-    void sync() throws NamingException;
+    void sync() throws Exception;
 
-    void destroy() throws NamingException;
+    void destroy() throws Exception;
 }

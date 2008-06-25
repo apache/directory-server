@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.core.changelog;
 
-import javax.naming.NamingException;
 
 
 /**
@@ -36,19 +35,19 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      * Creates a tag for a snapshot of the server in a specific state at a revision.
      *
      * @param revision the revision to tag the snapshot
-     * @throws NamingException if there is a problem taking a tag, or if
-     * the revision does not exist
      * @return the Tag associated with the revision
+     * @throws Exception if there is a problem taking a tag, or if
+     * the revision does not exist
      */
-    Tag tag( long revision ) throws NamingException;
+    Tag tag( long revision ) throws Exception;
 
     /**
      * Creates a snapshot of the server at the current revision.
      *
      * @return the revision at which the tag is created
-     * @throws NamingException if there is a problem taking a tag
+     * @throws Exception if there is a problem taking a tag
      */
-    Tag tag() throws NamingException;
+    Tag tag() throws Exception;
 
     /**
      * Creates a snapshot of the server at the current revision with a description
@@ -56,9 +55,9 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      *
      * @param description a description of the state associate with the tag
      * @return the revision at which the tag is created
-     * @throws NamingException if there is a problem taking a tag
+     * @throws Exception if there is a problem taking a tag
      */
-    Tag tag( String description ) throws NamingException;
+    Tag tag( String description ) throws Exception;
 
 
     /**
@@ -66,7 +65,7 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      *
      * @return the last tag to have been created (youngest), or null if no
      * tags have been created
-     * @throws NamingException on failures to access the tag store
+     * @throws Exception on failures to access the tag store
      */
-    Tag getLatest() throws NamingException;
+    Tag getLatest() throws Exception;
 }
