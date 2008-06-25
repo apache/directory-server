@@ -21,8 +21,6 @@ package org.apache.directory.server.core.integ.state;
 
 import java.io.IOException;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.integ.InheritableSettings;
 import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
 import org.junit.internal.runners.TestClass;
@@ -156,7 +154,7 @@ public class StartedNormalState extends AbstractState
                 {
                     context.getService().getChangeLog().tag();
                 }
-                catch ( NamingException e )
+                catch ( Exception e )
                 {
                     // @TODO - we might want to check the revision of the service before
                     // we presume that it has been soiled.  Some tests may simply perform
