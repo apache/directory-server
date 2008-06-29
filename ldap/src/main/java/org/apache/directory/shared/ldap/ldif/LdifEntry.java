@@ -528,9 +528,9 @@ public class LdifEntry implements Cloneable, Serializable
         try
         {
             for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); 
-                  attrs.hasMoreElements(); 
-                  attribute = attrs.nextElement())
+                  attrs.hasMoreElements(); )
             {
+                attribute = attrs.nextElement();
                 if ( attribute == null )
                 {
                     sb.append( "        Null attribute\n" );
@@ -541,9 +541,9 @@ public class LdifEntry implements Cloneable, Serializable
                 Object value = null;
                 
                 for ( NamingEnumeration<?> values = attribute.getAll(); 
-                      values.hasMoreElements(); 
-                      value = values.nextElement())
+                      values.hasMoreElements(); )
                 {
+                    value = values.nextElement();
                     if ( value instanceof String )
                     {
                         sb.append(  "            " ).append( (String)value ).append('\n' );
@@ -603,9 +603,9 @@ public class LdifEntry implements Cloneable, Serializable
                 {
                     Object value = null;
                     for ( NamingEnumeration<?> values = attribute.getAll(); 
-                          values.hasMoreElements(); 
-                          value = values.nextElement() )
+                          values.hasMoreElements(); )
                     {
+                        value = values.nextElement();
                         if ( value instanceof String )
                         {
                             sb.append(  "                " ).append( (String)value ).append('\n' );
