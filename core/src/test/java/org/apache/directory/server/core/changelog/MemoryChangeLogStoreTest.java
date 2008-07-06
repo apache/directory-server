@@ -54,7 +54,7 @@ public class MemoryChangeLogStoreTest extends TestCase
     }
 
 
-    public void testLogCheckRevision() throws NamingException
+    public void testLogCheckRevision() throws Exception
     {
         assertEquals( "first revision is always 0", 0, store.getCurrentRevision() );
 

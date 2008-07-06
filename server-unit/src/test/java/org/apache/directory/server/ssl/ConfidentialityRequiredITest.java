@@ -131,7 +131,12 @@ public class ConfidentialityRequiredITest extends AbstractServerTest
     protected void configureLdapServer()
     {
     	super.configureLdapServer();
+    	/*
+    	 * TODO un-comment and enable tests after adding this feature to 1.5.4
+    	 * see https://issues.apache.org/jira/browse/DIRSERVER-1194
+    	 *
     	ldapServer.setConfidentialityRequired( true );
+    	*/
     }
 
     
@@ -181,7 +186,9 @@ public class ConfidentialityRequiredITest extends AbstractServerTest
     	try
     	{
     		getWiredContext();
-    		fail( "Should not get here due to violation of confidentiality requirements" );
+    		// TODO un comment when confidentiality requirement feature is enabled
+    		// see https://issues.apache.org/jira/browse/DIRSERVER-1194
+//    		fail( "Should not get here due to violation of confidentiality requirements" );
     	}
     	catch( AuthenticationNotSupportedException e )
     	{
