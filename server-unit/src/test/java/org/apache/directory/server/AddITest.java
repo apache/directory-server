@@ -495,4 +495,42 @@ public class AddITest extends AbstractServerTest
         // Remove container
         ctx.destroySubcontext( containerRdn );
     }
+    
+    
+    /**
+     * Try to add entry and an alias to it. Afterwards, remove it.  Taken from
+     * DIRSERVER-1157 test contribution.
+     * 
+     * @see https://issues.apache.org/jira/browse/DIRSERVER-1157
+     * @throws Exception
+     */
+    public void testAddDeleteAlias() throws Exception
+    {
+        // Create entry ou=favorite,dc=example,dc=com
+        Attributes entry = new AttributesImpl();
+        Attribute entryOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        entryOcls.add( SchemaConstants.TOP_OC );
+        entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+        entry.put( entryOcls );
+        entry.put( SchemaConstants.OU_AT, "favorite" );
+        String entryRdn = "ou=favorite";
+        ctx.createSubcontext( entryRdn, entry );
+
+        // Create Alias ou=bestFruit,dc=example,dc=com to ou=favorite
+        String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
+        Attributes alias = new AttributesImpl();
+        Attribute aliasOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        aliasOcls.add( SchemaConstants.TOP_OC );
+        aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
+        aliasOcls.add( SchemaConstants.ALIAS_OC );
+        alias.put( aliasOcls );
+        alias.put( SchemaConstants.OU_AT, "bestFruit" );
+        alias.put( SchemaConstants.ALIASED_OBJECT_NAME_AT, aliasedObjectName );
+        String rdnAlias = "ou=bestFruit";
+        ctx.createSubcontext( rdnAlias, alias );
+
+        // Remove alias and entry
+        ctx.destroySubcontext( rdnAlias ); //Waiting for Connection.reply()
+        ctx.destroySubcontext( entryRdn );
+    }
 }
