@@ -1184,4 +1184,30 @@ public class SearchITest extends AbstractServerTest
     	
     	ctx.createSubcontext( "cn=\"Jim, Bean\"", attrs );
     }
+    
+    
+    // TODO - fix 1180 and uncomment 
+//    
+//
+//    /**
+//     * Test for DIRSERVER-1180 where search hangs when an invalid a substring 
+//     * expression missing an any field is used in a filter: i.e. (cn=**).
+//     * 
+//     * @see https://issues.apache.org/jira/browse/DIRSERVER-1180
+//     */
+//    public void testMissingAnyInSubstring_DIRSERVER_1180() throws Exception
+//    {
+//    	Attributes attrs = new AttributesImpl( "objectClass", "inetOrgPerson", true );
+//    	attrs.get( "objectClass" ).add( "organizationalPerson" );
+//    	attrs.get( "objectClass" ).add( "person" );
+//    	attrs.put( "givenName", "Jim" );
+//    	attrs.put( "sn", "Bean" );
+//    	attrs.put( "cn", "jimbean" );
+//    	
+//    	ctx.createSubcontext( "cn=jimbean", attrs );
+//    	
+//    	NamingEnumeration<SearchResult> results = ctx.search( "", "(cn=**)", new SearchControls() );
+//    	assertTrue( results.hasMore() );
+//    	results.close();
+//    }
 }
