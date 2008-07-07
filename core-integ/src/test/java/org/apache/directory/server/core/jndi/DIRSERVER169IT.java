@@ -23,15 +23,11 @@ package org.apache.directory.server.core.jndi;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -90,15 +86,10 @@ public class DIRSERVER169IT
         user.put( "sn", "Hamilton" );
 
         sysRoot.createSubcontext( "uid=bob,ou=people", user );
-        Attributes reloaded = sysRoot.getAttributes( "uid=bob,ou=people" );
-        assertNotNull( reloaded );
-        assertNotNull( reloaded.get( "objectClass" ) );
-        System.out.println( "attributes for bob = " + reloaded );
     }
 
 
     @Test
-    @Ignore
     public void testSearchResultNameIsRelativeToSearchContext() throws Exception
     {
         // @todo replace with ldif tags
