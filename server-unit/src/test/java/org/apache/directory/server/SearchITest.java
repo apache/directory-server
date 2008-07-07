@@ -201,13 +201,13 @@ public class SearchITest extends AbstractServerTest
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        NamingEnumeration ii = ctx.search( "", filter, controls );
+        NamingEnumeration<SearchResult> ii = ctx.search( "", filter, controls );
         
         // collect all results 
         HashSet<String> results = new HashSet<String>();
         while ( ii.hasMore() )
         {
-            SearchResult result = ( SearchResult ) ii.next();
+            SearchResult result = ii.next();
             results.add( result.getName() );
         }
         
@@ -304,11 +304,11 @@ public class SearchITest extends AbstractServerTest
         try
         {
             // Check entry
-            NamingEnumeration enm = ctx.search( base, filter, sctls );
+            NamingEnumeration<SearchResult> enm = ctx.search( base, filter, sctls );
             assertTrue( enm.hasMore() );
             while ( enm.hasMore() )
             {
-                SearchResult sr = ( SearchResult ) enm.next();
+                SearchResult sr = enm.next();
                 Attributes attrs = sr.getAttributes();
                 Attribute sn = attrs.get( "sn" );
                 assertNotNull( sn );
@@ -336,7 +336,7 @@ public class SearchITest extends AbstractServerTest
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         // Search for all entries
-        NamingEnumeration results = ctx.search( RDN, "(cn=*)", ctls );
+        NamingEnumeration<SearchResult> results = ctx.search( RDN, "(cn=*)", ctls );
         assertTrue( results.hasMore() );
 
         results = ctx.search( RDN2, "(cn=*)", ctls );
@@ -423,11 +423,11 @@ public class SearchITest extends AbstractServerTest
 
         try {
             // Check entry
-            NamingEnumeration enm = ctx.search( base, filter, sctls );
+            NamingEnumeration<SearchResult> enm = ctx.search( base, filter, sctls );
             assertTrue( enm.hasMore() );
             
             while ( enm.hasMore() ) {
-                SearchResult sr = (SearchResult) enm.next();
+                SearchResult sr = enm.next();
                 Attributes attrs = sr.getAttributes();
                 Attribute sn = attrs.get("sn");
                 assertNotNull(sn);
@@ -477,17 +477,17 @@ public class SearchITest extends AbstractServerTest
         ctx = new InitialLdapContext( env, null );
         assertNotNull( ctx );
 
-        NamingEnumeration results = ctx.search( "cn=schema", "objectClass=subschema", controls );
+        NamingEnumeration<SearchResult> results = ctx.search( "cn=schema", "objectClass=subschema", controls );
         assertTrue( results.hasMore() );
-        SearchResult result = ( SearchResult ) results.next();
+        SearchResult result = results.next();
         assertNotNull( result );
         assertFalse( results.hasMore() );
         
-        NamingEnumeration attrs = result.getAttributes().getAll();
+        NamingEnumeration<? extends Attribute> attrs = result.getAttributes().getAll();
         
         while ( attrs.hasMoreElements() )
         {
-            Attribute attr = (Attribute)attrs.next();
+            Attribute attr = ( Attribute ) attrs.next();
             String ID = attr.getID();
             assertEquals( "objectClasses", ID );
         }
@@ -556,10 +556,10 @@ public class SearchITest extends AbstractServerTest
             { "objectclass" } );
         String filter = "(objectclass=*)";
 
-        NamingEnumeration result = ctx.search( rdn, filter, ctls );
+        NamingEnumeration<SearchResult> result = ctx.search( rdn, filter, ctls );
         if ( result.hasMore() )
         {
-            SearchResult entry = ( SearchResult ) result.next();
+            SearchResult entry = result.next();
             Attributes heatherReloaded = entry.getAttributes();
             Attribute loadedOcls = heatherReloaded.get( "objectClass" );
             assertNotNull( loadedOcls );
@@ -596,10 +596,10 @@ public class SearchITest extends AbstractServerTest
             { "objectclass" } );
         String filter = "(objectclass=*)";
 
-        NamingEnumeration result = ctx.search( rdn, filter, ctls );
+        NamingEnumeration<SearchResult> result = ctx.search( rdn, filter, ctls );
         if ( result.hasMore() )
         {
-            SearchResult entry = ( SearchResult ) result.next();
+            SearchResult entry = result.next();
             Attributes kateReloaded = entry.getAttributes();
             Attribute loadedOcls = kateReloaded.get( "objectClass" );
             assertNotNull( loadedOcls );
@@ -635,11 +635,11 @@ public class SearchITest extends AbstractServerTest
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         
         ctx.setRequestControls( reqControls );
-        NamingEnumeration enm = ctx.search( "", "(objectClass=*)", searchControls );
+        NamingEnumeration<SearchResult> enm = ctx.search( "", "(objectClass=*)", searchControls );
         Set<String> results = new HashSet<String>();
         while ( enm.hasMore() )
         {
-            SearchResult result = ( SearchResult ) enm.next();
+            SearchResult result = enm.next();
             results.add( result.getName() );
         }
         
@@ -647,6 +647,7 @@ public class SearchITest extends AbstractServerTest
         assertTrue( results.contains( "cn=anyBodyAdd" ) );
     }
 
+    
     /**
      * Create a person entry with multivalued RDN and check its content. This
      * testcase was created to demonstrate DIRSERVER-628.
@@ -662,10 +663,10 @@ public class SearchITest extends AbstractServerTest
         String filter = "(sn=Bush)";
         String base = "";
 
-        NamingEnumeration enm = ctx.search( base, filter, sctls );
+        NamingEnumeration<SearchResult> enm = ctx.search( base, filter, sctls );
         while ( enm.hasMore() )
         {
-            SearchResult sr = ( SearchResult ) enm.next();
+            SearchResult sr = enm.next();
             attrs = sr.getAttributes();
             Attribute cn = sr.getAttributes().get( "cn" );
             assertNotNull( cn );
@@ -694,10 +695,10 @@ public class SearchITest extends AbstractServerTest
         String filter = "(sn=Bush)";
         String base = rdn;
 
-        NamingEnumeration enm = ctx.search( base, filter, sctls );
+        NamingEnumeration<SearchResult> enm = ctx.search( base, filter, sctls );
         if ( enm.hasMore() )
         {
-            SearchResult sr = ( SearchResult ) enm.next();
+            SearchResult sr = enm.next();
             assertNotNull( sr );
             assertEquals( "Name in namespace", nameInNamespace, sr.getNameInNamespace() );
         }
@@ -709,24 +710,25 @@ public class SearchITest extends AbstractServerTest
         ctx.destroySubcontext( rdn );
     }
     
+    
     public void testSearchJpeg() throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        NamingEnumeration res = ctx.search( "", "(cn=Tori*)", controls );
+        NamingEnumeration<SearchResult> res = ctx.search( "", "(cn=Tori*)", controls );
         
         // collect all results 
         while ( res.hasMore() )
         {
-            SearchResult result = ( SearchResult ) res.next();
+            SearchResult result = res.next();
 
             Attributes attrs = result.getAttributes();
             
-            NamingEnumeration all = attrs.getAll();
+            NamingEnumeration<? extends Attribute> all = attrs.getAll();
                 
             while ( all.hasMoreElements() )
             {
-                Attribute attr = (Attribute)all.next();
+                Attribute attr = all.next();
                 
                 if ( "jpegPhoto".equalsIgnoreCase( attr.getID() ) )
                 {
@@ -738,11 +740,12 @@ public class SearchITest extends AbstractServerTest
         }
     }
     
+    
     public void testSearchOID() throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        NamingEnumeration res = ctx.search( "", "(2.5.4.3=Tori*)", controls );
+        NamingEnumeration<SearchResult> res = ctx.search( "", "(2.5.4.3=Tori*)", controls );
         
         // ensure that the entry "cn=Tori Amos" was found
         assertTrue( res.hasMore() );
@@ -780,22 +783,23 @@ public class SearchITest extends AbstractServerTest
         
         // ensure the one and only attribute is "cn"
         assertEquals( 1, attrs.size() );
-        assertNotNull( attrs.get("cn") );
-        assertEquals( 1, attrs.get("cn").size() );
-        assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
+        assertNotNull( attrs.get( "cn" ) );
+        assertEquals( 1, attrs.get( "cn" ).size() );
+        assertEquals( "Tori Amos", ( String ) attrs.get("cn").get() );
     }
 
+    
     public void testSearchAttrName() throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"name"} );
         
-        NamingEnumeration res = ctx.search( "", "(commonName=Tori*)", controls );
+        NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori*)", controls );
         
         assertTrue( res.hasMore() );
         
-        SearchResult result = ( SearchResult ) res.next();
+        SearchResult result = res.next();
         
         // ensure that result is not null
         assertNotNull( result );
@@ -804,26 +808,27 @@ public class SearchITest extends AbstractServerTest
         
         // ensure that "cn" and "sn" are returned
         assertEquals( 2, attrs.size() );
-        assertNotNull( attrs.get("cn") );
+        assertNotNull( attrs.get( "cn" ) );
         assertEquals( 1, attrs.get("cn").size() );
-        assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
-        assertNotNull( attrs.get("sn") );
-        assertEquals( 1, attrs.get("sn").size() );
-        assertEquals( "Amos", (String)attrs.get("sn").get() );
+        assertEquals( "Tori Amos", ( String ) attrs.get( "cn" ).get() );
+        assertNotNull( attrs.get( "sn" ) );
+        assertEquals( 1, attrs.get( "sn" ).size() );
+        assertEquals( "Amos", ( String ) attrs.get( "sn" ).get() );
     }
 
+    
     public void testSearchAttrCommonName() throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]{"commonName"} );
+        controls.setReturningAttributes( new String[] { "commonName" } );
         
-        NamingEnumeration res = ctx.search( "", "(commonName=Tori*)", controls );
+        NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori*)", controls );
         
         assertTrue( res.hasMore() );
         
 
-        SearchResult result = ( SearchResult ) res.next();
+        SearchResult result = res.next();
         
         // ensure that result is not null
         assertNotNull( result );
@@ -842,17 +847,18 @@ public class SearchITest extends AbstractServerTest
         assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
     }
 
+    
     public void testSearchAttrOID() throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"2.5.4.3"} );
         
-        NamingEnumeration res = ctx.search( "", "(commonName=Tori*)", controls );
+        NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori*)", controls );
         
         assertTrue( res.hasMore() );
         
-        SearchResult result = ( SearchResult ) res.next();
+        SearchResult result = res.next();
         
         // ensure that result is not null
         assertNotNull( result );
@@ -906,11 +912,11 @@ public class SearchITest extends AbstractServerTest
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"c-l" } );
         
-        NamingEnumeration res = aaCtx.search( "", "(cn=Kate Bush)", controls );
+        NamingEnumeration<SearchResult> res = aaCtx.search( "", "(cn=Kate Bush)", controls );
         
         assertTrue( res.hasMore() );
         
-        SearchResult result = ( SearchResult ) res.next();
+        SearchResult result = res.next();
         
         // ensure that result is not null
         assertNotNull( result );
@@ -930,11 +936,11 @@ public class SearchITest extends AbstractServerTest
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"*"} );
         
-        NamingEnumeration res = ctx.search( "", "(commonName=Tori Amos)", controls );
+        NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori Amos)", controls );
         
         assertTrue( res.hasMore() );
         
-        SearchResult result = ( SearchResult ) res.next();
+        SearchResult result = res.next();
         
         // ensure that result is not null
         assertNotNull( result );
@@ -958,11 +964,11 @@ public class SearchITest extends AbstractServerTest
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"+"} );
         
-        NamingEnumeration res = ctx.search( "", "(commonName=Tori Amos)", controls );
+        NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori Amos)", controls );
         
         assertTrue( res.hasMore() );
         
-        SearchResult result = ( SearchResult ) res.next();
+        SearchResult result = res.next();
         
         // ensure that result is not null
         assertNotNull( result );
@@ -987,7 +993,7 @@ public class SearchITest extends AbstractServerTest
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"+", "*"} );
         
-        NamingEnumeration res = ctx.search( "", "(commonName=Tori Amos)", controls );
+        NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori Amos)", controls );
         
         assertTrue( res.hasMore() );
         
@@ -1051,11 +1057,11 @@ public class SearchITest extends AbstractServerTest
         ctls.setReturningAttributes( new String[]
             { "+" } );
 
-        NamingEnumeration result = ctx.search( HEATHER_RDN, FILTER, ctls );
+        NamingEnumeration<SearchResult> result = ctx.search( HEATHER_RDN, FILTER, ctls );
 
         if ( result.hasMore() )
         {
-            SearchResult entry = ( SearchResult ) result.next();
+            SearchResult entry = result.next();
 
             String[] opAttrNames =
                 { "creatorsName", "createTimestamp" };
@@ -1081,11 +1087,11 @@ public class SearchITest extends AbstractServerTest
         ctls.setReturningAttributes( new String[]
             { "*" } );
 
-        NamingEnumeration result = ctx.search( HEATHER_RDN, FILTER, ctls );
+        NamingEnumeration<SearchResult> result = ctx.search( HEATHER_RDN, FILTER, ctls );
 
         if ( result.hasMore() )
         {
-            SearchResult entry = ( SearchResult ) result.next();
+            SearchResult entry = result.next();
 
             String[] userAttrNames =
                 { "objectClass", "sn", "cn" };
@@ -1117,11 +1123,11 @@ public class SearchITest extends AbstractServerTest
         String[] opAttrNames =
             { "creatorsName", "createTimestamp" };
 
-        NamingEnumeration result = ctx.search( HEATHER_RDN, FILTER, ctls );
+        NamingEnumeration<SearchResult> result = ctx.search( HEATHER_RDN, FILTER, ctls );
 
         if ( result.hasMore() )
         {
-            SearchResult entry = ( SearchResult ) result.next();
+            SearchResult entry = result.next();
             Attributes attrs = entry.getAttributes();
 
             assertNotNull( attrs );
