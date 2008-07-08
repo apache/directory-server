@@ -935,6 +935,28 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
                return ((TreeSet<AttributeTypeAndValue>)atavs).first().getUpValue();
        }
    }
+
+      
+    /**
+     * Return the normalized value, or the first one of we have more than one (the lowest)
+     *
+     * @return The first normalized value of this RDN
+     */
+    public String getNormValue()
+    {
+        switch ( nbAtavs )
+        {
+            case 0:
+                return null;
+                
+            case 1:
+                return (String)atav.getNormValue();
+                
+            default:
+                return ((TreeSet<AttributeTypeAndValue>)atavs).first().getNormalizedValue();
+        }
+    }
+   
    
    /**
     * Compares the specified Object with this Rdn for equality. Returns true if

@@ -3387,11 +3387,14 @@ public class StringTools
         // create buffer and add everything before start of scan
         StringBuffer buf = new StringBuffer();
         ByteBuffer bb = new ByteBuffer();
+        boolean escaped = false;
         
         // start scaning until we find an escaped series of bytes
         for ( int ii = 0; ii < length; ii++ )
         {
-            if ( str.charAt( ii ) == '\\' )
+            char c = str.charAt( ii );
+            
+            if ( c == '\\' )
             {
                 // we have the start of a hex escape sequence
                 if ( isHex( str, ii+1 ) && isHex ( str, ii+2 ) )
@@ -3400,18 +3403,44 @@ public class StringTools
                     int advancedBy = collectEscapedHexBytes( bb, str, ii );
                     ii+=advancedBy-1;
                     buf.append( StringTools.utf8ToString( bb.buffer(), bb.position() ) );
+                    escaped = false;
+                    continue;
+                }
+                else if ( !escaped )
+                {
+                    // It may be an escaped char ( ' ', '"', '#', '+', ',', ';', '<', '=', '>', '\' )
+                    escaped = true;
+                    continue;
+                }
+            }
+            
+            if ( escaped )
+            {
+                if ( DNUtils.isPairCharOnly( c ) )
+                {
+                    // It is an escaped char ( ' ', '"', '#', '+', ',', ';', '<', '=', '>', '\' )
+                    // Stores it into the buffer without the '\'
+                    escaped = false;
+                    buf.append( c );
                     continue;
                 }
                 else
                 {
-                    buf.append( str.charAt( ii ) );
-                    continue;
+                    throw new InvalidNameException( "The DN must contain valid escaped characters." );
                 }
             }
-
-            buf.append( str.charAt( ii ) );
+            else
+            {
+                buf.append( str.charAt( ii ) );
+            }
         }
         
+        if ( escaped )
+        {
+            // We should not have a '\' at the end of the string
+            throw new InvalidNameException( "The DN must not ends with a '\\'." );
+        }
+
         return buf.toString();
     }
 
