@@ -1213,4 +1213,43 @@ public class SearchIT
         assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
     }
+
+
+    /**
+     * Search operation with a base DN with quotes
+     * Commented as it's not valid by RFC 5514
+    @Test
+    public void testSearchWithQuotesInBase() throws NamingException 
+    {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
+        SearchControls ctls = new SearchControls();
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        String filter = "(cn=Tori Amos)";
+        ctls.setReturningAttributes( new String[]
+            { "cn", "cn" } );
+
+        // Search for cn="Tori Amos" (with quotes)
+        String base = "cn=\"Tori Amos\"";
+
+        try {
+            // Check entry
+            NamingEnumeration<SearchResult> result = sysRoot.search( base, filter, ctls );
+            assertTrue( result.hasMore() );
+            
+            while ( result.hasMore() ) 
+            {
+                SearchResult sr = result.next();
+                Attributes attrs = sr.getAttributes();
+                Attribute sn = attrs.get( "cn" );
+                assertNotNull(sn);
+                assertTrue( sn.contains( "Amos" ) );
+            }
+        } catch (Exception e) 
+        {
+            fail( e.getMessage() );
+        }
+    }
+    */
 }
