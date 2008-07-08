@@ -28,6 +28,12 @@ import org.apache.directory.shared.ldap.util.Position;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
+/**
+ * This class parse a Ldap filter. The grammar is given in RFC 4515
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class FilterParser
 {
     /**
