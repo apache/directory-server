@@ -502,11 +502,9 @@ public class ModifyRdnTest extends AbstractServerTest
         Attributes attributes = this.getPersonAttributes( snVal, cnVal );
         ctx.createSubcontext( oldRdn, attributes );
 
-        // modify Rdn from cn=Tori Amos to cn=<A Umlaut>\+
-        String newCnVal = new String( new byte[]
-            { ( byte ) 0xC3, ( byte ) 0x84, '+' }, "UTF-8" );
+        // modify Rdn from cn=Tori Amos to cn=<a Umlaut>\+
         String newCnEscapedVal = new String( new byte[]
-            { ( byte ) 0xC3, ( byte ) 0x84, '\\', '+' }, "UTF-8" );
+            { ( byte ) 0xC3, ( byte ) 0xA4, '\\', '+' }, "UTF-8" );
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
         String newRdn = "cn=" + newCnEscapedVal;
         ctx.rename( oldRdn, newRdn );
@@ -532,7 +530,7 @@ public class ModifyRdnTest extends AbstractServerTest
         // Check that cn contains the unescaped value
         Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( "Number of cn occurences", 1, cn.size() );
-        assertTrue( cn.contains( newCnVal ) );
+        assertTrue( cn.contains( "\\C3\\A4\\+" ) );
 
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
