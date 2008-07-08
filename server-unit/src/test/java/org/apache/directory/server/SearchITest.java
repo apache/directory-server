@@ -427,6 +427,7 @@ public class SearchITest extends AbstractServerTest
         assertFalse( results.hasMore() );
     }
     
+    
     /**
      * Search operation with a base DN with quotes
      *
