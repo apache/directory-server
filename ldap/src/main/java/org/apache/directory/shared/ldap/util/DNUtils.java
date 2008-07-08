@@ -279,8 +279,21 @@ public class DNUtils
 
 
     /**
-     * Check if the current character is a Pair Char &lt;pairchar&gt; ::= ',' | '=' |
-     * '+' | '<' | '>' | '#' | ';' | '\' | '"' | [0-9a-fA-F] [0-9a-fA-F]
+     * Check if the given char is a pair char only
+     * &lt;pairCharOnly&gt; ::= ' ' | ',' | '=' | '+' | '<' | '>' | '#' | ';' | '\' | '"'
+     *
+     * @param c the char we want to test
+     * @return true if the char is a pair char only
+     */
+    public static boolean isPairCharOnly( char c )
+    {
+        return ( ( ( c | 0x7F ) == 0x7F ) && PAIR_CHAR_ONLY[c & 0x7f] );
+    }
+
+
+    /**
+     * Check if the current character is a Pair Char 
+     * &lt;pairchar&gt; ::= ' ' | ',' | '=' | '+' | '<' | '>' | '#' | ';' | '\' | '"' | [0-9a-fA-F] [0-9a-fA-F]
      * 
      * @param bytes The buffer which contains the data
      * @param index Current position in the buffer

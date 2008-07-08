@@ -1478,21 +1478,20 @@ public class LdapDN implements Name, Externalizable
     /**
      * This private method is used to normalize the value, when we have found a normalizer.
      * 
-     * @param rdn 
-     * @param oidNormalizer 
-     * @param type 
+     * @param rdn the RDN we want to normalize. It will contain the resulting normalized RDN
+     * @param oidNormalizer the normalizer to use for the RDN
      * @throws NamingException If something went wrong.
      */
-    public static void oidNormalize( Rdn rdn, OidNormalizer oidNormalizer, String type ) throws NamingException
+    public static void oidNormalize( Rdn rdn, OidNormalizer oidNormalizer ) throws NamingException
     {
         Object upValue = rdn.getUpValue();
         String upType = rdn.getUpType();
+        //String normalizedValue = rdn.getNormValue();
         rdn.clear();
-        Object normValue = DefaultStringNormalizer.normalizeString( ( String ) upValue );
+        Object normStringValue = DefaultStringNormalizer.normalizeString( (String)upValue );
+        Object normValue = oidNormalizer.getNormalizer().normalize( normStringValue );
 
-        rdn.addAttributeTypeAndValue( upType, oidNormalizer.getAttributeTypeOid(), upValue, 
-                oidNormalizer.getNormalizer().normalize( normValue ) );
-
+        rdn.addAttributeTypeAndValue( upType, oidNormalizer.getAttributeTypeOid(), upValue, normValue );
     }
 
     /**
@@ -1537,7 +1536,7 @@ public class LdapDN implements Name, Externalizable
 
                     if ( oidNormalizer != null )
                     {
-                        oidNormalize( rdn, oidNormalizer, type );
+                        oidNormalize( rdn, oidNormalizer );
                     }
                     else
                     {
@@ -1550,7 +1549,7 @@ public class LdapDN implements Name, Externalizable
                             if ( oidNormalizer != null )
                             {
                                 // Ok, just normalize after having removed the 4 first chars
-                                oidNormalize( rdn, oidNormalizer, type );
+                                oidNormalize( rdn, oidNormalizer );
                             }
                             else
                             {

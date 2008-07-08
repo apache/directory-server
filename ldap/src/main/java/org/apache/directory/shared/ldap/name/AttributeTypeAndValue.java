@@ -28,6 +28,7 @@ import java.util.Arrays;
 
 import javax.naming.InvalidNameException;
 
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

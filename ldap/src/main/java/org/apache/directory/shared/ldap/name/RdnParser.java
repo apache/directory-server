@@ -417,7 +417,6 @@ public class RdnParser
         else if ( c == '"' )
         {
             pos.start++;
-            pos.length = 0;
             pos.end = pos.start;
             int nbBytes = 0;
             int length = 0;
@@ -473,6 +472,7 @@ public class RdnParser
             if ( StringTools.isCharASCII( bytes, pos.end, '"' ) )
             {
                 pos.end++;
+                pos.length = length + 2;
                 return StringTools.utf8ToString( buffer, length );
                 //return StringTools.utf8ToString( bytes, pos.start, pos.length );
             }
@@ -969,13 +969,17 @@ public class RdnParser
         StringTools.trimLeft( dn, pos );
 
         pos.end = pos.start;
+        
+        int start2 = pos.start;
 
         if ( ( value = parseAttributeValue( dn, pos ) ) == null )
         {
             return DNUtils.PARSING_ERROR;
         }
 
-        rdn.addAttributeTypeAndValue( type, type, value, value );
+        String upValue = StringTools.utf8ToString( dn, start2, pos.length );
+        rdn.addAttributeTypeAndValue( type, type, upValue, value );
+
         rdn.normalize();
 
         pos.start = pos.end;

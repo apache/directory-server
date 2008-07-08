@@ -875,6 +875,7 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
        }
    }
 
+
    /**
     * Return the normalized type, or the first one of we have more than one (the lowest)
     *
@@ -894,6 +895,28 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
                return ((TreeSet<AttributeTypeAndValue>)atavs).first().getNormType();
        }
    }
+
+   
+   /**
+    * Return the normalized value, or the first one of we have more than one (the lowest)
+    *
+    * @return The first normalized value of this RDN
+    */
+   public String getNormValue()
+   {
+       switch ( nbAtavs )
+       {
+           case 0:
+               return null;
+
+           case 1:
+               return (String)atav.getNormValue();
+
+           default:
+               return ((TreeSet<AttributeTypeAndValue>)atavs).first().getNormalizedValue();
+       }
+   }
+
 
    /**
     * Return the value, or the first one of we have more than one (the lowest)
