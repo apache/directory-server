@@ -1185,12 +1185,17 @@ public class LdapServer extends DirectoryBackedService
             if ( cause.getCause() instanceof ResponseCarryingMessageException )
             {
                 ResponseCarryingMessageException rcme = ( ResponseCarryingMessageException ) cause.getCause();
-                session.write( rcme.getResponse() );
-                return;
+                
+                if ( rcme.getResponse() != null )
+                {
+                    session.write( rcme.getResponse() );
+                    return;
+                }
             }
             
             SessionLog.warn( session,
                 "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
+            
             session.write( NoticeOfDisconnect.PROTOCOLERROR );
             registry.remove( session );
             session.close();
