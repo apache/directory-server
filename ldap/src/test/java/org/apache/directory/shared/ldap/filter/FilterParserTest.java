@@ -642,7 +642,21 @@ public class FilterParserTest
         assertTrue( node instanceof EqualityNode );
     }
 
-    
+
+    /**
+     * test a filter with a # in value
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testEqualsFilterWithPoundInValue() throws ParseException
+    {
+        SimpleNode node = ( SimpleNode ) FilterParser.parse( "(uid=#f1)" );
+        assertEquals( "uid", node.getAttribute() );
+        assertEquals( "#f1", node.getValue().get() );
+        assertTrue( node instanceof EqualityNode );
+    }
+
+
     /*
     @Test
     public void testPerf() throws ParseException
