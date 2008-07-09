@@ -20,6 +20,7 @@
 package org.apache.directory.server;
 
 
+import java.util.Arrays;
 import java.util.Hashtable;
 
 import javax.naming.NamingEnumeration;
@@ -604,6 +605,8 @@ public class ModifyAddTest extends AbstractServerTest
         Attribute attr = attrs.get( "userCertificate" );
         assertNotNull( attr );
         assertTrue( attr.contains( newValue ) );
+        byte[] certificate = (byte[])attr.get();
+        assertTrue( Arrays.equals( newValue, certificate ) );
         assertEquals( 1, attr.size() );
     }
 }
