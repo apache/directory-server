@@ -307,6 +307,11 @@ public class FilterParser
 
                     pos.start++;
                 }
+                else
+                {
+                    // This is an error
+                    throw new ParseException( "Bad substring", pos.start );
+                }
             }
         }
         else

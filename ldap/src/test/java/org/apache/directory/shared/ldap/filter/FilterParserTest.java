@@ -664,6 +664,26 @@ public class FilterParserTest
     }
 
     
+    /**
+     * Test that special and non allowed chars into an assertionValue are not
+     * accepted. ((cf DIRSERVER-1196)
+     *
+     */
+    @Test
+    public void testSpecialCharsInMemberOf()
+    {
+        try
+        {
+            FilterParser.parse("(memberOf=1.2.840.113556.1.4.1301=$#@&*()==,2.5.4.11=local,2.5.4.11=users,2.5.4.11=readimanager)");
+            fail();
+        }
+        catch ( ParseException pe )
+        {
+            assertTrue( true );
+        }
+    }
+
+
     /*
     @Test
     public void testPerf() throws ParseException
