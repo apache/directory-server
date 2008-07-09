@@ -1482,11 +1482,10 @@ public class LdapDN implements Name, Externalizable
      * @param oidNormalizer the normalizer to use for the RDN
      * @throws NamingException If something went wrong.
      */
-    public static void oidNormalize( Rdn rdn, OidNormalizer oidNormalizer ) throws NamingException
+    private static void oidNormalize( Rdn rdn, OidNormalizer oidNormalizer ) throws NamingException
     {
         Object upValue = rdn.getUpValue();
         String upType = rdn.getUpType();
-        //String normalizedValue = rdn.getNormValue();
         rdn.clear();
         Object normStringValue = DefaultStringNormalizer.normalizeString( (String)upValue );
         Object normValue = oidNormalizer.getNormalizer().normalize( normStringValue );
