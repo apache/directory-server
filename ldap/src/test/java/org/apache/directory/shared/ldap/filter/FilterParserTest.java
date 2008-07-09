@@ -657,8 +657,11 @@ public class FilterParserTest
     }
 
 
-    
-    
+    /**
+     * Test that special and non allowed chars into an assertionValue are not
+     * accepted. ((cf DIRSERVER-1196)
+     *
+     */
     @Test
     public void testSpecialCharsInMemberOf()
     {
@@ -672,6 +675,7 @@ public class FilterParserTest
             assertTrue( true );
         }
     }
+
 
     /*
     @Test
