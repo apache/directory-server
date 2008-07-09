@@ -359,6 +359,38 @@ public class SaslBindITest extends AbstractServerTest
 
 
     /**
+     * Tests to make sure SIMPLE binds below the RootDSE fail if the password is bad.
+     */
+    @Test
+    public void testSimpleBindUnauthenticated()
+    {
+        try
+        {
+            Hashtable<String, String> env = new Hashtable<String, String>();
+            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+            env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+            env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+            env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+            env.put( Context.SECURITY_CREDENTIALS, "" );
+
+            DirContext context = new InitialDirContext( env );
+
+            String[] attrIDs =
+                { "uid" };
+
+            context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
+
+            fail( "Should not have gotten here." );
+        }
+        catch ( NamingException e )
+        {
+            assertTrue( e.getMessage().contains( "Bind failed" ) );
+        }
+    }
+
+
+    /**
      * Tests to make sure DIGEST-MD5 binds below the RootDSE work.
      */
     @Test
