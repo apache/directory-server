@@ -542,8 +542,13 @@ public class LdifUtilsTest
 
         AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
         attrs.get( "objectClass" ).add( "uidObject" );
-        attrs.put( "cn", "john doe" );
-        attrs.put( "cn", "jack doe" );
+        
+        AttributeImpl attr = new AttributeImpl( "cn" );
+        
+        attr.add( "john doe" );
+        attr.add( "jack doe" );
+        
+        attrs.put( attr );
         attrs.put( "sn", "doe" );
         attrs.put( "uid", "jdoe" );
 
