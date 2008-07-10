@@ -52,14 +52,13 @@ import org.junit.Test;
  */
 public class ModifyRdnTest extends AbstractServerTest
 {
-
     private LdapContext ctx = null;
 
 
     /**
      * Create attributes for a person entry.
      */
-    protected Attributes getPersonAttributes( String sn, String cn )
+    private Attributes getPersonAttributes( String sn, String cn )
     {
         Attributes attributes = new AttributesImpl();
         Attribute attribute = new AttributeImpl( "objectClass" );
@@ -77,7 +76,7 @@ public class ModifyRdnTest extends AbstractServerTest
     /**
      * Create attributes for a organizational unit entry.
      */
-    protected Attributes getOrganizationalUnitAttributes( String ou )
+    private Attributes getOrganizationalUnitAttributes( String ou )
     {
         Attributes attributes = new AttributesImpl();
         Attribute attribute = new AttributeImpl( "objectClass" );
@@ -538,6 +537,56 @@ public class ModifyRdnTest extends AbstractServerTest
 
 
     /**
+     * Test for DIRSERVER-1096.
+     * Modify the RDN of an entry with an escaped new RDN. 
+     * Ensure that the attribute itself contains the unescaped value.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testModifyRdnWithEscapedPoundNewRdn() throws Exception
+    {
+        // Create a person "cn=Tori Amos", cn value is rdn
+        String cnVal = "Tori Amos";
+        String snVal = "Amos";
+        String oldRdn = "cn=" + cnVal;
+        Attributes attributes = this.getPersonAttributes( snVal, cnVal );
+        ctx.createSubcontext( oldRdn, attributes );
+
+        // modify Rdn from cn=Tori Amos to cn=\#test\+
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        String newRdn = "cn=\\23test";
+        ctx.rename( oldRdn, newRdn );
+
+        // Check, whether old Entry does not exists
+        try
+        {
+            ctx.lookup( oldRdn );
+            fail( "Entry must not exist" );
+        }
+        catch ( NameNotFoundException ignored )
+        {
+            // expected behaviour
+        }
+
+        // Check, whether new Entry exists
+        DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( newCtx );
+
+        // Check that the DN contains the escaped value
+        assertEquals( "cn=\\23test," + ctx.getNameInNamespace(), newCtx.getNameInNamespace() );
+
+        // Check that cn contains the unescaped value
+        Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
+        assertEquals( "Number of cn occurences", 1, cn.size() );
+        assertTrue( cn.contains( "\\#test" ) );
+
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
+
+
+    /**
      * Test for DIRSERVER-1162 and DIRSERVER-1085.
      * 
      * Modify single valued RDN to a multi valued RDN.
@@ -981,10 +1030,12 @@ public class ModifyRdnTest extends AbstractServerTest
     private String getRdn( Attributes attributes, String... rdnTypes ) throws NamingException
     {
         String rdn = "";
+        
         for ( String type : rdnTypes )
         {
             rdn += type + "=" + attributes.get( type ).get() + "+";
         }
+
         rdn = rdn.substring( 0, rdn.length() - 1 );
         return rdn;
     }
@@ -1007,5 +1058,4 @@ public class ModifyRdnTest extends AbstractServerTest
 
         return attributes;
     }
-
 }
