@@ -26,6 +26,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getRootCon
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -171,6 +172,7 @@ public class ModifyContextIT
      * 
      * @throws NamingException on error
      */
+    @Test
     public void testIllegalModifyAdd() throws Exception
     {
         createData();
@@ -226,6 +228,34 @@ public class ModifyContextIT
     }
 
 
+    /**
+     * Test that if we try to remove a non existing attribute,
+     * we get a correct LdapNoSuchAttributeException
+     * 
+     * The test is currently disabled
+     */
+    //@Test
+    public void testRemoveNonExistingValueException() throws Exception
+    {
+        createData();
+
+        LdapContext sysRoot = getSystemContext( service );
+        Attributes attributes = new AttributesImpl( true );
+        attributes.put( "ou", "testCases" );
+        
+        try
+        {
+            sysRoot.modifyAttributes( "ou=testing00", DirContext.REMOVE_ATTRIBUTE, attributes );
+            fail();
+        }
+        catch ( LdapNoSuchAttributeException lnsae )
+        {
+            // Expected
+            assertTrue( true );
+        }
+    }
+
+    
     @Test
     public void testRemoveNonExistingValue() throws Exception
     {
