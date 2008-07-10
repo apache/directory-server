@@ -1324,11 +1324,26 @@ public class SchemaInterceptor extends BaseInterceptor
                     break;
 
                 case REMOVE_ATTRIBUTE:
+                    // First check that the attributeType exists
                     if ( tmpEntry.get( change.getUpId() ) == null )
                     {
                         LOG.error( "Trying to remove an non-existant attribute: " + change.getUpId() );
                         throw new LdapNoSuchAttributeException();
                     }
+                    
+                    // Then check that all the values exists
+                    /* TODO reactivate this code when ChangeLog is fixed
+                    EntryAttribute toBeRemoved = tmpEntry.get( change.getUpId() );
+                    
+                    for ( Value<?> val:change )
+                    {
+                        if ( !toBeRemoved.contains( val ) )
+                        {
+                            LOG.error( "Trying to remove an non-existant value '{}' for attribute '{}': ", val, change.getUpId() );
+                            throw new LdapNoSuchAttributeException();
+                        }
+                    }
+                    */
 
                     // We may have to remove the attribute or only some values
                     if ( change.size() == 0 )
