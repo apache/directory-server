@@ -123,6 +123,11 @@ public class LdapMessageContainer extends AbstractContainer
      */
     public boolean isBinary( String id )
     {
+        if ( ( id != null ) && id.endsWith( ";binary" ) )
+        {
+            return true;
+        }
+        
         return binaryAttributeDetector.isBinary( id );
     }
 
