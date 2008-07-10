@@ -81,6 +81,10 @@ public class NonExistentState extends AbstractState
         {
             throw new NamingException( iae.getMessage() );
         }
+        catch ( Exception e )
+        {
+            throw new NamingException( e.getMessage() );
+        }
     }
 
 
