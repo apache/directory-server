@@ -45,6 +45,9 @@ import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -66,7 +69,7 @@ public class ModifyAddTest extends AbstractServerTest
     /**
      * Creation of required attributes of a person entry.
      */
-    protected Attributes getPersonAttributes( String sn, String cn )
+    private Attributes getPersonAttributes( String sn, String cn )
     {
         Attributes attributes = new AttributesImpl();
         Attribute attribute = new AttributeImpl( "objectClass" );
@@ -85,6 +88,7 @@ public class ModifyAddTest extends AbstractServerTest
     /**
      * Create context and a person entry.
      */
+    @Before
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -114,6 +118,7 @@ public class ModifyAddTest extends AbstractServerTest
     /**
      * Remove person entry and close context.
      */
+    @After
     protected void tearDown() throws Exception
     {
         ctx.unbind( RDN_TORI_AMOS );
@@ -129,6 +134,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testAddNewAttributeValue() throws NamingException
     {
         // Add telephoneNumber attribute
@@ -150,6 +156,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testAddNewAttributeValues() throws NamingException
     {
         // Add telephoneNumber attribute
@@ -177,6 +184,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testAddAdditionalAttributeValue() throws NamingException
     {
         // A new description attribute value
@@ -206,6 +214,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testAddExistingAttributeValue() throws NamingException
     {
         // Change description attribute
@@ -241,6 +250,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testAddExistingNthAttributesDirServer664() throws NamingException
     {
         // Change description attribute
@@ -287,6 +297,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testTwoDescriptionDirServer643() throws NamingException
     {
         // Change description attribute
@@ -315,6 +326,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testAddDuplicateValueToExistingAttribute() throws NamingException
     {
         // modify object classes, add a new value twice
@@ -347,6 +359,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testAddDuplicateValueToNewAttribute() throws NamingException
     {
         // add the same description value twice
@@ -374,6 +387,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testAddUnexistingAttribute() throws NamingException
     {
         Hashtable<String, Object> env = new Hashtable<String, Object>();
@@ -409,6 +423,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testSearchBadAttribute() throws NamingException
     {
         // Add a not existing attribute
@@ -436,6 +451,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException 
      */
+    @Test
     public void testAttributeValueMultiMofificationDIRSERVER_636() throws NamingException {
 
         // Create a person entry
@@ -489,6 +505,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException 
      */
+    @Test
     public void testModifyOperationalAttributeAdd() throws NamingException
     {
         ModificationItem modifyOp = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
@@ -520,6 +537,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException 
      */
+    @Test
      public void testDNAttributeMemberMofificationDIRSERVER_687() throws NamingException {
 
         // Create a person entry
@@ -558,6 +576,7 @@ public class ModifyAddTest extends AbstractServerTest
      * @throws NamingException 
      * @see <a href="http://issues.apache.org/jira/browse/DIRSERVER-614">DIRSERVER-614</a>
      */
+    @Test
     public void testModifyAddWithInvalidNumberOfAttributeValues() throws NamingException
     {
         Attributes attrs = new AttributesImpl();
@@ -593,6 +612,7 @@ public class ModifyAddTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testAddNewBinaryAttributeValue() throws NamingException
     {
         // Add a binary attribute
@@ -600,6 +620,32 @@ public class ModifyAddTest extends AbstractServerTest
         Attributes attrs = new AttributesImpl( "userCertificate;binary", newValue );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
 
+        // Verify, that attribute value is added
+        attrs = ctx.getAttributes( RDN_TORI_AMOS );
+        Attribute attr = attrs.get( "userCertificate" );
+        assertNotNull( attr );
+        assertTrue( attr.contains( newValue ) );
+        byte[] certificate = (byte[])attr.get();
+        assertTrue( Arrays.equals( newValue, certificate ) );
+        assertEquals( 1, attr.size() );
+    }
+    
+    
+    /**
+     * Add a new ;binary attribute with bytes greater than 0x80
+     * to a person entry.
+     * Test for DIRSERVER-1146
+     *
+     * @throws NamingException
+     */
+    @Test
+    public void testAddNewBinaryAttributeValue0x80() throws NamingException
+    {
+        // Add a ;binary attribute with high-bytes
+        byte[] newValue = new byte[]{(byte)0x80, (byte)0x81, (byte)0x82, (byte)0x83};
+        Attributes attrs = new AttributesImpl( "userCertificate;binary", newValue );
+        ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
+        
         // Verify, that attribute value is added
         attrs = ctx.getAttributes( RDN_TORI_AMOS );
         Attribute attr = attrs.get( "userCertificate" );
