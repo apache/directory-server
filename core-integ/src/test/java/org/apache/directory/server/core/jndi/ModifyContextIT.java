@@ -30,8 +30,8 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -171,6 +171,7 @@ public class ModifyContextIT
      * 
      * @throws NamingException on error
      */
+    @Test
     public void testIllegalModifyAdd() throws NamingException
     {
         createData();
@@ -195,7 +196,6 @@ public class ModifyContextIT
         Attributes entry = sysRoot.getAttributes( "uid=akarasulu,ou=users" );
         assertNull( entry.get( "description" ) );
     }
-
 
 
     @Test
