@@ -450,6 +450,12 @@ public class SchemaInterceptor extends BaseInterceptor
 
             try
             {
+                // Deal with the special ;binary 
+                if ( attribute.endsWith( ";binary" ) )
+                {
+                    attribute = attribute.substring( 0, attribute.length() - ";binary".length() );
+                }
+                
                 // Check that the attribute is declared
                 if ( registries.getOidRegistry().hasOid( attribute ) )
                 {
@@ -701,7 +707,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
 
         // The user was searching into the subSchemaSubEntry
-        // Thgis kind of search _must_ be limited to OBJECT scope (the subSchemaSubEntry
+        // This kind of search _must_ be limited to OBJECT scope (the subSchemaSubEntry
         // does not have any sub level)
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
         {
