@@ -3446,7 +3446,17 @@ public class StringTools
     }
 
 
-    private static int collectEscapedHexBytes( ByteBuffer bb, String str, int index )
+    /**
+     * Collects an hex sequence from a string, and returns the value
+     * as an integer, after having modified the initial value (the escaped
+     * hex value is transsformed to the byte it represents).
+     *
+     * @param bb the buffer which will contain the unescaped byte
+     * @param str the initial string with ecaped chars 
+     * @param index the position in the string of the escaped data
+     * @return the byte as an integer
+     */
+    public static int collectEscapedHexBytes( ByteBuffer bb, String str, int index )
     {
         int advanceBy = 0;
         
