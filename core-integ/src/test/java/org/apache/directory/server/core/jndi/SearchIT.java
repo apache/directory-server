@@ -1213,4 +1213,93 @@ public class SearchIT
         assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
     }
+    
+
+    @Test
+    public void testSearchWithEscapedCharsInFilter() throws Exception
+    {
+        // Create an entry with special chars in the description attribute
+        LdapContext sysRoot = getSystemContext( service );
+        // Create entry cn=Sid Vicious, ou=system
+        Attributes vicious = new AttributesImpl();
+        Attribute ocls = new AttributeImpl( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        vicious.put( ocls );
+        vicious.put( "cn", "Sid Vicious" );
+        vicious.put( "sn", "Vicious" );
+        vicious.put(  "description", "(sex pistols)" );
+        DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
+        assertNotNull( ctx );
+
+        ctx = ( DirContext ) sysRoot.lookup( "cn=Sid Vicious" );
+        assertNotNull( ctx );
+        
+        Attributes attributes = ctx.getAttributes( "" );
+        
+        assertEquals( "(sex pistols)", attributes.get( "description" ).get() );
+
+        // Now, search for the description
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[] { "*" } );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(description=\\28sex pistols\\29)", controls );
+        
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+
+        Attributes attrs = map.get( "cn=Sid Vicious,ou=system" );
+
+        assertNotNull( attrs.get( "objectClass" ) );
+        assertNotNull( attrs.get( "cn" ) );
+    }
+
+
+    /**
+     * Search operation with a base DN with quotes
+     * Commented as it's not valid by RFC 5514
+    @Test
+    public void testSearchWithQuotesInBase() throws NamingException 
+    {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
+        SearchControls ctls = new SearchControls();
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        String filter = "(cn=Tori Amos)";
+        ctls.setReturningAttributes( new String[]
+            { "cn", "cn" } );
+
+        // Search for cn="Tori Amos" (with quotes)
+        String base = "cn=\"Tori Amos\"";
+
+        try {
+            // Check entry
+            NamingEnumeration<SearchResult> result = sysRoot.search( base, filter, ctls );
+            assertTrue( result.hasMore() );
+            
+            while ( result.hasMore() ) 
+            {
+                SearchResult sr = result.next();
+                Attributes attrs = sr.getAttributes();
+                Attribute sn = attrs.get( "cn" );
+                assertNotNull(sn);
+                assertTrue( sn.contains( "Amos" ) );
+            }
+        } catch (Exception e) 
+        {
+            fail( e.getMessage() );
+        }
+    }
+    */
 }
