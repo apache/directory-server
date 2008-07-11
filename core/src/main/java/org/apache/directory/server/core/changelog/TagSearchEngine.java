@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.changelog;
 
 
-import javax.naming.NamingEnumeration;
+import org.apache.directory.server.core.cursor.Cursor;
 
 
 /**
@@ -81,10 +81,10 @@ public interface TagSearchEngine
      * revision.
      *
      * @param order the revision order in which to return snapshot tags 
-     * @return an enumeration over the tags of all snapshots taken since revision 0
+     * @return a cursor containing the tags of all snapshots taken since revision 1
      * @throws Exception if there is a problem accessing the store
      */
-    NamingEnumeration<Tag> find( RevisionOrder order ) throws Exception;
+    Cursor<Tag> find( RevisionOrder order ) throws Exception;
     
     /**
      * Finds all the snapshot tags taken before a specific revision.  If a tag 
@@ -97,7 +97,7 @@ public interface TagSearchEngine
      * @throws IllegalArgumentException if the revision is greater than the current revision
      * or less than 0.
      */
-    NamingEnumeration<Tag> findBefore( long revision, RevisionOrder order ) throws Exception;
+    Cursor<Tag> findBefore( long revision, RevisionOrder order ) throws Exception;
     
     /**
      * Finds all the snapshot tags taken after a specific revision.  If a tag 
@@ -110,7 +110,7 @@ public interface TagSearchEngine
      * @throws IllegalArgumentException if the revision is greater than the current revision
      * or less than 0.
      */
-    NamingEnumeration<Tag> findAfter( long revision, RevisionOrder order ) throws Exception;
+    Cursor<Tag> findAfter( long revision, RevisionOrder order ) throws Exception;
     
     /**
      * Enumerates over the tags of all snapshots taken between a specific revision 
@@ -125,6 +125,6 @@ public interface TagSearchEngine
      * @throws IllegalArgumentException if the revision range is not constructed properly
      * or if either revision number is greater than the current revision or less than 0.
      */
-    NamingEnumeration<Tag> find( long startRevision, long endRevision, RevisionOrder order ) 
+    Cursor<Tag> find( long startRevision, long endRevision, RevisionOrder order ) 
         throws Exception;
 }

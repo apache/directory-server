@@ -20,9 +20,8 @@
 package org.apache.directory.server.core.changelog;
 
 
-import javax.naming.NamingEnumeration;
-
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -92,7 +91,7 @@ public interface ChangeLogSearchEngine
      * @return an enumeration of all the ChangeLogEvents
      * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( RevisionOrder order ) throws Exception;
 
 
     /**
@@ -105,7 +104,7 @@ public interface ChangeLogSearchEngine
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    NamingEnumeration<ChangeLogEvent> findBefore( long revision, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> findBefore( long revision, RevisionOrder order ) throws Exception;
 
 
     /**
@@ -122,7 +121,7 @@ public interface ChangeLogSearchEngine
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    NamingEnumeration<ChangeLogEvent> findAfter( long revision, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> findAfter( long revision, RevisionOrder order ) throws Exception;
 
 
     /**
@@ -136,7 +135,7 @@ public interface ChangeLogSearchEngine
      * @throws IllegalArgumentException if the start and end revisions are out of range
      * (less than 0 and greater than the current revision), or if startRevision > endRevision
      */
-    NamingEnumeration<ChangeLogEvent> find( long startRevision, long endRevision, RevisionOrder order )
+    Cursor<ChangeLogEvent> find( long startRevision, long endRevision, RevisionOrder order )
         throws Exception;
 
     
@@ -148,7 +147,7 @@ public interface ChangeLogSearchEngine
      * @return the set of changes that occurred on an entry
      * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( LdapDN dn, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( LdapDN dn, RevisionOrder order ) throws Exception;
     
     
     /**
@@ -160,7 +159,7 @@ public interface ChangeLogSearchEngine
      * @return the set of changes that occurred on an entry and/or it's descendants depending on the scope
      * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( LdapDN base, Scope scope, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( LdapDN base, Scope scope, RevisionOrder order ) throws Exception;
     
 
     /**
@@ -171,7 +170,7 @@ public interface ChangeLogSearchEngine
      * @return the set of changes that were triggered by a specific LDAP user
      * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( LdapPrincipal principal, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( LdapPrincipal principal, RevisionOrder order ) throws Exception;
     
     
     /**
@@ -182,7 +181,7 @@ public interface ChangeLogSearchEngine
      * @return the set of ChangeLogEvents of a particular ChangeType
      * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( ChangeType changeType, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( ChangeType changeType, RevisionOrder order ) throws Exception;
     
     
     /**
@@ -193,7 +192,7 @@ public interface ChangeLogSearchEngine
      * @return the set of ChangeLogEvents on a particular attributeType
      * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( AttributeType attributeType, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( AttributeType attributeType, RevisionOrder order ) throws Exception;
     
 
     /**
@@ -204,7 +203,7 @@ public interface ChangeLogSearchEngine
      * @return the set of ChangeLogEvents on a particular attributeType
      * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( ObjectClass objectClass, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( ObjectClass objectClass, RevisionOrder order ) throws Exception;
     
     
     /**
@@ -238,5 +237,5 @@ public interface ChangeLogSearchEngine
      * @return the set of ChangeLogEvents on entries of a particular objectClass
      * @throws Exception if there are failures accessing the store
      */
-    NamingEnumeration<ChangeLogEvent> find( ExprNode filter, RevisionOrder order ) throws Exception;
+    Cursor<ChangeLogEvent> find( ExprNode filter, RevisionOrder order ) throws Exception;
 }
