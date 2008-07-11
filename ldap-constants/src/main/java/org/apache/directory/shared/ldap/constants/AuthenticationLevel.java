@@ -75,4 +75,20 @@ public enum AuthenticationLevel
     {
         return name;
     }
+    
+    
+    public static AuthenticationLevel getLevel( int val )
+    {
+        switch( val )
+        {
+            case 0: return NONE;
+            
+            case 1: return SIMPLE;
+            
+            case 2: return STRONG;
+            
+            default:
+                throw new IllegalArgumentException( "Unknown AuthenticationLevel " + val );
+        }
+    }
 }

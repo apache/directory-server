@@ -73,4 +73,23 @@ public enum ChangeType
     {
         return changeType;
     }
+    
+    public static ChangeType getChangeType( int val )
+    {
+        switch( val )
+        {
+            case 0: return Add;
+            
+            case 1: return Modify;
+            
+            case 2: return ModDn;
+            
+            case 3: return ModRdn;
+            
+            case 4: return Delete;
+            
+            default:
+                throw new IllegalArgumentException( "Unknown change type value " + val );
+        }
+    }
 }
