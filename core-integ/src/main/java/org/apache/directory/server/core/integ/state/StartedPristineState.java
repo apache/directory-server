@@ -94,6 +94,20 @@ public class StartedPristineState extends AbstractState
 
 
     /**
+     * Action where an attempt is made to destroy the service. This
+     * entails nulling out reference to it and triggering garbage
+     * collection.
+     */
+    public void destroy()
+    {
+        LOG.debug( "calling destroy()" );
+        context.setService( null );
+        context.setState( context.getNonExistentState() );
+        System.gc();
+    }
+
+
+    /**
      * Action where an attempt is made to run a test against the service.
      *
      * All annotations should have already been processed for
