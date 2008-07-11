@@ -37,6 +37,7 @@ import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
@@ -1007,6 +1008,11 @@ public class JdbmStore<E> implements Store<E>
 
     public void add( LdapDN normName, ServerEntry entry ) throws Exception
     {
+        if ( entry instanceof ClonedServerEntry )
+        {
+            throw new Exception( "Cannot store a ClonedServerEntry" );
+        }
+        
         Long id;
         Long parentId;
 
@@ -1237,6 +1243,11 @@ public class JdbmStore<E> implements Store<E>
      */
     private void add( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
     {
+        if ( entry instanceof ClonedServerEntry )
+        {
+            throw new Exception( "Cannot store a ClonedServerEntry" );
+        }
+        
         String modsOid = oidRegistry.getOid( mods.getId() );
 
         if ( hasUserIndexOn( modsOid ) )
@@ -1286,6 +1297,11 @@ public class JdbmStore<E> implements Store<E>
      */
     private void remove( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
     {
+        if ( entry instanceof ClonedServerEntry )
+        {
+            throw new Exception( "Cannot store a ClonedServerEntry" );
+        }
+        
         String modsOid = oidRegistry.getOid( mods.getId() );
 
         if ( hasUserIndexOn( modsOid ) )
@@ -1363,6 +1379,11 @@ public class JdbmStore<E> implements Store<E>
      */
     private void replace( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
     {
+        if ( entry instanceof ClonedServerEntry )
+        {
+            throw new Exception( "Cannot store a ClonedServerEntry" );
+        }
+        
         String modsOid = oidRegistry.getOid( mods.getId() );
 
         if ( hasUserIndexOn( modsOid ) )
@@ -1415,6 +1436,11 @@ public class JdbmStore<E> implements Store<E>
 
     public void modify( LdapDN dn, ModificationOperation modOp, ServerEntry mods ) throws Exception
     {
+        if ( mods instanceof ClonedServerEntry )
+        {
+            throw new Exception( "Cannot store a ClonedServerEntry" );
+        }
+        
         Long id = getEntryId( dn.toString() );
         ServerEntry entry = ( ServerEntry ) master.get( id );
 

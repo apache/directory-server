@@ -72,6 +72,15 @@ public class ClonedServerEntry implements ServerEntry
     }
 
 
+    /**
+     * @return the cloned Entry
+     */
+    public ServerEntry getClonedEntry()
+    {
+        return clonedEntry;
+    }
+
+
     public void add( AttributeType attributeType, byte[]... values ) throws NamingException
     {
         clonedEntry.add( attributeType, values );
