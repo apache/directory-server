@@ -106,4 +106,35 @@ public class ChangeLogEvent implements Serializable
     {
         return zuluTime;
     }
+
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append( "ChangeLogEvent { " );
+        
+        sb.append( "principal=" )
+        .append( getCommitterPrincipal() )
+        .append( ", " );
+        
+        sb.append( "zuluTime=" )
+          .append( getZuluTime() )
+          .append( ", " );
+        
+        sb.append( "revision=" )
+        .append( getRevision() )
+        .append( ", " );
+        
+        sb.append( "\nforwardLdif=" )
+        .append( getForwardLdif() )
+        .append( ", " );
+        
+        sb.append( "\nreverseLdif=" )
+        .append( getReverseLdif() );
+        
+        sb.append( " }" );
+        
+        return sb.toString();
+    }
 }
