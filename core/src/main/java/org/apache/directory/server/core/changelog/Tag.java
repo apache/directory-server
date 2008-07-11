@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.changelog;
 
 
+import java.util.Date;
+
+
 /**
  * A tag on a revision representing a snapshot of the directory server's 
  * state.
@@ -29,18 +32,44 @@ package org.apache.directory.server.core.changelog;
  */
 public class Tag
 {
-    /*
-     * TODO should we have date in which tag was taken
-     * TODO should we have the date of the revision that was tagged
-     */
+
     private final long revision;
     private final String description;
-    
-    
+
+    /** the date on which this tag was created*/
+    private Date tagDate;
+
+    /** the date of revision that was tagged*/
+    private Date revisionDate;
+
+
     public Tag( long revision, String description )
     {
         this.revision = revision;
         this.description = description;
+        this.tagDate = new Date();
+    }
+
+
+    public Tag( long revision, String description, Date tagDate, Date revisionDate )
+    {
+        this.revision = revision;
+        this.description = description;
+        this.tagDate = tagDate;
+        this.revisionDate = revisionDate;
+    }
+
+    
+    public Tag( long revision, String description, long tagTime, long revisionTime )
+    {
+        this.revision = revision;
+        this.description = description;
+        this.tagDate = new Date( tagTime );
+
+        if( revisionTime > 0 )
+        {
+            this.revisionDate = new Date( revisionTime );
+        }
     }
 
 
@@ -59,6 +88,18 @@ public class Tag
     public String getDescription()
     {
         return description;
+    }
+
+
+    public Date getTagDate()
+    {
+        return tagDate;
+    }
+
+
+    public Date getRevisionDate()
+    {
+        return revisionDate;
     }
 
 
