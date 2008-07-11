@@ -290,6 +290,7 @@ public class EventInterceptor extends BaseInterceptor
         for ( RegistrationEntry registration : registrations )
         {
             NotificationCriteria criteria = registration.getCriteria();
+            
             if ( evaluator.evaluate( criteria.getFilter(), criteria.getBase().toNormName(), entry ) )
             {
                 selecting.add( registration );

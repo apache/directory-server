@@ -74,6 +74,9 @@ public class EventServiceIT
         testEntry.put( objectClass );
         ctx.createSubcontext( "ou=testentry", testEntry );
 
+        //  Wait 1 second, as the process is asynchronous
+        Thread.sleep( 1000 );
+
         assertEquals( 1, listener.getEventRecords().size() );
         EventRecord rec = ( EventRecord ) listener.getEventRecords().get( 0 );
         assertEquals( "objectAdded", rec.method );
@@ -82,6 +85,9 @@ public class EventServiceIT
         ctx.removeNamingListener( listener );
         ctx.destroySubcontext( "ou=testentry" );
 
+        //  Wait 1 second, as the process is asynchronous
+        Thread.sleep( 1000 );
+
         assertEquals( 1, listener.getEventRecords().size() );
         rec = ( EventRecord ) listener.getEventRecords().get( 0 );
         assertEquals( "objectAdded", rec.method );
@@ -89,6 +95,10 @@ public class EventServiceIT
 
         // read the entry once again just to make sure
         ctx.createSubcontext( "ou=testentry", testEntry );
+        
+        //  Wait 1 second, as the process is asynchronous
+        Thread.sleep( 1000 );
+
         assertEquals( 1, listener.getEventRecords().size() );
         rec = ( EventRecord ) listener.getEventRecords().get( 0 );
         assertEquals( "objectAdded", rec.method );
@@ -114,6 +124,9 @@ public class EventServiceIT
         testEntry.put( objectClass );
         ctx.createSubcontext( "ou=testentry", testEntry );
 
+        //  Wait 1 second, as the process is asynchronous
+        Thread.sleep( 1000 );
+
         assertEquals( 1, listener.getEventRecords().size() );
         EventRecord rec = ( EventRecord ) listener.getEventRecords().get( 0 );
         assertEquals( "objectAdded", rec.method );
@@ -123,12 +136,19 @@ public class EventServiceIT
         ctx = ( EventDirContext ) getSystemContext( service ).lookup( "" );
         ctx.destroySubcontext( "ou=testentry" );
 
+        //  Wait 1 second, as the process is asynchronous
+        Thread.sleep( 1000 );
+
         assertEquals( 1, listener.getEventRecords().size() );
         rec = ( EventRecord ) listener.getEventRecords().get( 0 );
         assertEquals( "objectAdded", rec.method );
 
         // readd the entry once again just to make sure
         ctx.createSubcontext( "ou=testentry", testEntry );
+        
+        //  Wait 1 second, as the process is asynchronous
+        Thread.sleep( 1000 );
+
         assertEquals( 1, listener.getEventRecords().size() );
         rec = ( EventRecord ) listener.getEventRecords().get( 0 );
         assertEquals( "objectAdded", rec.method );
