@@ -76,8 +76,9 @@ public class JdbmIndexTest
             dbFileDir.delete();
         }
 
-        dbFileDir = new File( File.createTempFile(
-            JdbmIndexTest.class.getSimpleName(), "db" ).getParentFile(),
+        File tmpIndexFile = File.createTempFile( JdbmIndexTest.class.getSimpleName(), "db" );
+        tmpIndexFile.deleteOnExit();
+        dbFileDir = new File( tmpIndexFile.getParentFile(),
             JdbmIndexTest.class.getSimpleName() );
 
         dbFileDir.mkdirs();
