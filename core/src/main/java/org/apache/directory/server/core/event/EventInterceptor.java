@@ -334,7 +334,7 @@ public class EventInterceptor extends BaseInterceptor
             {
                 if ( entry.getListener() == listener )
                 {
-                    registrations.remove( listener );
+                    registrations.remove( entry );
                 }
             }
         }

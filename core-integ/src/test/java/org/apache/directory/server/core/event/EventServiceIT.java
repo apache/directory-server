@@ -87,7 +87,7 @@ public class EventServiceIT
         assertEquals( "objectAdded", rec.method );
         assertEquals( ctx, rec.event.getSource() );
 
-        // readd the entry once again just to make sure
+        // read the entry once again just to make sure
         ctx.createSubcontext( "ou=testentry", testEntry );
         assertEquals( 1, listener.getEventRecords().size() );
         rec = ( EventRecord ) listener.getEventRecords().get( 0 );
