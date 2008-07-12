@@ -527,8 +527,7 @@ public class SearchITest extends AbstractServerTest
      * @param aciItem the prescriptive ACI attribute value
      * @throws NamingException if there is a problem creating the subentry
      */
-    @Test
-    public void createAccessControlSubentry( String cn, String subtree, String aciItem ) throws NamingException
+    private void createAccessControlSubentry( String cn, String subtree, String aciItem ) throws NamingException
     {
         DirContext adminCtx = ctx;
 
@@ -645,11 +644,34 @@ public class SearchITest extends AbstractServerTest
     public void testSubentryControl() throws Exception
     {
         // create a real access control subentry
-        createAccessControlSubentry( "anyBodyAdd", "{}", 
-            "{ " + "identificationTag \"addAci\", " + "precedence 14, "
-            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
-            + "userPermissions { { " + "protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "grantsAndDenials { grantAdd, grantBrowse } } } } }"
+        createAccessControlSubentry( 
+            "anyBodyAdd", 
+            "{}", 
+            "{ " + 
+            "  identificationTag \"addAci\", " + 
+            "  precedence 14, " +
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses " + 
+            "    { " + 
+            "      allUsers " + 
+            "    }, " +
+            "    userPermissions " + 
+            "    { " + 
+            "      { " + 
+            "        protectedItems " + 
+            "        { " + 
+            "          entry, allUserAttributeTypesAndValues" + 
+            "        }, " +
+            "        grantsAndDenials " + 
+            "        { " + 
+            "          grantAdd, grantBrowse " +
+            "        } " +
+            "      } " +
+            "    } " + 
+            "  } " + 
+            "}"
         );
         
         // prepare the subentry control to make the subentry visible
@@ -662,6 +684,7 @@ public class SearchITest extends AbstractServerTest
         ctx.setRequestControls( reqControls );
         NamingEnumeration<SearchResult> enm = ctx.search( "", "(objectClass=*)", searchControls );
         Set<String> results = new HashSet<String>();
+        
         while ( enm.hasMore() )
         {
             SearchResult result = enm.next();
