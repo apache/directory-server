@@ -295,7 +295,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private boolean isSubentryVisible( OperationContext opContext ) throws Exception
     {
-        if ( opContext.hasRequestControls() )
+        if ( !opContext.hasRequestControls() )
         {
             return false;
         }
