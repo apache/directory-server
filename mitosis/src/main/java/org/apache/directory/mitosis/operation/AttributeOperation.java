@@ -24,9 +24,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -95,21 +95,21 @@ public abstract class AttributeOperation extends Operation
     }
 
 
-    protected final void execute0( PartitionNexus nexus, ReplicationStore store, OperationContext opContext ) 
+    protected final void execute0( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
         throws Exception
     {
-        if ( ! EntryUtil.isEntryUpdatable( opContext, name, getCSN() ) )
+        if ( ! EntryUtil.isEntryUpdatable( coreSession, name, getCSN() ) )
         {
             return;
         }
         
-        EntryUtil.createGlueEntries( opContext, name, true );
+        EntryUtil.createGlueEntries( coreSession, name, true );
 
-        execute1( nexus, opContext );
+        execute1( nexus, coreSession );
     }
 
 
-    protected abstract void execute1( PartitionNexus nexus, OperationContext opContext ) throws Exception;
+    protected abstract void execute1( PartitionNexus nexus, CoreSession coreSession ) throws Exception;
 
 
     /**

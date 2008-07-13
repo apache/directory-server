@@ -22,11 +22,12 @@ package org.apache.directory.mitosis.operation.support;
 
 import javax.naming.NameNotFoundException;
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -41,11 +42,12 @@ import org.apache.directory.mitosis.common.DefaultCSN;
 public class EntryUtil
 {
     @SuppressWarnings("unchecked")
-    public static boolean isEntryUpdatable( OperationContext opContext, LdapDN name, CSN newCSN ) 
+    public static boolean isEntryUpdatable( CoreSession coreSession, LdapDN name, CSN newCSN ) 
         throws Exception
     {
-        PartitionNexus nexus = opContext.getSession().getDirectoryService().getPartitionNexus();
-        ServerEntry entry = nexus.lookup( opContext.newLookupContext( name ) );
+        PartitionNexus nexus = coreSession.getDirectoryService().getPartitionNexus();
+        LookupOperationContext lookupContext = new LookupOperationContext( coreSession, name ); 
+        ServerEntry entry = nexus.lookup( lookupContext );
 
         if ( entry == null )
         {
@@ -85,32 +87,32 @@ public class EntryUtil
     }
 
 
-    public static void createGlueEntries( OperationContext opContext, LdapDN name, boolean includeLeaf )
+    public static void createGlueEntries( CoreSession coreSession, LdapDN name, boolean includeLeaf )
         throws Exception
     {
         assert name.size() > 0;
 
         for ( int i = name.size() - 1; i > 0; i-- )
         {
-            createGlueEntry( opContext, ( LdapDN ) name.getSuffix( i ) );
+            createGlueEntry( coreSession, ( LdapDN ) name.getSuffix( i ) );
         }
 
         if ( includeLeaf )
         {
-            createGlueEntry( opContext, name );
+            createGlueEntry( coreSession, name );
         }
     }
 
 
-    private static void createGlueEntry( OperationContext opContext, LdapDN name ) 
+    private static void createGlueEntry( CoreSession coreSession, LdapDN name ) 
         throws Exception
     {
-        DirectoryService ds = opContext.getSession().getDirectoryService();
+        DirectoryService ds = coreSession.getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();
         
         try
         {
-            if ( nexus.hasEntry( new EntryOperationContext( opContext.getSession(), name ) ) )
+            if ( nexus.hasEntry( new EntryOperationContext( coreSession, name ) ) )
             {
                 return;
             }
@@ -134,7 +136,7 @@ public class EntryUtil
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
 
         // And add it to the nexus.
-        nexus.add( new AddOperationContext( opContext.getSession(), entry ) );
+        nexus.add( new AddOperationContext( coreSession, entry ) );
     }
 
 

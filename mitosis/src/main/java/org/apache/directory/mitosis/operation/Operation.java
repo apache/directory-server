@@ -27,9 +27,9 @@ import javax.naming.OperationNotSupportedException;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.Constants;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -99,18 +99,18 @@ public class Operation implements Serializable
     /**
      * Executes this operation on the specified nexus.
      */
-    public final void execute( PartitionNexus nexus, ReplicationStore store, Registries registries ) 
+    public final void execute( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
         throws Exception
     {
         synchronized ( nexus )
         {
-            execute0( nexus, store, registries );
+            execute0( nexus, store, coreSession );
             store.putLog( this );
         }
     }
 
     @SuppressWarnings("unused")
-    protected void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries ) 
+    protected void execute0( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
         throws Exception
     {
         throw new OperationNotSupportedException( nexus.getSuffixDn().toString() );

@@ -400,22 +400,22 @@ public class ReplicationInterceptor extends BaseInterceptor
     {
         Operation op = operationFactory.newAdd( 
             addContext.getDn(), addContext.getEntry() );
-        op.execute( nexus, store, registries );
+        op.execute( nexus, store, addContext.getSession() );
     }
 
 
     @Override
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws Exception
     {
-        Operation op = operationFactory.newDelete( opContext.getDn() );
-        op.execute( nexus, store, registries );
+        Operation op = operationFactory.newDelete( deleteContext.getDn() );
+        op.execute( nexus, store, deleteContext.getSession() );
     }
 
 
     public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws Exception
     {
         Operation op = operationFactory.newModify( modifyContext );
-        op.execute( nexus, store, registries );
+        op.execute( nexus, store, modifyContext.getSession() );
     }
 
 
@@ -423,7 +423,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     public void move( NextInterceptor next, MoveOperationContext moveOpContext ) throws Exception
     {
         Operation op = operationFactory.newMove( moveOpContext.getDn(), moveOpContext.getParent() );
-        op.execute( nexus, store, registries );
+        op.execute( nexus, store, moveOpContext.getSession() );
     }
 
 
@@ -433,7 +433,7 @@ public class ReplicationInterceptor extends BaseInterceptor
         Operation op = operationFactory.newMove( moveAndRenameOpContext.getDn(),
                 moveAndRenameOpContext.getParent(), moveAndRenameOpContext.getNewRdn(),
                 moveAndRenameOpContext.getDelOldDn() );
-        op.execute( nexus, store, registries );
+        op.execute( nexus, store, moveAndRenameOpContext.getSession() );
     }
 
 
@@ -441,7 +441,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     public void rename( NextInterceptor next, RenameOperationContext renameOpContext ) throws Exception
     {
         Operation op = operationFactory.newModifyRn( renameOpContext.getDn(), renameOpContext.getNewRdn(), renameOpContext.getDelOldDn() );
-        op.execute( nexus, store, registries );
+        op.execute( nexus, store, renameOpContext.getSession() );
     }
 
 

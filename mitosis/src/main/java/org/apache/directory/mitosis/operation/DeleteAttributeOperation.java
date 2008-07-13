@@ -21,11 +21,11 @@ package org.apache.directory.mitosis.operation;
 
 
 import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -61,15 +61,15 @@ public class DeleteAttributeOperation extends AttributeOperation
     }
 
 
-    protected void execute1( PartitionNexus nexus, OperationContext opContext ) throws Exception
+    protected void execute1( PartitionNexus nexus, CoreSession coreSession ) throws Exception
     {
-        DirectoryService ds = opContext.getSession().getDirectoryService();
+        DirectoryService ds = coreSession.getDirectoryService();
         ServerEntry serverEntry = ds.newEntry( LdapDN.EMPTY_LDAPDN );
         ServerAttribute attribute = getAttribute( ds.getRegistries().getAttributeTypeRegistry() );
         serverEntry.put( attribute );
         List<Modification> items = ModifyOperationContext.createModItems( serverEntry, 
             ModificationOperation.REMOVE_ATTRIBUTE );
 
-        nexus.modify( new ModifyOperationContext( opContext.getSession(), getName(), items ) );
+        nexus.modify( new ModifyOperationContext( coreSession, getName(), items ) );
     }
 }
