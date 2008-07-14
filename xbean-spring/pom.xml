@@ -33,9 +33,27 @@
 
   <url>http://maven.apache.org</url>
   <dependencies>
+    <!-- The list of dependencies must include all modules with xbean annotations.  Grep for @org.apache.xbean.XBean -->
+    <!-- Also be sure that each module mentioned here generates a source jar by including
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    -->
+    
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-shared</artifactId>
+      <artifactId>apacheds-core</artifactId>
       <version>${pom.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
@@ -43,7 +61,7 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-changepw</artifactId>
+      <artifactId>apacheds-interceptor-kerberos</artifactId>
       <version>${pom.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
@@ -59,7 +77,15 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-ntp</artifactId>
+      <artifactId>apacheds-protocol-changepw</artifactId>
+      <version>${pom.version}</version>
+      <classifier>sources</classifier>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-protocol-dns</artifactId>
       <version>${pom.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
@@ -83,7 +109,7 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-dns</artifactId>
+      <artifactId>apacheds-protocol-ntp</artifactId>
       <version>${pom.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
@@ -91,7 +117,7 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core</artifactId>
+      <artifactId>apacheds-protocol-shared</artifactId>
       <version>${pom.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
