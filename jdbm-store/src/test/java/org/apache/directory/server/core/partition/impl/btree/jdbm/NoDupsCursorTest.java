@@ -184,6 +184,68 @@ public class NoDupsCursorTest
     
 
     @Test
+    public void testJdbmBrowserSwitch() throws Exception
+    {
+        for( int i=1; i < 10; i++ )
+        {
+            table.put( i, i );
+        }
+    
+        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+        
+        // go to last and call next then previous twice then next
+        cursor.afterLast();
+        assertFalse( cursor.next() );
+        assertTrue( cursor.previous() );
+        assertEquals( 9, ( int ) cursor.get().getKey() );
+        
+        assertTrue( cursor.previous() );
+        assertEquals( 8, ( int ) cursor.get().getKey() );
+
+        assertTrue( cursor.next() );
+         assertEquals( 9, ( int ) cursor.get().getKey() );
+ 
+        
+        // go to last and call previous then next and again previous 
+        cursor.afterLast();
+        assertTrue( cursor.previous() );
+        assertEquals( 9, ( int ) cursor.get().getKey() );
+        
+        assertTrue( cursor.next() );
+        assertEquals( 9, ( int ) cursor.get().getKey() );
+        
+        assertTrue( cursor.previous() );
+        assertEquals( 8, ( int ) cursor.get().getKey() );
+        
+        
+        // go to first and call previous then next twice and again next
+        cursor.beforeFirst();
+        assertFalse( cursor.previous() );
+        assertTrue( cursor.next() );
+        assertEquals( 1, ( int ) cursor.get().getKey() );
+
+        assertTrue( cursor.next() );
+        assertEquals( 2, ( int ) cursor.get().getKey() );
+        
+        assertTrue( cursor.previous() );
+        assertEquals( 1, ( int ) cursor.get().getKey() );
+
+
+        // go to first and call next twice then previous
+        cursor.beforeFirst();
+        assertTrue( cursor.next() );
+        assertEquals( 1, ( int ) cursor.get().getKey() );
+
+        assertTrue( cursor.next() );
+        assertEquals( 2, ( int ) cursor.get().getKey() );
+        
+        assertTrue( cursor.previous() );
+        assertEquals( 1, ( int ) cursor.get().getKey() );
+
+    }
+    
+    
+    @Test
     public void testMiscellaneous() throws Exception
     {
     }
