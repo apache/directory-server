@@ -46,7 +46,12 @@ public enum AuthenticationLevel
     /**
      * Strong authentication (bound with encrypted credentials)
      */
-    STRONG( 2, "strong" );
+    STRONG( 2, "strong" ),
+	
+	/**
+	 * Unauthentication, if the BIND contains a DN but no credentials
+	 */
+    UNAUTHENT( 3, "unauthent" );
     
     private int level;
     
@@ -91,6 +96,8 @@ public enum AuthenticationLevel
             case 1: return SIMPLE;
             
             case 2: return STRONG;
+            
+            case 3: return UNAUTHENT;
             
             default:
                 throw new IllegalArgumentException( "Unknown AuthenticationLevel " + val );
