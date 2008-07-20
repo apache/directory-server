@@ -98,19 +98,39 @@ public class BindOperationContext implements OperationContext
     }
 
     
+    /**
+     * @return The authentication level. One of :
+     * <li>ANONYMOUS</li>
+     * <li>SIMPLE</li>
+     * <li>STRONG (sasl)</li>
+     * <li>INVALID</li>
+     */
     public AuthenticationLevel getAuthenticationLevel()
     {
-        if ( saslMechanism == null && dn.isEmpty() )
+        if ( ( saslMechanism == null ) )
         {
-            return AuthenticationLevel.NONE;
+        	if ( dn.isEmpty() )
+        	{
+        		if ( StringTools.isEmpty( credentials ) )
+        		{
+        			// Dn and Credentials are empty, this is an anonymous authent
+        			return AuthenticationLevel.NONE;
+        		}
+        		else
+        		{
+        			// If we have a password but no DN, this is invalid 
+        			return AuthenticationLevel.INVALID;
+        		}
+        	}
+        	else
+        	{
+        		return AuthenticationLevel.SIMPLE;
+        	}
         }
-        
-        if ( saslMechanism != null )
+        else
         {
             return AuthenticationLevel.STRONG;
         }
-        
-        return AuthenticationLevel.SIMPLE;
     }
     
     

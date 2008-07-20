@@ -20,10 +20,6 @@
 package org.apache.directory.server.core.authn;
 
 
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -484,6 +480,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.info( "Cannot bind to the server " );
         }
 
-        throw new LdapAuthenticationException();
+        LdapDN dn = opContext.getDn();
+        String upDn = ( dn == null ? "" : dn.getUpName() );
+        throw new LdapAuthenticationException( "Cannot authenticate user " + upDn );
     }
 }

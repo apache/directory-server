@@ -568,14 +568,17 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
             if ( userEntry == null )
             {
+            	LdapDN dn = opContext.getDn();
+            	String upDn = ( dn == null ? "" : dn.getUpName() );
+            	
                 throw new LdapAuthenticationException( "Failed to lookup user for authentication: " 
-                    + opContext.getDn() );
+                    + upDn );
             }
         }
         catch ( Exception cause )
         {
             LOG.error( "Authentication error : " + cause.getMessage() );
-            LdapAuthenticationException e = new LdapAuthenticationException();
+            LdapAuthenticationException e = new LdapAuthenticationException( cause.getMessage() );
             e.setRootCause( e );
             throw e;
         }
