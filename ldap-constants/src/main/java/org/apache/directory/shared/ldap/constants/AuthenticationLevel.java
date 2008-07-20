@@ -28,6 +28,11 @@ package org.apache.directory.shared.ldap.constants;
  */
 public enum AuthenticationLevel
 {
+	/**
+	 * Invalid authentication type
+	 */
+	INVALID(-1, "invalid" ),
+	
     /**
      * No authentication (anonymous access)
      */
