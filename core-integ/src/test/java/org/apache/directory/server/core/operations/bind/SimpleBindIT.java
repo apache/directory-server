@@ -26,6 +26,7 @@ import javax.naming.Context;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
@@ -340,9 +341,9 @@ public class SimpleBindIT
     	{
     		new InitialDirContext(env);
     	}
-    	catch ( LdapAuthenticationException lae )
+    	catch ( OperationNotSupportedException onse )
     	{
-    		assertEquals( "Cannot authenticate user uid=admin,ou=system", lae.getMessage() );
+    		assertEquals( "Cannot Bind for DN uid=admin,ou=system", onse.getMessage() );
     	}
     	catch ( NamingException ne )
     	{

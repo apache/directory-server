@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.OperationNotSupportedException;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
@@ -417,7 +419,16 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
         
         // pick the first matching authenticator type
-        Collection<Authenticator> authenticators = getAuthenticators( opContext.getAuthenticationLevel().getName() );
+        AuthenticationLevel level = opContext.getAuthenticationLevel();
+        
+        if ( level == AuthenticationLevel.UNAUTHENT )
+        {
+        	// This is a case where the Bind request contains a DN, but no password.
+        	// We don't check the DN, we just return a UnwillingToPerform error
+        	throw new OperationNotSupportedException( "Cannot Bind for DN " + opContext.getDn().getUpName() );
+        }
+
+        Collection<Authenticator> authenticators = getAuthenticators( level.getName() );
 
         if ( authenticators == null )
         {

@@ -122,6 +122,10 @@ public class BindOperationContext implements OperationContext
         			return AuthenticationLevel.INVALID;
         		}
         	}
+        	else if ( StringTools.isEmpty( credentials ) )
+        	{
+        		return AuthenticationLevel.UNAUTHENT;
+        	}
         	else
         	{
         		return AuthenticationLevel.SIMPLE;
