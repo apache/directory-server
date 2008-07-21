@@ -321,11 +321,7 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
                 result.setMatchedDn( (LdapDN)e.getResolvedName() );
             }
 
-            for ( ResultResponse resultResponse : Collections.singleton( req.getResultResponse() ) )
-            {
-                session.getIoSession().write( resultResponse );
-            }
-            
+            session.getIoSession().write( req.getResultResponse() );
             session.unregisterOutstandingRequest( req );
         }
         finally
