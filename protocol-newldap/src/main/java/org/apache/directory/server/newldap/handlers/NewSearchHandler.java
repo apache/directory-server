@@ -31,6 +31,7 @@ import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.codec.search.SearchResultDone;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -99,47 +100,13 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
          */
         if ( ! psearchControl.isChangesOnly() )
         {
-            EntryFilteringCursor cursor = session.getCoreSession().search( req );
+            SearchResponseDone done = doSimpleSearch( session, req );
             
-            if ( cursor instanceof AbandonListener )
+            // ok if normal search beforehand failed somehow quickly abandon psearch
+            if ( done.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
             {
-                req.addAbandonListener( ( AbandonListener ) cursor );
-            }
-            
-            cursor.beforeFirst();
-            
-            if ( cursor.next() )
-            {
-                Iterator<Response> it = new SearchResponseIterator( req, cursor, session );
-                
-                while ( it.hasNext() )
-                {
-                    Response resp = it.next();
-                    
-                    if ( resp instanceof SearchResponseDone )
-                    {
-                        // ok if normal search beforehand failed somehow quickly abandon psearch
-                        ResultCodeEnum rcode = ( ( SearchResponseDone ) resp ).getLdapResult().getResultCode();
-
-                        if ( rcode != ResultCodeEnum.SUCCESS )
-                        {
-                            session.getIoSession().write( resp );
-                            return;
-                        }
-                        // if search was fine then we returned all entries so now
-                        // instead of returning the DONE response we break from the
-                        // loop and user the notification listener to send back
-                        // notifications to the client in never ending search
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        session.getIoSession().write( resp );
-                    }
-                }
+                session.getIoSession().write( done );
+                return;
             }
         }
 
@@ -148,7 +115,118 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
         getLdapServer().getDirectoryService().addNamingListener( req.getBase(), req.getFilter().toString(), handler );
         return;
     }
+    
+    
+    
+    private void handleRootDseSearch( LdapSession session, SearchRequest req ) throws Exception
+    {
+    }
+    
+    
+    /**
+     * Conducts a simple search across the result set returning each entry 
+     * back except for the search response done.  This is calculated but not
+     * returned so the persistent search mechanism can leverage this method
+     * along with standard search.
+     *
+     * @param session the LDAP session object for this request
+     * @param req the search request 
+     * @return the result done 
+     * @throws Exception if there are failures while processing the request
+     */
+    private SearchResponseDone doSimpleSearch( LdapSession session, SearchRequest req ) throws Exception
+    {
+        /*
+         * Iterate through all search results building and sending back responses
+         * for each search result returned.
+         */
+        EntryFilteringCursor cursor = null;
+        
+        try
+        {
+            cursor = session.getCoreSession().search( req );
+            
+            // TODO - fix this (need to make Cursors abandonable)
+            if ( cursor instanceof AbandonListener )
+            {
+                req.addAbandonListener( ( AbandonListener ) cursor );
+            }
+    
+            // Position the cursor at the beginning
+            cursor.beforeFirst();
+            
+            while ( cursor.next() )
+            {
+                ClonedServerEntry entry = cursor.get();
+                session.getIoSession().write( generateResponse( req, entry ) );
+            }
+    
+            LdapResult ldapResult = req.getResultResponse().getLdapResult();
+            ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
+            
+            // DO NOT WRITE THE RESPONSE - JUST RETURN IT
+            
+            return ( SearchResponseDone ) req.getResultResponse();
+        }
+        finally
+        {
+            if ( cursor != null )
+            {
+                try
+                {
+                    cursor.close();
+                }
+                catch ( NamingException e )
+                {
+                    LOG.error( "failed on list.close()", e );
+                }
+            }
+        }
+    }
+    
 
+    /**
+     * Generates a response for an entry retrieved from the server core based 
+     * on the nature of the request with respect to referral handling.  This 
+     * method will either generate a SearchResponseEntry or a 
+     * SearchResponseReference depending on if the entry is a referral or if 
+     * the ManageDSAITControl has been enabled.
+     *
+     * @param req the search request
+     * @param entry the entry to be handled
+     * @return the response for the entry
+     * @throws Exception if there are problems in generating the response
+     */
+    private Response generateResponse( SearchRequest req, ClonedServerEntry entry ) throws Exception
+    {
+        EntryAttribute ref = entry.getOriginalEntry().get( SchemaConstants.REF_AT );
+        boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControl.CONTROL_OID );
+
+        if ( ref != null && ! hasManageDsaItControl )
+        {
+            SearchResponseReference respRef;
+            respRef = new SearchResponseReferenceImpl( req.getMessageId() );
+            respRef.setReferral( new ReferralImpl() );
+            
+            for ( Value<?> val : ref )
+            {
+                String url = ( String ) val.get();
+                respRef.getReferral().addLdapUrl( url );
+            }
+            
+            return respRef;
+        }
+        else 
+        {
+            SearchResponseEntry respEntry;
+            respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+            respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( entry ) );
+            respEntry.setObjectName( entry.getDn() );
+            
+            return respEntry;
+        }
+    }
+    
     
     /**
      * Main message handing method for search requests.
@@ -163,26 +241,18 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             LOG.debug( "Message received:  {}", req.toString() );
         }
 
-        EntryFilteringCursor cursor = null;
-        String[] ids = null;
-        Collection<String> retAttrs = new HashSet<String>();
-        
         // add the search request to the registry of outstanding requests for this session
         session.registerOutstandingRequest( req );
 
         try
         {
-            boolean isRootDSESearch = isRootDSESearch( req );
-
             // ===============================================================
             // Handle search in rootDSE differently.
-            // TODO : is this necessary ?
             // ===============================================================
-            if ( isRootDSESearch )
+            if ( isRootDSESearch( req ) )
             {
-            }
-            else
-            {
+                handleRootDseSearch( session, req );
+                return;
             }
 
             // ===============================================================
@@ -202,59 +272,8 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             // Handle regular search requests from here down
             // ===============================================================
 
-            /*
-             * Iterate through all search results building and sending back responses
-             * for each search result returned.
-             */
-            cursor = session.getCoreSession().search( req );
-            
-            // TODO - fix this (need to make Cursors abandonable)
-            if ( cursor instanceof AbandonListener )
-            {
-                req.addAbandonListener( ( AbandonListener ) cursor );
-            }
-
-            // Position the cursor at the beginning
-            cursor.beforeFirst();
-            
-            while ( cursor.next() )
-            {
-                Response response;
-            	ClonedServerEntry result = cursor.get();
-            	EntryAttribute ref = result.getOriginalEntry().get( SchemaConstants.REF_AT );
-            	boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControl.CONTROL_OID );
-
-            	if ( ref != null && ! hasManageDsaItControl )
-            	{
-                    SearchResponseReference respRef;
-                    respRef = new SearchResponseReferenceImpl( req.getMessageId() );
-                    respRef.setReferral( new ReferralImpl() );
-                    
-                    for ( Value<?> val : ref )
-                    {
-                        String url = ( String ) val.get();
-                        respRef.getReferral().addLdapUrl( url );
-                    }
-                    
-                    response = respRef;
-            	}
-            	else 
-            	{
-                    SearchResponseEntry respEntry;
-                    respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-                    respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( result ) );
-                    respEntry.setObjectName( result.getDn() );
-                    
-                    response = respEntry;
-            	}
-                
-                session.getIoSession().write( response );
-            }
-
-            // At the end, we have to write a last message : a responseDone
-            LdapResult ldapResult = req.getResultResponse().getLdapResult();
-            ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
-            session.getIoSession().write( req.getResultResponse() );
+            SearchResponseDone done = doSimpleSearch( session, req );
+            session.getIoSession().write( done );
         }
         catch ( ReferralException e )
         {
@@ -324,68 +343,6 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             session.getIoSession().write( req.getResultResponse() );
             session.unregisterOutstandingRequest( req );
         }
-        finally
-        {
-            if ( cursor != null )
-            {
-                try
-                {
-                	cursor.close();
-                }
-                catch ( NamingException e )
-                {
-                    LOG.error( "failed on list.close()", e );
-                }
-            }
-        }
-    }
-
-
-    /**
-     * Based on the request and the max limits for time configured in the 
-     * server, this returns the minimum allowed time limit.
-     *
-     * @param session the session
-     * @param req the search request
-     * @return the minimum allowed time limit
-     */
-    private int getTimeLimit( LdapSession session, SearchRequest req )
-    {
-        if ( session.getCoreSession().isAnAdministrator() )
-        {
-            // The setTimeLimit needs a number of milliseconds
-            // when the search control is expressed in seconds
-            int timeLimit = req.getTimeLimit();
-
-            // Just check that we are not exceeding the maximum for a long
-            if ( timeLimit > Integer.MAX_VALUE / 1000 )
-            {
-                timeLimit = 0;
-            }
-            
-            return timeLimit * 1000;
-        }
-        
-        return Math.min( req.getTimeLimit(), getLdapServer().getMaxTimeLimit() );
-    }
-    
-
-    /**
-     * Based on the request and the max limits for size configured in the 
-     * server, this returns the minimum allowed size limit.
-     *
-     * @param session the session
-     * @param req the search request
-     * @return the minimum allowed size limit
-     */
-    private int getSizeLimit( LdapSession session, SearchRequest req )
-    {
-        if ( session.getCoreSession().isAnAdministrator() )
-        {
-            return req.getSizeLimit();
-        }        
-
-        return Math.min( req.getSizeLimit(), getLdapServer().getMaxSizeLimit() );
     }
 
 
