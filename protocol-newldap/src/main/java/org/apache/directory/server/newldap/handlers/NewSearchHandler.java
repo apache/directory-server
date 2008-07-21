@@ -252,9 +252,9 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             // At the end, we have to write a last message : a responseDone
-            SearchResponseDone respDone = ( SearchResponseDone ) req.getResultResponse();
-            respDone.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-            session.getIoSession().write( respDone );
+            LdapResult ldapResult = req.getResultResponse().getLdapResult();
+            ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
+            session.getIoSession().write( req.getResultResponse() );
         }
         catch ( ReferralException e )
         {
