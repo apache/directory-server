@@ -31,7 +31,6 @@ import javax.naming.event.ObjectChangeListener;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.newldap.SessionRegistry;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
@@ -67,21 +66,19 @@ import org.slf4j.LoggerFactory;
  */
 class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeListener, AbandonListener
 {
-    private static final Logger LOG = LoggerFactory.getLogger( SearchHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( PersistentSearchListener.class );
     final ServerLdapContext ctx;
     final IoSession session;
     final SearchRequest req;
     final PersistentSearchControl control;
-    final SessionRegistry registry;
 
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
-    PersistentSearchListener( SessionRegistry registry, ServerLdapContext ctx, IoSession session, SearchRequest req )
+    PersistentSearchListener( ServerLdapContext ctx, IoSession session, SearchRequest req )
     {
-        this.registry = registry;
         this.session = session;
         this.req = req;
         req.addAbandonListener( this );
@@ -141,7 +138,6 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
             return;
         }
 
-        registry.removeOutstandingRequest( session, new Integer( req.getMessageId() ) );
         String msg = "failed on persistent search operation";
 
         if ( IS_DEBUG )

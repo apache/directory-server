@@ -21,12 +21,17 @@ package org.apache.directory.server.newldap.handlers;
 
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.LdapSession;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -41,8 +46,14 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
 import org.apache.directory.shared.ldap.message.ScopeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResponseDone;
+import org.apache.directory.shared.ldap.message.SearchResponseEntry;
+import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
+import org.apache.directory.shared.ldap.message.SearchResponseReference;
+import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
@@ -52,6 +63,7 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -71,10 +83,8 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( NewSearchHandler.class );
 
-    
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
     
     private void handlePersistentSearch( LdapSession session, SearchRequest req, 
         PersistentSearchControl psearchControl, EntryFilteringCursor list ) throws NamingException 
@@ -94,6 +104,7 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             }
             
             list.beforeFirst();
+            
             if ( list.next() )
             {
                 Iterator<Response> it = new SearchResponseIterator( req, list, session );
@@ -138,6 +149,9 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
     
     /**
      * Main message handing method for search requests.
+     * 
+     * @param session the associated session
+     * @param req the received SearchRequest
      */
     public void handle( LdapSession session, SearchRequest req ) throws Exception
     {
@@ -146,29 +160,23 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             LOG.debug( "Message received:  {}", req.toString() );
         }
 
-        EntryFilteringCursor list = null;
+        EntryFilteringCursor cursor = null;
         String[] ids = null;
         Collection<String> retAttrs = new HashSet<String>();
-        retAttrs.addAll( req.getAttributes() );
-
+        
+        AttributeTypeRegistry atr = session.getCoreSession().getDirectoryService().getRegistries().getAttributeTypeRegistry(); 
+        
         // add the search request to the registry of outstanding requests for this session
         session.registerOutstandingRequest( req );
-
-        // check the attributes to see if a referral's ref attribute is included
-        if ( retAttrs.size() > 0 && !retAttrs.contains( SchemaConstants.REF_AT ) )
-        {
-            retAttrs.add( SchemaConstants.REF_AT );
-            ids = retAttrs.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
-        }
-        else if ( retAttrs.size() > 0 )
-        {
-            ids = retAttrs.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
-        }
 
         try
         {
             boolean isRootDSESearch = isRootDSESearch( req );
 
+            // ===============================================================
+            // Handle search in rootDSE differently.
+            // TODO : is this necessary ?
+            // ===============================================================
             if ( isRootDSESearch )
             {
             }
@@ -185,7 +193,7 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             
             if ( psearchControl != null )
             {
-                handlePersistentSearch( session, req, psearchControl, list );
+                handlePersistentSearch( session, req, psearchControl, cursor );
                 return;
             }
 
@@ -197,33 +205,79 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
              * Iterate through all search results building and sending back responses
              * for each search result returned.
              */
-            list = session.getCoreSession().search( req );
+            cursor = session.getCoreSession().search( req );
             
             // TODO - fix this (need to make Cursors abandonable)
-            if ( list instanceof AbandonListener )
+            if ( cursor instanceof AbandonListener )
             {
-                req.addAbandonListener( ( AbandonListener ) list );
+                req.addAbandonListener( ( AbandonListener ) cursor );
             }
 
-            list.beforeFirst();
-            if ( list.next() )
+            // Position the cursor at the beginning
+            // TODO : should'nt it be always the case ?
+            cursor.beforeFirst();
+            
+            while ( cursor.next() )
             {
-                Iterator<Response> it = new SearchResponseIterator( req, list, session );
+            	ServerEntry result = cursor.get();
+            	
+                SearchResponseEntry respEntry;
+                respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+                respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( result ) );
+                respEntry.setObjectName( result.getDn() );
                 
-                while ( it.hasNext() )
-                {
-                    session.getIoSession().write( it.next() );
-                }
-            }
-            else
-            {
-                list.close();
-                req.getResultResponse().getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+                /*
+                 * TODO : handle referrals here ...
+                 */
+            	/*
+                EntryAttribute ref = result.get( SchemaConstants.REF_AT );
+                LdapDN dn = result.getDn();
                 
-                for ( ResultResponse resultResponse : Collections.singleton( req.getResultResponse() ) )
+                if ( !session.getCoreSession().getReferralHandlingMode() 
+                    || req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
                 {
-                    session.getIoSession().write( resultResponse );
+                    SearchResponseEntry respEntry;
+                    respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+                    respEntry.setAttributes( result.getAttributes() );
+                    respEntry.setObjectName( dn );
+                    prefetched = respEntry;
                 }
+                else
+                {
+                
+                    SearchResponseReference respRef;
+                    respRef = new SearchResponseReferenceImpl( req.getMessageId() );
+                    respRef.setReferral( new ReferralImpl() );
+
+                    for ( int ii = 0; ii < ref.size(); ii++ )
+                    {
+                        String url;
+
+                        try
+                        {
+                            url = ( String ) ref.get( ii );
+                            respRef.getReferral().addLdapUrl( url );
+                        }
+                        catch ( NamingException e )
+                        {
+                            try
+                            {
+                                underlying.close();
+                            }
+                            catch ( Throwable t )
+                            {
+                                LOG.error( "Encountered error while trying to close underlying enumeration", t );
+                            }
+
+                            prefetched = null;
+                            respDone = getResponse( req, e );
+                        }
+                    }
+
+                    prefetched = respRef;
+                //}*/
+                
+                session.getIoSession().write( (Response)respEntry );
             }
         }
         catch ( ReferralException e )
@@ -300,11 +354,11 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
         }
         finally
         {
-            if ( list != null )
+            if ( cursor != null )
             {
                 try
                 {
-                    list.close();
+                	cursor.close();
                 }
                 catch ( NamingException e )
                 {

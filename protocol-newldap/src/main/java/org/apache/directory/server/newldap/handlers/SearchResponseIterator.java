@@ -31,7 +31,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.newldap.SessionRegistry;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -69,7 +68,6 @@ class SearchResponseIterator implements Iterator<Response>
     private final ServerLdapContext ctx;
     private final NamingEnumeration<SearchResult> underlying;
     private final IoSession session;
-    private final SessionRegistry registry;
     private SearchResponseDone respDone;
     private boolean done;
     private Response prefetched;
@@ -90,15 +88,13 @@ class SearchResponseIterator implements Iterator<Response>
      * @param scope the scope of the search
      * @param session the session of the issuer of the search
      */
-    public SearchResponseIterator( SearchRequest req, ServerLdapContext ctx, NamingEnumeration<SearchResult> underlying, int scope,
-        IoSession session, SessionRegistry registry )
+    public SearchResponseIterator( SearchRequest req, NamingEnumeration<SearchResult> underlying, int scope,
+        IoSession session )
     {
         this.req = req;
-        this.ctx = ctx;
         this.scope = scope;
         this.underlying = underlying;
         this.session = session;
-        this.registry = registry;
 
         try
         {
@@ -159,7 +155,6 @@ class SearchResponseIterator implements Iterator<Response>
             }
             else
             {
-                registry.removeOutstandingRequest( session, req.getMessageId() );
             }
         }
         catch ( NamingException e )
@@ -257,7 +252,6 @@ class SearchResponseIterator implements Iterator<Response>
                 respDone = ( SearchResponseDone ) req.getResultResponse();
                 respDone.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
                 prefetched = null;
-                registry.removeOutstandingRequest( session, req.getMessageId() );
                 return next;
             }
         }
@@ -474,7 +468,6 @@ class SearchResponseIterator implements Iterator<Response>
             }
         }
         
-        registry.removeOutstandingRequest( session, req.getMessageId() );
         return resp;
     }
 }

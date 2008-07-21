@@ -40,15 +40,23 @@ import org.apache.mina.handler.demux.MessageHandler;
  */
 public abstract class LdapRequestHandler<T extends Request> implements MessageHandler<T>
 {
+	/** The reference on the Ldap server instance */
     protected LdapServer ldapServer;
 
 
+    /**
+     * @return The associated ldap server instance
+     */
     public final LdapServer getLdapServer()
     {
         return ldapServer;
     }
 
 
+    /**
+     * Associates a Ldap server instance to the message handler
+     * @param ldapServer the associated ldap server instance
+     */
     public final void setLdapServer( LdapServer ldapServer )
     {
         this.ldapServer = ldapServer;
@@ -57,7 +65,15 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
     /**
      * TODO - add notes about how this protects against unauthorized access
-     * and sets up the ldapSession's coreConte.
+     * and sets up the ldapSession's coreContext.
+     * 
+     * Handle a LDAP message received during a session.
+     * 
+     * @param session the user session created when the user first connected
+     * to the server
+     * @param message the LDAP message received. Can be any of the LDAP Request
+     * @throws Exception the thrown exception if something went wrong during 
+     * the message processing
      */
     public final void messageReceived( IoSession session, T message ) throws Exception
     {

@@ -81,6 +81,43 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
     
 
     /**
+     * Handle the Simple authentication.
+     *
+     * @param session The associated Session
+     * @param message The BindRequest received
+     * @throws Exception If the authentication cannot be done
+     */
+    public void handleSimpleAuth( LdapSession session, BindRequest bindRequest ) throws Exception
+    {
+        // create a new Bind context, with a null session, as we don't have 
+        // any context yet.
+        BindOperationContext opContext = new BindOperationContext( null );
+        
+        // Stores the DN of the user to check, and its password
+        opContext.setDn( bindRequest.getName() );
+        opContext.setCredentials( bindRequest.getCredentials() );
+
+        // Stores the request controls into the operation context
+        LdapProtocolUtils.setRequestControls( opContext, bindRequest );
+        
+        // And call the OperationManager bind operation.
+        getLdapServer().getDirectoryService().getOperationManager().bind( opContext );
+        
+        // As a result, store the created session in the Core Session
+        session.setCoreSession( opContext.getSession() );
+        
+        // Return the successful response
+        BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
+        response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+        LdapProtocolUtils.setResponseControls( opContext, response );
+        
+        // Write it back to the client
+        session.getIoSession().write( response );
+        LOG.debug( "Returned SUCCESS message: {}.", response );
+    }
+    
+    
+    /**
      * Handle the SASL authentication.
      *
      * @param session The associated Session
@@ -347,25 +384,10 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
             return;
         }
 
-
-        // Deal with the two kinds of authentication :
-        // - if it's simple, handle it in this class for speed
-        // - for SASL, we go through a chain right now (but it may change in the near future)
+        // Deal with the two kinds of authentication : Simple and SASL
         if ( bindRequest.isSimple() )
         {
-            BindOperationContext opContext = new BindOperationContext( null );
-            opContext.setCredentials( bindRequest.getCredentials() );
-            opContext.setDn( bindRequest.getName() );
-            LdapProtocolUtils.setRequestControls( opContext, bindRequest );
-            getLdapServer().getDirectoryService().getOperationManager().bind( opContext );
-            session.setCoreSession( opContext.getSession() );
-            
-            BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
-            response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-            LdapProtocolUtils.setResponseControls( opContext, response );
-            
-            session.getIoSession().write( response );
-            LOG.debug( "Returned SUCCESS message." );
+            handleSimpleAuth( session, bindRequest );
         }
         else
         {
