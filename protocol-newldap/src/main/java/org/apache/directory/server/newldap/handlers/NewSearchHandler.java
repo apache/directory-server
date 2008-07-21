@@ -21,6 +21,8 @@ package org.apache.directory.server.newldap.handlers;
 
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.ReferralHandlingMode;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
@@ -32,6 +34,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -86,28 +89,28 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
+    
     private void handlePersistentSearch( LdapSession session, SearchRequest req, 
-        PersistentSearchControl psearchControl, EntryFilteringCursor list ) throws NamingException 
+        PersistentSearchControl psearchControl ) throws Exception 
     {
         /*
          * We want the search to complete first before we start listening to 
          * events when the control does NOT specify changes ONLY mode.
          */
-        
         if ( ! psearchControl.isChangesOnly() )
         {
-            list = session.getCoreSession().search( req );
+            EntryFilteringCursor cursor = session.getCoreSession().search( req );
             
-            if ( list instanceof AbandonListener )
+            if ( cursor instanceof AbandonListener )
             {
-                req.addAbandonListener( ( AbandonListener ) list );
+                req.addAbandonListener( ( AbandonListener ) cursor );
             }
             
-            list.beforeFirst();
+            cursor.beforeFirst();
             
-            if ( list.next() )
+            if ( cursor.next() )
             {
-                Iterator<Response> it = new SearchResponseIterator( req, list, session );
+                Iterator<Response> it = new SearchResponseIterator( req, cursor, session );
                 
                 while ( it.hasNext() )
                 {
@@ -164,8 +167,6 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
         String[] ids = null;
         Collection<String> retAttrs = new HashSet<String>();
         
-        AttributeTypeRegistry atr = session.getCoreSession().getDirectoryService().getRegistries().getAttributeTypeRegistry(); 
-        
         // add the search request to the registry of outstanding requests for this session
         session.registerOutstandingRequest( req );
 
@@ -188,12 +189,12 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             // Handle psearch differently
             // ===============================================================
 
-            PersistentSearchControl psearchControl = ( PersistentSearchControl ) req.getControls().get(
-                PersistentSearchControl.CONTROL_OID );
+            PersistentSearchControl psearchControl = ( PersistentSearchControl ) 
+                req.getControls().get( PersistentSearchControl.CONTROL_OID );
             
             if ( psearchControl != null )
             {
-                handlePersistentSearch( session, req, psearchControl, cursor );
+                handlePersistentSearch( session, req, psearchControl );
                 return;
             }
 
@@ -214,70 +215,40 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             // Position the cursor at the beginning
-            // TODO : should'nt it be always the case ?
             cursor.beforeFirst();
             
             while ( cursor.next() )
             {
-            	ServerEntry result = cursor.get();
-            	
-                SearchResponseEntry respEntry;
-                respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-                respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( result ) );
-                respEntry.setObjectName( result.getDn() );
-                
-                /*
-                 * TODO : handle referrals here ...
-                 */
-            	/*
-                EntryAttribute ref = result.get( SchemaConstants.REF_AT );
-                LdapDN dn = result.getDn();
-                
-                if ( !session.getCoreSession().getReferralHandlingMode() 
-                    || req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
-                {
-                    SearchResponseEntry respEntry;
-                    respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-                    respEntry.setAttributes( result.getAttributes() );
-                    respEntry.setObjectName( dn );
-                    prefetched = respEntry;
-                }
-                else
-                {
-                
+                Response response;
+            	ClonedServerEntry result = cursor.get();
+            	EntryAttribute ref = result.getOriginalEntry().get( SchemaConstants.REF_AT );
+            	boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControl.CONTROL_OID );
+
+            	if ( ref != null && ! hasManageDsaItControl )
+            	{
                     SearchResponseReference respRef;
                     respRef = new SearchResponseReferenceImpl( req.getMessageId() );
                     respRef.setReferral( new ReferralImpl() );
-
-                    for ( int ii = 0; ii < ref.size(); ii++ )
+                    
+                    for ( Value<?> val : ref )
                     {
-                        String url;
-
-                        try
-                        {
-                            url = ( String ) ref.get( ii );
-                            respRef.getReferral().addLdapUrl( url );
-                        }
-                        catch ( NamingException e )
-                        {
-                            try
-                            {
-                                underlying.close();
-                            }
-                            catch ( Throwable t )
-                            {
-                                LOG.error( "Encountered error while trying to close underlying enumeration", t );
-                            }
-
-                            prefetched = null;
-                            respDone = getResponse( req, e );
-                        }
+                        String url = ( String ) val.get();
+                        respRef.getReferral().addLdapUrl( url );
                     }
-
-                    prefetched = respRef;
-                //}*/
+                    
+                    response = respRef;
+            	}
+            	else 
+            	{
+                    SearchResponseEntry respEntry;
+                    respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+                    respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( result ) );
+                    respEntry.setObjectName( result.getDn() );
+                    
+                    response = respEntry;
+            	}
                 
-                session.getIoSession().write( (Response)respEntry );
+                session.getIoSession().write( response );
             }
         }
         catch ( ReferralException e )
