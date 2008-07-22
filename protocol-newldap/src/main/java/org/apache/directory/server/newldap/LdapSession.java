@@ -64,6 +64,14 @@ public class LdapSession
     }
     
     
+    /**
+     * Check if the session is authenticated. There are two conditions for
+     * a session to be authenticated :<br>
+     * - it has to exist<br>
+     * - and the session should not be anonymous.
+     * 
+     * @return <code>true</code> if the session is not anonymous
+     */
     public boolean isAuthenticated()
     {
         return ( coreSession != null ) && !coreSession.isAnonymous();
