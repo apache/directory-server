@@ -165,6 +165,10 @@ tests run maven with the -Dintegration switch.
               <forkMode>pertest</forkMode>
               <!-- <argLine>-agentlib:yjpagent</argLine> -->
               <argLine>-Xmx1024m</argLine>
+              <excludes>
+                <exclude>**/Abstract*</exclude>
+                <exclude>**/PersistentSearchTest*</exclude>
+              </excludes>
             </configuration>
           </plugin>
         </plugins>
