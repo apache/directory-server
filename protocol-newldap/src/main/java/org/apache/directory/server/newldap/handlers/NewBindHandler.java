@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.Name;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -44,10 +45,14 @@ import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,20 +105,65 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
         // Stores the request controls into the operation context
         LdapProtocolUtils.setRequestControls( opContext, bindRequest );
         
-        // And call the OperationManager bind operation.
-        getLdapServer().getDirectoryService().getOperationManager().bind( opContext );
-        
-        // As a result, store the created session in the Core Session
-        session.setCoreSession( opContext.getSession() );
-        
-        // Return the successful response
-        BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
-        response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-        LdapProtocolUtils.setResponseControls( opContext, response );
-        
-        // Write it back to the client
-        session.getIoSession().write( response );
-        LOG.debug( "Returned SUCCESS message: {}.", response );
+        try
+        {
+	        // And call the OperationManager bind operation.
+	        getLdapServer().getDirectoryService().getOperationManager().bind( opContext );
+	        
+	        // As a result, store the created session in the Core Session
+	        session.setCoreSession( opContext.getSession() );
+	        
+	        // Return the successful response
+	        BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
+	        response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+	        LdapProtocolUtils.setResponseControls( opContext, response );
+	        
+	        // Write it back to the client
+	        session.getIoSession().write( response );
+	        LOG.debug( "Returned SUCCESS message: {}.", response );
+        }
+        catch ( Exception e )
+        {
+        	// Something went wrong. Write back an error message        	
+            ResultCodeEnum code = null;
+            LdapResult result = bindRequest.getResultResponse().getLdapResult();
+
+            if ( e instanceof LdapException )
+            {
+                code = ( ( LdapException ) e ).getResultCode();
+                result.setResultCode( code );
+            }
+            else
+            {
+                code = ResultCodeEnum.getBestEstimate( e, bindRequest.getType() );
+                result.setResultCode( code );
+            }
+
+            String msg = "Bind failed: " + e.getMessage();
+
+            if ( LOG.isDebugEnabled() )
+            {
+                msg += ":\n" + ExceptionUtils.getStackTrace( e );
+                msg += "\n\nBindRequest = \n" + bindRequest.toString();
+            }
+
+            Name name = null;
+            
+            if ( e instanceof LdapAuthenticationException )
+            {
+            	name = ((LdapAuthenticationException)e).getResolvedName();
+            }
+            
+            if ( ( name != null )
+                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
+                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
+            {
+                result.setMatchedDn( new LdapDN( name ) );
+            }
+
+            result.setErrorMessage( msg );
+            session.getIoSession().write( bindRequest.getResultResponse() );
+        }
     }
     
     
