@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.search.ExtensibleMatchFilter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
-import org.apache.directory.shared.ldap.message.ScopeEnum;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -134,7 +134,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.BASE_OBJECT, sr.getScope() );
+        assertEquals( SearchScope.OBJECT, sr.getScope() );
         assertEquals( LdapConstants.DEREF_FINDING_BASE_OBJ, sr.getDerefAliases() );
         assertEquals( 2, sr.getSizeLimit() );
         assertEquals( 3, sr.getTimeLimit() );
@@ -366,7 +366,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
 
         assertEquals( 4, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.SINGLE_LEVEL, sr.getScope() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 0, sr.getSizeLimit() );
         assertEquals( 0, sr.getTimeLimit() );
@@ -648,7 +648,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
 
         assertEquals( 4, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.SINGLE_LEVEL, sr.getScope() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 0, sr.getSizeLimit() );
         assertEquals( 0, sr.getTimeLimit() );

@@ -93,6 +93,7 @@ import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
 import org.apache.directory.shared.ldap.codec.search.SearchResultReference;
 import org.apache.directory.shared.ldap.codec.search.SubstringFilter;
 import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AddResponseImpl;
 import org.apache.directory.shared.ldap.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.message.CompareResponseImpl;
@@ -100,7 +101,6 @@ import org.apache.directory.shared.ldap.message.DeleteResponseImpl;
 import org.apache.directory.shared.ldap.message.ModifyDnResponseImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponseImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ScopeEnum;
 import org.apache.directory.shared.ldap.message.SearchResponseDoneImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -3580,7 +3580,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                         throw new DecoderException( "The scope is not in [0..2] : " + value.toString() );
                     }
 
-                    searchRequest.setScope( ScopeEnum.getScope( scope ) );
+                    searchRequest.setScope( SearchScope.getSearchScope( scope ) );
 
                     if ( IS_DEBUG )
                     {

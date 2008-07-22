@@ -85,7 +85,7 @@ public class EntryChangeControlCodec extends AbstractAsn1Object
 
     private ChangeType changeType = ChangeType.ADD;
 
-    private int changeNumber = UNDEFINED_CHANGE_NUMBER;
+    private long changeNumber = UNDEFINED_CHANGE_NUMBER;
 
     /** The previous DN */
     private LdapDN previousDn = null;
@@ -129,7 +129,9 @@ public class EntryChangeControlCodec extends AbstractAsn1Object
 
         if ( changeNumber != UNDEFINED_CHANGE_NUMBER )
         {
-            changeNumberLength = 1 + 1 + Value.getNbBytes( changeNumber );
+            // TODO Emmanuel can you please check how we can use long here instead
+            // TODO get rid of cast to int 
+            changeNumberLength = 1 + 1 + Value.getNbBytes( ( int ) changeNumber );
         }
 
         eccSeqLength = changeTypesLength + previousDnLength + changeNumberLength;
@@ -162,7 +164,9 @@ public class EntryChangeControlCodec extends AbstractAsn1Object
         }
         if ( changeNumber != UNDEFINED_CHANGE_NUMBER )
         {
-            Value.encode( bb, changeNumber );
+            // TODO Emmanuel can you please check how we can use long here instead
+            // TODO get rid of cast to int 
+            Value.encode( bb, ( int ) changeNumber );
         }
         return bb;
     }
@@ -216,13 +220,13 @@ public class EntryChangeControlCodec extends AbstractAsn1Object
     }
 
 
-    public int getChangeNumber()
+    public long getChangeNumber()
     {
         return changeNumber;
     }
 
 
-    public void setChangeNumber( int changeNumber )
+    public void setChangeNumber( long changeNumber )
     {
         this.changeNumber = changeNumber;
     }
