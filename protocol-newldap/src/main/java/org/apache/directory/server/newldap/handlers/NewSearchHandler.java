@@ -99,9 +99,58 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
     }
     
     
-    
+    /**
+     * Deal with RootDE search. 
+     * @param session
+     * @param req
+     * @throws Exception
+     */
     private void handleRootDseSearch( LdapSession session, SearchRequest req ) throws Exception
     {
+        EntryFilteringCursor cursor = null;
+        
+        try
+        {
+            cursor = session.getCoreSession().search( req );
+            
+            // Position the cursor at the beginning
+            cursor.beforeFirst();
+            boolean hasRootDSE = false;
+            
+            while ( cursor.next() )
+            {
+            	if ( hasRootDSE )
+            	{
+            		// This is an error ! We should never find more
+            		// than one rootDSE !
+            		// TODO : handle this error
+            	}
+            	else
+            	{
+            		hasRootDSE = true;
+	                ClonedServerEntry entry = cursor.get();
+	                session.getIoSession().write( generateResponse( req, entry ) );
+            	}
+            }
+    
+            // write the SearchResultDone message
+            session.getIoSession().write( req.getResultResponse() );
+        }
+        finally
+        {
+        	// Close the cursor now.
+            if ( cursor != null )
+            {
+                try
+                {
+                    cursor.close();
+                }
+                catch ( NamingException e )
+                {
+                    LOG.error( "failed on list.close()", e );
+                }
+            }
+        }
     }
     
     
