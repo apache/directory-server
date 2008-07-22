@@ -23,7 +23,7 @@ package org.apache.directory.server.newldap.handlers;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.LdapSession;
-import org.apache.directory.shared.ldap.codec.bind.BindRequest;
+import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.Request;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
