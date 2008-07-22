@@ -28,7 +28,7 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;

@@ -27,7 +27,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
 

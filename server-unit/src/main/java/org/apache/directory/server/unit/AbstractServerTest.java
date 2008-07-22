@@ -46,15 +46,15 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.ldap.handlers.bind.CramMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.DigestMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.GssapiMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.newldap.handlers.bind.CramMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.DigestMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.GssapiMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.SimpleMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.newldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.server.newldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
@@ -281,7 +281,7 @@ public abstract class AbstractServerTest extends TestCase
     {
         Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
 
-        mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
+         mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
 
         CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
         cramMd5MechanismHandler.setDirectoryService( directoryService );
