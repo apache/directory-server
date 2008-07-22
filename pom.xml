@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>10</version>
+    <version>11</version>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
@@ -345,7 +345,6 @@
     <module>xdbm-search</module>
     <module>xdbm-tools</module>
     <module>core</module>
-    <!--module>core-jndi</module-->
     <module>core-constants</module>
     <module>core-shared</module>
     <module>core-plugin</module>
@@ -357,10 +356,7 @@
     <module>core-avl</module>
     <module>protocol-shared</module>
     <module>protocol-ntp</module>
-    <module>protocol-ldap</module>
-    <!--
     <module>protocol-newldap</module>
-    -->
     <module>protocol-kerberos</module>
     <module>protocol-dhcp</module>
     <module>protocol-dns</module>

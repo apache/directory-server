@@ -26,8 +26,6 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.NamingException;
-
 
 /**
  * Tests the MemoryChangeLogStore.
@@ -65,7 +63,7 @@ public class MemoryChangeLogStoreTest extends TestCase
         forward.putAttribute( "ou", "system" );
 
         LdifEntry reverse = LdifUtils.reverseAdd( new LdapDN( forward.getDn() ) );
-        assertEquals( 1, store.log( new LdapPrincipal(), forward, reverse ) );
+        assertEquals( 1, store.log( new LdapPrincipal(), forward, reverse ).getRevision() );
         assertEquals( 1, store.getCurrentRevision() );
     }
 }
