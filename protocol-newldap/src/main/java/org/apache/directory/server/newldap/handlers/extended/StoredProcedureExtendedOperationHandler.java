@@ -31,11 +31,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.sp.StoredProcEngine;
@@ -44,7 +42,7 @@ import org.apache.directory.server.core.sp.StoredProcExecutionManager;
 import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
 import org.apache.directory.server.newldap.ExtendedOperationHandler;
 import org.apache.directory.server.newldap.LdapServer;
-import org.apache.directory.server.newldap.SessionRegistry;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure;
@@ -55,9 +53,9 @@ import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.mina.common.IoSession;
 
 
 /**
@@ -71,6 +69,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     private StoredProcExecutionManager manager;
     private static final Object[] EMPTY_CLASS_ARRAY = new Object[0];
     
+    
     public StoredProcedureExtendedOperationHandler()
     {
         super();
@@ -83,30 +82,19 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         this.manager = new StoredProcExecutionManager( spContainer, spEngineConfigs );
     }
 
-    public void handleExtendedOperation( IoSession session, SessionRegistry registry, ExtendedRequest req ) throws Exception
+
+    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
     {
-        Control[] connCtls = req.getControls().values().toArray( new Control[ req.getControls().size() ] );
-        LdapContext ldapContext = registry.getLdapContext( session, connCtls, false);
-        ServerLdapContext ctx;
-        
-        if ( ldapContext instanceof ServerLdapContext )
-        {
-            ctx = ( ServerLdapContext ) ldapContext;
-        }
-        else
-        {
-            ctx = ( ServerLdapContext ) ldapContext.lookup( "" );
-        }
-        
         StoredProcedure spBean = decodeBean( req.getPayload() );
         
         String procedure = StringTools.utf8ToString( spBean.getProcedure() );
-        CoreSession coreSession = ctx.getSession();
-        ClonedServerEntry spUnit = manager.findStoredProcUnit( coreSession, procedure );
+        ClonedServerEntry spUnit = manager.findStoredProcUnit( session.getCoreSession(), procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
         
         List<Object> valueList = new ArrayList<Object>( spBean.getParameters().size() );
         Iterator<StoredProcedureParameter> it = spBean.getParameters().iterator();
+        LdapContext ctx = new ServerLdapContext( session.getCoreSession().getDirectoryService(),
+            session.getCoreSession().getEffectivePrincipal(), new LdapDN() );
         
         while ( it.hasNext() )
         {
@@ -125,11 +113,11 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         
         Object[] values = valueList.toArray( EMPTY_CLASS_ARRAY );
         
-        Object response = engine.invokeProcedure( coreSession, procedure, values );
+        Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
         
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
         ( ( ExtendedResponse )( req.getResultResponse() ) ).setResponse( serializedResponse );
-        session.write( req.getResultResponse() );
+        session.getIoSession().write( req.getResultResponse() );
         
     }
     
@@ -176,8 +164,8 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         return EXTENSION_OIDS;
     }
 
-    
-    public void setLdapProvider( LdapServer provider)
+
+    public void setLdapServer( LdapServer ldapServer )
     {
     }
 }

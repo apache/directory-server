@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MoveOperationContext extends AbstractOperationContext
+public class MoveOperationContext extends AbstractChangeOperationContext
 {
     /** The parent DN */
     private LdapDN parent;

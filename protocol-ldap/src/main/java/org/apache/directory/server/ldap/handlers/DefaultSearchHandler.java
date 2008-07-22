@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
-import org.apache.directory.shared.ldap.message.ScopeEnum;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResponseDone;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -113,7 +113,7 @@ public class DefaultSearchHandler extends SearchHandler
             controls.setTimeLimit( Math.min( req.getTimeLimit(), maxTime ) );
         }
 
-        controls.setSearchScope( req.getScope().getValue() );
+        controls.setSearchScope( req.getScope().getJndiScope() );
         controls.setReturningObjFlag( req.getTypesOnly() );
         controls.setReturningAttributes( ids );
         controls.setDerefLinkFlag( true );
@@ -138,7 +138,7 @@ public class DefaultSearchHandler extends SearchHandler
     private static boolean isRootDSESearch( SearchRequest req )
     {
         boolean isBaseIsRoot = req.getBase().isEmpty();
-        boolean isBaseScope = req.getScope() == ScopeEnum.BASE_OBJECT;
+        boolean isBaseScope = req.getScope() == SearchScope.OBJECT;
         boolean isRootDSEFilter = false;
         
         if ( req.getFilter() instanceof PresenceNode )

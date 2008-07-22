@@ -20,42 +20,36 @@
 package org.apache.directory.server.newldap.handlers;
 
 
-import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.event.NamespaceChangeListener;
-import javax.naming.event.NamingEvent;
-import javax.naming.event.NamingExceptionEvent;
-import javax.naming.event.ObjectChangeListener;
 
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.core.event.DirectoryListener;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.ChangeOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.message.EntryChangeControl;
-import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResponseEntry;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.mina.common.IoSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * A JNDI NamingListener implementation which sends back added, deleted, modified or 
+ * A DirectoryListener implementation which sends back added, deleted, modified or 
  * renamed entries to a client that created this listener.  This class is part of the
  * persistent search implementation which uses the event notification scheme built into
- * the server core.  This is exposed by the server side ApacheDS JNDI LDAP provider.
+ * the server core.  
  * 
  * This listener is disabled only when a session closes or when an abandon request 
  * cancels it.  Hence time and size limits in normal search operations do not apply
@@ -64,25 +58,19 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeListener, AbandonListener
+public class PersistentSearchListener implements DirectoryListener, AbandonListener
 {
     private static final Logger LOG = LoggerFactory.getLogger( PersistentSearchListener.class );
-    final ServerLdapContext ctx;
-    final IoSession session;
+    final LdapSession session;
     final SearchRequest req;
     final PersistentSearchControl control;
 
 
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
-    PersistentSearchListener( ServerLdapContext ctx, IoSession session, SearchRequest req )
+    PersistentSearchListener( LdapSession session, SearchRequest req )
     {
         this.session = session;
         this.req = req;
         req.addAbandonListener( this );
-        this.ctx = ctx;
         this.control = ( PersistentSearchControl ) req.getControls().get( PersistentSearchControl.CONTROL_OID );
     }
 
@@ -90,7 +78,7 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
     public void abandon() throws NamingException
     {
         // must abandon the operation 
-        ctx.removeNamingListener( this );
+        session.getCoreSession().getDirectoryService().getEventService().removeListener( this );
 
         /*
          * From RFC 2251 Section 4.11:
@@ -106,254 +94,7 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
          */
     }
 
-
-    public void namingExceptionThrown( NamingExceptionEvent evt )
-    {
-        // must abandon the operation and send response done with an
-        // error message if this occurs because something is wrong
-
-        try
-        {
-            ctx.removeNamingListener( this );
-        }
-        catch ( NamingException e )
-        {
-            LOG.error( "Attempt to remove listener from context failed", e );
-        }
-
-        /*
-         * From RFC 2251 Section 4.11:
-         * 
-         * In the event that a server receives an Abandon Request on a Search  
-         * operation in the midst of transmitting responses to the Search, that
-         * server MUST cease transmitting entry responses to the abandoned
-         * request immediately, and MUST NOT send the SearchResultDone. Of
-         * course, the server MUST ensure that only properly encoded LDAPMessage
-         * PDUs are transmitted. 
-         * 
-         * SO DON'T SEND BACK ANYTHING!!!!!
-         */
-        if ( evt.getException() instanceof OperationAbandonedException )
-        {
-            return;
-        }
-
-        String msg = "failed on persistent search operation";
-
-        if ( IS_DEBUG )
-        {
-            msg += ":\n" + req + ":\n" + ExceptionUtils.getStackTrace( evt.getException() );
-        }
-
-        ResultCodeEnum code;
-        
-        if ( evt.getException() instanceof LdapException )
-        {
-            code = ( ( LdapException ) evt.getException() ).getResultCode();
-        }
-        else
-        {
-            code = ResultCodeEnum.getBestEstimate( evt.getException(), req.getType() );
-        }
-
-        LdapResult result = req.getResultResponse().getLdapResult();
-        result.setResultCode( code );
-        result.setErrorMessage( msg );
-        
-        if ( ( evt.getException().getResolvedName() != null )
-            && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
-                || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
-        {
-            result.setMatchedDn( (LdapDN)evt.getException().getResolvedName() );
-        }
-        
-        session.write( req.getResultResponse() );
-    }
-
-
-    public void objectChanged( NamingEvent evt )
-    {
-        // send the entry back
-        sendEntry( evt );
-    }
-
-
-    public void objectAdded( NamingEvent evt )
-    {
-        // send the entry back
-        sendEntry( evt );
-    }
-
-
-    public void objectRemoved( NamingEvent evt )
-    {
-        // send the entry back
-        sendEntry( evt );
-    }
-
-
-    public void objectRenamed( NamingEvent evt )
-    {
-        // send the entry back
-        sendEntry( evt );
-    }
-
-
-    private void sendEntry( NamingEvent evt )
-    {
-        /*
-         * @todo eventually you'll want to add the changeNumber once we move 
-         * the CSN functionality into the server.
-         */
-        SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-        EntryChangeControl ecControl = null;
-
-        if ( control.isReturnECs() )
-        {
-            ecControl = new EntryChangeControl();
-            respEntry.add( ecControl );
-        }
-        
-        LdapDN newBinding = null;
-        LdapDN oldBinding = null;
-        
-        if ( evt.getNewBinding() != null )
-        {
-            try
-            {
-                newBinding = new LdapDN( evt.getNewBinding().getName() );
-            }
-            catch ( InvalidNameException ine )
-            {
-                newBinding = LdapDN.EMPTY_LDAPDN;
-            }
-        }
-
-        if ( evt.getOldBinding() != null )
-        {
-            try
-            {
-                oldBinding = new LdapDN( evt.getOldBinding().getName() );
-            }
-            catch ( InvalidNameException ine )
-            {
-                oldBinding = LdapDN.EMPTY_LDAPDN;
-            }
-        }
-
-        Object attr;
-        
-        switch ( evt.getType() )
-        {
-            case ( NamingEvent.OBJECT_ADDED  ):
-                if ( !control.isNotificationEnabled( ChangeType.ADD ) )
-                {
-                    return;
-                }
-            
-                respEntry.setObjectName( newBinding );
-                attr = evt.getChangeInfo();
-                
-                if ( attr instanceof ServerEntry )
-                {
-                    respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( (ServerEntry)attr ) );
-                }
-                else
-                {
-                    respEntry.setAttributes( ( Attributes ) attr );
-                }
-                
-                if ( ecControl != null )
-                {
-                    ecControl.setChangeType( ChangeType.ADD );
-                }
-                
-                break;
-                
-            case ( NamingEvent.OBJECT_CHANGED  ):
-                if ( !control.isNotificationEnabled( ChangeType.MODIFY ) )
-                {
-                    return;
-                }
-            
-                respEntry.setObjectName( oldBinding );
-                attr = evt.getOldBinding().getObject();
-                
-                if ( attr instanceof ServerEntry )
-                {
-                    respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( (ServerEntry)attr ) );
-                }
-                else
-                {
-                    respEntry.setAttributes( ( Attributes ) attr );
-                }
-
-                if ( ecControl != null )
-                {
-                    ecControl.setChangeType( ChangeType.MODIFY );
-                }
-                
-                break;
-                
-            case ( NamingEvent.OBJECT_REMOVED  ):
-                if ( !control.isNotificationEnabled( ChangeType.DELETE ) )
-                {
-                    return;
-                }
-            
-                respEntry.setObjectName( oldBinding );
-                attr = evt.getOldBinding().getObject();
-                
-                if ( attr instanceof ServerEntry )
-                {
-                    respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( (ServerEntry)attr ) );
-                }
-                else
-                {
-                    respEntry.setAttributes( ( Attributes ) attr );
-                }
-
-                if ( ecControl != null )
-                {
-                    ecControl.setChangeType( ChangeType.DELETE );
-                }
-                
-                break;
-                
-            case ( NamingEvent.OBJECT_RENAMED  ):
-                if ( !control.isNotificationEnabled( ChangeType.MODDN ) )
-                {
-                    return;
-                }
-            
-                respEntry.setObjectName( newBinding );
-                attr = evt.getNewBinding().getObject();
-                
-                if ( attr instanceof ServerEntry )
-                {
-                    respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( (ServerEntry)attr ) );
-                }
-                else
-                {
-                    respEntry.setAttributes( ( Attributes ) attr );
-                }
-
-                if ( ecControl != null )
-                {
-                    ecControl.setChangeType( ChangeType.MODDN );
-                    ecControl.setPreviousDn( oldBinding );
-                }
-                
-                break;
-
-            default:
-                return;
-        }
-
-        session.write( respEntry );
-    }
-
-
+    
     public void requestAbandoned( AbandonableRequest req )
     {
         try
@@ -364,5 +105,98 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
         {
             LOG.error( "failed to properly abandon this persistent search", e );
         }
+    }
+    
+    
+    private void setECResponseControl( SearchResponseEntry response, ChangeOperationContext opContext, ChangeType type )
+    {
+        if ( control.isReturnECs() )
+        {
+            EntryChangeControl ecControl = new EntryChangeControl();
+            ecControl.setChangeType( type );
+            
+            if ( opContext.getChangeLogEvent() != null )
+            {
+                ecControl.setChangeNumber( opContext.getChangeLogEvent().getRevision() );
+            }
+            
+            response.add( ecControl );
+        }
+    }
+
+
+    public void entryAdded( AddOperationContext opContext )
+    {
+        if ( ! control.isNotificationEnabled( ChangeType.ADD ) )
+        {
+            return;
+        }
+    
+        SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+        respEntry.setObjectName( opContext.getDn() );
+        respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) );
+        setECResponseControl( respEntry, opContext, ChangeType.ADD );
+    }
+
+
+    public void entryDeleted( DeleteOperationContext opContext )
+    {
+        if ( ! control.isNotificationEnabled( ChangeType.DELETE ) )
+        {
+            return;
+        }
+    
+        SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+        respEntry.setObjectName( opContext.getDn() );
+        respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) );
+        setECResponseControl( respEntry, opContext, ChangeType.DELETE );
+    }
+
+
+    public void entryModified( ModifyOperationContext opContext )
+    {
+        if ( ! control.isNotificationEnabled( ChangeType.MODIFY ) )
+        {
+            return;
+        }
+    
+        SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+        respEntry.setObjectName( opContext.getDn() );
+        respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) );
+        setECResponseControl( respEntry, opContext, ChangeType.MODIFY );
+    }
+
+
+    public void entryMoved( MoveOperationContext opContext )
+    {
+        if ( ! control.isNotificationEnabled( ChangeType.MODDN ) )
+        {
+            return;
+        }
+    
+        SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+        respEntry.setObjectName( opContext.getDn() );
+        respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) );
+        setECResponseControl( respEntry, opContext, ChangeType.MODDN );
+    }
+
+
+    public void entryMovedAndRenamed( MoveAndRenameOperationContext opContext )
+    {
+        entryRenamed( opContext );
+    }
+
+
+    public void entryRenamed( RenameOperationContext opContext )
+    {
+        if ( ! control.isNotificationEnabled( ChangeType.MODDN ) )
+        {
+            return;
+        }
+    
+        SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
+        respEntry.setObjectName( opContext.getAlteredEntry().getDn() );
+        respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getAlteredEntry() ) );
+        setECResponseControl( respEntry, opContext, ChangeType.MODDN );
     }
 }

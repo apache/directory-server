@@ -110,7 +110,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
         
         LdifEntry reverse = LdifUtils.reverseAdd( opContext.getDn() );
-        changeLog.log( getPrincipal(), forward, reverse );
+        opContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
 
@@ -140,7 +140,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setChangeType( ChangeType.Delete );
         forward.setDn( opContext.getDn().getUpName() );
         LdifEntry reverse = LdifUtils.reverseDel( opContext.getDn(), ServerEntryUtils.toAttributesImpl( serverEntry ) );
-        changeLog.log( getPrincipal(), forward, reverse );
+        opContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
 
@@ -209,7 +209,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             ServerEntryUtils.toModificationItemImpl( opContext.getModItems() ), 
             ServerEntryUtils.toAttributesImpl( serverEntry ) );
         
-        changeLog.log( getPrincipal(), forward, reverse );
+        opContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
 
@@ -243,7 +243,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         LdifEntry reverse = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), 
             null, renameContext.getDn(), new Rdn( renameContext.getNewRdn() ) );
         
-        changeLog.log( getPrincipal(), forward, reverse );
+        renameContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
 
@@ -274,7 +274,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         LdifEntry reverse = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), 
             opCtx.getParent(), opCtx.getDn(), new Rdn( opCtx.getNewRdn() ) );
-        changeLog.log( getPrincipal(), forward, reverse );
+        opCtx.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
 
@@ -293,6 +293,6 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setNewSuperior( opCtx.getParent().getUpName() );
 
         LdifEntry reverse = LdifUtils.reverseModifyDn( opCtx.getParent(), opCtx.getDn() );
-        changeLog.log( getPrincipal(), forward, reverse );
+        opCtx.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 }

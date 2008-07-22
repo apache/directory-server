@@ -23,15 +23,15 @@ package org.apache.directory.server.newldap;
 import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.newldap.LdapServer;
-import org.apache.directory.server.newldap.handlers.AbandonHandler;
-import org.apache.directory.server.newldap.handlers.AddHandler;
-import org.apache.directory.server.newldap.handlers.BindHandler;
-import org.apache.directory.server.newldap.handlers.CompareHandler;
-import org.apache.directory.server.newldap.handlers.DeleteHandler;
-import org.apache.directory.server.newldap.handlers.ModifyDnHandler;
-import org.apache.directory.server.newldap.handlers.ModifyHandler;
-import org.apache.directory.server.newldap.handlers.SearchHandler;
-import org.apache.directory.server.newldap.handlers.UnbindHandler;
+import org.apache.directory.server.newldap.handlers.NewAbandonHandler;
+import org.apache.directory.server.newldap.handlers.NewAddHandler;
+import org.apache.directory.server.newldap.handlers.NewBindHandler;
+import org.apache.directory.server.newldap.handlers.NewCompareHandler;
+import org.apache.directory.server.newldap.handlers.NewDeleteHandler;
+import org.apache.directory.server.newldap.handlers.NewModifyDnHandler;
+import org.apache.directory.server.newldap.handlers.NewModifyHandler;
+import org.apache.directory.server.newldap.handlers.NewSearchHandler;
+import org.apache.directory.server.newldap.handlers.NewUnbindHandler;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
@@ -111,7 +111,7 @@ public class SettingAlternativeHandlersTest extends TestCase
     }
 
     
-    public static class BogusAbandonHandler extends AbandonHandler
+    public static class BogusAbandonHandler extends NewAbandonHandler
     {
         public void abandonMessageReceived( IoSession session, AbandonRequest request )
         {
@@ -120,7 +120,7 @@ public class SettingAlternativeHandlersTest extends TestCase
     }
 
     
-    public static class BogusUnbindHandler extends UnbindHandler
+    public static class BogusUnbindHandler extends NewUnbindHandler
     {
         public void unbindMessageReceived( IoSession session, UnbindRequest request )
         {
@@ -128,7 +128,7 @@ public class SettingAlternativeHandlersTest extends TestCase
         }
     }
 
-    public static class BogusAddHandler extends AddHandler
+    public static class BogusAddHandler extends NewAddHandler
     {
         public void addMessageReceived( IoSession session, AddRequest request )
         {
@@ -136,7 +136,7 @@ public class SettingAlternativeHandlersTest extends TestCase
         }
     }
 
-    public static class BogusBindHandler extends BindHandler
+    public static class BogusBindHandler extends NewBindHandler
     {
         public void setDirectoryService( DirectoryService directoryService )
         {
@@ -149,7 +149,7 @@ public class SettingAlternativeHandlersTest extends TestCase
         }
     }
 
-    public static class BogusCompareHandler extends CompareHandler
+    public static class BogusCompareHandler extends NewCompareHandler
     {
         public void compareMessageReceived( IoSession session, CompareRequest request )
         {
@@ -157,7 +157,7 @@ public class SettingAlternativeHandlersTest extends TestCase
         }
     }
 
-    public static class BogusDeleteHandler extends  DeleteHandler
+    public static class BogusDeleteHandler extends  NewDeleteHandler
     {
         public void deleteMessageReceived( IoSession session, DeleteRequest request )
         {
@@ -165,7 +165,7 @@ public class SettingAlternativeHandlersTest extends TestCase
         }
     }
 
-    public static class BogusModifyDnHandler extends  ModifyDnHandler
+    public static class BogusModifyDnHandler extends  NewModifyDnHandler
     {
         public void modifyDnMessageReceived( IoSession session, ModifyDnRequest request )
         {
@@ -173,7 +173,7 @@ public class SettingAlternativeHandlersTest extends TestCase
         }
     }
 
-    public static class BogusModifyHandler extends ModifyHandler
+    public static class BogusModifyHandler extends NewModifyHandler
     {
         public void modifyMessageReceived( IoSession session, ModifyRequest request )
         {
@@ -181,7 +181,7 @@ public class SettingAlternativeHandlersTest extends TestCase
         }
     }
 
-    public static class BogusSearchHandler extends SearchHandler
+    public static class BogusSearchHandler extends NewSearchHandler
     {
         public void searchMessageReceived( IoSession session, SearchRequest request )
         {

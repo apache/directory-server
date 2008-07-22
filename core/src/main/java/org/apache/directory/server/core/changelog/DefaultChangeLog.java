@@ -57,7 +57,7 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public long log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
     {
         if ( ! enabled )
         {

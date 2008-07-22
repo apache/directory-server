@@ -63,7 +63,7 @@ public interface ChangeLogStore
      * @return the new revision reached after having applied the forward LDIF
      * @throws Exception if there are problems logging the change
      */
-    long log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception;
+    ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception;
 
     
     /**

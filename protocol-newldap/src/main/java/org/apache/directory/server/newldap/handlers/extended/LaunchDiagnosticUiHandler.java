@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.naming.ldap.LdapContext;
 import javax.swing.JFrame;
 
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -36,13 +35,13 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionFrame;
 import org.apache.directory.server.newldap.ExtendedOperationHandler;
 import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.gui.SessionsFrame;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
@@ -50,7 +49,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiRequest;
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.mina.common.IoSession;
 
 
 /**
@@ -69,7 +67,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
 
-    private LdapServer ldapProvider;
+    private LdapServer ldapServer;
 
 
     public String getOid()
@@ -78,67 +76,56 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
     }
 
 
-    public void handleExtendedOperation( IoSession requestor, SessionRegistry registry, ExtendedRequest req )
+    public void handleExtendedOperation( LdapSession requestor, ExtendedRequest req )
         throws Exception
     {
-        LdapContext ctx = registry.getLdapContext( requestor, null, false );
-        ctx = ( LdapContext ) ctx.lookup( "" );
-
-        if ( ctx instanceof ServerLdapContext )
+        DirectoryService service = requestor.getCoreSession().getDirectoryService();
+        
+        if ( ! requestor.getCoreSession().isAnAdministrator() )
         {
-            ServerLdapContext slc = ( ServerLdapContext ) ctx;
-            DirectoryService service = slc.getService();
-
-            if ( !slc.getSession().getEffectivePrincipal().getName()
-                    .equalsIgnoreCase( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ) )
-            {
-                requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId(),
-                    ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS ) );
-                return;
-            }
-
-            requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
-
-            PartitionNexus nexus = service.getPartitionNexus();
-            LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            adminDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-            LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.STRONG );
-            CoreSession session = service.getSession( principal );
-            Iterator<String> list = nexus.listSuffixes( new ListSuffixOperationContext( session ) );
-            int launchedWindowCount = 0;
-            
-            while ( list.hasNext() )
-            {
-                LdapDN dn = new LdapDN( list.next() );
-                Partition partition = nexus.getPartition( dn );
-                
-                if ( partition instanceof BTreePartition )
-                {
-                    BTreePartition btPartition = ( BTreePartition ) partition;
-                    PartitionFrame frame = new PartitionFrame( btPartition, service.getRegistries() );
-                    Point pos = getCenteredPosition( frame );
-                    pos.y = launchedWindowCount * 20 + pos.y;
-                    double multiplier = getAspectRatio() * 20.0;
-                    pos.x = ( int ) ( launchedWindowCount * multiplier ) + pos.x;
-                    frame.setLocation( pos );
-                    frame.setVisible( true );
-                    launchedWindowCount++;
-                }
-            }
-
-            SessionsFrame sessions = new SessionsFrame( ldapProvider.getRegistry() );
-            sessions.setRequestor( requestor );
-            sessions.setLdapProvider( ldapProvider.getHandler() );
-            Point pos = getCenteredPosition( sessions );
-            pos.y = launchedWindowCount * 20 + pos.y;
-            double multiplier = getAspectRatio() * 20.0;
-            pos.x = ( int ) ( launchedWindowCount * multiplier ) + pos.x;
-            sessions.setLocation( pos );
-            sessions.setVisible( true );
+            requestor.getIoSession().write( new LaunchDiagnosticUiResponse( req.getMessageId(),
+                ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS ) );
             return;
         }
 
-        requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId(), ResultCodeEnum.OPERATIONS_ERROR ) );
+        requestor.getIoSession().write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
+
+        PartitionNexus nexus = service.getPartitionNexus();
+        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        adminDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.STRONG );
+        CoreSession session = service.getSession( principal );
+        Iterator<String> list = nexus.listSuffixes( new ListSuffixOperationContext( session ) );
+        int launchedWindowCount = 0;
+            
+        while ( list.hasNext() )
+        {
+            LdapDN dn = new LdapDN( list.next() );
+            Partition partition = nexus.getPartition( dn );
+            
+            if ( partition instanceof BTreePartition )
+            {
+                BTreePartition btPartition = ( BTreePartition ) partition;
+                PartitionFrame frame = new PartitionFrame( btPartition, service.getRegistries() );
+                Point pos = getCenteredPosition( frame );
+                pos.y = launchedWindowCount * 20 + pos.y;
+                double multiplier = getAspectRatio() * 20.0;
+                pos.x = ( int ) ( launchedWindowCount * multiplier ) + pos.x;
+                frame.setLocation( pos );
+                frame.setVisible( true );
+                launchedWindowCount++;
+            }
+        }
+
+        SessionsFrame sessions = new SessionsFrame( ldapServer );
+        sessions.setRequestor( requestor.getIoSession() );
+        sessions.setLdapProvider( ldapServer.getHandler() );
+        Point pos = getCenteredPosition( sessions );
+        pos.y = launchedWindowCount * 20 + pos.y;
+        double multiplier = getAspectRatio() * 20.0;
+        pos.x = ( int ) ( launchedWindowCount * multiplier ) + pos.x;
+        sessions.setLocation( pos );
+        sessions.setVisible( true );
     }
 
 
@@ -167,8 +154,8 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
     }
 
 
-    public void setLdapProvider( LdapServer provider )
+    public void setLdapServer( LdapServer ldapServer )
     {
-        this.ldapProvider = provider;
+        this.ldapServer = ldapServer;
     }
 }

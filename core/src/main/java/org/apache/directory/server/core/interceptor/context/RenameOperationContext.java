@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -36,7 +37,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RenameOperationContext extends AbstractOperationContext
+public class RenameOperationContext extends AbstractChangeOperationContext
 {
     /** The new DN */
     private Rdn newRdn;
@@ -44,6 +45,9 @@ public class RenameOperationContext extends AbstractOperationContext
     /** The flag to remove the old DN Attribute  */
     private boolean delOldDn;
 
+    /** The entry after being renamed and altered for rdn attributes */ 
+    private ClonedServerEntry alteredEntry;
+    
 
     /**
      * Creates a new instance of RenameOperationContext.
@@ -128,6 +132,18 @@ public class RenameOperationContext extends AbstractOperationContext
     public String getName()
     {
         return MessageTypeEnum.MOD_DN_REQUEST.name();
+    }
+    
+    
+    /**
+     * Returns the entry after it has been renamed and potentially changed for 
+     * Rdn alterations.
+     *
+     * @return the new renamed entry
+     */
+    public ClonedServerEntry getAlteredEntry()
+    {
+        return alteredEntry;
     }
 
     

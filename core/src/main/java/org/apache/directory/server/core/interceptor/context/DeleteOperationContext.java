@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DeleteOperationContext extends AbstractOperationContext
+public class DeleteOperationContext extends AbstractChangeOperationContext
 {
     /**
      * An optimization added to prevent redundant lookups of the deleted 

@@ -415,13 +415,13 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    public long log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
     {
         currentRevision++;
         ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(), 
                 principal, forward, reverse );
         events.add( event );
-        return currentRevision;
+        return event;
     }
 
 

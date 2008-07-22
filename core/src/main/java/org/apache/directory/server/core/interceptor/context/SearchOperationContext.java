@@ -70,21 +70,7 @@ public class SearchOperationContext extends SearchingOperationContext
         this.aliasDerefMode = searchRequest.getDerefAliases();
         
         this.requestControls = searchRequest.getControls();
-        
-        // TODO - fix this and use one Scope enumerated type
-        switch( searchRequest.getScope() )
-        {
-            case BASE_OBJECT:
-                this.scope = SearchScope.OBJECT;
-                break;
-            case SINGLE_LEVEL:
-                this.scope = SearchScope.ONELEVEL;
-                break;
-            case WHOLE_SUBTREE:
-                this.scope = SearchScope.SUBTREE;
-                break;
-        }
-        
+        this.scope = searchRequest.getScope();
         this.sizeLimit = searchRequest.getSizeLimit();
         this.timeLimit = searchRequest.getTimeLimit();
         this.noAttributes = searchRequest.getTypesOnly();

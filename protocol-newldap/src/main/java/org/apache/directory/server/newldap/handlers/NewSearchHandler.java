@@ -20,19 +20,11 @@
 package org.apache.directory.server.newldap.handlers;
 
 
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.LdapSession;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.codec.search.SearchResultDone;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -46,8 +38,7 @@ import org.apache.directory.shared.ldap.message.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
-import org.apache.directory.shared.ldap.message.ScopeEnum;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResponseDone;
 import org.apache.directory.shared.ldap.message.SearchResponseEntry;
@@ -55,26 +46,12 @@ import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseReference;
 import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 
 
 /**
@@ -112,7 +89,12 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
 
         // now we process entries for ever as they change
         PersistentSearchListener handler = new PersistentSearchListener( session, req );
-        getLdapServer().getDirectoryService().addNamingListener( req.getBase(), req.getFilter().toString(), handler );
+        
+        // TODO what about notification criteria ?????????????????? TODO add it 
+        NotificationCriteria criteria = new NotificationCriteria();
+        criteria.setAliasDerefMode( req.getDerefAliases() );
+        criteria.setBase( req.getBase() );
+        getLdapServer().getDirectoryService().getEventService().addListener( handler );
         return;
     }
     
@@ -362,7 +344,7 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
     private static boolean isRootDSESearch( SearchRequest req )
     {
         boolean isBaseIsRoot = req.getBase().isEmpty();
-        boolean isBaseScope = req.getScope() == ScopeEnum.BASE_OBJECT;
+        boolean isBaseScope = req.getScope() == SearchScope.OBJECT;
         boolean isRootDSEFilter = false;
         
         if ( req.getFilter() instanceof PresenceNode )

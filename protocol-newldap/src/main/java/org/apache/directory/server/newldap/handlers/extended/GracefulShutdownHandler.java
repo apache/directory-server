@@ -27,12 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.newldap.ExtendedOperationHandler;
 import org.apache.directory.server.newldap.LdapServer;
-import org.apache.directory.server.newldap.SessionRegistry;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.extended.GracefulDisconnect;
@@ -44,9 +41,6 @@ import org.apache.mina.common.IoSession;
 import org.apache.mina.common.WriteFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -74,43 +68,20 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
     }
 
 
-    public void handleExtendedOperation( IoSession requestor, SessionRegistry registry, ExtendedRequest req )
-        throws NamingException
+    public void handleExtendedOperation( LdapSession requestor, ExtendedRequest req ) throws Exception
     {
-        DirectoryService service;
-        ServerLdapContext slc;
-        LdapContext ctx = registry.getLdapContext( requestor, null, false );
-        ctx = ( LdapContext ) ctx.lookup( "" );
-
-        // setup some of the variables we need and make sure they are of the 
-        // right types otherwise send back an operations error in response
-        if ( ctx instanceof ServerLdapContext )
-        {
-            slc = ( ServerLdapContext ) ctx;
-            service = slc.getService();
-        }
-        else
-        {
-            LOG.error( "Encountered session context which was not a ServerLdapContext" );
-            GracefulShutdownResponse msg = new GracefulShutdownResponse( req.getMessageId(),
-                ResultCodeEnum.OPERATIONS_ERROR );
-            msg.getLdapResult().setErrorMessage( "The session context was not a ServerLdapContext" );
-            requestor.write( msg );
-            return;
-        }
-
         // make sue only the administrator can issue this shutdown request if 
         // not we respond to the requestor with with insufficientAccessRights(50)
-        if ( !slc.getSession().getEffectivePrincipal().getName().equalsIgnoreCase( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ) )
+        if ( ! requestor.getCoreSession().isAnAdministrator() )
         {
             if ( LOG.isInfoEnabled() )
             {
                 LOG.info( "Rejected with insufficientAccessRights to attempt for server shutdown by "
-                    + slc.getSession().getEffectivePrincipal().getName() );
+                    + requestor.getCoreSession().getEffectivePrincipal().getName() );
             }
 
-            requestor
-                .write( new GracefulShutdownResponse( req.getMessageId(), ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS ) );
+            requestor.getIoSession().write( new GracefulShutdownResponse( 
+                req.getMessageId(), ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS ) );
             return;
         }
 
@@ -118,16 +89,16 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         // handle the body of this operation below here
         // -------------------------------------------------------------------
 
-        IoAcceptor acceptor = ( IoAcceptor ) requestor.getService();
+        IoAcceptor acceptor = ( IoAcceptor ) requestor.getIoSession().getService();
         List<IoSession> sessions = new ArrayList<IoSession>(
-                acceptor.getManagedSessions( requestor.getServiceAddress() ) );
+                acceptor.getManagedSessions( requestor.getIoSession().getServiceAddress() ) );
         GracefulShutdownRequest gsreq = ( GracefulShutdownRequest ) req;
 
         // build the graceful disconnect message with replicationContexts
         GracefulDisconnect notice = getGracefulDisconnect( gsreq.getTimeOffline(), gsreq.getDelay() );
 
         // send (synch) the GracefulDisconnect to each client before unbinding
-        sendGracefulDisconnect( sessions, notice, requestor );
+        sendGracefulDisconnect( sessions, notice, requestor.getIoSession() );
 
         // wait for the specified delay before we unbind the service 
         waitForDelay( gsreq.getDelay() );
@@ -142,13 +113,13 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         //                       .setDisconnectClientsOnUnbind( false );
         // -------------------------------------------------------------------
         // This might not work, either.
-        acceptor.unbind( requestor.getServiceAddress() );
+        acceptor.unbind( requestor.getIoSession().getServiceAddress() );
 
         // -------------------------------------------------------------------
         // synchronously send a NoD to clients that are not aware of this resp
         // after sending the NoD the client is disconnected if still connected
         // -------------------------------------------------------------------
-        sendNoticeOfDisconnect( sessions, requestor );
+        sendNoticeOfDisconnect( sessions, requestor.getIoSession() );
 
         // -------------------------------------------------------------------
         // respond back to the client that requested the graceful shutdown w/
@@ -157,13 +128,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         // preventing new connections; after recieving this response the 
         // requestor should disconnect and stop using the connection
         // -------------------------------------------------------------------
-        sendShutdownResponse( requestor, req.getMessageId() );
-
-        if ( service.isExitVmOnShutdown() )
-        {
-            System.exit( 0 );
-        }
-
+        sendShutdownResponse( requestor.getIoSession(), req.getMessageId() );
     }
 
 
@@ -342,7 +307,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
     }
 
 
-    public void setLdapProvider( LdapServer provider )
+    public void setLdapServer( LdapServer ldapServer )
     {
     }
 }

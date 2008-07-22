@@ -26,6 +26,7 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -48,6 +49,20 @@ public class NotificationCriteria
     private LdapDN base = DEFAULT_BASE;
     private ExprNode filter = DEFAULT_FILTER;
     private int eventMask = EventType.ALL_EVENT_TYPES_MASK;
+    
+    
+    public NotificationCriteria()
+    {
+    }
+    
+    
+    public NotificationCriteria( SearchRequest req )
+    {
+        this.scope = req.getScope();
+        this.aliasDerefMode = req.getDerefAliases();
+        this.base = req.getBase();
+        this.filter = req.getFilter();
+    }
     
     
     /**

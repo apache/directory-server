@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ModifyOperationContext extends AbstractOperationContext
+public class ModifyOperationContext extends AbstractChangeOperationContext
 {
     /** The modification items */
     private List<Modification> modItems;
