@@ -127,7 +127,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     
     protected void setReturningAttributes( String[] attributesIds ) throws Exception
     {
-        if ( attributesIds != null )
+        if ( attributesIds != null && attributesIds.length != 0 )
         {
             returningAttributes = new HashSet<AttributeTypeOptions>();
             
