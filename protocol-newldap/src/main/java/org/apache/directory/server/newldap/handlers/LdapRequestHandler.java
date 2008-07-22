@@ -64,9 +64,6 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
 
     /**
-     * TODO - add notes about how this protects against unauthorized access
-     * and sets up the ldapSession's coreContext.
-     * 
      * Handle a LDAP message received during a session.
      * 
      * @param session the user session created when the user first connected
@@ -79,7 +76,13 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     {
         LdapSession ldapSession = ldapServer.getLdapSession( session );
 
-        if ( ! ( message instanceof BindRequest ) )
+        // We should check that the server allows anonymous requests
+        // only if it's not a BindRequest
+        if ( message instanceof BindRequest )
+        {
+        	handle( ldapSession, message );
+        }
+        else
         {
             CoreSession coreSession = null;
             
@@ -91,14 +94,25 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             if ( ldapSession.isAuthenticated() )
             {
                 coreSession = ldapSession.getCoreSession();
+                handle( ldapSession, message );
+                return;
             }
-            else if ( coreSession.getDirectoryService().isAllowAnonymousAccess() )
+            
+            coreSession = getLdapServer().getDirectoryService().getSession();
+            ldapSession.setCoreSession( coreSession );
+            
+            if ( coreSession.getDirectoryService().isAllowAnonymousAccess() )
             {
-                coreSession = getLdapServer().getDirectoryService().getSession();
-                ldapSession.setCoreSession( coreSession );
+            	// We are not authenticated, and the server allows anonymous access,
+            	// we have create a new Anonymous session. Just return.
+            	handle( ldapSession, message );
+            	return;
             }
             else if ( message instanceof ResultResponseRequest )
             {
+            	// The server does not allow anonymous access, and the client
+            	// is not authenticated : get out if the request expect a
+            	// response.
                 ResultResponse response = ( ( ResultResponseRequest ) message ).getResultResponse();
                 response.getLdapResult().setErrorMessage( "Anonymous access disabled." );
                 response.getLdapResult().setResultCode( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
@@ -107,13 +121,19 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             }
             else
             {
+            	// Last case : the AbandonRequest. We just quit.
                 return;
             }
         }
-
-        handle( ldapSession, message );
     }
 
     
+    /**
+     * Handle a Ldap message associated with a session
+     * 
+     * @param session The associated session
+     * @param message The message we have to handle
+     * @throws Exception If there is an error during the processing of this message
+     */
     public abstract void handle( LdapSession session, T message ) throws Exception;
 }
