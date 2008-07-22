@@ -54,7 +54,6 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
-import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
 
 /**
@@ -81,21 +80,23 @@ public class MiscTest extends AbstractServerTest
     public void setUp() throws Exception
     {
         super.setUp();
-        if ( this.getName().equals( "testDisableAnonymousBinds" ) ||
-                this.getName().equals( "testCompareWithoutAuthentication" ) ||
-                this.getName().equals( "testEnableAnonymousBindsOnRootDSE" ) )
-        {
-            setAllowAnonymousAccess( false );
-        } else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
-        {
-            setAllowAnonymousAccess( true );
-        }
     }
 
 
     @Override
     protected void configureDirectoryService() throws NamingException
     {
+        if ( this.getName().equals( "testDisableAnonymousBinds" ) ||
+            this.getName().equals( "testCompareWithoutAuthentication" ) ||
+            this.getName().equals( "testEnableAnonymousBindsOnRootDSE" ) )
+        {
+            directoryService.setAllowAnonymousAccess( false );
+        } 
+        else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
+        {
+            directoryService.setAllowAnonymousAccess( true );
+        }
+
         if ( this.getName().equals( "testUserAuthOnMixedCaseSuffix" ) )
         {
             Set<Partition> partitions = new HashSet<Partition>();
@@ -111,7 +112,7 @@ public class MiscTest extends AbstractServerTest
             partition.setId( "apache" );
             partition.setContextEntry( serverEntry );
             Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
-            indexedAttributes.add( new JdbmIndex( "dc" ) );
+            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
             partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
             directoryService.setPartitions( partitions );
@@ -139,6 +140,7 @@ public class MiscTest extends AbstractServerTest
         }
     }
 
+    
     public void testCompareWithoutAuthentication() throws LDAPException
     {
         LDAPConnection conn = new LDAPConnection();

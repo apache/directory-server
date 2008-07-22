@@ -84,7 +84,6 @@ public class SaslBindITest extends AbstractServerTest
     {
         provider = new BogusNtlmProvider();
         super.setUp();
-        setAllowAnonymousAccess( false );
 
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -106,15 +105,17 @@ public class SaslBindITest extends AbstractServerTest
     @Override
     protected void configureDirectoryService() throws NamingException
     {
+        directoryService.setAllowAnonymousAccess( false );
+
         Set<Partition> partitions = new HashSet<Partition>();
         JdbmPartition partition = new JdbmPartition();
         partition.setId( "example" );
         partition.setSuffix( "dc=example,dc=com" );
 
         Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-        indexedAttrs.add( new JdbmIndex( "ou" ) );
-        indexedAttrs.add( new JdbmIndex( "dc" ) );
-        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
+        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
+        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
+        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
         partition.setIndexedAttributes( indexedAttrs );
 
         LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );

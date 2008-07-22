@@ -317,13 +317,6 @@ public abstract class AbstractServerTest extends TestCase
     }
 
 
-    protected void setAllowAnonymousAccess( boolean anonymousAccess )
-    {
-        directoryService.setAllowAnonymousAccess( anonymousAccess );
-        ldapServer.setAllowAnonymousAccess( anonymousAccess );
-    }
-
-    
     /**
      * Deletes the Eve working directory.
      * @param wkdir the directory to delete

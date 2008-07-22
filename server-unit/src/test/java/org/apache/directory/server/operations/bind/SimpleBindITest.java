@@ -69,7 +69,6 @@ public class SimpleBindITest extends AbstractServerTest
     public void setUp() throws Exception
     {
         super.setUp();
-        setAllowAnonymousAccess( true );
 
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -91,6 +90,8 @@ public class SimpleBindITest extends AbstractServerTest
     @Override
     protected void configureDirectoryService() throws NamingException
     {
+        directoryService.setAllowAnonymousAccess( true );
+
         Set<Partition> partitions = new HashSet<Partition>();
         JdbmPartition partition = new JdbmPartition();
         partition.setId( "example" );

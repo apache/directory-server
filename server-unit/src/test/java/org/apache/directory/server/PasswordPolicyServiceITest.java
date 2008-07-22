@@ -63,11 +63,8 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
     public void setUp() throws Exception
     {
         super.setUp();
-        setAllowAnonymousAccess( false );
 
         Attributes attrs;
-
-
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
@@ -80,8 +77,10 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
         users = ctx.createSubcontext( "ou=users", attrs );
     }
 
+    
     protected void configureDirectoryService() throws NamingException
     {
+        directoryService.setAllowAnonymousAccess( false );
         Set<Partition> partitions = new HashSet<Partition>();
 
         // Add partition 'example'
@@ -90,9 +89,9 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
         partition.setSuffix( "dc=example,dc=com" );
 
         Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-        indexedAttrs.add( new JdbmIndex( "ou" ) );
-        indexedAttrs.add( new JdbmIndex( "dc" ) );
-        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
+        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
+        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
+        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
         partition.setIndexedAttributes( indexedAttrs );
 
         LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );
