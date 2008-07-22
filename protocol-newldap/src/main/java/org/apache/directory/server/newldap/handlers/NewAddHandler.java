@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NewAddHandler extends LdapRequestHandler<AddRequest>
 {
+	/** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( NewAddHandler.class );
     
     
@@ -58,10 +59,22 @@ public class NewAddHandler extends LdapRequestHandler<AddRequest>
 
         try
         {
+        	// Call the underlying layer to inject the new entry 
             session.getCoreSession().add( request );
+
+            // If it succeeded, we should be here now, otherwise, we would have
+            // got an exception.
+            result.setResultCode( ResultCodeEnum.SUCCESS );
+            
+            // TODO : inject the responseControls here...
+            //request.getResultResponse().addAll( session.request.getControls().ResponseControls() );
+            
+            // Write the AddResponse message
+            session.getIoSession().write( request.getResultResponse() );
         }
         catch( ReferralException e )
         {
+        	// We tried to add an entry into a referral. 
             ReferralImpl refs = new ReferralImpl();
             result.setReferral( refs );
             result.setResultCode( ResultCodeEnum.REFERRAL );
@@ -69,7 +82,7 @@ public class NewAddHandler extends LdapRequestHandler<AddRequest>
             
             if ( e.getResolvedName() != null )
             {
-                result.setMatchedDn( new LdapDN( e.getResolvedName().toString() ) );
+                result.setMatchedDn( new LdapDN( e.getResolvedName() ) );
             }
             
             do
@@ -78,10 +91,12 @@ public class NewAddHandler extends LdapRequestHandler<AddRequest>
             }
             while ( e.skipReferral() );
             
+            // Write back the response
             session.getIoSession().write( request.getResultResponse() );
         }
         catch ( Throwable t )
         {
+        	// We got an error. Get the resultCode.
             ResultCodeEnum resultCode = ResultCodeEnum.OTHER;
             
             if ( t instanceof LdapException )
@@ -96,14 +111,15 @@ public class NewAddHandler extends LdapRequestHandler<AddRequest>
             result.setResultCode( resultCode );
             
             String msg = session + "failed to add entry " + request.getEntry() + ": " + t.getMessage();
+            
             if ( LOG.isDebugEnabled() )
             {
                 msg += ":\n" + ExceptionUtils.getStackTrace( t );
             }
 
             result.setErrorMessage( msg );
-            result.setErrorMessage( msg );
 
+            // Add the matchedDN if necessary
             boolean setMatchedDn = 
                 resultCode == ResultCodeEnum.NO_SUCH_OBJECT             || 
                 resultCode == ResultCodeEnum.ALIAS_PROBLEM              ||
@@ -115,6 +131,7 @@ public class NewAddHandler extends LdapRequestHandler<AddRequest>
                 if ( t instanceof NamingException )
                 {
                     NamingException ne = ( NamingException ) t;
+                    
                     if ( ne.getResolvedName() != null )
                     {
                         result.setMatchedDn( ( LdapDN ) ne.getResolvedName() );
@@ -122,6 +139,7 @@ public class NewAddHandler extends LdapRequestHandler<AddRequest>
                 }
             }
 
+            // Write back the error response
             session.getIoSession().write( request.getResultResponse() );
         }
     }
