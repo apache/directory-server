@@ -105,6 +105,10 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
                 ldapSession.getIoSession().write( response );
                 return;
             }
+            else
+            {
+                return;
+            }
         }
 
         handle( ldapSession, message );
