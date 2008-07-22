@@ -21,7 +21,6 @@ package org.apache.directory.server.core.authn;
 
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;

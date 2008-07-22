@@ -28,8 +28,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.OperationNotSupportedException;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
@@ -56,6 +54,8 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import org.slf4j.Logger;
@@ -425,7 +425,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
         	// This is a case where the Bind request contains a DN, but no password.
         	// We don't check the DN, we just return a UnwillingToPerform error
-        	throw new OperationNotSupportedException( "Cannot Bind for DN " + opContext.getDn().getUpName() );
+        	throw new LdapOperationNotSupportedException( "Cannot Bind for DN " + opContext.getDn().getUpName(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
         Collection<Authenticator> authenticators = getAuthenticators( level.getName() );

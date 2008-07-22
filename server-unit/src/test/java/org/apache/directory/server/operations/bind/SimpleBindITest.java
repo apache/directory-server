@@ -378,7 +378,7 @@ public class SimpleBindITest extends AbstractServerTest
     	catch ( OperationNotSupportedException onse )
     	{
     		// Error code 53 : LDAP_UNWILLING_TO_PERFORM
-    	    assertTrue( true );
+    		assertTrue( onse.getMessage().startsWith( "[LDAP: error code 53 - Bind failed" ) );
     	}
     	catch ( NamingException ne )
     	{
