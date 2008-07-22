@@ -92,26 +92,17 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             {
                 coreSession = ldapSession.getCoreSession();
             }
-            else
+            else if ( coreSession.getDirectoryService().isAllowAnonymousAccess() )
             {
                 coreSession = getLdapServer().getDirectoryService().getSession();
                 ldapSession.setCoreSession( coreSession );
             }
-            
-            /*
-             * Perform checks to see if anonymous access is allowed and enforce 
-             * anonymous policy.
-             */
-            if ( coreSession.isAnonymous() && ! ldapServer.isAllowAnonymousAccess() )
+            else if ( message instanceof ResultResponseRequest )
             {
-                if ( message instanceof ResultResponseRequest )
-                {
-                    ResultResponse response = ( ( ResultResponseRequest ) message ).getResultResponse();
-                    response.getLdapResult().setErrorMessage( "Anonymous access disabled." );
-                    response.getLdapResult().setResultCode( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
-                    ldapSession.getIoSession().write( response );
-                }
-                
+                ResultResponse response = ( ( ResultResponseRequest ) message ).getResultResponse();
+                response.getLdapResult().setErrorMessage( "Anonymous access disabled." );
+                response.getLdapResult().setResultCode( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+                ldapSession.getIoSession().write( response );
                 return;
             }
         }
