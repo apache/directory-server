@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import jdbm.RecordManager;
 import jdbm.helper.LongSerializer;
+import jdbm.helper.Serializer;
 import jdbm.helper.StringComparator;
 
 import org.apache.directory.server.xdbm.MasterTable;
@@ -104,7 +105,7 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
     };
 
 
-    private final JdbmTable<String,String> adminTbl;
+    protected final JdbmTable<String,String> adminTbl;
 
 
     /**
@@ -126,6 +127,18 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
         }
     }
 
+
+    protected JdbmMasterTable( RecordManager recMan, String dbName, Serializer serializer ) throws Exception
+    {
+        super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, serializer );
+        adminTbl = new JdbmTable<String,String>( dbName, recMan, STRING_COMPARATOR, null, null );
+        String seqValue = adminTbl.get( SEQPROP_KEY );
+
+        if ( null == seqValue )
+        {
+            adminTbl.put( SEQPROP_KEY, "0" );
+        }
+    }
 
     /**
      * Gets the ServerEntry from this MasterTable.

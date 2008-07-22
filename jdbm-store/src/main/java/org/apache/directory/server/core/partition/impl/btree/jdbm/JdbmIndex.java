@@ -65,38 +65,38 @@ public class JdbmIndex<K,O> implements Index<K,O>
      * the value of the btree is the entry id of the entry containing an attribute with
      * that value
      */
-    private JdbmTable<K, Long> forward;
+    protected JdbmTable<K, Long> forward;
     /**
      * the reverse btree where the btree key is the entry id of the entry containing a
      * value for the indexed attribute, and the btree value is the value of the indexed
      * attribute
      */
-    private JdbmTable<Long,K> reverse;
+    protected JdbmTable<Long,K> reverse;
     /**
      * the JDBM record manager for the file containing this index
      */
-    private RecordManager recMan;
+    protected RecordManager recMan;
     /**
      * the normalized value cache for this index
      * @todo I don't think the keyCache is required anymore since the normalizer
      * will cache values for us.
      */
-    private SynchronizedLRUMap keyCache;
+    protected SynchronizedLRUMap keyCache;
     /** the size (number of index entries) for the cache */
-    private int cacheSize = DEFAULT_INDEX_CACHE_SIZE;
+    protected int cacheSize = DEFAULT_INDEX_CACHE_SIZE;
     /**
      * duplicate limit before duplicate keys switch to using a btree for values
      */
-    private int numDupLimit = DEFAULT_DUPLICATE_LIMIT;
+    protected int numDupLimit = DEFAULT_DUPLICATE_LIMIT;
     /**
      * the attribute identifier set at configuration time for this index which may not
      * be the OID but an alias name for the attributeType associated with this Index
      */
     private String attributeId;
     /** whether or not this index has been initialized */
-    private boolean initialized;
+    protected boolean initialized;
     /** a customm working directory path when specified in configuration */
-    private File wkDirPath;
+    protected File wkDirPath;
 
 
     /*
@@ -159,7 +159,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
         initialized = true;
     }
 
-
+    
     /**
      * Initializes the forward and reverse tables used by this Index.
      * 
