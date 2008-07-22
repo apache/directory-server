@@ -54,6 +54,8 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -65,18 +67,11 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
 public class MiscTest extends AbstractServerTest
 {
     /**
-     * Cleans up old database files on creation.
-     */
-    public MiscTest()
-    {
-    }
-
-
-    /**
      * Customizes setup for each test case.
      *
      * @throws Exception
      */
+    @Before
     public void setUp() throws Exception
     {
         super.setUp();
@@ -112,7 +107,7 @@ public class MiscTest extends AbstractServerTest
             partition.setId( "apache" );
             partition.setContextEntry( serverEntry );
             Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
-            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
+            indexedAttributes.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
             partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
             directoryService.setPartitions( partitions );
@@ -120,7 +115,7 @@ public class MiscTest extends AbstractServerTest
         else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
         {
             // create a partition to search
-            Set partitions = new HashSet();
+            Set<Partition> partitions = new HashSet<Partition>();
             partitions.addAll( directoryService.getPartitions() );
             JdbmPartition partition = new JdbmPartition();
             partition.setSuffix( "dc=apache,dc=org" );
@@ -133,7 +128,7 @@ public class MiscTest extends AbstractServerTest
             partition.setId( "apache" );
             partition.setContextEntry( serverEntry );
             Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
-            indexedAttributes.add( new JdbmIndex( "dc" ) );
+            indexedAttributes.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
             partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
             directoryService.setPartitions( partitions );
@@ -141,8 +136,15 @@ public class MiscTest extends AbstractServerTest
     }
 
     
+    /**
+     * Check that operation are not executed if we are now allowed to bind
+     * anonymous
+     * @throws LDAPException
+     */
+    @Test
     public void testCompareWithoutAuthentication() throws LDAPException
     {
+    	directoryService.setAllowAnonymousAccess( false );
         LDAPConnection conn = new LDAPConnection();
         conn.connect( "localhost", super.port );
         LDAPAttribute attr = new LDAPAttribute( "uid", "admin" );
@@ -164,6 +166,7 @@ public class MiscTest extends AbstractServerTest
      *
      * @throws Exception if anything goes wrong
      */
+    @Test
     public void testDisableAnonymousBinds() throws Exception
     {
         // Use the SUN JNDI provider to hit server port and bind as anonymous
@@ -174,6 +177,8 @@ public class MiscTest extends AbstractServerTest
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
+        directoryService.setAllowAnonymousAccess( true );
+        
         boolean connected = false;
         while ( !connected )
         {
@@ -184,9 +189,13 @@ public class MiscTest extends AbstractServerTest
             }
             catch ( Exception e )
             {
+            	// We should not get here
+            	fail();
             }
         }
 
+        directoryService.setAllowAnonymousAccess( false );
+        
         try
         {
             ic.search( "", "(objectClass=*)", new SearchControls() );
@@ -218,11 +227,13 @@ public class MiscTest extends AbstractServerTest
      *
      * @throws Exception if anything goes wrong
      */
+    @Test
     public void testEnableAnonymousBindsOnRootDSE() throws Exception
     {
-        // Use the SUN JNDI provider to hit server port and bind as anonymous
+        directoryService.setAllowAnonymousAccess( true );
 
-        final Hashtable env = new Hashtable();
+        // Use the SUN JNDI provider to hit server port and bind as anonymous
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
@@ -231,12 +242,15 @@ public class MiscTest extends AbstractServerTest
         InitialDirContext ctx = new InitialDirContext( env );
         SearchControls cons = new SearchControls();
         cons.setSearchScope( SearchControls.OBJECT_SCOPE );
-        NamingEnumeration list = ctx.search( "", "(objectClass=*)", cons );
+        NamingEnumeration<SearchResult> list = ctx.search( "", "(objectClass=*)", cons );
+        
         SearchResult result = null;
+        
         if ( list.hasMore() )
         {
-            result = ( SearchResult ) list.next();
+            result = list.next();
         }
+        
         assertFalse( list.hasMore() );
         list.close();
 
@@ -251,11 +265,13 @@ public class MiscTest extends AbstractServerTest
      *
      * @throws Exception if anything goes wrong
      */
+    @Test
     public void testAnonymousBindsEnabledBaseSearch() throws Exception
     {
-        // Use the SUN JNDI provider to hit server port and bind as anonymous
+        directoryService.setAllowAnonymousAccess( true );
 
-        final Hashtable env = new Hashtable();
+        // Use the SUN JNDI provider to hit server port and bind as anonymous
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
@@ -264,12 +280,14 @@ public class MiscTest extends AbstractServerTest
         InitialDirContext ctx = new InitialDirContext( env );
         SearchControls cons = new SearchControls();
         cons.setSearchScope( SearchControls.OBJECT_SCOPE );
-        NamingEnumeration list = ctx.search( "dc=apache,dc=org", "(objectClass=*)", cons );
+        NamingEnumeration<SearchResult> list = ctx.search( "dc=apache,dc=org", "(objectClass=*)", cons );
         SearchResult result = null;
+        
         if ( list.hasMore() )
         {
-            result = ( SearchResult ) list.next();
+            result = list.next();
         }
+        
         assertFalse( list.hasMore() );
         list.close();
 
@@ -284,11 +302,14 @@ public class MiscTest extends AbstractServerTest
      *
      * @throws Exception if anything goes wrong
      */
+    @Test
     public void testAdminAccessBug() throws Exception
     {
+        directoryService.setAllowAnonymousAccess( true );
+
         // Use the SUN JNDI provider to hit server port and bind as anonymous
 
-        final Hashtable env = new Hashtable();
+        final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
         env.put( "java.naming.ldap.version", "3" );
@@ -306,8 +327,8 @@ public class MiscTest extends AbstractServerTest
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[]
                 {"+"} );
-        NamingEnumeration list = ctx.search( "ou=blah,ou=system", "(objectClass=*)", controls );
-        SearchResult result = ( SearchResult ) list.next();
+        NamingEnumeration<SearchResult> list = ctx.search( "ou=blah,ou=system", "(objectClass=*)", controls );
+        SearchResult result = list.next();
         list.close();
         Attribute creatorsName = result.getAttributes().get( "creatorsName" );
         assertEquals( "", creatorsName.get() );
@@ -322,9 +343,12 @@ public class MiscTest extends AbstractServerTest
      *
      * @throws Exception if the user cannot authenticate or test fails
      */
+    @Test
     public void testUserAuthOnMixedCaseSuffix() throws Exception
     {
-        final Hashtable env = new Hashtable();
+        directoryService.setAllowAnonymousAccess( true );
+
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/dc=aPache,dc=org" );
         env.put( "java.naming.ldap.version", "3" );
@@ -357,8 +381,11 @@ public class MiscTest extends AbstractServerTest
      * Tests to make sure undefined attributes in filter assertions are pruned and do not
      * result in exceptions.
      */
+    @Test
     public void testBogusAttributeInSearchFilter() throws Exception
     {
+        directoryService.setAllowAnonymousAccess( true );
+
         SearchControls cons = new SearchControls();
         NamingEnumeration<SearchResult> e = sysRoot.search( "", "(bogusAttribute=abc123)", cons );
         assertNotNull( e );
@@ -384,6 +411,7 @@ public class MiscTest extends AbstractServerTest
     }
 
 
+    @Test
     public void testFailureWithUnsupportedControl() throws Exception
     {
         MutableControl unsupported = new MutableControl()
@@ -437,7 +465,10 @@ public class MiscTest extends AbstractServerTest
                 return new byte[0];
             }
         };
-        final Hashtable env = new Hashtable();
+        
+        directoryService.setAllowAnonymousAccess( true );
+        
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.ldap.version", "3" );
