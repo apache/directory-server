@@ -66,7 +66,7 @@ public class LdapSession
     
     public boolean isAuthenticated()
     {
-        return coreSession != null;
+        return ( coreSession != null ) && !coreSession.isAnonymous();
     }
     
     
