@@ -26,7 +26,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.4-SNAPSHOT</version>
   </parent>
-  <artifactId>apacheds-core</artifactId>
+  <artifactId>apacheds-core-jndi</artifactId>
   <name>ApacheDS Core JNDI</name>
   <packaging>jar</packaging>
 
