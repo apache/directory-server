@@ -386,7 +386,8 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext )
+        throws Exception
     {
         EntryFilteringCursor cursor = nextInterceptor.list( opContext );
         cursor.addEntryFilter( binaryAttributeFilter );
@@ -659,7 +660,7 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) 
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext )
         throws Exception
     {
         LdapDN base = opContext.getDn();
@@ -694,7 +695,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 cursor.addEntryFilter( ef );
             }
-            
+
             return cursor;
         }
 
@@ -758,8 +759,8 @@ public class SchemaInterceptor extends BaseInterceptor
                     // call.setBypass( true );
                     ServerEntry serverEntry = schemaService.getSubschemaEntry( searchCtls.getReturningAttributes() );
                     serverEntry.setDn( base );
-                    EntryFilteringCursor cursor = new BaseEntryFilteringCursor( 
-                        new SingletonCursor<ServerEntry>( serverEntry ), opContext );
+                    EntryFilteringCursor cursor = new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>(
+                        serverEntry ), opContext );
                     return cursor;
                 }
             }
@@ -1158,12 +1159,12 @@ public class SchemaInterceptor extends BaseInterceptor
                     tmpEntry.add( new DefaultServerAttribute( type, value ) );
                 }
             }
-            
+
             // Substitute the RDN and check if the new entry is correct
-            LdapDN newDn = (LdapDN)name.clone();
+            LdapDN newDn = ( LdapDN ) name.clone();
             newDn.remove( name.size() - 1 );
             newDn.add( newRdn );
-            
+
             tmpEntry.setDn( newDn );
             check( name, tmpEntry );
 
@@ -1171,7 +1172,7 @@ public class SchemaInterceptor extends BaseInterceptor
             for ( AttributeTypeAndValue atav : oldRDN )
             {
                 AttributeType attributeType = atRegistry.lookup( atav.getUpType() );
-                
+
                 if ( !attributeType.isCanUserModify() )
                 {
                     throw new NoPermissionException( "Cannot modify the attribute '" + atav.getUpType() + "'" );
@@ -1181,8 +1182,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.modifyRn( opContext, entry, opContext
-                .hasRequestControl( CascadeControl.CONTROL_OID ) );
+            schemaManager.modifyRn( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
 
         next.rename( opContext );
@@ -1492,7 +1492,7 @@ public class SchemaInterceptor extends BaseInterceptor
         next.modify( opContext );
     }
 
-    
+
     /**
      * Filter the attributes by removing the ones which are not allowed
      */
@@ -1502,14 +1502,14 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             return;
         }
-        
-        for ( AttributeTypeOptions attrOptions:operation.getReturningAttributes() )
+
+        for ( AttributeTypeOptions attrOptions : operation.getReturningAttributes() )
         {
             EntryAttribute attribute = result.get( attrOptions.getAttributeType() );
-            
+
             if ( attrOptions.hasOption() )
             {
-                for ( String option:attrOptions.getOptions() )
+                for ( String option : attrOptions.getOptions() )
                 {
                     if ( "binary".equalsIgnoreCase( option ) )
                     {
@@ -1531,11 +1531,11 @@ public class SchemaInterceptor extends BaseInterceptor
                         break;
                     }
                 }
-                
-                
+
             }
         }
     }
+
 
     private void filterObjectClass( ServerEntry entry ) throws Exception
     {
@@ -1605,8 +1605,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private class BinaryAttributeFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result )
-            throws Exception
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
         {
             filterBinaryAttributes( result );
             return true;
@@ -1618,8 +1617,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private class TopFilter implements EntryFilter
     {
-        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result )
-            throws Exception
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result ) throws Exception
         {
             filterObjectClass( result );
             filterAttributeTypes( operation, result );
@@ -1693,29 +1691,25 @@ public class SchemaInterceptor extends BaseInterceptor
 
         // Now check the syntaxes
         assertSyntaxes( entry );
-        
+
         // Last, check that the RDN's values are attributes in the entry
         Rdn rdn = entry.getDn().getRdn();
-        
-        if ( rdn.getNbAtavs() == 1 )
+
+        // Loop on all the AVAs
+        for ( AttributeTypeAndValue ava : rdn )
         {
-        	// We have only one AVA
-        	AttributeTypeAndValue ava = rdn.getAtav();
-        	String value = (String)ava.getNormValue();
-        	String upId = ava.getUpType();
-        	
-        	if ( !entry.contains( upId, value ) )
-        	{
-        		String message = "The RDN '" + upId + "=" + value + "' is not present in the entry";
-        		LOG.error( message );
+            String value = ( String ) ava.getNormValue();
+            String upId = ava.getUpType();
+
+            // Check that the entry contains this AVA
+            if ( !entry.contains( upId, value ) )
+            {
+                String message = "The RDN '" + upId + "=" + value + "' is not present in the entry";
+                LOG.error( message );
                 throw new LdapInvalidAttributeValueException( message, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-        	}
+            }
         }
-        else
-        {
-        	// TODO deal with multi AVAs
-        }
-    } 
+    }
 
 
     /**
@@ -1791,8 +1785,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Checks to see number of values of an attribute conforms to the schema
      */
-    private void assertNumberOfAttributeValuesValid( Entry entry ) throws InvalidAttributeValueException,
-        Exception
+    private void assertNumberOfAttributeValuesValid( Entry entry ) throws InvalidAttributeValueException, Exception
     {
         for ( EntryAttribute attribute : entry )
         {
