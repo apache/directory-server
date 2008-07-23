@@ -529,7 +529,7 @@ public class ModifyRdnTest extends AbstractServerTest
         // Check that cn contains the unescaped value
         Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( "Number of cn occurences", 1, cn.size() );
-        assertTrue( cn.contains( "\\C3\\A4\\+" ) );
+        assertTrue( cn.contains( newCnEscapedVal ) );
 
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
