@@ -105,7 +105,7 @@ public class ModifyAddTest extends AbstractServerTest
         ctx.createSubcontext( RDN_TORI_AMOS, attributes );
 
         // Create Debbie Harry ( I feel like being God when creating people as good looking as Blondie :)
-        attributes = getPersonAttributes( "Bush", "Kate Bush" );
+        attributes = getPersonAttributes( "Harry", "Debbie Harry" );
         ctx.createSubcontext( RDN_DEBBIE_HARRY, attributes );
 
     }
@@ -475,7 +475,6 @@ public class ModifyAddTest extends AbstractServerTest
             SearchResult sr = enm.next();
             attrs = sr.getAttributes();
             Attribute desc = sr.getAttributes().get("description");
-            assertNotNull(desc);
             assertEquals(1, desc.size());
             assertTrue(desc.contains(descriptions[0]));
         }

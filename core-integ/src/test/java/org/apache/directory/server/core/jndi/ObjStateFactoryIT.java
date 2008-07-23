@@ -88,8 +88,8 @@ public class ObjStateFactoryIT
 
         sysRoot.addToEnvironment( Context.STATE_FACTORIES, PersonStateFactory.class.getName() );
         Person p = new Person( "Rodriguez", "Mr. Kerberos", "noices", "555-1212", "sn=erodriguez", "committer" );
-        sysRoot.bind( "uid=erodriguez, ou=users", p );
-        Attributes attrs = sysRoot.getAttributes( "uid=erodriguez, ou=users" );
+        sysRoot.bind( "sn=Rodriguez, ou=users", p );
+        Attributes attrs = sysRoot.getAttributes( "sn=Rodriguez, ou=users" );
         assertEquals( "Rodriguez", attrs.get( "sn" ).get() );
         assertEquals( "Mr. Kerberos", attrs.get( "cn" ).get() );
         assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), StringTools.getBytesUtf8( "noices" ) ) );
