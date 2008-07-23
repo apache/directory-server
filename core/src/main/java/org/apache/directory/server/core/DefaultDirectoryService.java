@@ -46,7 +46,6 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
@@ -1222,9 +1221,6 @@ public class DefaultDirectoryService implements DirectoryService
      */
     private void createTestEntries() throws Exception
     {
-        LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE );
-        ServerLdapContext ctx = new ServerLdapContext( this, principal, new LdapDN() );
-
         for ( LdifEntry testEntry : testEntries )
         {
             try
@@ -1235,7 +1231,7 @@ public class DefaultDirectoryService implements DirectoryService
 
                 try
                 {
-                    ctx.createSubcontext( dn, attributes );
+                    getAdminSession().add( ServerEntryUtils.toServerEntry( attributes, new LdapDN( dn ), registries ) );
                 }
                 catch ( Exception e )
                 {

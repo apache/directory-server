@@ -23,18 +23,15 @@ package org.apache.directory.server.configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.common.ByteBuffer;
@@ -42,7 +39,6 @@ import org.apache.mina.common.SimpleByteBufferAllocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import java.io.File;
@@ -261,20 +257,27 @@ public class ApacheDS
      * 
      * The files are stored in ou=loadedLdifFiles,ou=configuration,ou=system
      */
-    private void ensureLdifFileBase( DirContext root )
+    private void ensureLdifFileBase() throws Exception
     {
-        Attributes entry = new AttributesImpl( SchemaConstants.OU_AT, "loadedLdifFiles", true );
-        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-
+        LdapDN dn = new LdapDN( ServerDNConstants.LDIF_FILES_DN );
+        ServerEntry entry = null;
+        
         try
         {
-            root.createSubcontext( ServerDNConstants.LDIF_FILES_DN, entry );
-            LOG.info( "Creating " + ServerDNConstants.LDIF_FILES_DN );
+            entry = directoryService.getAdminSession().lookup( dn );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
-            LOG.info( ServerDNConstants.LDIF_FILES_DN + " exists" );
+            LOG.error( "Failure while looking up " + ServerDNConstants.LDIF_FILES_DN, e );
+        }
+
+        if ( entry == null )
+        {
+            entry = directoryService.newEntry( new LdapDN( ServerDNConstants.LDIF_FILES_DN ) );
+            entry.add( SchemaConstants.OU_AT, "loadedLdifFiles" );
+            entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+    
+            directoryService.getAdminSession().add( entry );
         }
     }
 
@@ -284,51 +287,31 @@ public class ApacheDS
      * 
      * It is associated with the attributeType wrt to the underlying system.
      */
-    private String buildProtectedFileEntry( File ldif )
+    private LdapDN buildProtectedFileEntryDn( File ldif ) throws Exception
     {
         String fileSep = File.separatorChar == '\\' ? 
                 ApacheSchemaConstants.WINDOWS_FILE_AT : 
                 ApacheSchemaConstants.UNIX_FILE_AT;
 
-        return  fileSep + 
+        return  new LdapDN( fileSep + 
                 "=" + 
                 StringTools.dumpHexPairs( StringTools.getBytesUtf8( getCanonical( ldif ) ) ) +
                 "," + 
-                ServerDNConstants.LDIF_FILES_DN; 
+                ServerDNConstants.LDIF_FILES_DN ); 
     }
 
     
-    private void addFileEntry( DirContext root, File ldif ) throws Exception
+    private void addFileEntry( File ldif ) throws Exception
     {
         String rdnAttr = File.separatorChar == '\\' ? 
             ApacheSchemaConstants.WINDOWS_FILE_AT : 
             ApacheSchemaConstants.UNIX_FILE_AT;
         String oc = File.separatorChar == '\\' ? ApacheSchemaConstants.WINDOWS_FILE_OC : ApacheSchemaConstants.UNIX_FILE_OC;
 
-        Attributes entry = new AttributesImpl( rdnAttr, getCanonical( ldif ), true );
-        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
-        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( oc );
-        root.createSubcontext( buildProtectedFileEntry( ldif ), entry );
-    }
-
-
-    /**
-     * 
-     * @param root
-     * @param ldif
-     * @return
-     */
-    private Attributes getLdifFileEntry( DirContext root, File ldif )
-    {
-        try
-        {
-            return root.getAttributes( buildProtectedFileEntry( ldif ), new String[]
-                { SchemaConstants.CREATE_TIMESTAMP_AT } );
-        }
-        catch ( Exception e )
-        {
-            return null;
-        }
+        ServerEntry entry = directoryService.newEntry( buildProtectedFileEntryDn( ldif ) );
+        entry.add( rdnAttr, getCanonical( ldif ) );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, oc );
+        directoryService.getAdminSession().add( entry );
     }
 
 
@@ -357,22 +340,24 @@ public class ApacheDS
      * @param ldifFile The ldif file to read
      * @throws NamingException If something went wrong while loading the entries
      */
-    private void loadLdif( DirContext root, File ldifFile ) throws Exception
+    private void loadLdif( File ldifFile ) throws Exception
     {
-        Attributes fileEntry = getLdifFileEntry( root, ldifFile );
+        ServerEntry fileEntry = directoryService.getAdminSession().lookup( buildProtectedFileEntryDn( ldifFile ) );
 
         if ( fileEntry != null )
         {
-            String time = ( String ) fileEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).get();
+            String time = fileEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).getString();
             LOG.info( "Load of LDIF file '" + getCanonical( ldifFile )
                     + "' skipped.  It has already been loaded on " + time + "." );
         }
         else
         {
+            DirContext root = new ServerLdapContext( directoryService, 
+                directoryService.getAdminSession(), new LdapDN() );
             LdifFileLoader loader = new LdifFileLoader( root, ldifFile, ldifFilters );
             int count = loader.execute();
             LOG.info( "Loaded " + count + " entries from LDIF file '" + getCanonical( ldifFile ) + "'" );
-            addFileEntry( root, ldifFile );
+            addFileEntry( ldifFile );
         }
     }
     
@@ -404,11 +389,7 @@ public class ApacheDS
         AttributeTypeRegistry reg = directoryService.getRegistries().getAttributeTypeRegistry();
         dn.normalize( reg.getNormalizerMapping() );
         
-        LdapPrincipal admin = new LdapPrincipal( dn, AuthenticationLevel.STRONG );
-        CoreSession session = directoryService.getSession( admin );
-        DirContext root = new ServerLdapContext( directoryService, session, new LdapDN() );
-
-        ensureLdifFileBase( root );
+        ensureLdifFileBase();
 
         // if ldif directory is a file try to load it
         if ( ldifDirectory.isFile() )
@@ -421,7 +402,7 @@ public class ApacheDS
 
             try
             {
-                loadLdif( root, ldifDirectory );
+                loadLdif( ldifDirectory );
             }
             catch ( Exception ne )
             {
@@ -459,7 +440,7 @@ public class ApacheDS
                 try
                 {
                     LOG.info(  "Loading LDIF file '{}'", ldifFile.getName() );
-                    loadLdif( root, ldifFile );
+                    loadLdif( ldifFile );
                 }
                 catch ( Exception ne )
                 {

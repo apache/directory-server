@@ -81,7 +81,7 @@ public class LdapClassLoaderIT
         assertNotNull( defaultContext.lookup( "fullyQualifiedJavaClassName=HelloWorld" ) );
 
         // load the class
-        LdapClassLoader loader = new LdapClassLoader( ( ServerLdapContext ) ( root.lookup( "" ) ) );
+        LdapClassLoader loader = new LdapClassLoader( service );
         Class<?> clazz = loader.loadClass( "HelloWorld" );
 
         // assert class loaded successfully
@@ -130,7 +130,7 @@ public class LdapClassLoaderIT
         assertNotNull( defaultContext.lookup( "fullyQualifiedJavaClassName=HelloWorld" ) );
 
         // load the class
-        LdapClassLoader loader = new LdapClassLoader( ( ServerLdapContext ) ( root.lookup( "" ) ) );
+        LdapClassLoader loader = new LdapClassLoader( service );
         Class clazz = loader.loadClass( "HelloWorld" );
 
         // assert class loaded successfully

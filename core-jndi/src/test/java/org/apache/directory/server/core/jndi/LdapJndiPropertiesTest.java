@@ -45,7 +45,7 @@ public class LdapJndiPropertiesTest extends TestCase
     {
         try
         {
-            LdapJndiProperties.getLdapJndiProperties( new Hashtable() );
+            LdapJndiProperties.getLdapJndiProperties( new Hashtable<String,Object>() );
             fail( "should never get here" );
         }
         catch ( LdapConfigurationException e )
@@ -69,7 +69,7 @@ public class LdapJndiPropertiesTest extends TestCase
 
     public void testNoAuthWithCredsEnv() throws Exception
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "asdf" );
         env.put( Context.PROVIDER_URL, "" );
@@ -81,7 +81,7 @@ public class LdapJndiPropertiesTest extends TestCase
 
     public void testNoAuthWithNoCredsEnv() throws Exception
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.PROVIDER_URL, "" );
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( env );
@@ -92,7 +92,7 @@ public class LdapJndiPropertiesTest extends TestCase
 
     public void testAuthWithNoCredsEnv() throws Exception
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         try
@@ -108,7 +108,7 @@ public class LdapJndiPropertiesTest extends TestCase
 
     public void testAuthWithNoCredsStrong() throws Exception
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5 CRAM-MD5" );
         env.put( Context.PROVIDER_URL, "" );
@@ -120,7 +120,7 @@ public class LdapJndiPropertiesTest extends TestCase
 
     public void testAuthWithCredsStrong() throws Exception
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_CREDENTIALS, "asdf" );
         env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5 CRAM-MD5" );

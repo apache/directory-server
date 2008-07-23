@@ -135,4 +135,7 @@ public interface ApacheSchemaConstants
     // WindowsFilePath
     String UNIX_FILE_AT                             = "unixFilePath";
     String UNIX_FILE_AT_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.20";
+
+    String PREF_NODE_NAME_AT                        = "prefNodeName";
+    String PREF_NODE_NAME_AT_OID                    = "1.3.6.1.4.1.18060.0.4.1.2.8";
 }
