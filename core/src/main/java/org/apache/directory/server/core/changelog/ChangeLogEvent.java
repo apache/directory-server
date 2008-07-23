@@ -22,6 +22,8 @@ package org.apache.directory.server.core.changelog;
 
 import java.io.Serializable;
 
+import javax.naming.directory.Attribute;
+
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 
@@ -40,16 +42,16 @@ public class ChangeLogEvent implements Serializable
     private final LdifEntry forwardLdif;
     private final LdifEntry reverseLdif;
     private final LdapPrincipal committer;
-    
-    
+
+
     /**
      * Creates a new instance of ChangeLogEvent.
      *
      * @param revision the revision number for the change
      * @param zuluTime the timestamp for when the change occurred in generalizedTime format
      */
-    public ChangeLogEvent( long revision, String zuluTime, LdapPrincipal committer,
-                           LdifEntry forwardLdif, LdifEntry reverseLdif )
+    public ChangeLogEvent( long revision, String zuluTime, LdapPrincipal committer, LdifEntry forwardLdif,
+                           LdifEntry reverseLdif )
     {
         this.zuluTime = zuluTime;
         this.revision = revision;
@@ -108,6 +110,12 @@ public class ChangeLogEvent implements Serializable
     }
 
 
+    public Attribute get( String attributeName )
+    {
+        return forwardLdif.get( attributeName );
+    }
+
+
     @Override
     public String toString()
     {
@@ -134,7 +142,7 @@ public class ChangeLogEvent implements Serializable
         .append( getReverseLdif() );
         
         sb.append( " }" );
-        
+
         return sb.toString();
     }
 }
