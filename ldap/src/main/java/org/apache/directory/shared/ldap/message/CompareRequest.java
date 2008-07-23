@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.ldap.message;
 
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -61,7 +62,7 @@ public interface CompareRequest extends SingleReplyRequest, AbandonableRequest
      * 
      * @return the attribute value to used in comparison.
      */
-    byte[] getAssertionValue();
+    Value<?> getAssertionValue();
 
 
     /**
