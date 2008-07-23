@@ -28,6 +28,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -152,7 +153,7 @@ public class MatchingRuleCompareTest extends AbstractServerTest
         {
             String value = values[i];
 
-            NamingEnumeration enumeration = ctx.search( PERSON_RDN, "sn={0}", new String[]
+            NamingEnumeration<SearchResult> enumeration = ctx.search( PERSON_RDN, "sn={0}", new String[]
                 { value }, ctls );
             boolean result = enumeration.hasMore();
 
@@ -260,7 +261,7 @@ public class MatchingRuleCompareTest extends AbstractServerTest
         {
             String value = values[i];
 
-            NamingEnumeration enumeration = ctx.search( GROUP_RDN, "member={0}", new Object[]
+            NamingEnumeration<SearchResult> enumeration = ctx.search( GROUP_RDN, "member={0}", new Object[]
                 { value }, ctls );
             boolean result = enumeration.hasMore();
 
