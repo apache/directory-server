@@ -61,7 +61,7 @@ public class SearchITest extends AbstractServerTest
     private LdapContext ctx;
     private static final String RDN = "cn=Tori Amos";
     private static final String RDN2 = "cn=Rolling-Stones";
-    private static final String HEATHER_RDN = "cn=Heather Graham";
+    private static final String HEATHER_RDN = "cn=Heather Nova";
     private static final String FILTER = "(objectclass=*)";
 
 
@@ -562,15 +562,15 @@ public class SearchITest extends AbstractServerTest
     {
 
         // Create entry
-        Attributes heather = new AttributesImpl();
+        Attributes wilde = new AttributesImpl();
         Attribute ocls = new AttributeImpl( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
-        heather.put( ocls );
-        heather.put( "cn", "Heather Nova" );
-        heather.put( "sn", "Nova" );
-        String rdn = "cn=Heather Nova";
-        ctx.createSubcontext( rdn, heather );
+        wilde.put( ocls );
+        wilde.put( "cn", "Kim Wilde" );
+        wilde.put( "sn", "Wilde" );
+        String rdn = "cn=Kim Wilde";
+        ctx.createSubcontext( rdn, wilde );
 
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
