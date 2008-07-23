@@ -17,8 +17,8 @@
  *   under the License.
  *
  */
-
 package org.apache.directory.server.core.partition;
+
 
 import java.util.Collection;
 import java.util.Collections;
@@ -34,10 +34,10 @@ import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
-import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
+
 
 /**
  * TODO ByPassConstants.
@@ -92,7 +92,6 @@ public class ByPassConstants
         Collection<String> c = new HashSet<String>();
         c.add( NormalizationInterceptor.class.getName() );
         c.add( AuthenticationInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
         c.add( OperationalAttributeInterceptor.class.getName() );
@@ -104,7 +103,6 @@ public class ByPassConstants
         c = new HashSet<String>();
         c.add( NormalizationInterceptor.class.getName() );
         c.add( AuthenticationInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
         c.add( ExceptionInterceptor.class.getName() );
@@ -117,7 +115,6 @@ public class ByPassConstants
         c = new HashSet<String>();
         c.add( NormalizationInterceptor.class.getName() );
         c.add( AuthenticationInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
         c.add( CollectiveAttributeInterceptor.class.getName() );
@@ -129,7 +126,6 @@ public class ByPassConstants
 
         c = new HashSet<String>();
         c.add( AuthenticationInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
         c.add( SchemaInterceptor.class.getName() );
@@ -141,7 +137,6 @@ public class ByPassConstants
         c = new HashSet<String>();
         c.add( NormalizationInterceptor.class.getName() );
         c.add( AuthenticationInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
         c.add( SchemaInterceptor.class.getName() );
@@ -153,7 +148,6 @@ public class ByPassConstants
         c = new HashSet<String>();
         c.add( NormalizationInterceptor.class.getName() );
         c.add( ChangeLogInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
         c.add( ExceptionInterceptor.class.getName() );

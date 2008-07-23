@@ -35,7 +35,6 @@ import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -51,10 +50,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class ServerLdapContext extends ServerDirContext implements LdapContext
 {
-    /** A reference to the RTeferralService interceptor */
-    private transient ReferralInterceptor refService;
-    
-
     /**
      * Creates an instance of an ServerLdapContext.
      *
@@ -65,7 +60,6 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public ServerLdapContext( DirectoryService service, Hashtable<String, Object> env ) throws Exception
     {
         super( service, env );
-        refService = ( ( ReferralInterceptor ) service.getInterceptorChain().get( ReferralInterceptor.class.getName() ) );
     }
 
 
@@ -81,8 +75,6 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public ServerLdapContext( DirectoryService service, LdapPrincipal principal, LdapDN dn ) throws Exception
     {
         super( service, principal, dn );
-        refService = ( ( ReferralInterceptor ) 
-            service.getInterceptorChain().get( ReferralInterceptor.class.getName() ) );
     }
 
 
@@ -271,30 +263,6 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     }
 
 
-    /**
-     * Check if a Name is a referral
-     * @param name The Name to check
-     * @return <code>true</code> if the Name is a referral.
-     * @throws NamingException If the Name is incorrect
-     */
-    public boolean isReferral( String name ) throws NamingException
-    {
-        return refService.isReferral( name );
-    }
-    
-
-    /**
-     * Check if a Name is a referral
-     * @param name The Name to check
-     * @return <code>true</code> if the Name is a referral.
-     * @throws NamingException If the Name is incorrect
-     */
-    public boolean isReferral( LdapDN name ) throws NamingException
-    {
-        return refService.isReferral( name );
-    }
-
-    
     public ServerContext getRootContext() throws NamingException
     {
         ServerContext ctx = null;

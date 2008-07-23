@@ -55,7 +55,6 @@ import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
@@ -557,7 +556,6 @@ public class DefaultDirectoryService implements DirectoryService
 
         list.add( new NormalizationInterceptor() );
         list.add( new AuthenticationInterceptor() );
-        list.add( new ReferralInterceptor() );
         list.add( new AciAuthorizationInterceptor() );
         list.add( new DefaultAuthorizationInterceptor() );
         list.add( new ExceptionInterceptor() );
