@@ -31,6 +31,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.primitives.BitString;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.asn1.util.IntegerDecoder;
+import org.apache.directory.shared.asn1.util.LongDecoder;
 import org.junit.Test;
 
 
@@ -573,14 +574,44 @@ public class ValueTest extends TestCase
     }
 
 
+    /**
+     * Test the decoding of integer values
+     */
     @Test
     public void testDecodeInt() throws Exception
     {
         byte[] encoded = null;
         int[] testedInt = new int[]
-            { Integer.MIN_VALUE, -2147483647, -16777216, -16777215, -8388608, -8388607, -65536, -65535, -32768, -32767,
-                -256, -255, -128, -127, -1, 0, 1, 127, 128, 255, 256, 32767, 32768, 65535, 65536, 8388607, 8388608,
-                16777215, 16777216, Integer.MAX_VALUE };
+            { 
+                Integer.MIN_VALUE, 
+                -2147483647, 
+                -16777216, 
+                -16777215, 
+                -8388608, 
+                -8388607, 
+                -65536, 
+                -65535, 
+                -32768, 
+                -32767,
+                -256, 
+                -255, 
+                -128, 
+                -127, 
+                -1, 0, 
+                1, 
+                127, 
+                128, 
+                255, 
+                256, 
+                32767, 
+                32768, 
+                65535, 
+                65536, 
+                8388607, 
+                8388608,
+                16777215, 
+                16777216, 
+                Integer.MAX_VALUE };
 
         for ( int i:testedInt )
         {
@@ -592,6 +623,99 @@ public class ValueTest extends TestCase
         }
     }
     
+
+
+    /**
+     * Test the decoding of long values
+     */
+    @Test
+    public void testDecodeLong() throws Exception
+    {
+        byte[] encoded = null;
+        long[] testedInt = new long[]
+            { 
+                Long.MIN_VALUE, 
+                -9223372036854775808L,
+                -9223372036854775807L,
+                -72057594037927937L,
+                -72057594037927936L,
+                -72057594037927935L,
+                -36028797018963969L,
+                -36028797018963968L,
+                -36028797018963967L,
+                -281474976710657L,
+                -281474976710656L,
+                -281474976710655L,
+                -140737488355329L,
+                -140737488355328L,
+                -140737488355327L,
+                -1099511627777L,
+                -1099511627776L,
+                -1099511627775L,
+                -549755813889L,
+                -549755813888L,
+                -549755813887L,
+                -4294967297L,
+                -4294967296L,
+                -4294967295L,
+                -2147483649L,
+                -2147483648L,
+                -2147483647L, 
+                -16777216L, 
+                -16777215L, 
+                -8388608L, 
+                -8388607L, 
+                -65536L, 
+                -65535L, 
+                -32769L,
+                -32768L, 
+                -32767L,
+                -257L,
+                -256L, 
+                -255L, 
+                -129L,
+                -128L, 
+                -127L, 
+                -1L, 
+                0L, 
+                1L, 
+                127L, 
+                128L, 
+                255L, 
+                256L, 
+                32767L, 
+                32768L, 
+                32769L, 
+                65535L, 
+                65536L, 
+                8388607L, 
+                8388608L,
+                8388609L,
+                2147483647L,
+                2147483648L,
+                2147483649L,
+                549755813887L,
+                549755813888L,
+                549755813889L,
+                140737488355327L,
+                140737488355328L,
+                140737488355329L,
+                36028797018963967L,
+                36028797018963967L,
+                36028797018963967L,
+                Long.MAX_VALUE };
+
+        for ( long i:testedInt )
+        {
+            encoded = new BigInteger( Long.toString( i ) ).toByteArray();
+
+            long value = LongDecoder.parse( new Value( encoded ) );
+
+            Assert.assertEquals( i, value );
+        }
+    }
+    
+
 
     @Test
     public void testNewByteArrayValue()
