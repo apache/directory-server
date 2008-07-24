@@ -102,22 +102,6 @@ public interface CoreSession
 
     
     /**
-     * Gets the referral handling mode for this CoreSession.
-     *
-     * @return the referral handling mode for this session
-     */
-    ReferralHandlingMode getReferralHandlingMode();
-
-    
-    /**
-     * Sets the referral handling mode for this CoreSession.
-     *
-     * @param referralHandlingMode the referral handling mode for this session
-     */
-    void setReferralHandlingMode( ReferralHandlingMode referralHandlingMode );
-    
-    
-    /**
      * Gets whether or not confidentiality is enabled for this session.
      * 
      * @return true if confidentiality is enabled, false otherwise
@@ -255,6 +239,11 @@ public interface CoreSession
     
     
     void delete( DeleteRequest deleteRequest ) throws Exception;
+
+    /**
+     * Checks to see if an entry exists. 
+     */
+    boolean exists( LdapDN dn ) throws Exception;
     
     
     /**
@@ -266,7 +255,6 @@ public interface CoreSession
      */
     ClonedServerEntry lookup( LdapDN dn ) throws Exception;
 
-    
     ClonedServerEntry lookup( LdapDN dn, Control[] requestControls, ReferralHandlingMode refMode, 
         LdapDN authorized ) throws Exception;
 

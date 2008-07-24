@@ -34,6 +34,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -74,7 +75,6 @@ public class DefaultCoreSession implements CoreSession
     private final DirectoryService directoryService;
     private final LdapPrincipal authenticatedPrincipal;
     private LdapPrincipal authorizedPrincipal;
-    private ReferralHandlingMode referralHandlingMode = ReferralHandlingMode.IGNORE;
     
     
     public DefaultCoreSession( LdapPrincipal principal, DirectoryService directoryService )
@@ -342,24 +342,6 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    /**
-     * @param referralHandlingMode the referralHandlingMode to set
-     */
-    public void setReferralHandlingMode( ReferralHandlingMode referralHandlingMode )
-    {
-        this.referralHandlingMode = referralHandlingMode;
-    }
-
-
-    /**
-     * @return the referralHandlingMode
-     */
-    public ReferralHandlingMode getReferralHandlingMode()
-    {
-        return referralHandlingMode;
-    }
-
-
     public boolean isAnonymous()
     {
         return getEffectivePrincipal().getJndiName().isEmpty();
@@ -398,6 +380,13 @@ public class DefaultCoreSession implements CoreSession
         opContext.setReferralHandlingMode( refMode );
         opContext.addRequestControls( requestControls );
         return directoryService.getOperationManager().lookup( opContext );
+    }
+
+
+    public boolean exists( LdapDN dn ) throws Exception
+    {
+        EntryOperationContext opContext = new EntryOperationContext( this, dn );
+        return directoryService.getOperationManager().hasEntry( opContext );
     }
 
 
