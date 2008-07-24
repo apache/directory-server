@@ -27,15 +27,11 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.ldap.LdapContext;
-
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.sp.StoredProcEngine;
 import org.apache.directory.server.core.sp.StoredProcEngineConfig;
 import org.apache.directory.server.core.sp.StoredProcExecutionManager;
@@ -92,20 +88,16 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
         
         List<Object> valueList = new ArrayList<Object>( spBean.getParameters().size() );
-        Iterator<StoredProcedureParameter> it = spBean.getParameters().iterator();
-        LdapContext ctx = new ServerLdapContext( session.getCoreSession().getDirectoryService(),
-            session.getCoreSession().getEffectivePrincipal(), new LdapDN() );
         
-        while ( it.hasNext() )
+        for ( StoredProcedureParameter pPojo:spBean.getParameters() )
         {
-            StoredProcedureParameter pPojo = it.next();
             byte[] serializedValue = pPojo.getValue();
             Object value = SerializationUtils.deserialize( serializedValue );
             
             if ( value.getClass().equals( LdapContextParameter.class ) )
             {
                 String paramCtx = ( ( LdapContextParameter ) value ).getValue();
-                value = ctx.lookup( paramCtx );
+                value = session.getCoreSession().lookup( new LdapDN( paramCtx ) );
             }
             
             valueList.add( value );
