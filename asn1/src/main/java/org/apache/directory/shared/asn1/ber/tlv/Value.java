@@ -77,6 +77,22 @@ public class Value implements Serializable
 
     private static final int THREE_BYTE_MIN = -( 1 << 23 );
 
+    private static final long FOUR_BYTE_MAX = ( 1L << 31 ) - 1L; // 0x7FFFFFFF
+
+    private static final long FOUR_BYTE_MIN = -( 1L << 31 ); 
+
+    private static final long FIVE_BYTE_MAX = ( 1L << 39 ) - 1L; // 0x7FFFFFFFFF
+
+    private static final long FIVE_BYTE_MIN = -( 1L << 39 ); 
+
+    private static final long SIX_BYTE_MAX = ( 1L << 47 ) - 1L; // 0x7FFFFFFFFFFF
+
+    private static final long SIX_BYTE_MIN = -( 1L << 47 ); 
+
+    private static final long SEVEN_BYTE_MAX = ( 1L << 55 ) - 1L; // 0x7FFFFFFFFFFFFF
+
+    private static final long SEVEN_BYTE_MIN = -( 1L << 55 ); 
+
     // ~ Methods
     // ------------------------------------------------------------------------------------
 
@@ -221,6 +237,51 @@ public class Value implements Serializable
         else
         {
             return 4;
+        }
+    }
+
+
+    /**
+     * Utility function that return the number of bytes necessary to store a
+     * long value. Note that this value must be in [Long.MIN_VALUE,
+     * Long.MAX_VALUE].
+     * 
+     * @param value The value to store in a byte array
+     * @return The number of bytes necessary to store the value.
+     */
+    public static int getNbBytes( long value )
+    {
+        if ( value >= ONE_BYTE_MIN && value <= ONE_BYTE_MAX )
+        {
+            return 1;
+        }
+        else if ( value >= TWO_BYTE_MIN && value <= TWO_BYTE_MAX )
+        {
+            return 2;
+        }
+        else if ( value >= THREE_BYTE_MIN && value <= THREE_BYTE_MAX )
+        {
+            return 3;
+        }
+        else if ( value >= FOUR_BYTE_MIN && value <= FOUR_BYTE_MAX )
+        {
+            return 4;
+        }
+        else if ( value >= FIVE_BYTE_MIN && value <= FIVE_BYTE_MAX )
+        {
+            return 5;
+        }
+        else if ( value >= SIX_BYTE_MIN && value <= SIX_BYTE_MAX )
+        {
+            return 6;
+        }
+        else if ( value >= SEVEN_BYTE_MIN && value <= SEVEN_BYTE_MAX )
+        {
+            return 7;
+        }
+        else
+        {
+            return 8;
         }
     }
 

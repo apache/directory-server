@@ -30,6 +30,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.primitives.BitString;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.asn1.util.IntegerDecoder;
+import org.junit.Test;
 
 
 
@@ -43,9 +44,10 @@ public class ValueTest extends TestCase
 {
 
     /**
-     * Test the getNbBytes method
+     * Test the getNbBytes method for an int value
      */
-    public void testValueGetNbBytes()
+    @Test
+    public void testValueIntGetNbBytes()
     {
         assertEquals( 1, Value.getNbBytes( 0x00000000 ) );
         assertEquals( 1, Value.getNbBytes( 0x00000001 ) );
@@ -60,6 +62,36 @@ public class ValueTest extends TestCase
         assertEquals( 1, Value.getNbBytes( 0xFFFFFFFF ) );
     }
 
+
+    /**
+     * Test the getNbBytes method for a long value
+     */
+    @Test
+    public void testValueLongGetNbBytes()
+    {
+        assertEquals( 1, Value.getNbBytes( 0x0000000000000000L ) );
+        assertEquals( 1, Value.getNbBytes( 0x0000000000000001L ) );
+        assertEquals( 2, Value.getNbBytes( 0x00000000000000FFL ) );
+        assertEquals( 2, Value.getNbBytes( 0x0000000000000100L ) );
+        assertEquals( 3, Value.getNbBytes( 0x000000000000FFFFL ) );
+        assertEquals( 3, Value.getNbBytes( 0x0000000000010000L ) );
+        assertEquals( 4, Value.getNbBytes( 0x0000000000FFFFFFL ) );
+        assertEquals( 4, Value.getNbBytes( 0x0000000001000000L ) );
+        assertEquals( 5, Value.getNbBytes( 0x00000000FFFFFFFFL ) );
+        assertEquals( 5, Value.getNbBytes( 0x0000000100000000L ) );
+        assertEquals( 6, Value.getNbBytes( 0x000000FFFFFFFFFFL ) );
+        assertEquals( 6, Value.getNbBytes( 0x0000010000000000L ) );
+        assertEquals( 7, Value.getNbBytes( 0x0000FFFFFFFFFFFFL ) );
+        assertEquals( 7, Value.getNbBytes( 0x0001000000000000L ) );
+        assertEquals( 8, Value.getNbBytes( 0x00FFFFFFFFFFFFFFL ) );
+        assertEquals( 8, Value.getNbBytes( 0x0100000000000000L ) );
+        assertEquals( 1, Value.getNbBytes( -1L ) );
+        assertEquals( 8, Value.getNbBytes( 0x7FFFFFFFFFFFFFFFL ) );
+        assertEquals( 1, Value.getNbBytes( 0xFFFFFFFFFFFFFFFFL ) );
+    }
+
+    
+    @Test
     public void testGetBytes()
     {
         byte[] bb = Value.getBytes( 0x00000000 );
@@ -211,6 +243,8 @@ public class ValueTest extends TestCase
         assertEquals( 0x00, bb[3] );
     }
 
+
+    @Test
     public void testEncodeInt2Bytes()
     {
         byte[] encoded = Value.getBytes( 128 );
@@ -226,6 +260,7 @@ public class ValueTest extends TestCase
     }
 
 
+    @Test
     public void testEncodeInt3Bytes()
     {
 
@@ -237,6 +272,7 @@ public class ValueTest extends TestCase
     }
 
 
+    @Test
     public void testEncodeInt()
     {
         byte[] encoded = null;
@@ -256,6 +292,7 @@ public class ValueTest extends TestCase
     }
 
 
+    @Test
     public void testDecodeInt() throws Exception
     {
         byte[] encoded = null;
@@ -274,6 +311,8 @@ public class ValueTest extends TestCase
         }
     }
     
+
+    @Test
     public void testNewByteArrayValue()
     {
         byte[] bb = new byte[]{0x01, (byte)0xFF};
@@ -289,6 +328,7 @@ public class ValueTest extends TestCase
     }
 
     
+    @Test
     public void testEncodeBitString()
     {
         BitString bs = new BitString( 10 );
