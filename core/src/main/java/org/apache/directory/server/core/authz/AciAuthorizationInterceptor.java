@@ -670,18 +670,25 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return name.size() == 0 || next.hasEntry( entryContext );
         }
         
-        ClonedServerEntry entry = entryContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
-            
+        boolean answer = next.hasEntry( entryContext );
+
+        // no checks on the RootDSE
+        if ( name.size() == 0 )
+        {
+            // No need to go down to the stack, if the dn is empty 
+            // It's the rootDSE, and it exists ! 
+            return answer;
+        }
         
+        // TODO - eventually replace this with a check on session.isAnAdministrator()
         LdapPrincipal principal = entryContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
-
-        if ( isPrincipalAnAdministrator( principalDn ) || ( name.size() == 0 ) ) // no checks on the rootdse
+        if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            // No need to go down to the stack, if the dn is empty : it's the rootDSE, and it exists !
-            return name.size() == 0 || next.hasEntry( entryContext );
+            return answer;
         }
 
+        ClonedServerEntry entry = entryContext.lookup( name, ByPassConstants.HAS_ENTRY_BYPASS );
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( entryContext, tuples, name, entry.getOriginalEntry() );
