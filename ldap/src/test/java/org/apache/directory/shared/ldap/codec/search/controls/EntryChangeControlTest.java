@@ -30,6 +30,7 @@ import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControl
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlDecoder;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -45,6 +46,7 @@ public class EntryChangeControlTest extends TestCase
     /**
      * Test the decoding of a EntryChangeControl
      */
+    @Test
     public void testDecodeEntryChangeControlSuccess()
     {
         Asn1Decoder decoder = new EntryChangeControlDecoder();
@@ -79,8 +81,47 @@ public class EntryChangeControlTest extends TestCase
 
 
     /**
+     * Test the decoding of a EntryChangeControl
+     */
+    @Test
+    public void testDecodeEntryChangeControlSuccessLongChangeNumber()
+    {
+        Asn1Decoder decoder = new EntryChangeControlDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x13 );
+        bb.put( new byte[]
+            { 
+            0x30, 0x11,                     // EntryChangeNotification ::= SEQUENCE {
+              0x0A, 0x01, 0x08,             //     changeType ENUMERATED {
+                                            //         modDN (8)
+                                            //     }
+              0x04, 0x03, 'a', '=', 'b',    //     previousDN LDAPDN OPTIONAL, -- modifyDN ops. only
+              0x02, 0x07,                   //     changeNumber INTEGER OPTIONAL } -- if supported
+                0x12, 0x34, 0x56, 0x78, (byte)0x9A, (byte)0xBC, (byte)0xDE
+            } );
+        bb.flip();
+
+        EntryChangeControlContainer container = new EntryChangeControlContainer();
+        try
+        {
+            decoder.decode( bb, container );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            Assert.fail( de.getMessage() );
+        }
+
+        EntryChangeControlCodec entryChange = container.getEntryChangeControl();
+        assertEquals( ChangeType.MODDN, entryChange.getChangeType() );
+        assertEquals( "a=b", entryChange.getPreviousDn().toString() );
+        assertEquals( 5124095576030430L, entryChange.getChangeNumber() );
+    }
+
+
+    /**
      * Test the decoding of a EntryChangeControl with a add and a change number
      */
+    @Test
     public void testDecodeEntryChangeControlWithADDAndChangeNumber()
     {
         Asn1Decoder decoder = new EntryChangeControlDecoder();
@@ -118,6 +159,7 @@ public class EntryChangeControlTest extends TestCase
      * Test the decoding of a EntryChangeControl with a add so we should not
      * have a PreviousDN
      */
+    @Test
     public void testDecodeEntryChangeControlWithADDAndPreviousDNBad()
     {
         Asn1Decoder decoder = new EntryChangeControlDecoder();
@@ -155,6 +197,7 @@ public class EntryChangeControlTest extends TestCase
     /**
      * Test the decoding of a EntryChangeControl with a add and nothing else
      */
+    @Test
     public void testDecodeEntryChangeControlWithADD()
     {
         Asn1Decoder decoder = new EntryChangeControlDecoder();
@@ -189,9 +232,10 @@ public class EntryChangeControlTest extends TestCase
 
 
     /**
-     * Test the decoding of a EntryChangeControl with a worng changeType and
+     * Test the decoding of a EntryChangeControl with a wrong changeType and
      * nothing else
      */
+    @Test
     public void testDecodeEntryChangeControlWithWrongChangeType()
     {
         Asn1Decoder decoder = new EntryChangeControlDecoder();
@@ -224,8 +268,47 @@ public class EntryChangeControlTest extends TestCase
 
 
     /**
+     * Test the decoding of a EntryChangeControl with a wrong changeNumber
+     */
+    @Test
+    public void testDecodeEntryChangeControlWithWrongChangeNumber()
+    {
+        Asn1Decoder decoder = new EntryChangeControlDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 0x1C );
+        bb.put( new byte[]
+            { 
+            0x30, 0x1A,                     // EntryChangeNotification ::= SEQUENCE {
+              0x0A, 0x01, 0x08,             //     changeType ENUMERATED {
+                                            //         modDN (8)
+                                            //     }
+              0x04, 0x03, 'a', '=', 'b',    //     previousDN LDAPDN OPTIONAL, -- modifyDN ops. only
+              0x02, 0x10,                   //     changeNumber INTEGER OPTIONAL -- if supported
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+            } );
+        bb.flip();
+
+        EntryChangeControlContainer container = new EntryChangeControlContainer();
+
+        try
+        {
+            decoder.decode( bb, container );
+        }
+        catch ( DecoderException de )
+        {
+            // We should fail because the ChangeType is not known
+            assertTrue( true );
+            return;
+        }
+
+        Assert.fail( "The changeNumber is incorrect" );
+    }
+
+
+    /**
      * Test encoding of a EntryChangeControl.
      */
+    @Test
     public void testEncodeEntryChangeControl() throws Exception
     {
         ByteBuffer bb = ByteBuffer.allocate( 0x0D );
@@ -245,6 +328,37 @@ public class EntryChangeControlTest extends TestCase
         EntryChangeControlCodec entry = new EntryChangeControlCodec();
         entry.setChangeType( ChangeType.MODDN );
         entry.setChangeNumber( 16 );
+        entry.setPreviousDn( new LdapDN( "a=b" ) );
+        bb = entry.encode( null );
+        String decoded = StringTools.dumpBytes( bb.array() );
+        assertEquals( expected, decoded );
+    }
+
+
+    /**
+     * Test encoding of a EntryChangeControl with a long changeNumber.
+     */
+    @Test
+    public void testEncodeEntryChangeControlLong() throws Exception
+    {
+        ByteBuffer bb = ByteBuffer.allocate( 0x13 );
+        bb.put( new byte[]
+            { 
+            0x30, 0x11,                     // EntryChangeNotification ::= SEQUENCE {
+              0x0A, 0x01, 0x08,             //     changeType ENUMERATED {
+                                            //         modDN (8)
+                                            //     }
+              0x04, 0x03, 'a', '=', 'b',    //     previousDN LDAPDN OPTIONAL, -- modifyDN ops. only
+              0x02, 0x07,                   //     changeNumber INTEGER OPTIONAL -- if supported
+                0x12, 0x34, 0x56, 0x78, (byte)0x9a, (byte)0xbc, (byte)0xde
+            } );
+
+        String expected = StringTools.dumpBytes( bb.array() );
+        bb.flip();
+
+        EntryChangeControlCodec entry = new EntryChangeControlCodec();
+        entry.setChangeType( ChangeType.MODDN );
+        entry.setChangeNumber( 5124095576030430L );
         entry.setPreviousDn( new LdapDN( "a=b" ) );
         bb = entry.encode( null );
         String decoded = StringTools.dumpBytes( bb.array() );

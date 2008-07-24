@@ -33,8 +33,8 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
  * A response control that may be returned by Persistent Search entry responses.
- * It contains addition change information to descrive the exact change that
- * occured to an entry. The exact details of this control are covered in section
+ * It contains addition change information to describe the exact change that
+ * occurred to an entry. The exact details of this control are covered in section
  * 5 of this (yes) expired draft: <a
  * href="http://www3.ietf.org/proceedings/01aug/I-D/draft-ietf-ldapext-psearch-03.txt">
  * Persistent Search Draft v03</a> which is printed out below for convenience:
@@ -105,6 +105,7 @@ public class EntryChangeControlCodec extends AbstractAsn1Object
         super();
     }
 
+    
     /**
      * Compute the EntryChangeControl length 
      * 
@@ -112,7 +113,7 @@ public class EntryChangeControlCodec extends AbstractAsn1Object
      *   | 
      *   +--> 0x0A 0x0(1-4) [1|2|4|8] (changeType) 
      *  [+--> 0x04 L2 previousDN] 
-     *  [+--> 0x02 0x0(1-4) [0..2^31-1] (changeNumber)]
+     *  [+--> 0x02 0x0(1-4) [0..2^63-1] (changeNumber)]
      */
     public int computeLength()
     {
@@ -129,9 +130,7 @@ public class EntryChangeControlCodec extends AbstractAsn1Object
 
         if ( changeNumber != UNDEFINED_CHANGE_NUMBER )
         {
-            // TODO Emmanuel can you please check how we can use long here instead
-            // TODO get rid of cast to int 
-            changeNumberLength = 1 + 1 + Value.getNbBytes( ( int ) changeNumber );
+            changeNumberLength = 1 + 1 + Value.getNbBytes( changeNumber );
         }
 
         eccSeqLength = changeTypesLength + previousDnLength + changeNumberLength;
@@ -162,12 +161,12 @@ public class EntryChangeControlCodec extends AbstractAsn1Object
         {
             Value.encode( bb, previousDnBytes );
         }
+        
         if ( changeNumber != UNDEFINED_CHANGE_NUMBER )
         {
-            // TODO Emmanuel can you please check how we can use long here instead
-            // TODO get rid of cast to int 
-            Value.encode( bb, ( int ) changeNumber );
+            Value.encode( bb, changeNumber );
         }
+        
         return bb;
     }
 
