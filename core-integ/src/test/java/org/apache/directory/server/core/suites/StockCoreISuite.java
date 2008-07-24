@@ -40,7 +40,6 @@ import org.apache.directory.server.core.jndi.ListIT;
 import org.apache.directory.server.core.jndi.ModifyContextIT;
 import org.apache.directory.server.core.jndi.ObjStateFactoryIT;
 import org.apache.directory.server.core.jndi.RFC2713IT;
-import org.apache.directory.server.core.jndi.ReferralIT;
 import org.apache.directory.server.core.jndi.RootDSEIT;
 import org.apache.directory.server.core.jndi.SearchIT;
 import org.apache.directory.server.core.jndi.UniqueMemberIT;
@@ -96,7 +95,6 @@ import org.junit.runners.Suite;
         LdapClassLoaderIT.class,
         NormalizationServiceIT.class,
         DefaultChangeLogIT.class,
-        ReferralIT.class,
         PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
         } )
 @CleanupLevel ( Level.SUITE )
