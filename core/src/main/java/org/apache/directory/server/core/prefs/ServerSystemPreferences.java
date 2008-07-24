@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.PreferencesDictionary;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 
 import java.util.ArrayList;
@@ -81,7 +82,16 @@ public class ServerSystemPreferences extends AbstractPreferences
     {
         super( null, "" );
         super.newNode = false;
-        dn = new LdapDN();
+        
+        try
+        {
+            dn = new LdapDN( "prefNodeName=sysPrefRoot,ou=system" );
+        }
+        catch ( InvalidNameException e )
+        {
+            // never happens
+        }
+        
         this.directoryService = directoryService;
     }
 
@@ -101,28 +111,28 @@ public class ServerSystemPreferences extends AbstractPreferences
     {
         super( parent, name );
 
+        this.directoryService = parent.directoryService;
+        LdapDN parentDn = ( ( ServerSystemPreferences ) parent() ).dn;
         try
         {
-            dn = new LdapDN( "prefNodeName=" + name );
-            super.newNode = false;
-            this.directoryService = parent.directoryService;
+            dn = new LdapDN( "prefNodeName=" + name + "," + parentDn.getUpName() );
             dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-        }
-        catch ( NamingException e )
-        {
-            super.newNode = true;
-        }
-
-        if ( super.newNode )
-        {
-            try
+            
+            if ( ! directoryService.getAdminSession().exists( dn ) )
             {
-                setUpNode( name );
+                ServerEntry entry = directoryService.newEntry( dn );
+                entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, 
+                    ApacheSchemaConstants.PREF_NODE_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
+                entry.add( "prefNodeName", name );
+    
+                directoryService.getAdminSession().add( entry );
+                
+                super.newNode = false;
             }
-            catch ( Exception e )
-            {
-                throw new ServerSystemPreferenceException( "Failed to set up node.", e );
-            }
+        }
+        catch ( Exception e )
+        {
+            throw new ServerSystemPreferenceException( "Failed to set up node.", e );
         }
     }
 
@@ -139,28 +149,6 @@ public class ServerSystemPreferences extends AbstractPreferences
     public Dictionary<String, String> wrapAsDictionary()
     {
         return new PreferencesDictionary( this );
-    }
-
-
-    /**
-     * Sets up a new ServerPreferences node by injecting the required information
-     * such as the node name attribute and the objectClass attribute.
-     *
-     * @param name the name of the new ServerPreferences node
-     * @throws NamingException if we fail to created the new node
-     */
-    private void setUpNode( String name ) throws Exception
-    {
-        LdapDN parent = ( ( ServerSystemPreferences ) parent() ).dn;
-        LdapDN child = new LdapDN( parent.getNormName() + ",prefNodeName=" + name );
-        child.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-        ServerEntry entry = directoryService.newEntry( child );
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, 
-            ApacheSchemaConstants.PREF_NODE_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
-        entry.add( "prefNodeName", name );
-
-        directoryService.getAdminSession().add( entry );
-        super.newNode = false;
     }
 
 
@@ -262,8 +250,7 @@ public class ServerSystemPreferences extends AbstractPreferences
                 ServerAttribute sa = ( ServerAttribute ) attr;
                 String oid = sa.getAttributeType().getOid();
                 
-                if ( oid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) || 
-                     oid.equals( ApacheSchemaConstants.PREF_NODE_NAME_AT_OID ) )
+                if ( oid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
                 {
                     continue;
                 }
@@ -321,7 +308,7 @@ public class ServerSystemPreferences extends AbstractPreferences
     {
         try
         {
-            EntryAttribute attr = null;
+            EntryAttribute attr = directoryService.getAdminSession().lookup( dn ).get( key );
             
             if ( keyToChange.containsKey( key ) )
             {
@@ -344,7 +331,7 @@ public class ServerSystemPreferences extends AbstractPreferences
             }
             else
             {
-                return attr.getUpId();
+                return attr.getString();
             }
         }
         catch ( Exception e )
