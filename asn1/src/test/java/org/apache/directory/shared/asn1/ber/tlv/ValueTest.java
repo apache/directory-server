@@ -559,9 +559,37 @@ public class ValueTest extends TestCase
     {
         byte[] encoded = null;
         int[] testedInt = new int[]
-            { Integer.MIN_VALUE, -2147483647, -16777216, -16777215, -8388608, -8388607, -65536, -65535, -32768, -32767,
-                -256, -255, -128, -127, -1, 0, 1, 127, 128, 255, 256, 32767, 32768, 65535, 65536, 8388607, 8388608,
-                16777215, 16777216, Integer.MAX_VALUE };
+            { 
+                Integer.MIN_VALUE, 
+                -2147483647, 
+                -16777216, 
+                -16777215, 
+                -8388608, 
+                -8388607, 
+                -65536, 
+                -65535, 
+                -32768, 
+                -32767,
+                -256, 
+                -255, 
+                -128, 
+                -127, 
+                -1, 
+                0, 
+                1, 
+                127, 
+                128, 
+                255, 
+                256, 
+                32767, 
+                32768, 
+                65535, 
+                65536, 
+                8388607, 
+                8388608,
+                16777215, 
+                16777216, 
+                Integer.MAX_VALUE };
 
         for ( int i:testedInt )
         {
@@ -632,7 +660,7 @@ public class ValueTest extends TestCase
     public void testDecodeLong() throws Exception
     {
         byte[] encoded = null;
-        long[] testedInt = new long[]
+        long[] testedLong = new long[]
             { 
                 Long.MIN_VALUE, 
                 -9223372036854775808L,
@@ -705,7 +733,7 @@ public class ValueTest extends TestCase
                 36028797018963967L,
                 Long.MAX_VALUE };
 
-        for ( long i:testedInt )
+        for ( long i:testedLong )
         {
             encoded = new BigInteger( Long.toString( i ) ).toByteArray();
 
