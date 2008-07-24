@@ -665,6 +665,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public boolean hasEntry( NextInterceptor next, EntryOperationContext entryContext ) throws Exception
     {
         LdapDN name = entryContext.getDn();
+        if ( ! enabled )
+        {
+            return name.size() == 0 || next.hasEntry( entryContext );
+        }
         
         ClonedServerEntry entry = entryContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
             
@@ -672,7 +676,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapPrincipal principal = entryContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
 
-        if ( isPrincipalAnAdministrator( principalDn ) || !enabled || ( name.size() == 0 ) ) // no checks on the rootdse
+        if ( isPrincipalAnAdministrator( principalDn ) || ( name.size() == 0 ) ) // no checks on the rootdse
         {
             // No need to go down to the stack, if the dn is empty : it's the rootDSE, and it exists !
             return name.size() == 0 || next.hasEntry( entryContext );
