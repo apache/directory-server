@@ -65,12 +65,15 @@ public class DupsContainerCursorTest
     public void createTable() throws Exception
     {
         File tmpDir = null;
+        
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
+            tmpDir.deleteOnExit();
         }
 
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
+        dbFile.deleteOnExit();
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
         // gosh this is a terrible use of a global static variable
@@ -86,13 +89,16 @@ public class DupsContainerCursorTest
 
 
     @After
-    public void destryTable() throws Exception
+    public void destroyTable() throws Exception
     {
         table.close();
         table = null;
         recman.close();
         recman = null;
-        dbFile.deleteOnExit();
+        String fileToDelete = dbFile.getAbsolutePath();
+        new File( fileToDelete ).delete();
+        new File( fileToDelete + ".db" ).delete();
+        new File( fileToDelete + ".lg" ).delete();
         dbFile = null;
     }
 
@@ -100,13 +106,6 @@ public class DupsContainerCursorTest
     @Test( expected=IllegalStateException.class )
     public void testUsingNoDuplicates() throws Exception
     {
-        File tmpDir = null;
-        if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
-        {
-            tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
-        }
-
-        dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
         // gosh this is a terrible use of a global static variable
