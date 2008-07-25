@@ -87,13 +87,13 @@ public class JdbmBrowserBugTest
         recman = null;
         bt = null;
         
-        String fileToDelete = dbFile.getAbsolutePath();
-        new File( fileToDelete ).delete();
-        new File( fileToDelete + ".db" ).delete();
-        new File( fileToDelete + ".lg" ).delete();
-
         if ( dbFile.exists() )
         {
+            String fileToDelete = dbFile.getAbsolutePath();
+            new File( fileToDelete ).delete();
+            new File( fileToDelete + ".db" ).delete();
+            new File( fileToDelete + ".lg" ).delete();
+
             dbFile.delete();
         }
         

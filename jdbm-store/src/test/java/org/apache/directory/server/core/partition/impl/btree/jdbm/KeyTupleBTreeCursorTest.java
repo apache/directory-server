@@ -39,6 +39,7 @@ import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,6 +56,8 @@ public class KeyTupleBTreeCursorTest
     JdbmTable<Integer,Integer> table;
     Comparator<Integer> comparator;
     KeyTupleBTreeCursor<Integer, Integer> cursor;
+    File dbFile;
+    RecordManager recman;
     
     private static final Integer KEY = 1;
     private static final String TEST_OUTPUT_PATH = "test.output.path";
@@ -78,8 +81,8 @@ public class KeyTupleBTreeCursorTest
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
         }
 
-        File dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
-        RecordManager recman = new BaseRecordManager( dbFile.getAbsolutePath() );
+        dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
+        recman = new BaseRecordManager( dbFile.getAbsolutePath() );
         
         SerializableComparator.setRegistry( new MockComparatorRegistry() );
         
@@ -92,6 +95,21 @@ public class KeyTupleBTreeCursorTest
     }
     
     
+    @After 
+    public void destroytable() throws Exception
+    {
+        recman.close();
+        recman = null;
+        dbFile.deleteOnExit();
+
+        String fileToDelete = dbFile.getAbsolutePath();
+        new File( fileToDelete + ".db" ).delete();
+        new File( fileToDelete + ".lg" ).delete();
+
+        dbFile = null;
+    }
+    
+
     @Test( expected = InvalidCursorPositionException.class )
     public void testEmptyCursor() throws Exception
     {

@@ -100,6 +100,11 @@ public class KeyBTreeCursorTest
         recman.close();
         recman = null;
         dbFile.deleteOnExit();
+
+        String fileToDelete = dbFile.getAbsolutePath();
+        new File( fileToDelete + ".db" ).delete();
+        new File( fileToDelete + ".lg" ).delete();
+
         dbFile = null;
     }
 
