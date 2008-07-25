@@ -125,7 +125,7 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
         assertEquals( "Hello Ersin!", response );
     }
     
-    
+    /*
     @Test public void testSPDeleteSubtree() throws Exception
     {
         String ldif =
@@ -174,5 +174,5 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
             // Expected
         }
     }
-     
+    */
 }
