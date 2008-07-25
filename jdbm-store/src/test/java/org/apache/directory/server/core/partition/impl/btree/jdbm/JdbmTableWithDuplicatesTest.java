@@ -27,7 +27,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.apache.directory.server.xdbm.Table;
-import org.apache.directory.server.xdbm.TupleRenderer;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -105,6 +104,10 @@ public class JdbmTableWithDuplicatesTest
 
         if ( dbFile != null )
         {
+            String fileToDelete = dbFile.getAbsolutePath();
+            new File( fileToDelete + ".db" ).delete();
+            new File( fileToDelete + ".lg" ).delete();
+
             dbFile.delete();
         }
 
@@ -312,11 +315,11 @@ public class JdbmTableWithDuplicatesTest
         }
 
         Cursor<Tuple<Integer, Integer>> cursor = table.cursor();
-        System.out.println( "remaining ..." );
+        //System.out.println( "remaining ..." );
         cursor.beforeFirst();
         while ( cursor.next() )
         {
-            System.out.println( cursor.get() );
+            //System.out.println( cursor.get() );
         }
 
         assertFalse( table.hasLessOrEqual( 1 ) );

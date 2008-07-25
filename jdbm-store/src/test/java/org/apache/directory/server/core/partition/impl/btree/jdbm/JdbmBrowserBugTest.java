@@ -86,10 +86,17 @@ public class JdbmBrowserBugTest
         recman.close();
         recman = null;
         bt = null;
+        
+        String fileToDelete = dbFile.getAbsolutePath();
+        new File( fileToDelete ).delete();
+        new File( fileToDelete + ".db" ).delete();
+        new File( fileToDelete + ".lg" ).delete();
+
         if ( dbFile.exists() )
         {
             dbFile.delete();
         }
+        
         dbFile = null;
     }
 

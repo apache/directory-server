@@ -91,7 +91,7 @@ public class JdbmMasterTableTest
         table = new JdbmMasterTable<Integer>( recman, registries );
         LOG.debug( "Created new table and populated it with data" );
 
-        JdbmMasterTable t2 = new JdbmMasterTable<Integer>( recman, registries );
+        JdbmMasterTable<Integer> t2 = new JdbmMasterTable<Integer>( recman, registries );
         t2.close();
     }
 
@@ -115,6 +115,10 @@ public class JdbmMasterTableTest
 
         if ( dbFile != null )
         {
+            String fileToDelete = dbFile.getAbsolutePath();
+            new File( fileToDelete + ".db" ).delete();
+            new File( fileToDelete + ".lg" ).delete();
+
             dbFile.delete();
         }
 

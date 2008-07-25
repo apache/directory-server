@@ -27,7 +27,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.apache.directory.server.xdbm.Table;
-import org.apache.directory.server.xdbm.TupleRenderer;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
@@ -97,6 +96,10 @@ public class JdbmTableNoDuplicatesTest
 
         if ( dbFile != null )
         {
+            String fileToDelete = dbFile.getAbsolutePath();
+            new File( fileToDelete + ".db" ).delete();
+            new File( fileToDelete + ".lg" ).delete();
+
             dbFile.delete();
         }
         

@@ -23,9 +23,13 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.After;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.registries.*;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -90,6 +94,11 @@ public class JdbmIndexTest
     {
         registry = null;
         destroyIndex();
+        
+        if ( ( dbFileDir != null ) && dbFileDir.exists() )
+        {
+            FileUtils.deleteDirectory( dbFileDir );
+        }
     }
 
 
@@ -102,6 +111,7 @@ public class JdbmIndexTest
             File file = new File( idx.getWkDirPath(), idx.getAttribute().getName() + ".db" );
             file.delete();
         }
+        
         idx = null;
     }
 

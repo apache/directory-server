@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.apache.commons.io.FileUtils;
@@ -103,7 +102,7 @@ public class JdbmStoreTest
     @Before
     public void createStore() throws Exception
     {
-        destryStore();
+        destroyStore();
 
         // setup the working directory for the store
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
@@ -126,7 +125,7 @@ public class JdbmStoreTest
 
 
     @After
-    public void destryStore() throws Exception
+    public void destroyStore() throws Exception
     {
         if ( store != null )
         {
@@ -134,6 +133,7 @@ public class JdbmStoreTest
         }
 
         store = null;
+        
         if ( wkdir != null )
         {
             FileUtils.deleteDirectory( wkdir );
