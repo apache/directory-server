@@ -20,7 +20,6 @@
 package org.apache.directory.server.newldap.handlers.bind;
 
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
@@ -40,15 +39,6 @@ import java.util.Map;
  */
 public class DigestMd5MechanismHandler implements MechanismHandler
 {
-    private DirectoryService directoryService;
-
-
-    public void setDirectoryService( DirectoryService directoryService )
-    {
-        this.directoryService = directoryService;
-    }
-
-    
     public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
@@ -62,7 +52,8 @@ public class DigestMd5MechanismHandler implements MechanismHandler
             String saslHost = ( String ) session.getIoSession().getAttribute( "saslHost" );
             Map<String, String> saslProps = ( Map<String, String> ) session.getIoSession().getAttribute( "saslProps" );
 
-            CallbackHandler callbackHandler = new DigestMd5CallbackHandler( directoryService, bindRequest );
+            CallbackHandler callbackHandler = new DigestMd5CallbackHandler( 
+                session.getCoreSession().getDirectoryService(), bindRequest );
 
             ss = Sasl.createSaslServer( SupportedSaslMechanisms.DIGEST_MD5, "ldap", saslHost, saslProps, callbackHandler );
             session.getIoSession().setAttribute( SASL_CONTEXT, ss );

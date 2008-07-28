@@ -20,7 +20,6 @@
 package org.apache.directory.server.newldap.handlers.bind;
 
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
@@ -41,15 +40,6 @@ import java.util.Map;
  */
 public class CramMd5MechanismHandler implements MechanismHandler
 {
-    private DirectoryService directoryService;
-
-
-    public void setDirectoryService( DirectoryService directoryService )
-    {
-        this.directoryService = directoryService;
-    }
-
-    
     public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
