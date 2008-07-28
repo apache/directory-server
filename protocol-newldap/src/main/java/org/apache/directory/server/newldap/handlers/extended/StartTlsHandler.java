@@ -137,7 +137,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
     }
 
     
-    public void setLdapProvider( LdapServer ldapServer )
+    public void setLdapServer( LdapServer ldapServer )
     {
         LOG.debug( "Setting LDAP Service" );
         Provider provider = Security.getProvider( "SUN" );
@@ -192,11 +192,5 @@ public class StartTlsHandler implements ExtendedOperationHandler
         {
             throw new RuntimeException( "Failed to initialize SSLContext", e );
         }
-    }
-
-
-    public void setLdapServer( LdapServer ldapServer )
-    {
-        // do nothing
     }
 }
