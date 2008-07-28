@@ -51,9 +51,9 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
  * Tests to make sure the server is operating correctly when handling referrals.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 545029 $
  */
-public class ReferralTest extends AbstractServerTest
+public class ReferralTestOld extends AbstractServerTest
 {
     TestData td = new TestData();
 

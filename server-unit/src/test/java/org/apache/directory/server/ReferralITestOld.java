@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 493916 $
  */
-public class ReferralITest extends AbstractServerTest
+public class ReferralITestOld extends AbstractServerTest
 {
     TestData td = new TestData();
 
