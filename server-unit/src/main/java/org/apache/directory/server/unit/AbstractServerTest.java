@@ -283,15 +283,12 @@ public abstract class AbstractServerTest extends TestCase
          mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
 
         CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
-        cramMd5MechanismHandler.setDirectoryService( directoryService );
         mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
 
         DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
-        digestMd5MechanismHandler.setDirectoryService( directoryService );
         mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
 
         GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
-        gssapiMechanismHandler.setDirectoryService( directoryService );
         mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
 
         NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
