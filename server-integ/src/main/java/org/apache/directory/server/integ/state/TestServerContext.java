@@ -22,6 +22,7 @@ package org.apache.directory.server.integ.state;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+
 import javax.naming.NamingException;
 
 import org.apache.directory.server.integ.InheritableServerSettings;
@@ -207,10 +208,6 @@ public class TestServerContext
             Object test = testClass.getConstructor().newInstance();
             Field field = testClass.getJavaClass().getDeclaredField( "ldapServer" );
             field.set( testClass.getJavaClass(), get().getLdapServer() );
-            
-            // also check and add ctx member with access to server over the wire
-            // TODO add here and make sure we cleanup
-            
             new MethodRoadie( test, testMethod, notifier, description ).run();
         }
         catch ( InvocationTargetException e )
