@@ -118,6 +118,7 @@ import java.util.Set;
  */
 public class DefaultDirectoryService implements DirectoryService
 {
+    /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryService.class );
 
     private static final String ILLEGAL_STATE_MSG = "Something has got to be severely " +
@@ -169,7 +170,7 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * Creates a new instance.
+     * Creates a new instance of the directory service.
      */
     public DefaultDirectoryService() 
     {
