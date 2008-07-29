@@ -22,6 +22,7 @@ package org.apache.directory.server.integ;
 import java.util.Hashtable;
 
 import javax.naming.Context;
+import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -50,6 +51,21 @@ public class ServerIntegrationUtils extends IntegrationUtils
      */
     public static LdapContext getWiredContext( LdapServer ldapServer ) throws Exception
     {
+        return getWiredContext( ldapServer, null );
+    }
+
+
+    /**
+     * Creates a JNDI LdapContext with a connection over the wire using the 
+     * SUN LDAP provider.  The connection is made using the administrative 
+     * user as the principalDN.  The context is to the rootDSE.
+     *
+     * @param ldapServer the LDAP server to get the connection to
+     * @return an LdapContext as the administrative user to the RootDSE
+     * @throws Exception if there are problems creating the context
+     */
+    public static LdapContext getWiredContext( LdapServer ldapServer, Control[] controls ) throws Exception
+    {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getIpPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
@@ -57,6 +73,6 @@ public class ServerIntegrationUtils extends IntegrationUtils
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        return new InitialLdapContext( env, null );
+        return new InitialLdapContext( env, controls );
     }
 }

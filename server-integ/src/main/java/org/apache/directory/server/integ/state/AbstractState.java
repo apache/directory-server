@@ -193,6 +193,7 @@ public abstract class AbstractState implements TestServerState
                     
                     LdapContext root = IntegrationUtils.getRootContext( service );
                     root.createSubcontext( entry.getDn(), entry.getAttributes() );
+                    LOG.debug( "Injected LDIF for test {}: {}", settings.getDescription(), ldif );
                 }
                 catch ( Exception e )
                 {
