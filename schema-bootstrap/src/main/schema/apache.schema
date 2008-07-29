@@ -499,4 +499,50 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.44
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-# LAST ATTRIBUTE_TYPE WAS = 1.3.6.1.4.1.18060.0.4.1.2.44 START USING 1.3.6.1.4.1.18060.0.4.1.2.45
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.45 
+    NAME 'changeTime' 
+    DESC 'represents the time when the ChangeLogEvent was created' 
+    EQUALITY generalizedTimeMatch 
+    ORDERING generalizedTimeOrderingMatch 
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 
+    SINGLE-VALUE 
+    NO-USER-MODIFICATION 
+ )
+ 
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.46 
+    NAME 'changeType' 
+    DESC 'the change type of the operation that triggered the ChangeLogEvent' 
+    EQUALITY caseIgnoreMatch 
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.44 
+    SINGLE-VALUE 
+    NO-USER-MODIFICATION 
+ )
+ 
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.47 
+    NAME ( 'rev' 'eventId' ) 
+    DESC 'the unique id for a changelog event ( a.k.a revision of change log store )' 
+    EQUALITY integerMatch 
+    ORDERING integerOrderingMatch 
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 
+    SINGLE-VALUE 
+    NO-USER-MODIFICATION 
+ )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.48 
+    NAME 'committer' 
+    DESC 'the committer principal of ChangeLogEvent' 
+    EQUALITY caseIgnoreMatch 
+    ORDERING caseIgnoreMatch 
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.44 
+    SINGLE-VALUE 
+    NO-USER-MODIFICATION 
+ )
+    
+objectclass ( 1.3.6.1.4.1.18060.0.4.1.3.12 
+    NAME 'changeLogEvent' 
+    DESC 'represents a changelogevent' 
+    SUP (extensibleObject $ top) 
+    STRUCTURAL 
+    MUST ( changeTime $ changeType $ rev $ committer ) 
+ )
+# LAST ATTRIBUTE_TYPE WAS = 1.3.6.1.4.1.18060.0.4.1.2.48 START USING 1.3.6.1.4.1.18060.0.4.1.2.49
