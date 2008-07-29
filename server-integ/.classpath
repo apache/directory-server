@@ -1,0 +1,61 @@
+<classpath>
+  <classpathentry kind="src" path="src/main/java"/>
+  <classpathentry kind="src" path="src/main/resources" excluding="**/*.java"/>
+  <classpathentry kind="src" path="src/test/java" output="target/test-classes"/>
+  <classpathentry kind="src" path="src/test/resources" output="target/test-classes" excluding="**/*.java"/>
+  <classpathentry kind="src" path="target/maven-shared-archive-resources" excluding="**/*.java"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.7/antlr-2.7.7.jar"/>
+  <classpathentry kind="src" path="/apacheds-bootstrap-extract"/>
+  <classpathentry kind="src" path="/apacheds-bootstrap-partition"/>
+  <classpathentry kind="src" path="/apacheds-btree-base"/>
+  <classpathentry kind="src" path="/apacheds-core"/>
+  <classpathentry kind="src" path="/apacheds-core-avl"/>
+  <classpathentry kind="src" path="/apacheds-core-constants"/>
+  <classpathentry kind="src" path="/apacheds-core-cursor"/>
+  <classpathentry kind="src" path="/apacheds-core-entry"/>
+  <classpathentry kind="src" path="/apacheds-core-integ"/>
+  <classpathentry kind="src" path="/apacheds-core-jndi"/>
+  <classpathentry kind="src" path="/apacheds-core-shared"/>
+  <classpathentry kind="src" path="/apacheds-jdbm"/>
+  <classpathentry kind="src" path="/apacheds-jdbm-store"/>
+  <classpathentry kind="src" path="/apacheds-kerberos-shared"/>
+  <classpathentry kind="src" path="/apacheds-protocol-newldap"/>
+  <classpathentry kind="src" path="/apacheds-protocol-shared"/>
+  <classpathentry kind="src" path="/apacheds-schema-bootstrap"/>
+  <classpathentry kind="src" path="/apacheds-schema-extras"/>
+  <classpathentry kind="src" path="/apacheds-schema-registries"/>
+  <classpathentry kind="src" path="/apacheds-server-jndi"/>
+  <classpathentry kind="src" path="/apacheds-utils"/>
+  <classpathentry kind="src" path="/apacheds-xdbm-search"/>
+  <classpathentry kind="src" path="/apacheds-xdbm-tools"/>
+  <classpathentry kind="var" path="M2_REPO/bouncycastle/bcprov-jdk15/136/bcprov-jdk15-136.jar" sourcepath="M2_REPO/bouncycastle/bcprov-jdk15/136/bcprov-jdk15-136-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/home/akarasulu/ramdisk/.m2/repository/bouncycastle/bcprov-jdk15/136/bcprov-jdk15-136-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.2/commons-collections-3.2.jar" sourcepath="M2_REPO/commons-collections/commons-collections/3.2/commons-collections-3.2-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/commons/commons-io/1.3.2/commons-io-1.3.2.jar" sourcepath="M2_REPO/org/apache/commons/commons-io/1.3.2/commons-io-1.3.2-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/home/akarasulu/ramdisk/.m2/repository/org/apache/commons/commons-io/1.3.2/commons-io-1.3.2-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.3/commons-lang-2.3.jar" sourcepath="M2_REPO/commons-lang/commons-lang/2.3/commons-lang-2.3-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/jcl104-over-slf4j/1.4.3/jcl104-over-slf4j-1.4.3.jar" sourcepath="M2_REPO/org/slf4j/jcl104-over-slf4j/1.4.3/jcl104-over-slf4j-1.4.3-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/4.4/junit-4.4.jar" sourcepath="M2_REPO/junit/junit/4.4/junit-4.4-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/home/akarasulu/ramdisk/.m2/repository/junit/junit/4.4/junit-4.4-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar" sourcepath="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/mina/mina-core/1.1.6/mina-core-1.1.6.jar" sourcepath="M2_REPO/org/apache/mina/mina-core/1.1.6/mina-core-1.1.6-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/mina/mina-filter-ssl/1.1.6/mina-filter-ssl-1.1.6.jar" sourcepath="M2_REPO/org/apache/mina/mina-filter-ssl/1.1.6/mina-filter-ssl-1.1.6-sources.jar"/>
+  <classpathentry kind="src" path="/shared-asn1"/>
+  <classpathentry kind="src" path="/shared-asn1-codec"/>
+  <classpathentry kind="src" path="/shared-bouncycastle-reduced"/>
+  <classpathentry kind="src" path="/shared-ldap"/>
+  <classpathentry kind="src" path="/shared-ldap-constants"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.4.3/slf4j-api-1.4.3.jar" sourcepath="M2_REPO/org/slf4j/slf4j-api/1.4.3/slf4j-api-1.4.3-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-log4j12/1.4.3/slf4j-log4j12-1.4.3.jar" sourcepath="M2_REPO/org/slf4j/slf4j-log4j12/1.4.3/slf4j-log4j12-1.4.3-sources.jar"/>
+</classpath>
