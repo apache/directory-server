@@ -119,6 +119,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
 	        LdapProtocolUtils.setResponseControls( opContext, response );
 	        
 	        // Write it back to the client
+	        session.setAuthenticated();
 	        session.getIoSession().write( response );
 	        LOG.debug( "Returned SUCCESS message: {}.", response );
         }
