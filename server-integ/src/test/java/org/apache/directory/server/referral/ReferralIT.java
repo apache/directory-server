@@ -20,19 +20,26 @@
 package org.apache.directory.server.referral;
 
 
+import static org.junit.Assert.*;
+
 import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,12 +63,6 @@ public class ReferralIT
     
 
     @Test
-    public void testBind() throws Exception
-    {
-    }
-    
-    
-    @Test
     @ApplyLdifs( {
         // Entry # 1
         "dn: uid=akarasulu,ou=users,ou=system\n" +
@@ -80,7 +81,6 @@ public class ReferralIT
         "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system\n\n" 
         }
     )
-    @Ignore ( "Broken for now" )
     public void testSearch() throws Exception
     {
         LdapContext ctx = ServerIntegrationUtils.getWiredContext( ldapServer,
@@ -93,13 +93,18 @@ public class ReferralIT
             LOG.debug( "testSearch() search result = {}", results.next() );
         }
         
-        ctx.getAttributes( "uid=akarasulu,ou=users,ou=system" );
-        ctx.getAttributes( "uid=akarasuluref,ou=users,ou=system" );
-    }
-
-
-    @Test
-    public void testBlah() throws Exception
-    {
+        ServerEntry entry = ldapServer.getDirectoryService().getAdminSession().lookup( 
+            new LdapDN( "uid=akarasuluref,ou=users,ou=system" ) );
+        LOG.debug( "Entry for uid=akarasuluref,ou=users,ou=system => \n{}", entry );
+        
+        assertNotNull( entry );
+        assertTrue( entry.contains( SchemaConstants.OBJECT_CLASS_AT, "referral" ) );
+        assertTrue( entry.contains( SchemaConstants.REF_AT, "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
+        
+//        ctx.getAttributes( "uid=akarasulu,ou=users,ou=system" );
+        Attributes attrs = ctx.getAttributes( "uid=akarasuluref,ou=users,ou=system" );
+        assertNotNull( attrs );
+        LOG.debug( "Entry over wire for uid=akarasuluref,ou=users,ou=system => \n{}", attrs );
+        assertEquals( attrs.get( SchemaConstants.REF_AT ).get(), "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" );
     }
 }

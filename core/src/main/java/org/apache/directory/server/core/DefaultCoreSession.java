@@ -281,6 +281,16 @@ public class DefaultCoreSession implements CoreSession
 
 
     /* (non-Javadoc)
+     * @see org.apache.directory.server.core.CoreSession#lookup(org.apache.directory.shared.ldap.name.LdapDN)
+     */
+    public ClonedServerEntry lookup( LdapDN dn, String[] attrId ) throws Exception
+    {
+        return directoryService.getOperationManager().lookup( 
+            new LookupOperationContext( this, dn, attrId ) );
+    }
+
+
+    /* (non-Javadoc)
      * @see org.apache.directory.server.core.CoreSession#modify(org.apache.directory.shared.ldap.name.LdapDN, java.util.List)
      */
     public void modify( LdapDN dn, List<Modification> mods ) throws Exception

@@ -301,7 +301,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         EntryFilteringCursor cursor = nextInterceptor.search( opContext );
         SearchControls searchCtls = opContext.getSearchControls();
         
-        if ( searchCtls.getReturningAttributes() != null )
+        if ( opContext.isAllOperationalAttributes() || 
+             ( opContext.getReturningAttributes() != null && ! opContext.getReturningAttributes().isEmpty() ) )
         {
             if ( service.isDenormalizeOpAttrsEnabled() )
             {
@@ -353,7 +354,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         List<String> ids = lookupContext.getAttrsId();
         
         // still need to protect against returning op attrs when ids is null
-        if ( ids == null )
+        if ( ids == null || ids.isEmpty() )
         {
             filterOperationalAttributes( entry );
             return;

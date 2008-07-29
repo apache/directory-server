@@ -25,6 +25,7 @@ import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.DirectoryListener;
@@ -42,8 +43,6 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -100,9 +99,6 @@ public abstract class ServerContext implements EventContext
     /** The directory service which owns this context **/
     private final DirectoryService service;
 
-    /** The interceptor proxy to the backend nexus */
-    private final PartitionNexus nexusProxy;
-
     /** The cloned environment used by this Context */
     private final Hashtable<String, Object> env;
 
@@ -149,9 +145,6 @@ public abstract class ServerContext implements EventContext
     {
         this.service = service;
 
-        // set references to cloned env and the proxy
-        this.nexusProxy = new PartitionNexusProxy( service );
-
         this.env = env;
         
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
@@ -166,7 +159,7 @@ public abstract class ServerContext implements EventContext
 
         session = opContext.getSession();
         
-        if ( ! nexusProxy.hasEntry( new EntryOperationContext( session, dn ) ) )
+        if ( ! service.getOperationManager().hasEntry( new EntryOperationContext( session, dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
@@ -191,10 +184,9 @@ public abstract class ServerContext implements EventContext
         this.env = new Hashtable<String, Object>();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
-        this.nexusProxy = new PartitionNexusProxy( service );
         session = new DefaultCoreSession( principal, service );
         
-        if ( ! nexusProxy.hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
+        if ( ! service.getOperationManager().hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
@@ -208,10 +200,9 @@ public abstract class ServerContext implements EventContext
         this.env = new Hashtable<String, Object>();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
-        this.nexusProxy = new PartitionNexusProxy( service );
         this.session = session;
         
-        if ( ! nexusProxy.hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
+        if ( ! service.getOperationManager().hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
@@ -241,7 +232,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute add operation
-        nexusProxy.add( opCtx );
+        service.getOperationManager().add( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -260,7 +251,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute delete operation
-        nexusProxy.delete( opCtx );
+        service.getOperationManager().delete( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -285,7 +276,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute search operation
-        EntryFilteringCursor results = nexusProxy.search( opCtx );
+        EntryFilteringCursor results = service.getOperationManager().search( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -305,7 +296,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute list operation
-        EntryFilteringCursor results = nexusProxy.list( opCtx );
+        EntryFilteringCursor results = service.getOperationManager().list( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -322,7 +313,7 @@ public abstract class ServerContext implements EventContext
 
         // do not reset request controls since this is not an external 
         // operation and not do bother setting the response controls either
-        return nexusProxy.getRootDSE( opCtx );
+        return service.getOperationManager().getRootDSE( opCtx );
     }
 
 
@@ -337,7 +328,7 @@ public abstract class ServerContext implements EventContext
         // execute lookup/getRootDSE operation
         opCtx = new LookupOperationContext( session, target );
         opCtx.addRequestControls( requestControls );
-        ServerEntry serverEntry = nexusProxy.lookup( opCtx );
+        ServerEntry serverEntry = service.getOperationManager().lookup( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -357,7 +348,7 @@ public abstract class ServerContext implements EventContext
         // execute lookup/getRootDSE operation
         opCtx = new LookupOperationContext( session, target, attrIds );
         opCtx.addRequestControls( requestControls );
-        ServerEntry serverEntry = nexusProxy.lookup( opCtx );
+        ClonedServerEntry serverEntry = service.getOperationManager().lookup( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -392,7 +383,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute bind operation
-        this.nexusProxy.bind( opCtx );
+        service.getOperationManager().bind( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -413,7 +404,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute moveAndRename operation
-        nexusProxy.moveAndRename( opCtx );
+        service.getOperationManager().moveAndRename( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -431,7 +422,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute modify operation
-        nexusProxy.modify( opCtx );
+        service.getOperationManager().modify( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -449,7 +440,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute move operation
-        nexusProxy.move( opCtx );
+        service.getOperationManager().move( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -467,7 +458,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute rename operation
-        nexusProxy.rename( opCtx );
+        service.getOperationManager().rename( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -516,17 +507,6 @@ public abstract class ServerContext implements EventContext
     // ------------------------------------------------------------------------
 
     
-    /**
-     * Gets the RootNexus proxy.
-     *
-     * @return the proxy to the backend nexus.
-     */
-    protected PartitionNexus getNexusProxy()
-    {
-        return nexusProxy;
-    }
-
-
     /**
      * Gets the distinguished name of the entry associated with this Context.
      * 
@@ -952,7 +932,7 @@ public abstract class ServerContext implements EventContext
 
         try
         {
-            if ( nexusProxy.hasEntry( new EntryOperationContext( session, target ) ) )
+            if ( service.getOperationManager().hasEntry( new EntryOperationContext( session, target ) ) )
             {
                 doDeleteOperation( target );
             }

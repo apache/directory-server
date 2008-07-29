@@ -156,6 +156,9 @@ public class StartedNormalState extends AbstractState
                 try
                 {
                     context.getLdapServer().getDirectoryService().getChangeLog().tag();
+
+                    // Inject the LDIFs, if any 
+                    injectLdifs( context.getLdapServer().getDirectoryService(), settings );
                 }
                 catch ( Exception e )
                 {
@@ -166,9 +169,6 @@ public class StartedNormalState extends AbstractState
                     return;
                 }
 
-                // Inject the LDIFs, if any 
-                injectLdifs( context.getLdapServer().getDirectoryService(), settings );
-                
                 TestServerContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
                 
                 try
@@ -188,8 +188,18 @@ public class StartedNormalState extends AbstractState
                 
             case RESTART :
                 // Inject the LDIFs, if any 
-                injectLdifs( context.getLdapServer().getDirectoryService(), settings );
-                
+                try
+                {
+                    injectLdifs( context.getLdapServer().getDirectoryService(), settings );
+                }
+                catch ( Exception e )
+                {
+                    // @TODO - we might want to check the revision of the service before
+                    // we presume that it has been soiled.  Some tests may simply perform
+                    // some read operations or checks on the service and may not alter it
+                    notifier.testAborted( settings.getDescription(), e );
+                    return;
+                }
 
                 TestServerContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
 

@@ -223,7 +223,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         boolean result = false;
         try
         {
-            result = super.getNexusProxy().compare( opCtx );
+            result = super.getDirectoryService().getOperationManager().compare( opCtx );
         }
         catch ( Exception e )
         {
@@ -252,7 +252,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         opCtx.addRequestControls( requestControls );
         try
         {
-            super.getNexusProxy().unbind( opCtx );
+            super.getDirectoryService().getOperationManager().unbind( opCtx );
         }
         catch ( Exception e )
         {

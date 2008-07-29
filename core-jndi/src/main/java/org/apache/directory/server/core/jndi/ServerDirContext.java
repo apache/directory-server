@@ -28,7 +28,6 @@ import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.DirectoryListener;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -464,7 +463,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            if ( getNexusProxy().hasEntry( new EntryOperationContext( getSession(), target ) ) )
+            if ( getDirectoryService().getOperationManager().hasEntry( new EntryOperationContext( getSession(), target ) ) )
             {
                 doDeleteOperation( target );
             }

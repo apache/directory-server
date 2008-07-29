@@ -255,6 +255,8 @@ public interface CoreSession
      */
     ClonedServerEntry lookup( LdapDN dn ) throws Exception;
 
+    ClonedServerEntry lookup( LdapDN dn, String[] atIds ) throws Exception;
+
     ClonedServerEntry lookup( LdapDN dn, Control[] requestControls, ReferralHandlingMode refMode, 
         LdapDN authorized ) throws Exception;
 

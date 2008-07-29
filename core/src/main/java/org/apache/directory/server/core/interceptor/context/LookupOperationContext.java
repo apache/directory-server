@@ -25,24 +25,28 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * A Lookup context used for Interceptors. It contains all the informations
- * needed for the lookup operation, and used by all the interceptors
+ * A context for tracking lookup operations. Lookup operations will return a
+ * cloned server entry.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class LookupOperationContext extends AbstractOperationContext
 {
-    /** The list of attributes id to return */
-    private List<String> attrsId;
+    private static final String[] EMPTY = new String[] {};
     
-    /** The list of attributes OIDs for attributes to be returned */
-    private List<String> attrsOid;
+    /** The list of attributes id to return */
+    private List<String> attrsId = new ArrayList<String>();
+    
+    private Boolean allOperational;
+    
+    private Boolean allUser;
     
     
     /**
@@ -75,11 +79,10 @@ public class LookupOperationContext extends AbstractOperationContext
     public LookupOperationContext( CoreSession session, String attrsId[] )
     {
     	super( session );
-        this.attrsId = new ArrayList<String>();
-        attrsOid = new ArrayList<String>();
         setAttrsId( attrsId );
     }
 
+    
     /**
      * 
      * Creates a new instance of LookupOperationContext.
@@ -88,19 +91,18 @@ public class LookupOperationContext extends AbstractOperationContext
     public LookupOperationContext( CoreSession session, LdapDN dn, String attrsId[] )
     {
         super( session, dn );
-        this.attrsId = new ArrayList<String>();
-        attrsOid = new ArrayList<String>();
         setAttrsId( attrsId );
     }
 
+    
     /**
      * @return Get the attribute ids as a String array
      */
     public String[] getAttrsIdArray()
     {
-        if ( attrsId == null )
+        if ( attrsId == null || attrsId.size() == 0 )
         {
-            return new String[]{};
+            return EMPTY;
         }
         else
         {
@@ -109,6 +111,7 @@ public class LookupOperationContext extends AbstractOperationContext
         }
     }
 
+    
     /**
      * Set the attribute Ids
      *
@@ -116,56 +119,35 @@ public class LookupOperationContext extends AbstractOperationContext
      */
     public void setAttrsId( String[] attrsId )
     {
-        if ( attrsId == null )
-        {
-            this.attrsId = new ArrayList<String>();
-        }
-        else
+        if ( attrsId != null && attrsId.length > 0 )
         {
             this.attrsId = new ArrayList<String>( Arrays.asList( attrsId ) );
+            
+            // filter out the '+' and '*' and set boolean parameters 
+            for ( String id : this.attrsId )
+            {
+                if ( id.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+                {
+                    allOperational = true;
+                }
+                else if ( id.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
+                {
+                    allUser = true;
+                }
+            }
+
+            if ( allOperational != null && allOperational )
+            {
+                this.attrsId.remove( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
+            }
+            
+            if ( allUser != null && allUser )
+            {
+                this.attrsId.remove( SchemaConstants.ALL_USER_ATTRIBUTES );
+            }
         }
     }
 
-    /**
-     * @return Get the attribute oids as a String array
-     */
-    public String[] getAttrsOidArray()
-    {
-        String[] attrs = new String[ attrsId.size()];
-        return attrsOid.toArray( attrs );
-    }
-
-    /**
-     * Set the attribute oIds
-     *
-     * @param attrsOid The String array containing all the attribute OIDs
-     */
-    public void setAttrsOid( String[] attrsOid )
-    {
-        if ( attrsOid == null )
-        {
-            this.attrsOid = new ArrayList<String>();
-        }
-        else
-        {
-            this.attrsOid = new ArrayList<String>( Arrays.asList( attrsOid ) );
-        }
-    }
-    
-    /**
-     * Add an attribute OID to the current list, creating the list if necessary
-     *
-     * @param attrOid The oid to add
-     */
-    public void addAttrsOid( String attrOid )
-    {
-        if ( attrsOid == null )
-        {
-            attrsOid = new ArrayList<String>(); 
-        }
-        
-        attrsOid.add( attrOid );
-    }
 
     /**
      * Add an attribute ID to the current list, creating the list if necessary
@@ -174,6 +156,18 @@ public class LookupOperationContext extends AbstractOperationContext
      */
     public void addAttrsId( String attrId )
     {
+        if ( attrId.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
+        {
+            allUser = true;
+            return;
+        }
+        
+        if ( attrId.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+        {
+            allOperational = true;
+            return;
+        }
+        
         if ( attrsId == null )
         {
             attrsId = new ArrayList<String>(); 
@@ -182,28 +176,7 @@ public class LookupOperationContext extends AbstractOperationContext
         attrsId.add( attrId );
     }
 
-    /**
-     * Add an attribute ID and OID to the current lists, creating the lists if necessary
-     *
-     * @param attrId the Id to add
-     * @param attrOid The oid to add
-     */
-    public void addAttrs( String attrId, String attrOid )
-    {
-        if ( attrsId == null )
-        {
-            attrsId = new ArrayList<String>(); 
-        }
-        
-        if ( attrsOid == null )
-        {
-            attrsOid = new ArrayList<String>(); 
-        }
-        
-        attrsId.add( attrId );
-        attrsOid.add( attrOid );
-    }
-
+    
     /**
      * @return The attribute IDs list
      */
@@ -212,12 +185,16 @@ public class LookupOperationContext extends AbstractOperationContext
         return attrsId;
     }
 
-    /**
-     * @return The attribute OIDs list
-     */
-    public List<String> getAttrsOid()
+    
+    public Boolean getAllUser()
     {
-        return attrsOid;
+        return allUser;
+    }
+    
+
+    public Boolean getAllOperational()
+    {
+        return allOperational;
     }
     
 

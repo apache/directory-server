@@ -175,7 +175,7 @@ public abstract class AbstractState implements TestServerState
      * @param service the instantiated directory service
      * @param settings the settings containing the ldif
      */
-    protected void injectLdifs( DirectoryService service, InheritableServerSettings settings )
+    protected void injectLdifs( DirectoryService service, InheritableServerSettings settings ) throws Exception
     {
         List<String> ldifs = new ArrayList<String>();
 
@@ -183,21 +183,16 @@ public abstract class AbstractState implements TestServerState
         
         if ( ldifs.size() != 0 )
         {
+            LdapContext root = IntegrationUtils.getRootContext( service );
             for ( String ldif:ldifs )
             {
-                try
+                StringReader in = new StringReader( ldif );
+                LdifReader ldifReader = new LdifReader( in );
+                
+                for ( LdifEntry entry : ldifReader )
                 {
-                    StringReader in = new StringReader( ldif );
-                    LdifReader ldifReader = new LdifReader( in );
-                    LdifEntry entry = ldifReader.next();
-                    
-                    LdapContext root = IntegrationUtils.getRootContext( service );
                     root.createSubcontext( entry.getDn(), entry.getAttributes() );
-                    LOG.debug( "Injected LDIF for test {}: {}", settings.getDescription(), ldif );
-                }
-                catch ( Exception e )
-                {
-                    LOG.error( "Cannot inject the following entry : {}. Error : {}.", ldif, e.getMessage() );
+                    LOG.debug( "Successfully injected LDIF enry for test {}: {}", settings.getDescription(), entry );
                 }
             }
         }

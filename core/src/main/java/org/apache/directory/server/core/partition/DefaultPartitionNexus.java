@@ -1019,7 +1019,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             ClonedServerEntry retval = new ClonedServerEntry( rootDSE );
             Set<AttributeType> attributeTypes = rootDSE.getAttributeTypes();
      
-            if ( opContext.getAttrsId() != null )
+            if ( opContext.getAttrsId() != null && ! opContext.getAttrsId().isEmpty() )
             {
                 for ( AttributeType attributeType:attributeTypes )
                 {
