@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
+import org.apache.directory.shared.ldap.message.BindStatus;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +41,33 @@ import org.slf4j.LoggerFactory;
  */
 public class LdapSession
 {
+    /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( LdapSession.class );
-    private static final AbandonableRequest[] EMPTY_ABANDONABLES = new AbandonableRequest[0]; 
+    
+    /** A speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+
+    
+    private static final AbandonableRequest[] EMPTY_ABANDONABLES = new AbandonableRequest[0]; 
     
     private final String outstandingLock;
+    
+    /**
+     * The associated IoSession. Usually, a LdapSession is established
+     * at the user request, which means we have a IoSession.
+     */
     private final IoSession ioSession;
+    
+    /** The CoreSession */
     private CoreSession coreSession;
     private Map<Integer, AbandonableRequest> outstandingRequests;
+    
+    
+    /** The current Bind status */
+    private BindStatus bindStatus;
+    
+    /** The current mechanism used to authenticate the user */
+    private String currentMechanism;
     
  
     /**
@@ -59,8 +79,23 @@ public class LdapSession
     public LdapSession( IoSession ioSession )
     {
         this.ioSession = ioSession;
-        this.outstandingLock = "OutstandingRequestLock: " + ioSession.toString();
-        this.outstandingRequests = new ConcurrentHashMap<Integer, AbandonableRequest>();
+        outstandingLock = "OutstandingRequestLock: " + ioSession.toString();
+        outstandingRequests = new ConcurrentHashMap<Integer, AbandonableRequest>();
+        bindStatus = BindStatus.ANONYMOUS;
+    }
+    
+    
+    /**
+     * Check if the session is authenticated. There are two conditions for
+     * a session to be authenticated :<br>
+     * - the coreSession must not be null<br>
+     * - and the state should be Authenticated.
+     * 
+     * @return <code>true</code> if the session is not anonymous
+     */
+    public boolean isAuthenticated()
+    {
+        return ( coreSession != null ) && bindStatus == BindStatus.AUTHENTICATED;
     }
     
     
@@ -72,9 +107,20 @@ public class LdapSession
      * 
      * @return <code>true</code> if the session is not anonymous
      */
-    public boolean isAuthenticated()
+    public boolean isAnonymous()
     {
-        return ( coreSession != null ) && !coreSession.isAnonymous();
+        return bindStatus == BindStatus.ANONYMOUS;
+    }
+    
+    
+    /**
+     * Check if the session is in the middle of a SASL negotiation.
+     * 
+     * @return <code>true</code> if the session is in AuthPending state
+     */
+    public boolean isAuthPending()
+    {
+        return bindStatus == BindStatus.AUTH_PENDING;
     }
     
     
@@ -198,5 +244,52 @@ public class LdapSession
         {
             return Collections.unmodifiableMap( outstandingRequests );
         }
+    }
+
+
+    /**
+     * @return the current bind status for this session
+     */
+    public BindStatus getBindStatus()
+    {
+        return bindStatus;
+    }
+    
+    
+    /**
+     * Set the current BindStatus to authentication pending
+     */
+    public void setAuthPending()
+    {
+        bindStatus = BindStatus.AUTH_PENDING;
+    }
+
+
+    /**
+     * Set the current BindStatus to Anonymous
+     */
+    public void setAnonymous()
+    {
+        bindStatus = BindStatus.ANONYMOUS;
+    }
+    
+
+    /**
+     * Set the current BindStatus to authenticated
+     */
+    public void setAuthenticated()
+    {
+        bindStatus = BindStatus.AUTHENTICATED;
+    }
+    
+    
+    /**
+     * Get the mechanism selected by a user during a SASL Bind negotiation.
+     * 
+     * @return The used mechanism, if any
+     */
+    public String getCurrentMechanism()
+    {
+        return currentMechanism;
     }
 }
