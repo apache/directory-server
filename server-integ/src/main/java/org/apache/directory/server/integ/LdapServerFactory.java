@@ -19,9 +19,24 @@
 package org.apache.directory.server.integ;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.newldap.handlers.bind.CramMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.DigestMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.GssapiMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.SimpleMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.newldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.server.newldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.mina.util.AvailablePortFinder;
 
 
 /**
@@ -41,10 +56,12 @@ public interface LdapServerFactory
      */
     LdapServerFactory DEFAULT = new LdapServerFactory()
     {
-        public LdapServer newInstance()
+        public LdapServer newInstance() throws Exception
         {
             DirectoryService service = new DefaultDirectoryService();
+            IntegrationUtils.doDelete( service.getWorkingDirectory() );
             service.getChangeLog().setEnabled( true );
+            service.setShutdownHookEnabled( false );
 
             // change the working directory to something that is unique
             // on the system and somewhere either under target directory
@@ -52,15 +69,35 @@ public interface LdapServerFactory
 
             LdapServer ldapServer = new LdapServer();
             ldapServer.setDirectoryService( service );
+            ldapServer.setSocketAcceptor( new SocketAcceptor( null ) );
+            ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+            ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
+            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+
+            // Setup SASL Mechanisms
             
-            // TODO make sure we properly setup the ldapserver for 
-            // now we just making stuff compile
-            
-            throw new RuntimeException( "NOT implemented !!!! " );
-            
-            // return ldapServer;
+            Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
+
+            CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
+
+            DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
+
+            GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
+
+            NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
+            mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
+
+            ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
+
+            return ldapServer;
         }
     };
 
+    
     LdapServer newInstance() throws Exception;
 }
