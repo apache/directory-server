@@ -92,7 +92,6 @@
     <interceptors>
       <normalizationInterceptor/>
       <authenticationInterceptor/>
-      <referralInterceptor/>
       <aciAuthorizationInterceptor/>
       <defaultAuthorizationInterceptor/>
       <exceptionInterceptor/>
@@ -177,9 +176,9 @@
     <!-- The list of supported authentication mechanisms.                   -->
     <saslMechanismHandlers>
       <simpleMechanismHandler mech-name="SIMPLE"/>
-      <cramMd5MechanismHandler mech-name="CRAM-MD5" directoryService="#directoryService"/>
-      <digestMd5MechanismHandler mech-name="DIGEST-MD5" directoryService="#directoryService"/>
-      <gssapiMechanismHandler mech-name="GSSAPI" directoryService="#directoryService"/>
+      <cramMd5MechanismHandler mech-name="CRAM-MD5" />
+      <digestMd5MechanismHandler mech-name="DIGEST-MD5" />
+      <gssapiMechanismHandler mech-name="GSSAPI" />
       <ntlmMechanismHandler mech-name="NTLM" ntlmProviderFqcn="com.foo.Bar"/>
       <ntlmMechanismHandler mech-name="GSS-SPNEGO" ntlmProviderFqcn="com.foo.Bar"/>
     </saslMechanismHandlers>
