@@ -21,6 +21,7 @@ package org.apache.directory.server.core.changelog;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 
 
@@ -37,6 +38,8 @@ public class DefaultChangeLog implements ChangeLog
     private boolean enabled;
     private Tag latest;
     private ChangeLogStore store = new MemoryChangeLogStore();
+
+    private boolean exposeChangeLog;
 
 
     public ChangeLogStore getChangeLogStore()
@@ -59,7 +62,7 @@ public class DefaultChangeLog implements ChangeLog
 
     public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
     {
-        if ( ! enabled )
+        if ( !enabled )
         {
             throw new IllegalStateException( "The ChangeLog has not been enabled." );
         }
@@ -94,7 +97,7 @@ public class DefaultChangeLog implements ChangeLog
         }
 
         throw new UnsupportedOperationException(
-                "The underlying changelog store does not support searching through it's logs" );
+            "The underlying changelog store does not support searching through it's logs" );
     }
 
 
@@ -106,7 +109,7 @@ public class DefaultChangeLog implements ChangeLog
         }
 
         throw new UnsupportedOperationException(
-                "The underlying changelog store does not support searching through it's tags" );
+            "The underlying changelog store does not support searching through it's tags" );
     }
 
 
@@ -167,7 +170,7 @@ public class DefaultChangeLog implements ChangeLog
         {
             return latest;
         }
-        
+
         if ( store instanceof TaggableChangeLogStore )
         {
             return latest = ( ( TaggableChangeLogStore ) store ).getLatest();
@@ -182,6 +185,14 @@ public class DefaultChangeLog implements ChangeLog
         if ( enabled )
         {
             store.init( service );
+            
+            if( exposeChangeLog && isTagSearchSupported() )
+            {
+                Partition partition = ( ( TaggableSearchableChangeLogStore ) store ).getPartition();
+                partition.init( service );
+                
+                service.addPartition( partition );
+            }
         }
     }
 
@@ -202,4 +213,17 @@ public class DefaultChangeLog implements ChangeLog
             store.destroy();
         }
     }
+
+
+    public boolean isExposeChangeLog()
+    {
+        return exposeChangeLog;
+    }
+
+
+    public void setExposeChangeLog( boolean exposeChangeLog )
+    {
+        this.exposeChangeLog = exposeChangeLog;
+    }
+
 }

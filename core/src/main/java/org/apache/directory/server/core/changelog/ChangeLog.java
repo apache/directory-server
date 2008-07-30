@@ -177,4 +177,13 @@ public interface ChangeLog
     void sync() throws Exception;
 
     void destroy() throws Exception;
+    
+    /**
+     * Exposes the contents of ChangeLog to clients if set to true. Default setting is false.
+     *
+     * @param exposeChangeLog true to expose the contents, false to not expose.
+     */
+    void setExposeChangeLog( boolean exposeChangeLog );
+    
+    boolean isExposeChangeLog();
 }
