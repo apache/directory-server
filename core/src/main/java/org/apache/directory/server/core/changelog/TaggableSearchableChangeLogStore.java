@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.changelog;
 
+import org.apache.directory.server.core.partition.Partition;
+
 
 /**
  * TODO TaggableSearchableChangeLogStore.
@@ -34,4 +36,13 @@ public interface TaggableSearchableChangeLogStore extends TaggableChangeLogStore
      * @return the snapshot query engine for this store.
      */
     TagSearchEngine getTagSearchEngine();
+    
+    /**
+     * 
+     * Gets the read only Partition backed by this ChangeLogStore.
+     * The init() method on this partition needs to be called by the caller. 
+     *
+     * @return the read only uninitialized partition
+     */
+    Partition getPartition();
 }
