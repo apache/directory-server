@@ -51,6 +51,11 @@ public abstract class UserClass implements Serializable
      * distinguished name of the ancestor.
      */
     public static final ThisEntry THIS_ENTRY = new ThisEntry();
+    
+    /**
+     * The user as parent (ancestor) of accessed entry.
+     */
+    public static final ParentOfEntry PARENT_OF_ENTRY = new ParentOfEntry();
 
 
     /**
@@ -101,7 +106,25 @@ public abstract class UserClass implements Serializable
             return "thisEntry";
         }
     }
-
+    
+    /**
+     * The user as parent (ancestor) of accessed entry.
+     */
+    public static class ParentOfEntry extends UserClass
+    {
+        private static final long serialVersionUID = 5247207736068086476L;
+        
+        private ParentOfEntry()
+        {
+        }
+        
+        public String toString()
+        {
+            return "parentOfEntry";
+        }
+        
+    }
+    
     /**
      * A base class for all user classes which has a set of DNs.
      */

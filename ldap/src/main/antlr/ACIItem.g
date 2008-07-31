@@ -852,7 +852,8 @@ userClass
 }
     :
     allUsers
-    | thisEntry 
+    | thisEntry
+    | parentOfEntry
     | name
     | userGroup
     | subtree
@@ -877,6 +878,17 @@ thisEntry
     ID_thisEntry
     {
         userClassesMap.put( "thisEntry", UserClass.THIS_ENTRY );
+    }
+    ;
+
+parentOfEntry
+{
+    log.debug( "entered parentOfEntry()" );
+}
+    :
+    ID_parentOfEntry
+    {
+        userClassesMap.put( "parentOfEntry", UserClass.PARENT_OF_ENTRY );
     }
     ;
 
@@ -1369,6 +1381,7 @@ tokens
     ID_userPermissions = "userPermissions";
     ID_allUsers = "allUsers";
     ID_thisEntry = "thisEntry";
+    ID_parentOfEntry = "parentOfEntry";
     ID_subtree = "subtree";
     ID_name = "name";
     ID_userGroup = "userGroup";
