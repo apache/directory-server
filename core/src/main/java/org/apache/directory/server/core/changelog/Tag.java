@@ -121,4 +121,29 @@ public class Tag
 
         return false;
     }
+
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append( "Tag { " );
+        
+        sb.append( "revision = " )
+          .append( revision )
+          .append( ", " );
+        
+        sb.append( " tagDate = " )
+          .append( tagDate )
+          .append( ", " );
+        
+        sb.append( " revisionDate = " )
+        .append( revisionDate );
+        
+        sb.append( " }" );
+        
+        return sb.toString();
+    }
+    
+    
 }
