@@ -40,9 +40,19 @@ public interface TaggableSearchableChangeLogStore extends TaggableChangeLogStore
     /**
      * 
      * Gets the read only Partition backed by this ChangeLogStore.
-     * The init() method on this partition needs to be called by the caller. 
-     *
-     * @return the read only uninitialized partition
+     * The init() method on this partition needs to be called by the caller.<br><br>
+     * Note: This partition allows add/delete operation on the tags container
+     *       The revisions container is read-only.<br><br>  
+     * The default containers of the partition are
+     *    <li>ou=changelog</li>
+     *    <li>ou=tags,ou=changelog</li>
+     *    <li>ou=revisions,ou=changelog</li> 
+     * 
+     * @param partitionSuffix the suffix of the partition e.x ou=chnagelog
+     * @param revOuSuffix the container for holding the revisions ex. ou=revisions
+     * @param tagOuSuffix the container for holding the tags ex. ou=tags
+     * 
+     * @return the partial-write enabled uninitialized partition
      */
-    Partition getPartition();
+    Partition getPartition( String partitionSuffix, String revOuSuffix, String tagOuSuffix );
 }
