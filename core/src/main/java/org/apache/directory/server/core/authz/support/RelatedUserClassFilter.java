@@ -26,6 +26,7 @@ import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.server.schema.registries.Registries;
@@ -36,6 +37,8 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.DNUtils;
 
 
 /**
@@ -127,6 +130,13 @@ public class RelatedUserClassFilter implements ACITupleFilter
             else if ( userClass == UserClass.THIS_ENTRY )
             {
                 if ( userName.equals( entryName ) )
+                {
+                    return true;
+                }
+            }
+            else if ( userClass == UserClass.PARENT_OF_ENTRY )
+            {
+                if ( entryName.startsWith( userName ) )
                 {
                     return true;
                 }

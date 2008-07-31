@@ -384,4 +384,11 @@ public class AutzIntegUtils
         Attributes changes = new AttributesImpl( "prescriptiveACI", aciItem );
         adminCtx.modifyAttributes( "cn=" + cn, DirContext.REPLACE_ATTRIBUTE, changes );
     }
+    
+    public static void addPrescriptiveACI( String cn, String aciItem ) throws Exception
+    {
+        DirContext adminCtx = getContextAsAdmin();
+        Attributes changes = new AttributesImpl( "prescriptiveACI", aciItem );
+        adminCtx.modifyAttributes( "cn=" + cn, DirContext.ADD_ATTRIBUTE, changes );
+    }
 }

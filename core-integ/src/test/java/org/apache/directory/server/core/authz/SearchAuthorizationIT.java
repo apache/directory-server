@@ -20,30 +20,24 @@
 package org.apache.directory.server.core.authz;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteAccessControlSubentry;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.addEntryACI;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.addPrescriptiveACI;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.addSubentryACI;
-import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteAccessControlSubentry;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -54,8 +48,17 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.annotations.Factory;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -882,5 +885,39 @@ public class SearchAuthorizationIT
             // we should not see ou=groups,ou=system for the remaining name
             assertEquals( matched.toString(), "ou=groups,ou=system" );
         }
+    }
+    
+    @Test
+    public void testUserClassParentOfEntry() throws Exception
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+        
+        // create an entry subordinate to the user
+        DirContext billydCtx = AutzIntegUtils.getContextAsAdmin("uid=billyd,ou=users,ou=system");
+        Attributes phoneBook = new AttributesImpl( "ou", "phoneBook", true );
+        Attribute objectClass = new AttributeImpl( "objectClass" );
+        phoneBook.put( objectClass );
+        objectClass.add( "top" );
+        objectClass.add( "organizationalUnit" );
+        billydCtx.createSubcontext( "ou=phoneBook", phoneBook );
+
+        // now add a subentry that enables anyone to search below their own entries
+        createAccessControlSubentry( "anybodySearchTheirSubordinates", "{ " + "identificationTag \"searchAci\", " + "precedence 14, "
+            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
+            + "userPermissions { { " + "protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
+
+        // check and see if we can access the subentry now
+        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new LdapDN( "ou=phoneBook,uid=billyd,ou=users" ) ) );
+
+        // now add a denial to prevent all users except the admin from accessing the subentry
+        addPrescriptiveACI( "anybodySearchTheirSubordinates", "{ " + "identificationTag \"anybodyDontSearchTheirSubordinates\", " + "precedence 14, " + "authenticationLevel none, "
+            + "itemOrUserFirst userFirst: { " + "userClasses { parentOfEntry }, " + "userPermissions { { "
+            + "protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "grantsAndDenials { denyRead, denyReturnDN, denyBrowse } } } } }" );
+
+        // now we should not be able to access the subentry with a search
+        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new LdapDN( "ou=phoneBook,uid=billyd,ou=users" ) ) );
     }
 }
