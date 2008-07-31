@@ -41,6 +41,11 @@ public class DefaultChangeLog implements ChangeLog
 
     private boolean exposeChangeLog;
 
+    // default values for ChangeLogStorePartition containers
+    private String partitionSuffix = "ou=changelog";
+    private String revOuSuffix = "ou=revisions";
+    private String tagOuSuffix = "ou=tags";
+
 
     public ChangeLogStore getChangeLogStore()
     {
@@ -185,12 +190,12 @@ public class DefaultChangeLog implements ChangeLog
         if ( enabled )
         {
             store.init( service );
-            
-            if( exposeChangeLog && isTagSearchSupported() )
+
+            if ( exposeChangeLog && isTagSearchSupported() )
             {
-                Partition partition = ( ( TaggableSearchableChangeLogStore ) store ).getPartition();
+                Partition partition = ( ( TaggableSearchableChangeLogStore ) store ).getPartition( partitionSuffix, revOuSuffix, tagOuSuffix );
                 partition.init( service );
-                
+
                 service.addPartition( partition );
             }
         }
@@ -224,6 +229,24 @@ public class DefaultChangeLog implements ChangeLog
     public void setExposeChangeLog( boolean exposeChangeLog )
     {
         this.exposeChangeLog = exposeChangeLog;
+    }
+
+
+    public void setPartitionSuffix( String suffix )
+    {
+        this.partitionSuffix = suffix;
+    }
+
+
+    public void setRevOuSuffix( String revOuSuffix )
+    {
+        this.revOuSuffix = revOuSuffix;
+    }
+
+
+    public void setTagOuSuffix( String tagOuSuffix )
+    {
+        this.tagOuSuffix = tagOuSuffix;
     }
 
 }

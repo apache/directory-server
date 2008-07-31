@@ -186,4 +186,10 @@ public interface ChangeLog
     void setExposeChangeLog( boolean exposeChangeLog );
     
     boolean isExposeChangeLog();
+    
+    void setPartitionSuffix( String suffix );
+    
+    void setRevOuSuffix( String revOuSuffix );
+    
+    void setTagOuSuffix( String tagOuSuffix );
 }
