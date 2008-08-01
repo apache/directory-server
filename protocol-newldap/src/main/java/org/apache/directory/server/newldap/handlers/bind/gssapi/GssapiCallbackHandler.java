@@ -17,14 +17,17 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.newldap.handlers.bind;
+package org.apache.directory.server.newldap.handlers.bind.gssapi;
 
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
+import org.apache.directory.server.newldap.LdapSession;
+import org.apache.directory.server.newldap.handlers.bind.AbstractSaslCallbackHandler;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.mina.common.IoSession;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +46,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
 {
     private static final Logger LOG = LoggerFactory.getLogger( GssapiCallbackHandler.class );
 
-    private IoSession session;
-    private BindRequest bindRequest;
+    private LdapSession ldapSession;
 
 
     /**
@@ -54,15 +56,14 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
      * @param bindRequest the bind message
      * @param directoryService the directory service core
      */
-    public GssapiCallbackHandler( DirectoryService directoryService, IoSession session, BindRequest bindRequest )
+    public GssapiCallbackHandler( DirectoryService directoryService, LdapSession ldapSession, BindRequest bindRequest )
     {
-        super( directoryService );
-        this.session = session;
-        this.bindRequest = bindRequest;
+        super( directoryService, bindRequest );
+        this.ldapSession = ldapSession;
     }
 
 
-    protected String lookupPassword( String username, String password )
+    protected EntryAttribute lookupPassword( String username, String password )
     {
         // do nothing, password not used by GSSAPI
         return null;
@@ -73,18 +74,18 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
     {
         LOG.debug( "Processing conversion of principal name to DN." );
 
-        Hashtable<String, Object> env = getEnvironment( session );
+        Hashtable<String, Object> env = getEnvironment( ldapSession.getIoSession() );
 
-        LdapContext ctx = getContext( session, bindRequest, env );
+        LdapContext ctx = getContext( ldapSession.getIoSession(), bindRequest, env );
 
         String username = authorizeCB.getAuthorizationID();
 
         GetPrincipal getPrincipal = new GetPrincipal( new KerberosPrincipal( username ) );
-        PrincipalStoreEntry entry = ( PrincipalStoreEntry ) getPrincipal.execute( ctx, null );
+        PrincipalStoreEntry entry = ( PrincipalStoreEntry ) getPrincipal.execute( ldapSession.getCoreSession(), (LdapDN)null );
         String bindDn = entry.getDistinguishedName();
 
         LOG.debug( "Converted username {} to DN {}.", username, bindDn );
-        session.setAttribute( Context.SECURITY_PRINCIPAL, bindDn );
+        ldapSession.getIoSession().setAttribute( Context.SECURITY_PRINCIPAL, bindDn );
 
         authorizeCB.setAuthorizedID( bindDn );
         authorizeCB.setAuthorized( true );

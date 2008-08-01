@@ -20,12 +20,12 @@
 package org.apache.directory.server;
 
 import javax.naming.Name;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,17 +48,21 @@ public class DITUtilitiesSP
      *        the subtree to be deleted
      * @throws NamingException
      */
-    public static void deleteSubtree( LdapContext ctx, Name rdn ) throws NamingException
+    public static void deleteSubtree( CoreSession session, Name rdn ) throws Exception
     {
-        NamingEnumeration results = ctx.search( rdn, "(objectClass=*)", new SearchControls() );
-        while ( results.hasMore() )
+        EntryFilteringCursor results = session.list( (LdapDN)rdn, AliasDerefMode.DEREF_ALWAYS, null );
+        
+        results.beforeFirst();
+        
+        while ( results.next() )
         {
-            SearchResult result = ( SearchResult ) results.next();
-            Name childRdn = new LdapDN( result.getName() );
+            ClonedServerEntry result = results.get();
+            Name childRdn = result.getDn();
             childRdn.remove( 0 );
-            deleteSubtree( ctx, childRdn );
+            deleteSubtree( session, childRdn );
         }
-        ctx.destroySubcontext( rdn );
+        
+        session.delete( (LdapDN)rdn );
         log.info( "Deleted: " + rdn );
     }
 }

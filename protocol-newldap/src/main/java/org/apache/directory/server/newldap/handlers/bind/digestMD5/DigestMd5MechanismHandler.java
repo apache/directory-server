@@ -17,10 +17,13 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.newldap.handlers.bind;
+package org.apache.directory.server.newldap.handlers.bind.digestMD5;
 
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.newldap.LdapSession;
+import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 
@@ -39,13 +42,13 @@ import java.util.Map;
  */
 public class DigestMd5MechanismHandler implements MechanismHandler
 {
-    public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession session, CoreSession adminSession, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
 
-        if ( session.getIoSession().containsAttribute( SASL_CONTEXT ) )
+        if ( session.getIoSession().containsAttribute( SaslConstants.SASL_SERVER ) )
         {
-            ss = ( SaslServer ) session.getIoSession().getAttribute( SASL_CONTEXT );
+            ss = ( SaslServer ) session.getIoSession().getAttribute( SaslConstants.SASL_SERVER );
         }
         else
         {
@@ -55,8 +58,8 @@ public class DigestMd5MechanismHandler implements MechanismHandler
             CallbackHandler callbackHandler = new DigestMd5CallbackHandler( 
                 session.getCoreSession().getDirectoryService(), bindRequest );
 
-            ss = Sasl.createSaslServer( SupportedSaslMechanisms.DIGEST_MD5, "ldap", saslHost, saslProps, callbackHandler );
-            session.getIoSession().setAttribute( SASL_CONTEXT, ss );
+            ss = Sasl.createSaslServer( SupportedSaslMechanisms.DIGEST_MD5, SaslConstants.LDAP_PROTOCOL, saslHost, saslProps, callbackHandler );
+            session.getIoSession().setAttribute( SaslConstants.SASL_SERVER, ss );
         }
 
         return ss;

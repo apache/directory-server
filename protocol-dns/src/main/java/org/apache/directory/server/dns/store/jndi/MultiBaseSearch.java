@@ -66,9 +66,7 @@ public class MultiBaseSearch implements SearchStrategy
         try
         {
             CoreSession session = directoryService.getSession();
-            DirContext ctx = new ServerLdapContext( directoryService, session, new LdapDN( catalogBaseDn ) );
-            //noinspection unchecked
-            catalog = new DnsCatalog( ( Map<String, Object> ) new GetCatalog().execute( ctx, null ) );
+            catalog = new DnsCatalog( ( Map<String, Object> ) new GetCatalog().execute( session, null ) );
         }
         catch ( Exception e )
         {

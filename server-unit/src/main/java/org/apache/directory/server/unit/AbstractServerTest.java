@@ -47,11 +47,11 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.newldap.LdapServer;
-import org.apache.directory.server.newldap.handlers.bind.CramMd5MechanismHandler;
-import org.apache.directory.server.newldap.handlers.bind.DigestMd5MechanismHandler;
-import org.apache.directory.server.newldap.handlers.bind.GssapiMechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.newldap.handlers.bind.SimpleMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.plain.PlainMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.newldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.newldap.handlers.extended.StoredProcedureExtendedOperationHandler;
@@ -280,7 +280,7 @@ public abstract class AbstractServerTest extends TestCase
     {
         Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
 
-        mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
+        mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new PlainMechanismHandler() );
 
         CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
         mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
@@ -392,7 +392,6 @@ public abstract class AbstractServerTest extends TestCase
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
         }
 
         sysRoot = null;

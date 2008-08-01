@@ -23,8 +23,11 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
+import javax.naming.AuthenticationNotSupportedException;
+import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -36,6 +39,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.newldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
@@ -45,8 +49,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-//import static org.junit.Assert.assertTrue;
-//import static org.junit.Assert.fail;
 
 
 /**
@@ -125,10 +127,16 @@ public class SaslBindITest extends AbstractServerTest
          NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
          //ntlmMechanismHandler.setNtlmProvider( provider  );
          
+         // Inject the NTLM MechanismHandler
          ldapServer.removeSaslMechanismHandler( SupportedSaslMechanisms.NTLM );
          ldapServer.addSaslMechanismHandler( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
          ldapServer.removeSaslMechanismHandler( SupportedSaslMechanisms.GSS_SPNEGO );
          ldapServer.addSaslMechanismHandler( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
+         
+         // Inject the PLAIN MechanismHandler
+         PlainMechanismHandler plainMechanismHandler = new PlainMechanismHandler();
+         ldapServer.removeSaslMechanismHandler( SupportedSaslMechanisms.PLAIN );
+         ldapServer.addSaslMechanismHandler( SupportedSaslMechanisms.PLAIN, plainMechanismHandler );
      }
 
      
@@ -212,6 +220,179 @@ public class SaslBindITest extends AbstractServerTest
          catch ( NamingException e )
          {
              fail( "Should not have caught exception." );
+         }
+     }
+     
+     
+     /**
+      * Tests to make sure PLAIN-binds works
+      */
+     @Test
+     public void testSaslBindPLAIN()
+     {
+         try
+         {
+             Hashtable<String, String> env = new Hashtable<String, String>();
+             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+             env.put( Context.SECURITY_AUTHENTICATION, "PLAIN" );
+             env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
+             env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
+             DirContext context = new InitialDirContext( env );
+
+             String[] attrIDs =
+                 { "uid" };
+
+             Attributes attrs = context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
+             String uid = null;
+
+             if ( attrs.get( "uid" ) != null )
+             {
+                 uid = ( String ) attrs.get( "uid" ).get();
+             }
+
+             assertEquals( uid, "hnelson" );
+         }
+         catch ( NamingException e )
+         {
+             fail( "Should not have caught exception." );
+         }
+     }
+
+
+     /**
+      * Test a SASL bind with an empty mechanism 
+      */
+     @Test
+     public void testSaslBindNoMech()
+     {
+         try
+         {
+             Hashtable<String, String> env = new Hashtable<String, String>();
+             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+             env.put( Context.SECURITY_AUTHENTICATION, "" );
+             env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
+             env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
+             new InitialDirContext( env );
+             fail( "Should not be there" );
+         }
+         catch ( AuthenticationNotSupportedException anse )
+         {
+             assertTrue( true );
+         }
+         catch ( NamingException ne )
+         {
+             fail( "Should not have caught exception." );
+         }
+     }
+
+
+     /**
+      * Tests to make sure binds below the RootDSE require authentication.
+      */
+     @Test
+     public void testAnonymousBelowRootDSE()
+     {
+         directoryService.setAllowAnonymousAccess( false );
+         
+         try
+         {
+             Hashtable<String, String> env = new Hashtable<String, String>();
+             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+             DirContext context = new InitialDirContext( env );
+
+             String[] attrIDs =
+                 { "vendorName" };
+
+             context.getAttributes( "dc=example,dc=com", attrIDs );
+
+             fail( "Should not have gotten here." );
+         }
+         catch ( NoPermissionException npe )
+         {
+             assertTrue( npe.getMessage().contains( "[LDAP: error code 50 - failed on search operation: Attempted operation by unauthenticated caller.]" ) );
+         }
+         catch ( NamingException ne )
+         {
+             fail( "Should not have gotten here" );
+         }
+     }
+
+
+     /**
+      * Tests to make sure CRAM-MD5 binds below the RootDSE work.
+      */
+     @Test
+     public void testSaslCramMd5Bind()
+     {
+         try
+         {
+             Hashtable<String, String> env = new Hashtable<String, String>();
+             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+             env.put( Context.SECURITY_AUTHENTICATION, "CRAM-MD5" );
+             env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
+             env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
+             DirContext context = new InitialDirContext( env );
+
+             String[] attrIDs =
+                 { "uid" };
+
+             Attributes attrs = context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
+
+             String uid = null;
+
+             if ( attrs.get( "uid" ) != null )
+             {
+                 uid = ( String ) attrs.get( "uid" ).get();
+             }
+
+             assertEquals( uid, "hnelson" );
+         }
+         catch ( NamingException e )
+         {
+             fail( "Should not have caught exception." );
+         }
+     }
+     
+     
+     /**
+      * Tests to make sure CRAM-MD5 binds below the RootDSE fail if the password is bad.
+      */
+     @Test
+     public void testSaslCramMd5BindBadPassword()
+     {
+         try
+         {
+             Hashtable<String, String> env = new Hashtable<String, String>();
+             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+             env.put( Context.SECURITY_AUTHENTICATION, "CRAM-MD5" );
+             env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
+             env.put( Context.SECURITY_CREDENTIALS, "badsecret" );
+
+             DirContext context = new InitialDirContext( env );
+
+             String[] attrIDs =
+                 { "uid" };
+
+             context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
+
+             fail( "Should have thrown exception." );
+         }
+         catch ( NamingException e )
+         {
+             assertTrue( e.getMessage().contains( "Invalid response" ) );
          }
      }
 }

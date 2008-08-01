@@ -23,11 +23,9 @@ package org.apache.directory.server.newldap.handlers;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.LdapSession;
+import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.Request;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
-import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 
@@ -100,7 +98,16 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             
             coreSession = getLdapServer().getDirectoryService().getSession();
             ldapSession.setCoreSession( coreSession );
+
+            if ( message instanceof AbandonRequest )
+            {
+                return;
+            }
             
+            handle( ldapSession, message );
+            return;
+
+            /*
             if ( coreSession.getDirectoryService().isAllowAnonymousAccess() )
             {
             	// We are not authenticated, and the server allows anonymous access,
@@ -124,6 +131,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             	// Last case : the AbandonRequest. We just quit.
                 return;
             }
+            */
         }
     }
 

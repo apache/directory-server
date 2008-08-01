@@ -92,6 +92,6 @@ public class JndiPrincipalStoreImpl implements PrincipalStore
         }
 
         // search only the configured entry baseDN
-        return new SingleBaseSearch( searchBaseDn, directoryService );
+        return new SingleBaseSearch( catalogBaseDn, searchBaseDn, directoryService );
     }
 }

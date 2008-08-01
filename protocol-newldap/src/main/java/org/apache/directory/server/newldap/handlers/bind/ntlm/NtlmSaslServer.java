@@ -20,12 +20,12 @@
 package org.apache.directory.server.newldap.handlers.bind.ntlm;
 
 
+import org.apache.directory.server.newldap.LdapSession;
+import org.apache.directory.server.newldap.handlers.bind.AbstractSaslServer;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.mina.common.IoSession;
 
 import javax.naming.Context;
-import javax.security.sasl.SaslServer;
 import javax.security.sasl.SaslException;
 
 
@@ -37,24 +37,24 @@ import javax.security.sasl.SaslException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class NtlmSaslServer implements SaslServer
+public class NtlmSaslServer extends AbstractSaslServer
 {
     enum NegotiationState { INITIALIZED, TYPE_1_RECEIVED, TYPE_2_SENT, TYPE_3_RECEIVED, COMPLETED }
 
     private NegotiationState state = NegotiationState.INITIALIZED;
     private final NtlmProvider provider;
-    private final BindRequest request;
-    private final IoSession session;
 
     
-    public NtlmSaslServer( NtlmProvider provider, BindRequest request, IoSession session )
+    public NtlmSaslServer( NtlmProvider provider, BindRequest bindRequest, LdapSession ldapSession )
     {
-        this.session = session;
-        this.request = request;
+        super( ldapSession, null, bindRequest );
         this.provider = provider;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String getMechanismName()
     {
         return SupportedSaslMechanisms.NTLM;
@@ -101,6 +101,9 @@ public class NtlmSaslServer implements SaslServer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public byte[] evaluateResponse( byte[] response ) throws SaslException
     {
         if ( response == null )
@@ -121,7 +124,7 @@ public class NtlmSaslServer implements SaslServer
             case TYPE_1_RECEIVED:
                 try
                 {
-                    retval = provider.generateChallenge( session, response );
+                    retval = provider.generateChallenge( getLdapSession().getIoSession(), response );
                 }
                 catch ( Exception e )
                 {
@@ -132,8 +135,8 @@ public class NtlmSaslServer implements SaslServer
                 boolean result;
                 try
                 {
-                    result = provider.authenticate( session, response );
-                    session.setAttribute( Context.SECURITY_PRINCIPAL, request.getName().toString() );
+                    result = provider.authenticate( getLdapSession().getIoSession(), response );
+                    getLdapSession().getIoSession().setAttribute( Context.SECURITY_PRINCIPAL, getBindRequest().getName().toString() );
                 }
                 catch ( Exception e )
                 {
@@ -151,38 +154,11 @@ public class NtlmSaslServer implements SaslServer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isComplete()
     {
         return state == NegotiationState.COMPLETED;
-    }
-
-
-    // --- NOT USED ---
-    public String getAuthorizationID()
-    {
-        return "";
-    }
-
-
-    public byte[] unwrap( byte[] incoming, int offset, int len ) throws SaslException
-    {
-        return new byte[0];
-    }
-
-
-    public byte[] wrap( byte[] outgoing, int offset, int len ) throws SaslException
-    {
-        return new byte[0];
-    }
-
-
-    public Object getNegotiatedProperty( String propName )
-    {
-        return "";
-    }
-
-
-    public void dispose() throws SaslException
-    {
     }
 }

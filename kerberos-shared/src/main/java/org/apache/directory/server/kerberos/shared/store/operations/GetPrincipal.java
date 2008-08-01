@@ -22,7 +22,9 @@ package org.apache.directory.server.kerberos.shared.store.operations;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -34,6 +36,10 @@ import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
@@ -42,8 +48,13 @@ import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 
 
 /**
@@ -75,7 +86,7 @@ public class GetPrincipal implements ContextOperation
      * Note that the base is a relative path from the existing context.
      * It is not a DN.
      */
-    public Object execute( DirContext ctx, Name base )
+    public Object execute( CoreSession session, LdapDN base )
     {
         if ( principal == null )
         {
@@ -83,39 +94,52 @@ public class GetPrincipal implements ContextOperation
         }
 
         String[] attrIDs =
-            {   KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
+            {   
+                KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
                 KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, 
                 KerberosAttribute.KRB5_KEY_AT,
                 KerberosAttribute.APACHE_SAM_TYPE_AT, 
                 KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT,
                 KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT, 
-                KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT };
+                KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT 
+            };
 
-        Attributes matchAttrs = new AttributesImpl( true );
-        matchAttrs.put( new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal.getName() ) );
+        Set<AttributeTypeOptions> matchAttrs = new HashSet<AttributeTypeOptions>();
+        AttributeTypeRegistry atRegistry = session.getDirectoryService().getRegistries().getAttributeTypeRegistry();
+        AttributeTypeOptions krb5PrincipalAT = null;
+        
+        try
+        {
+            krb5PrincipalAT = new AttributeTypeOptions( atRegistry.lookup( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ) );
+        }
+        catch ( NamingException ne )
+        {
+            return null;
+        }
+        
+        matchAttrs.add( krb5PrincipalAT );
 
         PrincipalStoreEntry entry = null;
 
         try
         {
-            NamingEnumeration<SearchResult> answer = ctx.search( "", matchAttrs, attrIDs );
+            EntryFilteringCursor cursor = session.list( LdapDN.EMPTY_LDAPDN, AliasDerefMode.DEREF_ALWAYS, matchAttrs );
 
-            if ( answer.hasMore() )
+            cursor.beforeFirst();
+            
+            if ( cursor.next() )
             {
-                SearchResult result = answer.next();
-
-                Attributes attrs = result.getAttributes();
-
-                if ( attrs == null )
+                ClonedServerEntry result = cursor.get();
+                
+                if ( !result.containsAttribute( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ) )
                 {
                     return null;
                 }
-
-                String distinguishedName = result.getName();
-                entry = getEntry( distinguishedName, attrs );
+                
+                entry = getEntry( result );
             }
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             return null;
         }
@@ -132,33 +156,33 @@ public class GetPrincipal implements ContextOperation
      * @return the entry for the principal
      * @throws NamingException if there are any access problems
      */
-    private PrincipalStoreEntry getEntry( String distinguishedName, Attributes attrs ) throws NamingException
+    private PrincipalStoreEntry getEntry( ServerEntry entry ) throws NamingException
     {
         PrincipalStoreEntryModifier modifier = new PrincipalStoreEntryModifier();
 
-        modifier.setDistinguishedName( distinguishedName );
+        modifier.setDistinguishedName( entry.getDn().getUpName() );
 
-        String principal = ( String ) attrs.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get();
+        String principal = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).getString();
         modifier.setPrincipal( new KerberosPrincipal( principal ) );
 
-        String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get();
+        String keyVersionNumber = entry.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).getString();
         modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );
 
-        if ( attrs.get( KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT ) != null )
+        if ( entry.get( KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT ) != null )
         {
-            String val = ( String ) attrs.get( KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT ).get();
+            String val = entry.get( KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT ).getString();
             modifier.setDisabled( "true".equalsIgnoreCase( val ) );
         }
 
-        if ( attrs.get( KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT ) != null )
+        if ( entry.get( KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT ) != null )
         {
-            String val = ( String ) attrs.get( KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT ).get();
+            String val = entry.get( KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT ).getString();
             modifier.setLockedOut( "true".equalsIgnoreCase( val ) );
         }
 
-        if ( attrs.get( KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT ) != null )
+        if ( entry.get( KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT ) != null )
         {
-            String val = ( String ) attrs.get( KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT ).get();
+            String val = entry.get( KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT ).getString();
             try
             {
                 modifier.setExpiration( KerberosTime.getTime( val ) );
@@ -171,15 +195,16 @@ public class GetPrincipal implements ContextOperation
             }
         }
 
-        if ( attrs.get( KerberosAttribute.APACHE_SAM_TYPE_AT ) != null )
+        if ( entry.get( KerberosAttribute.APACHE_SAM_TYPE_AT ) != null )
         {
-            String samType = ( String ) attrs.get( KerberosAttribute.APACHE_SAM_TYPE_AT ).get();
+            String samType = entry.get( KerberosAttribute.APACHE_SAM_TYPE_AT ).getString();
             modifier.setSamType( SamType.getTypeByOrdinal( Integer.parseInt( samType ) ) );
         }
 
-        if ( attrs.get( KerberosAttribute.KRB5_KEY_AT ) != null )
+        if ( entry.get( KerberosAttribute.KRB5_KEY_AT ) != null )
         {
-            Attribute krb5key = attrs.get( KerberosAttribute.KRB5_KEY_AT );
+            EntryAttribute krb5key = entry.get( KerberosAttribute.KRB5_KEY_AT );
+            
             try
             {
                 Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );

@@ -38,6 +38,7 @@ import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
@@ -54,9 +55,11 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -349,6 +352,20 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", opContext );
+        }
+
+        checkAuthenticated( opContext );
+        boolean result = next.compare( opContext );
+        invalidateAuthenticatorCaches( opContext.getDn() );
+        return result;
+    }
+
+
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
             throws Exception
     {
@@ -389,7 +406,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
 
     /**
-     * Check if the curretn operation has a valid PrincipalDN or not.
+     * Check if the current operation has a valid PrincipalDN or not.
      *
      * @param opContext the OperationContext for this operation
      * @param operation the operation type
@@ -397,10 +414,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     private void checkAuthenticated( OperationContext operation ) throws Exception
     {
-        if ( operation.getSession() == null || operation.getSession().getEffectivePrincipal() == null )
+        if ( operation.getSession().isAnonymous() && !directoryService.isAllowAnonymousAccess() 
+            && !operation.getDn().isEmpty() )
         {
             LOG.error( "Attempted operation {} by unauthenticated caller.", operation.getName() );
-            throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
+            throw new LdapNoPermissionException( "Attempted operation by unauthenticated caller." );
         }
     }
 
@@ -458,13 +476,16 @@ public class AuthenticationInterceptor extends BaseInterceptor
             {
                 // perform the authentication
                 LdapPrincipal principal = authenticator.authenticate( opContext );
-
-                // authentication was successful
-                CoreSession session = new DefaultCoreSession( principal, directoryService );
-                opContext.setSession( session );
+                
+                LdapPrincipal clonedPrincipal = (LdapPrincipal)(principal.clone());
 
                 // remove creds so there is no security risk
                 opContext.setCredentials( null );
+                clonedPrincipal.setUserPassword( StringTools.EMPTY_BYTES );
+
+                // authentication was successful
+                CoreSession session = new DefaultCoreSession( clonedPrincipal, directoryService );
+                opContext.setSession( session );
 
                 return;
             }

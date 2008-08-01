@@ -22,40 +22,37 @@ package org.apache.directory.server.kerberos.shared.store;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.kerberos.shared.store.operations.AddPrincipal;
 import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
 import org.apache.directory.server.kerberos.shared.store.operations.DeletePrincipal;
 import org.apache.directory.server.kerberos.shared.store.operations.GetAllPrincipals;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
-import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.directory.DirContext;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 
 /**
- * A JNDI-backed search strategy implementation.  This search strategy searches a
- * single base DN for Kerberos principals.
+ * A JNDI-backed search strategy implementation. This search strategy searches 
+ * for Kerberos principals.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 class SingleBaseSearch implements PrincipalStore
 {
-    private final DirContext ctx;
+    private final CoreSession session;
 
 
-    SingleBaseSearch( String searchBaseDn, DirectoryService directoryService )
+    SingleBaseSearch( DirectoryService directoryService )
     {
         try
         {
-            CoreSession session = directoryService.getSession();
-            ctx = new ServerLdapContext( directoryService, session, new LdapDN( searchBaseDn ) );
-        } catch ( Exception e )
+            session = directoryService.getSession();
+        } 
+        catch ( Exception e )
         {
-            throw new ServiceConfigurationException("Can't get context at" + searchBaseDn, e);
+            throw new ServiceConfigurationException("Can't get a session", e);
         }
 
     }
@@ -63,30 +60,30 @@ class SingleBaseSearch implements PrincipalStore
 
     public String addPrincipal( PrincipalStoreEntry entry ) throws Exception
     {
-        return ( String ) new AddPrincipal( entry ).execute( ctx, null );
+        return ( String ) new AddPrincipal( entry ).execute( session, null );
     }
 
 
     public String deletePrincipal( KerberosPrincipal principal ) throws Exception
     {
-        return ( String ) new DeletePrincipal( principal ).execute( ctx, null );
+        return ( String ) new DeletePrincipal( principal ).execute( session, null );
     }
 
 
     public PrincipalStoreEntry[] getAllPrincipals( String realm ) throws Exception
     {
-        return ( PrincipalStoreEntry[] ) new GetAllPrincipals().execute( ctx, null );
+        return ( PrincipalStoreEntry[] ) new GetAllPrincipals().execute( session, null );
     }
 
 
     public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception
     {
-        return ( PrincipalStoreEntry ) new GetPrincipal( principal ).execute( ctx, null );
+        return ( PrincipalStoreEntry ) new GetPrincipal( principal ).execute( session, null );
     }
 
 
     public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
-        return ( String ) new ChangePassword( principal, newPassword ).execute( ctx, null );
+        return ( String ) new ChangePassword( principal, newPassword ).execute( session, null );
     }
 }

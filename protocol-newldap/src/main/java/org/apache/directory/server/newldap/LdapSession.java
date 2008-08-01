@@ -21,6 +21,7 @@ package org.apache.directory.server.newldap;
 
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -60,6 +61,11 @@ public class LdapSession
     
     /** The CoreSession */
     private CoreSession coreSession;
+    
+    /** A reference on the LdapServer instance */
+    private LdapServer ldapServer;
+    
+    
     private Map<Integer, AbandonableRequest> outstandingRequests;
     
     
@@ -68,6 +74,12 @@ public class LdapSession
     
     /** The current mechanism used to authenticate the user */
     private String currentMechanism;
+    
+    
+    /**
+     * A Map containing Objects used during the SASL negotiation
+     */
+    private Map<String, Object> saslProperties;
     
  
     /**
@@ -82,6 +94,7 @@ public class LdapSession
         outstandingLock = "OutstandingRequestLock: " + ioSession.toString();
         outstandingRequests = new ConcurrentHashMap<Integer, AbandonableRequest>();
         bindStatus = BindStatus.ANONYMOUS;
+        saslProperties = new HashMap<String, Object>();
     }
     
     
@@ -291,5 +304,57 @@ public class LdapSession
     public String getCurrentMechanism()
     {
         return currentMechanism;
+    }
+
+
+    /**
+     *  @return The SASL properties
+     */
+    public Map<String, Object> getSaslProperties()
+    {
+        return saslProperties;
+    }
+
+
+    /**
+     * Add a Sasl property and value
+     * 
+     * @param property the property to add
+     * @param value the value for this property
+     */
+    public void putSaslProperties( String property, Object value )
+    {
+        saslProperties.put( property, value );
+    }
+    
+    
+    /**
+     * Remove a property from the SaslProperty map
+     *
+     * @param property the property to remove
+     */
+    public void removeSaslProperty( String property )
+    {
+        saslProperties.remove( property );
+    }
+
+
+    /**
+     *  @return The LdapServer reference
+     */
+    public LdapServer getLdapServer()
+    {
+        return ldapServer;
+    }
+
+
+    /**
+     * Store a reference on the LdapServer intance
+     *
+     * @param ldapServer the LdapServer instance
+     */
+    public void setLdapServer( LdapServer ldapServer )
+    {
+        this.ldapServer = ldapServer;
     }
 }

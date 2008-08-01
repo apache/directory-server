@@ -17,10 +17,13 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.newldap.handlers.bind;
+package org.apache.directory.server.newldap.handlers.bind.cramMD5;
 
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.newldap.LdapSession;
+import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 
@@ -40,29 +43,24 @@ import java.util.Map;
  */
 public class CramMd5MechanismHandler implements MechanismHandler
 {
-    public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest ) throws Exception
     {
-        SaslServer ss;
+        SaslServer ss = (SaslServer)ldapSession.getSaslProperties().get( SaslConstants.SASL_SERVER );
 
         // TODO - don't use session properties anymore
-        if ( session.getIoSession().containsAttribute( SASL_CONTEXT ) )
+        if ( ss == null )
         {
-            ss = ( SaslServer ) session.getIoSession().getAttribute( SASL_CONTEXT );
-        }
-        else
-        {
-            String saslHost = ( String ) session.getIoSession().getAttribute( "saslHost" );
+            String saslHost = ldapSession.getLdapServer().getSaslHost();
+            String userBaseDn = ldapSession.getLdapServer().getSearchBaseDn();
+            ldapSession.getSaslProperties().put( SaslConstants.SASL_HOST, saslHost );
+            ldapSession.getSaslProperties().put( SaslConstants.SASL_USER_BASE_DN, userBaseDn );
+            
 
-            /*
-             * Sasl will throw an exception is Sasl.QOP properties are set.
-             * CRAM-MD5 doesn't support QoP.
-             */
             Map<String, String> saslProps = new HashMap<String, String>();
+            CallbackHandler callbackHandler = new CramMd5CallbackHandler( ldapSession, adminSession, bindRequest );
 
-            CallbackHandler callbackHandler = new CramMd5CallbackHandler( session, bindRequest );
-
-            ss = Sasl.createSaslServer( SupportedSaslMechanisms.CRAM_MD5, "ldap", saslHost, saslProps, callbackHandler );
-            session.getIoSession().setAttribute( SASL_CONTEXT, ss );
+            ss = Sasl.createSaslServer( SupportedSaslMechanisms.CRAM_MD5, SaslConstants.LDAP_PROTOCOL, saslHost, saslProps, callbackHandler );
+            ldapSession.putSaslProperties( SaslConstants.SASL_SERVER, ss );
         }
 
         return ss;

@@ -24,20 +24,20 @@ package org.apache.directory.server.protocol.shared.catalog;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.filter.FilterParser;
+import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * A JNDI context operation for building a catalog.
+ * A Session operation for building a catalog.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -45,34 +45,46 @@ import org.apache.directory.server.protocol.shared.store.ContextOperation;
 public class GetCatalog implements ContextOperation
 {
     private static final long serialVersionUID = -6657995003127926278L;
-    private static final String ENTRY = ApacheSchemaConstants.APACHE_CATALOG_ENTRY_OC;
-    private static final String ENTRY_NAME = "apacheCatalogEntryName";
-    private static final String ENTRY_BASEDN = "apacheCatalogEntryBaseDn";
 
 
     /**
      * Note that the base is relative to the existing context.
      */
-    public Object execute( DirContext ctx, Name base ) throws Exception
+    public Object execute( CoreSession session, LdapDN base ) throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        String filter = "(objectClass=" + ApacheSchemaConstants.APACHE_CATALOG_ENTRY_OC + ")";
 
-        String filter = "(objectClass=" + ENTRY + ")";
-
-        NamingEnumeration<SearchResult> list = ctx.search( "", filter, controls );
+        EntryFilteringCursor list = session.search( 
+            LdapDN.EMPTY_LDAPDN, 
+            SearchScope.SUBTREE, 
+            FilterParser.parse( filter ), 
+            AliasDerefMode.DEREF_ALWAYS,
+            null );
 
         Map<String, String> catalog = new HashMap<String, String>();
 
-        while ( list.hasMore() )
+        list.beforeFirst();
+        
+        while ( list.next() )
         {
-            SearchResult result = list.next();
+            ServerEntry result = list.get();
 
-            Attributes attrs = result.getAttributes();
-            Attribute attr;
-
-            String name = ( attr = attrs.get( ENTRY_NAME ) ) != null ? ( String ) attr.get() : null;
-            String basedn = ( attr = attrs.get( ENTRY_BASEDN ) ) != null ? ( String ) attr.get() : null;
+            String name = null;
+            EntryAttribute attribute = result.get( ApacheSchemaConstants.APACHE_CATALOGUE_ENTRY_NAME_AT );
+            
+            if ( attribute != null )
+            {
+                name = attribute.getString();
+            }
+            
+            String basedn = null;
+            attribute = result.get( ApacheSchemaConstants.APACHE_CATALOGUE_ENTRY_BASE_DN_AT );
+            
+            if ( attribute != null )
+            {
+                basedn = attribute.getString();
+            }
+            
 
             catalog.put( name, basedn );
         }

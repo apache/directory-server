@@ -23,6 +23,7 @@ package org.apache.directory.server.newldap.handlers.bind;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -30,6 +31,7 @@ import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +67,12 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
     private String username;
     private String realm;
+    
+    /** A reference on the DirectoryService instance */
     protected final DirectoryService directoryService;
+    
+    /** The associated BindRequest */
+    protected final BindRequest bindRequest;
 
 
     /**
@@ -73,9 +80,10 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      *
      * @param directoryService
      */
-    protected AbstractSaslCallbackHandler( DirectoryService directoryService )
+    protected AbstractSaslCallbackHandler( DirectoryService directoryService, BindRequest bindRequest )
     {
         this.directoryService = directoryService;
+        this.bindRequest = bindRequest;
     }
 
 
@@ -110,9 +118,9 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * </ul>
      * @param username The username.
      * @param realm The realm.
-     * @return The password resulting from the lookup.
+     * @return The Password entry attribute resulting from the lookup. It may contain more than one password
      */
-    protected abstract String lookupPassword( String username, String realm );
+    protected abstract EntryAttribute lookupPassword( String username, String realm );
 
 
     /**
@@ -141,8 +149,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
             if ( LOG.isDebugEnabled() )
             {
-                LOG.debug( "Processing callback " + ( i + 1 ) + " of " + callbacks.length + ":  "
-                        + callback.getClass().toString() );
+                LOG.debug( "Processing callback {} of {}: {}" + callback.getClass(), ( i + 1 ), callbacks.length );
             }
 
             if ( callback instanceof NameCallback )
@@ -162,11 +169,15 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
             else if ( callback instanceof PasswordCallback )
             {
                 PasswordCallback passwordCB = ( PasswordCallback ) callback;
-                String userPassword = lookupPassword( getUsername(), getRealm() );
+                EntryAttribute userPassword = lookupPassword( getUsername(), getRealm() );
 
                 if ( userPassword != null )
                 {
-                    passwordCB.setPassword( userPassword.toCharArray() );
+                    // We assume that we have only one password available
+                    byte[] password = (byte[])userPassword.get().get();
+                    
+                    String strPassword = StringTools.utf8ToString( password );
+                    passwordCB.setPassword( strPassword.toCharArray() );
                 }
             }
             else if ( callback instanceof AuthorizeCallback )

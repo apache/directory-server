@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 import org.apache.directory.server.newldap.ExtendedOperationHandler;
 import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.newldap.handlers.bind.PlainMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.newldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 

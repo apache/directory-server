@@ -17,11 +17,13 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.newldap.handlers.bind;
+package org.apache.directory.server.newldap.handlers.bind.digestMD5;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.newldap.handlers.bind.AbstractSaslCallbackHandler;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
@@ -40,7 +42,6 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
     private static final Logger LOG = LoggerFactory.getLogger( DigestMd5CallbackHandler.class );
 
     private IoSession session;
-    private BindRequest bindRequest;
 
     private String bindDn;
     private String userPassword;
@@ -55,13 +56,12 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
      */
     public DigestMd5CallbackHandler( DirectoryService directoryService, BindRequest bindRequest )
     {
-        super( directoryService );
-        this.bindRequest = bindRequest;
+        super( directoryService, bindRequest );
     }
 
 
     // TODO - should return not be a byte[]
-    protected String lookupPassword( String username, String realm )
+    protected EntryAttribute lookupPassword( String username, String realm )
     {
         // TODO - Use realm with multi-realm support.
         throw new NotImplementedException();

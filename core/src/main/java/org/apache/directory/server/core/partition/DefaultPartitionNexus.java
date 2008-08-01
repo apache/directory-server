@@ -904,7 +904,13 @@ public class DefaultPartitionNexus extends PartitionNexus
             boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
             
             // test for (objectClass=*)
-            boolean isSearchAll = ( ( PresenceNode ) filter ).getAttribute().equals( SchemaConstants.OBJECT_CLASS_AT_OID );
+            boolean isSearchAll = false;
+            
+            // We have to be careful, as we may have a filter which is not a PresenceFilter
+            if ( filter instanceof PresenceNode )
+            {
+                isSearchAll = ( ( PresenceNode ) filter ).getAttribute().equals( SchemaConstants.OBJECT_CLASS_AT_OID );
+            }
 
             /*
              * if basedn is "", filter is "(objectclass=*)" and scope is object
@@ -1002,6 +1008,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
             }
 
+            // TODO : handle searches based on the RootDSE
             throw new LdapNameNotFoundException();
         }
 

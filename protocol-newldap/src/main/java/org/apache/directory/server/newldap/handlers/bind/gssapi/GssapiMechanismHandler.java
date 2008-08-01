@@ -17,10 +17,13 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.newldap.handlers.bind;
+package org.apache.directory.server.newldap.handlers.bind.gssapi;
 
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.newldap.LdapSession;
+import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 
@@ -41,33 +44,33 @@ import java.util.Map;
  */
 public class GssapiMechanismHandler implements MechanismHandler
 {
-    public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
 
-        if ( session.getIoSession().containsAttribute( SASL_CONTEXT ) )
+        if ( ldapSession.getIoSession().containsAttribute( SaslConstants.SASL_SERVER ) )
         {
-            ss = ( SaslServer ) session.getIoSession().getAttribute( SASL_CONTEXT );
+            ss = ( SaslServer ) ldapSession.getIoSession().getAttribute( SaslConstants.SASL_SERVER );
         }
         else
         {
-            Subject subject = ( Subject ) session.getIoSession().getAttribute( "saslSubject" );
+            Subject subject = ( Subject ) ldapSession.getIoSession().getAttribute( "saslSubject" );
 
-            final Map<String, String> saslProps = ( Map<String, String> ) session.getIoSession().getAttribute( "saslProps" );
-            final String saslHost = ( String ) session.getIoSession().getAttribute( "saslHost" );
+            final Map<String, String> saslProps = ( Map<String, String> ) ldapSession.getIoSession().getAttribute( "saslProps" );
+            final String saslHost = ( String ) ldapSession.getIoSession().getAttribute( "saslHost" );
 
             final CallbackHandler callbackHandler = new GssapiCallbackHandler( 
-                session.getCoreSession().getDirectoryService(), session.getIoSession(), bindRequest );
+                ldapSession.getCoreSession().getDirectoryService(), ldapSession, bindRequest );
 
             ss = ( SaslServer ) Subject.doAs( subject, new PrivilegedExceptionAction<SaslServer>()
             {
                 public SaslServer run() throws Exception
                 {
-                    return Sasl.createSaslServer( SupportedSaslMechanisms.GSSAPI, "ldap", saslHost, saslProps, callbackHandler );
+                    return Sasl.createSaslServer( SupportedSaslMechanisms.GSSAPI, SaslConstants.LDAP_PROTOCOL, saslHost, saslProps, callbackHandler );
                 }
             } );
 
-            session.getIoSession().setAttribute( SASL_CONTEXT, ss );
+            ldapSession.getIoSession().setAttribute( SaslConstants.SASL_SERVER, ss );
         }
 
         return ss;

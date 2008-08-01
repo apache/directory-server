@@ -417,4 +417,43 @@ public class SimpleBindITest extends AbstractServerTest
     		fail();
     	}
     }    
+
+
+    /**
+     * Tests to make sure we still have anonymous access to the RootDSE.
+     * The configuration for this test case MUST disable anonymous access.
+     */
+    @Test
+    public void testAnonymousRootDSE()
+    {
+        directoryService.setAllowAnonymousAccess( false );
+
+        try
+        {
+            Hashtable<String, String> env = new Hashtable<String, String>();
+            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+            env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+            DirContext context = new InitialDirContext( env );
+
+            String[] attrIDs =
+                { "vendorName" };
+
+            Attributes attrs = context.getAttributes( "", attrIDs );
+
+            String vendorName = null;
+
+            if ( attrs.get( "vendorName" ) != null )
+            {
+                vendorName = ( String ) attrs.get( "vendorName" ).get();
+            }
+
+            assertEquals( "Apache Software Foundation", vendorName );
+        }
+        catch ( NamingException e )
+        {
+            e.printStackTrace();
+            fail( "Should not have caught exception." );
+        }
+    }
 }

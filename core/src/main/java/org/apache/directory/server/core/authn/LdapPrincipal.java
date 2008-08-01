@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public final class LdapPrincipal implements Principal, Serializable
+public final class LdapPrincipal implements Principal, Serializable, Cloneable
 {
     private static final long serialVersionUID = 3906650782395676720L;
 
@@ -157,5 +157,22 @@ public final class LdapPrincipal implements Principal, Serializable
     {
         this.userPassword = new byte[ userPassword.length ];
         System.arraycopy( userPassword, 0, this.userPassword, 0, userPassword.length );
+    }
+    
+    
+    /**
+     * Clone the object. This is done so that we don't store the 
+     * password in a LdapPrincipal more than necessary.
+     */
+    public Object clone() throws CloneNotSupportedException
+    {
+        LdapPrincipal clone = (LdapPrincipal)super.clone();
+        
+        if ( userPassword != null )
+        {
+            clone.setUserPassword( userPassword );
+        }
+        
+        return clone;
     }
 }

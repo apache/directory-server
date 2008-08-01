@@ -22,6 +22,7 @@ package org.apache.directory.server.newldap.handlers.bind;
 
 import javax.security.sasl.SaslServer;
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.message.BindRequest;
 
@@ -36,12 +37,6 @@ import org.apache.directory.shared.ldap.message.BindRequest;
 public interface MechanismHandler
 {
     /**
-     * A key constant ({@value}) for storing the SASL context in the session.
-     */
-    public static final String SASL_CONTEXT = "saslContext";
-
-
-    /**
      * Implementors will use the session and message to determine what kind of
      * {@link SaslServer} to create and what initialization parameters it will require.
      *
@@ -50,5 +45,5 @@ public interface MechanismHandler
      * @return The {@link SaslServer} to use for the duration of the bound session.
      * @throws Exception
      */
-    public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception;
+    public SaslServer handleMechanism( LdapSession session, CoreSession adminSession, BindRequest bindRequest ) throws Exception;
 }
