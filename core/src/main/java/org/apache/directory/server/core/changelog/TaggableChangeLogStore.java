@@ -68,4 +68,14 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      * @throws Exception on failures to access the tag store
      */
     Tag getLatest() throws Exception;
+    
+    
+    /**
+     * Removes a Tag created for a given revision.
+     *
+     * @param revision the revision number that was tagged
+     * @return the removed tag, null if there is no Tag present with the given revision
+     * @throws Exception on failures to access the tag store
+     */
+    Tag removeTag( long revision ) throws Exception;
 }

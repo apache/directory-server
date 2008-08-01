@@ -469,4 +469,15 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     {
         return latest;
     }
+
+
+    /**
+     * @see TaggableChangeLogStore#removeTag(long)
+     */
+    public Tag removeTag( long revision ) throws Exception
+    {
+        return tags.remove( revision );
+    }
+    
+    
 }
