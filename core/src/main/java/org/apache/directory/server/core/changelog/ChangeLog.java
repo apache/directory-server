@@ -187,9 +187,24 @@ public interface ChangeLog
     
     boolean isExposeChangeLog();
     
+    /**
+     * The prefix of the partition. Default value is <i>ou=changelog</i>.
+     *
+     * @param suffix suffix value to be set for the changelog partition
+     */
     void setPartitionSuffix( String suffix );
     
-    void setRevOuSuffix( String revOuSuffix );
+    /**
+     * The name of the revisions container under the partition. Default value is ou=revisions 
+     *
+     * @param revContainerName the name of the revisions container
+     */
+    void setRevisionsContainerName( String revContainerName );
     
-    void setTagOuSuffix( String tagOuSuffix );
+    /**
+     * The name of the tags container under the partition. Default value is ou=tags 
+     *
+     * @param tagContainerName the name of the revisions container
+     */
+    void setTagsContainerName( String tagContainerName );
 }

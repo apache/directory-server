@@ -49,10 +49,10 @@ public interface TaggableSearchableChangeLogStore extends TaggableChangeLogStore
      *    <li>ou=revisions,ou=changelog</li> 
      * 
      * @param partitionSuffix the suffix of the partition e.x ou=chnagelog
-     * @param revOuSuffix the container for holding the revisions ex. ou=revisions
-     * @param tagOuSuffix the container for holding the tags ex. ou=tags
+     * @param revContainerName the container's name for holding the revisions ex. ou=revisions
+     * @param tagContainerName the container's name for holding the tags ex. ou=tags
      * 
      * @return the partial-write enabled uninitialized partition
      */
-    Partition getPartition( String partitionSuffix, String revOuSuffix, String tagOuSuffix );
+    Partition getPartition( String partitionSuffix, String revContainerName, String tagContainerName );
 }

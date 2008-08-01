@@ -43,8 +43,8 @@ public class DefaultChangeLog implements ChangeLog
 
     // default values for ChangeLogStorePartition containers
     private String partitionSuffix = "ou=changelog";
-    private String revOuSuffix = "ou=revisions";
-    private String tagOuSuffix = "ou=tags";
+    private String revContainerName = "ou=revisions";
+    private String tagContainerName = "ou=tags";
 
 
     public ChangeLogStore getChangeLogStore()
@@ -193,7 +193,7 @@ public class DefaultChangeLog implements ChangeLog
 
             if ( exposeChangeLog && isTagSearchSupported() )
             {
-                Partition partition = ( ( TaggableSearchableChangeLogStore ) store ).getPartition( partitionSuffix, revOuSuffix, tagOuSuffix );
+                Partition partition = ( ( TaggableSearchableChangeLogStore ) store ).getPartition( partitionSuffix, revContainerName, tagContainerName );
                 partition.init( service );
 
                 service.addPartition( partition );
@@ -220,33 +220,48 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
+    /**
+     * @see ChangeLog#isExposeChangeLog()
+     */
     public boolean isExposeChangeLog()
     {
         return exposeChangeLog;
     }
 
 
+    /**
+     * @see ChangeLog#setExposeChangeLog(boolean)
+     */
     public void setExposeChangeLog( boolean exposeChangeLog )
     {
         this.exposeChangeLog = exposeChangeLog;
     }
 
 
+    /**
+     * @see ChangeLog#setPartitionSuffix(String)
+     */
     public void setPartitionSuffix( String suffix )
     {
         this.partitionSuffix = suffix;
     }
 
 
-    public void setRevOuSuffix( String revOuSuffix )
+    /**
+     * @see ChangeLog#setRevisionsContainerName(String)
+     */
+    public void setRevisionsContainerName( String revContainerName )
     {
-        this.revOuSuffix = revOuSuffix;
+        this.revContainerName = revContainerName;
     }
 
 
-    public void setTagOuSuffix( String tagOuSuffix )
+    /**
+     * @see ChangeLog#setTagsContainerName(String)
+     */
+    public void setTagsContainerName( String tagContainerName )
     {
-        this.tagOuSuffix = tagOuSuffix;
+        this.tagContainerName = tagContainerName;
     }
 
 }
