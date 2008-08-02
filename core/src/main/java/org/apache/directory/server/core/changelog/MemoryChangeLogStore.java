@@ -478,6 +478,21 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     {
         return tags.remove( revision );
     }
-    
+
+
+    /**
+     * @see TaggableChangeLogStore#tag(long, String)
+     */
+    public Tag tag( long revision, String descrition ) throws Exception
+    {
+        if ( tags.containsKey( revision ) )
+        {
+            return tags.get( revision );
+        }
+
+        latest = new Tag( revision, descrition );
+        tags.put( revision, latest );
+        return latest;
+    }
     
 }

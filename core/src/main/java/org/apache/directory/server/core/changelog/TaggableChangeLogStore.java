@@ -78,4 +78,15 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      * @throws Exception on failures to access the tag store
      */
     Tag removeTag( long revision ) throws Exception;
+    
+    /**
+     * Creates a tag with the given description for a snapshot of the server
+     * in a specific state at a revision.
+     *
+     * @param revision the revision number that was tagged
+     * @param descrition a description of the state associate with the tag
+     * @return the Tag associated with the revision
+     * @throws Exception on failures to access the tag store
+     */
+    Tag tag( long revision, String descrition ) throws Exception;
 }
