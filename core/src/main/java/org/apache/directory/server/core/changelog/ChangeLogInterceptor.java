@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 /**
  * An interceptor which intercepts write operations to the directory and
  * logs them with the server's ChangeLog service.
+ * Note: Adding/deleting a tag is not recorded as a change
  */
 public class ChangeLogInterceptor extends BaseInterceptor
 {
@@ -66,6 +67,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /** we need the schema service to deal with special conditions */
     private SchemaService schemaService;
 
+    /** OID of the 'rev' attribute used in changeLogEvent and tag objectclasses */
+    private static final String REV_OID = "1.3.6.1.4.1.18060.0.4.1.2.47";
+    
     // -----------------------------------------------------------------------
     // Overridden init() and destroy() methods
     // -----------------------------------------------------------------------
@@ -96,11 +100,17 @@ public class ChangeLogInterceptor extends BaseInterceptor
             return;
         }
 
+        ServerEntry addEntry = opContext.getEntry();
+
+        // we don't want to record addition of a tag as a change
+        if( addEntry.get( REV_OID ) != null )
+        {
+           return; 
+        }
+        
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.Add );
         forward.setDn( opContext.getDn().getUpName() );
-        
-        ServerEntry addEntry = opContext.getEntry();
 
         Set<AttributeType> list = addEntry.getAttributeTypes();
         
@@ -134,6 +144,12 @@ public class ChangeLogInterceptor extends BaseInterceptor
         if ( ! changeLog.isEnabled() || ! opContext.isFirstOperation() )
         {
             return;
+        }
+
+        // we don't want to record deleting a tag as a change
+        if( serverEntry.get( REV_OID ) != null )
+        {
+           return; 
         }
 
         LdifEntry forward = new LdifEntry();
