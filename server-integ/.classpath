@@ -48,6 +48,7 @@
       <attribute value="jar:file:/home/akarasulu/ramdisk/.m2/repository/junit/junit/4.4/junit-4.4-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/ldapsdk/ldapsdk/4.1/ldapsdk-4.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar" sourcepath="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/mina/mina-core/1.1.6/mina-core-1.1.6.jar" sourcepath="M2_REPO/org/apache/mina/mina-core/1.1.6/mina-core-1.1.6-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/mina/mina-filter-ssl/1.1.6/mina-filter-ssl-1.1.6.jar" sourcepath="M2_REPO/org/apache/mina/mina-filter-ssl/1.1.6/mina-filter-ssl-1.1.6-sources.jar"/>
