@@ -27,9 +27,11 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
+import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
@@ -72,6 +74,13 @@ import static org.junit.Assert.fail;
     "cn: Alex Karasulu\n" +
     "sn: karasulu\n\n" + 
     // Entry # 2
+    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system\n" +
+    "objectClass: organizationalUnit\n" +
+    "objectClass: top\n" +
+    "ou: computers\n" +
+    "description: Computers for Alex\n" +
+    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system\n\n" + 
+    // Entry # 3
     "dn: uid=akarasuluref,ou=users,ou=system\n" +
     "objectClass: uidObject\n" +
     "objectClass: referral\n" +
@@ -274,5 +283,34 @@ public class CompareIT
         assertFalse( answer.hasMore() );
         answer.close();
         ctx.close();
+    }
+    
+    
+    /**
+     * Tests referral handling when an ancestor is a referral.
+     */
+    @Test 
+    public void testAncestorReferral() throws Exception
+    {
+        LOG.debug( "" );
+
+        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConstraints constraints = new LDAPConstraints();
+        conn.setConstraints( constraints );
+
+        // referrals failure
+        LDAPAttribute attribute = new LDAPAttribute( "ou", "Computers" );
+        LDAPResponseListener listener = null;
+        LDAPResponse response = null;
+
+        listener = conn.compare( "ou=Computers,uid=akarasuluref,ou=users,ou=system", attribute, null, constraints );
+        response = listener.getResponse();
+        assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
+
+        assertEquals( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[0] );
+        assertEquals( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[1] );
+        assertEquals( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[2] );
+
+        conn.disconnect();
     }
 }

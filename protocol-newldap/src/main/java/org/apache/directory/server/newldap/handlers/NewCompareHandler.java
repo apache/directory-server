@@ -25,8 +25,8 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.newldap.LdapSession;
-import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -34,10 +34,13 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
+import org.apache.directory.shared.ldap.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.ldap.codec.util.LdapURL;
+import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,10 +102,12 @@ public class NewCompareHandler extends LdapRequestHandler<CompareRequest>
         try
         {
             entry = session.getCoreSession().lookup( req.getName() );
+            LOG.debug( "Entry for {} was found: ", req.getName(), entry );
         }
         catch ( NameNotFoundException e )
         {
             /* ignore */
+            LOG.debug( "Entry for {} not found.", req.getName() );
         }
         catch ( Exception e )
         {
@@ -172,19 +177,16 @@ public class NewCompareHandler extends LdapRequestHandler<CompareRequest>
             
             while ( ! dn.isEmpty() )
             {
+                LOG.debug( "Walking ancestors of {} to find referrals.", dn );
+                
                 try
                 {
-                    referralAncestor = session.getCoreSession().lookup( dn );
-                    EntryAttribute oc = referralAncestor.getOriginalEntry().get( SchemaConstants.OBJECT_CLASS_AT );
+                    entry = session.getCoreSession().lookup( dn );
+                    EntryAttribute oc = entry.getOriginalEntry().get( SchemaConstants.OBJECT_CLASS_AT );
                     
-                    // make sure referral ancestor is really a referral if not
-                    // then we null it out so the proper handling can occur 
-                    // down below - the reason for this is because we want the
-                    // farthest ancestor, not the closest one.
-                    
-                    if ( ! oc.contains( SchemaConstants.REFERRAL_OC ) )
+                    if ( oc.contains( SchemaConstants.REFERRAL_OC ) )
                     {
-                        referralAncestor = null;
+                        referralAncestor = entry;
                     }
 
                     // set last matched DN only if not set yet because we want 
@@ -195,13 +197,17 @@ public class NewCompareHandler extends LdapRequestHandler<CompareRequest>
                     {
                         lastMatchedDn = ( LdapDN ) dn.clone();
                     }
+
+                    dn.remove( dn.size() - 1 );
                 }
                 catch ( NameNotFoundException e )
                 {
+                    LOG.debug( "Entry for {} not found.", dn );
+
                     // update the DN as we strip last component 
                     try
                     {
-                        dn = ( LdapDN ) dn.remove( dn.size() - 1 );
+                        dn.remove( dn.size() - 1 );
                     }
                     catch ( InvalidNameException e1 )
                     {
@@ -224,7 +230,7 @@ public class NewCompareHandler extends LdapRequestHandler<CompareRequest>
             }
               
             // if we get here then we have a valid referral ancestor
-            handleReferralOnAncestor( session, req, referralAncestor );
+            handleReferralOnAncestor( session, req, referralAncestor, lastMatchedDn );
         }
     }
 
@@ -237,9 +243,106 @@ public class NewCompareHandler extends LdapRequestHandler<CompareRequest>
      * @param referralAncestor the farthest referral ancestor of the missing 
      * entry  
      */
-    public void handleReferralOnAncestor( LdapSession session, CompareRequest req, ClonedServerEntry referralAncestor )
+    public void handleReferralOnAncestor( LdapSession session, CompareRequest req, 
+        ClonedServerEntry referralAncestor, LdapDN lastMatchedDn )
     {
-        throw new NotImplementedException();
+        LOG.debug( "Inside handleReferralOnAncestor()" );
+        
+        try
+        {
+            ServerAttribute refAttr = ( ServerAttribute ) referralAncestor.getOriginalEntry()
+                .get( SchemaConstants.REF_AT );
+            Referral referral = new ReferralImpl();
+
+            for ( Value<?> value : refAttr )
+            {
+                String ref = ( String ) value.get();
+
+                LOG.debug( "Calculating LdapURL for referrence value {}", ref );
+
+                // need to add non-ldap URLs as-is
+                if ( ! ref.startsWith( "ldap" ) )
+                {
+                    referral.addLdapUrl( ref );
+                    continue;
+                }
+                
+                // parse the ref value and normalize the DN  
+                LdapURL ldapUrl = new LdapURL();
+                try
+                {
+                    ldapUrl.parse( ref.toCharArray() );
+                }
+                catch ( LdapURLEncodingException e )
+                {
+                    LOG.error( "Bad URL ({}) for ref in {}.  Reference will be ignored.", ref, referralAncestor );
+                }
+                
+                LdapDN urlDn = new LdapDN( ldapUrl.getDn().getUpName() );
+                urlDn.normalize( session.getCoreSession().getDirectoryService().getRegistries()
+                    .getAttributeTypeRegistry().getNormalizerMapping() ); 
+                
+                if ( urlDn.getNormName().equals( referralAncestor.getDn().getNormName() ) )
+                {
+                    // according to the protocol there is no need for the dn since it is the same as this request
+                    StringBuilder buf = new StringBuilder();
+                    buf.append( ldapUrl.getScheme() );
+                    buf.append( ldapUrl.getHost() );
+
+                    if ( ldapUrl.getPort() > 0 )
+                    {
+                        buf.append( ":" );
+                        buf.append( ldapUrl.getPort() );
+                    }
+
+                    referral.addLdapUrl( buf.toString() );
+                    continue;
+                }
+                
+                /*
+                 * If we get here then the DN of the referral was not the same as the 
+                 * DN of the ref LDAP URL.  We must calculate the remaining (difference)
+                 * name past the farthest referral DN which the target name extends.
+                 */
+                int diff = req.getName().size() - referralAncestor.getDn().size();
+                LdapDN extra = new LdapDN();
+    
+                // TODO - fix this by access unormalized RDN values
+                // seems we have to do this because get returns normalized rdns
+                LdapDN reqUnnormalizedDn = new LdapDN( req.getName().getUpName() );
+                for ( int jj = 0; jj < diff; jj++ )
+                {
+                    extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
+                }
+    
+                urlDn.addAll( extra );
+    
+                StringBuilder buf = new StringBuilder();
+                buf.append( ldapUrl.getScheme() );
+                buf.append( ldapUrl.getHost() );
+    
+                if ( ldapUrl.getPort() > 0 )
+                {
+                    buf.append( ":" );
+                    buf.append( ldapUrl.getPort() );
+                }
+    
+                buf.append( "/" );
+                buf.append( LdapURL.urlEncode( urlDn.getUpName(), false ) );
+                referral.addLdapUrl( buf.toString() );
+            }
+            
+            LdapResult result = req.getResultResponse().getLdapResult();
+            result.setMatchedDn( lastMatchedDn );
+            result.setResultCode( ResultCodeEnum.REFERRAL );
+            result.setReferral( referral );
+            
+            session.getIoSession().write( req.getResultResponse() );
+        }
+        catch ( Exception e )
+        {
+            handleException( session, req, e );
+        }
     }
     
     
