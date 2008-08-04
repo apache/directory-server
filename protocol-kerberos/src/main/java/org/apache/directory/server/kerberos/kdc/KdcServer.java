@@ -30,7 +30,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
+import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
@@ -424,14 +424,21 @@ public class KdcServer extends DirectoryBackedService
     {
         PrincipalStore store;
 
-        if ( isCatelogBased() )
-        {
-            store = new JndiPrincipalStoreImpl( getSearchBaseDn(), null, getDirectoryService() );
-        }
-        else
-        {
-            store = new JndiPrincipalStoreImpl( null, getSearchBaseDn(), getDirectoryService() );
-        }
+        // TODO - for now ignoring this catelog crap
+        
+        store = new DirectoryPrincipalStore( getDirectoryService() );
+
+        
+//        if ( isCatelogBased() )
+//        {
+//            store = new JndiPrincipalStoreImpl( getSearchBaseDn(), null, getDirectoryService() );
+//        }
+//        else
+//        {
+//            store = new JndiPrincipalStoreImpl( null, getSearchBaseDn(), getDirectoryService() );
+//        }
+        
+        
 
         if ( getDatagramAcceptor() != null )
         {

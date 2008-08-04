@@ -70,7 +70,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
     }
 
 
-    protected void authorize( AuthorizeCallback authorizeCB )
+    protected void authorize( AuthorizeCallback authorizeCB ) throws Exception
     {
         LOG.debug( "Processing conversion of principal name to DN." );
 
@@ -81,7 +81,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
         String username = authorizeCB.getAuthorizationID();
 
         GetPrincipal getPrincipal = new GetPrincipal( new KerberosPrincipal( username ) );
-        PrincipalStoreEntry entry = ( PrincipalStoreEntry ) getPrincipal.execute( ldapSession.getCoreSession(), (LdapDN)null );
+        PrincipalStoreEntry entry = ( PrincipalStoreEntry ) getPrincipal.execute( ldapSession.getCoreSession(), new LdapDN() );
         String bindDn = entry.getDistinguishedName();
 
         LOG.debug( "Converted username {} to DN {}.", username, bindDn );

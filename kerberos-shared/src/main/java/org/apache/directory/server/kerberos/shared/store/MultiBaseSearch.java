@@ -36,7 +36,7 @@ import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
 import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
 
 
 /**
@@ -139,7 +139,7 @@ class MultiBaseSearch implements PrincipalStore
     }
 
 
-    private Object execute( CoreSession session, ContextOperation operation ) throws Exception
+    private Object execute( CoreSession session, DirectoryServiceOperation operation ) throws Exception
     {
         return operation.execute( session, null );
     }

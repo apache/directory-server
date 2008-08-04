@@ -22,24 +22,14 @@ package org.apache.directory.server.kerberos.shared.store.operations;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
@@ -47,14 +37,9 @@ import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 
 
 /**
@@ -63,7 +48,7 @@ import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetPrincipal implements ContextOperation
+public class GetPrincipal implements DirectoryServiceOperation
 {
     private static final long serialVersionUID = 4598007518413451945L;
 
@@ -86,65 +71,14 @@ public class GetPrincipal implements ContextOperation
      * Note that the base is a relative path from the existing context.
      * It is not a DN.
      */
-    public Object execute( CoreSession session, LdapDN base )
+    public Object execute( CoreSession session, LdapDN base ) throws Exception
     {
         if ( principal == null )
         {
             return null;
         }
 
-        String[] attrIDs =
-            {   
-                KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
-                KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, 
-                KerberosAttribute.KRB5_KEY_AT,
-                KerberosAttribute.APACHE_SAM_TYPE_AT, 
-                KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT,
-                KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT, 
-                KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT 
-            };
-
-        Set<AttributeTypeOptions> matchAttrs = new HashSet<AttributeTypeOptions>();
-        AttributeTypeRegistry atRegistry = session.getDirectoryService().getRegistries().getAttributeTypeRegistry();
-        AttributeTypeOptions krb5PrincipalAT = null;
-        
-        try
-        {
-            krb5PrincipalAT = new AttributeTypeOptions( atRegistry.lookup( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ) );
-        }
-        catch ( NamingException ne )
-        {
-            return null;
-        }
-        
-        matchAttrs.add( krb5PrincipalAT );
-
-        PrincipalStoreEntry entry = null;
-
-        try
-        {
-            EntryFilteringCursor cursor = session.list( LdapDN.EMPTY_LDAPDN, AliasDerefMode.DEREF_ALWAYS, matchAttrs );
-
-            cursor.beforeFirst();
-            
-            if ( cursor.next() )
-            {
-                ClonedServerEntry result = cursor.get();
-                
-                if ( !result.containsAttribute( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ) )
-                {
-                    return null;
-                }
-                
-                entry = getEntry( result );
-            }
-        }
-        catch ( Exception e )
-        {
-            return null;
-        }
-
-        return entry;
+        return getEntry( StoreUtils.findPrincipalEntry( session, base, principal.getName() ) );
     }
 
 
@@ -156,7 +90,7 @@ public class GetPrincipal implements ContextOperation
      * @return the entry for the principal
      * @throws NamingException if there are any access problems
      */
-    private PrincipalStoreEntry getEntry( ServerEntry entry ) throws NamingException
+    private PrincipalStoreEntry getEntry( ServerEntry entry ) throws Exception
     {
         PrincipalStoreEntryModifier modifier = new PrincipalStoreEntryModifier();
 

@@ -132,7 +132,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * 
      * @param callback An {@link AuthorizeCallback}.
      */
-    protected abstract void authorize( AuthorizeCallback callback );
+    protected abstract void authorize( AuthorizeCallback callback ) throws Exception;
 
 
     /**
@@ -198,7 +198,15 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
                 // false (CRAM-MD5, DIGEST-MD5, GSSAPI)
                 LOG.debug( "AuthorizeCallback isAuthorized:  {}", authorizeCB.isAuthorized() );
 
-                authorize( authorizeCB );
+                try
+                {
+                    authorize( authorizeCB );
+                }
+                catch ( Exception e )
+                {
+                    // TODO - figure out how to handle this properly.
+                    throw new RuntimeException( "Failed authorization in callback handler.", e );
+                }
             }
         }
     }

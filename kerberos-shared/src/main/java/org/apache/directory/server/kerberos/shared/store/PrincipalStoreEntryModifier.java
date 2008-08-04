@@ -25,14 +25,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.SamType;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 
 
 /**
@@ -277,22 +279,18 @@ public class PrincipalStoreEntryModifier
      * @throws NamingException
      * @throws IOException
      */
-    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( Attribute krb5key ) throws NamingException,
-        IOException
+    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( EntryAttribute krb5key ) throws Exception
     {
         Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
 
-        for ( int ii = 0; ii < krb5key.size(); ii++ )
+        for ( Value<?> val : krb5key )
         {
-            Object key = krb5key.get( ii );
-
-            if ( key instanceof String )
+            if ( val instanceof ServerStringValue )
             {
-                throw new NamingException(
-                    "JNDI should not return a string for the Kerberos key: JNDI property java.naming.ldap.attributes.binary must include the krb5key attribute." );
+                throw new IllegalStateException( "Kerberos key should not be a String." );
             }
 
-            byte[] encryptionKeyBytes = ( byte[] ) key;
+            byte[] encryptionKeyBytes = ( byte[] ) val.get();
             EncryptionKey encryptionKey = EncryptionKeyDecoder.decode( encryptionKeyBytes );
             map.put( encryptionKey.getKeyType(), encryptionKey );
         }

@@ -26,25 +26,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerStringValue;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
 
 /**
@@ -53,34 +59,47 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetAllPrincipals implements ContextOperation
+public class GetAllPrincipals implements DirectoryServiceOperation
 {
     private static final long serialVersionUID = -1214321426487445132L;
 
-    private static final String filter = "(objectClass=krb5Principal)";
-
-
-    public Object execute( DirContext ctx, Name searchBaseDn )
+    private ExprNode filter;
+    
+    
+    private ExprNode getFilter( CoreSession session ) throws Exception
     {
-        SearchControls controls = new SearchControls();
+        if ( filter != null )
+        {
+            return filter;
+        }
+     
+        AttributeTypeRegistry registry = session.getDirectoryService().getRegistries().getAttributeTypeRegistry();
+        AttributeType type = registry.lookup( "objectClass" );
+        Value<String> value = new ServerStringValue( type, "krb5Principal" );
+        filter = new EqualityNode<String>(  "objectClass", value );
+        
+        return filter;
+    }
+    
 
+    public Object execute( CoreSession session, LdapDN searchBaseDn ) throws Exception
+    {
         List<PrincipalStoreEntry> answers = new ArrayList<PrincipalStoreEntry>();
 
         try
         {
-            Attributes attrs = null;
+            EntryFilteringCursor cursor = session.search( searchBaseDn, SearchScope.ONELEVEL, getFilter( session ), 
+                AliasDerefMode.DEREF_ALWAYS, null );
 
-            NamingEnumeration<SearchResult> answer = ctx.search( searchBaseDn, filter, controls );
-
-            while ( answer.hasMore() )
+            cursor.beforeFirst();
+            while ( cursor.next() )
             {
-                SearchResult result = answer.next();
-                attrs = result.getAttributes();
-                PrincipalStoreEntry entry = getEntry( attrs );
+                ServerEntry result = cursor.get();
+                PrincipalStoreEntry entry = getEntry( result );
                 answers.add( entry );
             }
 
-            answer.close();
+            cursor.close();
 
             PrincipalStoreEntry[] entries = new PrincipalStoreEntry[answers.size()];
 
@@ -102,25 +121,25 @@ public class GetAllPrincipals implements ContextOperation
      * @return the entry for the principal
      * @throws NamingException if there are any access problems
      */
-    private PrincipalStoreEntry getEntry( Attributes attrs ) throws NamingException
+    private PrincipalStoreEntry getEntry( ServerEntry attrs ) throws Exception
     {
         PrincipalStoreEntryModifier modifier = new PrincipalStoreEntryModifier();
 
-        String principal = ( String ) attrs.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get();
-        String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get();
+        String principal = ( String ) attrs.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get().get();
+        String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get().get();
 
-        String commonName = ( String ) attrs.get( SchemaConstants.CN_AT ).get();
+        String commonName = ( String ) attrs.get( SchemaConstants.CN_AT ).get().get();
 
         if ( attrs.get( KerberosAttribute.APACHE_SAM_TYPE_AT ) != null )
         {
-            String samType = ( String ) attrs.get( KerberosAttribute.APACHE_SAM_TYPE_AT ).get();
+            String samType = ( String ) attrs.get( KerberosAttribute.APACHE_SAM_TYPE_AT ).get().get();
 
             modifier.setSamType( SamType.getTypeByOrdinal( Integer.parseInt( samType ) ) );
         }
 
         if ( attrs.get( KerberosAttribute.KRB5_KEY_AT ) != null )
         {
-            Attribute krb5key = attrs.get( KerberosAttribute.KRB5_KEY_AT );
+            ServerAttribute krb5key = ( ServerAttribute ) attrs.get( KerberosAttribute.KRB5_KEY_AT );
             try
             {
                 Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );
