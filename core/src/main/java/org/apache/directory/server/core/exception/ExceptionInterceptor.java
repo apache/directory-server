@@ -169,7 +169,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             // We don't know if the parent is an alias or not, so we will launch a 
             // lookup, and update the cache if it's not an alias
-            ServerEntry attrs;
+            ClonedServerEntry attrs;
             
             try
             {
@@ -184,7 +184,7 @@ public class ExceptionInterceptor extends BaseInterceptor
                 throw e2;
             }
             
-            EntryAttribute objectClass = attrs.get( SchemaConstants.OBJECT_CLASS_AT );
+            EntryAttribute objectClass = attrs.getOriginalEntry().get( SchemaConstants.OBJECT_CLASS_AT );
             
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {

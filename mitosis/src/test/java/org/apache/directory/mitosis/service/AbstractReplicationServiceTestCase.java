@@ -29,6 +29,8 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
 import org.junit.Before;
@@ -141,7 +143,7 @@ public abstract class AbstractReplicationServiceTestCase
             env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
             // Initialize the server instance.
-            LdapContext context = new InitialLdapContext( env, null );
+            LdapContext context = new ServerLdapContext( service, service.getAdminSession(), new LdapDN() );
             contexts.put( replicaId, context );
             services.put( replicaId, service );
             replicationServices.put( replicaId, replicationInterceptor );
