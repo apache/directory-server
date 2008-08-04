@@ -21,6 +21,7 @@ package org.apache.directory.server.newldap.handlers.bind.cramMD5;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
@@ -45,22 +46,21 @@ public class CramMd5MechanismHandler implements MechanismHandler
 {
     public SaslServer handleMechanism( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest ) throws Exception
     {
-        SaslServer ss = (SaslServer)ldapSession.getSaslProperties().get( SaslConstants.SASL_SERVER );
+        SaslServer ss = (SaslServer)ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
 
         // TODO - don't use session properties anymore
         if ( ss == null )
         {
             String saslHost = ldapSession.getLdapServer().getSaslHost();
             String userBaseDn = ldapSession.getLdapServer().getSearchBaseDn();
-            ldapSession.getSaslProperties().put( SaslConstants.SASL_HOST, saslHost );
-            ldapSession.getSaslProperties().put( SaslConstants.SASL_USER_BASE_DN, userBaseDn );
-            
-
+            ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
+            ldapSession.putSaslProperty( SaslConstants.SASL_USER_BASE_DN, userBaseDn );
             Map<String, String> saslProps = new HashMap<String, String>();
+            
             CallbackHandler callbackHandler = new CramMd5CallbackHandler( ldapSession, adminSession, bindRequest );
 
             ss = Sasl.createSaslServer( SupportedSaslMechanisms.CRAM_MD5, SaslConstants.LDAP_PROTOCOL, saslHost, saslProps, callbackHandler );
-            ldapSession.putSaslProperties( SaslConstants.SASL_SERVER, ss );
+            ldapSession.putSaslProperty( SaslConstants.SASL_SERVER, ss );
         }
 
         return ss;

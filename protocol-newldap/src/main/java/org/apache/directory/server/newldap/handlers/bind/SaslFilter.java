@@ -58,7 +58,7 @@ public class SaslFilter extends IoFilterAdapter
      */
     public static final String DISABLE_SECURITY_LAYER_ONCE = SaslFilter.class.getName() + ".DisableSecurityLayerOnce";
 
-    private SaslServer context;
+    private SaslServer saslServer;
 
 
     /**
@@ -69,14 +69,14 @@ public class SaslFilter extends IoFilterAdapter
      *
      * @param context The initialized SASL context.
      */
-    public SaslFilter( SaslServer context )
+    public SaslFilter( SaslServer saslServer )
     {
-        if ( context == null )
+        if ( saslServer == null )
         {
             throw new IllegalStateException();
         }
 
-        this.context = context;
+        this.saslServer = saslServer;
     }
 
 
@@ -87,7 +87,7 @@ public class SaslFilter extends IoFilterAdapter
         /*
          * Unwrap the data for mechanisms that support QoP (DIGEST-MD5, GSSAPI).
          */
-        String qop = ( String ) context.getNegotiatedProperty( Sasl.QOP );
+        String qop = ( String ) saslServer.getNegotiatedProperty( Sasl.QOP );
         boolean hasSecurityLayer = ( qop != null && ( qop.equals( SaslQoP.QOP_AUTH_INT ) || qop.equals( SaslQoP.QOP_AUTH_CONF ) ) );
 
         if ( hasSecurityLayer )
@@ -101,7 +101,7 @@ public class SaslFilter extends IoFilterAdapter
             buf.get( bufferBytes );
 
             log.debug( "Will use SASL to unwrap received message of length:  {}", bufferLength );
-            byte[] token = context.unwrap( bufferBytes, 0, bufferBytes.length );
+            byte[] token = saslServer.unwrap( bufferBytes, 0, bufferBytes.length );
             nextFilter.messageReceived( session, ByteBuffer.wrap( token ) );
         }
         else
@@ -131,7 +131,7 @@ public class SaslFilter extends IoFilterAdapter
         /*
          * Wrap the data for mechanisms that support QoP (DIGEST-MD5, GSSAPI).
          */
-        String qop = ( String ) context.getNegotiatedProperty( Sasl.QOP );
+        String qop = ( String ) saslServer.getNegotiatedProperty( Sasl.QOP );
         boolean hasSecurityLayer = ( qop != null && ( qop.equals( SaslQoP.QOP_AUTH_INT ) || qop.equals( SaslQoP.QOP_AUTH_CONF ) ) );
 
         ByteBuffer saslLayerBuffer = null;
@@ -148,7 +148,7 @@ public class SaslFilter extends IoFilterAdapter
 
             log.debug( "Will use SASL to wrap message of length:  {}", bufferLength );
 
-            byte[] saslLayer = context.wrap( bufferBytes, 0, bufferBytes.length );
+            byte[] saslLayer = saslServer.wrap( bufferBytes, 0, bufferBytes.length );
 
             /*
              * Prepend 4 byte length.

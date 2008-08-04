@@ -58,13 +58,9 @@ public class NtlmMechanismHandler implements MechanismHandler
 
     public SaslServer handleMechanism( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest ) throws Exception
     {
-        SaslServer ss;
+        SaslServer ss = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
 
-        if ( ldapSession.getIoSession().containsAttribute( SaslConstants.SASL_SERVER ) )
-        {
-            ss = ( SaslServer ) ldapSession.getIoSession().getAttribute( SaslConstants.SASL_SERVER );
-        }
-        else
+        if ( ss == null )
         {
             if ( provider == null )
             {
@@ -72,7 +68,7 @@ public class NtlmMechanismHandler implements MechanismHandler
             }
             
             ss = new NtlmSaslServer( provider, bindRequest, ldapSession );
-            ldapSession.getIoSession().setAttribute( SaslConstants.SASL_SERVER, ss );
+            ldapSession.putSaslProperty( SaslConstants.SASL_SERVER, ss );
         }
 
         return ss;

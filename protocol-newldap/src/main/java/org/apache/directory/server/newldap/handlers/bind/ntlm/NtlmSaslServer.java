@@ -39,8 +39,10 @@ import javax.security.sasl.SaslException;
  */
 public class NtlmSaslServer extends AbstractSaslServer
 {
+    /** The different states during a NTLM negotiation */ 
     enum NegotiationState { INITIALIZED, TYPE_1_RECEIVED, TYPE_2_SENT, TYPE_3_RECEIVED, COMPLETED }
 
+    /** The current state */
     private NegotiationState state = NegotiationState.INITIALIZED;
     private final NtlmProvider provider;
 
@@ -68,13 +70,17 @@ public class NtlmSaslServer extends AbstractSaslServer
             case INITIALIZED:
                 state = NegotiationState.TYPE_1_RECEIVED;
                 break;
+                
             case TYPE_1_RECEIVED:
                 throw new IllegalStateException( "Cannot receive NTLM message before sending Type 2 challenge." );
+                
             case TYPE_2_SENT:
                 state = NegotiationState.TYPE_3_RECEIVED;
                 break;
+                
             case TYPE_3_RECEIVED:
                 throw new IllegalStateException( "Cannot receive NTLM message after Type 3 has been received." );
+                
             case COMPLETED:
                 throw new IllegalStateException( "Sasl challenge response already completed." );
         }
@@ -87,14 +93,18 @@ public class NtlmSaslServer extends AbstractSaslServer
         {
             case INITIALIZED:
                 throw new IllegalStateException( "Cannot send Type 2 challenge before Type 1 response." );
+                
             case TYPE_1_RECEIVED:
                 state = NegotiationState.TYPE_2_SENT;
                 break;
+                
             case TYPE_2_SENT:
                 throw new IllegalStateException( "Cannot send Type 2 after it's already sent." );
+                
             case TYPE_3_RECEIVED:
                 state = NegotiationState.COMPLETED;
                 break;
+                
             case COMPLETED:
                 throw new IllegalStateException( "Sasl challenge response already completed." );
         }
@@ -130,7 +140,9 @@ public class NtlmSaslServer extends AbstractSaslServer
                 {
                     throw new SaslException( "There was a failure during NTLM Type 1 message handling.", e );
                 }
+                
                 break;
+                
             case TYPE_3_RECEIVED:
                 boolean result;
                 try
@@ -147,8 +159,10 @@ public class NtlmSaslServer extends AbstractSaslServer
                 {
                     throw new SaslException( "Authentication occurred but the credentials were invalid." );
                 }
+                
                 break;
-        }       
+        }
+        
         responseSent();
         return retval;
     }

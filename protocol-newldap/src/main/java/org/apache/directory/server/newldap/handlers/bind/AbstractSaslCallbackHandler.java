@@ -21,7 +21,9 @@ package org.apache.directory.server.newldap.handlers.bind;
 
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -67,7 +69,13 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
     private String username;
     private String realm;
+
+    /** The reference on the user ldap session */
+    protected LdapSession ldapSession;
     
+    /** The admin core session */
+    protected CoreSession adminSession;
+
     /** A reference on the DirectoryService instance */
     protected final DirectoryService directoryService;
     

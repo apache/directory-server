@@ -395,4 +395,110 @@ public class SaslBindITest extends AbstractServerTest
              assertTrue( e.getMessage().contains( "Invalid response" ) );
          }
      }
+     /**
+      * Tests to make sure DIGEST-MD5 binds below the RootDSE work.
+      */
+     @Test
+     public void testSaslDigestMd5Bind() throws Exception
+     {
+         Hashtable<String, String> env = new Hashtable<String, String>();
+         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+         env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
+         env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
+         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
+         // Specify realm
+         env.put( "java.naming.security.sasl.realm", "example.com" );
+
+         // Request privacy protection
+         env.put( "javax.security.sasl.qop", "auth-conf" );
+
+         DirContext context = new InitialDirContext( env );
+
+         String[] attrIDs =
+             { "uid" };
+
+         Attributes attrs = context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
+
+         String uid = null;
+
+         if ( attrs.get( "uid" ) != null )
+         {
+             uid = ( String ) attrs.get( "uid" ).get();
+         }
+
+         assertEquals( uid, "hnelson" );
+     }
+
+     
+     /**
+      * Tests to make sure DIGEST-MD5 binds below the RootDSE fail if the realm is bad.
+      */
+     @Test
+     public void testSaslDigestMd5BindBadRealm()
+     {
+         try
+         {
+             Hashtable<String, String> env = new Hashtable<String, String>();
+             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+             env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
+             env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
+             env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
+             // Bad realm
+             env.put( "java.naming.security.sasl.realm", "badrealm.com" );
+
+             // Request privacy protection
+             env.put( "javax.security.sasl.qop", "auth-conf" );
+
+             DirContext context = new InitialDirContext( env );
+
+             String[] attrIDs =
+                 { "uid" };
+
+             context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
+
+             fail( "Should have thrown exception." );
+         }
+         catch ( NamingException e )
+         {
+             assertTrue( e.getMessage().contains( "Nonexistent realm" ) );
+         }
+     }
+
+
+     /**
+      * Tests to make sure DIGEST-MD5 binds below the RootDSE fail if the password is bad.
+      */
+     @Test
+     public void testSaslDigestMd5BindBadPassword()
+     {
+         try
+         {
+             Hashtable<String, String> env = new Hashtable<String, String>();
+             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+             env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
+             env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
+             env.put( Context.SECURITY_CREDENTIALS, "badsecret" );
+
+             DirContext context = new InitialDirContext( env );
+
+             String[] attrIDs =
+                 { "uid" };
+
+             context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
+
+             fail( "Should have thrown exception." );
+         }
+         catch ( NamingException e )
+         {
+             assertTrue( e.getMessage().contains( "digest response format violation" ) );
+         }
+     }
 }

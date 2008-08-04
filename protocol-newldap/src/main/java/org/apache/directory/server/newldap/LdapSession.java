@@ -308,23 +308,35 @@ public class LdapSession
 
 
     /**
-     *  @return The SASL properties
-     */
-    public Map<String, Object> getSaslProperties()
-    {
-        return saslProperties;
-    }
-
-
-    /**
      * Add a Sasl property and value
      * 
      * @param property the property to add
      * @param value the value for this property
      */
-    public void putSaslProperties( String property, Object value )
+    public void putSaslProperty( String property, Object value )
     {
         saslProperties.put( property, value );
+    }
+    
+    
+    /**
+     * Get a Sasl property's value
+     * 
+     * @param property the property to get
+     * @return the associated value, or null if we don't have such a property
+     */
+    public Object getSaslProperty( String property )
+    {
+        return saslProperties.get( property );
+    }
+    
+    
+    /**
+     * Clear all the Sasl values stored into the Map
+     */
+    public void clearSaslProperties()
+    {
+        saslProperties.clear();
     }
     
     

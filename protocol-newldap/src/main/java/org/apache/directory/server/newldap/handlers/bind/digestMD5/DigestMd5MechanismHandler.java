@@ -21,6 +21,7 @@ package org.apache.directory.server.newldap.handlers.bind.digestMD5;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
@@ -30,6 +31,8 @@ import org.apache.directory.shared.ldap.message.BindRequest;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslServer;
+
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -42,24 +45,55 @@ import java.util.Map;
  */
 public class DigestMd5MechanismHandler implements MechanismHandler
 {
-    public SaslServer handleMechanism( LdapSession session, CoreSession adminSession, BindRequest bindRequest ) throws Exception
+    /**
+     * Create a list of all the configured realms.
+     * 
+     * @param ldapServer the LdapServer for which we want to get the realms
+     * @return a list of realms, separated by spaces
+     */
+    private String getActiveRealms( LdapServer ldapServer )
     {
-        SaslServer ss;
+        StringBuilder realms = new StringBuilder();
+        boolean isFirst = true;
 
-        if ( session.getIoSession().containsAttribute( SaslConstants.SASL_SERVER ) )
+        for ( String realm:ldapServer.getSaslRealms() )
         {
-            ss = ( SaslServer ) session.getIoSession().getAttribute( SaslConstants.SASL_SERVER );
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                realms.append( ' ' );
+            }
+            
+            realms.append( realm );
         }
-        else
-        {
-            String saslHost = ( String ) session.getIoSession().getAttribute( "saslHost" );
-            Map<String, String> saslProps = ( Map<String, String> ) session.getIoSession().getAttribute( "saslProps" );
 
-            CallbackHandler callbackHandler = new DigestMd5CallbackHandler( 
-                session.getCoreSession().getDirectoryService(), bindRequest );
+        return realms.toString();
+    }
+
+
+    
+    public SaslServer handleMechanism( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest ) throws Exception
+    {
+        SaslServer ss = (SaslServer)ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
+
+        if ( ss == null )
+        {
+            String saslHost = ldapSession.getLdapServer().getSaslHost();
+            String userBaseDn = ldapSession.getLdapServer().getSearchBaseDn();
+            ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
+            ldapSession.putSaslProperty( SaslConstants.SASL_USER_BASE_DN, userBaseDn );
+
+            Map<String, String> saslProps = new HashMap<String, String>();
+            saslProps.put( Sasl.QOP, ldapSession.getLdapServer().getSaslQopString() );
+            saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( ldapSession.getLdapServer() ) );
+
+            CallbackHandler callbackHandler = new DigestMd5CallbackHandler( ldapSession, adminSession, bindRequest );
 
             ss = Sasl.createSaslServer( SupportedSaslMechanisms.DIGEST_MD5, SaslConstants.LDAP_PROTOCOL, saslHost, saslProps, callbackHandler );
-            session.getIoSession().setAttribute( SaslConstants.SASL_SERVER, ss );
+            ldapSession.putSaslProperty( SaslConstants.SASL_SERVER, ss );
         }
 
         return ss;

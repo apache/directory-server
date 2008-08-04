@@ -20,11 +20,25 @@
 package org.apache.directory.server.newldap.handlers.bind.digestMD5;
 
 
-import org.apache.directory.server.core.DirectoryService;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.bind.AbstractSaslCallbackHandler;
-import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.FilterParser;
+import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,17 +68,51 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
      * @param bindRequest the bind message
      * @param directoryService the directory service core
      */
-    public DigestMd5CallbackHandler( DirectoryService directoryService, BindRequest bindRequest )
+    public DigestMd5CallbackHandler( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest )
     {
-        super( directoryService, bindRequest );
+        super( adminSession.getDirectoryService(), bindRequest );
+        this.ldapSession = ldapSession;
+        this.adminSession = adminSession;
     }
 
 
     // TODO - should return not be a byte[]
     protected EntryAttribute lookupPassword( String username, String realm )
     {
-        // TODO - Use realm with multi-realm support.
-        throw new NotImplementedException();
+        try
+        {
+            ExprNode filter = FilterParser.parse( "(uid=" + username + ")" );
+            Set<AttributeTypeOptions> returningAttributes = new HashSet<AttributeTypeOptions>();
+            
+            AttributeType passwordAT = adminSession.getDirectoryService().getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.USER_PASSWORD_AT );
+            returningAttributes.add( new AttributeTypeOptions( passwordAT) );
+            bindDn = (String)ldapSession.getSaslProperty( SaslConstants.SASL_USER_BASE_DN );
+            
+            LdapDN baseDn = new LdapDN( bindDn );
+
+            EntryFilteringCursor cursor = adminSession.search( 
+                baseDn, 
+                SearchScope.SUBTREE, 
+                filter, 
+                AliasDerefMode.DEREF_ALWAYS, 
+                returningAttributes );
+            
+            cursor.beforeFirst();
+            
+            ClonedServerEntry entry = null;
+            
+            while ( cursor.next() )
+            {
+                entry = cursor.get();
+                ldapSession.putSaslProperty( SaslConstants.SASL_AUTHENT_USER, entry );
+            }
+
+            return entry.get( passwordAT );
+        }
+        catch ( Exception e )
+        {
+            return null;
+        }
     }
 
 
@@ -75,7 +123,7 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
             LOG.debug( "Converted username " + getUsername() + " to DN " + bindDn + " with password " + userPassword + "." );
         }
 
-        session.setAttribute( Context.SECURITY_PRINCIPAL, bindDn );
+        ldapSession.putSaslProperty( Context.SECURITY_PRINCIPAL, bindDn );
 
         authorizeCB.setAuthorizedID( bindDn );
         authorizeCB.setAuthorized( true );

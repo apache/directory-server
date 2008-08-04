@@ -44,13 +44,13 @@ public class PlainMechanismHandler implements MechanismHandler
      */
     public SaslServer handleMechanism( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest ) throws Exception
     {
-        SaslServer ss = ( SaslServer ) ldapSession.getSaslProperties().get( SaslConstants.SASL_SERVER );
+        SaslServer ss = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
         
         if ( ss == null )
         {
             
             ss = new PlainSaslServer( ldapSession, adminSession, bindRequest );
-            ldapSession.getSaslProperties().put( SaslConstants.SASL_SERVER, ss );
+            ldapSession.putSaslProperty( SaslConstants.SASL_SERVER, ss );
         }
 
         return ss;

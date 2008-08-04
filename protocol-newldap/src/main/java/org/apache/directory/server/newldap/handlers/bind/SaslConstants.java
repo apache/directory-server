@@ -67,4 +67,22 @@ public class SaslConstants
      * A key constant for storing the evaluated credentials
      */
     public static final String SASL_CREDS = "saslCreds";
+
+
+    /**
+     * A key constant for storing the Quality Of Protection
+     */
+    public static final String SASL_QOP = "saslQop";
+    
+    
+    /**
+     * A key constant for storing the realm
+     */
+    public static final String SASL_REALM = "saslRealm";
+    
+    
+    /**
+     * A key constant representing the SASL IoFilter 
+     */
+    public static final String SASL_FILTER = "SASL_FILTER";
 }

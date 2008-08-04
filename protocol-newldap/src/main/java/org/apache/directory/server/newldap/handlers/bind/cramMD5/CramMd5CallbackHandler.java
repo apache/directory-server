@@ -55,10 +55,6 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
 {
     private static final Logger LOG = LoggerFactory.getLogger( CramMd5CallbackHandler.class );
 
-    private LdapSession ldapSession;
-    
-    private CoreSession adminSession;
-
     private String bindDn;
     //private String userPassword;
 
@@ -87,7 +83,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
             
             AttributeType passwordAT = adminSession.getDirectoryService().getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.USER_PASSWORD_AT );
             returningAttributes.add( new AttributeTypeOptions( passwordAT) );
-            bindDn = (String)ldapSession.getSaslProperties().get( SaslConstants.SASL_USER_BASE_DN );
+            bindDn = (String)ldapSession.getSaslProperty( SaslConstants.SASL_USER_BASE_DN );
             
             LdapDN baseDn = new LdapDN( bindDn );
 
@@ -105,7 +101,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
             while ( cursor.next() )
             {
                 entry = cursor.get();
-                ldapSession.getSaslProperties().put( SaslConstants.SASL_AUTHENT_USER, entry );
+                ldapSession.putSaslProperty( SaslConstants.SASL_AUTHENT_USER, entry );
             }
 
             return entry.get( passwordAT );
@@ -124,7 +120,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
             LOG.debug( "Converted username " + getUsername() + " to DN " + bindDn );
         }
 
-        ldapSession.getSaslProperties().put( Context.SECURITY_PRINCIPAL, bindDn );
+        ldapSession.putSaslProperty( Context.SECURITY_PRINCIPAL, bindDn );
 
         authorizeCB.setAuthorizedID( bindDn );
         authorizeCB.setAuthorized( true );

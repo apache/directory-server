@@ -42,8 +42,10 @@ import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
+import org.apache.directory.server.newldap.handlers.bind.SaslFilter;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
@@ -53,6 +55,8 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.mina.common.IoFilterChain;
+import org.apache.mina.common.IoSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,6 +211,13 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
     }
     
     
+    /**
+     * For challenge/response exchange, generate the challenge 
+     *
+     * @param ldapSession
+     * @param ss
+     * @param bindRequest
+     */
     private void generateSaslChallenge( LdapSession ldapSession, SaslServer ss, BindRequest bindRequest )
     {
         LdapResult result = bindRequest.getResultResponse().getLdapResult();
@@ -232,7 +243,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
                      * so it will be returned in a SUCCESS message, after an LdapContext
                      * has been initialized for the client.
                      */
-                    ldapSession.getSaslProperties().put( SaslConstants.SASL_CREDS, tokenBytes );
+                    ldapSession.putSaslProperty( SaslConstants.SASL_CREDS, tokenBytes );
                 }
                 
                 // Return the successful response
@@ -254,7 +265,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
                 ldapSession.setAuthPending();
                 
                 // Store the current mechanism, as the C/R is not finished
-                ldapSession.getSaslProperties().put( SaslConstants.SASL_MECH, bindRequest.getSaslMechanism() );
+                ldapSession.putSaslProperty( SaslConstants.SASL_MECH, bindRequest.getSaslMechanism() );
                 
                 // And write back the response
                 ldapSession.getIoSession().write( resp );
@@ -268,7 +279,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
             result.setErrorMessage( se.getMessage() );
             
             // Reinitialize the state to Anonymous and clear the sasl properties
-            ldapSession.getSaslProperties().clear();
+            ldapSession.clearSaslProperties();
             ldapSession.setAnonymous();
             
             // Write back the error response
@@ -277,11 +288,14 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
     }
     
     
+    /**
+     * Send back an AUTH-METH-NOT-SUPPORTED error message to the client
+     */
     private void sendAuthMethNotSupported( LdapSession ldapSession, BindRequest bindRequest )
     {
         // First, reinit the state to Anonymous, and clear the
         // saslProperty map
-        ldapSession.getSaslProperties().clear();
+        ldapSession.clearSaslProperties();
         ldapSession.setAnonymous();
         
         // And send the response to the client
@@ -296,16 +310,27 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
     }
     
     
-    private void sendInvalidCredentials( LdapSession ldapSession, BindRequest bindRequest, SaslException se )
+    /**
+     * Send back an INVALID-CREDENTIAL error message to the user. If we have an exception
+     * as a third argument, then send back the associated message to the client. 
+     */
+    private void sendInvalidCredentials( LdapSession ldapSession, BindRequest bindRequest, Exception e )
     {
         LdapResult result = bindRequest.getResultResponse().getLdapResult();
         
-        LOG.error( se.getMessage() );
+        String message = "";
+        
+        if ( e != null )
+        {
+            message = e.getMessage();
+        }
+        
+        LOG.error( message );
         result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
-        result.setErrorMessage( se.getMessage() );
+        result.setErrorMessage( message );
         
         // Reinitialize the state to Anonymous and clear the sasl properties
-        ldapSession.getSaslProperties().clear();
+        ldapSession.clearSaslProperties();
         ldapSession.setAnonymous();
         
         // Write back the error response
@@ -313,6 +338,9 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
     }
     
     
+    /**
+     * Send a SUCCESS message back to the client.
+     */
     private void sendBindSuccess( LdapSession ldapSession, BindRequest bindRequest, byte[] tokenBytes )
     {
         // Return the successful response
@@ -332,7 +360,12 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
         }
         
         // Clean the SaslProperties, we don't need them anymore
-        ldapSession.getSaslProperties().clear();
+        // except the saslCreds and saslServer which will be used 
+        // by the DIGEST-MD5 mech.
+        ldapSession.removeSaslProperty( SaslConstants.SASL_MECH );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_HOST );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_AUTHENT_USER );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_USER_BASE_DN );
 
         ldapSession.getIoSession().write( response );
         
@@ -345,7 +378,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
         // First, check that we have the same mechanism
         String saslMechanism = bindRequest.getSaslMechanism();
         
-        if ( !ldapSession.getSaslProperties().get( SaslConstants.SASL_MECH ).equals( saslMechanism ) )
+        if ( !ldapSession.getSaslProperty( SaslConstants.SASL_MECH ).equals( saslMechanism ) )
         {
             sendAuthMethNotSupported( ldapSession, bindRequest );
             return;
@@ -384,13 +417,13 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
                      * so it will be returned in a SUCCESS message, after an LdapContext
                      * has been initialized for the client.
                      */
-                    ldapSession.getSaslProperties().put( SaslConstants.SASL_CREDS, tokenBytes );
+                    ldapSession.putSaslProperty( SaslConstants.SASL_CREDS, tokenBytes );
                 }
                 
                 // Create the user's coreSession
                 try
                 {
-                    ServerEntry userEntry = (ServerEntry)ldapSession.getSaslProperties().get( SaslConstants.SASL_AUTHENT_USER );
+                    ServerEntry userEntry = (ServerEntry)ldapSession.getSaslProperty( SaslConstants.SASL_AUTHENT_USER );
                     
                     CoreSession userSession = ds.getSession( userEntry.getDn(), userEntry.get( SchemaConstants.USER_PASSWORD_AT ).getBytes(), saslMechanism, null );
                     
@@ -399,10 +432,30 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
                     // Mark the user as authenticated
                     ldapSession.setAuthenticated();
                     
-                    // Clean the Sasl Properties so that we don't have the user password
-                    // stored in memory forever
-                    ldapSession.getSaslProperties().clear();
-                    
+                    /*
+                     * If the SASL mechanism is DIGEST-MD5 or GSSAPI, we insert a SASLFilter.
+                     */
+                    if ( saslMechanism.equals( SupportedSaslMechanisms.DIGEST_MD5 ) ||
+                         saslMechanism.equals( SupportedSaslMechanisms.GSSAPI ) )
+                    {
+                        LOG.debug( "Inserting SaslFilter to engage negotiated security layer." );
+                        IoSession ioSession = ldapSession.getIoSession();
+
+                        IoFilterChain chain = ioSession.getFilterChain();
+                        
+                        if ( !chain.contains( "SASL_FILTER" ) )
+                        {
+                            SaslServer saslServer = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
+                            chain.addBefore( "codec", "SASL_FILTER", new SaslFilter( saslServer ) );
+                        }
+
+                        /*
+                         * We disable the SASL security layer once, to write the outbound SUCCESS
+                         * message without SASL security layer processing.
+                         */
+                        ioSession.setAttribute( SaslFilter.DISABLE_SECURITY_LAYER_ONCE, Boolean.TRUE );
+                    }
+
                     // And send a Success response
                     sendBindSuccess( ldapSession, bindRequest, tokenBytes );
                 }
@@ -457,7 +510,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
             ldapSession.setAnonymous();
             
             // Clean the sasl properties
-            ldapSession.getSaslProperties().clear();
+            ldapSession.clearSaslProperties();
             
             // Now we can continue as if the client was Anonymous from the beginning
         }
@@ -477,8 +530,13 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
                 }
 
                 // Store the mechanism in the ldap session
-                ldapSession.getSaslProperties().put( SaslConstants.SASL_MECH, saslMechanism );
+                ldapSession.putSaslProperty( SaslConstants.SASL_MECH, saslMechanism );
                 
+
+                // Store the host in the ldap session
+                String saslHost = getLdapServer().getSaslHost();
+                ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
+
                 // Get the handler for this mechanism
                 MechanismHandler mechanismHandler = handlers.get( saslMechanism );
                 

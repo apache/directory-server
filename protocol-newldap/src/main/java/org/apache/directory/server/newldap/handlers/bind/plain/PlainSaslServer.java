@@ -94,9 +94,9 @@ public class PlainSaslServer extends AbstractSaslServer
         state = NegotiationState.INITIALIZED;
         
         // Reinitialize the SASL properties
-        getLdapSession().getSaslProperties().remove( SASL_PLAIN_AUTHZID );
-        getLdapSession().getSaslProperties().remove( SASL_PLAIN_AUTHCID );
-        getLdapSession().getSaslProperties().remove( SASL_PLAIN_PASSWORD );
+        getLdapSession().removeSaslProperty( SASL_PLAIN_AUTHZID );
+        getLdapSession().removeSaslProperty( SASL_PLAIN_AUTHCID );
+        getLdapSession().removeSaslProperty( SASL_PLAIN_PASSWORD );
     }
 
 
