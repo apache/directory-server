@@ -20,17 +20,12 @@
 package org.apache.directory.server.newldap.handlers;
 
 
-import javax.naming.NamingException;
-import javax.naming.ReferralException;
-
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.newldap.LdapSession;
-import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,16 +37,15 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class NewDeleteHandler extends LdapRequestHandler<DeleteRequest>
+public class NewDeleteHandler extends SingleReplyRequestHandler<DeleteRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( NewDeleteHandler.class );
 
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-
-    public void handle( LdapSession session, DeleteRequest req ) throws Exception
+    public void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 
+        ClonedServerEntry entry, DeleteRequest req )
     {
+        LOG.debug( "Handling request while ignoring referrals: {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();
 
         try
@@ -60,50 +54,9 @@ public class NewDeleteHandler extends LdapRequestHandler<DeleteRequest>
             result.setResultCode( ResultCodeEnum.SUCCESS );
             session.getIoSession().write( req.getResultResponse() );
         }
-        catch ( ReferralException e )
+        catch ( Exception e )
         {
-            ReferralImpl refs = new ReferralImpl();
-            result.setReferral( refs );
-            result.setResultCode( ResultCodeEnum.REFERRAL );
-            result.setErrorMessage( "Encountered referral attempting to handle delete request." );
-            /* coming up null causing a NPE */
-            // result.setMatchedDn( e.getResolvedName().toString() );
-            do
-            {
-                refs.addLdapUrl( ( String ) e.getReferralInfo() );
-            }
-            while ( e.skipReferral() );
-            session.getIoSession().write( req.getResultResponse() );
-        }
-        catch ( NamingException e )
-        {
-            String msg = "failed to delete entry " + req.getName() + ": " + e.getMessage();
-
-            if ( IS_DEBUG )
-            {
-                msg += ":\n" + ExceptionUtils.getStackTrace( e );
-            }
-
-            ResultCodeEnum code;
-            if ( e instanceof LdapException )
-            {
-                code = ( ( LdapException ) e ).getResultCode();
-            }
-            else
-            {
-                code = ResultCodeEnum.getBestEstimate( e, req.getType() );
-            }
-
-            result.setResultCode( code );
-            result.setErrorMessage( msg );
-            if ( ( e.getResolvedName() != null )
-                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
-                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
-            {
-                result.setMatchedDn( (LdapDN)e.getResolvedName() );
-            }
-
-            session.getIoSession().write( req.getResultResponse() );
+            handleException( session, req, e );
         }
     }
 }

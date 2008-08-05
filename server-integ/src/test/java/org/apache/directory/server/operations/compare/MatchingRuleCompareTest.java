@@ -17,24 +17,25 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.operations.compare;
 
-
-import java.util.Hashtable;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.integ.ServerIntegrationUtils;
+import org.apache.directory.server.integ.SiRunner;
+import org.apache.directory.server.newldap.LdapServer;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -45,9 +46,28 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MatchingRuleCompareTest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.SUITE )
+@ApplyLdifs( {
+    // Entry # 1
+    "dn: cn=Tori Amos,ou=system\n" +
+    "objectClass: person\n" +
+    "objectClass: top\n" +
+    "telephoneNumber: 1234567890\n" +
+    "userPassword: Secret1!\n" +
+    "cn: Tori Amos\n" +
+    "sn: Amos\n\n" + 
+    // Entry # 2
+    "dn: cn=Artists,ou=system\n" +
+    "objectClass: groupOfNames\n" +
+    "objectClass: top\n" +
+    "cn: Artists\n" +
+    "member: cn=Tori Amos,ou=system\n\n"
+    }
+)
+public class MatchingRuleCompareTest
 {
-    private LdapContext ctx = null;
+    public static LdapServer ldapServer;
 
     public static final String PERSON_CN = "Tori Amos";
     public static final String PERSON_SN = "Amos";
@@ -59,85 +79,16 @@ public class MatchingRuleCompareTest extends AbstractServerTest
     public static final String GROUP_RDN = "cn=" + GROUP_CN;
 
 
-    protected Attributes getPersonAttributes( String sn, String cn )
-    {
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "person" );
-        attributes.put( attribute );
-        attributes.put( "cn", cn );
-        attributes.put( "sn", sn );
-
-        return attributes;
-    }
-
-
-    protected Attributes getGroupOfNamesAttributes( String cn, String member )
-    {
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "groupOfNames" );
-        attributes.put( attribute );
-        attributes.put( "cn", cn );
-        attributes.put( "member", member );
-
-        return attributes;
-    }
-
-
-    /**
-     * Create context, a person entry and a group.
-     */
-    public void setUp() throws Exception
-    {
-        super.setUp();
-
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-
-        ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
-
-        // Create a person
-        Attributes attributes = this.getPersonAttributes( PERSON_SN, PERSON_CN );
-        attributes.put( "telephoneNumber", PERSON_TELEPHONE );
-        attributes.put( "userPassword", PERSON_PWD );
-        ctx.createSubcontext( PERSON_RDN, attributes );
-
-        // Create a group
-        DirContext member = ( DirContext ) ctx.lookup( PERSON_RDN );
-        attributes = this.getGroupOfNamesAttributes( GROUP_CN, member.getNameInNamespace() );
-        ctx.createSubcontext( GROUP_RDN, attributes );
-    }
-
-
-    /**
-     * Remove entries and close context.
-     */
-    public void tearDown() throws Exception
-    {
-        ctx.unbind( PERSON_RDN );
-        ctx.unbind( GROUP_RDN );
-
-        ctx.close();
-
-        super.tearDown();
-    }
-
-
     /**
      * Compare with caseIgnoreMatch matching rule.
      * 
      * @throws NamingException
      */
-    public void testCaseIgnoreMatch() throws NamingException
+    @Test
+    public void testCaseIgnoreMatch() throws Exception
     {
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        
         // Setting up search controls for compare op
         SearchControls ctls = new SearchControls();
         ctls.setReturningAttributes( new String[]
@@ -240,8 +191,11 @@ public class MatchingRuleCompareTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testDistinguishedNameMatch() throws NamingException
+    @Test
+    public void testDistinguishedNameMatch() throws Exception
     {
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        
         // determine member DN of person
         DirContext member = ( DirContext ) ctx.lookup( PERSON_RDN );
         String memberDN = member.getNameInNamespace();
@@ -270,5 +224,4 @@ public class MatchingRuleCompareTest extends AbstractServerTest
             enumeration.close();
         }
     }
-
 }

@@ -23,6 +23,7 @@ package org.apache.directory.server.operations.delete;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import javax.naming.NameNotFoundException;
@@ -287,5 +288,27 @@ public class DeleteIT
         assertEquals( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[2] );
 
         conn.disconnect();
+    }
+    
+    
+
+    /**
+     * Try to delete an entry with invalid DN. Expected result code is 32
+     * (NO_SUCH_OBJECT) or 34 (INVALID_DN_SYNTAX).
+     */
+    public void testDeleteWithIllegalName() throws Exception 
+    {
+        LDAPConnection conn = getWiredConnection( ldapServer );
+        
+        try 
+        {
+            conn.delete("This is an illegal name,dc=example,dc=com" );
+            fail( "deletion should fail" );
+        } 
+        catch ( LDAPException e ) 
+        {
+            assertTrue( e.getLDAPResultCode() == LDAPException.INVALID_DN_SYNTAX || 
+                        e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT );
+        }
     }
 }

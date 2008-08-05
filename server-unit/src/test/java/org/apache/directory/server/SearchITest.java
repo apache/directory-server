@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -182,7 +183,55 @@ public class SearchITest extends AbstractServerTest
         ctx.createSubcontext( HEATHER_RDN, heather );
     }
 
+    
+    public void testSearch() throws Exception
+    {
+        LdapContext ctx = getWiredContext();
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setTimeLimit( 10 );
+        
+        try 
+        {
+            ctx.search( "myBadDN", "(objectClass=*)", controls );
 
+            fail(); // We should get an exception here
+        } 
+        catch ( InvalidNameException ine ) 
+        {
+            // Expected.
+        } 
+        catch ( NamingException ne )
+        {
+            fail();
+        }
+        catch( Exception e )
+        {
+            fail();
+        }
+        
+        try
+        {
+            controls = new SearchControls();
+            controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+            controls.setTimeLimit( 10 );
+            
+            NamingEnumeration<SearchResult> result = ctx.search( "ou=system", "(objectClass=*)", controls );
+
+            assertTrue( result.hasMore() ); 
+        } 
+        catch ( InvalidNameException ine ) 
+        {
+            fail();
+            // Expected.
+        } 
+        catch ( NamingException ne )
+        {
+            fail();
+        }
+    }
+
+    
     /**
      * Remove person entry and close context.
      */

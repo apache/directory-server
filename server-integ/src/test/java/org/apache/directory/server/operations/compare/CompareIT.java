@@ -247,6 +247,31 @@ public class CompareIT
     
     
     /**
+     * Check that operation are not executed if we are now allowed to bind
+     * anonymous
+     * @throws LDAPException
+     */
+    @Test
+    public void testCompareWithoutAuthentication() throws LDAPException
+    {
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
+        LDAPConnection conn = new LDAPConnection();
+        conn.connect( "localhost", ldapServer.getIpPort() );
+        LDAPAttribute attr = new LDAPAttribute( "uid", "admin" );
+        
+        try
+        {
+            conn.compare( "uid=admin,ou=system", attr );
+            fail( "Compare success without authentication" );
+        }
+        catch ( LDAPException e )
+        {
+            assertEquals( "no permission exception", 50, e.getLDAPResultCode() );
+        }
+    }
+
+
+    /**
      * Tests compare operation on normal and referral entries without the 
      * ManageDsaIT control using JNDI while chasing referrals instead of 
      * the Netscape API. Referrals are sent back to the client with a 

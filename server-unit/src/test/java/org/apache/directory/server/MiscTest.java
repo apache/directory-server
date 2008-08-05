@@ -37,10 +37,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
@@ -136,30 +132,6 @@ public class MiscTest extends AbstractServerTest
     }
 
     
-    /**
-     * Check that operation are not executed if we are now allowed to bind
-     * anonymous
-     * @throws LDAPException
-     */
-    @Test
-    public void testCompareWithoutAuthentication() throws LDAPException
-    {
-    	directoryService.setAllowAnonymousAccess( false );
-        LDAPConnection conn = new LDAPConnection();
-        conn.connect( "localhost", super.port );
-        LDAPAttribute attr = new LDAPAttribute( "uid", "admin" );
-        try
-        {
-            conn.compare( "uid=admin,ou=system", attr );
-            fail( "Compare success without authentication" );
-        }
-        catch ( LDAPException e )
-        {
-            assertEquals( "no permission exception", 50, e.getLDAPResultCode() );
-        }
-    }
-
-
     /**
      * Test to make sure anonymous binds are disabled when going through
      * the wire protocol.
@@ -420,6 +392,7 @@ public class MiscTest extends AbstractServerTest
             private static final long serialVersionUID = 1L;
 
 
+            @SuppressWarnings("unused")
             public String getType()
             {
                 return "1.1.1.1";
@@ -431,12 +404,14 @@ public class MiscTest extends AbstractServerTest
             }
 
 
+            @SuppressWarnings("unused")
             public byte[] getValue()
             {
                 return new byte[0];
             }
 
 
+            @SuppressWarnings("unused")
             public void setValue( byte[] value )
             {
             }
