@@ -22,6 +22,7 @@ package org.apache.directory.server.operations.add;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.ReferralException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -29,25 +30,37 @@ import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPConstraints;
+import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPResponse;
+import netscape.ldap.LDAPResponseListener;
+import netscape.ldap.LDAPSearchConstraints;
 
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.integ.ServerIntegrationUtils;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
+
 import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
@@ -65,24 +78,45 @@ import static org.junit.Assert.assertNotNull;
 @RunWith ( SiRunner.class ) 
 @CleanupLevel ( Level.SUITE )
 @ApplyLdifs( {
-    // Entry # 1
+    // Entry # 0
     "dn: cn=The Person,ou=system\n" +
     "objectClass: person\n" +
     "objectClass: top\n" +
     "cn: The Person\n" +
     "description: this is a person\n" +
-    "sn: Person\n\n" 
+    "sn: Person\n\n" + 
+    // Entry # 1
+    "dn: uid=akarasulu,ou=users,ou=system\n" +
+    "objectClass: uidObject\n" +
+    "objectClass: person\n" +
+    "objectClass: top\n" +
+    "uid: akarasulu\n" +
+    "cn: Alex Karasulu\n" +
+    "sn: karasulu\n\n" + 
+    // Entry # 2
+    "dn: ou=Computers,uid=akarasulu,ou=users,ou=system\n" +
+    "objectClass: organizationalUnit\n" +
+    "objectClass: top\n" +
+    "ou: computers\n" +
+    "description: Computers for Alex\n" +
+    "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system\n\n" + 
+    // Entry # 3
+    "dn: uid=akarasuluref,ou=users,ou=system\n" +
+    "objectClass: uidObject\n" +
+    "objectClass: referral\n" +
+    "objectClass: top\n" +
+    "uid: akarasuluref\n" +
+    "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system\n" + 
+    "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system\n" +
+    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n"
     }
 )
 public class AddIT
 {
+    private static final Logger LOG = LoggerFactory.getLogger( AddIT.class );
     private static final String RDN = "cn=The Person";
 
-    static final String HOST = "localhost";
-    static final String USER = "uid=admin,ou=system";
-    static final String PASSWORD = "secret";
-    static final String BASE = "ou=system";
-
+    private static final String BASE = "ou=system";
 
 
     public static LdapServer ldapServer;
@@ -96,7 +130,7 @@ public class AddIT
     @Test
     public void testAddObjectClasses() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // modify object classes, add two more
         Attributes attributes = new AttributesImpl( true );
@@ -129,7 +163,7 @@ public class AddIT
     @Test
     public void testModifyDescription() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         String newDescription = "More info on the user ...";
 
@@ -158,7 +192,7 @@ public class AddIT
     @Test
     public void testAddWithMissingRequiredAttributes() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // person without sn
         Attributes attrs = new AttributesImpl();
@@ -190,7 +224,7 @@ public class AddIT
     @Test
     public void testAddEntryWithTwoDescriptions() throws Exception
     {
-        LDAPConnection con = ServerIntegrationUtils.getWiredConnection( ldapServer );
+        LDAPConnection con = getWiredConnection( ldapServer );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -232,7 +266,7 @@ public class AddIT
     @Test
     public void testAddEntryWithTwoDescriptionsVariant() throws Exception
     {
-        LDAPConnection con = ServerIntegrationUtils.getWiredConnection( ldapServer );
+        LDAPConnection con = getWiredConnection( ldapServer );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -275,7 +309,7 @@ public class AddIT
     @Test
     public void testAddEntryWithTwoDescriptionsSecondVariant() throws Exception
     {
-        LDAPConnection con = ServerIntegrationUtils.getWiredConnection( ldapServer );
+        LDAPConnection con = getWiredConnection( ldapServer );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -309,7 +343,7 @@ public class AddIT
 
     
     /**
-     * Try to add entry with invalid number of values for a single-valued atribute
+     * Try to add entry with invalid number of values for a single-valued attribute
      * 
      * @throws NamingException if we fail to connect and add entries
      * @see <a href="http://issues.apache.org/jira/browse/DIRSERVER-614">DIRSERVER-614</a>
@@ -317,7 +351,7 @@ public class AddIT
     @Test
     public void testAddWithInvalidNumberOfAttributeValues() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // add inetOrgPerson with two displayNames
         Attributes attrs = new AttributesImpl();
@@ -351,7 +385,7 @@ public class AddIT
     @Test
     public void testAddAlias() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // Create entry
         Attributes entry = new AttributesImpl();
@@ -391,7 +425,7 @@ public class AddIT
     @Test
     public void testAddAliasInContainer() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // Create container
         Attributes container = new AttributesImpl();
@@ -480,7 +514,7 @@ public class AddIT
     @Test
     public void testAddDeleteAlias() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // Create entry ou=favorite,dc=example,dc=com
         Attributes entry = new AttributesImpl();
@@ -508,5 +542,132 @@ public class AddIT
         // Remove alias and entry
         ctx.destroySubcontext( rdnAlias ); //Waiting for Connection.reply()
         ctx.destroySubcontext( entryRdn );
+    }
+    
+    
+    /**
+     * Tests add operation on referral entry with the ManageDsaIT control.
+     */
+    @Test
+    public void testOnReferralWithManageDsaITControl() throws Exception
+    {
+        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConstraints constraints = new LDAPSearchConstraints();
+        constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
+        constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
+        conn.setConstraints( constraints );
+        
+        // add success
+        LDAPAttributeSet attrSet = new LDAPAttributeSet();
+        attrSet.add( new LDAPAttribute( "objectClass", "organizationalUnit" ) );
+        attrSet.add( new LDAPAttribute( "ou", "UnderReferral" ) );
+        LDAPEntry entry = new LDAPEntry( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", attrSet );
+        
+        conn.add( entry, constraints );
+        
+        LDAPEntry reread = conn.read( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", 
+            ( LDAPSearchConstraints ) constraints );
+        assertEquals( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", reread.getDN() );
+        
+        conn.disconnect();
+    }
+    
+    
+    /**
+     * Tests referral handling when an ancestor is a referral.
+     */
+    @Test 
+    public void testAncestorReferral() throws Exception
+    {
+        LOG.debug( "" );
+
+        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConstraints constraints = new LDAPConstraints();
+        conn.setConstraints( constraints );
+
+        // referrals failure
+        LDAPAttributeSet attrSet = new LDAPAttributeSet();
+        attrSet.add( new LDAPAttribute( "objectClass", "organizationalUnit" ) );
+        attrSet.add( new LDAPAttribute( "ou", "UnderReferral" ) );
+        LDAPEntry entry = new LDAPEntry( "ou=UnderReferral,ou=Computers,uid=akarasuluref,ou=users,ou=system", attrSet );
+        
+        LDAPResponseListener listener = conn.add( entry, null, constraints );
+        LDAPResponse response = listener.getResponse();
+        assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
+
+        assertEquals( "ldap://localhost:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system", 
+            response.getReferrals()[0] );
+        assertEquals( "ldap://foo:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system", 
+            response.getReferrals()[1] );
+        assertEquals( "ldap://bar:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system", 
+            response.getReferrals()[2] );
+
+        conn.disconnect();
+    }
+
+    
+    /**
+     * Tests add operation on normal and referral entries without the 
+     * ManageDsaIT control. Referrals are sent back to the client with a
+     * non-success result code.
+     */
+    @Test
+    public void testOnReferral() throws Exception
+    {
+        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConstraints constraints = new LDAPConstraints();
+        constraints.setReferrals( false );
+        conn.setConstraints( constraints );
+        
+        // referrals failure
+
+        LDAPAttributeSet attrSet = new LDAPAttributeSet();
+        attrSet.add( new LDAPAttribute( "objectClass", "organizationalUnit" ) );
+        attrSet.add( new LDAPAttribute( "ou", "UnderReferral" ) );
+        LDAPEntry entry = new LDAPEntry( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", attrSet );
+        
+        LDAPResponseListener listener = null;
+        LDAPResponse response = null;
+        listener = conn.add( entry, null, constraints );
+        response = listener.getResponse();
+
+        assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
+
+        assertEquals( "ldap://localhost:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system", response.getReferrals()[0] );
+        assertEquals( "ldap://foo:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system", response.getReferrals()[1] );
+        assertEquals( "ldap://bar:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system", response.getReferrals()[2] );
+
+        conn.disconnect();
+    }
+    
+    
+    /**
+     * Tests add operation on normal and referral entries without the 
+     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
+     * are sent back to the client with a non-success result code.
+     */
+    @Test
+    public void testThrowOnReferralWithJndi() throws Exception
+    {
+        LdapContext ctx = getWiredContextThrowOnRefferal( ldapServer );
+        SearchControls controls = new SearchControls();
+        controls.setReturningAttributes( new String[0] );
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        
+        // add failure
+        Attributes attrs = new AttributesImpl( "objectClass", "organizationalUnit" );
+        attrs.put( "ou", "UnderReferral" );
+        
+        try
+        {
+            ctx.createSubcontext( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", attrs );
+            fail( "Should never get here: add should fail with ReferralExcpetion" );
+        }
+        catch( ReferralException e )
+        {
+            assertEquals( "ldap://localhost:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system", e.getReferralInfo() );
+        }
+
+        ctx.close();
     }
 }
