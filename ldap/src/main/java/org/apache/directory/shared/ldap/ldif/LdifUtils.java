@@ -793,6 +793,23 @@ public class LdifUtils
 
                     previous = modifiedEntry.get( mod.getID() );
 
+                    /*
+                     * The server accepts without complaint replace 
+                     * modifications to non-existing attributes in the 
+                     * entry.  When this occurs nothing really happens
+                     * but this method freaks out.  To prevent that we
+                     * make such no-op modifications produce the same
+                     * modification for the reverse direction which should
+                     * do nothing as well.  
+                     */
+                    if ( mod.get() == null && previous == null )
+                    {
+                        reverseModification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, 
+                            new AttributeImpl( mod.getID() ) );
+                        reverseModifications.add( 0, reverseModification );
+                        continue;
+                    }
+                    
                     if ( mod.get() == null )
                     {
                         reverseModification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, previous );
