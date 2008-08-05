@@ -91,8 +91,6 @@
             <configuration>
               <includes>
                 <include>**/*ISuite.java</include>
-                <include>**/*ITest.java</include>
-                <include>**/*IT.java</include>
               </includes>
             </configuration>
           </plugin>
