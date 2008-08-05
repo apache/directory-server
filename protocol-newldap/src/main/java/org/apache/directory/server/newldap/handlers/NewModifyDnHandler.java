@@ -20,17 +20,12 @@
 package org.apache.directory.server.newldap.handlers;
 
  
-import javax.naming.NamingException;
-import javax.naming.ReferralException;
-
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.newldap.LdapSession;
-import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,12 +37,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class NewModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
+public class NewModifyDnHandler extends SingleReplyRequestHandler<ModifyDnRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( NewModifyDnHandler.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     
     /**
@@ -66,14 +58,11 @@ public class NewModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
      * - newSuperior : this is a move operation. The entry is removed from its
      * current location, and created in the new one.
      */
-    public void handle( LdapSession session, ModifyDnRequest req ) throws Exception
+    public void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 
+        ClonedServerEntry entry, ModifyDnRequest req )
     {
         LdapResult result = req.getResultResponse().getLdapResult();
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Received: ", req );
-        }
+        LOG.debug( "Handling modify dn request while ignoring referrals: {}", req );
 
         if ( req.getName().isEmpty() )
         {
@@ -106,53 +95,9 @@ public class NewModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
             result.setResultCode( ResultCodeEnum.SUCCESS );
             session.getIoSession().write( req.getResultResponse() );
         }
-        catch ( ReferralException e )
+        catch ( Exception e )
         {
-            ReferralImpl refs = new ReferralImpl();
-            result.setReferral( refs );
-            result.setResultCode( ResultCodeEnum.REFERRAL );
-            result.setErrorMessage( "Encountered referral attempting to handle modifyDn request." );
-            result.setMatchedDn( ( LdapDN ) e.getResolvedName() );
-
-            do
-            {
-                refs.addLdapUrl( ( String ) e.getReferralInfo() );
-            }
-            while ( e.skipReferral() );
-
-            session.getIoSession().write( req.getResultResponse() );
-        }
-        catch ( NamingException e )
-        {
-            String msg = "failed to modify DN of entry " + req.getName() + ": " + e.getMessage();
-
-            if ( IS_DEBUG )
-            {
-                msg += ":\n" + ExceptionUtils.getStackTrace( e );
-            }
-
-            ResultCodeEnum code;
-
-            if ( e instanceof LdapException )
-            {
-                code = ( ( LdapException ) e ).getResultCode();
-            }
-            else
-            {
-                code = ResultCodeEnum.getBestEstimate( e, req.getType() );
-            }
-
-            result.setResultCode( code );
-            result.setErrorMessage( msg );
-
-            if ( ( e.getResolvedName() != null )
-                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
-                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
-            {
-                result.setMatchedDn( (LdapDN)e.getResolvedName() );
-            }
-
-            session.getIoSession().write( req.getResultResponse() );
+            handleException( session, req, e );
         }
     }
 }
