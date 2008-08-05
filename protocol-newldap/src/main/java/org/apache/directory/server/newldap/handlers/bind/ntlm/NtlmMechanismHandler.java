@@ -78,4 +78,29 @@ public class NtlmMechanismHandler implements MechanismHandler
     {
         provider = ( NtlmProvider ) Class.forName( providerFqcn ).newInstance();
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void init( LdapSession ldapSession )
+    {
+        // Store the host in the ldap session
+        String saslHost = ldapSession.getLdapServer().getSaslHost();
+        ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
+    }
+
+
+    /**
+     * Remove the Host, UserBaseDn, props and Mechanism property.
+     * 
+     * @param ldapSession the LdapSession instance
+     */
+    public void cleanup( LdapSession ldapSession )
+    {
+        ldapSession.removeSaslProperty( SaslConstants.SASL_HOST );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_USER_BASE_DN );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_MECH );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_PROPS );
+    }
 }
