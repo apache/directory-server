@@ -73,6 +73,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     public final void messageReceived( IoSession session, T message ) throws Exception
     {
         LdapSession ldapSession = ldapServer.getLdapSession( session );
+        ldapSession.setLdapServer( ldapServer );
 
         // We should check that the server allows anonymous requests
         // only if it's not a BindRequest

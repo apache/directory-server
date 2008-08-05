@@ -21,7 +21,6 @@ package org.apache.directory.server.newldap.handlers.bind.cramMD5;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
@@ -44,7 +43,7 @@ import java.util.Map;
  */
 public class CramMd5MechanismHandler implements MechanismHandler
 {
-    public SaslServer handleMechanism( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss = (SaslServer)ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
 
@@ -57,6 +56,8 @@ public class CramMd5MechanismHandler implements MechanismHandler
             ldapSession.putSaslProperty( SaslConstants.SASL_USER_BASE_DN, userBaseDn );
             Map<String, String> saslProps = new HashMap<String, String>();
             
+            CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
+
             CallbackHandler callbackHandler = new CramMd5CallbackHandler( ldapSession, adminSession, bindRequest );
 
             ss = Sasl.createSaslServer( SupportedSaslMechanisms.CRAM_MD5, SaslConstants.LDAP_PROTOCOL, saslHost, saslProps, callbackHandler );

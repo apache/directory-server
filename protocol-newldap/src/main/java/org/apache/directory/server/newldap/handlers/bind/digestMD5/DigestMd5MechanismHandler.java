@@ -75,7 +75,7 @@ public class DigestMd5MechanismHandler implements MechanismHandler
 
 
     
-    public SaslServer handleMechanism( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss = (SaslServer)ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
 
@@ -89,6 +89,8 @@ public class DigestMd5MechanismHandler implements MechanismHandler
             Map<String, String> saslProps = new HashMap<String, String>();
             saslProps.put( Sasl.QOP, ldapSession.getLdapServer().getSaslQopString() );
             saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( ldapSession.getLdapServer() ) );
+
+            CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
 
             CallbackHandler callbackHandler = new DigestMd5CallbackHandler( ldapSession, adminSession, bindRequest );
 

@@ -53,7 +53,7 @@ public class SimpleMechanismHandler implements MechanismHandler
     private static final Logger LOG = LoggerFactory.getLogger( SimpleMechanismHandler.class );
 
     
-    public SaslServer handleMechanism( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         // create a new Bind context, with a null session, as we don't have 
         // any context yet.
@@ -68,6 +68,8 @@ public class SimpleMechanismHandler implements MechanismHandler
         
         try
         {
+            CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
+
             // And call the OperationManager bind operation.
             adminSession.getDirectoryService().getOperationManager().bind( opContext );
             

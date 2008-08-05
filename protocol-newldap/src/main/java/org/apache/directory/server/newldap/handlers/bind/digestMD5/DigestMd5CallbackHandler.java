@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
-import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,8 +53,6 @@ import javax.security.sasl.AuthorizeCallback;
 public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
 {
     private static final Logger LOG = LoggerFactory.getLogger( DigestMd5CallbackHandler.class );
-
-    private IoSession session;
 
     private String bindDn;
     private String userPassword;

@@ -20,7 +20,6 @@
 package org.apache.directory.server.newldap.handlers.bind.gssapi;
 
 
-import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
@@ -44,7 +43,7 @@ import java.util.Map;
  */
 public class GssapiMechanismHandler implements MechanismHandler
 {
-    public SaslServer handleMechanism( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
 

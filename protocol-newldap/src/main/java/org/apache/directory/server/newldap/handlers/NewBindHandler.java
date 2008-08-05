@@ -77,14 +77,6 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
     /** A Hashed Adapter mapping SASL mechanisms to their handlers. */
     private Map<String, MechanismHandler> handlers;
 
-    /** A session created using the server Admin, to be able to get full access to the server */
-    private CoreSession adminSession;
-    
-    
-    /** A lock used to protect the creation of the inner AdminSession */
-    private Object mutex = new Object();
-    
-    
     /**
      * Set the mechanisms handler map.
      * 
@@ -375,6 +367,8 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
     
     private void handleSaslAuthPending( LdapSession ldapSession, BindRequest bindRequest, DirectoryService ds ) throws Exception
     {
+        CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
+        
         // First, check that we have the same mechanism
         String saslMechanism = bindRequest.getSaslMechanism();
         
@@ -394,7 +388,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
             throw new IllegalArgumentException( message );
         }
 
-        SaslServer ss = mechanismHandler.handleMechanism( ldapSession, adminSession, bindRequest );
+        SaslServer ss = mechanismHandler.handleMechanism( ldapSession, bindRequest );
         
         if ( !ss.isComplete() )
         {
@@ -541,7 +535,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
                 MechanismHandler mechanismHandler = handlers.get( saslMechanism );
                 
                 // Get the SaslServer instance which manage the C/R exchange
-                SaslServer ss = mechanismHandler.handleMechanism( ldapSession, adminSession, bindRequest );
+                SaslServer ss = mechanismHandler.handleMechanism( ldapSession, bindRequest );
                 
                 // We have to generate a challenge
                 generateSaslChallenge( ldapSession, ss, bindRequest );
@@ -642,13 +636,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
 
     private PrincipalStoreEntry findPrincipal( LdapServer ldapServer, GetPrincipal getPrincipal ) throws Exception
     {
-        synchronized ( mutex )
-        {
-            if ( adminSession == null )
-            {
-                adminSession = getLdapServer().getDirectoryService().getAdminSession();
-            }
-        }
+        CoreSession adminSession = ldapServer.getDirectoryService().getAdminSession();
 
         return ( PrincipalStoreEntry ) getPrincipal.execute( adminSession, null );
     }    
@@ -684,15 +672,6 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
         }
         else
         {
-            synchronized ( mutex )
-            {
-                if ( adminSession == null )
-                {
-                    adminSession = getLdapServer().getDirectoryService().getAdminSession();
-                    ldapSession.setLdapServer( getLdapServer() );
-                }
-            }
-
             handleSaslAuth( ldapSession, bindRequest );
         }
     }

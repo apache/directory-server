@@ -42,13 +42,14 @@ public class PlainMechanismHandler implements MechanismHandler
     /**
      * {@inheritDoc}
      */
-    public SaslServer handleMechanism( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
         
         if ( ss == null )
         {
-            
+            CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
+
             ss = new PlainSaslServer( ldapSession, adminSession, bindRequest );
             ldapSession.putSaslProperty( SaslConstants.SASL_SERVER, ss );
         }

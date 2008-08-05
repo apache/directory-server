@@ -20,7 +20,6 @@
 package org.apache.directory.server.newldap.handlers.bind.ntlm;
 
 
-import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
@@ -56,7 +55,7 @@ public class NtlmMechanismHandler implements MechanismHandler
     }
 
 
-    public SaslServer handleMechanism( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
 
