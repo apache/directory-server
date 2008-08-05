@@ -168,6 +168,7 @@ tests run maven with the -Dintegration switch.
               <excludes>
                 <exclude>**/Abstract*</exclude>
                 <exclude>**/PersistentSearchTest*</exclude>
+                <exclude>**/SaslBindITest*</exclude>
               </excludes>
             </configuration>
           </plugin>

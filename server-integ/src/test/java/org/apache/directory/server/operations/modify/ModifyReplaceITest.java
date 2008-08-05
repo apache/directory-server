@@ -17,11 +17,10 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.operations.modify;
 
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
@@ -31,17 +30,33 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.integ.SiRunner;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+
+import org.apache.directory.server.newldap.LdapServer;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
  * Test case for all modify replace operations.
  * 
- * Testcase to demonstrate DIRSERVER-646 ("Replacing an unknown attribute with
+ * Demonstrates DIRSERVER-646 ("Replacing an unknown attribute with
  * no values (deletion) causes an error").
  */
-public class ModifyReplaceITest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.SUITE )
+public class ModifyReplaceITest 
 {
+    private static final String BASE = "ou=system";
+
+    public static LdapServer ldapServer;
+    
+    
     protected Attributes getPersonAttributes( String sn, String cn ) 
     {
         Attributes attrs = new BasicAttributes();
@@ -59,8 +74,11 @@ public class ModifyReplaceITest extends AbstractServerTest
     /**
      * Create a person entry and try to remove a not present attribute
      */
-    public void testReplaceNotPresentAttribute() throws NamingException 
+    @Test
+    public void testReplaceNotPresentAttribute() throws Exception 
     {
+        DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush";
         sysRoot.createSubcontext( rdn, attrs );
@@ -75,7 +93,7 @@ public class ModifyReplaceITest extends AbstractServerTest
         String filter = "(sn=Bush)";
         String base = "";
 
-        NamingEnumeration enm = sysRoot.search( base, filter, sctls );
+        NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
         while ( enm.hasMore() ) 
         {
             SearchResult sr = ( SearchResult ) enm.next();
@@ -92,8 +110,11 @@ public class ModifyReplaceITest extends AbstractServerTest
     /**
      * Create a person entry and try to remove a non existing attribute
      */
-    public void testReplaceNonExistingAttribute() throws NamingException 
+    @Test
+    public void testReplaceNonExistingAttribute() throws Exception 
     {
+        DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush";
         sysRoot.createSubcontext( rdn, attrs );
@@ -108,10 +129,10 @@ public class ModifyReplaceITest extends AbstractServerTest
         String filter = "(sn=Bush)";
         String base = "";
 
-        NamingEnumeration enm = sysRoot.search( base, filter, sctls );
+        NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
         while ( enm.hasMore() ) 
         {
-            SearchResult sr = ( SearchResult ) enm.next();
+            SearchResult sr = enm.next();
             attrs = sr.getAttributes();
             Attribute cn = sr.getAttributes().get( "cn" );
             assertNotNull( cn );
@@ -125,8 +146,11 @@ public class ModifyReplaceITest extends AbstractServerTest
     /**
      * Create a person entry and try to remove a non existing attribute
      */
-    public void testReplaceNonExistingAttributeManyMods() throws NamingException 
+    @Test
+    public void testReplaceNonExistingAttributeManyMods() throws Exception 
     {
+        DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush";
         sysRoot.createSubcontext( rdn, attrs );
@@ -143,10 +167,10 @@ public class ModifyReplaceITest extends AbstractServerTest
         String filter = "(sn=Bush)";
         String base = "";
 
-        NamingEnumeration enm = sysRoot.search( base, filter, sctls );
+        NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
         while ( enm.hasMore() ) 
         {
-            SearchResult sr = ( SearchResult ) enm.next();
+            SearchResult sr = enm.next();
             attrs = sr.getAttributes();
             Attribute cn = sr.getAttributes().get( "cn" );
             assertNotNull( cn );

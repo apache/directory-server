@@ -17,11 +17,10 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.operations.modify;
 
 
 import java.util.Arrays;
-import java.util.Hashtable;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -38,30 +37,66 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.integ.SiRunner;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+
+import org.apache.directory.server.newldap.LdapServer;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
- * Testcase with different modify operations on a person entry. Each includes a
+ * Test case with different modify operations on a person entry. Each includes a
  * single add op only. Created to demonstrate DIREVE-241 ("Adding an already
  * existing attribute value with a modify operation does not cause an error.").
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyAddTest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.SUITE )
+@ApplyLdifs( {
+    // Entry # 1
+    "dn: cn=Tori Amos,ou=system\n" +
+    "objectClass: inetOrgPerson\n" +
+    "objectClass: organizationalPerson\n" +
+    "objectClass: person\n" +
+    "objectClass: top\n" +
+    "description: an American singer-songwriter\n" +
+    "cn: Tori Amos\n" +
+    "sn: Amos\n\n" + 
+    // Entry # 2
+    "dn: cn=Debbie Harry,ou=system\n" +
+    "objectClass: inetOrgPerson\n" +
+    "objectClass: organizationalPerson\n" +
+    "objectClass: person\n" +
+    "objectClass: top\n" +
+    "cn: Debbie Harry\n" +
+    "sn: Harry\n\n" 
+    }
+)
+public class ModifyAddTest 
 {
-    private LdapContext ctx = null;
+    private static final String BASE = "ou=system";
     private static final String RDN_TORI_AMOS = "cn=Tori Amos";
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
     private static final String RDN_DEBBIE_HARRY = "cn=Debbie Harry";
 
+    public static LdapServer ldapServer;
+    
 
     /**
      * Creation of required attributes of a person entry.
@@ -83,54 +118,13 @@ public class ModifyAddTest extends AbstractServerTest
 
 
     /**
-     * Create context and a person entry.
-     */
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-
-        ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
-
-        // Create Tori Amos with description
-        Attributes attributes = this.getPersonAttributes( "Amos", "Tori Amos" );
-        attributes.put( "description", "an American singer-songwriter" );
-        ctx.createSubcontext( RDN_TORI_AMOS, attributes );
-
-        // Create Debbie Harry ( I feel like being God when creating people as good looking as Blondie :)
-        attributes = getPersonAttributes( "Harry", "Debbie Harry" );
-        ctx.createSubcontext( RDN_DEBBIE_HARRY, attributes );
-
-    }
-
-
-    /**
-     * Remove person entry and close context.
-     */
-    protected void tearDown() throws Exception
-    {
-        ctx.unbind( RDN_TORI_AMOS );
-        ctx.destroySubcontext( RDN_DEBBIE_HARRY );
-        ctx.close();
-        ctx = null;
-        super.tearDown();
-    }
-
-
-    /**
      * Add a new attribute to a person entry.
-     * 
-     * @throws NamingException
      */
-    public void testAddNewAttributeValue() throws NamingException
+    @Test
+    public void testAddNewAttributeValue() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Add telephoneNumber attribute
         String newValue = "1234567890";
         Attributes attrs = new AttributesImpl( "telephoneNumber", newValue );
@@ -147,11 +141,12 @@ public class ModifyAddTest extends AbstractServerTest
 
     /**
      * Add a new attribute with two values.
-     * 
-     * @throws NamingException
      */
-    public void testAddNewAttributeValues() throws NamingException
+    @Test
+    public void testAddNewAttributeValues() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Add telephoneNumber attribute
         String[] newValues =
             { "1234567890", "999999999" };
@@ -174,11 +169,12 @@ public class ModifyAddTest extends AbstractServerTest
 
     /**
      * Add an additional value.
-     * 
-     * @throws NamingException
      */
-    public void testAddAdditionalAttributeValue() throws NamingException
+    @Test
+    public void testAddAdditionalAttributeValue() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // A new description attribute value
         String newValue = "A new description for this person";
         assertFalse( newValue.equals( PERSON_DESCRIPTION ) );
@@ -203,11 +199,12 @@ public class ModifyAddTest extends AbstractServerTest
      * AttributeInUseException. Original LDAP Error code: 20 (Indicates that the
      * attribute value specified in a modify or add operation already exists as
      * a value for that attribute).
-     * 
-     * @throws NamingException
      */
-    public void testAddExistingAttributeValue() throws NamingException
+    @Test
+    public void testAddExistingAttributeValue() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Change description attribute
         Attributes attrs = new AttributesImpl( "description", PERSON_DESCRIPTION );
         
@@ -229,6 +226,7 @@ public class ModifyAddTest extends AbstractServerTest
         assertEquals( 1, attr.size() );
     }
 
+    
     /**
      * Try to add an already existing attribute value.
      * 
@@ -238,11 +236,12 @@ public class ModifyAddTest extends AbstractServerTest
      * a value for that attribute).
      * 
      * Check for bug DIR_SERVER664
-     * 
-     * @throws NamingException
      */
-    public void testAddExistingNthAttributesDirServer664() throws NamingException
+    @Test
+    public void testAddExistingNthAttributesDirServer664() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Change description attribute
         Attributes attrs = new AttributesImpl( true );
         attrs.put( new AttributeImpl( "telephoneNumber", "attr 1" ) );
@@ -282,13 +281,15 @@ public class ModifyAddTest extends AbstractServerTest
         assertEquals( 1, attr.size() );
     }
 
+    
     /**
      * Check for DIR_SERVER_643
-     * 
-     * @throws NamingException
      */
-    public void testTwoDescriptionDirServer643() throws NamingException
+    @Test
+    public void testTwoDescriptionDirServer643() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Change description attribute
         Attributes attrs = new AttributesImpl( true );
         Attribute attr = new AttributeImpl( "description", "a British singer-songwriter with an expressive four-octave voice" );
@@ -312,11 +313,12 @@ public class ModifyAddTest extends AbstractServerTest
      * is already present (objectclass in this case). Expected behaviour is that
      * the modify operation causes an error (error code 20, "Attribute or value
      * exists").
-     * 
-     * @throws NamingException
      */
-    public void testAddDuplicateValueToExistingAttribute() throws NamingException
+    @Test
+    public void testAddDuplicateValueToExistingAttribute() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // modify object classes, add a new value twice
         Attribute ocls = new AttributeImpl( "objectClass", "organizationalPerson" );
         ModificationItemImpl[] modItems = new ModificationItemImpl[2];
@@ -344,11 +346,12 @@ public class ModifyAddTest extends AbstractServerTest
      * Try to add a duplicate attribute value to an entry, where this attribute
      * is not present. Expected behaviour is that the modify operation causes an
      * error (error code 20, "Attribute or value exists").
-     * 
-     * @throws NamingException
      */
-    public void testAddDuplicateValueToNewAttribute() throws NamingException
+    @Test
+    public void testAddDuplicateValueToNewAttribute() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // add the same description value twice
         Attribute desc = new AttributeImpl( "description", "another description value besides songwriter" );
         ModificationItemImpl[] modItems = new ModificationItemImpl[2];
@@ -371,21 +374,12 @@ public class ModifyAddTest extends AbstractServerTest
 
     /**
      * Create an entry with a bad attribute : this should fail.
-     * 
-     * @throws NamingException
      */
-    public void testAddUnexistingAttribute() throws NamingException
+    @Test
+    public void testAddUnexistingAttribute() throws Exception
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-
-        ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
-
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create a third person with a voice attribute
         Attributes attributes = this.getPersonAttributes( "Jackson", "Michael Jackson" );
         attributes.put( "voice", "He is bad ..." );
@@ -406,11 +400,12 @@ public class ModifyAddTest extends AbstractServerTest
 
     /**
      * Modify the entry with a bad attribute : this should fail 
-     * 
-     * @throws NamingException
      */
-    public void testSearchBadAttribute() throws NamingException
+    @Test
+    public void testSearchBadAttribute() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Add a not existing attribute
         String newValue = "unbelievable";
         Attributes attrs = new AttributesImpl( "voice", newValue );
@@ -433,11 +428,12 @@ public class ModifyAddTest extends AbstractServerTest
     /**
      * Create a person entry and perform a modify op, in which
      * we modify an attribute two times.
-     * 
-     * @throws NamingException 
      */
-    public void testAttributeValueMultiMofificationDIRSERVER_636() throws NamingException {
-
+    @Test
+    public void testAttributeValueMultiMofificationDIRSERVER_636() throws Exception 
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create a person entry
         Attributes attrs = getPersonAttributes("Bush", "Kate Bush");
         String rdn = "cn=Kate Bush";
@@ -483,13 +479,15 @@ public class ModifyAddTest extends AbstractServerTest
         ctx.destroySubcontext(rdn);
     }
 
+    
     /**
      * Try to add subschemaSubentry attribute to an entry
-     * 
-     * @throws NamingException 
      */
-    public void testModifyOperationalAttributeAdd() throws NamingException
+    @Test
+    public void testModifyOperationalAttributeAdd() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         ModificationItem modifyOp = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
             "subschemaSubentry", "cn=anotherSchema" ) );
 
@@ -516,11 +514,12 @@ public class ModifyAddTest extends AbstractServerTest
      * attribute which is part of the DN. This is not allowed.
      * 
      * A JIRA has been created for this bug : DIRSERVER_687
-     * 
-     * @throws NamingException 
      */
-     public void testDNAttributeMemberMofificationDIRSERVER_687() throws NamingException {
-
+    @Test
+     public void testDNAttributeMemberMofificationDIRSERVER_687() throws Exception 
+     {
+         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+         
         // Create a person entry
         Attributes attrs = getPersonAttributes("Bush", "Kate Bush");
         String rdn = "cn=Kate Bush";
@@ -550,15 +549,18 @@ public class ModifyAddTest extends AbstractServerTest
             ctx.destroySubcontext(rdn);
         }
     }
+
     
     /**
      * Try to modify an entry adding invalid number of values for a single-valued atribute
      * 
-     * @throws NamingException 
      * @see <a href="http://issues.apache.org/jira/browse/DIRSERVER-614">DIRSERVER-614</a>
      */
-    public void testModifyAddWithInvalidNumberOfAttributeValues() throws NamingException
+    @Test
+    public void testModifyAddWithInvalidNumberOfAttributeValues() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attrs = new AttributesImpl();
         Attribute ocls = new AttributeImpl( "objectClass" );
         ocls.add( "top" );
@@ -589,11 +591,12 @@ public class ModifyAddTest extends AbstractServerTest
 
     /**
      * Add a new attribute to a person entry.
-     * 
-     * @throws NamingException
      */
-    public void testAddNewBinaryAttributeValue() throws NamingException
+    @Test
+    public void testAddNewBinaryAttributeValue() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Add a binary attribute
         byte[] newValue = new byte[]{0x00, 0x01, 0x02, 0x03};
         Attributes attrs = new AttributesImpl( "userCertificate;binary", newValue );

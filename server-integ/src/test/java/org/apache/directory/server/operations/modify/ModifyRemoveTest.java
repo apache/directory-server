@@ -17,13 +17,10 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.operations.modify;
 
-
-import java.util.Hashtable;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -34,29 +31,54 @@ import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.integ.SiRunner;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+
+import org.apache.directory.server.newldap.LdapServer;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
- * Testcase with different modify operations on a person entry. Each includes a
- * single removal op only.
+ * Test case with different modify operations on a person entry. Each includes a
+ * single removal operation only.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyRemoveTest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.SUITE )
+@ApplyLdifs( {
+    // Entry # 1
+    "dn: cn=Tori Amos,ou=system\n" +
+    "objectClass: person\n" +
+    "objectClass: top\n" +
+    "description: an American singer-songwriter\n" +
+    "cn: Tori Amos\n" +
+    "sn: Amos\n\n"
+    }
+)
+public class ModifyRemoveTest
 {
-
-    private LdapContext ctx = null;
-
+    private static final String BASE = "ou=system";
     private static final String RDN = "cn=Tori Amos";
 
+    
+    public static LdapServer ldapServer;
+    
 
     /**
      * Creation of required attributes of a person entry.
@@ -95,66 +117,17 @@ public class ModifyRemoveTest extends AbstractServerTest
 
 
     /**
-     * Create context and a person entry.
-     */
-    public void setUp() throws Exception
-    {
-        super.setUp();
-
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-
-        ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
-
-        // Create a person with description
-        Attributes attributes = this.getPersonAttributes( "Amos", "Tori Amos" );
-        attributes.put( "description", "an American singer-songwriter" );
-        ctx.createSubcontext( RDN, attributes );
-    }
-
-
-    /**
-     * Remove person entry and close context.
-     */
-    public void tearDown() throws Exception
-    {
-        ctx.unbind( RDN );
-        ctx.close();
-        ctx = null;
-        super.tearDown();
-    }
-
-
-    /**
-     * Just a little test to check wether opening the connection and creation of
-     * the person succeeds succeeds.
-     * 
-     * @throws NamingException 
-     */
-    public void testSetUpTearDown() throws NamingException
-    {
-        assertNotNull( ctx );
-        DirContext tori = ( DirContext ) ctx.lookup( RDN );
-        assertNotNull( tori );
-    }
-
-
-    /**
      * Remove an attribute which does not exist in an attribute making sure 
      * it does not remove other values in that attribute.  Tests if the 
      * following JIRA issue is still valid:
      * 
      *    https://issues.apache.org/jira/browse/DIRSERVER-1149
-     * 
-     * @throws NamingException
      */
-    public void testRemoveAttemptWithoutChange() throws NamingException
+    @Test
+    public void testRemoveAttemptWithoutChange() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Get the attributes and check the contents
         Attributes tori = ctx.getAttributes( RDN );
         assertNotNull( tori.get( "objectClass" ) );
@@ -192,11 +165,12 @@ public class ModifyRemoveTest extends AbstractServerTest
      * 
      * Expected result: After successful deletion, attribute is not present in
      * entry.
-     * 
-     * @throws NamingException
      */
-    public void testRemoveNotRequiredAttribute() throws NamingException
+    @Test
+    public void testRemoveNotRequiredAttribute() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Remove description Attribute
         Attribute attr = new AttributeImpl( "description" );
         Attributes attrs = new AttributesImpl();
@@ -215,11 +189,12 @@ public class ModifyRemoveTest extends AbstractServerTest
      * 
      * Expected result: After successful deletion, both attributes ar not
      * present in entry.
-     * 
-     * @throws NamingException
      */
-    public void testRemoveTwoNotRequiredAttributes() throws NamingException
+    @Test
+    public void testRemoveTwoNotRequiredAttributes() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // add telephoneNumber to entry
         Attributes tn = new AttributesImpl( "telephoneNumber", "12345678" );
         ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, tn );
@@ -244,11 +219,12 @@ public class ModifyRemoveTest extends AbstractServerTest
      * here.
      * 
      * Expected Result: Deletion fails with NamingException (Schema Violation).
-     * 
-     * @throws NamingException
      */
-    public void testRemoveRequiredAttribute() throws NamingException
+    @Test
+    public void testRemoveRequiredAttribute() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Remove sn attribute
         Attribute attr = new AttributeImpl( "sn" );
         Attributes attrs = new AttributesImpl();
@@ -270,11 +246,12 @@ public class ModifyRemoveTest extends AbstractServerTest
      * Remove a required attribute from RDN.
      * 
      * Expected Result: Deletion fails with SchemaViolationException.
-     * 
-     * @throws NamingException
      */
-    public void testRemovePartOfRdn() throws NamingException
+    @Test
+    public void testRemovePartOfRdn() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Remove sn attribute
         Attribute attr = new AttributeImpl( "cn" );
         Attributes attrs = new AttributesImpl();
@@ -296,11 +273,12 @@ public class ModifyRemoveTest extends AbstractServerTest
      * Remove a not required attribute from RDN.
      * 
      * Expected Result: Deletion fails with SchemaViolationException.
-     * 
-     * @throws NamingException
      */
-    public void testRemovePartOfRdnNotRequired() throws NamingException
+    @Test
+    public void testRemovePartOfRdnNotRequired() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Change RDN to another attribute
         String newRdn = "description=an American singer-songwriter";
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
@@ -332,11 +310,12 @@ public class ModifyRemoveTest extends AbstractServerTest
      * schema.
      * 
      * Expected result: Deletion fails with NoSuchAttributeException
-     * 
-     * @throws NamingException
      */
-    public void testRemoveAttributeNotPresent() throws NamingException
+    @Test
+    public void testRemoveAttributeNotPresent() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Remove telephoneNumber Attribute
         Attribute attr = new AttributeImpl( "telephoneNumber" );
         Attributes attrs = new AttributesImpl();
@@ -358,11 +337,12 @@ public class ModifyRemoveTest extends AbstractServerTest
      * Remove a an attribute which is not present in the schema.
      * 
      * Expected result: Deletion fails with NoSuchAttributeException
-     * 
-     * @throws NamingException
      */
-    public void testRemoveAttributeNotValid() throws NamingException
+    @Test
+    public void testRemoveAttributeNotValid() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Remove phantasy attribute
         Attribute attr = new AttributeImpl( "XXX" );
         Attributes attrs = new AttributesImpl();
@@ -386,11 +366,12 @@ public class ModifyRemoveTest extends AbstractServerTest
 
     /**
      * Create a person entry and try to remove an attribute value
-     * 
-     * @throws NamingException 
      */
-    public void testReplaceNonExistingAttribute() throws NamingException
+    @Test
+    public void testReplaceNonExistingAttribute() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create an entry
         Attributes attrs = getInetOrgPersonAttributes( "Bush", "Kate Bush" );
         attrs.put( "givenname", "Kate" );
@@ -406,10 +387,10 @@ public class ModifyRemoveTest extends AbstractServerTest
         sctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         String filter = "(cn=Kate Bush)";
         String base = "";
-        NamingEnumeration enm = ctx.search( base, filter, sctls );
+        NamingEnumeration<SearchResult> enm = ctx.search( base, filter, sctls );
         if ( enm.hasMore() )
         {
-            SearchResult sr = ( SearchResult ) enm.next();
+            SearchResult sr = enm.next();
             attrs = sr.getAttributes();
             Attribute cn = sr.getAttributes().get( "cn" );
             assertNotNull( cn );
@@ -431,12 +412,12 @@ public class ModifyRemoveTest extends AbstractServerTest
     /**
      * Create a person entry and try to remove an attribute value from the RDN
      * by Replacement
-     * 
-     * @throws NamingException 
      */
-    public void testReplaceRdnByEmptyValueAttribute() throws NamingException
+    @Test
+    public void testReplaceRdnByEmptyValueAttribute() throws Exception
     {
-
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create an entry
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush";
@@ -463,12 +444,12 @@ public class ModifyRemoveTest extends AbstractServerTest
 
     /**
      * Create a person entry and try to remove an attribute from the RDN
-     * 
-     * @throws NamingException 
      */
-    public void testRemoveRdnAttribute() throws NamingException
+    @Test
+    public void testRemoveRdnAttribute() throws Exception
     {
-
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create an entry
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush";
@@ -495,12 +476,12 @@ public class ModifyRemoveTest extends AbstractServerTest
 
     /**
      * Create a person entry and try to remove an attribute from the RDN
-     * 
-     * @throws NamingException 
      */
-    public void testRemoveRdnAttributeValue() throws NamingException
+    @Test
+    public void testRemoveRdnAttributeValue() throws Exception
     {
-
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create an entry
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush";
@@ -523,14 +504,16 @@ public class ModifyRemoveTest extends AbstractServerTest
 
         ctx.destroySubcontext( rdn );
     }
+
     
     /**
      * Create a person entry and try to remove objectClass attribute
-     * 
-     * @throws NamingException 
      */
-    public void testDeleteOclAttrWithTopPersonOrganizationalpersonInetorgperson() throws NamingException {
-
+    @Test
+    public void testDeleteOclAttrWithTopPersonOrganizationalpersonInetorgperson() throws Exception 
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create an entry
         Attributes attrs = getInetOrgPersonAttributes("Bush", "Kate Bush");
         String rdn = "cn=Kate Bush";
@@ -554,14 +537,16 @@ public class ModifyRemoveTest extends AbstractServerTest
         ctx.destroySubcontext(rdn);
     }
 
+    
     /**
      * Create a person entry and try to remove objectClass attribute. A variant
      * which works.
-     * 
-     * @throws NamingException 
      */
-    public void testDeleteOclAttrWithTopPersonOrganizationalpersonInetorgpersonVariant() throws NamingException {
-
+    @Test
+    public void testDeleteOclAttrWithTopPersonOrganizationalpersonInetorgpersonVariant() throws Exception 
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create an entry
         Attributes attrs = getInetOrgPersonAttributes("Bush", "Kate Bush");
         String rdn = "cn=Kate Bush";

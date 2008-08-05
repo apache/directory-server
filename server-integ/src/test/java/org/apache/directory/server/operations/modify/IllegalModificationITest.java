@@ -17,13 +17,22 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.operations.modify;
 
 
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.integ.SiRunner;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
+
+import org.apache.directory.server.newldap.LdapServer;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
 
 import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
@@ -51,46 +60,28 @@ import netscape.ldap.LDAPModification;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: $
  */
-public class IllegalModificationITest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.SUITE )
+@ApplyLdifs( {
+    // Entry # 1
+    "dn: cn=Kate Bush,ou=system\n" +
+    "objectClass: person\n" +
+    "objectClass: top\n" +
+    "cn: Kate Bush\n" +
+    "sn: Bush\n\n" 
+    }
+)
+public class IllegalModificationITest 
 {
-    static final String DN = "cn=Kate Bush,ou=system";
-    static final String USER = "uid=admin,ou=system";
-    static final String PASSWORD = "secret";
-    static final String HOST = "localhost";
+    private static final String DN = "cn=Kate Bush,ou=system";
 
-    private LDAPConnection con = null;
+    public static LdapServer ldapServer;
+    
 
-
-    protected void setUp() throws Exception
+    @Test
+    public void testIllegalModification() throws Exception
     {
-        super.setUp();
-        con = new LDAPConnection();
-        con.connect( 3, HOST, super.port, USER, PASSWORD );
-
-        // Create a person entry
-        LDAPAttributeSet attrs = new LDAPAttributeSet();
-        attrs.add( new LDAPAttribute( "sn", "Bush" ) );
-        attrs.add( new LDAPAttribute( "cn", "Kate Bush" ) );
-        LDAPAttribute oc = new LDAPAttribute( "objectClass" );
-        oc.addValue( "top" );
-        oc.addValue( "person" );
-        attrs.add( oc );
-        LDAPEntry entry = new LDAPEntry( DN, attrs );
-        con.add( entry );
-    }
-
-
-    protected void tearDown() throws Exception
-    {
-        // Remove the person entry and disconnect
-        con.delete( DN );
-        con.disconnect();
-        super.tearDown();
-    }
-
-
-    public void testIllegalModification() throws LDAPException
-    {
+        LDAPConnection con = getWiredConnection( ldapServer );
         LDAPAttribute attr = new LDAPAttribute( "description" );
         LDAPModification mod = new LDAPModification( LDAPModification.ADD, attr );
 
@@ -110,8 +101,11 @@ public class IllegalModificationITest extends AbstractServerTest
     }
     
     
-    public void testIllegalModification2() throws LDAPException
+    @Test
+    public void testIllegalModification2() throws Exception
     {
+        LDAPConnection con = getWiredConnection( ldapServer );
+
         // first a valid attribute
         LDAPAttribute attr = new LDAPAttribute( "description", "The description" );
         LDAPModification mod = new LDAPModification( LDAPModification.ADD, attr );
