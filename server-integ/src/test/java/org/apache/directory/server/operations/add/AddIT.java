@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.operations.add;
 
 
 import javax.naming.NamingEnumeration;
@@ -25,7 +25,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
@@ -37,91 +36,56 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+
+import org.apache.directory.server.integ.SiRunner;
+import org.apache.directory.server.integ.ServerIntegrationUtils;
+import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import java.util.Hashtable;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
  * Various add scenario tests.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 674593 $
  */
-public class AddITest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.SUITE )
+@ApplyLdifs( {
+    // Entry # 1
+    "dn: cn=The Person,ou=system\n" +
+    "objectClass: person\n" +
+    "objectClass: top\n" +
+    "cn: The Person\n" +
+    "description: this is a person\n" +
+    "sn: Person\n\n" 
+    }
+)
+public class AddIT
 {
     private static final String RDN = "cn=The Person";
 
-    private DirContext ctx;
+    static final String HOST = "localhost";
+    static final String USER = "uid=admin,ou=system";
+    static final String PASSWORD = "secret";
+    static final String BASE = "ou=system";
 
 
-    /**
-     * Create an entry for a person.
-     */
-    public void setUp() throws Exception
-    {
-        super.setUp();
 
-        Hashtable<String, String> env = new Hashtable<String,String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-        ctx = new InitialDirContext( env );
-
-        // Create a person
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "person" );
-        attributes.put( attribute );
-        attributes.put( "cn", "The Person" );
-        attributes.put( "sn", "Person" );
-        attributes.put( "description", "this is a person" );
-        DirContext person = ctx.createSubcontext( RDN, attributes );
-
-        assertNotNull( person );
-    }
-
-
-    /**
-     * Remove the person.
-     */
-    public void tearDown() throws Exception
-    {
-        ctx.unbind( RDN );
-        ctx.close();
-        ctx = null;
-        super.tearDown();
-    }
-
-
-    /**
-     * Just a little test to check wether the person is created correctly after
-     * setup.
-     * 
-     * @throws NamingException if we cannot connect to the server
-     */
-    public void testSetUpTearDown() throws NamingException
-    {
-        DirContext person = ( DirContext ) ctx.lookup( RDN );
-        assertNotNull( person );
-
-        // Check object classes
-
-        Attributes attributes = person.getAttributes( "" );
-        Attribute ocls = attributes.get( "objectClass" );
-
-        String[] expectedOcls = { "top", "person" };
-        for ( String name : expectedOcls )
-        {
-            assertTrue( "object class " + name + " is NOT present when it should be!", ocls.contains( name ) );
-        }
-    }
+    public static LdapServer ldapServer;
 
 
     /**
@@ -129,8 +93,10 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws NamingException if we cannot connect and perform add operations
      */
-    public void testAddObjectClasses() throws NamingException
+    @Test
+    public void testAddObjectClasses() throws Exception
     {
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
 
         // modify object classes, add two more
         Attributes attributes = new AttributesImpl( true );
@@ -160,8 +126,11 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws NamingException if we cannot connect and modify the description
      */
-    public void testModifyDescription() throws NamingException
+    @Test
+    public void testModifyDescription() throws Exception
     {
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+
         String newDescription = "More info on the user ...";
 
         // modify object classes, add two more
@@ -186,8 +155,11 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws NamingException if we fail to connect
      */
-    public void testAddWithMissingRequiredAttributes() throws NamingException
+    @Test
+    public void testAddWithMissingRequiredAttributes() throws Exception
     {
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+
         // person without sn
         Attributes attrs = new AttributesImpl();
         Attribute ocls = new AttributeImpl( "objectClass" );
@@ -208,24 +180,17 @@ public class AddITest extends AbstractServerTest
     }
     
     
-
-    static final String HOST = "localhost";
-    static final String USER = "uid=admin,ou=system";
-    static final String PASSWORD = "secret";
-    static final String BASE = "ou=system";
-
-
     /**
-     * Testcase to demonstrate DIRSERVER-643 ("Netscape SDK: Adding an entry with
+     * Test case to demonstrate DIRSERVER-643 ("Netscape SDK: Adding an entry with
      * two description attributes does not combine values."). Uses Sun ONE Directory
      * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
      * 
      * @throws LDAPException if we fail to connect and add entries
      */
-    public void testAddEntryWithTwoDescriptions() throws LDAPException
+    @Test
+    public void testAddEntryWithTwoDescriptions() throws Exception
     {
-        LDAPConnection con = new LDAPConnection();
-        con.connect( 3, HOST, super.port, USER, PASSWORD );
+        LDAPConnection con = ServerIntegrationUtils.getWiredConnection( ldapServer );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -264,10 +229,10 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws LDAPException if we fail to connect and add entries
      */
-    public void testAddEntryWithTwoDescriptionsVariant() throws LDAPException
+    @Test
+    public void testAddEntryWithTwoDescriptionsVariant() throws Exception
     {
-        LDAPConnection con = new LDAPConnection();
-        con.connect( 3, HOST, super.port, USER, PASSWORD );
+        LDAPConnection con = ServerIntegrationUtils.getWiredConnection( ldapServer );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -307,10 +272,10 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws LDAPException if we fail to connect and add entries
      */
-    public void testAddEntryWithTwoDescriptionsSecondVariant() throws LDAPException
+    @Test
+    public void testAddEntryWithTwoDescriptionsSecondVariant() throws Exception
     {
-        LDAPConnection con = new LDAPConnection();
-        con.connect( 3, HOST, super.port, USER, PASSWORD );
+        LDAPConnection con = ServerIntegrationUtils.getWiredConnection( ldapServer );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -341,6 +306,7 @@ public class AddITest extends AbstractServerTest
         con.delete( dn );
         con.disconnect();
     }
+
     
     /**
      * Try to add entry with invalid number of values for a single-valued atribute
@@ -348,8 +314,11 @@ public class AddITest extends AbstractServerTest
      * @throws NamingException if we fail to connect and add entries
      * @see <a href="http://issues.apache.org/jira/browse/DIRSERVER-614">DIRSERVER-614</a>
      */
-    public void testAddWithInvalidNumberOfAttributeValues() throws NamingException
+    @Test
+    public void testAddWithInvalidNumberOfAttributeValues() throws Exception
     {
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        
         // add inetOrgPerson with two displayNames
         Attributes attrs = new AttributesImpl();
         Attribute ocls = new AttributeImpl( "objectClass" );
@@ -370,7 +339,6 @@ public class AddITest extends AbstractServerTest
         }
         catch ( InvalidAttributeValueException e )
         {
-            
         }
     }
 
@@ -380,8 +348,10 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws NamingException if we fail to connect and add entries
      */
-    public void testAddAlias() throws NamingException
+    @Test
+    public void testAddAlias() throws Exception
     {
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
 
         // Create entry
         Attributes entry = new AttributesImpl();
@@ -418,8 +388,11 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws NamingException if we fail to connect and add entries
      */
-    public void testAddAliasInContainer() throws NamingException
+    @Test
+    public void testAddAliasInContainer() throws Exception
     {
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+
         // Create container
         Attributes container = new AttributesImpl();
         Attribute containerOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
@@ -485,7 +458,7 @@ public class AddITest extends AbstractServerTest
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ne.next();
-        assertEquals( "ldap://localhost:"+super.port+"/ou=favorite,ou=Fruits,ou=system", sr.getName() );
+        assertEquals( "ldap://localhost:"+ ldapServer.getIpPort() +"/ou=favorite,ou=Fruits,ou=system", sr.getName() );
         assertFalse( ne.hasMore() );
         
         // Remove alias and entry
@@ -504,8 +477,11 @@ public class AddITest extends AbstractServerTest
      * @see https://issues.apache.org/jira/browse/DIRSERVER-1157
      * @throws Exception
      */
+    @Test
     public void testAddDeleteAlias() throws Exception
     {
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+
         // Create entry ou=favorite,dc=example,dc=com
         Attributes entry = new AttributesImpl();
         Attribute entryOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );

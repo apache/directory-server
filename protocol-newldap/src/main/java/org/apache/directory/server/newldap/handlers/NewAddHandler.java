@@ -20,17 +20,12 @@
 package org.apache.directory.server.newldap.handlers;
 
 
-import javax.naming.NamingException;
-import javax.naming.ReferralException;
-
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.newldap.LdapSession;
-import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,105 +37,36 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NewAddHandler extends LdapRequestHandler<AddRequest>
+public class NewAddHandler extends SingleReplyRequestHandler<AddRequest>
 {
 	/** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( NewAddHandler.class );
     
     
     /**
-     * (non-Javadoc)
-     * @see org.apache.directory.server.newldap.handlers.LdapRequestHandler#
-     * handle(org.apache.directory.server.newldap.LdapSession, org.apache.directory.shared.ldap.message.Request)
+     * @see SingleReplyRequestHandler#handleIgnoringReferrals(LdapSession, LdapDN, ClonedServerEntry, 
+     * org.apache.directory.shared.ldap.message.SingleReplyRequest)
      */
-    public void handle( LdapSession session, AddRequest request ) throws Exception
+    public void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 
+        ClonedServerEntry entry, AddRequest req ) 
     {
-        LdapResult result = request.getResultResponse().getLdapResult();
+        LOG.debug( "Handling add request while ignoring referrals: {}", req );
+        LdapResult result = req.getResultResponse().getLdapResult();
 
         try
         {
         	// Call the underlying layer to inject the new entry 
-            session.getCoreSession().add( request );
+            session.getCoreSession().add( req );
 
-            // If it succeeded, we should be here now, otherwise, we would have
-            // got an exception.
+            // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );
             
-            // TODO : inject the responseControls here...
-            //request.getResultResponse().addAll( session.request.getControls().ResponseControls() );
-            
             // Write the AddResponse message
-            session.getIoSession().write( request.getResultResponse() );
+            session.getIoSession().write( req.getResultResponse() );
         }
-        catch( ReferralException e )
+        catch ( Exception e )
         {
-        	// We tried to add an entry into a referral. 
-            ReferralImpl refs = new ReferralImpl();
-            result.setReferral( refs );
-            result.setResultCode( ResultCodeEnum.REFERRAL );
-            result.setErrorMessage( "Encountered referral attempting to handle add request." );
-            
-            if ( e.getResolvedName() != null )
-            {
-                result.setMatchedDn( new LdapDN( e.getResolvedName() ) );
-            }
-            
-            do
-            {
-                refs.addLdapUrl( ( String ) e.getReferralInfo() );
-            }
-            while ( e.skipReferral() );
-            
-            // Write back the response
-            session.getIoSession().write( request.getResultResponse() );
-        }
-        catch ( Throwable t )
-        {
-        	// We got an error. Get the resultCode.
-            ResultCodeEnum resultCode = ResultCodeEnum.OTHER;
-            
-            if ( t instanceof LdapException )
-            {
-                resultCode = ( ( LdapException ) t ).getResultCode();
-            }
-            else
-            {
-                resultCode = ResultCodeEnum.getBestEstimate( t, request.getType() );
-            }
-            
-            result.setResultCode( resultCode );
-            
-            String msg = session + "failed to add entry " + request.getEntry() + ": " + t.getMessage();
-            
-            if ( LOG.isDebugEnabled() )
-            {
-                msg += ":\n" + ExceptionUtils.getStackTrace( t );
-            }
-
-            result.setErrorMessage( msg );
-
-            // Add the matchedDN if necessary
-            boolean setMatchedDn = 
-                resultCode == ResultCodeEnum.NO_SUCH_OBJECT             || 
-                resultCode == ResultCodeEnum.ALIAS_PROBLEM              ||
-                resultCode == ResultCodeEnum.INVALID_DN_SYNTAX          || 
-                resultCode == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
-            
-            if ( setMatchedDn )
-            {
-                if ( t instanceof NamingException )
-                {
-                    NamingException ne = ( NamingException ) t;
-                    
-                    if ( ne.getResolvedName() != null )
-                    {
-                        result.setMatchedDn( ( LdapDN ) ne.getResolvedName() );
-                    }
-                }
-            }
-
-            // Write back the error response
-            session.getIoSession().write( request.getResultResponse() );
+            handleException( session, req, e );
         }
     }
 }

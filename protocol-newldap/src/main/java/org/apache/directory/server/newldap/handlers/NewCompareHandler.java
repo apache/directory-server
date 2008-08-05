@@ -51,7 +51,7 @@ public class NewCompareHandler extends SingleReplyRequestHandler<CompareRequest>
     public void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 
         ClonedServerEntry entry, CompareRequest req )
     {
-        LOG.debug( "Handling request while ignoring referrals: {}", req );
+        LOG.debug( "Handling compare request while ignoring referrals: {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();
         
         try

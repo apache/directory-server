@@ -27,20 +27,20 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.newldap.LdapSession;
-import org.apache.directory.shared.ldap.codec.add.AddRequest;
-import org.apache.directory.shared.ldap.codec.bind.BindRequest;
-import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
-import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequest;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.message.AddRequest;
+import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -99,10 +99,10 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
                     " using this base class.  They have no target entry unlike the rest of" +
                     " the SingleReplyRequests" );
             case MOD_DN_RESPONSE:
-                reqTargetDn = ( ( ModifyDNRequest ) req ).getEntry();
+                reqTargetDn = ( ( ModifyDnRequest ) req ).getName();
                 break;
             case MODIFY_RESPONSE:
-                reqTargetDn = ( ( ModifyRequest ) req ).getObject();
+                reqTargetDn = ( ( ModifyRequest ) req ).getName();
                 break;
             default:
                 throw new IllegalStateException( 
@@ -139,21 +139,24 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
         // referral - would rather attempt a lookup that fails then do check 
         // for existence than have to do another lookup to get entry info
 
-        try
+        if ( ! ( req instanceof AddRequest ) )
         {
-            entry = session.getCoreSession().lookup( reqTargetDn );
-            LOG.debug( "Entry for {} was found: ", reqTargetDn, entry );
-        }
-        catch ( NameNotFoundException e )
-        {
-            /* ignore */
-            LOG.debug( "Entry for {} not found.", reqTargetDn );
-        }
-        catch ( Exception e )
-        {
-            /* serious and needs handling */
-            handleException( session, req, e );
-            return;
+            try
+            {
+                entry = session.getCoreSession().lookup( reqTargetDn );
+                LOG.debug( "Entry for {} was found: ", reqTargetDn, entry );
+            }
+            catch ( NameNotFoundException e )
+            {
+                /* ignore */
+                LOG.debug( "Entry for {} not found.", reqTargetDn );
+            }
+            catch ( Exception e )
+            {
+                /* serious and needs handling */
+                handleException( session, req, e );
+                return;
+            }
         }
         
         // -------------------------------------------------------------------
@@ -196,6 +199,15 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
             ClonedServerEntry referralAncestor = null;
             LdapDN lastMatchedDn = null;
             LdapDN dn = ( LdapDN ) reqTargetDn.clone();
+            
+            try
+            {
+                dn.remove( dn.size() - 1 );
+            }
+            catch ( InvalidNameException e2 )
+            {
+                // never thrown
+            }
             
             while ( ! dn.isEmpty() )
             {
@@ -242,12 +254,17 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
                 }
             }
 
-            if ( referralAncestor == null )
+            if ( referralAncestor == null && ! ( req instanceof AddRequest ) )
             {
                 result.setMatchedDn( lastMatchedDn );
                 result.setErrorMessage( "Entry not found." );
                 result.setResultCode( ResultCodeEnum.NO_SUCH_OBJECT );
                 session.getIoSession().write( req.getResultResponse() );
+                return;
+            }
+            else if ( ( req instanceof AddRequest ) && referralAncestor == null )
+            {
+                handleIgnoringReferrals( session, reqTargetDn, entry, req );
                 return;
             }
               
@@ -402,10 +419,10 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
      */
     public void handleException( LdapSession session, T req, Exception e )
     {
-        LdapResult result = req.getResultResponse().getLdapResult();
-
         String msg = "failed for " + req + ": " + e.getMessage();
         LOG.error( msg, e );
+        LdapResult result = req.getResultResponse().getLdapResult();
+
 
         if ( IS_DEBUG )
         {
@@ -430,11 +447,16 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
         {
             NamingException ne = ( NamingException ) e;
 
-            if ( ( ne.getResolvedName() != null )
-                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
-                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
+            // Add the matchedDN if necessary
+            boolean setMatchedDn = 
+                code == ResultCodeEnum.NO_SUCH_OBJECT             || 
+                code == ResultCodeEnum.ALIAS_PROBLEM              ||
+                code == ResultCodeEnum.INVALID_DN_SYNTAX          || 
+                code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
+            
+            if ( ( ne.getResolvedName() != null ) && setMatchedDn )
             {
-                result.setMatchedDn( (LdapDN)ne.getResolvedName() );
+                result.setMatchedDn( ( LdapDN ) ne.getResolvedName() );
             }
         }
 

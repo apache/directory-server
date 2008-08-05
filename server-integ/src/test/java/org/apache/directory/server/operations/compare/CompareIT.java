@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextFollowOnRefferal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -86,7 +85,7 @@ import static org.junit.Assert.fail;
     "uid: akarasuluref\n" +
     "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system\n" + 
     "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system\n" +
-    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n" 
+    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n"
     }
 )
 public class CompareIT
@@ -268,44 +267,6 @@ public class CompareIT
         {
             assertEquals( "no permission exception", 50, e.getLDAPResultCode() );
         }
-    }
-
-
-    /**
-     * Tests compare operation on normal and referral entries without the 
-     * ManageDsaIT control using JNDI while chasing referrals instead of 
-     * the Netscape API. Referrals are sent back to the client with a 
-     * non-success result code.
-     */
-    @Test
-    public void testFollowOnReferralWithJndi() throws Exception
-    {
-        LdapContext ctx = getWiredContextFollowOnRefferal( ldapServer );
-        SearchControls controls = new SearchControls();
-        controls.setReturningAttributes( new String[0] );
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        
-        // comparison success
-        NamingEnumeration<SearchResult> answer = ctx.search( "uid=akarasulu,ou=users,ou=system", 
-            "(uid=akarasulu)", controls );
-        assertTrue( answer.hasMore() );
-        SearchResult result = answer.next();
-        assertEquals( "", result.getName() );
-        assertEquals( 0, result.getAttributes().size() );
-        assertFalse( answer.hasMore() );
-        answer.close();
-
-        // referrals follow
-        answer = ctx.search( "uid=akarasuluref,ou=users,ou=system", 
-            "(uid=akarasulu)", controls );
-
-        assertTrue( answer.hasMore() );
-        result = answer.next();
-        assertEquals( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", result.getName() );
-        assertEquals( 0, result.getAttributes().size() );
-        assertFalse( answer.hasMore() );
-        answer.close();
-        ctx.close();
     }
     
     
