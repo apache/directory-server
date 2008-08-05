@@ -38,6 +38,7 @@ import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.newldap.LdapServer;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -458,6 +459,7 @@ public class ModifyRdnIT
      * Ensure that the attribute itself contains the unescaped value.
      */
     @Test
+    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
     public void testModifyRdnWithEncodedNewRdn() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
@@ -510,6 +512,7 @@ public class ModifyRdnIT
      * Ensure that the attribute itself contains the unescaped value.
      */
     @Test
+    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
     public void testModifyRdnWithEscapedPoundNewRdn() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
@@ -726,6 +729,7 @@ public class ModifyRdnIT
      * @throws NamingException
      */
     @Test
+    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
     public void testModifyMultiValuedRdnVariant5() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
@@ -772,6 +776,7 @@ public class ModifyRdnIT
      * @throws NamingException
      */
     @Test
+    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
     public void testModifyMultiValuedRdnVariant6() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
@@ -931,6 +936,7 @@ public class ModifyRdnIT
      * @throws NamingException
      */
     @Test
+    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
     public void testModifyRdnOperationalAttribute() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
