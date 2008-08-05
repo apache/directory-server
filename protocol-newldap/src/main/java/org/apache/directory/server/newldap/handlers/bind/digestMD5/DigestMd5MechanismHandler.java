@@ -81,23 +81,53 @@ public class DigestMd5MechanismHandler implements MechanismHandler
 
         if ( ss == null )
         {
-            String saslHost = ldapSession.getLdapServer().getSaslHost();
-            String userBaseDn = ldapSession.getLdapServer().getSearchBaseDn();
-            ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
-            ldapSession.putSaslProperty( SaslConstants.SASL_USER_BASE_DN, userBaseDn );
-
-            Map<String, String> saslProps = new HashMap<String, String>();
-            saslProps.put( Sasl.QOP, ldapSession.getLdapServer().getSaslQopString() );
-            saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( ldapSession.getLdapServer() ) );
-
             CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
 
             CallbackHandler callbackHandler = new DigestMd5CallbackHandler( ldapSession, adminSession, bindRequest );
 
-            ss = Sasl.createSaslServer( SupportedSaslMechanisms.DIGEST_MD5, SaslConstants.LDAP_PROTOCOL, saslHost, saslProps, callbackHandler );
+            ss = Sasl.createSaslServer( 
+                SupportedSaslMechanisms.DIGEST_MD5, 
+                SaslConstants.LDAP_PROTOCOL, 
+                (String)ldapSession.getSaslProperty( SaslConstants.SASL_HOST ),
+                (Map<String, String>)ldapSession.getSaslProperty( SaslConstants.SASL_PROPS ),
+                callbackHandler );
             ldapSession.putSaslProperty( SaslConstants.SASL_SERVER, ss );
         }
 
         return ss;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void init( LdapSession ldapSession )
+    {
+        // Store the host in the ldap session
+        String saslHost = ldapSession.getLdapServer().getSaslHost();
+        String userBaseDn = ldapSession.getLdapServer().getSearchBaseDn();
+
+
+        ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
+        ldapSession.putSaslProperty( SaslConstants.SASL_USER_BASE_DN, userBaseDn );
+
+        Map<String, String> saslProps = new HashMap<String, String>();
+        saslProps.put( Sasl.QOP, ldapSession.getLdapServer().getSaslQopString() );
+        saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( ldapSession.getLdapServer() ) );
+        ldapSession.putSaslProperty( SaslConstants.SASL_PROPS, saslProps );
+    }
+    
+    
+    /**
+     * Remove the Host, UserBaseDn, props and Mechanism property.
+     * 
+     * @param ldapSession the Ldapsession instance
+     */
+    public void cleanup( LdapSession ldapSession )
+    {
+        ldapSession.removeSaslProperty( SaslConstants.SASL_HOST );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_USER_BASE_DN );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_MECH );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_PROPS );
     }
 }

@@ -249,15 +249,12 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
                 // Build the response
                 result.setResultCode( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
                 BindResponse resp = ( BindResponse ) bindRequest.getResultResponse();
-                
+
                 // Store the challenge
                 resp.setServerSaslCreds( tokenBytes );
                 
                 // Switch to AuthPending
                 ldapSession.setAuthPending();
-                
-                // Store the current mechanism, as the C/R is not finished
-                ldapSession.putSaslProperty( SaslConstants.SASL_MECH, bindRequest.getSaslMechanism() );
                 
                 // And write back the response
                 ldapSession.getIoSession().write( resp );
@@ -285,7 +282,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
      */
     private void sendAuthMethNotSupported( LdapSession ldapSession, BindRequest bindRequest )
     {
-        // First, reinit the state to Anonymous, and clear the
+        // First, r-einit the state to Anonymous, and clear the
         // saslProperty map
         ldapSession.clearSaslProperties();
         ldapSession.setAnonymous();
@@ -352,12 +349,12 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
         }
         
         // Clean the SaslProperties, we don't need them anymore
-        // except the saslCreds and saslServer which will be used 
-        // by the DIGEST-MD5 mech.
-        ldapSession.removeSaslProperty( SaslConstants.SASL_MECH );
-        ldapSession.removeSaslProperty( SaslConstants.SASL_HOST );
-        ldapSession.removeSaslProperty( SaslConstants.SASL_AUTHENT_USER );
-        ldapSession.removeSaslProperty( SaslConstants.SASL_USER_BASE_DN );
+        MechanismHandler handler = (MechanismHandler)ldapSession.getSaslProperty( SaslConstants.SASL_MECH_HANDLER );
+        
+        if ( handler != null )
+        {
+            handler.cleanup( ldapSession );
+        }
 
         ldapSession.getIoSession().write( response );
         
@@ -367,8 +364,6 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
     
     private void handleSaslAuthPending( LdapSession ldapSession, BindRequest bindRequest, DirectoryService ds ) throws Exception
     {
-        CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
-        
         // First, check that we have the same mechanism
         String saslMechanism = bindRequest.getSaslMechanism();
         
@@ -527,13 +522,14 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
                 ldapSession.putSaslProperty( SaslConstants.SASL_MECH, saslMechanism );
                 
 
-                // Store the host in the ldap session
-                String saslHost = getLdapServer().getSaslHost();
-                ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
-
                 // Get the handler for this mechanism
                 MechanismHandler mechanismHandler = handlers.get( saslMechanism );
                 
+                // Stor ethe mechanism handler in the salsProperties
+                ldapSession.putSaslProperty( SaslConstants.SASL_MECH_HANDLER, mechanismHandler );
+                
+                mechanismHandler.init( ldapSession );
+
                 // Get the SaslServer instance which manage the C/R exchange
                 SaslServer ss = mechanismHandler.handleMechanism( ldapSession, bindRequest );
                 

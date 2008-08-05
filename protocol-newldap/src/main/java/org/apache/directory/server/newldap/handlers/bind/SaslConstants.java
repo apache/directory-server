@@ -82,6 +82,18 @@ public class SaslConstants
     
     
     /**
+     * A key constant representing the SASL properties 
+     */
+    public static final String SASL_PROPS = "saslProps";
+    
+    
+    /**
+     * A key constant representing the SASL mechanism handler
+     */
+    public static final String SASL_MECH_HANDLER = "saslmechHandler";
+    
+    
+    /**
      * A key constant representing the SASL IoFilter 
      */
     public static final String SASL_FILTER = "SASL_FILTER";

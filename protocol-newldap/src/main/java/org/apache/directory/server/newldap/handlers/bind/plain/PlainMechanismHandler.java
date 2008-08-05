@@ -56,4 +56,24 @@ public class PlainMechanismHandler implements MechanismHandler
 
         return ss;
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void init( LdapSession ldapSession )
+    {
+        // Do nothing
+    }
+
+    
+    /**
+     * Remove the SaslServer and Mechanism property.
+     * 
+     * @param ldapSession the Ldapsession instance
+     */
+    public void cleanup( LdapSession ldapSession )
+    {
+        ldapSession.clearSaslProperties();
+    }
 }

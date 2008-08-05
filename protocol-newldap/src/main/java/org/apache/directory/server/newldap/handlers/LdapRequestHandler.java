@@ -107,32 +107,6 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             
             handle( ldapSession, message );
             return;
-
-            /*
-            if ( coreSession.getDirectoryService().isAllowAnonymousAccess() )
-            {
-            	// We are not authenticated, and the server allows anonymous access,
-            	// we have create a new Anonymous session. Just return.
-            	handle( ldapSession, message );
-            	return;
-            }
-            else if ( message instanceof ResultResponseRequest )
-            {
-            	// The server does not allow anonymous access, and the client
-            	// is not authenticated : get out if the request expect a
-            	// response.
-                ResultResponse response = ( ( ResultResponseRequest ) message ).getResultResponse();
-                response.getLdapResult().setErrorMessage( "Anonymous access disabled." );
-                response.getLdapResult().setResultCode( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
-                ldapSession.getIoSession().write( response );
-                return;
-            }
-            else
-            {
-            	// Last case : the AbandonRequest. We just quit.
-                return;
-            }
-            */
         }
     }
 

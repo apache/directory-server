@@ -66,4 +66,27 @@ public class CramMd5MechanismHandler implements MechanismHandler
 
         return ss;
     }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    public void init( LdapSession ldapSession )
+    {
+        // Store the host in the ldap session
+        String saslHost = ldapSession.getLdapServer().getSaslHost();
+        ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
+    }
+    
+
+    /**
+     * Remove the SaslServer and Mechanism property.
+     * 
+     * @param ldapSession the Ldapsession instance
+     */
+    public void cleanup( LdapSession ldapSession )
+    {
+        ldapSession.clearSaslProperties();
+    }
+
 }

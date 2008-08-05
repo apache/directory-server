@@ -130,4 +130,22 @@ public class SimpleMechanismHandler implements MechanismHandler
         
         return null;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void init( LdapSession ldapSession )
+    {
+        // Do nothing
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void cleanup( LdapSession ldapSession )
+    {
+        ldapSession.clearSaslProperties();
+    }
 }

@@ -45,4 +45,20 @@ public interface MechanismHandler
      * @throws Exception
      */
     public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception;
+    
+    
+    /**
+     * Initialize the saslProperties with some mechanism's specific data
+     *
+     * @param ldapSession the Ldapsession instance
+     */
+    public void init( LdapSession ldapSession );
+    
+    
+    /**
+     * Clean the Sasl properties when the use has been authenticated
+     *
+     * @param ldapSession the Ldapsession instance
+     */
+    public void cleanup( LdapSession ldapSession );
 }

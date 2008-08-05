@@ -45,13 +45,9 @@ public class GssapiMechanismHandler implements MechanismHandler
 {
     public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
-        SaslServer ss;
+        SaslServer ss = (SaslServer)ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
 
-        if ( ldapSession.getIoSession().containsAttribute( SaslConstants.SASL_SERVER ) )
-        {
-            ss = ( SaslServer ) ldapSession.getIoSession().getAttribute( SaslConstants.SASL_SERVER );
-        }
-        else
+        if ( ss == null )
         {
             Subject subject = ( Subject ) ldapSession.getIoSession().getAttribute( "saslSubject" );
 
@@ -73,5 +69,30 @@ public class GssapiMechanismHandler implements MechanismHandler
         }
 
         return ss;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void init( LdapSession ldapSession )
+    {
+        // Store the host in the ldap session
+        String saslHost = ldapSession.getLdapServer().getSaslHost();
+        ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
+    }
+
+
+    /**
+     * Remove the Host, UserBaseDn, props and Mechanism property.
+     * 
+     * @param ldapSession the Ldapsession instance
+     */
+    public void cleanup( LdapSession ldapSession )
+    {
+        ldapSession.removeSaslProperty( SaslConstants.SASL_HOST );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_USER_BASE_DN );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_MECH );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_PROPS );
     }
 }
