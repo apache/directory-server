@@ -17,22 +17,25 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.operations.compare;
+package org.apache.directory.server.operations.delete;
 
 
-import javax.naming.NamingEnumeration;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import javax.naming.NameNotFoundException;
 import javax.naming.ReferralException;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
+import netscape.ldap.LDAPSearchConstraints;
 
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
@@ -45,17 +48,9 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextFollowOnRefferal;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 
 /**
- * Tests the server to make sure standard compare operations work properly.
+ * Integration tests for delete operations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -89,59 +84,31 @@ import static org.junit.Assert.fail;
     "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n" 
     }
 )
-public class CompareIT
+public class DeleteIT
 {
-    private static final Logger LOG = LoggerFactory.getLogger( CompareIT.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DeleteIT.class );
     
     public static LdapServer ldapServer;
     
 
     /**
-     * Tests normal compare operation on normal non-referral entries without 
+     * Tests normal delete operation on normal non-referral entries without 
      * the ManageDsaIT control.
      */
     @Test
-    public void testNormalCompare() throws Exception
+    public void testNormalDeleteFailContextNotEmpty() throws Exception
     {
         LDAPConnection conn = getWiredConnection( ldapServer );
         
-        // comparison success
-        LDAPAttribute attribute = new LDAPAttribute( "sn", "karasulu" );
-        assertTrue( conn.compare( "uid=akarasulu,ou=users,ou=system", attribute ) );
-
-        // comparison failure
-        attribute = new LDAPAttribute( "sn", "lecharny" );
-        assertFalse( conn.compare( "uid=akarasulu,ou=users,ou=system", attribute ) );
-        
-        conn.disconnect();
-    }
-    
-    
-    /**
-     * Tests normal compare operation on normal non-referral entries without 
-     * the ManageDsaIT control using an attribute that does not exist in the
-     * entry.
-     */
-    @Test
-    public void testNormalCompareMissingAttribute() throws Exception
-    {
-        LDAPConnection conn = getWiredConnection( ldapServer );
-        
-        // comparison success
-        LDAPAttribute attribute = new LDAPAttribute( "sn", "karasulu" );
-        assertTrue( conn.compare( "uid=akarasulu,ou=users,ou=system", attribute ) );
-
-        // non-existing attribute
-        attribute = new LDAPAttribute( "mail", "akarasulu@apache.org" );
-        
+        // delete failure on non-leaf entry
         try
         {
-            conn.compare( "uid=akarasulu,ou=users,ou=system", attribute );
-            fail( "Should never get here" );
+            conn.delete( "uid=akarasulu,ou=users,ou=system" );
+            fail( "Should never get here." );
         }
         catch ( LDAPException e )
         {
-            assertEquals( ResultCodeEnum.NO_SUCH_ATTRIBUTE.getValue(), e.getLDAPResultCode() ); 
+            assertEquals( ResultCodeEnum.NOT_ALLOWED_ON_NON_LEAF.getValue(), e.getLDAPResultCode() );
         }
         
         conn.disconnect();
@@ -149,31 +116,87 @@ public class CompareIT
     
     
     /**
-     * Tests compare operation on referral entry with the ManageDsaIT control.
+     * Tests normal delete operation on normal non-referral entries without 
+     * the ManageDsaIT control.
+     */
+    @Test
+    public void testNormalDelete() throws Exception
+    {
+        LDAPConnection conn = getWiredConnection( ldapServer );
+        
+        // delete success
+        conn.delete( "ou=computers,uid=akarasulu,ou=users,ou=system" );
+
+        // delete failure non-existant entry
+        try
+        {
+            conn.delete( "uid=elecharny,ou=users,ou=system" );
+            fail( "Should never get here." );
+        }
+        catch ( LDAPException e )
+        {
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT.getValue(), e.getLDAPResultCode() );
+        }
+        
+        conn.disconnect();
+    }
+    
+    
+    /**
+     * Tests normal delete operation on non-existent entries without 
+     * the ManageDsaIT control.
+     */
+    @Test
+    public void testDeleteNonExistent() throws Exception
+    {
+        LDAPConnection conn = getWiredConnection( ldapServer );
+        
+        // delete failure non-existent entry
+        try
+        {
+            conn.delete( "uid=elecharny,ou=users,ou=system" );
+            fail( "Should never get here." );
+        }
+        catch ( LDAPException e )
+        {
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT.getValue(), e.getLDAPResultCode() );
+        }
+        
+        conn.disconnect();
+    }
+    
+    
+    /**
+     * Tests delete operation on referral entry with the ManageDsaIT control.
      */
     @Test
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
         LDAPConnection conn = getWiredConnection( ldapServer );
-        LDAPConstraints constraints = new LDAPConstraints();
+        LDAPConstraints constraints = new LDAPSearchConstraints();
         constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         conn.setConstraints( constraints );
         
-        // comparison success
-        LDAPAttribute attribute = new LDAPAttribute( "uid", "akarasuluref" );
-        assertTrue( conn.compare( "uid=akarasuluref,ou=users,ou=system", attribute, constraints ) );
-
-        // comparison failure
-        attribute = new LDAPAttribute( "uid", "elecharny" );
-        assertFalse( conn.compare( "uid=akarasuluref,ou=users,ou=system", attribute, constraints ) );
+        // delete success
+        conn.delete( "uid=akarasuluref,ou=users,ou=system", constraints );
+        
+        try
+        {
+            conn.read( "uid=akarasuluref,ou=users,ou=system", ( LDAPSearchConstraints ) constraints );
+            fail( "Should never get here." );
+        }
+        catch ( LDAPException e )
+        {
+            assertEquals( ResultCodeEnum.NO_SUCH_OBJECT.getValue(), e.getLDAPResultCode() );
+        }
         
         conn.disconnect();
     }
     
     
     /**
-     * Tests compare operation on normal and referral entries without the 
+     * Tests delete operation on normal and referral entries without the 
      * ManageDsaIT control. Referrals are sent back to the client with a
      * non-success result code.
      */
@@ -185,16 +208,11 @@ public class CompareIT
         constraints.setReferrals( false );
         conn.setConstraints( constraints );
         
-        // comparison success
-        LDAPAttribute attribute = new LDAPAttribute( "uid", "akarasulu" );
-        assertTrue( conn.compare( "uid=akarasulu,ou=users,ou=system", attribute, constraints ) );
-
         // referrals failure
-        attribute = new LDAPAttribute( "uid", "akarasulu" );
         LDAPResponseListener listener = null;
         LDAPResponse response = null;
 
-        listener = conn.compare( "uid=akarasuluref,ou=users,ou=system", attribute, null, constraints );
+        listener = conn.delete( "uid=akarasuluref,ou=users,ou=system", null, constraints );
         response = listener.getResponse();
         assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
 
@@ -207,7 +225,7 @@ public class CompareIT
     
     
     /**
-     * Tests compare operation on normal and referral entries without the 
+     * Tests delete operation on normal and referral entries without the 
      * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
      * are sent back to the client with a non-success result code.
      */
@@ -215,25 +233,23 @@ public class CompareIT
     public void testThrowOnReferralWithJndi() throws Exception
     {
         LdapContext ctx = getWiredContextThrowOnRefferal( ldapServer );
-        SearchControls controls = new SearchControls();
-        controls.setReturningAttributes( new String[0] );
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         
-        // comparison success
-        NamingEnumeration<SearchResult> answer = ctx.search( "uid=akarasulu,ou=users,ou=system", 
-            "(uid=akarasulu)", controls );
-        assertTrue( answer.hasMore() );
-        SearchResult result = answer.next();
-        assertEquals( "", result.getName() );
-        assertEquals( 0, result.getAttributes().size() );
-        assertFalse( answer.hasMore() );
-        answer.close();
-
-        // referrals failure
+        // delete success
+        ctx.destroySubcontext( "ou=computers,uid=akarasulu,ou=users,ou=system" );
+        
         try
         {
-            answer = ctx.search( "uid=akarasuluref,ou=users,ou=system", 
-                "(uid=akarasuluref)", controls );
+            ctx.lookup( "ou=computers,uid=akarasulu,ou=users,ou=system" );
+            fail( "Should never get here." );
+        }
+        catch ( NameNotFoundException e )
+        {
+        }
+
+        // referrals failure on delete
+        try
+        {
+            ctx.destroySubcontext( "uid=akarasuluref,ou=users,ou=system" );
             fail( "Should never get here" );
         }
         catch ( ReferralException e )
@@ -242,44 +258,6 @@ public class CompareIT
             assertEquals( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", e.getReferralInfo() );
         }
 
-        ctx.close();
-    }
-    
-    
-    /**
-     * Tests compare operation on normal and referral entries without the 
-     * ManageDsaIT control using JNDI while chasing referrals instead of 
-     * the Netscape API. Referrals are sent back to the client with a 
-     * non-success result code.
-     */
-    @Test
-    public void testFollowOnReferralWithJndi() throws Exception
-    {
-        LdapContext ctx = getWiredContextFollowOnRefferal( ldapServer );
-        SearchControls controls = new SearchControls();
-        controls.setReturningAttributes( new String[0] );
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        
-        // comparison success
-        NamingEnumeration<SearchResult> answer = ctx.search( "uid=akarasulu,ou=users,ou=system", 
-            "(uid=akarasulu)", controls );
-        assertTrue( answer.hasMore() );
-        SearchResult result = answer.next();
-        assertEquals( "", result.getName() );
-        assertEquals( 0, result.getAttributes().size() );
-        assertFalse( answer.hasMore() );
-        answer.close();
-
-        // referrals follow
-        answer = ctx.search( "uid=akarasuluref,ou=users,ou=system", 
-            "(uid=akarasulu)", controls );
-
-        assertTrue( answer.hasMore() );
-        result = answer.next();
-        assertEquals( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", result.getName() );
-        assertEquals( 0, result.getAttributes().size() );
-        assertFalse( answer.hasMore() );
-        answer.close();
         ctx.close();
     }
     
@@ -297,11 +275,10 @@ public class CompareIT
         conn.setConstraints( constraints );
 
         // referrals failure
-        LDAPAttribute attribute = new LDAPAttribute( "ou", "Computers" );
         LDAPResponseListener listener = null;
         LDAPResponse response = null;
 
-        listener = conn.compare( "ou=Computers,uid=akarasuluref,ou=users,ou=system", attribute, null, constraints );
+        listener = conn.delete( "ou=Computers,uid=akarasuluref,ou=users,ou=system", null, constraints );
         response = listener.getResponse();
         assertEquals( ResultCodeEnum.REFERRAL.getValue(), response.getResultCode() );
 
