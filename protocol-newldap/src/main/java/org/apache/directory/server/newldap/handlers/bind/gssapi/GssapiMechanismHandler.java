@@ -21,7 +21,7 @@ package org.apache.directory.server.newldap.handlers.bind.gssapi;
 
 
 import org.apache.directory.server.newldap.LdapSession;
-import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.AbstractMechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
@@ -41,7 +41,7 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GssapiMechanismHandler implements MechanismHandler
+public class GssapiMechanismHandler extends AbstractMechanismHandler
 {
     public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
@@ -90,6 +90,10 @@ public class GssapiMechanismHandler implements MechanismHandler
      */
     public void cleanup( LdapSession ldapSession )
     {
+        // Inject the Sasl Filter
+        insertSaslFilter( ldapSession );
+
+        // and remove the useless informations
         ldapSession.removeSaslProperty( SaslConstants.SASL_HOST );
         ldapSession.removeSaslProperty( SaslConstants.SASL_USER_BASE_DN );
         ldapSession.removeSaslProperty( SaslConstants.SASL_MECH );

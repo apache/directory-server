@@ -23,7 +23,7 @@ package org.apache.directory.server.newldap.handlers.bind.digestMD5;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.LdapSession;
-import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.AbstractMechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
@@ -43,7 +43,7 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DigestMd5MechanismHandler implements MechanismHandler
+public class DigestMd5MechanismHandler extends AbstractMechanismHandler
 {
     /**
      * Create a list of all the configured realms.
@@ -121,10 +121,14 @@ public class DigestMd5MechanismHandler implements MechanismHandler
     /**
      * Remove the Host, UserBaseDn, props and Mechanism property.
      * 
-     * @param ldapSession the Ldapsession instance
+     * @param ldapSession the LdapSession instance
      */
     public void cleanup( LdapSession ldapSession )
     {
+        // Inject the Sasl Filter
+        insertSaslFilter( ldapSession );
+        
+        // and cleanup the useless informations
         ldapSession.removeSaslProperty( SaslConstants.SASL_HOST );
         ldapSession.removeSaslProperty( SaslConstants.SASL_USER_BASE_DN );
         ldapSession.removeSaslProperty( SaslConstants.SASL_MECH );

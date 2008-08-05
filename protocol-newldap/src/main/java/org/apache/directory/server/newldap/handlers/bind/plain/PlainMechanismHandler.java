@@ -22,7 +22,7 @@ package org.apache.directory.server.newldap.handlers.bind.plain;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.newldap.LdapSession;
-import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.AbstractMechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.message.BindRequest;
 
@@ -36,7 +36,7 @@ import javax.security.sasl.SaslServer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class PlainMechanismHandler implements MechanismHandler
+public class PlainMechanismHandler extends AbstractMechanismHandler
 {
     
     /**

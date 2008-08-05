@@ -22,7 +22,7 @@ package org.apache.directory.server.newldap.handlers.bind.cramMD5;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.newldap.LdapSession;
-import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.AbstractMechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
@@ -41,7 +41,7 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class CramMd5MechanismHandler implements MechanismHandler
+public class CramMd5MechanismHandler extends AbstractMechanismHandler
 {
     public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {

@@ -57,6 +57,7 @@ import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoSession;
+import org.hamcrest.core.IsEqual;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,7 +218,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
         // SaslServer will throw an exception if the credentials are null.
         if ( bindRequest.getCredentials() == null )
         {
-            bindRequest.setCredentials( new byte[0] );
+            bindRequest.setCredentials( StringTools.EMPTY_BYTES );
         }
 
         try
@@ -367,11 +368,14 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
         // First, check that we have the same mechanism
         String saslMechanism = bindRequest.getSaslMechanism();
         
-        if ( !ldapSession.getSaslProperty( SaslConstants.SASL_MECH ).equals( saslMechanism ) )
+        // The empty mechanism is also a request for a new Bind session
+        if ( StringTools.isEmpty( saslMechanism ) || 
+            !ldapSession.getSaslProperty( SaslConstants.SASL_MECH ).equals( saslMechanism ) )
         {
             sendAuthMethNotSupported( ldapSession, bindRequest );
             return;
         }
+        
         // We have already received a first BindRequest, and sent back some challenge.
         // First, check if the mechanism is the same
         MechanismHandler mechanismHandler = handlers.get( saslMechanism );
@@ -379,79 +383,63 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
         if ( mechanismHandler == null )
         {
             String message = "Handler unavailable for " + saslMechanism;
+            
+            // Clear the saslProperties, and move to the anonymous state
+            ldapSession.clearSaslProperties();
+            ldapSession.setAnonymous();
+            
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
 
+        // Get the previously created SaslServer instance
         SaslServer ss = mechanismHandler.handleMechanism( ldapSession, bindRequest );
         
-        if ( !ss.isComplete() )
+        /*
+         * SaslServer will throw an exception if the credentials are null.
+         */
+        if ( bindRequest.getCredentials() == null )
         {
-            /*
-             * SaslServer will throw an exception if the credentials are null.
-             */
-            if ( bindRequest.getCredentials() == null )
+            bindRequest.setCredentials( StringTools.EMPTY_BYTES );
+        }
+        
+        byte[] tokenBytes = ss.evaluateResponse( bindRequest.getCredentials() );
+        
+        if ( ss.isComplete() )
+        {
+            if ( tokenBytes != null )
             {
-                bindRequest.setCredentials( new byte[0] );
+                /*
+                 * There may be a token to return to the client.  We set it here
+                 * so it will be returned in a SUCCESS message, after an LdapContext
+                 * has been initialized for the client.
+                 */
+                ldapSession.putSaslProperty( SaslConstants.SASL_CREDS, tokenBytes );
             }
             
-            byte[] tokenBytes = ss.evaluateResponse( bindRequest.getCredentials() );
-            
-            if ( ss.isComplete() )
+            // Create the user's coreSession
+            try
             {
-                if ( tokenBytes != null )
-                {
-                    /*
-                     * There may be a token to return to the client.  We set it here
-                     * so it will be returned in a SUCCESS message, after an LdapContext
-                     * has been initialized for the client.
-                     */
-                    ldapSession.putSaslProperty( SaslConstants.SASL_CREDS, tokenBytes );
-                }
+                ServerEntry userEntry = (ServerEntry)ldapSession.getSaslProperty( SaslConstants.SASL_AUTHENT_USER );
                 
-                // Create the user's coreSession
-                try
-                {
-                    ServerEntry userEntry = (ServerEntry)ldapSession.getSaslProperty( SaslConstants.SASL_AUTHENT_USER );
-                    
-                    CoreSession userSession = ds.getSession( userEntry.getDn(), userEntry.get( SchemaConstants.USER_PASSWORD_AT ).getBytes(), saslMechanism, null );
-                    
-                    ldapSession.setCoreSession( userSession );
-                    
-                    // Mark the user as authenticated
-                    ldapSession.setAuthenticated();
-                    
-                    /*
-                     * If the SASL mechanism is DIGEST-MD5 or GSSAPI, we insert a SASLFilter.
-                     */
-                    if ( saslMechanism.equals( SupportedSaslMechanisms.DIGEST_MD5 ) ||
-                         saslMechanism.equals( SupportedSaslMechanisms.GSSAPI ) )
-                    {
-                        LOG.debug( "Inserting SaslFilter to engage negotiated security layer." );
-                        IoSession ioSession = ldapSession.getIoSession();
+                CoreSession userSession = ds.getSession( userEntry.getDn(), userEntry.get( SchemaConstants.USER_PASSWORD_AT ).getBytes(), saslMechanism, null );
+                
+                ldapSession.setCoreSession( userSession );
+                
+                // Mark the user as authenticated
+                ldapSession.setAuthenticated();
+                
+                // Call the cleanup method for the selected mechanism
+                MechanismHandler handler = (MechanismHandler)ldapSession.getSaslProperty( SaslConstants.SASL_MECH_HANDLER );
 
-                        IoFilterChain chain = ioSession.getFilterChain();
-                        
-                        if ( !chain.contains( "SASL_FILTER" ) )
-                        {
-                            SaslServer saslServer = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
-                            chain.addBefore( "codec", "SASL_FILTER", new SaslFilter( saslServer ) );
-                        }
+                handler.cleanup( ldapSession );
 
-                        /*
-                         * We disable the SASL security layer once, to write the outbound SUCCESS
-                         * message without SASL security layer processing.
-                         */
-                        ioSession.setAttribute( SaslFilter.DISABLE_SECURITY_LAYER_ONCE, Boolean.TRUE );
-                    }
-
-                    // And send a Success response
-                    sendBindSuccess( ldapSession, bindRequest, tokenBytes );
-                }
-                catch ( Exception e )
-                {
-                    
-                }
+                // And send a Success response
+                sendBindSuccess( ldapSession, bindRequest, tokenBytes );
+            }
+            catch ( Exception e )
+            {
+                
             }
         }
     }
@@ -525,9 +513,10 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
                 // Get the handler for this mechanism
                 MechanismHandler mechanismHandler = handlers.get( saslMechanism );
                 
-                // Stor ethe mechanism handler in the salsProperties
+                // Store the mechanism handler in the salsProperties
                 ldapSession.putSaslProperty( SaslConstants.SASL_MECH_HANDLER, mechanismHandler );
                 
+                // Initialize the mechanism specific data
                 mechanismHandler.init( ldapSession );
 
                 // Get the SaslServer instance which manage the C/R exchange
@@ -550,6 +539,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
             {
                 sendInvalidCredentials( ldapSession, bindRequest, se );
             }
+            
             return;
         }
     }

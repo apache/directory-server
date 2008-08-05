@@ -21,7 +21,7 @@ package org.apache.directory.server.newldap.handlers.bind.ntlm;
 
 
 import org.apache.directory.server.newldap.LdapSession;
-import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.AbstractMechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.message.BindRequest;
 
@@ -37,7 +37,7 @@ import javax.security.sasl.SaslServer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NtlmMechanismHandler implements MechanismHandler
+public class NtlmMechanismHandler extends AbstractMechanismHandler
 {
     private String providerFqcn;
     private NtlmProvider provider;
