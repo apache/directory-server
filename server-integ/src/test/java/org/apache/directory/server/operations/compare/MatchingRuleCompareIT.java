@@ -65,7 +65,7 @@ import static org.junit.Assert.assertEquals;
     "member: cn=Tori Amos,ou=system\n\n"
     }
 )
-public class MatchingRuleCompareTest
+public class MatchingRuleCompareIT
 {
     public static LdapServer ldapServer;
 

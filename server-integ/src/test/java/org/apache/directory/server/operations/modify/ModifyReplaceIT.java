@@ -50,7 +50,7 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith ( SiRunner.class ) 
 @CleanupLevel ( Level.SUITE )
-public class ModifyReplaceITest 
+public class ModifyReplaceIT 
 {
     private static final String BASE = "ou=system";
 

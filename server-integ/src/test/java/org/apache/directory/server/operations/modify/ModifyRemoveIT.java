@@ -71,7 +71,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
     "sn: Amos\n\n"
     }
 )
-public class ModifyRemoveTest
+public class ModifyRemoveIT
 {
     private static final String BASE = "ou=system";
     private static final String RDN = "cn=Tori Amos";

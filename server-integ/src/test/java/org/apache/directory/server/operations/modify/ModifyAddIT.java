@@ -88,7 +88,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
     "sn: Harry\n\n" 
     }
 )
-public class ModifyAddTest 
+public class ModifyAddIT 
 {
     private static final String BASE = "ou=system";
     private static final String RDN_TORI_AMOS = "cn=Tori Amos";

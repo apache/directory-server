@@ -71,7 +71,7 @@ import netscape.ldap.LDAPModification;
     "sn: Bush\n\n" 
     }
 )
-public class IllegalModificationITest 
+public class IllegalModificationIT 
 {
     private static final String DN = "cn=Kate Bush,ou=system";
 
