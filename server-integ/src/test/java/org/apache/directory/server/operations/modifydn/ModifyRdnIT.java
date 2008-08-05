@@ -17,10 +17,8 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.operations.modifydn;
 
-
-import java.util.Hashtable;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -32,29 +30,41 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.junit.After;
-import org.junit.Before;
+
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.integ.SiRunner;
+import org.apache.directory.server.newldap.LdapServer;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 
 /**
- * Testcase with different modify DN operations on a person entry.
+ * Test case with different modify DN operations on a person entry.
  * Originally created to demonstrate DIREVE-173.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 679049 $
  */
-public class ModifyRdnTest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.SUITE )
+public class ModifyRdnIT 
 {
-    private LdapContext ctx = null;
+    private static final String BASE = "ou=system";
 
-
+    public static LdapServer ldapServer;
+    
+    
     /**
      * Create attributes for a person entry.
      */
@@ -91,55 +101,13 @@ public class ModifyRdnTest extends AbstractServerTest
 
 
     /**
-     * Create context
-     */
-    @Before
-    public void setUp() throws Exception
-    {
-        super.setUp();
-
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-        ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
-    }
-
-
-    /**
-     * Close context
-     */
-    @After
-    public void tearDown() throws Exception
-    {
-        ctx.close();
-        ctx = null;
-
-        super.tearDown();
-    }
-
-
-    /**
-     * Just a little test to check wether opening the connection succeeds.
-     */
-    @Test
-    public void testSetUpTearDown()
-    {
-        assertNotNull( ctx );
-    }
-
-
-    /**
      * Modify Rdn of an entry, delete its old rdn value.
-     * 
-     * @throws NamingException
      */
     @Test
-    public void testModifyRdnAndDeleteOld() throws NamingException
+    public void testModifyRdnAndDeleteOld() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
         String oldRdn = "cn=" + oldCn;
@@ -183,12 +151,12 @@ public class ModifyRdnTest extends AbstractServerTest
      * Modify Rdn of an entry, without deleting its old rdn value.
      * 
      * The JNDI property is set with 'False'
-     * 
-     * @throws NamingException
      */
     @Test
-    public void testModifyRdnAndDontDeleteOldFalse() throws NamingException
+    public void testModifyRdnAndDontDeleteOldFalse() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
         String oldRdn = "cn=" + oldCn;
@@ -230,12 +198,12 @@ public class ModifyRdnTest extends AbstractServerTest
 
     /**
      * Modify Rdn of an entry, keep its old rdn value.
-     * 
-     * @throws NamingException
      */
     @Test
-    public void testModifyRdnAndKeepOld() throws NamingException
+    public void testModifyRdnAndKeepOld() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
         String oldRdn = "cn=" + oldCn;
@@ -278,12 +246,12 @@ public class ModifyRdnTest extends AbstractServerTest
     /**
      * Modify Rdn of an entry, delete its old rdn value. Here, the rdn attribute
      * cn has another value as well.
-     * 
-     * @throws NamingException
      */
     @Test
-    public void testModifyRdnAndDeleteOldVariant() throws NamingException
+    public void testModifyRdnAndDeleteOldVariant() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
         String oldRdn = "cn=" + oldCn;
@@ -333,12 +301,12 @@ public class ModifyRdnTest extends AbstractServerTest
 
     /**
      * Modify DN of an entry, changing RDN from cn to sn.
-     * 
-     * @throws NamingException
      */
     @Test
-    public void testModifyRdnDifferentAttribute() throws NamingException
+    public void testModifyRdnDifferentAttribute() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create a person, cn value is rdn
         String cnVal = "Tori Amos";
         String snVal = "Amos";
@@ -383,12 +351,12 @@ public class ModifyRdnTest extends AbstractServerTest
     /**
      * Modify DN of an entry, changing RDN from cn to sn, 
      * delete old RDn, must fail because cn can not be deleted.
-     * 
-     * @throws NamingException
      */
     @Test
-    public void testModifyRdnDifferentAttributeDeleteOldFails() throws NamingException
+    public void testModifyRdnDifferentAttributeDeleteOldFails() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create a person, cn value is rdn
         String cnVal = "Tori Amos";
         String snVal = "Amos";
@@ -418,12 +386,12 @@ public class ModifyRdnTest extends AbstractServerTest
      * Test for DIRSERVER-1086.
      * Modify Rdn of an entry that has a child entry, delete its old rdn value.
      * Ensure that the tree is not broken.
-     *
-     * @throws NamingException
      */
     @Test
-    public void testModifyRdnAndDeleteOldWithChild() throws NamingException
+    public void testModifyRdnAndDeleteOldWithChild() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create an organizational unit, ou value is rdn
         String oldOu = "Writers";
         String oldRdn = "ou=" + oldOu;
@@ -488,12 +456,12 @@ public class ModifyRdnTest extends AbstractServerTest
      * Test for DIRSERVER-1096.
      * Modify the RDN of an entry with an escaped new RDN. 
      * Ensure that the attribute itself contains the unescaped value.
-     *
-     * @throws Exception
      */
     @Test
     public void testModifyRdnWithEncodedNewRdn() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create a person "cn=Tori Amos", cn value is rdn
         String cnVal = "Tori Amos";
         String snVal = "Amos";
@@ -540,12 +508,12 @@ public class ModifyRdnTest extends AbstractServerTest
      * Test for DIRSERVER-1096.
      * Modify the RDN of an entry with an escaped new RDN. 
      * Ensure that the attribute itself contains the unescaped value.
-     *
-     * @throws Exception
      */
     @Test
     public void testModifyRdnWithEscapedPoundNewRdn() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // Create a person "cn=Tori Amos", cn value is rdn
         String cnVal = "Tori Amos";
         String snVal = "Amos";
@@ -594,12 +562,12 @@ public class ModifyRdnTest extends AbstractServerTest
      * - New Rdn: cn+sn
      * - Keep old Rdn
      * - Attributes: cn, sn, description must exist 
-     * 
-     * @throws NamingException
      */
     @Test
-    public void testModifyMultiValuedRdnVariant1() throws NamingException
+    public void testModifyMultiValuedRdnVariant1() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attributes = createPerson( "cn" );
         String oldRdn = getRdn( attributes, "cn" );
         String newRdn = getRdn( attributes, "cn", "sn" );
@@ -634,12 +602,12 @@ public class ModifyRdnTest extends AbstractServerTest
      * - New Rdn: cn+sn
      * - Delete old Rdn
      * - Attributes: cn, sn, description must exist 
-     * 
-     * @throws NamingException
      */
     @Test
-    public void testModifyMultiValuedRdnVariant2() throws NamingException
+    public void testModifyMultiValuedRdnVariant2() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attributes = createPerson( "cn" );
         String oldRdn = getRdn( attributes, "cn" );
         String newRdn = getRdn( attributes, "cn", "sn" );
@@ -674,12 +642,12 @@ public class ModifyRdnTest extends AbstractServerTest
      * - New Rdn: cn+sn
      * - Keep old Rdn
      * - Attributes: cn, sn, description must exist 
-     * 
-     * @throws NamingException
      */
     @Test
-    public void testModifyMultiValuedRdnVariant3() throws NamingException
+    public void testModifyMultiValuedRdnVariant3() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attributes = createPerson( "description" );
         String oldRdn = getRdn( attributes, "description" );
         String newRdn = getRdn( attributes, "cn", "sn" );
@@ -714,12 +682,12 @@ public class ModifyRdnTest extends AbstractServerTest
      * - New Rdn: cn+sn
      * - Delete old Rdn
      * - Attributes: cn, sn must exist; descriptions must not exist 
-     * 
-     * @throws NamingException
      */
     @Test
-    public void testModifyMultiValuedRdnVariant4() throws NamingException
+    public void testModifyMultiValuedRdnVariant4() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attributes = createPerson( "description" );
         String oldRdn = getRdn( attributes, "description" );
         String newRdn = getRdn( attributes, "cn", "sn" );
@@ -758,8 +726,10 @@ public class ModifyRdnTest extends AbstractServerTest
      * @throws NamingException
      */
     @Test
-    public void testModifyMultiValuedRdnVariant5() throws NamingException
+    public void testModifyMultiValuedRdnVariant5() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attributes = createPerson( "cn" );
         attributes.put( "telephoneNumber", "12345" );
         String oldRdn = getRdn( attributes, "cn" );
@@ -802,8 +772,10 @@ public class ModifyRdnTest extends AbstractServerTest
      * @throws NamingException
      */
     @Test
-    public void testModifyMultiValuedRdnVariant6() throws NamingException
+    public void testModifyMultiValuedRdnVariant6() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attributes = createPerson( "cn" );
         attributes.put( "telephoneNumber", "12345" );
         String oldRdn = getRdn( attributes, "cn" );
@@ -860,8 +832,10 @@ public class ModifyRdnTest extends AbstractServerTest
      * @throws NamingException
      */
     @Test
-    public void testModifyMultiValuedRdnVariant7() throws NamingException
+    public void testModifyMultiValuedRdnVariant7() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attributes = createPerson( "cn", "sn" );
         String oldRdn = getRdn( attributes, "cn", "sn" );
         String newRdn = getRdn( attributes, "cn" );
@@ -900,8 +874,10 @@ public class ModifyRdnTest extends AbstractServerTest
      * @throws NamingException
      */
     @Test
-    public void testModifyMultiValuedRdnVariant8() throws NamingException
+    public void testModifyMultiValuedRdnVariant8() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attributes = createPerson( "cn", "sn" );
         String oldRdn = getRdn( attributes, "cn", "sn" );
         String newRdn = getRdn( attributes, "cn" );
@@ -955,8 +931,10 @@ public class ModifyRdnTest extends AbstractServerTest
      * @throws NamingException
      */
     @Test
-    public void testModifyRdnOperationalAttribute() throws NamingException
+    public void testModifyRdnOperationalAttribute() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // create the entry
         Attributes attributes = createPerson( "cn" );
         String oldRdn = getRdn( attributes, "cn" );
@@ -998,8 +976,10 @@ public class ModifyRdnTest extends AbstractServerTest
      * @throws NamingException
      */
     @Test
-    public void testModifyRdnObjectClassAttribute() throws NamingException
+    public void testModifyRdnObjectClassAttribute() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         // create the entry
         Attributes attributes = createPerson( "cn" );
         String oldRdn = getRdn( attributes, "cn" );
@@ -1027,7 +1007,7 @@ public class ModifyRdnTest extends AbstractServerTest
     }
 
 
-    private String getRdn( Attributes attributes, String... rdnTypes ) throws NamingException
+    private String getRdn( Attributes attributes, String... rdnTypes ) throws Exception
     {
         String rdn = "";
         
@@ -1041,8 +1021,10 @@ public class ModifyRdnTest extends AbstractServerTest
     }
 
 
-    private Attributes createPerson( String... rdnTypes ) throws NamingException
+    private Attributes createPerson( String... rdnTypes ) throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
         Attributes attributes = new AttributesImpl();
         Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
