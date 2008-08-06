@@ -24,11 +24,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.bind.AbstractSaslCallbackHandler;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -39,6 +41,7 @@ import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +104,11 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
             while ( cursor.next() )
             {
                 entry = cursor.get();
-                ldapSession.putSaslProperty( SaslConstants.SASL_AUTHENT_USER, entry );
+                LdapPrincipal ldapPrincipal = new LdapPrincipal( 
+                    entry.getDn(), 
+                    AuthenticationLevel.STRONG, 
+                    entry.get( SchemaConstants.USER_PASSWORD_AT ).getBytes() );
+                ldapSession.putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
             }
 
             return entry.get( passwordAT );

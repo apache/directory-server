@@ -20,12 +20,18 @@
 package org.apache.directory.server.newldap.handlers.bind.ntlm;
 
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.bind.AbstractSaslServer;
+import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import javax.naming.Context;
+import javax.naming.InvalidNameException;
 import javax.security.sasl.SaslException;
 
 
@@ -148,7 +154,8 @@ public class NtlmSaslServer extends AbstractSaslServer
                 try
                 {
                     result = provider.authenticate( getLdapSession().getIoSession(), response );
-                    getLdapSession().getIoSession().setAttribute( Context.SECURITY_PRINCIPAL, getBindRequest().getName().toString() );
+                    
+                    getLdapSession().putSaslProperty( Context.SECURITY_PRINCIPAL, getBindRequest().getName().toString() );
                 }
                 catch ( Exception e )
                 {
@@ -168,6 +175,21 @@ public class NtlmSaslServer extends AbstractSaslServer
     }
 
 
+    /**
+     * Try to authenticate the usr against the underlying LDAP server.
+     */
+    private CoreSession authenticate( String user, String password ) throws InvalidNameException, Exception
+    {
+        BindOperationContext bindContext = new BindOperationContext( getLdapSession().getCoreSession() );
+        bindContext.setDn( new LdapDN( user ) );
+        bindContext.setCredentials( StringTools.getBytesUtf8( password ) );
+        
+        getAdminSession().getDirectoryService().getOperationManager().bind( bindContext );
+        
+        return bindContext.getSession();
+    }
+
+    
     /**
      * {@inheritDoc}
      */

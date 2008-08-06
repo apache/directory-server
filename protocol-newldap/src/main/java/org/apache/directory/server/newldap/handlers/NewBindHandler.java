@@ -32,8 +32,8 @@ import javax.security.sasl.SaslServer;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
@@ -464,9 +464,9 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
             // Create the user's coreSession
             try
             {
-                ServerEntry userEntry = (ServerEntry)ldapSession.getSaslProperty( SaslConstants.SASL_AUTHENT_USER );
+                LdapPrincipal ldapPrincipal = (LdapPrincipal)ldapSession.getSaslProperty( SaslConstants.SASL_AUTHENT_USER );
                 
-                CoreSession userSession = ds.getSession( userEntry.getDn(), userEntry.get( SchemaConstants.USER_PASSWORD_AT ).getBytes(), saslMechanism, null );
+                CoreSession userSession = ds.getSession( ldapPrincipal.getJndiName(), ldapPrincipal.getUserPassword(), saslMechanism, null );
                 
                 ldapSession.setCoreSession( userSession );
                 
