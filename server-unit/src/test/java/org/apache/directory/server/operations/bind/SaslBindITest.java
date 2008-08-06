@@ -33,22 +33,34 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
+import org.apache.commons.net.SocketClient;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.newldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.ntlm.NtlmProvider;
 import org.apache.directory.server.newldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.BindRequestImpl;
+import org.apache.directory.shared.ldap.message.BindResponse;
+import org.apache.directory.shared.ldap.message.MessageDecoder;
+import org.apache.directory.shared.ldap.message.MessageEncoder;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.mina.common.IoSession;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -60,7 +72,9 @@ import org.junit.Test;
 public class SaslBindITest extends AbstractServerTest
 {
      private DirContext ctx;
-     //private BogusNtlmProvider provider;
+     
+     /** The NTLM fake provider */
+     private BogusNtlmProvider provider;
 
      /**
       * Set up a partition for EXAMPLE.COM and add a user to
@@ -69,7 +83,7 @@ public class SaslBindITest extends AbstractServerTest
      @Before
      public void setUp() throws Exception
      {
-         //provider = new BogusNtlmProvider();
+         provider = new BogusNtlmProvider();
          super.setUp();
          directoryService.setAllowAnonymousAccess( true );
 
@@ -125,7 +139,7 @@ public class SaslBindITest extends AbstractServerTest
          ldapServer.setSaslHost( "localhost" );
          
          NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
-         //ntlmMechanismHandler.setNtlmProvider( provider  );
+         ntlmMechanismHandler.setNtlmProvider( provider  );
          
          // Inject the NTLM MechanismHandler
          ldapServer.removeSaslMechanismHandler( SupportedSaslMechanisms.NTLM );
@@ -499,6 +513,186 @@ public class SaslBindITest extends AbstractServerTest
          catch ( NamingException e )
          {
              assertTrue( e.getMessage().contains( "digest response format violation" ) );
+         }
+     }
+
+
+     /**
+      * Tests that the plumbing for NTLM bind works.
+      */
+     @Test
+     public void testNtlmBind() throws Exception
+     {
+         NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.NTLM );
+         BindResponse type2response = client.bindType1( "type1_test".getBytes() );
+         assertEquals( 1, type2response.getMessageId() );
+         assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
+         assertTrue( ArrayUtils.isEquals( "type1_test".getBytes(), provider.getType1Response() ) );
+         assertTrue( ArrayUtils.isEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
+         
+         BindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
+         assertEquals( 2, finalResponse.getMessageId() );
+         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
+         assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
+     }
+
+
+     /**
+      * Tests that the plumbing for NTLM bind works.
+      */
+     @Test
+     public void testGssSpnegoBind() throws Exception
+     {
+         NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.GSS_SPNEGO );
+         BindResponse type2response = client.bindType1( "type1_test".getBytes() );
+         assertEquals( 1, type2response.getMessageId() );
+         assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
+         assertTrue( ArrayUtils.isEquals( "type1_test".getBytes(), provider.getType1Response() ) );
+         assertTrue( ArrayUtils.isEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
+         
+         BindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
+         assertEquals( 2, finalResponse.getMessageId() );
+         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
+         assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
+     }
+
+     
+     /**
+      * A fake implementation of the NtlmProvider. We can't use a real one because
+      * its license is not ASL 2.0 compatible.
+      */
+     class BogusNtlmProvider implements NtlmProvider
+     {
+         private byte[] type1response;
+         private byte[] type3response;
+         
+         
+         public boolean authenticate( IoSession session, byte[] type3response ) throws Exception
+         {
+             this.type3response = type3response;
+             return true;
+         }
+
+
+         public byte[] generateChallenge( IoSession session, byte[] type1reponse ) throws Exception
+         {
+             this.type1response = type1reponse;
+             return "challenge".getBytes();
+         }
+         
+         
+         public byte[] getType1Response()
+         {
+             return type1response;
+         }
+         
+         
+         public byte[] getType3Response()
+         {
+             return type3response;
+         }
+     }
+
+
+     /**
+      * A NTLM client
+      */
+     class NtlmSaslBindClient extends SocketClient
+     {
+         private final Logger LOG = LoggerFactory.getLogger( NtlmSaslBindClient.class );
+         
+         private final String mechanism;
+         
+         
+         NtlmSaslBindClient( String mechanism ) throws Exception
+         {
+             this.mechanism = mechanism;
+             setDefaultPort( port );
+             connect( "localhost", port );
+             setTcpNoDelay( false );
+             
+             LOG.debug( "isConnected() = {}", _isConnected_ );
+             LOG.debug( "LocalPort     = {}", getLocalPort() );
+             LOG.debug( "LocalAddress  = {}", getLocalAddress() );
+             LOG.debug( "RemotePort    = {}", getRemotePort() );
+             LOG.debug( "RemoteAddress = {}", getRemoteAddress() );
+         }
+
+         
+         BindResponse bindType1( byte[] type1response ) throws Exception
+         {
+             if ( ! isConnected() )
+             {
+                 throw new IllegalStateException( "Client is not connected." );
+             }
+             
+             // Setup the bind request
+             BindRequestImpl request = new BindRequestImpl( 1 ) ;
+             request.setName( new LdapDN( "uid=admin,ou=system" ) ) ;
+             request.setSimple( false ) ;
+             request.setCredentials( type1response ) ;
+             request.setSaslMechanism( mechanism );
+             request.setVersion3( true ) ;
+             
+             // Setup the ASN1 Enoder and Decoder
+             MessageEncoder encoder = new MessageEncoder();
+             MessageDecoder decoder = new MessageDecoder( new BinaryAttributeDetector() {
+                 public boolean isBinary( String attributeId )
+                 {
+                     return false;
+                 }
+             } );
+      
+             // Send encoded request to server
+             encoder.encodeBlocking( null, _output_, request );
+             _output_.flush();
+             
+             while ( _input_.available() <= 0 )
+             {
+                 Thread.sleep( 100 );
+             }
+             
+             // Retrieve the response back from server to my last request.
+             return ( BindResponse ) decoder.decode( null, _input_ );
+         }
+         
+         
+         BindResponse bindType3( byte[] type3response ) throws Exception
+         {
+             if ( ! isConnected() )
+             {
+                 throw new IllegalStateException( "Client is not connected." );
+             }
+             
+             // Setup the bind request
+             BindRequestImpl request = new BindRequestImpl( 2 ) ;
+             request.setName( new LdapDN( "uid=admin,ou=system" ) ) ;
+             request.setSimple( false ) ;
+             request.setCredentials( type3response ) ;
+             request.setSaslMechanism( mechanism );
+             request.setVersion3( true ) ;
+             
+             // Setup the ASN1 Enoder and Decoder
+             MessageEncoder encoder = new MessageEncoder();
+             MessageDecoder decoder = new MessageDecoder( new BinaryAttributeDetector() {
+                 public boolean isBinary( String attributeId )
+                 {
+                     return false;
+                 }
+             } );
+      
+             // Send encoded request to server
+             encoder.encodeBlocking( null, _output_, request );
+             
+             _output_.flush();
+             
+             while ( _input_.available() <= 0 )
+             {
+                 Thread.sleep( 100 );
+             }
+             
+             // Retrieve the response back from server to my last request.
+             return ( BindResponse ) decoder.decode( null, _input_ );
          }
      }
 }

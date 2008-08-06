@@ -21,10 +21,12 @@ package org.apache.directory.server.newldap.handlers.bind.ntlm;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.newldap.LdapSession;
 import org.apache.directory.server.newldap.handlers.bind.AbstractSaslServer;
 import org.apache.directory.server.newldap.handlers.bind.SaslConstants;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -154,7 +156,10 @@ public class NtlmSaslServer extends AbstractSaslServer
                 try
                 {
                     result = provider.authenticate( getLdapSession().getIoSession(), response );
-                    
+                    LdapDN dn = getBindRequest().getName();
+                    dn.normalize( getLdapSession().getLdapServer().getDirectoryService().getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+                    LdapPrincipal ldapPrincipal = new LdapPrincipal( dn, AuthenticationLevel.STRONG ); 
+                    getLdapSession().putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
                     getLdapSession().putSaslProperty( Context.SECURITY_PRINCIPAL, getBindRequest().getName().toString() );
                 }
                 catch ( Exception e )

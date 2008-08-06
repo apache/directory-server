@@ -618,6 +618,7 @@ public class DefaultDirectoryService implements DirectoryService
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( credentials );
         bindContext.setDn( principalDn );
+        bindContext.setSaslMechanism( saslMechanism );
         operationManager.bind( bindContext );
         
         return bindContext.getSession();
