@@ -31,6 +31,7 @@ import javax.security.sasl.SaslServer;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
@@ -119,7 +120,45 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
         
         try
         {
-	        // And call the OperationManager bind operation.
+            /*
+             * Referral handling as specified by RFC 3296 here:
+             *    
+             *      http://www.faqs.org/rfcs/rfc3296.html
+             *      
+             * See section 5.6.1 where if the bind principal DN is a referral 
+             * we return an invalidCredentials result response.  Optionally we
+             * could support delegated authentication in the future with this
+             * potential.  See the following JIRA for more on this possibility:
+             * 
+             *      https://issues.apache.org/jira/browse/DIRSERVER-1217
+             *      
+             * NOTE: if this is done then this handler should extend the 
+             * a modified form of the SingleReplyRequestHandler so it can 
+             * detect conditions where ancestors of the DN are referrals
+             * and delegate appropriately.
+             */
+            ClonedServerEntry principalEntry = getLdapServer().getDirectoryService()
+                .getAdminSession().lookup( bindRequest.getName() );
+            if ( principalEntry == null || 
+                 principalEntry.getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT, 
+                     SchemaConstants.REFERRAL_OC ) )
+            {
+                LdapResult result = bindRequest.getResultResponse().getLdapResult();
+                result.setErrorMessage( "Bind principalDn points to referral." );
+                result.setMatchedDn( bindRequest.getName() );
+                result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
+                ldapSession.getIoSession().write( bindRequest.getResultResponse() );
+                return;
+            }
+
+            // TODO - might cause issues since lookups are not returning all 
+            // attributes right now - this is an optimization that can be 
+            // enabled later after determining whether or not this will cause
+            // issues.
+            // reuse the looked up entry so we don't incur another lookup
+            // opContext.setEntry( principalEntry );
+
+            // And call the OperationManager bind operation.
 	        getLdapServer().getDirectoryService().getOperationManager().bind( opContext );
 	        
 	        // As a result, store the created session in the Core Session
