@@ -85,6 +85,7 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
                 reqTargetDn = ( ( AddRequest ) req ).getEntry();
                 break;
             case BIND_RESPONSE:
+                // not used for bind but may be in future
                 reqTargetDn = ( ( BindRequest ) req ).getName();
                 break;
             case COMPARE_RESPONSE:
