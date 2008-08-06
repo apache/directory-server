@@ -23,6 +23,7 @@ package org.apache.directory.server.newldap.handlers;
 import java.util.Map;
 
 import javax.naming.Name;
+import javax.naming.NameNotFoundException;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -137,15 +138,24 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
              * detect conditions where ancestors of the DN are referrals
              * and delegate appropriately.
              */
-            ClonedServerEntry principalEntry = getLdapServer().getDirectoryService()
-                .getAdminSession().lookup( bindRequest.getName() );
+            ClonedServerEntry principalEntry = null;
+            
+            try
+            {
+                principalEntry = getLdapServer().getDirectoryService()
+                    .getAdminSession().lookup( bindRequest.getName() );
+            }
+            catch ( NameNotFoundException e ) 
+            {
+                // this is OK
+            }
+
             if ( principalEntry == null || 
                  principalEntry.getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT, 
                      SchemaConstants.REFERRAL_OC ) )
             {
                 LdapResult result = bindRequest.getResultResponse().getLdapResult();
                 result.setErrorMessage( "Bind principalDn points to referral." );
-                result.setMatchedDn( bindRequest.getName() );
                 result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
                 ldapSession.getIoSession().write( bindRequest.getResultResponse() );
                 return;
