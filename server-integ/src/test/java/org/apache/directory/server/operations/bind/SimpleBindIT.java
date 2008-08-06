@@ -20,9 +20,7 @@
 package org.apache.directory.server.operations.bind;
 
 
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Set;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -34,20 +32,20 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
-import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.integ.SiRunner;
+import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
 
-import org.junit.After;
-import org.junit.Before;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -56,78 +54,29 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SimpleBindITest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.SUITE )
+@ApplyLdifs( {
+    // Entry # 1
+    "dn: uid=hnelson,ou=users,ou=system\n" +
+    "objectClass: inetOrgPerson\n" +
+    "objectClass: organizationalPerson\n" +
+    "objectClass: person\n" +
+    "objectClass: top\n" +
+    "userPassword: secret\n" +
+    "uid: hnelson\n" +
+    "cn: Horatio Nelson\n" +
+    "sn: Nelson\n\n"
+    }
+)
+public class SimpleBindIT
 {
-    private DirContext ctx;
+    private static final String BASE = "ou=users,ou=system";
 
+    
+    public static LdapServer ldapServer;
 
-    /**
-     * Set up a partition for EXAMPLE.COM and add a user to
-     * test authentication with.
-     */
-    @Before
-    public void setUp() throws Exception
-    {
-        super.setUp();
-
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-        ctx = new InitialDirContext( env );
-
-        Attributes attrs = new AttributesImpl( true );
-        attrs = getOrgUnitAttributes( "users" );
-        DirContext users = ctx.createSubcontext( "ou=users", attrs );
-
-        attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "secret" );
-        users.createSubcontext( "uid=hnelson", attrs );
-        directoryService.setAllowAnonymousAccess( true );
-    }
-
-
-    @Override
-    protected void configureDirectoryService() throws NamingException
-    {
-        directoryService.setAllowAnonymousAccess( true );
-
-        Set<Partition> partitions = new HashSet<Partition>();
-        JdbmPartition partition = new JdbmPartition();
-        partition.setId( "example" );
-        partition.setSuffix( "dc=example,dc=com" );
-
-        Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-        indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
-        indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
-        indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
-        partition.setIndexedAttributes( indexedAttrs );
-
-        LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );
-        ServerEntry serverEntry = new DefaultServerEntry( directoryService.getRegistries(), exampleDn );
-        serverEntry.put( "objectClass", "top", "domain" );
-        serverEntry.put( "dc", "example" );
-
-        partition.setContextEntry( serverEntry );
-
-        partitions.add( partition );
-        directoryService.setPartitions( partitions );
-    }
-
-
-    /**
-     * Tear down.
-     */
-    @After
-    public void tearDown() throws Exception
-    {
-        ctx.close();
-        ctx = null;
-        super.tearDown();
-    }
-
-
+    
     /**
      * Convenience method for creating a person.
      */
@@ -172,10 +121,9 @@ public class SimpleBindITest extends AbstractServerTest
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
-
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson," + BASE );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         try
@@ -185,7 +133,7 @@ public class SimpleBindITest extends AbstractServerTest
             String[] attrIDs =
                 { "uid" };
 
-            Attributes attrs = context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
+            Attributes attrs = context.getAttributes( "uid=hnelson," + BASE, attrIDs );
 
             String uid = null;
 
@@ -211,10 +159,9 @@ public class SimpleBindITest extends AbstractServerTest
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
-
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson," + BASE );
         env.put( Context.SECURITY_CREDENTIALS, "badsecret" );
 
         try
@@ -232,17 +179,16 @@ public class SimpleBindITest extends AbstractServerTest
         }
     }
 
+    
     /**
      * try to connect using a user with an invalid DN: we should get a invalidDNSyntax error.
-     * 
-     * @throws Exception on error
      */
     @Test
     public void testSimpleBindBadUserPassword()
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
@@ -266,16 +212,13 @@ public class SimpleBindITest extends AbstractServerTest
     
     /**
      * try to connect using a unknown user: we should get a invalidCredentials error.
-     * 
-     * @throws Exception on error
      */
     @Test
     public void testSimpleBindUnknowUserPassword()
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
-
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=unknown,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -286,28 +229,28 @@ public class SimpleBindITest extends AbstractServerTest
         }
         catch ( AuthenticationException ae )
         {
-    		// Error code 49 : LDAP_INVALID_CREDENTIALS
-            assertTrue( ae.getMessage().startsWith( "[LDAP: error code 49 - Bind failed" ) );
         }
         catch ( NamingException e )
         {
-            fail();
+            fail( "Expected AuthenticationException with error code 49 for invalidate credentials instead got: " 
+                + e.getMessage() );
         }
     }
     
 
     /**
      * covers the anonymous authentication : we should be able to read the rootDSE, but that's it
-     * 
-     * @throws Exception on error
      */
     @Test
     public void testSimpleBindNoUserNoPassword()
     {
+        boolean oldValue = ldapServer.getDirectoryService().isAllowAnonymousAccess();
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
+        ldapServer.setAllowAnonymousAccess( false );
+
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
-
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
@@ -346,26 +289,26 @@ public class SimpleBindITest extends AbstractServerTest
     		
     		assertNotNull( attrs );
     		assertEquals( 0, attrs.size() );
+            fail( "Should not be able to read the root DSE" );
     	}
     	catch ( NamingException ne )
     	{
-    		fail();
     	}
+    	
+    	ldapServer.getDirectoryService().setAllowAnonymousAccess( oldValue );
+    	ldapServer.setAllowAnonymousAccess( oldValue );
     }
     
     
     /**
      * covers the Unauthenticated case : we should get a UnwillingToPerform error.
-     * 
-     * @throws Exception on error
      */
     @Test
     public void testSimpleBindUserNoPassword()
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
-
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
@@ -386,17 +329,16 @@ public class SimpleBindITest extends AbstractServerTest
     	}
     }    
     
+    
     /**
      * not allowed by the server. We should get a invalidCredentials error.
-     * 
-     * @throws Exception on error
      */
     @Test
     public void testSimpleBindNoUserPassword() throws Exception
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "" );
@@ -409,12 +351,10 @@ public class SimpleBindITest extends AbstractServerTest
     	}
     	catch ( AuthenticationException ae )
     	{
-    		// Error code 32 : LDAP_NO_SUCH_OBJECT
-    		assertTrue( ae.getMessage().startsWith( "[LDAP: error code 32 - Bind failed" ) );
     	}
     	catch ( NamingException ne )
     	{
-    		fail();
+    		fail( "Expected AuthenticationException but instead got: " + ne.getMessage() );
     	}
     }    
 
@@ -426,13 +366,14 @@ public class SimpleBindITest extends AbstractServerTest
     @Test
     public void testAnonymousRootDSE()
     {
-        directoryService.setAllowAnonymousAccess( false );
+        boolean oldValue = ldapServer.getDirectoryService().isAllowAnonymousAccess();
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
 
         try
         {
             Hashtable<String, String> env = new Hashtable<String, String>();
             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
             DirContext context = new InitialDirContext( env );
 
@@ -454,6 +395,10 @@ public class SimpleBindITest extends AbstractServerTest
         {
             e.printStackTrace();
             fail( "Should not have caught exception." );
+        }
+        finally
+        {
+            ldapServer.getDirectoryService().setAllowAnonymousAccess( oldValue );
         }
     }
 }

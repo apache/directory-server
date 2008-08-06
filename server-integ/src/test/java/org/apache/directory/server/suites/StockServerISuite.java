@@ -28,6 +28,7 @@ import org.apache.directory.server.integ.SiSuite;
 import org.apache.directory.server.operations.add.AddIT;
 import org.apache.directory.server.operations.add.AddingEntriesWithSpecialCharactersInRDNIT;
 import org.apache.directory.server.operations.bind.BindIT;
+import org.apache.directory.server.operations.bind.SimpleBindIT;
 import org.apache.directory.server.operations.compare.CompareIT;
 import org.apache.directory.server.operations.compare.MatchingRuleCompareIT;
 import org.apache.directory.server.operations.delete.DeleteIT;
@@ -62,7 +63,8 @@ import org.junit.runners.Suite;
         ModifyReplaceIT.class,
         ModifyRdnIT.class,
         ModifyDnReferralIT.class,
-        BindIT.class
+        BindIT.class,
+        SimpleBindIT.class
         } )
 @CleanupLevel ( Level.SUITE )
 @Mode ( SetupMode.ROLLBACK )
