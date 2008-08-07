@@ -76,7 +76,18 @@ public class NewModifyDnHandler extends SingleReplyRequestHandler<ModifyDnReques
         
         try
         {
-            if ( req.getNewRdn() != null )
+            LdapDN newRdn = new LdapDN( req.getNewRdn().toString() );
+            newRdn.normalize( session.getCoreSession().getDirectoryService()
+                .getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            
+            LdapDN oldRdn = new LdapDN( req.getName().getRdn().toString() );
+            oldRdn.normalize( session.getCoreSession().getDirectoryService()
+                .getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            
+            boolean rdnChanged = req.getNewRdn() != null && 
+                ! newRdn.getNormName().equals( oldRdn.getNormName() );
+            
+            if ( rdnChanged )
             {
                 if ( req.getNewSuperior() != null )
                 {
@@ -87,9 +98,18 @@ public class NewModifyDnHandler extends SingleReplyRequestHandler<ModifyDnReques
                     session.getCoreSession().rename( req );
                 }
             }
+            else if ( req.getNewSuperior() != null )
+            {
+                req.setNewRdn( null );
+                session.getCoreSession().move( req );
+            }
             else
             {
-                session.getCoreSession().move( req );
+                result.setErrorMessage( "Attempt to move entry onto itself." );
+                result.setResultCode( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
+                result.setMatchedDn( req.getName() );
+                session.getIoSession().write( req.getResultResponse() );
+                return;
             }
 
             result.setResultCode( ResultCodeEnum.SUCCESS );
