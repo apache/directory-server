@@ -28,6 +28,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -75,7 +76,6 @@ public class SearchOperationContext extends SearchingOperationContext
         this.timeLimit = searchRequest.getTimeLimit();
         this.noAttributes = searchRequest.getTypesOnly();
         setReturningAttributes( searchRequest.getAttributes() );
-        setReferralHandlingMode( searchRequest );
     }
 
 
@@ -114,6 +114,18 @@ public class SearchOperationContext extends SearchingOperationContext
     }
 
 
+    /**
+     * Checks whether or not the ManageDsaITControl is present.  If not 
+     * present then the filter is modified to force the return of all referral
+     * entries regardless of whether or not the filter matches the referral
+     * entry.
+     */
+    public boolean hasManageDsaItControl()
+    {
+        return super.hasRequestControl( ManageDsaITControl.CONTROL_OID );
+    }
+    
+    
     /**
      * @return The filter
      */

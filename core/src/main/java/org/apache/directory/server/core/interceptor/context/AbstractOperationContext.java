@@ -29,13 +29,10 @@ import java.util.Map;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.message.ManageDsaITControl;
-import org.apache.directory.shared.ldap.message.Request;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -66,9 +63,6 @@ public abstract class AbstractOperationContext implements OperationContext
     protected Collection<String> byPassed;
     
     protected LdapPrincipal authorizedPrincipal;
-    
-    /** an operation can override the session's referral handling mode */
-    protected ReferralHandlingMode referralHandlingMode;
     
     protected CoreSession session;
     
@@ -409,37 +403,6 @@ public abstract class AbstractOperationContext implements OperationContext
     protected void setPreviousOperation( OperationContext previous )
     {
         this.previous = previous;
-    }
-
-
-    /**
-     * @param referralHandlingMode the referralHandlingMode to set
-     */
-    public void setReferralHandlingMode( ReferralHandlingMode referralHandlingMode )
-    {
-        this.referralHandlingMode = referralHandlingMode;
-    }
-
-
-    /**
-     * @return the referralHandlingMode
-     */
-    public ReferralHandlingMode getReferralHandlingMode()
-    {
-        return referralHandlingMode;
-    }
-    
-    
-    protected void setReferralHandlingMode( Request req )
-    {
-        if ( req.hasControl( ManageDsaITControl.CONTROL_OID ) )
-        {
-            this.referralHandlingMode = ReferralHandlingMode.IGNORE;
-        }
-        else
-        {
-            this.referralHandlingMode = ReferralHandlingMode.THROW;
-        }
     }
 
 

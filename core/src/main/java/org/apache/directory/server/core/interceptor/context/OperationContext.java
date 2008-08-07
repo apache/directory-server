@@ -26,7 +26,6 @@ import java.util.List;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -289,25 +288,6 @@ public interface OperationContext
      * @return the session associated with this operation
      */
     CoreSession getSession();
-    
-    
-    /**
-     * Sets the {@link ReferralHandlingMode} session override for this 
-     * OperationContext.
-     *
-     * @param referralHandlingMode the ReferralHandlingMode override to apply
-     */
-    void setReferralHandlingMode( ReferralHandlingMode referralHandlingMode );
-    
-    
-    /**
-     * Gets the {@link ReferralHandlingMode} override for this 
-     * OperationContext, or if the override is not set it returns the 
-     * ReferralHandlingMode associated with the CoreSession if present.
-     *
-     * @return the {@link ReferralHandlingMode} to apply for this operation
-     */
-    ReferralHandlingMode getReferralHandlingMode();
     
     
     // -----------------------------------------------------------------------

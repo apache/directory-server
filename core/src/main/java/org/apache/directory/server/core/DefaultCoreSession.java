@@ -387,7 +387,6 @@ public class DefaultCoreSession implements CoreSession
         LdapDN authorized ) throws Exception
     {
         LookupOperationContext opContext = new LookupOperationContext( this, dn );
-        opContext.setReferralHandlingMode( refMode );
         opContext.addRequestControls( requestControls );
         return directoryService.getOperationManager().lookup( opContext );
     }

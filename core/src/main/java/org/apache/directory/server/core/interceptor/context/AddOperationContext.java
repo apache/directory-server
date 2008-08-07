@@ -21,7 +21,6 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.changelog.ChangeLogEvent;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
@@ -96,7 +95,6 @@ public class AddOperationContext extends AbstractChangeOperationContext
             session.getDirectoryService().getRegistries() ) );
         this.dn = addRequest.getEntry();
         this.requestControls = addRequest.getControls();
-        setReferralHandlingMode( addRequest );
     }
 
 
