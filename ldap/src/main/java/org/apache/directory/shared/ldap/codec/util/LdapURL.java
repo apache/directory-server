@@ -563,7 +563,8 @@ public class LdapURL
      */
     private int parseHostPort( char[] chars, int pos )
     {
-
+        int hostPos = pos;
+        
         if ( ( pos = parseHost( chars, pos ) ) == -1 )
         {
             return -1;
@@ -572,6 +573,12 @@ public class LdapURL
         // We may have a port.
         if ( StringTools.isCharASCII( chars, pos, ':' ) )
         {
+            if ( pos == hostPos )
+            {
+                // We should not have a port if we have no host
+                return -1;
+            }
+            
             pos++;
         }
         else
@@ -995,8 +1002,12 @@ public class LdapURL
         }
         else if ( StringTools.isCharASCII( chars, pos, '?' ) )
         {
-
             // An empty scope. This is valid
+            return pos;
+        }
+        else if ( pos == chars.length )
+        {
+            // An empty scope at the end of the URL. This is valid
             return pos;
         }
 
@@ -1318,8 +1329,15 @@ public class LdapURL
                                     isFirst = false;
                                 }
 
-                                sb.append( urlEncode( key, false ) ).append( '=' ).append(
-                                    urlEncode( criticalExtensions.get( key ), true ) );
+                                sb.append( urlEncode( key, false ) );
+                                
+                                String value = criticalExtensions.get( key );
+                                
+                                if ( value != null )
+                                {
+                                    sb.append( '=' ).append(
+                                    urlEncode( value, true ) );
+                                }
                             }
                         }
                     }
