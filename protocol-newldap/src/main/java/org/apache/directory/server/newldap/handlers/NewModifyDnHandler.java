@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class NewModifyDnHandler extends SingleReplyRequestHandler<ModifyDnRequest>
+public class NewModifyDnHandler extends ReferralAwareRequestHandler<ModifyDnRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( NewModifyDnHandler.class );
 

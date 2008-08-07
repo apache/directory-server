@@ -44,9 +44,11 @@ import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.SingleReplyRequest;
+import org.apache.directory.shared.ldap.message.ResultResponseRequest;
+import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,9 +63,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> extends LdapRequestHandler<T>
+public abstract class ReferralAwareRequestHandler<T extends ResultResponseRequest> extends LdapRequestHandler<T>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( SingleReplyRequestHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ReferralAwareRequestHandler.class );
     
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
@@ -79,27 +81,27 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
         
         LdapDN reqTargetDn = null;
         
-        switch ( req.getResponseType() )
+        switch ( req.getType() )
         {
-            case ADD_RESPONSE:
+            case ADD_REQUEST:
                 reqTargetDn = ( ( AddRequest ) req ).getEntry();
                 break;
-            case BIND_RESPONSE:
+            case BIND_REQUEST:
                 // not used for bind but may be in future
                 reqTargetDn = ( ( BindRequest ) req ).getName();
                 break;
-            case COMPARE_RESPONSE:
+            case COMPARE_REQUEST:
                 reqTargetDn = ( ( CompareRequest ) req ).getName();
                 break;
-            case DEL_RESPONSE:
+            case DEL_REQUEST:
                 reqTargetDn = ( ( DeleteRequest ) req ).getName();
                 break;
-            case EXTENDED_RESP:
+            case EXTENDED_REQ:
                 throw new IllegalStateException( 
                     "Although ExtendedRequests are SingleReplyRequests they're not handled" +
                     " using this base class.  They have no target entry unlike the rest of" +
                     " the SingleReplyRequests" );
-            case MOD_DN_RESPONSE:
+            case MOD_DN_REQUEST:
                 /*
                  * Special handling needed because of the new superior entry 
                  * as specified in RFC 3296 section 5.6.2 here: 
@@ -126,8 +128,11 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
                     }
                 }
                 return;
-            case MODIFY_RESPONSE:
+            case MODIFY_REQUEST:
                 reqTargetDn = ( ( ModifyRequest ) req ).getName();
+                break;
+            case SEARCH_REQUEST:
+                reqTargetDn = ( ( SearchRequest ) req ).getBase();
                 break;
             default:
                 throw new IllegalStateException( 
@@ -420,7 +425,15 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
                 if ( isEntryReferral( entry ) )
                 {
                     LOG.debug( "Entry is a referral: {}", entry );
-                    handleReferralEntry( session, reqTargetDn, req, entry );
+                    
+                    if ( req instanceof SearchRequest )
+                    {
+                        handleReferralEntryForSearch( session, ( SearchRequest ) req, entry );
+                    }
+                    else
+                    {
+                        handleReferralEntry( session, reqTargetDn, req, entry );
+                    }
                     return;
                 }
                 else
@@ -474,7 +487,17 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
             // if we get here then we have a valid referral ancestor
             try
             {
-                Referral referral = getReferralOnAncestor( session, reqTargetDn, req, referralAncestor );
+                Referral referral = null;
+                
+                if ( req instanceof SearchRequest )
+                {
+                    referral = getReferralOnAncestorForSearch( session, ( SearchRequest ) req, referralAncestor );
+                }
+                else
+                {
+                    referral = getReferralOnAncestor( session, reqTargetDn, req, referralAncestor );
+                }
+                
                 result.setResultCode( ResultCodeEnum.REFERRAL );
                 result.setReferral( referral );
                 session.getIoSession().write( req.getResultResponse() );
@@ -510,6 +533,60 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
         for ( Value<?> refval : refAttr )
         {
             refs.addLdapUrl( ( String ) refval.get() );
+        }
+
+        session.getIoSession().write( req.getResultResponse() );
+    }
+    
+    
+    /**
+     * Handles processing a referral response on a target entry which is a 
+     * referral.  It will for any request that returns an LdapResult in it's 
+     * response.
+     *
+     * @param session the session to use for processing
+     * @param reqTargetDn the dn of the target entry of the request
+     * @param req the request
+     * @param entry the entry associated with the request
+     */
+    private void handleReferralEntryForSearch( LdapSession session, SearchRequest req, ClonedServerEntry entry )
+        throws Exception
+    {
+        LdapResult result = req.getResultResponse().getLdapResult();
+        ReferralImpl referral = new ReferralImpl();
+        result.setReferral( referral );
+        result.setResultCode( ResultCodeEnum.REFERRAL );
+        result.setErrorMessage( "Encountered referral attempting to handle request." );
+        result.setMatchedDn( req.getBase() );
+
+        EntryAttribute refAttr = entry.getOriginalEntry().get( SchemaConstants.REF_AT );
+        for ( Value<?> refval : refAttr )
+        {
+            String refstr = ( String ) refval.get();
+            
+            // need to add non-ldap URLs as-is
+            if ( ! refstr.startsWith( "ldap" ) )
+            {
+                referral.addLdapUrl( refstr );
+                continue;
+            }
+            
+            // parse the ref value and normalize the DN  
+            LdapURL ldapUrl = new LdapURL();
+            try
+            {
+                ldapUrl.parse( refstr.toCharArray() );
+            }
+            catch ( LdapURLEncodingException e )
+            {
+                LOG.error( "Bad URL ({}) for ref in {}.  Reference will be ignored.", refstr, entry );
+                continue;
+            }
+            
+            ldapUrl.setForceScopeRendering( true );
+            ldapUrl.setAttributes( req.getAttributes() );
+            ldapUrl.setScope( req.getScope().getJndiScope() );
+            referral.addLdapUrl( ldapUrl.toString() );
         }
 
         session.getIoSession().write( req.getResultResponse() );
@@ -609,6 +686,88 @@ public abstract class SingleReplyRequestHandler<T extends SingleReplyRequest> ex
             buf.append( "/" );
             buf.append( LdapURL.urlEncode( urlDn.getUpName(), false ) );
             referral.addLdapUrl( buf.toString() );
+        }
+        
+        return referral;
+    }
+    
+    
+    /**
+     * Handles processing with referrals without ManageDsaIT control and with 
+     * an ancestor that is a referral.  The original entry was not found and 
+     * the walk of the ancestry returned a referral.
+     * 
+     * @param referralAncestor the farthest referral ancestor of the missing 
+     * entry  
+     */
+    public Referral getReferralOnAncestorForSearch( LdapSession session, SearchRequest req, 
+        ClonedServerEntry referralAncestor ) throws Exception
+    {
+        LOG.debug( "Inside getReferralOnAncestor()" );
+     
+        ServerAttribute refAttr = ( ServerAttribute ) referralAncestor.getOriginalEntry()
+            .get( SchemaConstants.REF_AT );
+        Referral referral = new ReferralImpl();
+
+        for ( Value<?> value : refAttr )
+        {
+            String ref = ( String ) value.get();
+
+            LOG.debug( "Calculating LdapURL for referrence value {}", ref );
+
+            // need to add non-ldap URLs as-is
+            if ( ! ref.startsWith( "ldap" ) )
+            {
+                referral.addLdapUrl( ref );
+                continue;
+            }
+            
+            // Parse the ref value   
+            LdapURL ldapUrl = new LdapURL();
+            try
+            {
+                ldapUrl.parse( ref.toCharArray() );
+            }
+            catch ( LdapURLEncodingException e )
+            {
+                LOG.error( "Bad URL ({}) for ref in {}.  Reference will be ignored.", ref, referralAncestor );
+            }
+            
+            // Normalize the DN to check for same dn
+            LdapDN urlDn = new LdapDN( ldapUrl.getDn().getUpName() );
+            urlDn.normalize( session.getCoreSession().getDirectoryService().getRegistries()
+                .getAttributeTypeRegistry().getNormalizerMapping() ); 
+            
+            if ( urlDn.getNormName().equals( req.getBase().getNormName() ) )
+            {
+                ldapUrl.setForceScopeRendering( true );
+                ldapUrl.setAttributes( req.getAttributes() );
+                ldapUrl.setScope( req.getScope().getJndiScope() );
+                referral.addLdapUrl( ldapUrl.toString() );
+                continue;
+            }
+            
+            /*
+             * If we get here then the DN of the referral was not the same as the 
+             * DN of the ref LDAP URL.  We must calculate the remaining (difference)
+             * name past the farthest referral DN which the target name extends.
+             */
+            int diff = req.getBase().size() - referralAncestor.getDn().size();
+            LdapDN extra = new LdapDN();
+
+            // TODO - fix this by access unormalized RDN values
+            // seems we have to do this because get returns normalized rdns
+            LdapDN reqUnnormalizedDn = new LdapDN( req.getBase().getUpName() );
+            for ( int jj = 0; jj < diff; jj++ )
+            {
+                extra.add( reqUnnormalizedDn.get( referralAncestor.getDn().size() + jj ) );
+            }
+
+            ldapUrl.getDn().addAll( extra );
+            ldapUrl.setForceScopeRendering( true );
+            ldapUrl.setAttributes( req.getAttributes() );
+            ldapUrl.setScope( req.getScope().getJndiScope() );
+            referral.addLdapUrl( ldapUrl.toString() );
         }
         
         return referral;

@@ -37,14 +37,14 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NewAddHandler extends SingleReplyRequestHandler<AddRequest>
+public class NewAddHandler extends ReferralAwareRequestHandler<AddRequest>
 {
 	/** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( NewAddHandler.class );
     
     
     /**
-     * @see SingleReplyRequestHandler#handleIgnoringReferrals(LdapSession, LdapDN, ClonedServerEntry, 
+     * @see ReferralAwareRequestHandler#handleIgnoringReferrals(LdapSession, LdapDN, ClonedServerEntry, 
      * org.apache.directory.shared.ldap.message.SingleReplyRequest)
      */
     public void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 

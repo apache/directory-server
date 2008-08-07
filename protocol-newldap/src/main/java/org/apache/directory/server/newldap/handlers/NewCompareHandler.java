@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class NewCompareHandler extends SingleReplyRequestHandler<CompareRequest>
+public class NewCompareHandler extends ReferralAwareRequestHandler<CompareRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( NewCompareHandler.class );
 
     
     /**
-     * @see SingleReplyRequestHandler#handleIgnoringReferrals(LdapSession, LdapDN, 
+     * @see ReferralAwareRequestHandler#handleIgnoringReferrals(LdapSession, LdapDN, 
      * org.apache.directory.server.core.entry.ClonedServerEntry, 
      * org.apache.directory.shared.ldap.message.SingleReplyRequest)
      */

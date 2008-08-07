@@ -22,14 +22,18 @@ package org.apache.directory.server.newldap.handlers;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.newldap.LdapSession;
+import org.apache.directory.shared.ldap.codec.util.LdapURL;
+import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -46,12 +50,11 @@ import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseReference;
 import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import javax.naming.ReferralException;
 
 
 /**
@@ -60,12 +63,29 @@ import javax.naming.ReferralException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
+public class NewSearchHandler extends ReferralAwareRequestHandler<SearchRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( NewSearchHandler.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+    
+    AttributeType objectClassAttributeType;
+    
+    private EqualityNode<String> getOcIsReferralAssertion( LdapSession session ) throws Exception
+    {
+        if ( objectClassAttributeType == null )
+        {
+            objectClassAttributeType = session.getCoreSession().getDirectoryService().getRegistries()
+                .getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
+        }
+        
+        EqualityNode<String> ocIsReferral = new EqualityNode<String>( 
+            SchemaConstants.OBJECT_CLASS_AT,
+            new ServerStringValue( objectClassAttributeType, SchemaConstants.REFERRAL_OC ) );
+        
+        return ocIsReferral;
+    }
     
     
     private void handlePersistentSearch( LdapSession session, SearchRequest req, 
@@ -129,7 +149,7 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             	{
             		hasRootDSE = true;
 	                ClonedServerEntry entry = cursor.get();
-	                session.getIoSession().write( generateResponse( req, entry ) );
+	                session.getIoSession().write( generateResponse( session, req, entry ) );
             	}
             }
     
@@ -189,7 +209,7 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             while ( cursor.next() )
             {
                 ClonedServerEntry entry = cursor.get();
-                session.getIoSession().write( generateResponse( req, entry ) );
+                session.getIoSession().write( generateResponse( session, req, entry ) );
             }
     
             LdapResult ldapResult = req.getResultResponse().getLdapResult();
@@ -228,7 +248,7 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
      * @return the response for the entry
      * @throws Exception if there are problems in generating the response
      */
-    private Response generateResponse( SearchRequest req, ClonedServerEntry entry ) throws Exception
+    private Response generateResponse( LdapSession session, SearchRequest req, ClonedServerEntry entry ) throws Exception
     {
         EntryAttribute ref = entry.getOriginalEntry().get( SchemaConstants.REF_AT );
         boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControl.CONTROL_OID );
@@ -242,7 +262,36 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             for ( Value<?> val : ref )
             {
                 String url = ( String ) val.get();
-                respRef.getReferral().addLdapUrl( url );
+                
+                if ( ! url.startsWith( "ldap" ) )
+                {
+                    respRef.getReferral().addLdapUrl( url );
+                }
+                
+                LdapURL ldapUrl = new LdapURL();
+                ldapUrl.setForceScopeRendering( true );
+                try
+                {
+                    ldapUrl.parse( url.toCharArray() );
+                }
+                catch ( LdapURLEncodingException e )
+                {
+                    LOG.error( "Bad URL ({}) for ref in {}.  Reference will be ignored.", url, entry );
+                }
+
+                switch( req.getScope() )
+                {
+                    case SUBTREE:
+                        ldapUrl.setScope( SearchScope.SUBTREE.getJndiScope() );
+                        break;
+                    case ONELEVEL: // one level here is object level on remote server
+                        ldapUrl.setScope( SearchScope.OBJECT.getJndiScope() );
+                        break;
+                    default:
+                        throw new IllegalStateException( "Unexpected base scope." );
+                }
+                
+                respRef.getReferral().addLdapUrl( ldapUrl.toString() );
             }
             
             return respRef;
@@ -260,12 +309,68 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
     
     
     /**
-     * Main message handing method for search requests.
+     * Alters the filter expression based on the presence of the 
+     * ManageDsaIT control.  If the control is not present, the search
+     * filter will be altered to become a disjunction with two terms.
+     * The first term is the original filter.  The second term is a
+     * (objectClass=referral) assertion.  When OR'd together these will
+     * make sure we get all referrals so we can process continuations 
+     * properly without having the filter remove them from the result 
+     * set.
+     * 
+     * NOTE: original filter is first since most entries are not referrals 
+     * so it has a higher probability on average of accepting and shorting 
+     * evaluation before having to waste cycles trying to evaluate if the 
+     * entry is a referral.
+     *
+     * @param session the session to use to construct the filter (schema access)
+     * @param req the request to get the original filter from
+     * @throws Exception if there are schema access problems
+     */
+    public void modifyFilter( LdapSession session, SearchRequest req ) throws Exception
+    {
+        if ( req.hasControl( ManageDsaITControl.CONTROL_OID ) )
+        {
+            return;
+        }
+        
+        /*
+         * Most of the time the search filter is just (objectClass=*) and if 
+         * this is the case then there's no reason at all to OR this with an
+         * (objectClass=referral).  If we detect this case then we leave it 
+         * as is to represent the OR condition:
+         * 
+         *  (| (objectClass=referral)(objectClass=*)) == (objectClass=*)
+         */
+        if ( req.getFilter() instanceof PresenceNode )
+        {
+            PresenceNode presenceNode = ( PresenceNode ) req.getFilter();
+            
+            AttributeType at = session.getCoreSession().getDirectoryService()
+                .getRegistries().getAttributeTypeRegistry().lookup( presenceNode.getAttribute() );
+            if ( at.getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+            {
+                return;
+            }
+        }
+
+        // using varags to add two expressions to an OR node 
+        req.setFilter( new OrNode( req.getFilter(), getOcIsReferralAssertion( session ) ) );
+    }
+    
+    
+    /**
+     * Main message handing method for search requests.  This will be called 
+     * even if the ManageDsaIT control is present because the super class does
+     * not know that the search operation has more to do after finding the 
+     * base.  The call to this means that finding the base can ignore 
+     * referrals.
      * 
      * @param session the associated session
      * @param req the received SearchRequest
      */
-    public void handle( LdapSession session, SearchRequest req ) throws Exception
+    public void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 
+        ClonedServerEntry entry, SearchRequest req )
     {
         if ( IS_DEBUG )
         {
@@ -277,6 +382,9 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
 
         try
         {
+            // modify the filter to affect continuation support
+            modifyFilter( session, req );
+            
             // ===============================================================
             // Handle search in rootDSE differently.
             // ===============================================================
@@ -306,24 +414,7 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
             SearchResponseDone done = doSimpleSearch( session, req );
             session.getIoSession().write( done );
         }
-        catch ( ReferralException e )
-        {
-            LdapResult result = req.getResultResponse().getLdapResult();
-            ReferralImpl refs = new ReferralImpl();
-            result.setReferral( refs );
-            result.setResultCode( ResultCodeEnum.REFERRAL );
-            result.setErrorMessage( "Encountered referral attempting to handle add request." );
-
-            do
-            {
-                refs.addLdapUrl( ( String ) e.getReferralInfo() );
-            }
-            while ( e.skipReferral() );
-            
-            session.getIoSession().write( req.getResultResponse() );
-            session.unregisterOutstandingRequest( req );
-        }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             /*
              * From RFC 2251 Section 4.11:
@@ -342,37 +433,7 @@ public class NewSearchHandler extends LdapRequestHandler<SearchRequest>
                 return;
             }
 
-            String msg = "failed on search operation: " + e.getMessage();
-            
-            if ( LOG.isDebugEnabled() )
-            {
-                msg += ":\n" + req + ":\n" + ExceptionUtils.getStackTrace( e );
-            }
-
-            ResultCodeEnum code;
-            
-            if ( e instanceof LdapException )
-            {
-                code = ( ( LdapException ) e ).getResultCode();
-            }
-            else
-            {
-                code = ResultCodeEnum.getBestEstimate( e, req.getType() );
-            }
-
-            LdapResult result = req.getResultResponse().getLdapResult();
-            result.setResultCode( code );
-            result.setErrorMessage( msg );
-
-            if ( ( e.getResolvedName() != null )
-                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
-                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
-            {
-                result.setMatchedDn( (LdapDN)e.getResolvedName() );
-            }
-
-            session.getIoSession().write( req.getResultResponse() );
-            session.unregisterOutstandingRequest( req );
+            handleException( session, req, e );
         }
     }
 

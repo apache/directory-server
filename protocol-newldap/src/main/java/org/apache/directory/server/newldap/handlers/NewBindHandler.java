@@ -134,7 +134,7 @@ public class NewBindHandler extends LdapRequestHandler<BindRequest>
              *      https://issues.apache.org/jira/browse/DIRSERVER-1217
              *      
              * NOTE: if this is done then this handler should extend the 
-             * a modified form of the SingleReplyRequestHandler so it can 
+             * a modified form of the ReferralAwareRequestHandler so it can 
              * detect conditions where ancestors of the DN are referrals
              * and delegate appropriately.
              */

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class NewDeleteHandler extends SingleReplyRequestHandler<DeleteRequest>
+public class NewDeleteHandler extends ReferralAwareRequestHandler<DeleteRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( NewDeleteHandler.class );
 
