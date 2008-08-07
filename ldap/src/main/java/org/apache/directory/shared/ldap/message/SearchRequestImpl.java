@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.message;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -114,9 +113,9 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
      * 
      * @return the collection of attributes to return for each entry
      */
-    public Collection<String> getAttributes()
+    public List<String> getAttributes()
     {
-        return Collections.unmodifiableCollection( attributes );
+        return Collections.unmodifiableList( attributes );
     }
 
 

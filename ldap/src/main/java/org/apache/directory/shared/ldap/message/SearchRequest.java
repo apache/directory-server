@@ -20,7 +20,7 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import java.util.Collection;
+import java.util.List;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -213,7 +213,7 @@ public interface SearchRequest extends ManyReplyRequest, AbandonableRequest
      * 
      * @return the attributes to return for this request
      */
-    Collection<String> getAttributes();
+    List<String> getAttributes();
 
 
     /**
