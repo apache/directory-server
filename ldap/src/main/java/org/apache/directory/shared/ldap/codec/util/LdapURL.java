@@ -1228,9 +1228,10 @@ public class LdapURL
         if ( dn != null )
         {
             sb.append( '/' ).append( urlEncode( dn.toString(), false ) );
-            sb.append( '?' );
-            
-            if ( attributes.size() != 0 )
+
+            if ( ( attributes.size() != 0 )
+                || ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || 
+                    ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) ) )
             {
                 sb.append( '?' );
 
@@ -1251,87 +1252,92 @@ public class LdapURL
                 }
             }
 
-            sb.append( '?' );
-            
-            switch ( scope )
+            if ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || ( extensions.size() != 0 )
+                || ( criticalExtensions.size() != 0 ) )
             {
+                sb.append( '?' );
 
-                case SearchControls.OBJECT_SCOPE:
-                    sb.append( "base" );
-                    break;
-
-                case SearchControls.ONELEVEL_SCOPE:
-                    sb.append( "one" );
-                    break;
-
-                case SearchControls.SUBTREE_SCOPE:
-                    sb.append( "sub" );
-                    break;
-                    
-                    
-                default :
-                    break;
-            }
-
-            if ( ( filter != null ) || ( ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) ) )
-            {
-                sb.append( "?" );
-
-                if ( filter != null )
+                switch ( scope )
                 {
-                    sb.append( urlEncode( filter, false ) );
+
+                    case SearchControls.OBJECT_SCOPE:
+
+                        // This is the default value.
+                        break;
+
+                    case SearchControls.ONELEVEL_SCOPE:
+                        sb.append( "one" );
+                        break;
+
+                    case SearchControls.SUBTREE_SCOPE:
+                        sb.append( "sub" );
+                        break;
+                        
+                        
+                    default :
+                        break;
                 }
 
-                if ( ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) )
+                if ( ( filter != null ) || ( ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) ) )
                 {
-                    sb.append( '?' );
+                    sb.append( "?" );
 
-                    boolean isFirst = true;
-
-                    if ( extensions.size() != 0 )
+                    if ( filter != null )
                     {
-                        for ( String key:extensions.keySet() )
-                        {
-
-                            if ( !isFirst )
-                            {
-                                sb.append( ',' );
-                            }
-                            else
-                            {
-                                isFirst = false;
-                            }
-
-                            sb.append( urlEncode( key, false ) ).append( '=' ).append(
-                                urlEncode( extensions.get( key ), true ) );
-                        }
+                        sb.append( urlEncode( filter, false ) );
                     }
 
-                    isFirst = true;
-
-                    if ( criticalExtensions.size() != 0 )
+                    if ( ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) )
                     {
-                        for ( String key:criticalExtensions.keySet() )
+                        sb.append( '?' );
+
+                        boolean isFirst = true;
+
+                        if ( extensions.size() != 0 )
                         {
+                            for ( String key:extensions.keySet() )
+                            {
 
-                            if ( !isFirst )
-                            {
-                                sb.append( ",!" );
-                            }
-                            else
-                            {
-                                sb.append( '!' );
-                                isFirst = false;
-                            }
+                                if ( !isFirst )
+                                {
+                                    sb.append( ',' );
+                                }
+                                else
+                                {
+                                    isFirst = false;
+                                }
 
-                            sb.append( urlEncode( key, false ) );
-                            
-                            String value = criticalExtensions.get( key );
-                            
-                            if ( value != null )
+                                sb.append( urlEncode( key, false ) ).append( '=' ).append(
+                                    urlEncode( extensions.get( key ), true ) );
+                            }
+                        }
+
+                        isFirst = true;
+
+                        if ( criticalExtensions.size() != 0 )
+                        {
+                            for ( String key:criticalExtensions.keySet() )
                             {
-                                sb.append( '=' ).append(
-                                urlEncode( value, true ) );
+
+                                if ( !isFirst )
+                                {
+                                    sb.append( ",!" );
+                                }
+                                else
+                                {
+                                    sb.append( '!' );
+                                    isFirst = false;
+                                }
+
+                                sb.append( urlEncode( key, false ) );
+                                
+                                String value = criticalExtensions.get( key );
+                                
+                                if ( value != null )
+                                {
+                                    sb.append( '=' ).append(
+                                    urlEncode( value, true ) );
+                                }
                             }
                         }
                     }
