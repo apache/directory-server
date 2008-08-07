@@ -27,6 +27,7 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 import netscape.ldap.LDAPSearchConstraints;
@@ -81,7 +82,15 @@ import static org.junit.Assert.fail;
     "uid: akarasuluref\n" +
     "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system\n" + 
     "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system\n" +
-    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n"
+    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n" +
+    // Entry # 4
+    "dn: uid=elecharny,ou=users,ou=system\n" +
+    "objectClass: uidObject\n" +
+    "objectClass: person\n" +
+    "objectClass: top\n" +
+    "uid: elecharny\n" +
+    "cn: Emmanuel Lecharny\n" +
+    "sn: lecharny\n\n"
     }
 )
 public class ModifyDnReferralIT
@@ -114,6 +123,31 @@ public class ModifyDnReferralIT
     
     
     /**
+     * Tests ModifyDN operation with newSuperior on referral entry with the 
+     * ManageDsaIT control.
+     */
+    @Test
+    public void testNewSuperiorOnReferralWithManageDsaITControl() throws Exception
+    {
+        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConstraints constraints = new LDAPSearchConstraints();
+        constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
+        constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
+        conn.setConstraints( constraints );
+        
+        // ModifyDN success
+        conn.rename( "uid=elecharny,ou=users,ou=system", "uid=newuser", 
+            "uid=akarasuluref,ou=users,ou=system", true, constraints );
+        LDAPEntry entry = conn.read( "uid=newuser,uid=akarasuluref,ou=users,ou=system", 
+            ( LDAPSearchConstraints ) constraints );
+        assertNotNull( entry );
+        assertEquals( "uid=newuser,uid=akarasuluref,ou=users,ou=system", entry.getDN() );
+        
+        conn.disconnect();
+    }
+    
+    
+    /**
      * Tests ModifyDN operation on normal and referral entries without the 
      * ManageDsaIT control. Referrals are sent back to the client with a
      * non-success result code.
@@ -137,6 +171,34 @@ public class ModifyDnReferralIT
         assertEquals( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", response.getReferrals()[0] );
         assertEquals( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system", response.getReferrals()[1] );
         assertEquals( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system", response.getReferrals()[2] );
+
+        conn.disconnect();
+    }
+    
+    
+    /**
+     * Tests ModifyDN operation on normal and referral entries without the 
+     * ManageDsaIT control. Referrals are sent back to the client with a
+     * non-success result code.
+     */
+    @Test
+    public void testNewSupierorOnReferral() throws Exception
+    {
+        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConstraints constraints = new LDAPConstraints();
+        constraints.setReferrals( false );
+        conn.setConstraints( constraints );
+        
+        // referrals failure
+        try
+        {
+            conn.rename( "uid=elecharny,ou=users,ou=system", "uid=ref", 
+                "uid=akarasuluref,ou=users,ou=system", true, constraints );
+        }
+        catch ( LDAPException e )
+        {
+            assertEquals( LDAPException.AFFECTS_MULTIPLE_DSAS, e.getLDAPResultCode() );
+        }
 
         conn.disconnect();
     }
@@ -191,6 +253,34 @@ public class ModifyDnReferralIT
         assertEquals( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[0] );
         assertEquals( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[1] );
         assertEquals( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system", response.getReferrals()[2] );
+
+        conn.disconnect();
+    }
+    
+    
+    /**
+     * Tests referral handling when an ancestor is a referral.
+     */
+    @Test 
+    public void testNewSuperiorAncestorReferral() throws Exception
+    {
+        LOG.debug( "" );
+
+        LDAPConnection conn = getWiredConnection( ldapServer );
+        LDAPConstraints constraints = new LDAPConstraints();
+        conn.setConstraints( constraints );
+
+        // referrals failure
+        try
+        {
+            conn.rename( "uid=elecharny,ou=users,ou=system", "ou=Machines", 
+                "ou=Computers,uid=akarasuluref,ou=users,ou=system", true, constraints );
+            fail( "Should never get here to affectsMultipleDSA error result code" );
+        }
+        catch ( LDAPException e )
+        {
+            assertEquals( LDAPException.AFFECTS_MULTIPLE_DSAS, e.getLDAPResultCode() );
+        }
 
         conn.disconnect();
     }

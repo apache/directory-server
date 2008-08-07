@@ -39,6 +39,7 @@ import org.apache.directory.server.operations.modify.ModifyRemoveIT;
 import org.apache.directory.server.operations.modify.ModifyReplaceIT;
 import org.apache.directory.server.operations.modifydn.ModifyDnReferralIT;
 import org.apache.directory.server.operations.modifydn.ModifyRdnIT;
+import org.apache.directory.server.operations.modifydn.MoveIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -62,9 +63,10 @@ import org.junit.runners.Suite;
         ModifyRemoveIT.class,
         ModifyReplaceIT.class,
         ModifyRdnIT.class,
-        ModifyDnReferralIT.class,
         BindIT.class,
-        SimpleBindIT.class
+        SimpleBindIT.class,
+        MoveIT.class,
+        ModifyDnReferralIT.class
         } )
 @CleanupLevel ( Level.SUITE )
 @Mode ( SetupMode.ROLLBACK )
