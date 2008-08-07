@@ -49,6 +49,7 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.tools.IndexUtils;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -1676,15 +1677,15 @@ public class JdbmStore<E> implements Store<E>
     {
         String aliasTarget;
 
-        // Now we can handle the appropriate name userIndices for all cases
+        // update normalized DN index
         ndnIdx.drop( id );
-
         if ( !updn.isNormalized() )
         {
             updn.normalize( attributeTypeRegistry.getNormalizerMapping() );
         }
-
-        ndnIdx.add( ndnIdx.getNormalized( updn.toNormName() ), id );
+        ndnIdx.add( updn.toNormName(), id );
+        
+        // update user provided DN index
         updnIdx.drop( id );
         updnIdx.add( updn.getUpName(), id );
 
@@ -1735,6 +1736,8 @@ public class JdbmStore<E> implements Store<E>
             // Recursively change the names of the children below
             modifyDn( childId, childUpdn, isMove );
         }
+        
+        children.close();
     }
 
 
@@ -1742,7 +1745,12 @@ public class JdbmStore<E> implements Store<E>
     {
         Long childId = getEntryId( oldChildDn.toString() );
         rename( oldChildDn, newRdn, deleteOldRdn );
-        move( oldChildDn, childId, newParentDn );
+        LdapDN newUpdn = move( oldChildDn, childId, newParentDn );
+
+        // Update the current entry
+        ServerEntry entry = lookup( childId );
+        entry.setDn( newUpdn );
+        master.put( childId, entry );
 
         if ( isSyncOnWrite )
         {
@@ -1754,7 +1762,12 @@ public class JdbmStore<E> implements Store<E>
     public void move( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception
     {
         Long childId = getEntryId( oldChildDn.toString() );
-        move( oldChildDn, childId, newParentDn );
+        LdapDN newUpdn = move( oldChildDn, childId, newParentDn );
+
+        // Update the current entry
+        ServerEntry entry = lookup( childId );
+        entry.setDn( newUpdn );
+        master.put( childId, entry );
 
         if ( isSyncOnWrite )
         {
@@ -1777,7 +1790,7 @@ public class JdbmStore<E> implements Store<E>
      * @param newParentDn the normalized dn of the new parent for the child
      * @throws NamingException if something goes wrong
      */
-    private void move( LdapDN oldChildDn, Long childId, LdapDN newParentDn ) throws Exception
+    private LdapDN move( LdapDN oldChildDn, Long childId, LdapDN newParentDn ) throws Exception
     {
         // Get the child and the new parent to be entries and Ids
         Long newParentId = getEntryId( newParentDn.toString() );
@@ -1799,7 +1812,7 @@ public class JdbmStore<E> implements Store<E>
          */
         oneLevelIdx.drop( oldParentId, childId );
         oneLevelIdx.add( newParentId, childId );
-        
+
         updateSubLevelIndex( childId, oldParentId, newParentId );
         
         /*
@@ -1814,6 +1827,8 @@ public class JdbmStore<E> implements Store<E>
 
         // Call the modifyDn operation with the new updn
         modifyDn( childId, newUpdn, true );
+        
+        return newUpdn;
     }
 
 
