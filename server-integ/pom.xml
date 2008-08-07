@@ -91,6 +91,7 @@
             <configuration>
               <includes>
                 <include>**/*ISuite.java</include>
+                <include>**/*IndexedNegationSearchIT.java</include>
               </includes>
             </configuration>
           </plugin>

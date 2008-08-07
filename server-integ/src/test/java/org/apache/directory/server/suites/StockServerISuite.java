@@ -40,6 +40,9 @@ import org.apache.directory.server.operations.modify.ModifyReplaceIT;
 import org.apache.directory.server.operations.modifydn.ModifyDnReferralIT;
 import org.apache.directory.server.operations.modifydn.ModifyRdnIT;
 import org.apache.directory.server.operations.modifydn.MoveIT;
+import org.apache.directory.server.operations.search.NegationSearchIT;
+import org.apache.directory.server.operations.search.SchemaSearchIT;
+import org.apache.directory.server.operations.search.SearchIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -66,6 +69,9 @@ import org.junit.runners.Suite;
         BindIT.class,
         SimpleBindIT.class,
         MoveIT.class,
+        SearchIT.class,
+        NegationSearchIT.class,
+        SchemaSearchIT.class,
         ModifyDnReferralIT.class
         } )
 @CleanupLevel ( Level.SUITE )

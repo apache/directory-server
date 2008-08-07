@@ -17,18 +17,16 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.operations.search;
 
 
 import java.util.ArrayList;
 import java.util.EventObject;
-import java.util.Hashtable;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchResult;
 import javax.naming.event.EventContext;
 import javax.naming.event.EventDirContext;
@@ -38,10 +36,14 @@ import javax.naming.event.NamingExceptionEvent;
 import javax.naming.event.ObjectChangeListener;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.HasControls;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.integ.SiRunner;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlDecoder;
@@ -49,28 +51,41 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
- * Testcase which tests the correct operation of the persistent search control.
+ * TODO - enable me - not executed (not in suite yet)
+ * Test case which tests the correct operation of the persistent search control.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PersistentSearchTest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.SUITE )
+@ApplyLdifs( {
+    // Entry # 2
+    "dn: cn=Tori Amos,ou=system\n" +
+    "objectClass: person\n" +
+    "objectClass: top\n" +
+    "cn: Tori Amos\n" +
+    "description: an American singer-songwriter\n" +
+    "sn: Amos\n\n"
+    }
+)
+public class PersistentSearchTest
 {
-    public static final Logger log = LoggerFactory.getLogger( PersistentSearchTest.class );
-    public static final String PERSON_DESCRIPTION = "an American singer-songwriter";
-    public static final String RDN = "cn=Tori Amos";
-    private LdapContext ctx = null;
+    private static final String BASE = "ou=system";
+    private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
+    private static final String RDN = "cn=Tori Amos";
 
+    public static LdapServer ldapServer;
+    
 
     /**
      * Creation of required attributes of a person entry.
@@ -88,57 +103,14 @@ public class PersistentSearchTest extends AbstractServerTest
         return attributes;
     }
 
-
-    /**
-     * Create context and a person entry.
-     */
-    @Before
-    public void setUp() throws Exception
-    {
-        super.setUp();
-
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-
-        ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
-
-        // Create a person with description
-        Attributes attributes = this.getPersonAttributes( "Amos", "Tori Amos" );
-        attributes.put( "description", PERSON_DESCRIPTION );
-        ctx.createSubcontext( RDN, attributes );
-    }
-
-
-    /**
-     * Remove person entry and close context.
-     */
-    @After
-    public void tearDown() throws Exception
-    {
-        try
-        {
-            ctx.unbind( RDN );
-            ctx.close();
-            ctx = null;
-            super.tearDown();
-        }
-        catch ( Throwable t )
-        {
-        }
-    }
-
-
+    
     /**
      * Shows correct notifications for modify(4) changes.
      */
     @Test
     public void testPsearchModify() throws Exception
     {
+        EventDirContext ctx = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
         PSearchListener listener = new PSearchListener();
         Thread t = new Thread( listener, "PSearchListener" );
         t.start();
@@ -174,6 +146,7 @@ public class PersistentSearchTest extends AbstractServerTest
     @Test
     public void testPsearchModifyDn() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
         PSearchListener listener = new PSearchListener();
         Thread t = new Thread( listener );
         t.start();
@@ -207,6 +180,7 @@ public class PersistentSearchTest extends AbstractServerTest
     @Test
     public void testPsearchDelete() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
         PSearchListener listener = new PSearchListener();
         Thread t = new Thread( listener );
         t.start();
@@ -240,6 +214,7 @@ public class PersistentSearchTest extends AbstractServerTest
     @Test
     public void testPsearchAdd() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
         PSearchListener listener = new PSearchListener();
         Thread t = new Thread( listener );
         t.start();
@@ -274,6 +249,7 @@ public class PersistentSearchTest extends AbstractServerTest
     @Test
     public void testPsearchModifyWithEC() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
         PersistentSearchControl control = new PersistentSearchControl();
         control.setReturnECs( true );
         PSearchListener listener = new PSearchListener( control );
@@ -311,6 +287,7 @@ public class PersistentSearchTest extends AbstractServerTest
     @Test
     public void testPsearchModifyDnWithEC() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
         PersistentSearchControl control = new PersistentSearchControl();
         control.setReturnECs( true );
         PSearchListener listener = new PSearchListener( control );
@@ -349,6 +326,7 @@ public class PersistentSearchTest extends AbstractServerTest
     @Test
     public void testPsearchDeleteWithEC() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
         PersistentSearchControl control = new PersistentSearchControl();
         control.setReturnECs( true );
         PSearchListener listener = new PSearchListener( control );
@@ -386,6 +364,7 @@ public class PersistentSearchTest extends AbstractServerTest
     @Test
     public void testPsearchAddWithEC() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
         PersistentSearchControl control = new PersistentSearchControl();
         control.setReturnECs( true );
         PSearchListener listener = new PSearchListener( control );
@@ -423,6 +402,7 @@ public class PersistentSearchTest extends AbstractServerTest
     @Test
     public void testPsearchAddModifyEnabledWithEC() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
         PersistentSearchControl control = new PersistentSearchControl();
         control.setReturnECs( true );
         control.setChangeTypes( ChangeType.ADD_VALUE );
@@ -536,16 +516,9 @@ public class PersistentSearchTest extends AbstractServerTest
     @Test
     public void testPsearchUsingJndiNotifications() throws Exception
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
         JndiNotificationListener listener = new JndiNotificationListener();
-        InitialDirContext idc = new InitialDirContext( env );
-        EventDirContext edc = ( EventDirContext ) ( idc.lookup( "" ) );
+        EventDirContext edc = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
         edc.addNamingListener( "", EventContext.ONELEVEL_SCOPE, listener );
 
         while ( listener.list.isEmpty() )
@@ -649,7 +622,7 @@ public class PersistentSearchTest extends AbstractServerTest
     class JndiNotificationListener implements NamespaceChangeListener, ObjectChangeListener
     {
         boolean hasError = false;
-        ArrayList<EventObject> list = new ArrayList();
+        ArrayList<EventObject> list = new ArrayList<EventObject>();
         NamingExceptionEvent exceptionEvent = null;
 
         public void objectAdded( NamingEvent evt )
@@ -706,13 +679,14 @@ public class PersistentSearchTest extends AbstractServerTest
 
         public void run()
         {
-            NamingEnumeration list = null;
+            NamingEnumeration<SearchResult> list = null;
             control.setCritical( true );
             Control[] ctxCtls = new Control[]
                 { control };
 
             try
             {
+                LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer).lookup( BASE );
                 ctx.setRequestControls( ctxCtls );
                 isReady = true;
                 list = ctx.search( "", "objectClass=*", null );
@@ -721,7 +695,7 @@ public class PersistentSearchTest extends AbstractServerTest
                 while ( list.hasMore() )
                 {
                     Control[] controls = null;
-                    SearchResult sresult = ( SearchResult ) list.next();
+                    SearchResult sresult = list.next();
                     count++;
                     if ( sresult instanceof HasControls )
                     {

@@ -17,12 +17,11 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.operations.search;
 
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Set;
 
 import javax.naming.InvalidNameException;
@@ -35,18 +34,27 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.integ.SiRunner;
+import org.apache.directory.server.newldap.LdapServer;
+
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -55,11 +63,94 @@ import org.junit.Test;
  * existing attribute value with a modify operation does not cause an error.").
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 682556 $
  */
-public class SearchITest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@ApplyLdifs( {
+    
+    // Entry # 0
+    "dn: cn=Kate Bush,ou=system\n" +
+    "objectClass: person\n" +
+    "objectClass: organizationalPerson\n" +
+    "objectClass: inetOrgPerson\n" +
+    "objectClass: strongAuthenticationUser\n" +
+    "objectClass: top\n" +
+    "userCertificate:: NFZOXw==\n" +
+    "cn: Kate Bush\n" +
+    "description: this is a person\n" +
+    "sn: Bush\n" +
+    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX\n" +
+    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw\n" +
+    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2\n" +
+    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA\n" +
+    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E\n" +
+    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8\n" +
+    " AigC14//Z\n\n" +
+    
+    // Entry # 2
+    "dn: cn=Tori Amos,ou=system\n" +
+    "objectClass: person\n" +
+    "objectClass: organizationalPerson\n" +
+    "objectClass: inetOrgPerson\n" +
+    "objectClass: strongAuthenticationUser\n" +
+    "objectClass: top\n" +
+    "userCertificate:: NFZOXw==\n" +
+    "cn: Tori Amos\n" +
+    "description: an American singer-songwriter\n" +
+    "sn: Amos\n" +
+    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX\n" +
+    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw\n" +
+    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2\n" +
+    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA\n" +
+    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E\n" +
+    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8\n" +
+    " AigC14//Z\n\n" + 
+
+    // Entry # 3
+    "dn: cn=Rolling-Stones,ou=system\n" +
+    "objectClass: person\n" +
+    "objectClass: organizationalPerson\n" +
+    "objectClass: inetOrgPerson\n" +
+    "objectClass: strongAuthenticationUser\n" +
+    "objectClass: top\n" +
+    "userCertificate:: NFZOXw==\n" +
+    "cn: Rolling-Stones\n" +
+    "description: an English singer-songwriter\n" +
+    "sn: Jagger\n" +
+    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX\n" +
+    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw\n" +
+    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2\n" +
+    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA\n" +
+    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E\n" +
+    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8\n" +
+    " AigC14//Z\n\n" + 
+
+    // Entry # 4
+    "dn: cn=Heather Nova,ou=system\n" +
+    "objectClass: person\n" +
+    "objectClass: organizationalPerson\n" +
+    "objectClass: inetOrgPerson\n" +
+    "objectClass: strongAuthenticationUser\n" +
+    "objectClass: top\n" +
+    "userCertificate:: NFZOXw==\n" +
+    "cn: Heather Nova\n" +
+    "sn: Nova\n" +
+    "jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAX\n" +
+    " Q3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw\n" +
+    " 5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2\n" +
+    " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA\n" +
+    " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E\n" +
+    " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8\n" +
+    " AigC14//Z\n\n" 
+    
+    }
+)
+public class SearchIT 
 {
-    private LdapContext ctx;
+    private static final String BASE = "ou=system";
+    
+    public static LdapServer ldapServer;
+    
     private static final String RDN = "cn=Tori Amos";
     private static final String RDN2 = "cn=Rolling-Stones";
     private static final String HEATHER_RDN = "cn=Heather Nova";
@@ -144,49 +235,43 @@ public class SearchITest extends AbstractServerTest
 
 
     /**
-     * Create context and a person entry.
+     * For DIRSERVER-715 and part of DIRSERVER-169.  May include other tests
+     * for binary attribute based searching.
      */
-    @Before
-    public void setUp() throws Exception
+    @Test
+    public void testSearchByBinaryAttribute() throws Exception 
     {
-        super.setUp();
-
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-
-        ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
-
-        // Create a person with description
-        Attributes attributes = this.getPersonAttributes( "Amos", "Tori Amos" );
-        attributes.put( "description", "an American singer-songwriter" );
-        ctx.createSubcontext( RDN, attributes );
-
-        // Create a second person with description
-        attributes = this.getPersonAttributes( "Jagger", "Rolling-Stones" );
-        attributes.put( "description", "an English singer-songwriter" );
-        ctx.createSubcontext( RDN2, attributes );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        byte[] certData = new byte[] { 0x34, 0x56, 0x4e, 0x5f };
         
-        // Create entry for Heather Graham
-        Attributes heather = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
-        ocls.add( "top" );
-        ocls.add( "person" );
-        heather.put( ocls );
-        heather.put( "cn", "Heather Nova" );
-        heather.put( "sn", "Nova" );
+        // Search for kate by cn first
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        NamingEnumeration<SearchResult> enm = ctx.search( "", "(cn=Kate Bush)", controls );
+        assertTrue( enm.hasMore() );
+        SearchResult sr = enm.next();
+        assertNotNull( sr );
+        assertFalse( enm.hasMore() );
+        assertEquals( "cn=Kate Bush", sr.getName() );
 
-        ctx.createSubcontext( HEATHER_RDN, heather );
+        // TODO enable this test here
+        // Failing here below this due to the frontend interpretting the byte[]
+        // as a String value.  I see the value sent to the SearchHandler of the
+        // filter to be a String looking like: "[B@17210a5".
+        
+        enm = ctx.search( "", "(&(cn=Kate Bush)(userCertificate={0}))", new Object[] {certData}, controls );
+        assertTrue( enm.hasMore() );
+        sr = ( SearchResult ) enm.next();
+        assertNotNull( sr );
+        assertFalse( enm.hasMore() );
+        assertEquals( "cn=Kate Bush", sr.getName() );
     }
 
     
+    @Test
     public void testSearch() throws Exception
     {
-        LdapContext ctx = getWiredContext();
+        LdapContext ctx = getWiredContext( ldapServer );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setTimeLimit( 10 );
@@ -233,35 +318,12 @@ public class SearchITest extends AbstractServerTest
 
     
     /**
-     * Remove person entry and close context.
-     */
-    @After
-    public void tearDown() throws Exception
-    {
-        try
-        {
-            ctx.unbind( RDN );
-        }
-        catch ( Exception e )
-        {
-            // Do nothing
-        }
-        finally
-        {
-            ctx.close();
-        }
-        
-        ctx = null;
-        super.tearDown();
-    }
-    
-    
-    /**
      * Performs a single level search from ou=system base and 
      * returns the set of DNs found.
      */
-    private Set<String> search( String filter ) throws NamingException
+    private Set<String> search( String filter ) throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         NamingEnumeration<SearchResult> ii = ctx.search( "", filter, controls );
@@ -279,14 +341,8 @@ public class SearchITest extends AbstractServerTest
 
     
     @Test
-    public void testDirserver635() throws NamingException
+    public void testDirserver635() throws Exception
     {
-        nbTests = 26;
-        
-        // create additional entry
-        Attributes attributes = this.getPersonAttributes( "Bush", "Kate Bush" );
-        ctx.createSubcontext( "cn=Kate Bush", attributes );
-
         // -------------------------------------------------------------------
         Set<String> results = search( "(|(cn=Kate*)(cn=Tori*))" );
         assertEquals( "returned size of results", 2, results.size() );
@@ -354,8 +410,10 @@ public class SearchITest extends AbstractServerTest
      * Search operation with a base DN which contains a BER encoded value.
      */
     @Test
-    public void testSearchWithBackslashEscapedBase() throws NamingException
+    public void testSearchWithBackslashEscapedBase() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         // create additional entry
         Attributes attributes = this.getPersonAttributes( "Ferry", "Bryan Ferry" );
         ctx.createSubcontext( "sn=Ferry", attributes );
@@ -394,8 +452,10 @@ public class SearchITest extends AbstractServerTest
      * @throws NamingException
      */
     @Test
-    public void testSearchValue() throws NamingException
+    public void testSearchValue() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         // Setting up search controls for compare op
         SearchControls ctls = new SearchControls();
         ctls.setReturningAttributes( new String[]
@@ -515,10 +575,6 @@ public class SearchITest extends AbstractServerTest
     @Test
     public void testUndefinedAvaInBranchFilters() throws Exception
     {
-        // create additional entry
-        Attributes attributes = this.getPersonAttributes( "Bush", "Kate Bush" );
-        ctx.createSubcontext( "cn=Kate Bush", attributes );
-
         // -------------------------------------------------------------------
         Set<String> results = search( "(|(sn=Bush)(numberOfOctaves=4))" );
         assertEquals( "returned size of results", 1, results.size() );
@@ -536,16 +592,8 @@ public class SearchITest extends AbstractServerTest
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[] { "objectClasses" } );
-        
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
 
-        ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
+        LdapContext ctx = getWiredContext( ldapServer );
 
         NamingEnumeration<SearchResult> results = ctx.search( "cn=schema", "objectClass=subschema", controls );
         assertTrue( results.hasMore() );
@@ -576,8 +624,10 @@ public class SearchITest extends AbstractServerTest
      * @param aciItem the prescriptive ACI attribute value
      * @throws NamingException if there is a problem creating the subentry
      */
-    private void createAccessControlSubentry( String cn, String subtree, String aciItem ) throws NamingException
+    private void createAccessControlSubentry( String cn, String subtree, String aciItem ) throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         DirContext adminCtx = ctx;
 
         // modify ou=system to be an AP for an A/C AA if it is not already
@@ -607,8 +657,9 @@ public class SearchITest extends AbstractServerTest
      * result, if scope is base and attribute objectClass is requested explicitly").
      */
     @Test
-    public void testAddWithObjectclasses() throws NamingException
+    public void testAddWithObjectclasses() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // Create entry
         Attributes wilde = new AttributesImpl();
@@ -651,17 +702,11 @@ public class SearchITest extends AbstractServerTest
      * result, if scope is base and attribute objectClass is requested explicitly").
      */
     @Test
-    public void testAddWithMissingObjectclasses() throws NamingException
+    public void testAddWithMissingObjectclasses() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
-        // Create entry
-        Attributes kate = new AttributesImpl();
-        kate.put( "objectClass", "organizationalperson" );
-        kate.put( "cn", "Kate Bush" );
-        kate.put( "sn", "Bush" );
         String rdn = "cn=Kate Bush";
-        ctx.createSubcontext( rdn, kate );
-
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( new String[]
@@ -692,6 +737,8 @@ public class SearchITest extends AbstractServerTest
     @Test
     public void testSubentryControl() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         // create a real access control subentry
         createAccessControlSubentry( 
             "anyBodyAdd", 
@@ -750,8 +797,10 @@ public class SearchITest extends AbstractServerTest
      * testcase was created to demonstrate DIRSERVER-628.
      */
     @Test
-    public void testMultiValuedRdnContent() throws NamingException
+    public void testMultiValuedRdnContent() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush+sn=Bush";
         ctx.createSubcontext( rdn, attrs );
@@ -782,8 +831,10 @@ public class SearchITest extends AbstractServerTest
      * Create a person entry with multivalued RDN and check its name.
      */
     @Test
-    public void testMultiValuedRdnName() throws NamingException
+    public void testMultiValuedRdnName() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush+sn=Bush";
         DirContext entry = ctx.createSubcontext( rdn, attrs );
@@ -811,8 +862,10 @@ public class SearchITest extends AbstractServerTest
     
     
     @Test
-    public void testSearchJpeg() throws NamingException
+    public void testSearchJpeg() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         NamingEnumeration<SearchResult> res = ctx.search( "", "(cn=Tori*)", controls );
@@ -842,8 +895,10 @@ public class SearchITest extends AbstractServerTest
     
     
     @Test
-    public void testSearchOID() throws NamingException
+    public void testSearchOID() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         NamingEnumeration<SearchResult> res = ctx.search( "", "(2.5.4.3=Tori*)", controls );
@@ -866,8 +921,10 @@ public class SearchITest extends AbstractServerTest
     }
 
     @Test
-    public void testSearchAttrCN() throws NamingException
+    public void testSearchAttrCN() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"cn"} );
@@ -892,8 +949,10 @@ public class SearchITest extends AbstractServerTest
 
     
     @Test
-    public void testSearchAttrName() throws NamingException
+    public void testSearchAttrName() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"name"} );
@@ -921,8 +980,10 @@ public class SearchITest extends AbstractServerTest
 
     
     @Test
-    public void testSearchAttrCommonName() throws NamingException
+    public void testSearchAttrCommonName() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[] { "commonName" } );
@@ -950,10 +1011,13 @@ public class SearchITest extends AbstractServerTest
         assertEquals( 1, attrs.get("cn").size() );
         assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
     }
+    
 
     @Test
-    public void testSearchAttrOID() throws NamingException
+    public void testSearchAttrOID() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"2.5.4.3"} );
@@ -983,8 +1047,10 @@ public class SearchITest extends AbstractServerTest
     
     
     @Test
-    public void testSearchAttrC_L() throws NamingException
+    public void testSearchAttrC_L() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         // create administrative area
         Attributes aaAttrs = new AttributesImpl();
         Attribute aaObjectClass = new AttributeImpl( "objectClass" );
@@ -1037,8 +1103,10 @@ public class SearchITest extends AbstractServerTest
 
 
     @Test
-    public void testSearchUsersAttrs() throws NamingException
+    public void testSearchUsersAttrs() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"*"} );
@@ -1055,20 +1123,23 @@ public class SearchITest extends AbstractServerTest
         Attributes attrs = result.getAttributes();
         
         // ensure that all user attributes are returned
-        assertEquals( 5, attrs.size() );
+        assertEquals( 6, attrs.size() );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "sn" ) );
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "jpegPhoto" ) );
         assertNotNull( attrs.get( "description" ) );
+        assertNotNull( attrs.get( "userCertificate" ) );
         assertNull( attrs.get( "createtimestamp" ) );
         assertNull( attrs.get( "creatorsname" ) );
     }
 
 
     @Test
-    public void testSearchOperationalAttrs() throws NamingException
+    public void testSearchOperationalAttrs() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"+"} );
@@ -1098,8 +1169,10 @@ public class SearchITest extends AbstractServerTest
     
 
     @Test
-    public void testSearchAllAttrs() throws NamingException
+    public void testSearchAllAttrs() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setReturningAttributes( new String[]{"+", "*"} );
@@ -1116,11 +1189,12 @@ public class SearchITest extends AbstractServerTest
         Attributes attrs = result.getAttributes();
         
         // ensure that all user attributes are returned
-        assertEquals( 7, attrs.size() );
+        assertEquals( 8, attrs.size() );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "sn" ) );
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "jpegPhoto" ) );
+        assertNotNull( attrs.get( "userCertificate" ) );
         assertNotNull( attrs.get( "description" ) );
         assertNotNull( attrs.get( "createtimestamp" ) );
         assertNotNull( attrs.get( "creatorsname" ) );
@@ -1128,8 +1202,9 @@ public class SearchITest extends AbstractServerTest
 
 
     @Test
-    public void testSearchBadDN() throws NamingException
+    public void testSearchBadDN() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         
@@ -1145,8 +1220,10 @@ public class SearchITest extends AbstractServerTest
     
 
     @Test
-    public void testSearchInvalidDN() throws NamingException, Exception
+    public void testSearchInvalidDN() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         
@@ -1166,8 +1243,9 @@ public class SearchITest extends AbstractServerTest
      * Check if operational attributes are present, if "+" is requested.
      */
     @Test
-    public void testSearchOperationalAttributes() throws NamingException
+    public void testSearchOperationalAttributes() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls ctls = new SearchControls();
 
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -1198,8 +1276,9 @@ public class SearchITest extends AbstractServerTest
      * Check if user attributes are present, if "*" is requested.
      */
     @Test
-    public void testSearchUserAttributes() throws NamingException
+    public void testSearchUserAttributes() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls ctls = new SearchControls();
 
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -1230,8 +1309,9 @@ public class SearchITest extends AbstractServerTest
      * Check if user and operational attributes are present, if both "*" and "+" are requested.
      */
     @Test
-    public void testSearchOperationalAndUserAttributes() throws NamingException
+    public void testSearchOperationalAndUserAttributes() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls ctls = new SearchControls();
  
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -1296,6 +1376,7 @@ public class SearchITest extends AbstractServerTest
     @Test
     public void testDIRSERVER_1183() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
     	Attributes attrs = new AttributesImpl( "objectClass", "inetOrgPerson", true );
     	attrs.get( "objectClass" ).add( "organizationalPerson" );
     	attrs.get( "objectClass" ).add( "person" );
@@ -1316,6 +1397,7 @@ public class SearchITest extends AbstractServerTest
     @Test
     public void testMissingAnyInSubstring_DIRSERVER_1180() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         Attributes attrs = new AttributesImpl( "objectClass", "inetOrgPerson", true );
         attrs.get( "objectClass" ).add( "organizationalPerson" );
         attrs.get( "objectClass" ).add( "person" );
