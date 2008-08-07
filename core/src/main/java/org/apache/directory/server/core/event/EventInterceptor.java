@@ -220,6 +220,8 @@ public class EventInterceptor extends BaseInterceptor
             return;
         }
 
+        opContext.setAlteredEntry( opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS ) );
+        
         for ( final RegistrationEntry registration : selecting )
         {
             if ( EventType.isRename( registration.getCriteria().getEventMask() ) )
@@ -241,6 +243,8 @@ public class EventInterceptor extends BaseInterceptor
             return;
         }
 
+        opContext.setAlteredEntry( opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS ) );
+        
         for ( final RegistrationEntry registration : selecting )
         {
             if ( EventType.isMoveAndRename( registration.getCriteria().getEventMask() ) )

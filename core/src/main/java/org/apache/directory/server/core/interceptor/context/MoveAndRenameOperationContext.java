@@ -38,6 +38,8 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     /** The parent DN */
     private LdapDN parent;
 
+    /** Cached calculated new DN after move and rename */
+    private LdapDN newDn;
 
     /**
      * Creates a new instance of MoveAndRenameOperationContext.
@@ -95,6 +97,26 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         this.parent = parent;
     }
 
+    
+    /**
+     * Gets cached copy of already computed new name or creates it if not 
+     *
+     * @return the normalized new name after move and rename
+     * @throws Exception if the name cannot be normalized
+     */
+    public LdapDN getNewDn() throws Exception
+    {
+        if ( newDn == null )
+        {
+            newDn = new LdapDN( getParent().getUpName() );
+            newDn.add( getNewRdn().getUpName() );
+            newDn.normalize( session.getDirectoryService()
+                .getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        }
+        
+        return newDn;
+    }
+    
 
     /**
      * @see Object#toString()

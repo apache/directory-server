@@ -39,8 +39,11 @@ import org.apache.directory.shared.ldap.name.Rdn;
  */
 public class RenameOperationContext extends AbstractChangeOperationContext
 {
-    /** The new DN */
+    /** The new RDN */
     private Rdn newRdn;
+
+    /** Cached copy of the new DN */
+    private LdapDN newDn;
 
     /** The flag to remove the old DN Attribute  */
     private boolean delOldDn;
@@ -108,6 +111,24 @@ public class RenameOperationContext extends AbstractChangeOperationContext
 
 
     /**
+     * @return The new DN either computed if null or already computed
+     */
+    public LdapDN getNewDn() throws Exception
+    {
+        if ( newDn == null )
+        {
+            newDn = new LdapDN( getDn().getUpName() );
+            newDn.remove( newDn.size() - 1 );
+            newDn.add( newRdn.getUpName() );
+            newDn.normalize( session.getDirectoryService().getRegistries()
+                .getAttributeTypeRegistry().getNormalizerMapping() );
+        }
+        
+        return newDn;
+    }
+
+
+    /**
      * @return The new RDN
      */
     public Rdn getNewRdn()
@@ -146,6 +167,12 @@ public class RenameOperationContext extends AbstractChangeOperationContext
         return alteredEntry;
     }
 
+    
+    public void setAlteredEntry( ClonedServerEntry alteredEntry ) 
+    {
+        this.alteredEntry = alteredEntry;
+    }
+    
     
     /**
      * @see Object#toString()
