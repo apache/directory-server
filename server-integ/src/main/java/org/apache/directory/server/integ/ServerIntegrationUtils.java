@@ -117,6 +117,29 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * @return an LdapContext as the administrative user to the RootDSE
      * @throws Exception if there are problems creating the context
      */
+    public static LdapContext getWiredContextRefferalIgnore( LdapServer ldapServer ) throws Exception
+    {
+        LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getIpPort() );
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
+        env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.REFERRAL, "ignore" );
+        return new InitialLdapContext( env, null );
+    }
+
+    
+    /**
+     * Creates a JNDI LdapContext with a connection over the wire using the 
+     * SUN LDAP provider.  The connection is made using the administrative 
+     * user as the principalDN.  The context is to the rootDSE.
+     *
+     * @param ldapServer the LDAP server to get the connection to
+     * @return an LdapContext as the administrative user to the RootDSE
+     * @throws Exception if there are problems creating the context
+     */
     public static LdapContext getWiredContextFollowOnRefferal( LdapServer ldapServer ) throws Exception
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getIpPort() );
