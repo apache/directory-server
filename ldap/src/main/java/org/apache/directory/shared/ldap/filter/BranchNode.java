@@ -17,12 +17,14 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.shared.ldap.filter;
 
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+
 
 /**
  * Node representing branches within the expression tree corresponding to
@@ -39,11 +41,10 @@ public class BranchNode extends AbstractExprNode
 
     /**
      * Creates a BranchNode using a logical operator and a list of children.
-     * 
-     * @param childList the child nodes under this branch node.
      * @param assertionType the node's type
+     * @param childList the child nodes under this branch node.
      */
-    protected BranchNode( List<ExprNode> childList, AssertionType assertionType )
+    protected BranchNode( AssertionType assertionType, List<ExprNode> childList )
     {
         super( assertionType );
 
@@ -59,15 +60,37 @@ public class BranchNode extends AbstractExprNode
 
 
     /**
+     * Creates a BranchNode using a logical operator and a list of children.
+     * 
+     * @param assertionType the node's type
+     * @param childList the child nodes under this branch node.
+     */
+    protected BranchNode( AssertionType assertionType, ExprNode... childList )
+    {
+        super( assertionType );
+
+        if ( null == children )
+        {
+            this.children = new ArrayList<ExprNode>( childList.length );
+        }
+        
+        CollectionUtils.addAll( children, childList );
+    }
+
+
+    /**
      * Creates a BranchNode using a logical operator.
      * 
      * @param assertionType the node's type
      */
     protected BranchNode( AssertionType assertionType )
     {
-        this( null, assertionType );
+        super( assertionType );
+        
+        this.children = new ArrayList<ExprNode>( 2 );
     }
 
+    
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#isLeaf()
      * @return false all the time.

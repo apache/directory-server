@@ -29,9 +29,9 @@ import javax.naming.directory.SearchControls;
  */
 public enum SearchScope
 {
-    OBJECT( SearchControls.OBJECT_SCOPE ), 
-    ONELEVEL( SearchControls.ONELEVEL_SCOPE ), 
-    SUBTREE( SearchControls.SUBTREE_SCOPE );
+    OBJECT( SearchControls.OBJECT_SCOPE, "base" ), 
+    ONELEVEL( SearchControls.ONELEVEL_SCOPE, "one" ), 
+    SUBTREE( SearchControls.SUBTREE_SCOPE, "sub" );
     
     /** 
      * The corresponding JNDI scope constant value as defined in 
@@ -43,18 +43,40 @@ public enum SearchScope
      */ 
     private final int jndiScope;
     
+    /**
+     * The LDAP URL string value of either base, one or sub as defined in RFC
+     * 2255.
+     * 
+     * @see <a href="http://www.faqs.org/rfcs/rfc2255.html">RFC 2255</a>
+     */
+    private final String ldapUrlValue;
+    
 
     /**
      * Creates a new instance of SearchScope based on the respective 
      * SearchControls scope constant.
      *
      * @param jndiScope the JNDI scope constant
+     * @param ldapUrlValue LDAP URL scope string value: base, one, or sub
      */
-    private SearchScope( int jndiScope )
+    private SearchScope( int jndiScope, String ldapUrlValue )
     {
         this.jndiScope = jndiScope;
+        this.ldapUrlValue = ldapUrlValue;
     }
 
+    
+    /**
+     * Gets the LDAP URL value for the scope: according to RFC 2255 this is 
+     * either base, one, or sub.
+     * 
+     * @see <a href="http://www.faqs.org/rfcs/rfc2255.html">RFC 2255</a>
+     */
+    public String getLdapUrlValue()
+    {
+        return ldapUrlValue;
+    }
+    
 
     /**
      * Gets the corresponding JNDI scope constant value as defined in 

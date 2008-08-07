@@ -38,7 +38,18 @@ public class OrNode extends BranchNode
      */
     public OrNode( List<ExprNode> childList)
     {
-        super( childList, AssertionType.OR );
+        super( AssertionType.OR, childList );
+    }
+
+
+    /**
+     * Creates a OrNode using a logical operator and a list of children.
+     * 
+     * @param childList the child nodes under this branch node.
+     */
+    public OrNode( ExprNode... childList )
+    {
+        super( AssertionType.OR, childList );
     }
 
 
@@ -47,10 +58,8 @@ public class OrNode extends BranchNode
      */
     public OrNode()
     {
-        this( null );
+        super( AssertionType.OR );
     }
-
-
 
 
     /**
