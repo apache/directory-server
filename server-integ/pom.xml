@@ -78,71 +78,19 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>integration</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <includes>
-                <include>**/*ISuite.java</include>
-                <include>**/*IndexedNegationSearchIT.java</include>
-              </includes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    
-    <profile>
-      <id>quicktest</id>
-      <activation>
-        <property><name>quicktest</name></property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>**/*PTest.java</exclude>
-                <exclude>**/*ITest.java</exclude>
-                <exclude>**/*IT.java</exclude>
-              </excludes>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>validate</phase>
-                <configuration>
-                  <tasks>
-                    <echo>
-=================================================================
-                   Q U I C K   T E S T S
-                   ---------------------
-                  
-WARNING: Long running integration tests have been disabled!
-=================================================================
-                    </echo>
-                  </tasks>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*ISuite.java</include>
+            <include>**/*IndexedNegationSearchIT.java</include>
+            <include>**/*LdapsIT.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
 
