@@ -20,11 +20,10 @@
 package org.apache.directory.server.core.avltree;
 
 import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,6 +31,8 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An AVL tree testcase.
@@ -43,6 +44,8 @@ public class AvlTreeTest
 {
 
     AvlTree<Integer> tree;
+
+    private static final Logger LOG = LoggerFactory.getLogger( AvlTreeTest.class );
     
     @Before
     public void createTree()
@@ -69,7 +72,10 @@ public class AvlTreeTest
       tree.remove( 97 ); // remove a non-existing key
       assertTrue( tree.isEmpty() );
       
-      tree.printTree();
+      if( LOG.isDebugEnabled() ) 
+      {
+          tree.printTree();
+      }
     }
     
     
@@ -127,10 +133,16 @@ public class AvlTreeTest
         tree.insert( 28 );
         tree.insert( 26 );
         
-        tree.printTree();
+        if( LOG.isDebugEnabled() ) 
+        {
+            tree.printTree();
+        }
         
         tree.remove( 24 ); // this causes a single left rotation on node with key 12
-        tree.printTree();
+        if( LOG.isDebugEnabled() ) 
+        { 
+            tree.printTree();
+        }
         assertTrue( tree.getRoot().getLeft().key == 26 );
     }
     
@@ -201,9 +213,9 @@ public class AvlTreeTest
         tree.insert( 2 );
         tree.insert( 1 );
         
-        System.out.println(getLinkedText());
+        LOG.debug(getLinkedText());
         tree.remove( 2 );
-        System.out.println(getLinkedText());
+        LOG.debug(getLinkedText());
         assertEquals("1,3", getInorderForm());
         
         tree.remove( 1 );
@@ -238,7 +250,10 @@ public class AvlTreeTest
         assertTrue( 27 == tree.getRoot().key ); // check the root value after double right rotation
         assertEquals( "21,27,37", getInorderForm() );
         
-        tree.printTree();
+        if( LOG.isDebugEnabled() ) 
+        {
+            tree.printTree();
+        }
     }
 
     @Test

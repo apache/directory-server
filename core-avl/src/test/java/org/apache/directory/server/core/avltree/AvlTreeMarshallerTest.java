@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Comparator;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -93,7 +94,7 @@ public class AvlTreeMarshallerTest
     
     static AvlTree<Integer> savedTree;
     
-    File treeFile = new File( System.getProperty( "java.io.tmpdir" ) + File.separator + "avl.tree");
+    static File treeFile = new File( System.getProperty( "java.io.tmpdir" ) + File.separator + "avl.tree");
     
     private static final Logger LOG = LoggerFactory.getLogger( AvlTreeMarshallerTest.class.getSimpleName() );
 
@@ -115,13 +116,14 @@ public class AvlTreeMarshallerTest
     }
 
     
-    /**
-     * TODO Fix me.
-     *
-     * @throws IOException
-     */
+    @AfterClass
+    public static void deleteFiles()
+    {
+        treeFile.delete();
+    }
+    
+    
     @Test
-    @Ignore ( "Remove operation is deleting more keys than it should." )
     public void testRemoveBug() throws IOException
     {
         Comparator<Long> comparator = new Comparator<Long>() 
@@ -393,8 +395,11 @@ public class AvlTreeMarshallerTest
         
         savedTree = tree; // to reference in other tests
         
-        LOG.debug("saved tree\n--------");
-        tree.printTree();
+        if( LOG.isDebugEnabled() )
+        {
+            LOG.debug("saved tree\n--------");
+            tree.printTree();
+        }
         
         assertTrue( true );
     }
@@ -410,8 +415,11 @@ public class AvlTreeMarshallerTest
         
         AvlTree<Integer> unmarshalledTree = treeMarshaller.deserialize( data );
         
-        LOG.debug("\nunmarshalled tree\n---------------");
-        unmarshalledTree.printTree();
+        if( LOG.isDebugEnabled() )
+        {
+            LOG.debug("\nunmarshalled tree\n---------------");
+            unmarshalledTree.printTree();
+        }
         
         assertTrue( savedTree.getRoot().getKey() == unmarshalledTree.getRoot().getKey() );
 
@@ -429,8 +437,11 @@ public class AvlTreeMarshallerTest
         unmarshalledTree.insert( 0 );
         assertTrue( 0 == unmarshalledTree.getFirst().getKey() );
         
-        LOG.debug("\nmodified tree after unmarshalling\n---------------");
-        unmarshalledTree.printTree();
+        if( LOG.isDebugEnabled() )
+        {
+            LOG.debug("\nmodified tree after unmarshalling\n---------------");
+            unmarshalledTree.printTree();
+        }
         
         assertNotNull(unmarshalledTree.getFirst());
         assertNotNull(unmarshalledTree.getLast());
