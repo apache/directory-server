@@ -77,7 +77,7 @@ import static org.junit.Assert.assertFalse;
  * @version $Rev$, $Date$
  */
 @RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@CleanupLevel ( Level.CLASS )
 @Factory ( IndexedNegationSearchIT.Factory.class )
 @ApplyLdifs( {
     "dn: ou=test,ou=system\n" +

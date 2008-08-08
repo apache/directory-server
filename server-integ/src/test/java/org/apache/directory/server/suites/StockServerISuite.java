@@ -44,6 +44,7 @@ import org.apache.directory.server.operations.search.NegationSearchIT;
 import org.apache.directory.server.operations.search.ReferralSearchIT;
 import org.apache.directory.server.operations.search.SchemaSearchIT;
 import org.apache.directory.server.operations.search.SearchIT;
+import org.apache.directory.server.ssl.StartTlsIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -74,6 +75,7 @@ import org.junit.runners.Suite;
         NegationSearchIT.class,
         SchemaSearchIT.class,
         ReferralSearchIT.class,
+        StartTlsIT.class,
         ModifyDnReferralIT.class
         } )
 @CleanupLevel ( Level.SUITE )
