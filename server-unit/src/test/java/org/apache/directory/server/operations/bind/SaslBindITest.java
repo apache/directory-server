@@ -331,7 +331,7 @@ public class SaslBindITest extends AbstractServerTest
          }
          catch ( NoPermissionException npe )
          {
-             assertTrue( npe.getMessage().contains( "[LDAP: error code 50 - failed on search operation: Attempted operation by unauthenticated caller.]" ) );
+             assertTrue( npe.getMessage().contains( "error code 50" ) );
          }
          catch ( NamingException ne )
          {
