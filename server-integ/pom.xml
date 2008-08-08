@@ -47,6 +47,12 @@
     </dependency>
 
     <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-server-jndi</artifactId>
       <version>${pom.version}</version>
@@ -88,6 +94,7 @@
             <include>**/*IndexedNegationSearchIT.java</include>
             <include>**/*LdapsIT.java</include>
             <include>**/*MiscBindIT.java</include>
+            <include>**/*SaslBindIT.java</include>
             <include>**/*StoredProcedureIT.java</include>
           </includes>
         </configuration>

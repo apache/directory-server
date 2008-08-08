@@ -19,8 +19,11 @@
  */
 package org.apache.directory.server.operations.bind;
 
+
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.AuthenticationNotSupportedException;
@@ -34,19 +37,32 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
 import org.apache.commons.net.SocketClient;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.integ.LdapServerFactory;
+import org.apache.directory.server.integ.SiRunner;
+import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.newldap.handlers.bind.ntlm.NtlmProvider;
 import org.apache.directory.server.newldap.handlers.bind.plain.PlainMechanismHandler;
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.newldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.MessageDecoder;
@@ -56,12 +72,16 @@ import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.mina.common.IoSession;
-import org.junit.After;
+import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * An {@link AbstractServerTest} testing SASL authentication.
@@ -69,138 +89,110 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SaslBindITest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.CLASS )
+@Factory ( SaslBindITest.Factory.class )
+@ApplyLdifs( {
+    // Entry # 1
+    "dn: ou=users,dc=example,dc=com\n" +
+    "objectClass: organizationalUnit\n" +
+    "objectClass: top\n" +
+    "ou: users\n\n" + 
+    // Entry # 2
+    "dn: uid=hnelson,ou=users,dc=example,dc=com\n" +
+    "objectClass: inetOrgPerson\n" +
+    "objectClass: organizationalPerson\n" +
+    "objectClass: person\n" +
+    "objectClass: top\n" +
+    "uid: hnelson\n" +
+    "userPassword: secret\n" +
+    "cn: Horatio Nelson\n" +
+    "sn: Nelson\n\n" 
+    }
+)
+public class SaslBindITest
 {
-     private DirContext ctx;
-     
-     /** The NTLM fake provider */
-     private BogusNtlmProvider provider;
+    public static LdapServer ldapServer;
+    public BogusNtlmProvider provider = new BogusNtlmProvider();
 
-     /**
-      * Set up a partition for EXAMPLE.COM and add a user to
-      * test authentication with.
-      */
+     
+     public static class Factory implements LdapServerFactory
+     {
+         public LdapServer newInstance() throws Exception
+         {
+             DirectoryService service = new DefaultDirectoryService();
+             IntegrationUtils.doDelete( service.getWorkingDirectory() );
+             service.getChangeLog().setEnabled( true );
+             service.setAllowAnonymousAccess( false );
+             service.setShutdownHookEnabled( false );
+
+             Set<Partition> partitions = new HashSet<Partition>();
+             JdbmPartition partition = new JdbmPartition();
+             partition.setId( "example" );
+             partition.setSuffix( "dc=example,dc=com" );
+
+             Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
+             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
+             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
+             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
+             partition.setIndexedAttributes( indexedAttrs );
+
+             LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );
+             ServerEntry serverEntry = new DefaultServerEntry( service.getRegistries(), exampleDn );
+             serverEntry.put( "objectClass", "top", "domain" );
+             serverEntry.put( "dc", "example" );
+
+             partition.setContextEntry( serverEntry );
+
+             partitions.add( partition );
+             service.setPartitions( partitions );
+
+             // change the working directory to something that is unique
+             // on the system and somewhere either under target directory
+             // or somewhere in a temp area of the machine.
+
+             LdapServer ldapServer = new LdapServer();
+             ldapServer.setDirectoryService( service );
+             ldapServer.setSocketAcceptor( new SocketAcceptor( null ) );
+             ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+             ldapServer.setAllowAnonymousAccess( false );
+             ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+
+             // Setup SASL Mechanisms
+             
+             Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
+             mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new PlainMechanismHandler() );
+
+             CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
+             mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
+
+             DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
+             mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
+
+             GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
+             mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
+
+             NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
+             mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
+             mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
+
+             ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
+             ldapServer.setSaslHost( "localhost" );
+             
+             return ldapServer;
+         }
+     }
+     
+     
      @Before
-     public void setUp() throws Exception
+     public void setupNewNtlmProvider()
      {
          provider = new BogusNtlmProvider();
-         super.setUp();
-         directoryService.setAllowAnonymousAccess( true );
-
-         Hashtable<String, String> env = new Hashtable<String, String>();
-         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
-         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-         env.put( "java.naming.security.credentials", "secret" );
-         env.put( "java.naming.security.authentication", "simple" );
-         ctx = new InitialDirContext( env );
-
-         Attributes attrs = new AttributesImpl( true );
-         attrs = getOrgUnitAttributes( "users" );
-         DirContext users = ctx.createSubcontext( "ou=users", attrs );
-
-         attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "secret" );
-         users.createSubcontext( "uid=hnelson", attrs );
+         NtlmMechanismHandler handler = ( NtlmMechanismHandler ) 
+             ldapServer.getSaslMechanismHandlers().get( SupportedSaslMechanisms.NTLM );
+         handler.setNtlmProvider( provider );
      }
-
-
-     @Override
-     protected void configureDirectoryService() throws NamingException
-     {
-         directoryService.setAllowAnonymousAccess( false );
-
-         Set<Partition> partitions = new HashSet<Partition>();
-         JdbmPartition partition = new JdbmPartition();
-         partition.setId( "example" );
-         partition.setSuffix( "dc=example,dc=com" );
-
-         Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-         indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
-         indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
-         indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
-         partition.setIndexedAttributes( indexedAttrs );
-
-         LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );
-         ServerEntry serverEntry = new DefaultServerEntry( directoryService.getRegistries(), exampleDn );
-         serverEntry.put( "objectClass", "top", "domain" );
-         serverEntry.put( "dc", "example" );
-
-         partition.setContextEntry( serverEntry );
-
-
-         partitions.add( partition );
-         directoryService.setPartitions( partitions );
-     }
-
-
-     @Override
-     protected void configureLdapServer()
-     {
-         ldapServer.setSaslHost( "localhost" );
-         
-         NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
-         ntlmMechanismHandler.setNtlmProvider( provider  );
-         
-         // Inject the NTLM MechanismHandler
-         ldapServer.removeSaslMechanismHandler( SupportedSaslMechanisms.NTLM );
-         ldapServer.addSaslMechanismHandler( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
-         ldapServer.removeSaslMechanismHandler( SupportedSaslMechanisms.GSS_SPNEGO );
-         ldapServer.addSaslMechanismHandler( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
-         
-         // Inject the PLAIN MechanismHandler
-         PlainMechanismHandler plainMechanismHandler = new PlainMechanismHandler();
-         ldapServer.removeSaslMechanismHandler( SupportedSaslMechanisms.PLAIN );
-         ldapServer.addSaslMechanismHandler( SupportedSaslMechanisms.PLAIN, plainMechanismHandler );
-     }
-
      
-     /**
-      * Tear down.
-      */
-     @After
-     public void tearDown() throws Exception
-     {
-         ctx.close();
-         ctx = null;
-         super.tearDown();
-     }
-
-
-     /**
-      * Convenience method for creating a person.
-      */
-     protected Attributes getPersonAttributes( String sn, String cn, String uid, String userPassword )
-     {
-         Attributes attrs = new AttributesImpl();
-         Attribute ocls = new AttributeImpl( "objectClass" );
-         ocls.add( "top" );
-         ocls.add( "person" ); // sn $ cn
-         ocls.add( "inetOrgPerson" ); // uid
-         attrs.put( ocls );
-         attrs.put( "cn", cn );
-         attrs.put( "sn", sn );
-         attrs.put( "uid", uid );
-         attrs.put( "userPassword", userPassword );
-
-         return attrs;
-     }
-
-
-     /**
-      * Convenience method for creating an organizational unit.
-      */
-     protected Attributes getOrgUnitAttributes( String ou )
-     {
-         Attributes attrs = new AttributesImpl();
-         Attribute ocls = new AttributeImpl( "objectClass" );
-         ocls.add( "top" );
-         ocls.add( "organizationalUnit" );
-         attrs.put( ocls );
-         attrs.put( "ou", ou );
-
-         return attrs;
-     }
-
 
      /**
       * Tests to make sure the server properly returns the supportedSASLMechanisms.
@@ -213,17 +205,19 @@ public class SaslBindITest extends AbstractServerTest
              // We have to tell the server that it should accept anonymous
              // auth, because we are reading the rootDSE
              ldapServer.setAllowAnonymousAccess( true );
-             directoryService.setAllowAnonymousAccess( true );
+             ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
              
              // Point on rootDSE
              DirContext context = new InitialDirContext();
 
-             Attributes attrs = context.getAttributes( "ldap://localhost:" + port, new String[]
+             Attributes attrs = context.getAttributes( "ldap://localhost:" 
+                 + ldapServer.getIpPort(), new String[]
                  { "supportedSASLMechanisms" } );
 
              NamingEnumeration<? extends Attribute> answer = attrs.getAll();
              Attribute result = answer.next();
-             assertTrue( result.size() == 6 );
+             System.out.println( result );
+             assertEquals( 6, result.size() );
              assertTrue( result.contains( SupportedSaslMechanisms.GSSAPI ) );
              assertTrue( result.contains( SupportedSaslMechanisms.DIGEST_MD5 ) );
              assertTrue( result.contains( SupportedSaslMechanisms.CRAM_MD5 ) );
@@ -248,7 +242,7 @@ public class SaslBindITest extends AbstractServerTest
          {
              Hashtable<String, String> env = new Hashtable<String, String>();
              env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
              env.put( Context.SECURITY_AUTHENTICATION, "PLAIN" );
              env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -286,7 +280,7 @@ public class SaslBindITest extends AbstractServerTest
          {
              Hashtable<String, String> env = new Hashtable<String, String>();
              env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
              env.put( Context.SECURITY_AUTHENTICATION, "" );
              env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -312,13 +306,13 @@ public class SaslBindITest extends AbstractServerTest
      @Test
      public void testAnonymousBelowRootDSE()
      {
-         directoryService.setAllowAnonymousAccess( false );
+         ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
          
          try
          {
              Hashtable<String, String> env = new Hashtable<String, String>();
              env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
              DirContext context = new InitialDirContext( env );
 
@@ -350,7 +344,7 @@ public class SaslBindITest extends AbstractServerTest
          {
              Hashtable<String, String> env = new Hashtable<String, String>();
              env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
              env.put( Context.SECURITY_AUTHENTICATION, "CRAM-MD5" );
              env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
@@ -389,7 +383,7 @@ public class SaslBindITest extends AbstractServerTest
          {
              Hashtable<String, String> env = new Hashtable<String, String>();
              env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
              env.put( Context.SECURITY_AUTHENTICATION, "CRAM-MD5" );
              env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
@@ -409,6 +403,8 @@ public class SaslBindITest extends AbstractServerTest
              assertTrue( e.getMessage().contains( "Invalid response" ) );
          }
      }
+     
+     
      /**
       * Tests to make sure DIGEST-MD5 binds below the RootDSE work.
       */
@@ -417,7 +413,7 @@ public class SaslBindITest extends AbstractServerTest
      {
          Hashtable<String, String> env = new Hashtable<String, String>();
          env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+         env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
          env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
          env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
@@ -457,7 +453,7 @@ public class SaslBindITest extends AbstractServerTest
          {
              Hashtable<String, String> env = new Hashtable<String, String>();
              env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
              env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
              env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
@@ -495,19 +491,16 @@ public class SaslBindITest extends AbstractServerTest
          {
              Hashtable<String, String> env = new Hashtable<String, String>();
              env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-             env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+             env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
              env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
              env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
              env.put( Context.SECURITY_CREDENTIALS, "badsecret" );
 
              DirContext context = new InitialDirContext( env );
-
-             String[] attrIDs =
-                 { "uid" };
+             String[] attrIDs = { "uid" };
 
              context.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
-
              fail( "Should have thrown exception." );
          }
          catch ( NamingException e )
@@ -607,8 +600,8 @@ public class SaslBindITest extends AbstractServerTest
          NtlmSaslBindClient( String mechanism ) throws Exception
          {
              this.mechanism = mechanism;
-             setDefaultPort( port );
-             connect( "localhost", port );
+             setDefaultPort( ldapServer.getIpPort() );
+             connect( "localhost", ldapServer.getIpPort() );
              setTcpNoDelay( false );
              
              LOG.debug( "isConnected() = {}", _isConnected_ );
