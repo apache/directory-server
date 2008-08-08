@@ -83,6 +83,7 @@ import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
+
 /**
  * An {@link AbstractServerTest} testing SASL authentication.
  * 
@@ -91,7 +92,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith ( SiRunner.class ) 
 @CleanupLevel ( Level.CLASS )
-@Factory ( SaslBindITest.Factory.class )
+@Factory ( SaslBindIT.Factory.class )
 @ApplyLdifs( {
     // Entry # 1
     "dn: ou=users,dc=example,dc=com\n" +
@@ -110,7 +111,7 @@ import static org.junit.Assert.assertEquals;
     "sn: Nelson\n\n" 
     }
 )
-public class SaslBindITest
+public class SaslBindIT
 {
     public static LdapServer ldapServer;
     public BogusNtlmProvider provider = new BogusNtlmProvider();

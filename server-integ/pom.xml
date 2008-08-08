@@ -60,6 +60,12 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-interceptor-kerberos</artifactId>
+      <version>${pom.version}</version>
+    </dependency>  
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-integ</artifactId>
       <version>${pom.version}</version>
     </dependency>  
@@ -95,6 +101,8 @@
             <include>**/*LdapsIT.java</include>
             <include>**/*MiscBindIT.java</include>
             <include>**/*SaslBindIT.java</include>
+            <include>**/*KeyDerivationServiceIT.java</include>
+            <include>**/*PasswordPolicyServiceIT.java</include>
             <include>**/*StoredProcedureIT.java</include>
           </includes>
         </configuration>

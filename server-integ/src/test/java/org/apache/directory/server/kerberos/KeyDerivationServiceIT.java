@@ -17,28 +17,51 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.kerberos;
 
 
-import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.integ.LdapServerFactory;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.plain.PlainMechanismHandler;
+import org.apache.directory.server.newldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.mina.util.AvailablePortFinder;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 
 import javax.crypto.spec.DESKeySpec;
 import javax.naming.Context;
@@ -59,32 +82,102 @@ import java.util.Set;
 
 
 /**
- * An {@link AbstractServerTest} testing the (@link {@link KeyDerivationInterceptor}'s
+ * An test case for testing the {@link KeyDerivationInterceptor}'s
  * ability to derive Kerberos symmetric keys based on userPassword and principal
  * name and to generate random keys when the special keyword "randomKey" is used.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KeyDerivationServiceITest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.CLASS )
+@Factory ( KeyDerivationServiceIT.Factory.class )
+public class KeyDerivationServiceIT 
 {
     private static final String RDN = "uid=hnelson,ou=users,dc=example,dc=com";
 
-    private DirContext ctx;
 
+    public static LdapServer ldapServer;
 
+     
+     public static class Factory implements LdapServerFactory
+     {
+         public LdapServer newInstance() throws Exception
+         {
+             DirectoryService service = new DefaultDirectoryService();
+             IntegrationUtils.doDelete( service.getWorkingDirectory() );
+             service.getChangeLog().setEnabled( true );
+             service.setAllowAnonymousAccess( false );
+             service.setShutdownHookEnabled( false );
+
+             Set<Partition> partitions = new HashSet<Partition>();
+             JdbmPartition partition = new JdbmPartition();
+             partition.setId( "example" );
+             partition.setSuffix( "dc=example,dc=com" );
+
+             Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
+             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
+             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
+             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
+             partition.setIndexedAttributes( indexedAttrs );
+
+             LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );
+             ServerEntry serverEntry = new DefaultServerEntry( service.getRegistries(), exampleDn );
+             serverEntry.put( "objectClass", "top", "domain" );
+             serverEntry.put( "dc", "example" );
+             partition.setContextEntry( serverEntry );
+             partitions.add( partition );
+             service.setPartitions( partitions );
+
+             List<Interceptor> list = service.getInterceptors();
+             list.add( new KeyDerivationInterceptor() );
+             service.setInterceptors( list );
+             
+             // change the working directory to something that is unique
+             // on the system and somewhere either under target directory
+             // or somewhere in a temp area of the machine.
+
+             LdapServer ldapServer = new LdapServer();
+             ldapServer.setDirectoryService( service );
+             ldapServer.setSocketAcceptor( new SocketAcceptor( null ) );
+             ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+             ldapServer.setAllowAnonymousAccess( false );
+             ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+
+             // Setup SASL Mechanisms
+             
+             Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
+             mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new PlainMechanismHandler() );
+
+             CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
+             mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
+
+             DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
+             mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
+
+             GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
+             mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
+
+             NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
+             mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
+             mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
+
+             ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
+             ldapServer.setSaslHost( "localhost" );
+             
+             return ldapServer;
+         }
+     }
+     
+     
     /**
      * Set up a partition for EXAMPLE.COM, add the Key Derivation interceptor, enable
      * the krb5kdc schema, and add a user principal to test authentication with.
      */
+     @Before
     public void setUp() throws Exception
     {
-        super.setUp();
-
-        Attributes attrs;
-
-
-        setContexts( "uid=admin,ou=system", "secret" );
+        DirContext schemaRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( "ou=schema" );
 
         // -------------------------------------------------------------------
         // Enable the krb5kdc schema
@@ -108,47 +201,12 @@ public class KeyDerivationServiceITest extends AbstractServerTest
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
         }
 
-        CoreSession session = directoryService.getSession();
-        ctx = new ServerLdapContext( directoryService, session, new LdapDN( "dc=example,dc=com" ) );
-
-        attrs = getOrgUnitAttributes( "users" );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( "dc=example,dc=com" );
+        Attributes attrs = getOrgUnitAttributes( "users" );
         DirContext users = ctx.createSubcontext( "ou=users", attrs );
 
         attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "secret", "hnelson@EXAMPLE.COM" );
         users.createSubcontext( "uid=hnelson", attrs );
-    }
-
-    protected void configureDirectoryService() throws NamingException
-    {
-        ServerEntry serverEntry;
-        Set<Partition> partitions = new HashSet<Partition>();
-
-        JdbmPartition partition;
-
-        // Add partition 'example'
-        partition = new JdbmPartition();
-        partition.setId( "example" );
-        partition.setSuffix( "dc=example,dc=com" );
-
-        Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
-        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
-        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
-        partition.setIndexedAttributes( indexedAttrs );
-
-        LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );
-        serverEntry = new DefaultServerEntry( directoryService.getRegistries(), exampleDn );
-        serverEntry.put( "objectClass", "top", "domain" );
-        serverEntry.put( "dc", "example" );
-        partition.setContextEntry( serverEntry );
-
-        partitions.add( partition );
-        directoryService.setPartitions( partitions );
-
-        List<Interceptor> list = directoryService.getInterceptors();
-
-        list.add( new KeyDerivationInterceptor() );
-        directoryService.setInterceptors( list );
     }
 
 
@@ -158,11 +216,12 @@ public class KeyDerivationServiceITest extends AbstractServerTest
      * @throws NamingException failure to perform LDAP operations
      * @throws IOException on network errors
      */
+     @Test
     public void testAddDerivedKeys() throws NamingException, IOException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -228,11 +287,12 @@ public class KeyDerivationServiceITest extends AbstractServerTest
      * @throws NamingException failure to perform LDAP operations
      * @throws IOException on network errors
      */
+     @Test
     public void testModifyDerivedKeys() throws NamingException, IOException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -365,11 +425,12 @@ public class KeyDerivationServiceITest extends AbstractServerTest
      * @throws NamingException failure to perform LDAP operations
      * @throws IOException on network errors
      */
+     @Test
     public void testModifyDerivedKeysWithoutPrincipalName() throws NamingException, IOException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -494,16 +555,17 @@ public class KeyDerivationServiceITest extends AbstractServerTest
      * @throws IOException on network errors
      * @throws InvalidKeyException if the incorrect key results
      */
+     @Test
     public void testAddRandomKeys() throws NamingException, IOException, InvalidKeyException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=users,dc=example,dc=com" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapServer.getIpPort() + "/ou=users,dc=example,dc=com" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );
         env.put( "java.naming.ldap.attributes.binary", "krb5key" );
-        ctx = new InitialDirContext( env );
+        DirContext ctx = new InitialDirContext( env );
 
         Attributes attrs = getPersonAttributes( "Quist", "Thomas Quist", "tquist", "randomKey", "tquist@EXAMPLE.COM" );
         ctx.createSubcontext( "uid=tquist", attrs );
@@ -589,17 +651,6 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         assertTrue( DESKeySpec.isParityAdjusted( tquistKey, 0 ) );
         assertTrue( DESKeySpec.isParityAdjusted( jfryerKey, 0 ) );
-    }
-
-
-    /**
-     * Tear down.
-     */
-    public void tearDown() throws Exception
-    {
-        ctx.close();
-        ctx = null;
-        super.tearDown();
     }
 
 

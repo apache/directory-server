@@ -17,30 +17,58 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.kerberos;
 
 
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.PasswordPolicyInterceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.integ.LdapServerFactory;
+import org.apache.directory.server.integ.SiRunner;
+import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.plain.PlainMechanismHandler;
+import org.apache.directory.server.newldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.mina.util.AvailablePortFinder;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -50,24 +78,99 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class PasswordPolicyServiceITest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.CLASS )
+@Factory ( PasswordPolicyServiceIT.Factory.class )
+public class PasswordPolicyServiceIT 
 {
     private DirContext ctx;
     private DirContext users;
 
 
+    public static LdapServer ldapServer;
+
+    
+    public static class Factory implements LdapServerFactory
+    {
+        public LdapServer newInstance() throws Exception
+        {
+            DirectoryService service = new DefaultDirectoryService();
+            IntegrationUtils.doDelete( service.getWorkingDirectory() );
+            service.getChangeLog().setEnabled( true );
+            service.setAllowAnonymousAccess( false );
+            service.setShutdownHookEnabled( false );
+
+            Set<Partition> partitions = new HashSet<Partition>();
+            JdbmPartition partition = new JdbmPartition();
+            partition.setId( "example" );
+            partition.setSuffix( "dc=example,dc=com" );
+
+            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
+            indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
+            indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
+            indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
+            partition.setIndexedAttributes( indexedAttrs );
+
+            LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );
+            ServerEntry serverEntry = new DefaultServerEntry( service.getRegistries(), exampleDn );
+            serverEntry.put( "objectClass", "top", "domain" );
+            serverEntry.put( "dc", "example" );
+            partition.setContextEntry( serverEntry );
+            partitions.add( partition );
+            service.setPartitions( partitions );
+
+            List<Interceptor> list = service.getInterceptors();
+            list.add( new PasswordPolicyInterceptor() );
+            service.setInterceptors( list );
+            
+            // change the working directory to something that is unique
+            // on the system and somewhere either under target directory
+            // or somewhere in a temp area of the machine.
+
+            LdapServer ldapServer = new LdapServer();
+            ldapServer.setDirectoryService( service );
+            ldapServer.setSocketAcceptor( new SocketAcceptor( null ) );
+            ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+            ldapServer.setAllowAnonymousAccess( false );
+            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+
+            // Setup SASL Mechanisms
+            
+            Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new PlainMechanismHandler() );
+
+            CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
+
+            DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
+
+            GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
+
+            NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
+            mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
+
+            ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
+            ldapServer.setSaslHost( "localhost" );
+            
+            return ldapServer;
+        }
+    }
+    
+    
     /**
      * Set up a partition for EXAMPLE.COM, add the {@link PasswordPolicyInterceptor}
      * interceptor, and create a users subcontext.
      */
+    @Before
     public void setUp() throws Exception
     {
-        super.setUp();
-
         Attributes attrs;
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapServer.getIpPort() + "/dc=example,dc=com" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );
@@ -78,42 +181,10 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
     }
 
     
-    protected void configureDirectoryService() throws NamingException
-    {
-        directoryService.setAllowAnonymousAccess( false );
-        Set<Partition> partitions = new HashSet<Partition>();
-
-        // Add partition 'example'
-        JdbmPartition partition = new JdbmPartition();
-        partition.setId( "example" );
-        partition.setSuffix( "dc=example,dc=com" );
-
-        Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
-        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
-        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
-        partition.setIndexedAttributes( indexedAttrs );
-
-        LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );
-        ServerEntry serverEntry = new DefaultServerEntry( directoryService.getRegistries(), exampleDn );
-        serverEntry.put( "objectClass", "top", "domain" );
-        serverEntry.put( "dc", "example" );
-        
-        partition.setContextEntry( serverEntry );
-
-        partitions.add( partition );
-        directoryService.setPartitions( partitions );
-
-        List<Interceptor> list = directoryService.getInterceptors();
-
-        list.add( new PasswordPolicyInterceptor() );
-        directoryService.setInterceptors( list );
-    }
-
-
     /**
      * Tests that passwords that are too short are properly rejected. 
      */
+    @Test
     public void testLength()
     {
         Attributes attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "HN1" );
@@ -134,6 +205,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
     /**
      * Tests that passwords with insufficient character mix are properly rejected. 
      */
+    @Test
     public void testCharacterMix()
     {
         Attributes attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "secret" );
@@ -154,6 +226,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
     /**
      * Tests that passwords that contain substrings of the username are properly rejected. 
      */
+    @Test
     public void testContainsUsername()
     {
         Attributes attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "A1nelson" );
@@ -175,6 +248,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
      * Tests that passwords with insufficient character mix and that are too
      * short are properly rejected. 
      */
+    @Test
     public void testCharacterMixAndLength()
     {
         Attributes attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "hi" );
@@ -196,6 +270,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
      * Tests that passwords that are too short and that contain substrings of
      * the username are properly rejected.
      */
+    @Test
     public void testLengthAndContainsUsername()
     {
         Attributes attrs = getPersonAttributes( "Bush", "William Bush", "wbush", "bush1" );
@@ -217,6 +292,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
      * Tests that passwords with insufficient character mix and that contain substrings of
      * the username are properly rejected.
      */
+    @Test
     public void testCharacterMixAndContainsUsername()
     {
         Attributes attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "hnelson" );
@@ -238,6 +314,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
      * Tests that passwords with insufficient character mix and that are too
      * short and that contain substrings of the username are properly rejected.
      */
+    @Test
     public void testCharacterMixAndLengthAndContainsUsername()
     {
         Attributes attrs = getPersonAttributes( "Bush", "William Bush", "wbush", "bush" );
@@ -258,11 +335,11 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
     /**
      * Tear down.
      */
+    @After
     public void tearDown() throws Exception
     {
         ctx.close();
         ctx = null;
-        super.tearDown();
     }
 
 
