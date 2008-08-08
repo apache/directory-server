@@ -20,6 +20,8 @@
 package org.apache.directory.server.operations.bind;
 
 
+import javax.naming.AuthenticationException;
+
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
@@ -28,6 +30,7 @@ import netscape.ldap.LDAPException;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.newldap.LdapServer;
 import org.junit.Test;
@@ -79,6 +82,59 @@ public class BindIT
     public static LdapServer ldapServer;
     
 
+    /**
+     * Test with bindDn which is not even found under any namingContext of the
+     * server.
+     * 
+     * @throws Exception 
+     */
+    @Test
+    public void testBadBindDnNotInContext() throws Exception
+    {
+        try
+        {
+            getWiredContext( ldapServer, "cn=bogus", "blah" );
+            fail( "should never get here due to a " );
+        }
+        catch ( AuthenticationException e )
+        {
+        }
+    }
+
+
+    /**
+     * Test with bindDn that is under a naming context but points to non-existant user.
+     * @todo make this pass: see http://issues.apache.org/jira/browse/DIREVE-339
+     */
+    //    public void testBadBindDnMalformed() throws Exception
+    //    {
+    //        try
+    //        {
+    //            bind( "system", "blah" );
+    //            fail( "should never get here due to a " );
+    //        }
+    //        catch ( InvalidNameException e ){}
+    //    }
+
+    /**
+     * Test with bindDn that is under a naming context but points to non-existant user.
+     * 
+     * @throws Exception 
+     */
+    @Test
+    public void testBadBindDnInContext() throws Exception
+    {
+        try
+        {
+            getWiredContext( ldapServer, "cn=bogus,ou=system", "blah" );
+            fail( "should never get here due to a " );
+        }
+        catch ( AuthenticationException e )
+        {
+        }
+    }
+
+    
     @Test
     public void testConnectWithIllegalLDAPVersion() throws Exception
     {
