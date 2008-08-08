@@ -23,9 +23,16 @@ package org.apache.directory.server.newldap.handlers;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.newldap.LdapSession;
+import org.apache.directory.server.newldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.Request;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.ResultResponseRequest;
+import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 
@@ -59,6 +66,43 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     {
         this.ldapServer = ldapServer;
     }
+    
+    
+    /**
+     * Checks to see if confidentiality requirements are met.  If the 
+     * LdapServer requires confidentiality and the SSLFilter is engaged
+     * this will return true.  If confidentiality is not required this 
+     * will return true.  If confidentially is required and the SSLFilter
+     * is not engaged in the IoFilterChain this will return false.
+     * 
+     * This method is used by handlers to determine whether to send back
+     * {@link ResultCodeEnum#CONFIDENTIALITY_REQUIRED} error responses back
+     * to clients.
+     * 
+     * @param session the MINA IoSession to check for TLS security
+     * @return true if confidentiality requirement is met, false otherwise
+     */
+    public final boolean isConfidentialityRequirementSatisfied( IoSession session )
+    {
+       
+       if ( ! ldapServer.isConfidentialityRequired() )
+       {
+           return true;
+       }
+       
+        IoFilterChain chain = session.getFilterChain();
+        return chain.contains( "sslFilter" );
+    }
+
+    
+    public void rejectWithoutConfidentiality( IoSession session, ResultResponse resp ) 
+    {
+        LdapResult result = resp.getLdapResult();
+        result.setResultCode( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
+        result.setErrorMessage( "Confidentiality (TLS secured connection) is required." );
+        session.write( resp );
+        return;
+    }
 
 
     /**
@@ -74,6 +118,33 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     {
         LdapSession ldapSession = ldapServer.getLdapSession( session );
         ldapSession.setLdapServer( ldapServer );
+        
+        // protect against insecure conns when confidentiality is required 
+        if ( ! isConfidentialityRequirementSatisfied( session ) )
+        {
+            if ( message instanceof ExtendedRequest )
+            {
+                // Reject all extended operations except StartTls  
+                ExtendedRequest req = ( ExtendedRequest ) message;
+                if ( ! req.getID().equals( StartTlsHandler.EXTENSION_OID ) )
+                {
+                    rejectWithoutConfidentiality( session, req.getResultResponse() );
+                    return;
+                }
+                
+                // Allow StartTls extended operations to go through
+            }
+            else if ( message instanceof ResultResponseRequest )
+            {
+                // Reject all other operations that have a result response  
+                rejectWithoutConfidentiality( session, ( ( ResultResponseRequest ) message ).getResultResponse() );
+                return;
+            }
+            else // Just return from unbind, and abandon immediately
+            {
+                return;
+            }
+        }
 
         // We should check that the server allows anonymous requests
         // only if it's not a BindRequest

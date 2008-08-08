@@ -197,6 +197,12 @@ public class LdapServer extends DirectoryBackedService
     /** tracks start state of the server */
     private boolean started;
 
+    /** 
+     * Whether or not confidentiality (TLS secured connection) is required: 
+     * disabled by default. 
+     */
+    private boolean confidentialityRequired;
+
 
     /**
      * Creates an LDAP protocol provider.
@@ -528,6 +534,31 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
+    /**
+     * Sets the mode for this LdapServer to accept requests with or without a
+     * TLS secured connection via either StartTLS extended operations or using
+     * LDAPS.
+     * 
+     * @param confidentialityRequired true to require confidentiality
+     */
+    public void setConfidentialityRequired( boolean confidentialityRequired )
+    {
+        this.confidentialityRequired = confidentialityRequired;
+    }
+
+
+    /**
+     * Gets whether or not TLS secured connections are required to perform 
+     * operations on this LdapServer.
+     * 
+     * @return true if TLS secured connections are required, false otherwise
+     */
+    public boolean isConfidentialityRequired()
+    {
+        return confidentialityRequired;
+    }
+
+    
     /**
      * Returns <tt>true</tt> if LDAPS is enabled.
      *

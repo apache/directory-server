@@ -69,7 +69,7 @@ public class LdapsInitializer
         }
 
         DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();
-        chain.addLast( "SSL", new SSLFilter( sslCtx ) );
+        chain.addLast( "sslFilter", new SSLFilter( sslCtx ) );
         return chain;
     }
 }
