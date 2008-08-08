@@ -17,12 +17,12 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.operations.bind;
 
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Set;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -37,98 +37,141 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.annotations.Factory;
+import org.apache.directory.server.integ.LdapServerFactory;
+import org.apache.directory.server.integ.SiRunner;
+import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.SimpleMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.newldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.mina.util.AvailablePortFinder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
- * A set of miscellanous tests.
+ * A set of miscellaneous tests.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 682556 $
  */
-public class MiscTest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.CLASS )
+@Factory ( MiscBindIT.Factory.class )
+public class MiscBindIT
 {
-    /**
-     * Customizes setup for each test case.
-     *
-     * @throws Exception
-     */
-    @Before
-    public void setUp() throws Exception
+    public static LdapServer ldapServer;
+
+    
+    public static class Factory implements LdapServerFactory
     {
-        super.setUp();
-    }
+        public LdapServer newInstance() throws Exception
+        {
+            DirectoryService service = new DefaultDirectoryService();
+            IntegrationUtils.doDelete( service.getWorkingDirectory() );
+            service.getChangeLog().setEnabled( true );
+            service.setAllowAnonymousAccess( true );
+            service.setShutdownHookEnabled( false );
+
+            JdbmPartition apache = new JdbmPartition();
+            apache.setId( "apache" );
+
+            // @TODO need to make this configurable for the system partition
+            apache.setCacheSize( 500 );
+
+            apache.setSuffix( "dc=aPache,dc=org" );
 
 
-    @Override
-    protected void configureDirectoryService() throws NamingException
-    {
-        if ( this.getName().equals( "testDisableAnonymousBinds" ) ||
-            this.getName().equals( "testCompareWithoutAuthentication" ) ||
-            this.getName().equals( "testEnableAnonymousBindsOnRootDSE" ) )
-        {
-            directoryService.setAllowAnonymousAccess( false );
-        } 
-        else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
-        {
-            directoryService.setAllowAnonymousAccess( true );
-        }
-
-        if ( this.getName().equals( "testUserAuthOnMixedCaseSuffix" ) )
-        {
-            Set<Partition> partitions = new HashSet<Partition>();
-            partitions.addAll( directoryService.getPartitions() );
-            JdbmPartition partition = new JdbmPartition();
-            partition.setSuffix( "dc=aPache,dc=org" );
+            apache.setId( "apache" );
             
+            // Add context entry for system partition
             LdapDN apacheDn = new LdapDN( "dc=aPache,dc=org" );
-            ServerEntry serverEntry = new DefaultServerEntry( directoryService.getRegistries(), apacheDn );
+            ServerEntry serverEntry = new DefaultServerEntry( service.getRegistries(), apacheDn );
             serverEntry.put( "dc", "aPache" );
             serverEntry.put( "objectClass", "top", "domain" );
+            apache.setContextEntry( serverEntry );
+            service.addPartition( apache );
 
-            partition.setId( "apache" );
-            partition.setContextEntry( serverEntry );
-            Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
-            indexedAttributes.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
-            partition.setIndexedAttributes( indexedAttributes );
-            partitions.add( partition );
-            directoryService.setPartitions( partitions );
-        } 
-        else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
-        {
-            // create a partition to search
-            Set<Partition> partitions = new HashSet<Partition>();
-            partitions.addAll( directoryService.getPartitions() );
-            JdbmPartition partition = new JdbmPartition();
-            partition.setSuffix( "dc=apache,dc=org" );
+            // change the working directory to something that is unique
+            // on the system and somewhere either under target directory
+            // or somewhere in a temp area of the machine.
+
+            LdapServer ldapServer = new LdapServer();
+            ldapServer.setDirectoryService( service );
+            ldapServer.setSocketAcceptor( new SocketAcceptor( null ) );
+            ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+            ldapServer.setAllowAnonymousAccess( true );
+            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+
+            // Setup SASL Mechanisms
             
-            LdapDN apacheDn = new LdapDN( "dc=apache,dc=org" );
-            ServerEntry serverEntry = new DefaultServerEntry( directoryService.getRegistries(), apacheDn );
-            serverEntry.put( "dc", "apache" );
-            serverEntry.put( "objectClass", "top", "domain" );
-            
-            partition.setId( "apache" );
-            partition.setContextEntry( serverEntry );
-            Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
-            indexedAttributes.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
-            partition.setIndexedAttributes( indexedAttributes );
-            partitions.add( partition );
-            directoryService.setPartitions( partitions );
+            Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
+
+            CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
+
+            DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
+
+            GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
+
+            NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
+            mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
+            mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
+
+            ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
+
+            return ldapServer;
         }
+    }
+    
+    
+    
+    private boolean oldAnnonymousAccess;
+    
+    
+    @Before
+    public void recordAnnonymous() throws NamingException
+    {
+        oldAnnonymousAccess = ldapServer.getDirectoryService().isAllowAnonymousAccess();
+    }
+    
+    
+    @After
+    public void revertAnonnymous()
+    {
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( oldAnnonymousAccess );
+        ldapServer.setAllowAnonymousAccess( oldAnnonymousAccess );
     }
 
     
@@ -141,16 +184,17 @@ public class MiscTest extends AbstractServerTest
     @Test
     public void testDisableAnonymousBinds() throws Exception
     {
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
+        ldapServer.setAllowAnonymousAccess( false );
+        
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         InitialDirContext ic = null;
         final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() + "/ou=system" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
-        directoryService.setAllowAnonymousAccess( true );
-        
         boolean connected = false;
         while ( !connected )
         {
@@ -166,7 +210,7 @@ public class MiscTest extends AbstractServerTest
             }
         }
 
-        directoryService.setAllowAnonymousAccess( false );
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
         
         try
         {
@@ -202,12 +246,12 @@ public class MiscTest extends AbstractServerTest
     @Test
     public void testEnableAnonymousBindsOnRootDSE() throws Exception
     {
-        directoryService.setAllowAnonymousAccess( true );
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
 
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() + "/" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -240,12 +284,12 @@ public class MiscTest extends AbstractServerTest
     @Test
     public void testAnonymousBindsEnabledBaseSearch() throws Exception
     {
-        directoryService.setAllowAnonymousAccess( true );
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
 
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() + "/" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -277,13 +321,13 @@ public class MiscTest extends AbstractServerTest
     @Test
     public void testAdminAccessBug() throws Exception
     {
-        directoryService.setAllowAnonymousAccess( true );
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
 
         // Use the SUN JNDI provider to hit server port and bind as anonymous
 
         final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -318,11 +362,11 @@ public class MiscTest extends AbstractServerTest
     @Test
     public void testUserAuthOnMixedCaseSuffix() throws Exception
     {
-        directoryService.setAllowAnonymousAccess( true );
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
 
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/dc=aPache,dc=org" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() + "/dc=aPache,dc=org" );
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         InitialDirContext ctx = new InitialDirContext( env );
@@ -346,40 +390,6 @@ public class MiscTest extends AbstractServerTest
 
         InitialDirContext userCtx = new InitialDirContext( env );
         assertNotNull( userCtx );
-    }
-
-
-    /**
-     * Tests to make sure undefined attributes in filter assertions are pruned and do not
-     * result in exceptions.
-     */
-    @Test
-    public void testBogusAttributeInSearchFilter() throws Exception
-    {
-        directoryService.setAllowAnonymousAccess( true );
-
-        SearchControls cons = new SearchControls();
-        NamingEnumeration<SearchResult> e = sysRoot.search( "", "(bogusAttribute=abc123)", cons );
-        assertNotNull( e );
-        
-        e = sysRoot.search( "", "(!(bogusAttribute=abc123))", cons );
-        assertNotNull( e );
-        assertFalse( e.hasMore() );
-        
-        e = sysRoot.search( "", "(|(bogusAttribute=abc123)(bogusAttribute=abc123))", cons );
-        assertNotNull( e );
-        assertFalse( e.hasMore() );
-        
-        e = sysRoot.search( "", "(|(bogusAttribute=abc123)(ou=abc123))", cons );
-        assertNotNull( e );
-        assertFalse( e.hasMore() );
-
-        e = sysRoot.search( "", "(OBJECTclass=*)", cons );
-        assertNotNull( e );
-        assertTrue( e.hasMore() );
-
-        e = sysRoot.search( "", "(objectclass=*)", cons );
-        assertNotNull( e );
     }
 
 
@@ -441,11 +451,11 @@ public class MiscTest extends AbstractServerTest
             }
         };
         
-        directoryService.setAllowAnonymousAccess( true );
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
         
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() + "/ou=system" );
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );

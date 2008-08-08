@@ -361,6 +361,44 @@ public class SearchIT
     }
 
 
+    /**
+     * Tests to make sure undefined attributes in filter assertions are pruned and do not
+     * result in exceptions.
+     */
+    @Test
+    public void testBogusAttributeInSearchFilter() throws Exception
+    {
+        boolean oldSetAllowAnnonymousAccess = service.isAllowAnonymousAccess();
+        service.setAllowAnonymousAccess( true );
+
+        LdapContext sysRoot = getSystemContext( service );
+        SearchControls cons = new SearchControls();
+        NamingEnumeration<SearchResult> e = sysRoot.search( "", "(bogusAttribute=abc123)", cons );
+        assertNotNull( e );
+        
+        e = sysRoot.search( "", "(!(bogusAttribute=abc123))", cons );
+        assertNotNull( e );
+        assertFalse( e.hasMore() );
+        
+        e = sysRoot.search( "", "(|(bogusAttribute=abc123)(bogusAttribute=abc123))", cons );
+        assertNotNull( e );
+        assertFalse( e.hasMore() );
+        
+        e = sysRoot.search( "", "(|(bogusAttribute=abc123)(ou=abc123))", cons );
+        assertNotNull( e );
+        assertFalse( e.hasMore() );
+
+        e = sysRoot.search( "", "(OBJECTclass=*)", cons );
+        assertNotNull( e );
+        assertTrue( e.hasMore() );
+
+        e = sysRoot.search( "", "(objectclass=*)", cons );
+        assertNotNull( e );
+        
+        service.setAllowAnonymousAccess( oldSetAllowAnnonymousAccess );
+    }
+
+
     @Test
     public void testSearchFilterArgs() throws Exception
     {

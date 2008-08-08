@@ -87,6 +87,7 @@
             <include>**/*ISuite.java</include>
             <include>**/*IndexedNegationSearchIT.java</include>
             <include>**/*LdapsIT.java</include>
+            <include>**/*MiscBindIT.java</include>
           </includes>
         </configuration>
       </plugin>
