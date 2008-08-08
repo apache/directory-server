@@ -17,71 +17,52 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server;
+package org.apache.directory.server.operations.extended;
 
-
-import java.util.Hashtable;
 
 import javax.naming.CommunicationException;
 import javax.naming.NamingException;
 import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.unit.AbstractServerTest;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.integ.SiRunner;
+import org.apache.directory.server.newldap.LdapServer;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.fail;
 
 
 /**
- * Check the behaviour of the server for an unknown extended operation. Created
- * to demonstrate DIREVE-256 ("Extended operation causes client to hang.").
+ * Various extended operation tests.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 545029 $
  */
-public class UnknownExtendedOperationTest extends AbstractServerTest
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.SUITE )
+public class ExtendedIT 
 {
-    private LdapContext ctx = null;
-
-
-    /**
-     * Create context.
-     */
-    public void setUp() throws Exception
-    {
-        super.setUp();
-
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-
-        ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
-    }
-
-
-    /**
-     * Close context.
-     */
-    public void tearDown() throws Exception
-    {
-        ctx.close();
-        ctx = null;
-        super.tearDown();
-    }
-
+    public static LdapServer ldapServer;
+    
 
     /**
      * Calls an extended exception, which does not exist. Expected behaviour is
      * a CommunicationException.
+     * Check the behaviour of the server for an unknown extended operation. Created
+     * to demonstrate DIREVE-256 ("Extended operation causes client to hang.").
      * 
      * @throws NamingException 
      */
-    public void testUnknownExtendedOperation() throws NamingException
+    @Test
+    public void testUnknownExtendedOperation() throws Exception
     {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( "ou=system" );
         try
         {
             ctx.extendedOperation( new UnknownExtendedOperationRequest() );
@@ -93,6 +74,7 @@ public class UnknownExtendedOperationTest extends AbstractServerTest
         }
     }
 
+    
     /**
      * Class for the request of an extended operation which does not exist.
      */
