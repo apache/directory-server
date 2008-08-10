@@ -25,6 +25,7 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.newldap.LdapServer;
@@ -295,7 +296,7 @@ public class ApacheDS
 
         return  new LdapDN( fileSep + 
                 "=" + 
-                StringTools.dumpHexPairs( StringTools.getBytesUtf8( getCanonical( ldif ) ) ) +
+                StringTools.dumpHexPairs( StringTools.getBytesUtf8( getCanonical( ldif ) ) ) + 
                 "," + 
                 ServerDNConstants.LDIF_FILES_DN ); 
     }
@@ -342,8 +343,16 @@ public class ApacheDS
      */
     private void loadLdif( File ldifFile ) throws Exception
     {
-        ServerEntry fileEntry = directoryService.getAdminSession().lookup( buildProtectedFileEntryDn( ldifFile ) );
-
+        ClonedServerEntry fileEntry = null;
+        try
+        {
+            fileEntry = directoryService.getAdminSession().lookup( buildProtectedFileEntryDn( ldifFile ) );
+        }
+        catch( Exception e )
+        {
+            // if does not exist
+        }
+        
         if ( fileEntry != null )
         {
             String time = fileEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).getString();

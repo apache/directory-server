@@ -1,0 +1,94 @@
+/*
+ *   Licensed to the Apache Software Foundation (ASF) under one
+ *   or more contributor license agreements.  See the NOTICE file
+ *   distributed with this work for additional information
+ *   regarding copyright ownership.  The ASF licenses this file
+ *   to you under the Apache License, Version 2.0 (the
+ *   "License"); you may not use this file except in compliance
+ *   with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ *
+ */
+package org.apache.directory.server.configuration;
+
+
+import java.io.File;
+
+import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import junit.framework.TestCase;
+
+
+/**
+ * TODO ApacheDSTest.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
+public class ApacheDSTest extends TestCase
+{
+    private static final Logger LOG = LoggerFactory.getLogger( ApacheDSTest.class );
+    
+    
+    public void testLdifLoading() throws Exception
+    {
+        DirectoryService directoryService = new DefaultDirectoryService();
+        directoryService.setDenormalizeOpAttrsEnabled( true );
+        directoryService.setAllowAnonymousAccess( false );
+        directoryService.setExitVmOnShutdown( false );
+
+        JdbmPartition example = new JdbmPartition();
+        example.setId( "example" );
+        example.setSuffix( "dc=example,dc=com" );
+        LdapDN contextDn = new LdapDN( "dc=example,dc=com" );
+        contextDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        ServerEntry contextEntry = new DefaultServerEntry( directoryService.getRegistries(), contextDn );
+        contextEntry.add( "objectClass", "top", "domain" );
+        contextEntry.add( "dc", "example" );
+        example.setContextEntry( contextEntry );
+        directoryService.addPartition( example );
+        directoryService.startup();
+        
+        LdapServer ldapServer = new LdapServer();
+        ldapServer.setDirectoryService( directoryService );
+        ldapServer.setAllowAnonymousAccess( false );
+        ldapServer.setSocketAcceptor( new SocketAcceptor( null ) );
+        ldapServer.setEnabled( true );
+        ldapServer.setIpPort( 20389 );
+
+        ApacheDS ads = new ApacheDS( directoryService, ldapServer, null );
+        File f = new File( System.getProperty( "ldifFile" ) );
+        ads.setLdifDirectory( f );
+        
+        try
+        {
+            ads.startup();
+        }
+        catch ( Throwable t )
+        {
+            LOG.error( "Failed to start up ApacheDS!", t );
+        }
+        
+        LdapDN dn = new LdapDN( "uid=aeinstein,ou=Users,dc=example,dc=com" );
+        assertNotNull( directoryService.getAdminSession().lookup( dn ) );
+    }
+}
