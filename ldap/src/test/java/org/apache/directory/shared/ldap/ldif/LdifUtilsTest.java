@@ -19,9 +19,15 @@
  */
 package org.apache.directory.shared.ldap.ldif;
 
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -39,7 +45,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,15 +63,10 @@ public class LdifUtilsTest
     /**
      * Helper method to build a basic entry used by the Modify tests
      */
-    private Attributes buildEntry()
+    private Entry buildEntry()
     {
-        Attributes entry = new AttributesImpl();
-        
-        Attribute oc = new AttributeImpl( "objectclass" );
-        oc.add( "top" );
-        oc.add( "person" );
-        entry.put( oc );
-        
+        Entry entry = new DefaultClientEntry();
+        entry.put( "objectclass", "top", "person" );
         entry.put( "cn", "test" );
         entry.put( "sn", "joe doe" );
         entry.put( "l", "USA" );
@@ -352,10 +352,8 @@ public class LdifUtilsTest
         entry.setDn( "cn=Saarbr\u00FCcken, dc=example, dc=com" );
         entry.setChangeType( ChangeType.Add );
         
-        Attribute oc = new BasicAttribute( "objectClass" );
-        oc.add( "top" );
-        oc.add( "person" );
-        oc.add( "inetorgPerson" );
+        EntryAttribute oc = new DefaultClientAttribute( "objectClass" );
+        oc.add( "top", "person", "inetorgPerson" );
         
         entry.addAttribute( oc );
         
@@ -393,7 +391,7 @@ public class LdifUtilsTest
         attributes.put( "cn", "Saarbrucken" );
         attributes.put( "sn", "test" );
 
-        String ldif = LdifUtils.convertToLdif( attributes, 15 );
+        String ldif = LdifUtils.convertToLdif( attributes, (LdapDN)null, 15 );
         Attributes result = LdifUtils.convertAttributesFromLdif( ldif );
         assertEquals( attributes, result );
     }
@@ -411,9 +409,9 @@ public class LdifUtilsTest
         LdifEntry reversed = LdifUtils.reverseAdd( dn );
         
         assertNotNull( reversed );
-        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( dn.getUpName(), reversed.getDn().getUpName() );
         assertEquals( ChangeType.Delete, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
     }
 
 
@@ -428,9 +426,9 @@ public class LdifUtilsTest
         LdapDN dn = new LdapDN( "dc=Emmanuel L\u00c9charny" );
         LdifEntry reversed = LdifUtils.reverseAdd( dn );
         assertNotNull( reversed );
-        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( dn.getUpName(), reversed.getDn().getUpName() );
         assertEquals( ChangeType.Delete, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
     }
 
 
@@ -444,11 +442,10 @@ public class LdifUtilsTest
     {
         LdapDN dn = new LdapDN( "dc=apache, dc=com" );
         
-        Attributes deletedEntry = new AttributesImpl();
+        Entry deletedEntry = new DefaultClientEntry( dn );
         
-        Attribute oc = new AttributeImpl( "objectClass" );
-        oc.add( "top" );
-        oc.add( "person" );
+        EntryAttribute oc = new DefaultClientAttribute( "objectClass" );
+        oc.add( "top", "person" );
         
         deletedEntry.put( oc );
         
@@ -459,10 +456,10 @@ public class LdifUtilsTest
         LdifEntry reversed = LdifUtils.reverseDel( dn, deletedEntry );
         
         assertNotNull( reversed );
-        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( dn.getUpName(), reversed.getDn().getUpName() );
         assertEquals( ChangeType.Add, reversed.getChangeType() );
-        assertNotNull( reversed.getAttributes() );
-        assertEquals( deletedEntry, reversed.getAttributes() );
+        assertNotNull( reversed.getEntry() );
+        assertEquals( deletedEntry, reversed.getEntry() );
     }
     
     
@@ -487,12 +484,12 @@ public class LdifUtilsTest
         LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, null, dn, new Rdn( "cn=jack doe" ) );
 
         assertNotNull( reversed );
-        assertEquals( "cn=jack doe, dc=example, dc=com", reversed.getDn() );
+        assertEquals( "cn=jack doe, dc=example, dc=com", reversed.getDn().getUpName() );
         assertEquals( ChangeType.ModRdn, reversed.getChangeType() );
         assertTrue( reversed.isDeleteOldRdn() );
         assertEquals( "cn=john doe", reversed.getNewRdn() );
         assertNull( reversed.getNewSuperior() );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
     }
 
 
@@ -518,12 +515,12 @@ public class LdifUtilsTest
         LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, null, dn, new Rdn( "cn=jack doe" ) );
 
         assertNotNull( reversed );
-        assertEquals( "cn=jack doe, dc=example, dc=com", reversed.getDn() );
+        assertEquals( "cn=jack doe, dc=example, dc=com", reversed.getDn().getUpName() );
         assertEquals( ChangeType.ModRdn, reversed.getChangeType() );
         assertFalse( reversed.isDeleteOldRdn() );
         assertEquals( "cn=john doe", reversed.getNewRdn() );
         assertNull( reversed.getNewSuperior() );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
     }
 
 
@@ -556,12 +553,12 @@ public class LdifUtilsTest
         LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, new Rdn( "cn=jack doe" ) );
 
         assertNotNull( reversed );
-        assertEquals( "cn=jack doe,ou=system", reversed.getDn() );
+        assertEquals( "cn=jack doe,ou=system", reversed.getDn().getUpName() );
         assertEquals( ChangeType.ModRdn, reversed.getChangeType() );
         assertFalse( reversed.isDeleteOldRdn() );
         assertEquals( "cn=john doe", reversed.getNewRdn() );
         assertEquals( "dc=example, dc=com", StringTools.trim( reversed.getNewSuperior() ) );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
     }
 
 
@@ -586,12 +583,12 @@ public class LdifUtilsTest
         LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, null );
 
         assertNotNull( reversed );
-        assertEquals( "cn=john doe,ou=system", reversed.getDn() );
+        assertEquals( "cn=john doe,ou=system", reversed.getDn().getUpName() );
         assertEquals( ChangeType.ModDn, reversed.getChangeType() );
         assertFalse( reversed.isDeleteOldRdn() );
         assertNull( reversed.getNewRdn() );
         assertEquals( "dc=example, dc=com", StringTools.trim( reversed.getNewSuperior() ) );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
     }
 
 
@@ -615,12 +612,12 @@ public class LdifUtilsTest
         LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, new Rdn( "cn=jack doe" ) );
 
         assertNotNull( reversed );
-        assertEquals( "cn=jack doe,ou=system", reversed.getDn() );
+        assertEquals( "cn=jack doe,ou=system", reversed.getDn().getUpName() );
         assertEquals( ChangeType.ModRdn, reversed.getChangeType() );
         assertTrue( reversed.isDeleteOldRdn() );
         assertEquals( "cn=john doe", reversed.getNewRdn() );
         assertEquals( "dc=example, dc=com", StringTools.trim( reversed.getNewSuperior() ) );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
     }
 
     
@@ -631,39 +628,39 @@ public class LdifUtilsTest
     @Test
     public void testReverseModifyAddNewOuValue() throws NamingException
     {
-        Attributes modifiedEntry = buildEntry();
+        Entry modifiedEntry = buildEntry();
 
-        Attribute ou = new AttributeImpl( "ou" );
+        EntryAttribute ou = new DefaultClientAttribute( "ou" );
         ou.add( "apache" );
         ou.add( "acme corp" );
         modifiedEntry.put( ou );
         
         LdapDN dn = new LdapDN( "cn=test, ou=system" );
-        ModificationItemImpl mod = new ModificationItemImpl(
-            DirContext.ADD_ATTRIBUTE, 
-            new AttributeImpl( "ou", "BigCompany inc." ) );
+        Modification mod = new ClientModification(
+            ModificationOperation.ADD_ATTRIBUTE, 
+            new DefaultClientAttribute( "ou", "BigCompany inc." ) );
 
         LdifEntry reversed = LdifUtils.reverseModify( dn,
-                Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
+                Collections.<Modification>singletonList( mod ), modifiedEntry );
 
         assertNotNull( reversed );
-        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( dn.getUpName(), reversed.getDn().getUpName() );
         assertEquals( ChangeType.Modify, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
-        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        assertNull( reversed.getEntry() );
+        List<Modification> mods = reversed.getModificationItems();
         
         assertNotNull( mods );
         assertEquals( 1, mods.size() );
         
-        ModificationItemImpl modif = mods.get( 0 );
+        Modification modif = mods.get( 0 );
         
-        assertEquals( DirContext.REMOVE_ATTRIBUTE, modif.getModificationOp() );
+        assertEquals( ModificationOperation.REMOVE_ATTRIBUTE, modif.getOperation() );
 
-        Attribute attr = modif.getAttribute();
+        EntryAttribute attr = modif.getAttribute();
         
         assertNotNull( attr );
-        assertEquals( "ou", attr.getID() );
-        assertEquals( "BigCompany inc.", attr.get() );
+        assertEquals( "ou", attr.getId() );
+        assertEquals( "BigCompany inc.", attr.getString() );
     }
 
 
@@ -673,34 +670,34 @@ public class LdifUtilsTest
     @Test
     public void testReverseModifyAddNewOu() throws NamingException
     {
-        Attributes modifiedEntry = buildEntry();
+        Entry modifiedEntry = buildEntry();
         
         LdapDN dn = new LdapDN( "cn=test, ou=system" );
-        ModificationItemImpl mod = new ModificationItemImpl(
-            DirContext.ADD_ATTRIBUTE, 
-            new AttributeImpl( "ou", "BigCompany inc." ) );
+        Modification mod = new ClientModification(
+            ModificationOperation.ADD_ATTRIBUTE, 
+            new DefaultClientAttribute( "ou", "BigCompany inc." ) );
 
         LdifEntry reversed = LdifUtils.reverseModify( dn,
-                Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
+                Collections.<Modification>singletonList( mod ), modifiedEntry );
 
         assertNotNull( reversed );
-        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( dn.getUpName(), reversed.getDn().getUpName() );
         assertEquals( ChangeType.Modify, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
-        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        assertNull( reversed.getEntry() );
+        List<Modification> mods = reversed.getModificationItems();
         
         assertNotNull( mods );
         assertEquals( 1, mods.size() );
         
-        ModificationItemImpl modif = mods.get( 0 );
+        Modification modif = mods.get( 0 );
 
-        assertEquals( DirContext.REMOVE_ATTRIBUTE, modif.getModificationOp() );
+        assertEquals( ModificationOperation.REMOVE_ATTRIBUTE, modif.getOperation() );
 
-        Attribute attr = modif.getAttribute();
+        EntryAttribute attr = modif.getAttribute();
         
         assertNotNull( attr );
-        assertEquals( "ou", attr.getID() );
-        assertEquals( "BigCompany inc.", attr.get() );
+        assertEquals( "ou", attr.getId() );
+        assertEquals( "BigCompany inc.", attr.getString() );
     }
 
    
@@ -711,15 +708,15 @@ public class LdifUtilsTest
     @Ignore ( "This is just not a valid test since it leaves us with no reverse LDIF" )
     public void testReverseModifyAddExistingCnValue() throws NamingException
     {
-        Attributes modifiedEntry = buildEntry();
+        Entry modifiedEntry = buildEntry();
 
         LdapDN dn = new LdapDN( "cn=test, ou=system" );
-        ModificationItemImpl mod = new ModificationItemImpl(
-            DirContext.ADD_ATTRIBUTE,
-            new AttributeImpl( "cn", "test" ) );
+        Modification mod = new ClientModification(
+            ModificationOperation.ADD_ATTRIBUTE,
+            new DefaultClientAttribute( "cn", "test" ) );
 
         LdifEntry reversed = LdifUtils.reverseModify( dn,
-                Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
+                Collections.<Modification>singletonList( mod ), modifiedEntry );
 
         assertNull( reversed );
     }
@@ -731,42 +728,41 @@ public class LdifUtilsTest
     @Test
     public void testReverseModifyDelExistingOuValue() throws NamingException
     {
-        Attributes modifiedEntry = buildEntry();
+        Entry modifiedEntry = buildEntry();
         
-        Attribute ou = new AttributeImpl( "ou" );
-        ou.add( "apache" );
-        ou.add( "acme corp" );
+        EntryAttribute ou = new DefaultClientAttribute( "ou" );
+        ou.add( "apache", "acme corp" );
         modifiedEntry.put( ou );
 
         LdapDN dn = new LdapDN( "cn=test, ou=system" );
 
-        ModificationItemImpl mod = new ModificationItemImpl( 
-            DirContext.REMOVE_ATTRIBUTE, 
-            new AttributeImpl( "ou", "acme corp" ) );
+        Modification mod = new ClientModification( 
+            ModificationOperation.REMOVE_ATTRIBUTE, 
+            new DefaultClientAttribute( "ou", "acme corp" ) );
 
         LdifEntry reversed = LdifUtils.reverseModify( dn,
-                Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
+                Collections.<Modification>singletonList( mod ), modifiedEntry );
 
         assertNotNull( reversed );
-        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( dn.getUpName(), reversed.getDn().getUpName() );
         assertEquals( ChangeType.Modify, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
         
-        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        List<Modification> mods = reversed.getModificationItems();
         
         assertNotNull( mods );
         assertEquals( 1, mods.size() );
         
-        ModificationItemImpl modif = mods.get( 0 );
+        Modification modif = mods.get( 0 );
         
-        assertEquals( DirContext.ADD_ATTRIBUTE, modif.getModificationOp() );
+        assertEquals( ModificationOperation.ADD_ATTRIBUTE, modif.getOperation() );
 
-        Attribute attr = modif.getAttribute();
+        EntryAttribute attr = modif.getAttribute();
         
         assertNotNull( attr );
 
-        Attribute addedAttr = new AttributeImpl( "ou", "acme corp" );
-        assertEquals( addedAttr, attr );
+        assertEquals( "ou", attr.getId() );
+        assertEquals( "acme corp", attr.getString() );
     }
 
 
@@ -776,41 +772,40 @@ public class LdifUtilsTest
     @Test
     public void testReverseModifyDeleteOU() throws NamingException
     {
-        Attributes modifiedEntry = buildEntry();
+        Entry modifiedEntry = buildEntry();
         
-        Attribute ou = new AttributeImpl( "ou" );
-        ou.add( "apache" );
-        ou.add( "acme corp" );
+        EntryAttribute ou = new DefaultClientAttribute( "ou" );
+        ou.add( "apache", "acme corp" );
         modifiedEntry.put( ou );
 
         LdapDN dn = new LdapDN( "cn=test, ou=system" );
 
-        ModificationItemImpl mod = new ModificationItemImpl(
-            DirContext.REMOVE_ATTRIBUTE, 
-            new AttributeImpl( "ou" ) );
+        Modification mod = new ClientModification(
+            ModificationOperation.REMOVE_ATTRIBUTE, 
+            new DefaultClientAttribute( "ou" ) );
 
         LdifEntry reversed = LdifUtils.reverseModify( dn,
-                Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
+                Collections.<Modification>singletonList( mod ), modifiedEntry );
 
 
         assertNotNull( reversed );
-        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( dn.getUpName(), reversed.getDn().getUpName() );
         assertEquals( ChangeType.Modify, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
         
-        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        List<Modification> mods = reversed.getModificationItems();
         
         assertNotNull( mods );
         assertEquals( 1, mods.size() );
         
-        ModificationItemImpl modif = mods.get( 0 );
+        Modification modif = mods.get( 0 );
         
-        assertEquals( DirContext.ADD_ATTRIBUTE, modif.getModificationOp() );
+        assertEquals( ModificationOperation.ADD_ATTRIBUTE, modif.getOperation() );
 
-        Attribute attr = modif.getAttribute();
+        EntryAttribute attr = modif.getAttribute();
         
         assertNotNull( attr );
-        assertEquals( "ou", attr.getID() );
+        assertEquals( "ou", attr.getId() );
         
         assertEquals( ou, attr );
     }
@@ -822,40 +817,38 @@ public class LdifUtilsTest
     @Test
     public void testReverseModifyDelExistingOuWithAllValues() throws NamingException
     {
-        Attributes modifiedEntry = buildEntry();
+        Entry modifiedEntry = buildEntry();
 
-        Attribute ou = new AttributeImpl( "ou" );
-        ou.add( "apache" );
-        ou.add( "acme corp" );
+        EntryAttribute ou = new DefaultClientAttribute( "ou", "apache", "acme corp" );
         modifiedEntry.put( ou );
         
         LdapDN dn = new LdapDN( "cn=test, ou=system" );
         
-        ModificationItemImpl mod = new ModificationItemImpl(
-            DirContext.REMOVE_ATTRIBUTE, ou );
+        Modification mod = new ClientModification(
+            ModificationOperation.REMOVE_ATTRIBUTE, ou );
 
         LdifEntry reversed = LdifUtils.reverseModify( dn, 
-                Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
+                Collections.<Modification>singletonList( mod ), modifiedEntry );
 
 
         assertNotNull( reversed );
-        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( dn.getUpName(), reversed.getDn().getUpName() );
         assertEquals( ChangeType.Modify, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
         
-        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        List<Modification> mods = reversed.getModificationItems();
         
         assertNotNull( mods );
         assertEquals( 1, mods.size() );
         
-        ModificationItemImpl modif = mods.get( 0 );
+        Modification modif = mods.get( 0 );
         
-        assertEquals( DirContext.ADD_ATTRIBUTE, modif.getModificationOp() );
+        assertEquals( ModificationOperation.ADD_ATTRIBUTE, modif.getOperation() );
 
-        Attribute attr = modif.getAttribute();
+        EntryAttribute attr = modif.getAttribute();
         
         assertNotNull( attr );
-        assertEquals( "ou", attr.getID() );
+        assertEquals( "ou", attr.getId() );
         
         assertEquals( ou, attr );
     }
@@ -867,42 +860,41 @@ public class LdifUtilsTest
     @Test
     public void testReverseModifyReplaceExistingOuValues() throws NamingException
     {
-        Attributes modifiedEntry = buildEntry();
+        Entry modifiedEntry = buildEntry();
         
-        Attribute ou = new AttributeImpl( "ou" );
-        ou.add( "apache" );
-        ou.add( "acme corp" );
+        EntryAttribute ou = new DefaultClientAttribute( "ou" );
+        ou.add( "apache", "acme corp" );
         modifiedEntry.put( ou );
 
         LdapDN dn = new LdapDN( "cn=test, ou=system" );
 
-        Attribute ouModified = new AttributeImpl( "ou" );
+        EntryAttribute ouModified = new DefaultClientAttribute( "ou" );
         ouModified.add( "directory" );
         ouModified.add( "BigCompany inc." );
         
-        ModificationItemImpl mod = new ModificationItemImpl(
-            DirContext.REPLACE_ATTRIBUTE, ouModified );
+        Modification mod = new ClientModification(
+            ModificationOperation.REPLACE_ATTRIBUTE, ouModified );
 
         LdifEntry reversed = LdifUtils.reverseModify( dn,
-                Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
+                Collections.<Modification>singletonList( mod ), modifiedEntry );
 
 
 
         assertNotNull( reversed );
-        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( dn.getUpName(), reversed.getDn().getUpName() );
         assertEquals( ChangeType.Modify, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
         
-        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        List<Modification> mods = reversed.getModificationItems();
         
         assertNotNull( mods );
         assertEquals( 1, mods.size() );
         
-        ModificationItemImpl modif = mods.get( 0 );
+        Modification modif = mods.get( 0 );
         
-        assertEquals( DirContext.REPLACE_ATTRIBUTE, modif.getModificationOp() );
+        assertEquals( ModificationOperation.REPLACE_ATTRIBUTE, modif.getOperation() );
 
-        Attribute attr = modif.getAttribute();
+        EntryAttribute attr = modif.getAttribute();
         
         assertNotNull( attr );
         assertEquals( ou, attr );
@@ -915,39 +907,39 @@ public class LdifUtilsTest
     @Test
     public void testReverseModifyReplaceNewAttribute() throws NamingException
     {
-        Attributes modifiedEntry = buildEntry();
+        Entry modifiedEntry = buildEntry();
         
         LdapDN dn = new LdapDN( "cn=test, ou=system" );
         
-        Attribute newOu = new AttributeImpl( "ou" );
+        EntryAttribute newOu = new DefaultClientAttribute( "ou" );
         newOu.add( "apache" );
         newOu.add( "acme corp" );
 
         
-        ModificationItemImpl mod = new ModificationItemImpl(
-            DirContext.REPLACE_ATTRIBUTE, newOu );
+        Modification mod = new ClientModification(
+            ModificationOperation.REPLACE_ATTRIBUTE, newOu );
 
         LdifEntry reversed = LdifUtils.reverseModify( dn,
-                Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
+                Collections.<Modification>singletonList( mod ), modifiedEntry );
 
         assertNotNull( reversed );
-        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( dn.getUpName(), reversed.getDn().getUpName() );
         assertEquals( ChangeType.Modify, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
         
-        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        List<Modification> mods = reversed.getModificationItems();
         
         assertNotNull( mods );
         assertEquals( 1, mods.size() );
         
-        ModificationItemImpl modif = mods.get( 0 );
+        Modification modif = mods.get( 0 );
         
-        assertEquals( DirContext.REPLACE_ATTRIBUTE, modif.getModificationOp() );
+        assertEquals( ModificationOperation.REPLACE_ATTRIBUTE, modif.getOperation() );
 
-        Attribute attr = modif.getAttribute();
+        EntryAttribute attr = modif.getAttribute();
         
         assertNotNull( attr );
-        assertEquals( "ou", attr.getID() );
+        assertEquals( "ou", attr.getId() );
         
         assertNull( attr.get() );
     }
@@ -959,39 +951,39 @@ public class LdifUtilsTest
     @Test
     public void testReverseModifyReplaceExistingOuWithNothing() throws NamingException
     {
-        Attributes modifiedEntry = buildEntry();
+        Entry modifiedEntry = buildEntry();
 
-        Attribute ou = new AttributeImpl( "ou" );
+        EntryAttribute ou = new DefaultClientAttribute( "ou" );
         ou.add( "apache" );
         ou.add( "acme corp" );
         modifiedEntry.put( ou );
         
         LdapDN dn = new LdapDN( "cn=test, ou=system" );
         
-        ModificationItemImpl mod = new ModificationItemImpl( 
-            DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "ou" ) );
+        Modification mod = new ClientModification( 
+            ModificationOperation.REPLACE_ATTRIBUTE, new DefaultClientAttribute( "ou" ) );
 
         LdifEntry reversed = LdifUtils.reverseModify( dn,
-                Collections.<ModificationItemImpl>singletonList( mod ), modifiedEntry );
+                Collections.<Modification>singletonList( mod ), modifiedEntry );
 
         assertNotNull( reversed );
-        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( dn.getUpName(), reversed.getDn().getUpName() );
         assertEquals( ChangeType.Modify, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
+        assertNull( reversed.getEntry() );
         
-        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        List<Modification> mods = reversed.getModificationItems();
         
         assertNotNull( mods );
         assertEquals( 1, mods.size() );
         
-        ModificationItemImpl modif = mods.get( 0 );
+        Modification modif = mods.get( 0 );
         
-        assertEquals( DirContext.REPLACE_ATTRIBUTE, modif.getModificationOp() );
+        assertEquals( ModificationOperation.REPLACE_ATTRIBUTE, modif.getOperation() );
 
-        Attribute attr = modif.getAttribute();
+        EntryAttribute attr = modif.getAttribute();
         
         assertNotNull( attr );
-        assertEquals( "ou", attr.getID() );
+        assertEquals( "ou", attr.getId() );
         
         assertEquals( ou, attr );
     }
@@ -1093,35 +1085,35 @@ public class LdifUtilsTest
         //   - replace the 'ou' attribute with 'apache' value.
         LdapDN dn = new LdapDN( "cn=test, ou=system" );
         
-        List<ModificationItemImpl> modifications = new ArrayList<ModificationItemImpl>();
+        List<Modification> modifications = new ArrayList<Modification>();
 
         // First, inject the 'ou'
         
-        ModificationItemImpl mod = new ModificationItemImpl( 
-            DirContext.ADD_ATTRIBUTE, new AttributeImpl( "ou", "BigCompany inc." ) );
+        Modification mod = new ClientModification( 
+            ModificationOperation.ADD_ATTRIBUTE, new DefaultClientAttribute( "ou", "BigCompany inc." ) );
         modifications.add( mod );
 
         // Remove the 'l'
-        mod = new ModificationItemImpl(
-            DirContext.REMOVE_ATTRIBUTE, new AttributeImpl( "l" ) );
+        mod = new ClientModification(
+            ModificationOperation.REMOVE_ATTRIBUTE, new DefaultClientAttribute( "l" ) );
         modifications.add( mod );
         
         // Add 'l=FR'
-        mod = new ModificationItemImpl( 
-            DirContext.ADD_ATTRIBUTE, new AttributeImpl( "l", "FR" ) );
+        mod = new ClientModification( 
+            ModificationOperation.ADD_ATTRIBUTE, new DefaultClientAttribute( "l", "FR" ) );
         modifications.add( mod );
 
         // Replace it with 'l=USA'
-        mod = new ModificationItemImpl( 
-            DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "l", "USA" ) );
+        mod = new ClientModification( 
+            ModificationOperation.REPLACE_ATTRIBUTE, new DefaultClientAttribute( "l", "USA" ) );
         modifications.add( mod );
 
         // Replace the ou value
-        mod = new ModificationItemImpl( 
-            DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "ou", "apache" ) );
+        mod = new ClientModification( 
+            ModificationOperation.REPLACE_ATTRIBUTE, new DefaultClientAttribute( "ou", "apache" ) );
         modifications.add( mod );
         
-        LdifEntry reversedEntry = LdifUtils.reverseModify( dn, modifications, initialEntry.getAttributes() );
+        LdifEntry reversedEntry = LdifUtils.reverseModify( dn, modifications, initialEntry.getEntry() );
 
         String expectedEntryLdif = 
             "dn: cn=test, ou=system\n" +

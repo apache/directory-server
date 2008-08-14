@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
@@ -147,17 +147,17 @@ public abstract class SchemaElementImpl implements SchemaElement
         }
         else
         {
-            Attributes attributes = new AttributesImpl();
-            Attribute attribute = new AttributeImpl( "m-name" );
+            Entry entry = new DefaultClientEntry();
+            EntryAttribute attribute = new DefaultClientAttribute( "m-name" );
             
             for ( String name:names )
             {
                 attribute.add( name );
             }
             
-            attributes.put( attribute );
+            entry.put( attribute );
             
-            return LdifUtils.convertToLdif( attributes );
+            return LdifUtils.convertToLdif( entry );
         }
     }
     
@@ -172,11 +172,12 @@ public abstract class SchemaElementImpl implements SchemaElement
         }
         else
         {
-            Attributes attributes = new AttributesImpl();
-            Attribute attribute = new AttributeImpl( "m-description", description );
-            attributes.put( attribute );
+            Entry entry = new DefaultClientEntry();
+            EntryAttribute attribute = new DefaultClientAttribute( "m-description", description );
+
+            entry.put( attribute );
             
-            return LdifUtils.convertToLdif( attributes );
+            return LdifUtils.convertToLdif( entry );
         }
     }
     
@@ -197,15 +198,15 @@ public abstract class SchemaElementImpl implements SchemaElement
     {
         StringBuilder sb = new StringBuilder();
         
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( ID ); 
+        Entry entry = new DefaultClientEntry();
+        EntryAttribute attribute = new DefaultClientAttribute( ID ); 
 
         for ( String extension:extensions )
         {
             attribute.add( extension );
         }
 
-        sb.append( LdifUtils.convertToLdif( attributes ) );
+        sb.append( LdifUtils.convertToLdif( entry ) );
         
         return sb.toString();
     }

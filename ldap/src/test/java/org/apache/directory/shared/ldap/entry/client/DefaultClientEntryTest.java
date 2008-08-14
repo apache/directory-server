@@ -26,10 +26,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.InvalidNameException;
@@ -39,6 +46,9 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -54,6 +64,7 @@ public class DefaultClientEntryTest
     private static final byte[] BYTES1 = new byte[]{ 'a', 'b' };
     private static final byte[] BYTES2 = new byte[]{ 'b' };
     private static final byte[] BYTES3 = new byte[]{ 'c' };
+    private static Map<String, OidNormalizer> oids;
     
     
     /**
@@ -81,6 +92,81 @@ public class DefaultClientEntryTest
         }
     }
 
+
+    /**
+     * Serialize a ClientEntry
+     */
+    private ByteArrayOutputStream serializeValue( ClientEntry value ) throws IOException
+    {
+        ObjectOutputStream oOut = null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try
+        {
+            oOut = new ObjectOutputStream( out );
+            oOut.writeObject( value );
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oOut != null )
+                {
+                    oOut.flush();
+                    oOut.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+        
+        return out;
+    }
+    
+    
+    /**
+     * Deserialize a ClientEntry
+     */
+    private ClientEntry deserializeValue( ByteArrayOutputStream out ) throws IOException, ClassNotFoundException
+    {
+        ObjectInputStream oIn = null;
+        ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
+
+        try
+        {
+            oIn = new ObjectInputStream( in );
+
+            ClientEntry value = ( ClientEntry ) oIn.readObject();
+
+            return value;
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oIn != null )
+                {
+                    oIn.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+    }
+
+    
     /**
      * @throws java.lang.Exception
      */
@@ -88,6 +174,16 @@ public class DefaultClientEntryTest
     public static void setUpBeforeClass() throws Exception
     {
         EXAMPLE_DN = new LdapDN( "dc=example,dc=com" );
+
+        oids = new HashMap<String, OidNormalizer>();
+
+        oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
+
+        oids.put( "ou", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+        oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
     }
 
 
@@ -100,7 +196,7 @@ public class DefaultClientEntryTest
         Entry entry = new DefaultClientEntry();
         
         assertNotNull( entry );
-        assertNull( entry.getDn() );
+        assertEquals( LdapDN.EMPTY_LDAPDN, entry.getDn() );
         assertEquals( 0, entry.size() );
     }
 
@@ -360,7 +456,7 @@ public class DefaultClientEntryTest
         assertEquals( entry1, entry2 );
         entry2.setDn( EXAMPLE_DN );
         
-        assertNull( entry1.getDn() );
+        assertEquals( LdapDN.EMPTY_LDAPDN, entry1.getDn() );
         
         entry1.setDn( EXAMPLE_DN );
         entry2 = entry1.clone();
@@ -1095,7 +1191,7 @@ public class DefaultClientEntryTest
     {
         Entry entry = new DefaultClientEntry();
         
-        assertNull( entry.getDn() );
+        assertEquals( LdapDN.EMPTY_LDAPDN, entry.getDn() );
         
         entry.setDn( EXAMPLE_DN );
         assertEquals( EXAMPLE_DN, entry.getDn() );
@@ -1155,4 +1251,78 @@ public class DefaultClientEntryTest
 
         assertEquals( expected, entry.toString() );
     }
+    
+    
+    /**
+     * Test the serialization of a complete entry
+     */
+    @Test
+    public void testSerializeCompleteEntry() throws NamingException, IOException, ClassNotFoundException
+    {
+        LdapDN dn = new LdapDN( "ou=system" );
+        
+        dn.normalize( oids );
+        
+        byte[] password = StringTools.getBytesUtf8( "secret" );
+        ClientEntry entry = new DefaultClientEntry( dn);
+        entry.add( "ObjectClass", "top", "person" );
+        entry.add( "cn", "test1" );
+        entry.add( "userPassword", password );
+
+        ClientEntry entrySer = deserializeValue( serializeValue( entry ) );
+        
+        assertEquals( entry, entrySer );
+    }
+    
+    
+    /**
+     * Test the serialization of an entry with no DN
+     */
+    @Test
+    public void testSerializeEntryWithNoDN() throws NamingException, IOException, ClassNotFoundException
+    {
+        byte[] password = StringTools.getBytesUtf8( "secret" );
+        ClientEntry entry = new DefaultClientEntry();
+        entry.add( "ObjectClass", "top", "person" );
+        entry.add( "cn", "test1" );
+        entry.add( "userPassword", password );
+
+        ClientEntry entrySer = deserializeValue( serializeValue( entry ) );
+        
+        assertEquals( entry, entrySer );
+    }
+    
+    
+    /**
+     * Test the serialization of an entry with no attribute and no DN
+     */
+    @Test
+    public void testSerializeEntryWithNoDNNoAttribute() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientEntry entry = new DefaultClientEntry();
+
+        ClientEntry entrySer = deserializeValue( serializeValue( entry ) );
+        
+        assertEquals( entry, entrySer );
+    }
+    
+    
+    /**
+     * Test the serialization of an entry with no attribute
+     */
+    @Test
+    public void testSerializeEntryWithNoAttribute() throws NamingException, IOException, ClassNotFoundException
+    {
+        LdapDN dn = new LdapDN( "ou=system" );
+        
+        dn.normalize( oids );
+        
+        ClientEntry entry = new DefaultClientEntry( dn );
+
+        ClientEntry entrySer = deserializeValue( serializeValue( entry ) );
+        
+        assertEquals( entry, entrySer );
+    }
+    
+    
 }

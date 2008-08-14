@@ -19,6 +19,9 @@
 package org.apache.directory.shared.ldap.entry.client;
 
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -1358,5 +1361,78 @@ public class DefaultClientAttribute implements ClientAttribute
         }
         
         return sb.toString();
+    }
+
+
+    /**
+     * @see Externalizable#writeExternal(ObjectOutput)
+     * <p>
+     * 
+     * This is the place where we serialize attributes, and all theirs
+     * elements. 
+     * 
+     * The inner structure is :
+     * 
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        // Write the UPId (the id will be deduced from the upID)
+        out.writeUTF( upId );
+        
+        // Write the HR flag, if not null
+        if ( isHR != null )
+        {
+            out.writeBoolean( true );
+            out.writeBoolean( isHR );
+        }
+        else
+        {
+            out.writeBoolean( false );
+        }
+        
+        // Write the number of values
+        out.writeInt( size() );
+        
+        if ( size() > 0 ) 
+        {
+            // Write each value
+            for ( Value<?> value:values )
+            {
+                // Write the value
+                out.writeObject( value );
+            }
+        }
+        
+        out.flush();
+    }
+
+    
+    /**
+     * @see Externalizable#readExternal(ObjectInput)
+     */
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        // Read the ID and the UPId
+        upId = in.readUTF();
+        
+        // Compute the id
+        setUpId( upId );
+        
+        // Read the HR flag, if not null
+        if ( in.readBoolean() )
+        {
+            isHR = in.readBoolean();
+        }
+
+        // Read the number of values
+        int nbValues = in.readInt();
+
+        if ( nbValues > 0 )
+        {
+            for ( int i = 0; i < nbValues; i++ )
+            {
+                values.add( (Value<?>)in.readObject() );
+            }
+        }
     }
 }

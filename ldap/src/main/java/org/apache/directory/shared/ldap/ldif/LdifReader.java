@@ -47,7 +47,10 @@ import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.primitives.OID;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.LdapDnParser;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.Base64;
@@ -985,7 +988,7 @@ public class LdifReader implements Iterable<LdifEntry>
         int state = MOD_SPEC;
         String modified = null;
         int modificationType = 0;
-        Attribute attribute = null;
+        EntryAttribute attribute = null;
 
         // The following flag is used to deal with empty modifications
         boolean isEmptyValue = true;
@@ -1030,7 +1033,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
                 modified = StringTools.trim( line.substring( "add:".length() ) );
                 modificationType = DirContext.ADD_ATTRIBUTE;
-                attribute = new AttributeImpl( modified );
+                attribute = new DefaultClientAttribute( modified );
 
                 state = ATTRVAL_SPEC;
             }
@@ -1044,7 +1047,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
                 modified = StringTools.trim( line.substring( "delete:".length() ) );
                 modificationType = DirContext.REMOVE_ATTRIBUTE;
-                attribute = new AttributeImpl( modified );
+                attribute = new DefaultClientAttribute( modified );
 
                 state = ATTRVAL_SPEC_OR_SEP;
             }
@@ -1058,7 +1061,7 @@ public class LdifReader implements Iterable<LdifEntry>
 
                 modified = StringTools.trim( line.substring( "replace:".length() ) );
                 modificationType = DirContext.REPLACE_ATTRIBUTE;
-                attribute = new AttributeImpl( modified );
+                attribute = new DefaultClientAttribute( modified );
 
                 state = ATTRVAL_SPEC_OR_SEP;
             }
@@ -1090,7 +1093,14 @@ public class LdifReader implements Iterable<LdifEntry>
 
                 Object attributeValue = parseValue( line, colonIndex );
 
-                attribute.add( attributeValue );
+                if ( attributeValue instanceof String )
+                {
+                    attribute.add( (String)attributeValue );
+                }
+                else
+                {
+                    attribute.add( (byte[])attributeValue );
+                }
                 
                 isEmptyValue = false;
 
@@ -1221,7 +1231,9 @@ public class LdifReader implements Iterable<LdifEntry>
         // The entry must start with a dn: or a dn::
         String line = lines.get( 0 );
 
-        String dn = parseDn( line );
+        String name = parseDn( line );
+        
+        LdapDN dn = new LdapDN( name );
 
         // Ok, we have found a DN
         LdifEntry entry = new LdifEntry();

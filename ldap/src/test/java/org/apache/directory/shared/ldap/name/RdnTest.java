@@ -924,15 +924,14 @@ public class RdnTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        rdn.writeExternal( out );
+        out.writeObject( rdn );
 
         ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
         in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        Rdn rdn2 = new Rdn();
-        rdn2.readExternal( in );
+        Rdn rdn2 = (Rdn)in.readObject();
 
         assertEquals( rdn, rdn2 );
     }
@@ -948,15 +947,14 @@ public class RdnTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        rdn.writeExternal( out );
+        out.writeObject( rdn );
 
         ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
         in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        Rdn rdn2 = new Rdn();
-        rdn2.readExternal( in );
+        Rdn rdn2 = (Rdn)in.readObject();
 
         assertEquals( rdn, rdn2 );
     }
@@ -974,15 +972,14 @@ public class RdnTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        rdn.writeExternal( out );
+        out.writeObject( rdn );
 
         ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
         in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        Rdn rdn2 = new Rdn();
-        rdn2.readExternal( in );
+        Rdn rdn2 = (Rdn)in.readObject();
 
         assertEquals( rdn, rdn2 );
     }
@@ -1000,15 +997,14 @@ public class RdnTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        rdn.writeExternal( out );
+        out.writeObject( rdn );
 
         ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
         in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        Rdn rdn2 = new Rdn();
-        rdn2.readExternal( in );
+        Rdn rdn2 = (Rdn)in.readObject();
 
         assertEquals( rdn, rdn2 );
     }
@@ -1026,15 +1022,14 @@ public class RdnTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        rdn.writeExternal( out );
+        out.writeObject( rdn );
 
         ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
         in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        Rdn rdn2 = new Rdn();
-        rdn2.readExternal( in );
+        Rdn rdn2 = (Rdn)in.readObject();
 
         assertEquals( rdn, rdn2 );
     }
@@ -1052,15 +1047,14 @@ public class RdnTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        rdn.writeExternal( out );
+        out.writeObject( rdn );
 
         ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
         in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        Rdn rdn2 = new Rdn();
-        rdn2.readExternal( in );
+        Rdn rdn2 = (Rdn)in.readObject();
 
         assertEquals( rdn, rdn2 );
     }
@@ -1078,15 +1072,14 @@ public class RdnTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        rdn.writeExternal( out );
+        out.writeObject( rdn );
 
         ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
         in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        Rdn rdn2 = new Rdn();
-        rdn2.readExternal( in );
+        Rdn rdn2 = (Rdn)in.readObject();
 
         assertEquals( rdn, rdn2 );
     }
@@ -1105,15 +1098,14 @@ public class RdnTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        rdn.writeExternal( out );
+        out.writeObject( rdn );
 
         ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
         in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        Rdn rdn2 = new Rdn();
-        rdn2.readExternal( in );
+        Rdn rdn2 = (Rdn)in.readObject();
 
         assertEquals( rdn, rdn2 );
     }

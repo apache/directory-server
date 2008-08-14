@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.entry;
 
+import java.io.Externalizable;
+
 /**
  * An internal interface for a ModificationItem. The name has been
  * chosen so that it does not conflict with @see ModificationItem
@@ -26,7 +28,7 @@ package org.apache.directory.shared.ldap.entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Modification extends Cloneable
+public interface Modification extends Cloneable, Externalizable
 {
     /**
      *  @return the operation
@@ -66,9 +68,8 @@ public interface Modification extends Cloneable
     
     /**
      * The clone operation
-     * TODO clone.
      *
-     * @return
+     * @return a clone of the current modification
      */
     Modification clone();
 }

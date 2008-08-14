@@ -260,15 +260,14 @@ public class AttributeTypeAndValueTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        atav.writeExternal( out );
+        out.writeObject( atav );
 
         ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
         in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        AttributeTypeAndValue atav2 = new AttributeTypeAndValue();
-        atav2.readExternal( in );
+        AttributeTypeAndValue atav2 = (AttributeTypeAndValue)in.readObject();
 
         assertEquals( atav, atav2 );
     }
@@ -287,15 +286,14 @@ public class AttributeTypeAndValueTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        atav.writeExternal( out );
+        out.writeObject( atav );
 
         ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
         in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        AttributeTypeAndValue atav2 = new AttributeTypeAndValue();
-        atav2.readExternal( in );
+        AttributeTypeAndValue atav2 = (AttributeTypeAndValue)in.readObject();
 
         assertEquals( atav, atav2 );
     }
@@ -314,7 +312,7 @@ public class AttributeTypeAndValueTest
 
         try
         {
-            atav.writeExternal( out );
+            out.writeObject( atav );
             fail();
         }
         catch ( IOException ioe )
@@ -334,7 +332,7 @@ public class AttributeTypeAndValueTest
 
         try
         {
-            atav.writeExternal( out );
+            out.writeObject( atav );
             fail();
         }
         catch ( IOException ioe )
@@ -355,7 +353,7 @@ public class AttributeTypeAndValueTest
 
         try
         {
-            atav.writeExternal( out );
+            out.writeObject( atav );
             fail();
         }
         catch ( IOException ioe )
@@ -374,15 +372,14 @@ public class AttributeTypeAndValueTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        atav.writeExternal( out );
+        out.writeObject( atav );
 
         ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
         in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        AttributeTypeAndValue atav2 = new AttributeTypeAndValue();
-        atav2.readExternal( in );
+        AttributeTypeAndValue atav2 = (AttributeTypeAndValue)in.readObject();
 
         assertEquals( atav, atav2 );
     }
@@ -396,15 +393,14 @@ public class AttributeTypeAndValueTest
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
-        atav.writeExternal( out );
+        out.writeObject( atav );
 
         ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
         in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        AttributeTypeAndValue atav2 = new AttributeTypeAndValue();
-        atav2.readExternal( in );
+        AttributeTypeAndValue atav2 = (AttributeTypeAndValue)in.readObject();
 
         assertEquals( atav, atav2 );
     }

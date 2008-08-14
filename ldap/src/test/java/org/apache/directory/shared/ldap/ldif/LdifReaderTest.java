@@ -29,13 +29,13 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
 import javax.naming.ldap.Control;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
@@ -174,9 +174,9 @@ public class LdifReaderTest extends TestCase
 
         assertTrue( entry.isChangeAdd() );
 
-        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
+        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn().getUpName() );
 
-        Attribute attr = entry.get( "displayname" );
+        EntryAttribute attr = entry.get( "displayname" );
         assertTrue( attr.contains( "app1" ) );
     }
 
@@ -227,9 +227,9 @@ public class LdifReaderTest extends TestCase
 
         assertTrue( entry.isChangeAdd() );
 
-        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
+        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn().getUpName() );
 
-        Attribute attr = entry.get( "displayname" );
+        EntryAttribute attr = entry.get( "displayname" );
         assertTrue( attr.contains( "app1" ) );
 
     }
@@ -271,13 +271,13 @@ public class LdifReaderTest extends TestCase
 
         assertTrue( entry.isChangeModify() );
 
-        assertEquals( "dc=example,dc=com", entry.getDn() );
+        assertEquals( "dc=example,dc=com", entry.getDn().getUpName() );
 
-        List<ModificationItemImpl> mods = entry.getModificationItems( );
+        List<Modification> mods = entry.getModificationItems( );
         assertTrue( mods.size() == 1 );
-        Attribute attr = mods.get(0).getAttribute();
-        assertTrue( attr.getID().equals( "administrativeRole"));
-        assertEquals( attr.get(), "accessControlSpecificArea" );
+        EntryAttribute attr = mods.get(0).getAttribute();
+        assertTrue( attr.getId().equals( "administrativerole"));
+        assertEquals( attr.getString(), "accessControlSpecificArea" );
     }
 
     /**
@@ -450,9 +450,9 @@ public class LdifReaderTest extends TestCase
         LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
-        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
+        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn().getUpName() );
 
-        Attribute attr = entry.get( "cn" );
+        EntryAttribute attr = entry.get( "cn" );
         assertTrue( attr.contains( "app1" ) );
 
         attr = entry.get( "objectclass" );
@@ -463,10 +463,10 @@ public class LdifReaderTest extends TestCase
         assertTrue( attr.contains( "app1" ) );
 
         attr = entry.get( "dependencies" );
-        assertNull( attr.get() );
+        assertNull( attr.get().get() );
 
         attr = entry.get( "envvars" );
-        assertNull( attr.get() );
+        assertNull( attr.get().get() );
     }
 
     public void testLdifParserMuiltiLineComments() throws NamingException
@@ -493,9 +493,9 @@ public class LdifReaderTest extends TestCase
         LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
-        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
+        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn().getUpName() );
 
-        Attribute attr = entry.get( "cn" );
+        EntryAttribute attr = entry.get( "cn" );
         assertTrue( attr.contains( "app1#another comment" ) );
 
         attr = entry.get( "objectclass" );
@@ -506,10 +506,10 @@ public class LdifReaderTest extends TestCase
         assertTrue( attr.contains( "app1" ) );
 
         attr = entry.get( "dependencies" );
-        assertNull( attr.get() );
+        assertNull( attr.get().get() );
 
         attr = entry.get( "envvars" );
-        assertNull( attr.get() );
+        assertNull( attr.get().get() );
     }
 
     public void testLdifParserMultiLineEntries() throws NamingException
@@ -536,9 +536,9 @@ public class LdifReaderTest extends TestCase
         LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
-        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
+        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn().getUpName() );
 
-        Attribute attr = entry.get( "cn" );
+        EntryAttribute attr = entry.get( "cn" );
         assertTrue( attr.contains( "app1#another comment" ) );
 
         attr = entry.get( "objectclass" );
@@ -549,10 +549,10 @@ public class LdifReaderTest extends TestCase
         assertTrue( attr.contains( "app1" ) );
 
         attr = entry.get( "dependencies" );
-        assertNull( attr.get() );
+        assertNull( attr.get().get() );
 
         attr = entry.get( "envvars" );
-        assertNull( attr.get() );
+        assertNull( attr.get().get() );
     }
 
     public void testLdifParserBase64() throws NamingException, UnsupportedEncodingException
@@ -578,9 +578,9 @@ public class LdifReaderTest extends TestCase
         LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
-        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
+        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn().getUpName() );
 
-        Attribute attr = entry.get( "cn" );
+        EntryAttribute attr = entry.get( "cn" );
         assertTrue( attr.contains( "Emmanuel L\u00e9charny".getBytes( "UTF-8" ) ) );
 
         attr = entry.get( "objectclass" );
@@ -591,10 +591,10 @@ public class LdifReaderTest extends TestCase
         assertTrue( attr.contains( "app1" ) );
 
         attr = entry.get( "dependencies" );
-        assertNull( attr.get() );
+        assertNull( attr.get().get() );
 
         attr = entry.get( "envvars" );
-        assertNull( attr.get() );
+        assertNull( attr.get().get() );
     }
 
     public void testLdifParserBase64MultiLine() throws NamingException, UnsupportedEncodingException
@@ -621,9 +621,9 @@ public class LdifReaderTest extends TestCase
         LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
-        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn() );
+        assertEquals( "cn=app1,ou=applications,ou=conf,dc=apache,dc=org", entry.getDn().getUpName() );
 
-        Attribute attr = entry.get( "cn" );
+        EntryAttribute attr = entry.get( "cn" );
         assertTrue( attr.contains( "Emmanuel L\u00e9charny  ".getBytes( "UTF-8" ) ) );
 
         attr = entry.get( "objectclass" );
@@ -634,10 +634,10 @@ public class LdifReaderTest extends TestCase
         assertTrue( attr.contains( "app1" ) );
 
         attr = entry.get( "dependencies" );
-        assertNull( attr.get() );
+        assertNull( attr.get().get() );
 
         attr = entry.get( "envvars" );
-        assertNull( attr.get() );
+        assertNull( attr.get().get() );
     }
 
     public void testLdifParserRFC2849Sample1() throws NamingException
@@ -673,9 +673,9 @@ public class LdifReaderTest extends TestCase
         LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
-        assertEquals( "cn=Barbara Jensen, ou=Product Development, dc=airius, dc=com", entry.getDn() );
+        assertEquals( "cn=Barbara Jensen, ou=Product Development, dc=airius, dc=com", entry.getDn().getUpName() );
 
-        Attribute attr = entry.get( "objectclass" );
+        EntryAttribute attr = entry.get( "objectclass" );
         assertTrue( attr.contains( "top" ) );
         assertTrue( attr.contains( "person" ) );
         assertTrue( attr.contains( "organizationalPerson" ) );
@@ -702,7 +702,7 @@ public class LdifReaderTest extends TestCase
         assertTrue( entry.isChangeAdd() );
 
         attr = entry.get( "dn" );
-        assertEquals( "cn=Bjorn Jensen, ou=Accounting, dc=airius, dc=com", entry.getDn() );
+        assertEquals( "cn=Bjorn Jensen, ou=Accounting, dc=airius, dc=com", entry.getDn().getUpName() );
 
         attr = entry.get( "objectclass" );
         assertTrue( attr.contains( "top" ) );
@@ -746,9 +746,9 @@ public class LdifReaderTest extends TestCase
         LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
-        assertEquals( "cn=Barbara Jensen, ou=Product Development, dc=airius, dc=com", entry.getDn() );
+        assertEquals( "cn=Barbara Jensen, ou=Product Development, dc=airius, dc=com", entry.getDn().getUpName() );
 
-        Attribute attr = entry.get( "objectclass" );
+        EntryAttribute attr = entry.get( "objectclass" );
         assertTrue( attr.contains( "top" ) );
         assertTrue( attr.contains( "person" ) );
         assertTrue( attr.contains( "organizationalPerson" ) );
@@ -803,9 +803,9 @@ public class LdifReaderTest extends TestCase
         LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
-        assertEquals( "cn=Gern Jensen, ou=Product Testing, dc=airius, dc=com", entry.getDn() );
+        assertEquals( "cn=Gern Jensen, ou=Product Testing, dc=airius, dc=com", entry.getDn().getUpName() );
 
-        Attribute attr = entry.get( "objectclass" );
+        EntryAttribute attr = entry.get( "objectclass" );
         assertTrue( attr.contains( "top" ) );
         assertTrue( attr.contains( "person" ) );
         assertTrue( attr.contains( "organizationalPerson" ) );
@@ -856,9 +856,9 @@ public class LdifReaderTest extends TestCase
         LdifEntry entry = (LdifEntry) entries.get( 0 );
         assertTrue( entry.isChangeAdd() );
 
-        assertEquals( "cn=Gern Jensen, ou=Product Testing, dc=airius, dc=com", entry.getDn() );
+        assertEquals( "cn=Gern Jensen, ou=Product Testing, dc=airius, dc=com", entry.getDn().getUpName() );
 
-        Attribute attr = entry.get( "objectclass" );
+        EntryAttribute attr = entry.get( "objectclass" );
         assertTrue( attr.contains( "top" ) );
         assertTrue( attr.contains( "person" ) );
         assertTrue( attr.contains( "organizationalPerson" ) );
@@ -995,11 +995,11 @@ public class LdifReaderTest extends TestCase
             {
                 if ( "dn".equalsIgnoreCase( values[i][j][0] ) )
                 {
-                    assertEquals( values[i][j][1], entry.getDn() );
+                    assertEquals( values[i][j][1], entry.getDn().getUpName() );
                 }
                 else
                 {
-                    Attribute attr = entry.get( values[i][j][0] );
+                    EntryAttribute attr = entry.get( values[i][j][0] );
 
                     if ( attr.contains( values[i][j][1] ) )
                     {
@@ -1056,16 +1056,16 @@ public class LdifReaderTest extends TestCase
         {
             if ( "dn".equalsIgnoreCase( values[i][0] ) )
             {
-                assertEquals( values[i][1], entry.getDn() );
+                assertEquals( values[i][1], entry.getDn().getUpName() );
             }
             else if ( "jpegphoto".equalsIgnoreCase( values[i][0] ) )
             {
-                Attribute attr = entry.get( values[i][0] );
-                assertEquals( StringTools.dumpBytes( data ), StringTools.dumpBytes( (byte[]) attr.get() ) );
+                EntryAttribute attr = entry.get( values[i][0] );
+                assertEquals( StringTools.dumpBytes( data ), StringTools.dumpBytes( attr.getBytes() ) );
             }
             else
             {
-                Attribute attr = entry.get( values[i][0] );
+                EntryAttribute attr = entry.get( values[i][0] );
 
                 if ( attr.contains( values[i][1] ) )
                 {
@@ -1240,16 +1240,16 @@ public class LdifReaderTest extends TestCase
         {
             if ( "dn".equalsIgnoreCase( values[0][i][0] ) )
             {
-                assertEquals( values[0][i][1], entry.getDn() );
+                assertEquals( values[0][i][1], entry.getDn().getUpName() );
             }
             else if ( "jpegphoto".equalsIgnoreCase( values[0][i][0] ) )
             {
-                Attribute attr = entry.get( values[0][i][0] );
-                assertEquals( StringTools.dumpBytes( data ), StringTools.dumpBytes( (byte[]) attr.get() ) );
+                EntryAttribute attr = entry.get( values[0][i][0] );
+                assertEquals( StringTools.dumpBytes( data ), StringTools.dumpBytes( attr.getBytes() ) );
             }
             else
             {
-                Attribute attr = entry.get( values[0][i][0] );
+                EntryAttribute attr = entry.get( values[0][i][0] );
 
                 if ( attr.contains( values[0][i][1] ) )
                 {
@@ -1265,74 +1265,76 @@ public class LdifReaderTest extends TestCase
         // Second entry
         entry = (LdifEntry) entries.get( 1 );
         assertTrue( entry.isChangeDelete() );
-        assertEquals( values[1][0][1], entry.getDn() );
+        assertEquals( values[1][0][1], entry.getDn().getUpName() );
 
         // Third entry
         entry = (LdifEntry) entries.get( 2 );
         assertTrue( entry.isChangeModRdn() );
-        assertEquals( values[2][0][1], entry.getDn() );
+        assertEquals( values[2][0][1], entry.getDn().getUpName() );
         assertEquals( values[2][1][0], entry.getNewRdn() );
         assertTrue( entry.isDeleteOldRdn() );
 
         // Forth entry
         entry = (LdifEntry) entries.get( 3 );
         assertTrue( entry.isChangeModDn() );
-        assertEquals( values[3][0][1], entry.getDn() );
+        assertEquals( values[3][0][1], entry.getDn().getUpName() );
         assertEquals( values[3][1][0], entry.getNewRdn() );
         assertFalse( entry.isDeleteOldRdn() );
         assertEquals( values[3][2][0], entry.getNewSuperior() );
 
         // Fifth entry
         entry = (LdifEntry) entries.get( 4 );
-        List<ModificationItemImpl> modifs = entry.getModificationItems();
+        List<Modification> modifs = entry.getModificationItems();
 
         assertTrue( entry.isChangeModify() );
-        assertEquals( values[4][0][1], entry.getDn() );
+        assertEquals( values[4][0][1], entry.getDn().getUpName() );
 
         // "add: postaladdress"
         // "postaladdress: 123 Anystreet $ Sunnyvale, CA $ 94086"
-        ModificationItemImpl item = (ModificationItemImpl) modifs.get( 0 );
-        assertEquals( DirContext.ADD_ATTRIBUTE, item.getModificationOp() );
-        assertEquals( values[4][1][0], item.getAttribute().getID() );
-        assertEquals( values[4][1][1], item.getAttribute().get( 0 ) );
+        Modification item = (Modification) modifs.get( 0 );
+        assertEquals( ModificationOperation.ADD_ATTRIBUTE, item.getOperation() );
+        assertEquals( values[4][1][0], item.getAttribute().getId() );
+        assertTrue( item.getAttribute().contains( values[4][1][1] ) );
 
         // "delete: description\n" +
-        item = (ModificationItemImpl) modifs.get( 1 );
-        assertEquals( DirContext.REMOVE_ATTRIBUTE, item.getModificationOp() );
-        assertEquals( values[4][2][0], item.getAttribute().getID() );
+        item = (Modification) modifs.get( 1 );
+        assertEquals( ModificationOperation.REMOVE_ATTRIBUTE, item.getOperation() );
+        assertEquals( values[4][2][0], item.getAttribute().getId() );
 
         // "replace: telephonenumber"
         // "telephonenumber: +1 408 555 1234"
         // "telephonenumber: +1 408 555 5678"
-        item = (ModificationItemImpl) modifs.get( 2 );
-        assertEquals( DirContext.REPLACE_ATTRIBUTE, item.getModificationOp() );
-        assertEquals( values[4][3][0], item.getAttribute().getID() );
-        assertEquals( values[4][3][1], item.getAttribute().get( 0 ) );
-        assertEquals( values[4][3][2], item.getAttribute().get( 1 ) );
+        item = (Modification) modifs.get( 2 );
+        assertEquals( ModificationOperation.REPLACE_ATTRIBUTE, item.getOperation() );
+        
+        assertEquals( values[4][3][0], item.getAttribute().getId() );
+        assertTrue( item.getAttribute().contains( values[4][3][1], values[4][3][2] ) );
 
         // "delete: facsimiletelephonenumber"
         // "facsimiletelephonenumber: +1 408 555 9876"
-        item = (ModificationItemImpl) modifs.get( 3 );
-        assertEquals( DirContext.REMOVE_ATTRIBUTE, item.getModificationOp() );
-        assertEquals( values[4][4][0], item.getAttribute().getID() );
-        assertEquals( values[4][4][1], item.getAttribute().get( 0 ) );
+        item = (Modification) modifs.get( 3 );
+        
+        assertEquals( ModificationOperation.REMOVE_ATTRIBUTE, item.getOperation() );
+
+        assertEquals( values[4][4][0], item.getAttribute().getId() );
+        assertTrue( item.getAttribute().contains( values[4][4][1] ) );
 
         // Sixth entry
         entry = (LdifEntry) entries.get( 5 );
         modifs = entry.getModificationItems();
 
         assertTrue( entry.isChangeModify() );
-        assertEquals( values[5][0][1], entry.getDn() );
+        assertEquals( values[5][0][1], entry.getDn().getUpName() );
 
         // "replace: postaladdress"
-        item = (ModificationItemImpl) modifs.get( 0 );
-        assertEquals( DirContext.REPLACE_ATTRIBUTE, item.getModificationOp() );
-        assertEquals( values[5][1][0], item.getAttribute().getID() );
+        item = (Modification) modifs.get( 0 );
+        assertEquals( ModificationOperation.REPLACE_ATTRIBUTE, item.getOperation() );
+        assertEquals( values[5][1][0], item.getAttribute().getId() );
 
         // "delete: description"
-        item = (ModificationItemImpl) modifs.get( 1 );
-        assertEquals( DirContext.REMOVE_ATTRIBUTE, item.getModificationOp() );
-        assertEquals( values[5][2][0], item.getAttribute().getID() );
+        item = (Modification) modifs.get( 1 );
+        assertEquals( ModificationOperation.REMOVE_ATTRIBUTE, item.getOperation() );
+        assertEquals( values[5][2][0], item.getAttribute().getId() );
     }
 
     public void testLdifParserRFC2849Sample7() throws NamingException, Exception
@@ -1352,7 +1354,7 @@ public class LdifReaderTest extends TestCase
 
         LdifEntry entry = (LdifEntry) entries.get( 0 );
 
-        assertEquals( "ou=Product Development, dc=airius, dc=com", entry.getDn() );
+        assertEquals( "ou=Product Development, dc=airius, dc=com", entry.getDn().getUpName() );
         assertTrue( entry.isChangeDelete() );
 
         // Check the control
@@ -1379,7 +1381,7 @@ public class LdifReaderTest extends TestCase
 
         LdifEntry entry = (LdifEntry) entries.get( 0 );
 
-        assertEquals( "ou=Product Development, dc=airius, dc=com", entry.getDn() );
+        assertEquals( "ou=Product Development, dc=airius, dc=com", entry.getDn().getUpName() );
         assertTrue( entry.isChangeDelete() );
 
         // Check the control
@@ -1406,7 +1408,7 @@ public class LdifReaderTest extends TestCase
 
         LdifEntry entry = (LdifEntry) entries.get( 0 );
 
-        assertEquals( "ou=Product Development, dc=airius, dc=com", entry.getDn() );
+        assertEquals( "ou=Product Development, dc=airius, dc=com", entry.getDn().getUpName() );
         assertTrue( entry.isChangeDelete() );
 
         // Check the control
@@ -1507,9 +1509,9 @@ public class LdifReaderTest extends TestCase
         List<LdifEntry> entries = reader.parseLdif( ldif );
         LdifEntry entry = (LdifEntry) entries.get( 0 );
 
-        assertEquals( "ou=Users, dc=example, dc=com", entry.getDn() );
+        assertEquals( "ou=Users, dc=example, dc=com", entry.getDn().getUpName() );
 
-        Attribute attr = entry.get( "objectclass" );
+        EntryAttribute attr = entry.get( "objectclass" );
         assertTrue( attr.contains( "top" ) );
         assertTrue( attr.contains( "organizationalunit" ) );
 
@@ -1565,8 +1567,8 @@ public class LdifReaderTest extends TestCase
 
         LdifEntry entry = (LdifEntry) entries.get( 0 );
 
-        assertEquals( "cn=browseRootAci,dc=example,dc=com", entry.getDn() );
-        Attribute attr = entry.get( "objectClass" );
+        assertEquals( "cn=browseRootAci,dc=example,dc=com", entry.getDn().getUpName() );
+        EntryAttribute attr = entry.get( "objectClass" );
         assertTrue( attr.contains( "top" ) );
         assertTrue( attr.contains( SchemaConstants.SUBENTRY_OC ) );
         assertTrue( attr.contains( "accessControlSubentry" ) );

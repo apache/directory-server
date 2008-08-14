@@ -25,19 +25,11 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.FileInputStream;
-import java.io.StringReader;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Properties;
 
-import javax.naming.directory.Attributes;
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
 /**
@@ -124,7 +116,7 @@ public class PropertiesUtils
      *            a class to use for relative path references
      * @return the static properties
      */
-    public static Properties getStaticProperties( Class ref )
+    public static Properties getStaticProperties( Class<?> ref )
     {
         final Properties properties = new Properties();
         final String address = ref.toString().replace( '.', '/' );
@@ -156,7 +148,7 @@ public class PropertiesUtils
      *            the relative path to the resoruce
      * @return the static properties
      */
-    public static Properties getStaticProperties( Class ref, String path )
+    public static Properties getStaticProperties( Class<?> ref, String path )
     {
         Properties properties = new Properties();
         InputStream input = ref.getResourceAsStream( path );
@@ -261,7 +253,7 @@ public class PropertiesUtils
      *            the relative path to the resource
      * @return the loaded or new Properties
      */
-    public static Properties getProperties( Class clazz, String path )
+    public static Properties getProperties( Class<?> clazz, String path )
     {
         Properties properties = new Properties();
         InputStream input = clazz.getResourceAsStream( path );
@@ -316,7 +308,8 @@ public class PropertiesUtils
             optionals = new Properties[0];
         }
 
-        Enumeration list = expanded.propertyNames();
+        Enumeration<?> list = expanded.propertyNames();
+        
         while ( list.hasMoreElements() )
         {
             String key = ( String ) list.nextElement();
@@ -423,15 +416,13 @@ public class PropertiesUtils
         /*
          * H A N D L E S I N G L E V A L U E D K E Y S
          */
-        Iterator list = keys.keySet().iterator();
-        while ( list.hasNext() )
+        for ( Object key:keys.keySet() )
         {
-            String key = ( String ) list.next();
-            String value = discover( key, sources, haltOnDiscovery );
+            String value = discover( (String)key, sources, haltOnDiscovery );
 
             if ( value != null )
             {
-                keys.setProperty( key, value );
+                keys.setProperty( (String)key, value );
             }
         }
     }
@@ -481,7 +472,7 @@ public class PropertiesUtils
      *            if the value cannot be represented as a primitive integer.
      * @return the primitive integer representation of a hashtable value
      */
-    public static int get( Hashtable ht, Object key, int defval )
+    public static int get( Hashtable<String, Object> ht, Object key, int defval )
     {
         if ( ht == null || !ht.containsKey( key ) || ht.get( key ) == null )
         {
@@ -553,44 +544,5 @@ public class PropertiesUtils
         }
 
         throw new NotImplementedException();
-    }
-
-
-    /**
-     * Creates, fills and returns an Attributes instance using the LDIF encoded
-     * within the property value. The LDIF should use '*' (asterisk) characters
-     * as line delimiters within the property value. These are replaced with
-     * newlines and fed to the LDIF parser. Also note that the LdifParser
-     * deposites the DN as a property within the attributes object.
-     * 
-     * @param props
-     *            the properties to get the ldif property from
-     * @param key
-     *            the key for the LDIF property
-     * @return the attributes for the encoded LDIF entry
-     */
-    public static Attributes fillAttributes( Properties props, String key, Attributes values ) throws NamingException
-    {
-        if ( props == null || !props.containsKey( key ) || props.getProperty( key ) == null )
-        {
-            if ( values == null )
-            {
-                return new AttributesImpl();
-            }
-
-            return values;
-        }
-
-        String ldif = props.getProperty( key ).trim().replace( '*', '\n' );
-        
-        LdifReader ldifReader = new LdifReader( new StringReader( ldif ) );
-        
-        LdifEntry entry = ldifReader.next();
-        
-        if ( entry != null )
-        {
-            values = entry.getAttributes();
-        }
-        return values;
     }
 }

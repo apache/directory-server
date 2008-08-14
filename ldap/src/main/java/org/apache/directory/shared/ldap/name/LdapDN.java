@@ -1524,6 +1524,7 @@ public class LdapDN implements Name, Externalizable
 
         if ( size() == 0 )
         {
+            normalized = true;
             return this;
         }
 

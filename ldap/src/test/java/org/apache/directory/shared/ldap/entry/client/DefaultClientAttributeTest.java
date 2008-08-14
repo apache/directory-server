@@ -25,6 +25,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -65,6 +70,82 @@ public class DefaultClientAttributeTest
     private static final ClientBinaryValue BIN_VALUE3 = new ClientBinaryValue( BYTES3 );
     private static final ClientBinaryValue BIN_VALUE4 = new ClientBinaryValue( BYTES4 );
 
+    
+    
+    /**
+     * Serialize a DefaultClientAttribute
+     */
+    private ByteArrayOutputStream serializeValue( DefaultClientAttribute value ) throws IOException
+    {
+        ObjectOutputStream oOut = null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try
+        {
+            oOut = new ObjectOutputStream( out );
+            oOut.writeObject( value );
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oOut != null )
+                {
+                    oOut.flush();
+                    oOut.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+        
+        return out;
+    }
+    
+    
+    /**
+     * Deserialize a DefaultClientAttribute
+     */
+    private DefaultClientAttribute deserializeValue( ByteArrayOutputStream out ) throws IOException, ClassNotFoundException
+    {
+        ObjectInputStream oIn = null;
+        ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
+
+        try
+        {
+            oIn = new ObjectInputStream( in );
+
+            DefaultClientAttribute value = ( DefaultClientAttribute ) oIn.readObject();
+
+            return value;
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oIn != null )
+                {
+                    oIn.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+    }
+
+    
     /**
      * @throws java.lang.Exception
      */
@@ -1461,5 +1542,93 @@ public class DefaultClientAttributeTest
 
         attr.setHR( false );
         assertNotSame( attr, clone );
+    }
+    
+    
+    /**
+     * Test the serialization of a complete client attribute
+     */
+    @Test
+    public void testSerializeCompleteAttribute() throws NamingException, IOException, ClassNotFoundException
+    {
+        DefaultClientAttribute dca = new DefaultClientAttribute( "CommonName" );
+        dca.setHR( true );
+        dca.setId( "cn" );
+        dca.add( "test1", "test2" );
+
+        DefaultClientAttribute dcaSer = deserializeValue( serializeValue( dca ) );
+        assertEquals( dca.toString(), dcaSer.toString() );
+        assertEquals( "commonname", dcaSer.getId() );
+        assertEquals( "CommonName", dcaSer.getUpId() );
+        assertEquals( "test1", dcaSer.getString() );
+        assertTrue( dcaSer.contains( "test2", "test1" ) );
+        assertTrue( dcaSer.isHR() );
+        assertFalse( dcaSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a client attribute with no value
+     */
+    @Test
+    public void testSerializeAttributeWithNoValue() throws NamingException, IOException, ClassNotFoundException
+    {
+        DefaultClientAttribute dca = new DefaultClientAttribute( "CommonName" );
+        dca.setHR( true );
+        dca.setId( "cn" );
+
+        DefaultClientAttribute dcaSer = deserializeValue( serializeValue( dca ) );
+        assertEquals( dca.toString(), dcaSer.toString() );
+        assertEquals( "commonname", dcaSer.getId() );
+        assertEquals( "CommonName", dcaSer.getUpId() );
+        assertEquals( 0, dcaSer.size() );
+        assertTrue( dcaSer.isHR() );
+        assertTrue( dcaSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a client attribute with a null value
+     */
+    @Test
+    public void testSerializeAttributeNullValue() throws NamingException, IOException, ClassNotFoundException
+    {
+        DefaultClientAttribute dca = new DefaultClientAttribute( "CommonName" );
+        dca.setHR( true );
+        dca.setId( "cn" );
+        dca.add( (String)null );
+
+        DefaultClientAttribute dcaSer = deserializeValue( serializeValue( dca ) );
+        assertEquals( dca.toString(), dcaSer.toString() );
+        assertEquals( "commonname", dcaSer.getId() );
+        assertEquals( "CommonName", dcaSer.getUpId() );
+        assertNull( dcaSer.getString() );
+        assertEquals( 1, dcaSer.size() );
+        assertTrue( dcaSer.contains( (String)null ) );
+        assertTrue( dcaSer.isHR() );
+        assertFalse( dcaSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a client attribute with a binary value
+     */
+    @Test
+    public void testSerializeAttributeBinaryValue() throws NamingException, IOException, ClassNotFoundException
+    {
+        DefaultClientAttribute dca = new DefaultClientAttribute( "UserPassword" );
+        dca.setHR( false );
+        byte[] password = StringTools.getBytesUtf8( "secret" );
+        dca.add( password );
+
+        DefaultClientAttribute dcaSer = deserializeValue( serializeValue( dca ) );
+        assertEquals( dca.toString(), dcaSer.toString() );
+        assertEquals( "userpassword", dcaSer.getId() );
+        assertEquals( "UserPassword", dcaSer.getUpId() );
+        assertTrue( Arrays.equals( dca.getBytes(), dcaSer.getBytes() ) );
+        assertEquals( 1, dcaSer.size() );
+        assertTrue( dcaSer.contains( password ) );
+        assertFalse( dcaSer.isHR() );
+        assertFalse( dcaSer.isValid() );
     }
 }

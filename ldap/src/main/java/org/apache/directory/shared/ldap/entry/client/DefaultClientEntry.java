@@ -19,7 +19,6 @@
 package org.apache.directory.shared.ldap.entry.client;
 
 
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -53,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class DefaultClientEntry extends AbstractEntry<String> implements ClientEntry, Externalizable
+public final class DefaultClientEntry extends AbstractEntry<String> implements ClientEntry
 {
     /** Used for serialization */
     private static final long serialVersionUID = 2L;
@@ -71,6 +70,7 @@ public final class DefaultClientEntry extends AbstractEntry<String> implements C
      */
     public DefaultClientEntry()
     {
+        dn = LdapDN.EMPTY_LDAPDN;
     }
 
 
@@ -935,20 +935,18 @@ public final class DefaultClientEntry extends AbstractEntry<String> implements C
      * @see Externalizable#writeExternal(ObjectOutput)<p>
      * 
      * This is the place where we serialize entries, and all theirs
-     * elements. the reason why we don't call the underlying methods
-     * (<code>ClientAttribute.write(), Value.write()</code>) is that we need
-     * access to the registries to read back the values.
+     * elements.
      * <p>
      * The structure used to store the entry is the following :
-     * <li><b>[DN length]</b> : can be -1 if we don't have a DN, 0 if the 
-     * DN is empty, otherwise contains the DN's length.<p> 
-     * <b>NOTE :</b>This should be unnecessary, as the DN should always exists
-     * <p>
+     * <li>
+     * <b>[DN]</b> : If it's null, stores an empty DN
      * </li>
      * <li>
-     * <b>DN</b> : The entry's DN. Can be empty (rootDSE=<p>
+     * <b>[attributes number]</b> : the number of attributes.
      * </li>
-     * We have to store the UPid, and all the values, if any.
+     * <li>
+     * <b>[attribute]*</b> : each attribute, if we have some
+     * </li>
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
@@ -956,7 +954,7 @@ public final class DefaultClientEntry extends AbstractEntry<String> implements C
         if ( dn == null )
         {
             // Write an empty DN
-            LdapDN.EMPTY_LDAPDN.writeExternal( out );
+            out.writeObject( LdapDN.EMPTY_LDAPDN );
         }
         else
         {
@@ -965,42 +963,14 @@ public final class DefaultClientEntry extends AbstractEntry<String> implements C
         }
         
         // Then the attributes. 
-        if ( attributes == null )
+        // Store the attributes' nulber first
+        out.writeInt( attributes.size() );
+        
+        // Iterate through the keys.
+        for ( EntryAttribute attribute:attributes.values() )
         {
-            // A negative number denotes no attributes
-            out.writeInt( -1 );
-        }
-        else
-        {
-            // Store the attributes' nulber first
-            out.writeInt( attributes.size() );
-            
-            // Iterate through the keys. We store the Attribute
-            // here, to be able to restore it in the readExternal :
-            // we need access to the registries, which are not available
-            // in the ClientAttribute class.
-            for ( EntryAttribute attribute:attributes.values() )
-            {
-                // Store the UP id
-                out.writeUTF( attribute.getUpId() );
-                
-                // The number of values
-                int nbValues = attribute.size();
-                
-                if ( nbValues == 0 ) 
-                {
-                    out.writeInt( 0 );
-                }
-                else 
-                {
-                    out.writeInt( nbValues );
-
-                    for ( Value<?> value:attribute )
-                    {
-                        out.writeObject( value );
-                    }
-                }
-            }
+            // Store the attribute
+            out.writeObject( attribute );
         }
         
         out.flush();
@@ -1013,28 +983,16 @@ public final class DefaultClientEntry extends AbstractEntry<String> implements C
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         // Read the DN
-        LdapDN dn = (LdapDN)in.readObject();
+        dn = (LdapDN)in.readObject();
         
         // Read the number of attributes
         int nbAttributes = in.readInt();
         
-        attributes = new HashMap<String, EntryAttribute>();
-
         // Read the attributes
         for ( int i = 0; i < nbAttributes; i++ )
         {
-            String upId = in.readUTF();
-            
-            EntryAttribute attribute = new DefaultClientAttribute( upId );
-            
-            // Read the number of values
-            int nbValues = in.readInt();
-            
-            for ( int j = 0; j < nbValues; j++ )
-            {
-                Value<?> value = (Value<?>)in.readObject();
-                attribute.add( value );
-            }
+            // Read each attribute
+            EntryAttribute attribute = (DefaultClientAttribute)in.readObject();
             
             attributes.put( attribute.getId(), attribute );
         }

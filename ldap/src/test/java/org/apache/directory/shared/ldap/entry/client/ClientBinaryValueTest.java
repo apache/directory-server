@@ -25,6 +25,11 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 import javax.naming.NamingException;
@@ -73,6 +78,26 @@ public class ClientBinaryValueTest
             throw new IllegalStateException( "expected byte[] to normalize" );
         }
     };
+
+    
+    /**
+     * A binary normalizer which set the normalized value to a empty byte array
+     */
+    private static final Normalizer BINARY_NORMALIZER_EMPTY = new Normalizer()
+    {
+        private static final long serialVersionUID = 1L;
+        
+        public Object normalize( Object value ) throws NamingException
+        {
+            if ( value instanceof byte[] )
+            {
+                return StringTools.EMPTY_BYTES;
+            }
+
+            throw new IllegalStateException( "expected byte[] to normalize" );
+        }
+    };
+
     
     private static final SyntaxChecker BINARY_CHECKER = new SyntaxChecker()
     {
@@ -98,7 +123,82 @@ public class ClientBinaryValueTest
             }
         }
     };
+    
+    
+    /**
+     * Serialize a ClientBinaryValue
+     */
+    private ByteArrayOutputStream serializeValue( ClientBinaryValue value ) throws IOException
+    {
+        ObjectOutputStream oOut = null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
+        try
+        {
+            oOut = new ObjectOutputStream( out );
+            oOut.writeObject( value );
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oOut != null )
+                {
+                    oOut.flush();
+                    oOut.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+        
+        return out;
+    }
+    
+    
+    /**
+     * Deserialize a ClientBinaryValue
+     */
+    private ClientBinaryValue deserializeValue( ByteArrayOutputStream out ) throws IOException, ClassNotFoundException
+    {
+        ObjectInputStream oIn = null;
+        ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
+
+        try
+        {
+            oIn = new ObjectInputStream( in );
+
+            ClientBinaryValue value = ( ClientBinaryValue ) oIn.readObject();
+
+            return value;
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oIn != null )
+                {
+                    oIn.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+    }
+    
+    
     @Test
     public void testHashCode()
     {
@@ -630,5 +730,129 @@ public class ClientBinaryValueTest
         cbv.normalize( BINARY_NORMALIZER );
         cbv.clear();
         assertFalse( cbv.isNormalized() );
+    }
+    
+    
+    /**
+     * Test the serialization of a CBV with a value and a normalized value
+     */
+    @Test
+    public void testSerializeStandard() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientBinaryValue cbv = new ClientBinaryValue();
+        cbv.setNormalized( true );
+        cbv.set( BYTES2 );
+        cbv.normalize( BINARY_NORMALIZER );
+        cbv.isValid( BINARY_CHECKER );
+
+        ClientBinaryValue cbvSer = deserializeValue( serializeValue( cbv ) );
+         assertNotSame( cbv, cbvSer );
+         assertTrue( Arrays.equals( cbv.getReference(), cbvSer.getReference() ) );
+         assertTrue( Arrays.equals( cbv.getNormalizedValueReference(), cbvSer.getNormalizedValueReference() ) );
+         assertTrue( cbvSer.isNormalized() );
+         assertFalse( cbvSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a CBV with a value and no normalized value
+     */
+    @Test
+    public void testSerializeNotNormalized() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientBinaryValue cbv = new ClientBinaryValue();
+        cbv.setNormalized( false );
+        cbv.set( BYTES2 );
+        cbv.isValid( BINARY_CHECKER );
+
+        ClientBinaryValue cbvSer = deserializeValue( serializeValue( cbv ) );
+         assertNotSame( cbv, cbvSer );
+         assertTrue( Arrays.equals( cbv.getReference(), cbvSer.getReference() ) );
+         assertTrue( Arrays.equals( cbv.getReference(), cbvSer.getNormalizedValueReference() ) );
+         assertFalse( cbvSer.isNormalized() );
+         assertFalse( cbvSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a CBV with a value and an empty normalized value
+     */
+    @Test
+    public void testSerializeEmptyNormalized() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientBinaryValue cbv = new ClientBinaryValue();
+        cbv.setNormalized( true );
+        cbv.set( BYTES2 );
+        cbv.isValid( BINARY_CHECKER );
+        cbv.normalize( BINARY_NORMALIZER_EMPTY );
+
+        ClientBinaryValue cbvSer = deserializeValue( serializeValue( cbv ) );
+         assertNotSame( cbv, cbvSer );
+         assertTrue( Arrays.equals( cbv.getReference(), cbvSer.getReference() ) );
+         assertTrue( Arrays.equals( cbv.getNormalizedValueReference(), cbvSer.getNormalizedValueReference() ) );
+         assertTrue( cbvSer.isNormalized() );
+         assertFalse( cbvSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a CBV with a null value
+     */
+    @Test
+    public void testSerializeNullValue() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientBinaryValue cbv = new ClientBinaryValue();
+        cbv.setNormalized( true );
+        cbv.set( null );
+        cbv.isValid( BINARY_CHECKER );
+        cbv.normalize( BINARY_NORMALIZER );
+
+        ClientBinaryValue cbvSer = deserializeValue( serializeValue( cbv ) );
+         assertNotSame( cbv, cbvSer );
+         assertTrue( Arrays.equals( cbv.getReference(), cbvSer.getReference() ) );
+         assertTrue( Arrays.equals( cbv.getNormalizedValueReference(), cbvSer.getNormalizedValueReference() ) );
+         assertTrue( cbvSer.isNormalized() );
+         assertFalse( cbvSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a CBV with an empty value
+     */
+    @Test
+    public void testSerializeEmptyValue() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientBinaryValue cbv = new ClientBinaryValue();
+        cbv.setNormalized( true );
+        cbv.set( StringTools.EMPTY_BYTES );
+        cbv.isValid( BINARY_CHECKER );
+        cbv.normalize( BINARY_NORMALIZER );
+
+        ClientBinaryValue cbvSer = deserializeValue( serializeValue( cbv ) );
+         assertNotSame( cbv, cbvSer );
+         assertTrue( Arrays.equals( cbv.getReference(), cbvSer.getReference() ) );
+         assertTrue( Arrays.equals( cbv.getNormalizedValueReference(), cbvSer.getNormalizedValueReference() ) );
+         assertTrue( cbvSer.isNormalized() );
+         assertFalse( cbvSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a CBV with an empty value not normalized
+     */
+    @Test
+    public void testSerializeEmptyValueNotNormalized() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientBinaryValue cbv = new ClientBinaryValue();
+        cbv.setNormalized( false );
+        cbv.set( StringTools.EMPTY_BYTES );
+        cbv.isValid( BINARY_CHECKER );
+
+        ClientBinaryValue cbvSer = deserializeValue( serializeValue( cbv ) );
+         assertNotSame( cbv, cbvSer );
+         assertTrue( Arrays.equals( cbv.getReference(), cbvSer.getReference() ) );
+         assertTrue( Arrays.equals( cbv.getNormalizedValueReference(), cbvSer.getNormalizedValueReference() ) );
+         assertFalse( cbvSer.isNormalized() );
+         assertFalse( cbvSer.isValid() );
     }
 }

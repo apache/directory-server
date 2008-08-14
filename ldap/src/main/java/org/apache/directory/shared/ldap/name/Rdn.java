@@ -24,7 +24,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +107,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Rdn implements Cloneable, Comparable, Serializable, Iterable<AttributeTypeAndValue>
+public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<AttributeTypeAndValue>
 {
     /** The LoggerFactory used by this class */
     protected static final Logger LOG = LoggerFactory.getLogger( Rdn.class );
