@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.entry;
 
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -27,8 +30,10 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -75,7 +80,7 @@ public class ClonedServerEntry implements ServerEntry
     /**
      * @return the cloned Entry
      */
-    public ServerEntry getClonedEntry()
+    public Entry getClonedEntry()
     {
         return clonedEntry;
     }
@@ -399,6 +404,44 @@ public class ClonedServerEntry implements ServerEntry
     }
 
 
+    public Entry toClientEntry() throws NamingException
+    {
+        // Copy the DN
+        Entry clientEntry = new DefaultClientEntry( clonedEntry.getDn() );
+        
+        // Convert each attribute 
+        for ( EntryAttribute clonedEntry:this )
+        {
+            EntryAttribute clientAttribute = ((ServerAttribute)clonedEntry).toClientAttribute();
+            clientEntry.add( clientAttribute );
+        }
+        
+        return clientEntry;
+    }
+    
+    
+    /**
+     * @see java.io.Externalizable#readExternal(ObjectInput)
+     * 
+     * We can't use this method for a ServerEntry
+     */
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        throw new IllegalStateException( "Cannot use standard serialization for a ServerAttribute" );
+    }
+    
+    
+    /**
+     * @see java.io.Externalizable#writeExternal(ObjectOutput)
+     * 
+     * We can't use this method for a ServerEntry
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        throw new IllegalStateException( "Cannot use standard serialization for a ServerEntry" );
+    }
+    
+    
     public ServerEntry clone()
     {
         return ( ServerEntry ) clonedEntry.clone();
@@ -676,9 +719,36 @@ public class ClonedServerEntry implements ServerEntry
             return 0;
         }
     
+        
         public ServerEntry clone()
         {
             return new EmptyEntry( dn );
+        }
+
+        
+        public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+        {
+        }
+        
+        
+        public void writeExternal( ObjectOutput out ) throws IOException
+        {
+        }
+        
+        
+        public Entry toClientEntry() throws NamingException
+        {
+            // Copy the DN
+            Entry clientEntry = new DefaultClientEntry( dn );
+            
+            // Convert each attribute 
+            for ( EntryAttribute serverAttribute:this )
+            {
+                EntryAttribute clientAttribute = ((ServerAttribute)serverAttribute).toClientAttribute();
+                clientEntry.add( clientAttribute );
+            }
+            
+            return clientEntry;
         }
     }
 }

@@ -75,6 +75,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     public ModifyOperationContext( CoreSession session, LdapDN dn, List<Modification> modItems )
     {
         super( session, dn );
+
         this.modItems = modItems;
     }
 

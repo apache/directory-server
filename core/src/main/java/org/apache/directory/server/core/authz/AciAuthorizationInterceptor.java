@@ -277,7 +277,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private void addPerscriptiveAciTuples( OperationContext opContext, Collection<ACITuple> tuples, LdapDN dn,
         ServerEntry entry ) throws Exception
     {
-        EntryAttribute oc = entry.get( objectClassType );
+        EntryAttribute oc = null;
+        
+        if ( entry instanceof ClonedServerEntry )
+        {
+            oc = ((ClonedServerEntry)entry).getOriginalEntry().get( objectClassType );
+        }
+        else
+        {
+            oc = entry.get( objectClassType );
+        }
         
         /*
          * If the protected entry is a subentry, then the entry being evaluated
@@ -527,7 +536,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( deleteContext, tuples, name, entry );
+        addPerscriptiveAciTuples( deleteContext, tuples, name, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( deleteContext, tuples, name, entry );
 
@@ -574,7 +583,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( opContext, tuples, name, entry );
+        addPerscriptiveAciTuples( opContext, tuples, name, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( opContext, tuples, name, entry );
 
@@ -792,7 +801,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         LdapDN name = renameContext.getDn();
 
-        ServerEntry entry = renameContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        ClonedServerEntry entry = renameContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
         
         LdapPrincipal principal = renameContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
@@ -824,7 +833,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( renameContext, tuples, name, entry );
+        addPerscriptiveAciTuples( renameContext, tuples, name, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( renameContext, tuples, name, entry );
 
@@ -844,7 +853,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN oriChildName = moveAndRenameContext.getDn();
         LdapDN newParentName = moveAndRenameContext.getParent();
 
-        ServerEntry entry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        ClonedServerEntry entry = moveAndRenameContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
         
         LdapPrincipal principal = moveAndRenameContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
@@ -871,7 +880,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oriChildName, entry );
+        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oriChildName, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( moveAndRenameContext, tuples, oriChildName, entry );
 
@@ -923,7 +932,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN newParentName = moveContext.getParent();
         
         // Access the principal requesting the operation, and bypass checks if it is the admin
-        ServerEntry entry = moveContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        ClonedServerEntry entry = moveContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
        
         LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
@@ -950,7 +959,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( moveContext, tuples, oriChildName, entry );
+        addPerscriptiveAciTuples( moveContext, tuples, oriChildName, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( moveContext, tuples, oriChildName, entry );
 
@@ -1055,7 +1064,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( opContext, tuples, name, entry );
+        addPerscriptiveAciTuples( opContext, tuples, name, entry.getOriginalEntry() );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( opContext, tuples, name, entry );
 
@@ -1082,7 +1091,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         // get the present matched name
-        ServerEntry entry;
+        ClonedServerEntry entry;
         LdapDN matched = next.getMatchedName( opContext );
 
         // check if we have disclose on error permission for the entry at the matched dn
@@ -1094,7 +1103,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             
             Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
             Collection<ACITuple> tuples = new HashSet<ACITuple>();
-            addPerscriptiveAciTuples( opContext, tuples, matched, entry );
+            addPerscriptiveAciTuples( opContext, tuples, matched, entry.getOriginalEntry() );
             addEntryAciTuples( tuples, entry );
             addSubentryAciTuples( opContext, tuples, matched, entry );
 

@@ -59,8 +59,8 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.Index;
@@ -465,11 +465,11 @@ public class PartitionFrame extends JFrame
 
             for ( LdifEntry entry:new LdifReader( in ) )
             {
-                String updn = entry.getDn();
+                String updn = entry.getDn().getUpName();
                 
                 LdapDN ndn = new LdapDN( StringTools.deepTrimToLower( updn ) );
 
-                ServerEntry attrs = ServerEntryUtils.toServerEntry( entry.getAttributes(), ndn, null );
+                ServerEntry attrs = new DefaultServerEntry( registries, entry.getEntry() );
 
                 if ( null == partition.getEntryId( ndn.toString() ) )
                 {

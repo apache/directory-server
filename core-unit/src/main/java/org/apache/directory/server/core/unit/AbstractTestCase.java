@@ -25,10 +25,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -427,7 +426,8 @@ public abstract class AbstractTestCase extends TestCase
 
         for ( LdifEntry entry : entries )
         {
-            rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
+            service.getAdminSession().add( 
+                new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
         }
     }
 }

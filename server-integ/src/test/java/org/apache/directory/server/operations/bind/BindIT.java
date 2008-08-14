@@ -47,7 +47,7 @@ import static org.junit.Assert.fail;
  * @version $Rev$, $Date$
  */
 @RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@CleanupLevel ( Level.CLASS )
 @ApplyLdifs( {
     // Entry # 1
     "dn: uid=akarasulu,ou=users,ou=system\n" +

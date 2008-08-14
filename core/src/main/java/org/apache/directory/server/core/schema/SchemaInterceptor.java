@@ -43,7 +43,6 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -1208,8 +1207,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
 
         // First, we get the entry from the backend. If it does not exist, then we throw an exception
-        ServerEntry targetEntry = ServerEntryUtils.toServerEntry( SchemaUtils.getTargetEntry( ServerEntryUtils
-            .toModificationItemImpl( mods ), ServerEntryUtils.toAttributesImpl( entry ) ), name, registries );
+        ServerEntry targetEntry = (ServerEntry)SchemaUtils.getTargetEntry( mods , entry );
 
         if ( entry == null )
         {

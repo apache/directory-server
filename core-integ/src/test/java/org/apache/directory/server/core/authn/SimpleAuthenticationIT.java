@@ -26,7 +26,6 @@ import org.apache.directory.server.core.jndi.ServerLdapContext;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.*;
 
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -58,62 +57,6 @@ import javax.naming.ldap.LdapContext;
 public class SimpleAuthenticationIT
 {
     public static DirectoryService service;
-
-
-    public static LdapContext getRootDSE() throws Exception
-    {
-        if ( service.isStarted() )
-        {
-            LdapDN dn = new LdapDN( "uid=admin,ou=system" );
-            dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-            return new ServerLdapContext( service, 
-                service.getSession( new LdapDN( dn ), "secret".getBytes() ), new LdapDN() );
-        }
-
-        throw new IllegalStateException( "Cannot acquire rootDSE before the service has been started!" );
-    }
-
-
-    public static LdapContext getRootDSE( String bindDn ) throws Exception
-    {
-        if ( service.isStarted() )
-        {
-            LdapDN dn = new LdapDN( bindDn );
-            dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-            return new ServerLdapContext( service, 
-                service.getSession( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ) ), new LdapDN() );
-        }
-
-        throw new IllegalStateException( "Cannot acquire rootDSE before the service has been started!" );
-    }
-
-
-    public static LdapContext getSystemRoot() throws Exception
-    {
-        if ( service.isStarted() )
-        {
-            LdapDN dn = new LdapDN( "uid=admin,ou=system" );
-            dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-            return new ServerLdapContext( service, 
-                service.getSession( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ) ), new LdapDN( "ou=system" ) ); 
-        }
-
-        throw new IllegalStateException( "Cannot acquire rootDSE before the service has been started!" );
-    }
-
-
-    public static LdapContext getSystemRoot( String bindDn ) throws Exception
-    {
-        if ( service.isStarted() )
-        {
-            LdapDN dn = new LdapDN( bindDn );
-            dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-            return new ServerLdapContext( service, 
-                service.getSession( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ) ), new LdapDN( "ou=system" ) ); 
-        }
-
-        throw new IllegalStateException( "Cannot acquire rootDSE before the service has been started!" );
-    }
 
 
     /**
@@ -163,7 +106,7 @@ public class SimpleAuthenticationIT
     @Test
     public void test3UseAkarasulu() throws Exception
     {
-        apply( getRootDSE(), getUserAddLdif() );
+        apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
             service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
@@ -215,7 +158,7 @@ public class SimpleAuthenticationIT
     @Test
     public void test10TestNonAdminUser() throws Exception
     {
-        apply( getRootDSE(), getUserAddLdif() );
+        apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         assertNotNull( new ServerLdapContext( service, 
             service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) ) );
@@ -225,7 +168,7 @@ public class SimpleAuthenticationIT
     @Test
     public void test11InvalidateCredentialCache() throws Exception
     {
-        apply( getRootDSE(), getUserAddLdif() );
+        apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         
         LdapContext ctx = new ServerLdapContext( service, 
@@ -301,7 +244,7 @@ public class SimpleAuthenticationIT
     @Test
     public void testSHA() throws Exception
     {
-        apply( getRootDSE(), getUserAddLdif() );
+        apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
             service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) ); 
@@ -358,7 +301,7 @@ public class SimpleAuthenticationIT
     @Test
     public void testSSHA() throws Exception
     {
-        apply( getRootDSE(), getUserAddLdif() );
+        apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
             service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
@@ -414,7 +357,7 @@ public class SimpleAuthenticationIT
     @Test
     public void testMD5() throws Exception
     {
-        apply( getRootDSE(), getUserAddLdif() );
+        apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
             service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
@@ -470,7 +413,7 @@ public class SimpleAuthenticationIT
     @Test
     public void testSMD5() throws Exception
     {
-        apply( getRootDSE(), getUserAddLdif() );
+        apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
             service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
@@ -526,7 +469,7 @@ public class SimpleAuthenticationIT
     @Test
     public void testCRYPT() throws Exception
     {
-        apply( getRootDSE(), getUserAddLdif() );
+        apply( service, getUserAddLdif() );
         String userDn = "uid=akarasulu,ou=users,ou=system";
         LdapContext ctx = new ServerLdapContext( service, 
             service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
@@ -582,7 +525,7 @@ public class SimpleAuthenticationIT
     @Test
     public void testInvalidateCredentialCacheForUpdatingAnotherUsersPassword() throws Exception
     {
-        apply( getRootDSE(), getUserAddLdif() );
+        apply( service, getUserAddLdif() );
 
         // bind as akarasulu
         String userDn = "uid=akarasulu,ou=users,ou=system";

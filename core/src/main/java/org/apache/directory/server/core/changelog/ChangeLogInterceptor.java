@@ -19,13 +19,17 @@
 package org.apache.directory.server.core.changelog;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -37,7 +41,10 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
@@ -110,13 +117,13 @@ public class ChangeLogInterceptor extends BaseInterceptor
         
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.Add );
-        forward.setDn( opContext.getDn().getUpName() );
+        forward.setDn( opContext.getDn() );
 
         Set<AttributeType> list = addEntry.getAttributeTypes();
         
         for ( AttributeType attributeType:list )
         {
-            forward.addAttribute( ServerEntryUtils.toAttributeImpl( addEntry.get( attributeType ) ) );
+            forward.addAttribute( ((ServerAttribute)addEntry.get( attributeType) ).toClientAttribute() );
         }
         
         LdifEntry reverse = LdifUtils.reverseAdd( opContext.getDn() );
@@ -154,8 +161,16 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.Delete );
-        forward.setDn( opContext.getDn().getUpName() );
-        LdifEntry reverse = LdifUtils.reverseDel( opContext.getDn(), ServerEntryUtils.toAttributesImpl( serverEntry ) );
+        forward.setDn( opContext.getDn() );
+        
+        Entry reverseEntry = new DefaultClientEntry( serverEntry.getDn() );
+        
+        for ( EntryAttribute attribute:serverEntry )
+        {
+            reverseEntry.add( ((ServerAttribute)attribute).toClientAttribute() );
+        }
+
+        LdifEntry reverse = LdifUtils.reverseDel( opContext.getDn(), reverseEntry );
         opContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
@@ -186,6 +201,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * 
+     */
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         ServerEntry serverEntry = null;
@@ -217,23 +235,38 @@ public class ChangeLogInterceptor extends BaseInterceptor
             {
                 LOG.debug( "Bypassing changelog on modify of entryDeleted attribute." );
             }
+            
             return;
         }
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.Modify );
-        forward.setDn( opContext.getDn().getUpName() );
+        forward.setDn( opContext.getDn() );
+        
+        List<Modification> mods = new ArrayList<Modification>( opContext.getModItems().size() );
         
         for ( Modification modItem : opContext.getModItems() )
         {
-            forward.addModificationItem( ServerEntryUtils.toModificationItemImpl( modItem ) );
+            Modification mod = ((ServerModification)modItem).toClientModification();
+            mods.add( mod );
+            
+            forward.addModificationItem( mod );
+        }
+        
+        Entry clientEntry = new DefaultClientEntry( serverEntry.getDn() );
+        
+        for ( EntryAttribute attribute:serverEntry )
+        {
+            clientEntry.add( ((ServerAttribute)attribute).toClientAttribute() );
         }
 
         LdifEntry reverse = LdifUtils.reverseModify( 
             opContext.getDn(), 
-            ServerEntryUtils.toModificationItemImpl( opContext.getModItems() ), 
-            ServerEntryUtils.toAttributesImpl( serverEntry ) );
+            mods, 
+            clientEntry );
         
+        //System.out.println( "forward : " + forward );
+        //System.out.println( "reverse : " + reverse );
         opContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
@@ -262,7 +295,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.ModRdn );
-        forward.setDn( renameContext.getDn().getUpName() );
+        forward.setDn( renameContext.getDn() );
         forward.setDeleteOldRdn( renameContext.getDelOldDn() );
 
         LdifEntry reverse = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), 
@@ -292,7 +325,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.ModDn );
-        forward.setDn( opCtx.getDn().getUpName() );
+        forward.setDn( opCtx.getDn() );
         forward.setDeleteOldRdn( opCtx.getDelOldDn() );
         forward.setNewRdn( opCtx.getNewRdn().getUpName() );
         forward.setNewSuperior( opCtx.getParent().getUpName() );
@@ -314,7 +347,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.ModDn );
-        forward.setDn( opCtx.getDn().getUpName() );
+        forward.setDn( opCtx.getDn() );
         forward.setNewSuperior( opCtx.getParent().getUpName() );
 
         LdifEntry reverse = LdifUtils.reverseModifyDn( opCtx.getParent(), opCtx.getDn() );

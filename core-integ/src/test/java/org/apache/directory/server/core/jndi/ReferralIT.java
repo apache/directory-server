@@ -21,10 +21,10 @@ package org.apache.directory.server.core.jndi;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -100,7 +100,8 @@ public class ReferralIT
         td.rootCtx = getSystemContext( service );
 
         LdifEntry akarasulu = getUserAddLdif();
-        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
 
         // -------------------------------------------------------------------
         // Adds a referral entry regardless of referral handling settings

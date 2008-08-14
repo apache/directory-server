@@ -27,8 +27,6 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -83,10 +81,7 @@ public class CollectiveAttributesSchemaChecker
     public void checkModify( OperationContext opContext, LdapDN normName, List<Modification> mods ) throws Exception
     {
         ServerEntry originalEntry = opContext.lookup( normName, ByPassConstants.LOOKUP_BYPASS );
-        ServerEntry targetEntry = ServerEntryUtils.toServerEntry( 
-            SchemaUtils.getTargetEntry( ServerEntryUtils.toModificationItemImpl( mods ), ServerEntryUtils.toAttributesImpl( originalEntry ) ),
-            normName,
-            opContext.getSession().getDirectoryService().getRegistries() );
+        ServerEntry targetEntry = (ServerEntry)SchemaUtils.getTargetEntry( mods, originalEntry );
         
         EntryAttribute targetObjectClasses = targetEntry.get( SchemaConstants.OBJECT_CLASS_AT );
         

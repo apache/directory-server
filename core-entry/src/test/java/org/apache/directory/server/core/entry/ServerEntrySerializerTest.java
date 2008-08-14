@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.entry;
 
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,6 +37,7 @@ import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -167,6 +167,99 @@ public class ServerEntrySerializerTest
         entry.add( "userPassword", StringTools.getBytesUtf8( "password" ) );
 
         ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        
+        byte[] data = ses.serialize( entry );
+        
+        ServerEntry result = (ServerEntry)ses.deserialize( data );
+        
+        assertEquals( entry, result );
+    }
+
+
+    @Test public void testSerializeServerEntryWithEmptyDN() throws Exception
+    {
+        LdapDN dn = new LdapDN( "" );
+        dn.normalize( oids );
+        
+        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
+        entry.add( "cn", "text", "test" );
+        entry.add( "SN", (String)null );
+        entry.add( "userPassword", StringTools.getBytesUtf8( "password" ) );
+
+        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        
+        byte[] data = ses.serialize( entry );
+        
+        ServerEntry result = (ServerEntry)ses.deserialize( data );
+        
+        assertEquals( entry, result );
+    }
+
+    
+    @Test public void testSerializeServerEntryWithNoAttributes() throws Exception
+    {
+        LdapDN dn = new LdapDN( "" );
+        dn.normalize( oids );
+        
+        ServerEntry entry = new DefaultServerEntry( registries, dn );
+
+        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        
+        byte[] data = ses.serialize( entry );
+        
+        ServerEntry result = (ServerEntry)ses.deserialize( data );
+        
+        assertEquals( entry, result );
+    }
+    
+    
+    @Test public void testSerializeServerEntryWithAttributeNoValue() throws Exception
+    {
+        LdapDN dn = new LdapDN( "" );
+        dn.normalize( oids );
+        
+        ServerEntry entry = new DefaultServerEntry( registries, dn );
+
+        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        EntryAttribute oc = new DefaultServerAttribute( "ObjectClass", registries.getAttributeTypeRegistry().lookup( "objectclass" ) );
+        entry.add( oc );
+        
+        byte[] data = ses.serialize( entry );
+        
+        ServerEntry result = (ServerEntry)ses.deserialize( data );
+        
+        assertEquals( entry, result );
+    }
+
+
+    @Test public void testSerializeServerEntryWithAttributeStringValue() throws Exception
+    {
+        LdapDN dn = new LdapDN( "" );
+        dn.normalize( oids );
+        
+        ServerEntry entry = new DefaultServerEntry( registries, dn );
+
+        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        entry.add( "ObjectClass", "top", "person" );
+        
+        byte[] data = ses.serialize( entry );
+        
+        ServerEntry result = (ServerEntry)ses.deserialize( data );
+        
+        assertEquals( entry, result );
+    }
+
+
+    @Test public void testSerializeServerEntryWithAttributeBinaryValue() throws Exception
+    {
+        LdapDN dn = new LdapDN( "" );
+        dn.normalize( oids );
+        
+        ServerEntry entry = new DefaultServerEntry( registries, dn );
+
+        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        entry.add( "userPassword", StringTools.getBytesUtf8( "secret" ) );
         
         byte[] data = ses.serialize( entry );
         

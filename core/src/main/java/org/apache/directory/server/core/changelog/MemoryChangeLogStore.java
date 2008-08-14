@@ -19,7 +19,6 @@
 package org.apache.directory.server.core.changelog;
 
 import java.io.BufferedReader;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -294,6 +293,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private void loadChangeLog() throws Exception
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );
+        
         if ( file.exists() )
         {
             ObjectInputStream in = null;
@@ -301,19 +301,14 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             try
             {
                 in = new ObjectInputStream( new FileInputStream( file ) );
-                ArrayList<ChangeLogEvent> changeLogEvents = new ArrayList<ChangeLogEvent>();
+                int size = in.readInt();
+                
+                ArrayList<ChangeLogEvent> changeLogEvents = new ArrayList<ChangeLogEvent>( size );
 
-                while ( true )
+                for ( int i = 0; i < size; i++ )
                 {
-                    try
-                    {
-                        ChangeLogEvent event = ( ChangeLogEvent ) in.readObject();
-                        changeLogEvents.add( event );
-                    }
-                    catch ( EOFException eofe )
-                    {
-                        break;
-                    }
+                    ChangeLogEvent event = ( ChangeLogEvent ) in.readObject();
+                    changeLogEvents.add( event );
                 }
 
                 // @todo man o man we need some synchronization later after getting this to work
@@ -365,6 +360,8 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         {
             out = new ObjectOutputStream( new FileOutputStream( file ) );
 
+            out.writeInt( events.size() );
+            
             for ( ChangeLogEvent event : events )
             {
                 out.writeObject( event );
@@ -495,4 +492,33 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         return latest;
     }
     
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "MemoryChangeLog\n" );
+        sb.append( "latest tag : " ).append( latest ).append( '\n' );
+        
+        if ( events != null )
+        {
+            sb.append( "Nb of events : " ).append( events.size() ).append( '\n' );
+            
+            int i = 0;
+            
+            for ( ChangeLogEvent event:events )
+            {
+                sb.append( "event[" ).append( i++ ).append( "] : " );
+                sb.append( "\n---------------------------------------\n" );
+                sb.append( event );
+                sb.append( "\n---------------------------------------\n" );
+            }
+        }
+        
+        
+        return sb.toString();
+    }
 }

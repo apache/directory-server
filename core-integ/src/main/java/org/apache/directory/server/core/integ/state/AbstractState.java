@@ -25,11 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.InheritableSettings;
-import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.junit.internal.runners.TestClass;
@@ -191,8 +190,8 @@ public abstract class AbstractState implements TestServiceState
                     LdifReader ldifReader = new LdifReader( in );
                     LdifEntry entry = ldifReader.next();
                     
-                    LdapContext root = IntegrationUtils.getRootContext( service );
-                    root.createSubcontext( entry.getDn(), entry.getAttributes() );
+                    service.getAdminSession().add( 
+                        new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) );
                 }
                 catch ( Exception e )
                 {

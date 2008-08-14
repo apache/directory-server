@@ -22,6 +22,7 @@ package org.apache.directory.server.core.sp;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -138,7 +139,7 @@ public class StoredProcExecutionManager
                     throw ne;
                 }
                 
-                engine.setSPUnitEntry( spUnitEntry.getOriginalEntry() );
+                engine.setSPUnitEntry( (ServerEntry)spUnitEntry.getOriginalEntry() );
                 return engine;
             }
 

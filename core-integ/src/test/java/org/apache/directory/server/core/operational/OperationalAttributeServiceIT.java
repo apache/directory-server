@@ -21,8 +21,8 @@ package org.apache.directory.server.core.operational;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
@@ -270,7 +270,8 @@ public class OperationalAttributeServiceIT
     public void testConfirmNonAdminUserDnIsCreatorsName() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
 
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );

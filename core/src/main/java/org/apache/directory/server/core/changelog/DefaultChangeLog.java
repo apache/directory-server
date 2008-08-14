@@ -264,4 +264,17 @@ public class DefaultChangeLog implements ChangeLog
         this.tagContainerName = tagContainerName;
     }
 
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "ChangeLog tag[" ).append( latest ).append( "]\n" );
+        sb.append( "    store : \n" ).append( store );
+        
+        return sb.toString();
+    }
 }

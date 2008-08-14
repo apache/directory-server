@@ -936,7 +936,6 @@ public class ModifyRdnIT
      * @throws NamingException
      */
     @Test
-    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
     public void testModifyRdnOperationalAttribute() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );

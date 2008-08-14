@@ -20,11 +20,15 @@
 package org.apache.directory.server.core.authn;
 
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.security.Principal;
 
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.LdapDNSerializer;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -35,23 +39,24 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public final class LdapPrincipal implements Principal, Serializable, Cloneable
+public final class LdapPrincipal implements Principal, Cloneable, Externalizable
 {
     private static final long serialVersionUID = 3906650782395676720L;
 
     /** the normalized distinguished name of the principal */
-    private final LdapDN name;
+    private LdapDN name;
 
     /** the no name anonymous user whose DN is the empty String */
     public static final LdapPrincipal ANONYMOUS = new LdapPrincipal();
 
     /** the authentication level for this principal */
-    private final AuthenticationLevel authenticationLevel;
+    private AuthenticationLevel authenticationLevel;
     
     /** The userPassword
      * @todo security risk remove this immediately
+     * The field is transient to avoid being serialized
      */
-    private byte[] userPassword;
+    transient private byte[] userPassword;
 
 
     /**
@@ -174,5 +179,59 @@ public final class LdapPrincipal implements Principal, Serializable, Cloneable
         }
         
         return clone;
+    }
+    
+    
+    /**
+     * @see Externalizable#readExternal(ObjectInput)
+     * 
+     * @param in The stream from which the LdapPrincipal is read
+     * @throws IOException If the stream can't be read
+     * @throws ClassNotFoundException If the LdapPrincipal can't be created 
+     */
+    public void readExternal( ObjectInput in ) throws IOException , ClassNotFoundException
+    {
+        // Read the name
+        name = LdapDNSerializer.deserialize( in );
+        
+        // read the authentication level
+        int level = in.readInt();
+        
+        authenticationLevel = AuthenticationLevel.getLevel( level );
+    }
+
+
+    /**
+     * @see Externalizable#readExternal(ObjectInput)<p>
+     *
+     *@param out The stream in which the LdapPrincipal will be serialized. 
+     *The password won't be written !
+     *
+     *@throws IOException If the serialization fail
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        // Write the name
+        if ( name == null )
+        {
+            LdapDNSerializer.serialize( LdapDN.EMPTY_LDAPDN, out );
+        }
+        else
+        {
+            LdapDNSerializer.serialize( name, out );
+        }
+        
+        // write the authentication level
+        if ( authenticationLevel == null )
+        {
+            out.writeInt( AuthenticationLevel.NONE.getLevel() );
+        }
+        else
+        {
+            out.writeInt( authenticationLevel.getLevel() );
+        }
+        
+        // and flush the result
+        out.flush();
     }
 }

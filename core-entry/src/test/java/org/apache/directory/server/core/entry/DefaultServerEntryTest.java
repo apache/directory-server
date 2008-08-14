@@ -27,8 +27,8 @@ import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.NoSuchAttributeException;
 
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
@@ -49,7 +49,9 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientEntry;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -141,7 +143,7 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry();
         assertNotNull( entry );
-        assertNull( entry.getDn() );
+        assertEquals( LdapDN.EMPTY_LDAPDN, entry.getDn() );
         assertEquals( 0, entry.size() );
     }
     
@@ -154,7 +156,7 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( registries );
         assertNotNull( entry );
-        assertNull( entry.getDn() );
+        assertEquals( LdapDN.EMPTY_LDAPDN, entry.getDn() );
         assertEquals( 0, entry.size() );
     }
     
@@ -1319,7 +1321,7 @@ public class DefaultServerEntryTest
         assertEquals( entry1, entry2 );
         entry2.setDn( EXAMPLE_DN );
         
-        assertNull( entry1.getDn() );
+        assertEquals( LdapDN.EMPTY_LDAPDN,entry1.getDn() );
         
         entry1.setDn( EXAMPLE_DN );
         entry2 = entry1.clone();
@@ -3762,7 +3764,7 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( registries );
          
-        assertNull( entry.getDn() );
+        assertEquals( LdapDN.EMPTY_LDAPDN, entry.getDn() );
          
         entry.setDn( EXAMPLE_DN );
         assertEquals( EXAMPLE_DN, entry.getDn() );
@@ -3835,41 +3837,6 @@ public class DefaultServerEntryTest
 
 
     /**
-     * Test a conversion from a ServerEntry to an BasicAttributes
-     */
-    @Test public void testToBasicAttributes() throws InvalidNameException, Exception
-    {
-        LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries,dn );
-        
-        AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
-        
-        entry.put( "objectClass", OBJECT_CLASS_AT, "top", "person", "inetOrgPerson", "organizationalPerson" );
-        
-        Attributes attributes = ServerEntryUtils.toBasicAttributes( entry );
-        
-        assertNotNull( attributes );
-        assertTrue( attributes instanceof BasicAttributes );
-        
-        Set<String> expected = new HashSet<String>();
-        expected.add( "objectClass" );
-        expected.add( "cn" );
-     
-        for ( NamingEnumeration<String> ids = attributes.getIDs(); ids.hasMoreElements();)
-        {
-            String id = ids.nextElement();
-            
-            assertTrue( expected.contains( id ) );
-            expected.remove( id );
-            
-        }
-
-        // We should still have the ObjectClass Attribute
-        assertEquals( 1, expected.size() );
-    }
-    
-    
-    /**
      * Test method for toString().
      */
     @Test
@@ -3877,7 +3844,7 @@ public class DefaultServerEntryTest
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
-        assertEquals( "ServerEntry\n    dn: dc=example,dc=com\n", entry.toString() );
+        assertEquals( "ServerEntry\n    dn[]: dc=example,dc=com\n", entry.toString() );
         
         Value<String> strValueTop = new ClientStringValue( "top" );
         Value<String> strValuePerson = new ClientStringValue( "person" );
@@ -3892,7 +3859,7 @@ public class DefaultServerEntryTest
 
         String expected = 
             "ServerEntry\n" +
-            "    dn: dc=example,dc=com\n" +
+            "    dn[]: dc=example,dc=com\n" +
             "    ObjectClass: top\n" +
             "    ObjectClass: person\n" +
             "    ObjectClass: ''\n" +
@@ -3901,6 +3868,85 @@ public class DefaultServerEntryTest
             "    UserPassword: ''\n";
 
         assertEquals( expected, entry.toString() );
+    }
+
+    
+    
+    /**
+     * Test the copy constructor of a ServerEntry
+     */
+    @Test 
+    public void testCopyConstructorServerEntry() throws NamingException
+    {
+        Entry serverEntry = new DefaultServerEntry( registries );
+        serverEntry.add( "cn", "test1", "test2" );
+        serverEntry.add( "objectClass", "top", "person" );
+        
+        Entry copyEntry = new DefaultServerEntry( registries, serverEntry );
+        
+        assertEquals( copyEntry, serverEntry );
+        assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
+        assertTrue( copyEntry.contains( "cn", "test1", "test2" ) );
+        
+        serverEntry.removeAttributes( "cn" );
+
+        assertNotSame( copyEntry, serverEntry );
+        assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
+        assertTrue( copyEntry.contains( "cn", "test1", "test2" ) );
+    }
+    
+    
+    /**
+     * Test the copy constructor of a ClientEntry
+     */
+    @Test 
+    public void testCopyConstructorClientEntry() throws NamingException
+    {
+        Entry clientEntry = new DefaultClientEntry();
+        clientEntry.setDn( new LdapDN( "ou=system" ) );
+        clientEntry.add( "cn", "test1", "test2" );
+        clientEntry.add( "objectClass", "top", "person" );
+        
+        Entry copyEntry = new DefaultServerEntry( registries, clientEntry );
+        
+        assertTrue( copyEntry instanceof ServerEntry );
+        assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
+        assertTrue( copyEntry.contains( "cn", "test1", "test2" ) );
+        
+        clientEntry.removeAttributes( "cn" );
+
+        assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
+        assertTrue( copyEntry.contains( "cn", "test1", "test2" ) );
+    }
+    
+    
+    /**
+     * Test the conversion method 
+     */
+    @Test 
+    public void testToClientEntry() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "ou=system" );
+        ServerEntry serverEntry = new DefaultServerEntry( registries );
+        serverEntry.setDn( dn );
+        serverEntry.add( "cn", "test1", "test2" );
+        serverEntry.add( "objectClass", "top", "person" );
+        
+        Entry clientEntry = serverEntry.toClientEntry();
+        
+        assertTrue( clientEntry instanceof ClientEntry );
+        assertFalse( clientEntry instanceof ServerEntry );
+        
+        assertTrue( clientEntry.containsAttribute( "cn", "objectClass" ) );
+        assertEquals( dn, clientEntry.getDn() );
+        
+        serverEntry.removeAttributes( "cn" );
+        assertTrue( clientEntry
+            .contains( "cn", "test1", "test2" ) );
+        
+        serverEntry.remove(  "objectClass", "person" );
+        assertTrue( clientEntry
+            .contains( "objectClass", "top", "person" ) );
     }
 }
 

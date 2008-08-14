@@ -79,6 +79,8 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
@@ -633,6 +635,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         Tag latest = changeLog.getLatest();
+        
         if ( null != latest )
         {
             if ( latest.getRevision() < changeLog.getCurrentRevision() )
@@ -746,26 +749,26 @@ public class DefaultDirectoryService implements DirectoryService
                 switch( reverse.getChangeType().getChangeType() )
                 {
                     case( ChangeType.ADD_ORDINAL ):
-                        adminSession.add( ServerEntryUtils.toServerEntry( reverse.getAttributes(), 
-                            new LdapDN( reverse.getDn() ), registries )  );
+                        adminSession.add( 
+                            new DefaultServerEntry( registries, reverse.getEntry() ) ); 
                         break;
                         
                     case( ChangeType.DELETE_ORDINAL ):
-                        adminSession.delete( new LdapDN ( reverse.getDn() ) );
+                        adminSession.delete( reverse.getDn() );
                         break;
                         
                     case( ChangeType.MODIFY_ORDINAL ):
-                        adminSession.modify( new LdapDN( reverse.getDn() ), 
-                            ServerEntryUtils.toServerModification( reverse.getModificationItemsArray(), 
-                                registries.getAttributeTypeRegistry() ) );
+                        List<Modification> mods = reverse.getModificationItems();
+
+                        adminSession.modify( reverse.getDn(), mods );
                         break;
                         
                     case( ChangeType.MODDN_ORDINAL ):
                         // NO BREAK - both ModDN and ModRDN handling is the same
                     
                     case( ChangeType.MODRDN_ORDINAL ):
-                        LdapDN forwardDn = new LdapDN( event.getForwardLdif().getDn() );
-                        LdapDN reverseDn = new LdapDN( event.getReverseLdif().getDn() );
+                        LdapDN forwardDn = event.getForwardLdif().getDn();
+                        LdapDN reverseDn = event.getReverseLdif().getDn();
                         
                         moddn( reverseDn, forwardDn, reverse.isDeleteOldRdn() );
 
@@ -835,7 +838,7 @@ public class DefaultDirectoryService implements DirectoryService
         initialize();
         showSecurityWarnings();
         started = true;
-        
+
         if ( !testEntries.isEmpty() )
         {
             createTestEntries();
@@ -1225,13 +1228,14 @@ public class DefaultDirectoryService implements DirectoryService
         {
             try
             {
-                LdifEntry entry = testEntry.clone();
-                Attributes attributes = entry.getAttributes();
-                String dn = entry.getDn();
+                LdifEntry ldifEntry = testEntry.clone();
+                Entry entry = ldifEntry.getEntry();
+                String dn = ldifEntry.getDn().getUpName();
 
                 try
                 {
-                    getAdminSession().add( ServerEntryUtils.toServerEntry( attributes, new LdapDN( dn ), registries ) );
+                    getAdminSession().add( 
+                        new DefaultServerEntry( registries, entry ) ); 
                 }
                 catch ( Exception e )
                 {

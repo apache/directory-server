@@ -211,7 +211,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             }
         }
 
-        List<Modification> newMods = ServerEntryUtils.toServerModification( modItems, 
+        List<Modification> newMods = ServerEntryUtils.convertToServerModification( 
+            modItems, 
             getDirectoryService().getRegistries().getAttributeTypeRegistry() );
 
         try
@@ -285,7 +286,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public void modifyAttributes( Name name, List<ModificationItemImpl> mods ) throws NamingException
     {
         List<Modification> newMods = ServerEntryUtils
-            .toServerModification( mods, getDirectoryService().getRegistries().getAttributeTypeRegistry() );
+            .convertToServerModification( mods, 
+                getDirectoryService().getRegistries().getAttributeTypeRegistry() );
         try
         {
             doModifyOperation( buildTarget( new LdapDN( name ) ), newMods );

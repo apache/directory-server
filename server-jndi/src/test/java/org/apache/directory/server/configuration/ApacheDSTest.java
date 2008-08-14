@@ -22,12 +22,10 @@ package org.apache.directory.server.configuration;
 
 import java.io.File;
 
-import org.apache.directory.server.configuration.ApacheDS;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;

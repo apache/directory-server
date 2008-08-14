@@ -28,7 +28,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
@@ -102,7 +101,7 @@ public class ServerEntryUtils
         return attributes;
     }
 
-    
+
     /**
      * Convert a BasicAttribute or a AttributeImpl to a ServerAtribute
      *
@@ -166,7 +165,7 @@ public class ServerEntryUtils
             return null;
         }
     }
-    
+
 
     /**
      * Convert a BasicAttributes or a AttributesImpl to a ServerEntry
@@ -215,53 +214,6 @@ public class ServerEntryUtils
         {
             return null;
         }
-    }
-
-
-    /**
-     * Convert a ServerEntry into a BasicAttributes. The DN is lost
-     * during this conversion, as the Attributes object does not store
-     * this element.
-     *
-     * @return An instance of a BasicAttributes() object
-     */
-    public static Attributes toBasicAttributes( ServerEntry entry )
-    {
-        Attributes attributes = new BasicAttributes( true );
-
-        for ( AttributeType attributeType:entry.getAttributeTypes() )
-        {
-            Attribute attribute = new BasicAttribute( attributeType.getName(), true );
-            
-            EntryAttribute attr = entry.get( attributeType );
-            
-            for ( Value<?> value:attr )
-            {
-                attribute.add( value );
-            }
-            
-            attributes.put( attribute );
-        }
-        
-        return attributes;
-    }
-    
-    
-    /**
-     * Convert a ServerAttributeEntry into a BasicAttribute.
-     *
-     * @return An instance of a BasicAttribute() object
-     */
-    public static Attribute toBasicAttribute( ServerAttribute attr )
-    {
-        Attribute attribute = new BasicAttribute( attr.getUpId(), false );
-
-        for ( Value<?> value:attr )
-        {
-            attribute.add( value.get() );
-        }
-        
-        return attribute;
     }
 
 
@@ -409,7 +361,14 @@ public class ServerEntryUtils
     }
 
 
-    public static Modification toModification( ModificationItemImpl modificationImpl, AttributeType attributeType ) 
+    /**
+     * Convert a ModificationItemImpl to an instance of a ServerModification object
+     *
+     * @param modificationImpl the modification instance to convert
+     * @param attributeType the associated attributeType
+     * @return a instance of a ServerModification object
+     */
+    private static Modification toServerModification( ModificationItemImpl modificationImpl, AttributeType attributeType ) 
     {
         Modification modification = new ServerModification( 
             modificationImpl.getModificationOp(),
@@ -419,7 +378,7 @@ public class ServerEntryUtils
         
     }
 
-
+    
     public static List<ModificationItemImpl> toModificationItemImpl( List<Modification> modifications )
     {
         if ( modifications != null )
@@ -440,17 +399,26 @@ public class ServerEntryUtils
     }
     
     
-    public static List<Modification> toServerModification( List<ModificationItemImpl> modificationImpls, 
+    /**
+     * 
+     * Convert a list of ModificationItemImpl to a list of 
+     *
+     * @param modificationImpls
+     * @param atRegistry
+     * @return
+     * @throws NamingException
+     */
+    public static List<Modification> convertToServerModification( List<ModificationItemImpl> modificationImpls, 
         AttributeTypeRegistry atRegistry ) throws NamingException
     {
         if ( modificationImpls != null )
         {
-            List<Modification> modifications = new ArrayList<Modification>();
+            List<Modification> modifications = new ArrayList<Modification>( modificationImpls.size() );
 
             for ( ModificationItemImpl modificationImpl: modificationImpls )
             {
                 AttributeType attributeType = atRegistry.lookup( modificationImpl.getAttribute().getID() );
-                modifications.add( toModification( modificationImpl, attributeType ) );
+                modifications.add( toServerModification( modificationImpl, attributeType ) );
             }
         
             return modifications;
@@ -497,7 +465,7 @@ public class ServerEntryUtils
                 
                 // TODO : handle options
                 AttributeType attributeType = atRegistry.lookup( id );
-                modificationsList.add( toModification( (ModificationItemImpl)modification, attributeType ) );
+                modificationsList.add( toServerModification( (ModificationItemImpl)modification, attributeType ) );
             }
         
             return modificationsList;

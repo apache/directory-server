@@ -19,7 +19,6 @@
 package org.apache.directory.server.core.entry;
 
 
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -39,6 +38,7 @@ import org.apache.directory.shared.ldap.entry.AbstractEntry;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class DefaultServerEntry extends AbstractEntry<AttributeType> implements ServerEntry, Externalizable
+public final class DefaultServerEntry extends AbstractEntry<AttributeType> implements ServerEntry
 {
     /** Used for serialization */
     private static final long serialVersionUID = 2L;
@@ -208,6 +208,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     /* no protection ! */ DefaultServerEntry()
     {
         atRegistry = null;
+        dn = LdapDN.EMPTY_LDAPDN;
     }
 
 
@@ -223,10 +224,88 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      */
     public DefaultServerEntry( Registries registries )
     {
-        this.atRegistry = registries.getAttributeTypeRegistry();
+        atRegistry = registries.getAttributeTypeRegistry();
+        dn = LdapDN.EMPTY_LDAPDN;
 
         // Initialize the ObjectClass object
         initObjectClassAT( registries );
+    }
+
+
+    /**
+     * <p>
+     * Creates a new instance of DefaultServerEntry, copying 
+     * another entry, which can be a ClientEntry. 
+     * </p>
+     * <p>
+     * No attributes will be created.
+     * </p> 
+     * 
+     * @param registries The reference to the global registries
+     * @param entry the entry to copy
+     */
+    public DefaultServerEntry( Registries registries, Entry entry )
+    {
+        atRegistry = registries.getAttributeTypeRegistry();
+
+        // Initialize the ObjectClass object
+        initObjectClassAT( registries );
+
+        // We will clone the existing entry, because it may be normalized
+        if ( entry.getDn() != null )
+        {
+            dn = (LdapDN)entry.getDn().clone();
+        }
+        else
+        {
+            dn = LdapDN.EMPTY_LDAPDN;
+        }
+        
+        if ( !dn.isNormalized( ) )
+        {
+            try
+            {
+                // The dn must be normalized
+                dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+            }
+            catch ( NamingException ne )
+            {
+                LOG.warn( "The DN '" + entry.getDn() + "' cannot be normalized" );
+            }
+        }
+        
+        // Init the attributes map
+        attributes = new HashMap<AttributeType, EntryAttribute>( entry.size() );
+        
+        // and copy all the attributes
+        for ( EntryAttribute attribute:entry )
+        {
+            try
+            {
+                // First get the AttributeType
+                AttributeType attributeType = null;
+
+                if ( attribute instanceof ServerAttribute )
+                {
+                    attributeType = ((ServerAttribute)attribute).getAttributeType();
+                }
+                else
+                {
+                    attributeType = registries.getAttributeTypeRegistry().lookup( attribute.getId() );
+                }
+                
+                // Create a new ServerAttribute.
+                EntryAttribute serverAttribute = new DefaultServerAttribute( attributeType, attribute );
+                
+                // And store it
+                add( serverAttribute );
+            }
+            catch ( NamingException ne )
+            {
+                // Just log a warning
+                LOG.warn( "The attribute '" + attribute.getId() + "' cannot be stored" );
+            }
+        }
     }
 
 
@@ -244,8 +323,16 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      */
     public DefaultServerEntry( Registries registries, LdapDN dn )
     {
-        this.dn = dn;
-        this.atRegistry = registries.getAttributeTypeRegistry();
+        if ( dn == null )
+        {
+            dn = LdapDN.EMPTY_LDAPDN;
+        }
+        else
+        {
+            this.dn = dn;
+        }
+        
+        atRegistry = registries.getAttributeTypeRegistry();
 
         // Initialize the ObjectClass object
         initObjectClassAT( registries );
@@ -271,8 +358,16 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      */
     public DefaultServerEntry( Registries registries, LdapDN dn, AttributeType... attributeTypes )
     {
-        this.dn = dn;
-        this.atRegistry = registries.getAttributeTypeRegistry();
+        if ( dn == null )
+        {
+            dn = LdapDN.EMPTY_LDAPDN;
+        }
+        else
+        {
+            this.dn = dn;
+        }
+
+        atRegistry = registries.getAttributeTypeRegistry();
 
         // Initialize the ObjectClass object
         initObjectClassAT( registries );
@@ -305,8 +400,16 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      */
     public DefaultServerEntry( Registries registries, LdapDN dn, AttributeType attributeType, String upId )
     {
-        this.dn = dn;
-        this.atRegistry = registries.getAttributeTypeRegistry();
+        if ( dn == null )
+        {
+            dn = LdapDN.EMPTY_LDAPDN;
+        }
+        else
+        {
+            this.dn = dn;
+        }
+        
+        atRegistry = registries.getAttributeTypeRegistry();
         // Initialize the ObjectClass object
 
         // Initialize the ObjectClass object
@@ -339,8 +442,16 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      */
     public DefaultServerEntry( Registries registries, LdapDN dn, String... upIds )
     {
-        this.dn = dn;
-        this.atRegistry = registries.getAttributeTypeRegistry();
+        if ( dn == null )
+        {
+            dn = LdapDN.EMPTY_LDAPDN;
+        }
+        else
+        {
+            this.dn = dn;
+        }
+        
+        atRegistry = registries.getAttributeTypeRegistry();
 
         initObjectClassAT( registries );
 
@@ -363,8 +474,16 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      */
     public DefaultServerEntry( Registries registries, LdapDN dn, ServerAttribute... attributes )
     {
-        this.dn = dn;
-        this.atRegistry = registries.getAttributeTypeRegistry();
+        if ( dn == null )
+        {
+            dn = LdapDN.EMPTY_LDAPDN;
+        }
+        else
+        {
+            this.dn = dn;
+        }
+        
+        atRegistry = registries.getAttributeTypeRegistry();
 
         initObjectClassAT( registries );
 
@@ -2115,6 +2234,27 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     }
 
 
+    /**
+     * Convert the ServerEntry to a ClientEntry
+     *
+     * @return An instance of ClientEntry
+     */
+    public Entry toClientEntry() throws NamingException
+    {
+        // Copy the DN
+        Entry clientEntry = new DefaultClientEntry( dn );
+        
+        // Convert each attribute 
+        for ( EntryAttribute serverAttribute:this )
+        {
+            EntryAttribute clientAttribute = ((ServerAttribute)serverAttribute).toClientAttribute();
+            clientEntry.add( clientAttribute );
+        }
+        
+        return clientEntry;
+    }
+    
+    
     //-------------------------------------------------------------------------
     // Object methods
     //-------------------------------------------------------------------------
@@ -2154,83 +2294,56 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     
 
     /**
-     * @see Externalizable#writeExternal(ObjectOutput)
-     * <p>
+     * @see java.io.Externalizable#writeExternal(ObjectOutput)
      * 
-     * This is the place where we serialize entries, and all theirs
-     * elements. the reason why we don't call the underlying methods
-     * (<code>ServerAttribute.write(), Value.write()</code>) is that we need
-     * access to the registries to read back the values.
-     * <p>
-     * The structure used to store the entry is the following :
-     * <li><b>[DN length]</b> : can be -1 if we don't have a DN, 0 if the 
-     * DN is empty, otherwise contains the DN's length.<p> 
-     * <b>NOTE :</b>This should be unnecessary, as the DN should always exists
-     * <p>
-     * </li>
-     * <li>
-     * <b>DN</b> : The entry's DN. Can be empty (rootDSE=<p>
-     * </li>
-     * We have to store the UPid, and all the values, if any.
+     * We can't use this method for a ServerEntry, as we have to feed the entry
+     * with an registries reference
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
+        throw new IllegalStateException( "Cannot use standard serialization for a ServerEntry" );
+    }
+    
+    
+    /**
+     * Serialize a server entry.
+     * 
+     * The structure is the following :
+     * 
+     * <b>[DN]</b> : The entry DN. can be empty
+     * <b>[numberAttr]</b> : the bumber of attributes. Can be 0 
+     * <b>[attribute's oid]*</b> : The attribute's OID to get back 
+     * the attributeType on deserialization
+     * <b>[Attribute]*</b> The attribute
+     * 
+     * @param out the buffer in which the data will be serialized
+     * @throws IOException if the serialization failed
+     */
+    public void serialize( ObjectOutput out ) throws IOException
+    {
         // First, the DN
-        if ( dn == null )
-        {
-            // Write an empty DN
-            LdapDN.EMPTY_LDAPDN.writeExternal( out );
-        }
-        else
-        {
-            // Write the DN
-            dn.writeExternal( out );
-        }
+        // Write the DN
+        out.writeObject( dn );
         
         // Then the attributes. 
-        if ( attributes == null )
+        out.writeInt( attributes.size() );
+        
+        // Iterate through the keys. We store the Attribute
+        // here, to be able to restore it in the readExternal :
+        // we need access to the registries, which are not available
+        // in the ServerAttribute class.
+        for ( AttributeType attributeType:attributes.keySet() )
         {
-            out.writeInt( -1 );
-        }
-        else
-        {
-            out.writeInt( attributes.size() );
+            // Write the oid to be able to restore the AttributeType when deserializing
+            // the attribute
+            String oid = attributeType.getOid();
+            out.writeUTF( oid );
             
-            // Iterate through the keys. We store the Attribute
-            // here, to be able to restore it in the readExternal :
-            // we need access to the registries, which are not available
-            // in the ServerAttribute class.
-            for ( AttributeType attributeType:attributes.keySet() )
-            {
-                // We store the OID, as the AttributeType might have no name
-                out.writeUTF( attributeType.getOid() );
-                
-                // And store the attribute.
-                EntryAttribute attribute = attributes.get( attributeType );
+            // Get the attribute
+            DefaultServerAttribute attribute = (DefaultServerAttribute)attributes.get( attributeType );
 
-                // Store the UP id
-                out.writeUTF( attribute.getUpId() );
-                
-                // The number of values
-                int nbValues = attribute.size();
-                
-                if ( nbValues == 0 ) 
-                {
-                    out.writeInt( 0 );
-                }
-                else 
-                {
-                    out.writeInt( nbValues );
-
-                    for ( Value<?> value:attribute )
-                    {
-                        value.writeExternal( out );
-                    }
-                }
-            }
-
-            // Note : we don't store the ObjectClassAttribute. I has already
-            // been stored as an attribute.
+            // Write the attribute
+            attribute.serialize( out );
         }
         
         out.flush();
@@ -2238,9 +2351,25 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
 
     
     /**
-     * @see Externalizable#readExternal(ObjectInput)
+     * @see java.io.Externalizable#readExternal(ObjectInput)
+     * 
+     * We can't use this method for a ServerEntry, as we have to feed the entry
+     * with an registries reference
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        throw new IllegalStateException( "Cannot use standard serialization for a ServerAttribute" );
+    }
+    
+    
+    /**
+     * Deserialize a server entry. 
+     * 
+     * @param in The buffer containing the serialized serverEntry
+     * @throws IOException if there was a problem when deserializing
+     * @throws ClassNotFoundException if we can't deserialize an expected object
+     */
+    public void deserialize( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         // Read the DN
         dn = (LdapDN)in.readObject();
@@ -2248,36 +2377,28 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         // Read the number of attributes
         int nbAttributes = in.readInt();
         
-        attributes = new HashMap<AttributeType, EntryAttribute>( nbAttributes );
-
         // Read the attributes
         for ( int i = 0; i < nbAttributes; i++ )
         {
+            // Read the attribute's OID
             String oid = in.readUTF();
             
             try
             {
                 AttributeType attributeType = atRegistry.lookup( oid );
                 
-                ServerAttribute attribute = new DefaultServerAttribute( attributeType );
+                // Create the attribute we will read
+                DefaultServerAttribute attribute = new DefaultServerAttribute( attributeType );
                 
-                // Read the attribute upID
-                String upId = in.readUTF();
-                attribute.setUpId( upId, attributeType );
+                // Read the attribute
+                attribute.deserialize( in );
                 
-                // Read the number of values
-                int nbValues = in.readInt();
-                
-                for ( int j = 0; j < nbValues; j++ )
-                {
-                    Value<?> value = (Value<?>)in.readObject();
-                    attribute.add( value );
-                }
-                
-                attributes.put(  attributeType, attribute );
+                attributes.put( attributeType, attribute );
             }
             catch ( NamingException ne )
             {
+                // We weren't able to find the OID. The attribute will not be added
+                LOG.warn( "Cannot read the attribute as it's OID ('" + oid + "') does not exist" );
                 
             }
         }
@@ -2369,7 +2490,18 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         StringBuilder sb = new StringBuilder();
         
         sb.append( "ServerEntry\n" );
-        sb.append( "    dn: " ).append( dn ).append( '\n' );
+        sb.append( "    dn" );
+        
+        if ( dn.isNormalized() )
+        {
+            sb.append( "[n]" );
+        }
+        else
+        {
+            sb.append(  "[]" );
+        }
+        
+        sb.append( ": " ).append( dn ).append( '\n' );
         
         // First dump the ObjectClass attribute
         if ( containsAttribute( OBJECT_CLASS_AT ) )

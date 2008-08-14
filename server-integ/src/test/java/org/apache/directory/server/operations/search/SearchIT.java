@@ -36,7 +36,9 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.newldap.LdapServer;
@@ -66,6 +68,7 @@ import static org.junit.Assert.assertNotNull;
  * @version $Rev: 682556 $
  */
 @RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.CLASS )
 @ApplyLdifs( {
     
     // Entry # 0

@@ -31,6 +31,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.integ.SiRunner;
 
@@ -65,6 +66,7 @@ import static org.junit.Assert.assertNotNull;
     "objectClass: top\n" +
     "objectClass: referral\n" +
     "objectClass: extensibleObject\n" +
+    "ou: RemoteUsers\n" +
     "ref: ldap://fermi:10389/ou=users,ou=system\n" +
     "ref: ldap://hertz:10389/ou=users,dc=example,dc=com\n" +
     "ref: ldap://maxwell:10389/ou=users,ou=system\n\n" +
@@ -89,7 +91,7 @@ import static org.junit.Assert.assertNotNull;
     "objectClass: locality\n" +
     "l: Jacksonville\n\n" +
     
-    "dn: cn=emmanuel lecharney,l=paris,c=france,ou=system\n" +
+    "dn: cn=emmanuel lecharny,l=paris,c=france,ou=system\n" +
     "objectClass: top\n" +
     "objectClass: person\n" +
     "objectClass: residentialPerson\n" +
@@ -138,8 +140,8 @@ public class ReferralSearchIT
         while ( reader.hasNext() )
         {
             LdifEntry entry = reader.next();
-            DirContext ctx = getWiredContext( ldapServer );
-            ctx.createSubcontext( entry.getDn(), entry.getAttributes() );
+            ldapServer.getDirectoryService().getAdminSession().add( 
+                new DefaultServerEntry( ldapServer.getDirectoryService().getRegistries(), entry.getEntry() ) ); 
         }
     }
     

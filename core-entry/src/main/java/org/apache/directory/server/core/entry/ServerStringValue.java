@@ -109,6 +109,7 @@ public class ServerStringValue extends ClientStringValue
     public ServerStringValue( AttributeType attributeType )
     {
         super();
+        
         if ( attributeType == null )
         {
             throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
@@ -564,39 +565,70 @@ public class ServerStringValue extends ClientStringValue
     /**
      * @see Externalizable#writeExternal(ObjectOutput)
      * 
+     * We can't use this method for a ServerStringValue, as we have to feed the value
+     * with an AttributeType object
+     */ 
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        throw new IllegalStateException( "Cannot use standard serialization for a ServerStringValue" );
+    }
+    
+    
+    /**
      * We will write the value and the normalized value, only
      * if the normalized value is different.
      * 
-     * The data will be stored following this structure :
+     * If the value is empty, a flag is written at the beginning with 
+     * the value true, otherwise, a false is written.
      * 
+     * The data will be stored following this structure :
+     *  [empty value flag]
      *  [UP value]
-     *  [Norm value] (will be null if normValue == upValue)
+     *  [normalized] (will be false if the value can't be normalized)
+     *  [same] (a flag set to true if the normalized value equals the UP value)
+     *  [Norm value] (the normalized value if different from the UP value)
+     *  
+     *  @param out the buffer in which we will stored the serialized form of the value
+     *  @throws IOException if we can't write into the buffer
      */
-    public void writeExternal( ObjectOutput out ) throws IOException
+    public void serialize( ObjectOutput out ) throws IOException
     {
-        if ( get() != null )
+        if ( wrapped != null )
         {
-            out.writeUTF( get() );
+            // write a flag indicating that the value is not null
+            out.writeBoolean( true );
             
+            // Write the data
+            out.writeUTF( wrapped );
+            
+            // Normalize the data
             try
             {
                 normalize();
+                out.writeBoolean( true );
+                
+                if ( wrapped.equals( normalizedValue ) )
+                {
+                    out.writeBoolean( true );
+                }
+                else
+                {
+                    out.writeBoolean( false );
+                    out.writeUTF( normalizedValue );
+                }
             }
             catch ( NamingException ne )
             {
+                // The value can't be normalized, we don't write the 
+                // normalized value.
                 normalizedValue = null;
+                out.writeBoolean( false );
             }
-            
-            if ( get().equals( normalizedValue ) )
-            {
-                // If the normalized value is equal to the UP value,
-                // don't save it
-                out.writeUTF( "" );
-            }
-            else
-            {
-                out.writeUTF( normalizedValue );
-            }
+        }
+        else
+        {
+            // Write a flag indicating that the value is null
+            out.writeBoolean( false );
         }
         
         out.flush();
@@ -605,31 +637,55 @@ public class ServerStringValue extends ClientStringValue
     
     /**
      * @see Externalizable#readExternal(ObjectInput)
+     * 
+     * We can't use this method for a ServerStringValue, as we have to feed the value
+     * with an AttributeType object
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        if ( in.available() == 0 )
+        throw new IllegalStateException( "Cannot use standard serialization for a ServerStringValue" );
+    }
+    
+
+    /**
+     * 
+     * Deserialize a ServerStringValue. 
+     *
+     * @param in the buffer containing the bytes with the serialized value
+     * @throws IOException 
+     * @throws ClassNotFoundException
+     */
+    public void deserialize( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        // If the value is null, the flag will be set to false
+        if ( !in.readBoolean() )
         {
             set( null );
             normalizedValue = null;
+            return;
         }
-        else
+        
+        // Read the value
+        String wrapped = in.readUTF();
+        
+        set( wrapped );
+        
+        // Read the normalized flag
+        normalized = in.readBoolean();
+        
+        if ( normalized )
         {
-            String wrapped = in.readUTF();
-            
-            set( wrapped );
-            
-            normalizedValue = in.readUTF();
-            
-            if ( ( normalizedValue.length() == 0 ) &&  ( wrapped.length() != 0 ) )
+            normalized = true;
+
+            // Read the 'same' flag
+            if ( in.readBoolean() )
             {
-                // In this case, the normalized value is equal to the UP value
                 normalizedValue = wrapped;
-                setNormalized( true );
             }
             else
             {
-                setNormalized( false );
+                // The normalized value is different. Read it
+                normalizedValue = in.readUTF();
             }
         }
     }

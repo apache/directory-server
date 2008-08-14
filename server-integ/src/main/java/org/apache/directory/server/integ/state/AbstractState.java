@@ -25,10 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.integ.InheritableServerSettings;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -183,7 +182,6 @@ public abstract class AbstractState implements TestServerState
         
         if ( ldifs.size() != 0 )
         {
-            LdapContext root = IntegrationUtils.getRootContext( service );
             for ( String ldif:ldifs )
             {
                 StringReader in = new StringReader( ldif );
@@ -191,7 +189,8 @@ public abstract class AbstractState implements TestServerState
                 
                 for ( LdifEntry entry : ldifReader )
                 {
-                    root.createSubcontext( entry.getDn(), entry.getAttributes() );
+                    service.getAdminSession().add( 
+                        new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
                     LOG.debug( "Successfully injected LDIF enry for test {}: {}", settings.getDescription(), entry );
                 }
             }

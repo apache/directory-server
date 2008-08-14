@@ -55,7 +55,7 @@ import org.junit.runner.RunWith;
  * @version $Rev$, $Date$
  */
 @RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@CleanupLevel ( Level.CLASS )
 @ApplyLdifs( {
     // Entry # 1
     "dn: uid=hnelson,ou=users,ou=system\n" +

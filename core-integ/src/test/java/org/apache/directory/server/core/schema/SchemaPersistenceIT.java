@@ -127,6 +127,7 @@ public class SchemaPersistenceIT
     {
         LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
         Attribute attr = new AttributeImpl( opAttr );
+        
         for ( String description : descriptions )
         {
             attr.add( description );

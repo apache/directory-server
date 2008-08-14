@@ -21,6 +21,7 @@ package org.apache.directory.server.core;
 
 
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -30,6 +31,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
@@ -295,7 +297,19 @@ public class DefaultCoreSession implements CoreSession
      */
     public void modify( LdapDN dn, List<Modification> mods ) throws Exception
     {
-        directoryService.getOperationManager().modify( new ModifyOperationContext( this, dn, mods ) );
+        if ( mods == null )
+        {
+            return;
+        }
+        
+        List<Modification> serverModifications = new ArrayList<Modification>( mods.size() );
+        
+        for ( Modification mod:mods )
+        {
+            serverModifications.add( new ServerModification( directoryService.getRegistries(), mod ) );
+        }
+        
+        directoryService.getOperationManager().modify( new ModifyOperationContext( this, dn, serverModifications ) );
     }
 
 

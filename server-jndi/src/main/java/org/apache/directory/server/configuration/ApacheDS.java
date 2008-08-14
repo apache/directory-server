@@ -27,7 +27,6 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.newldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
@@ -40,7 +39,6 @@ import org.apache.mina.common.SimpleByteBufferAllocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.directory.DirContext;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -361,9 +359,7 @@ public class ApacheDS
         }
         else
         {
-            DirContext root = new ServerLdapContext( directoryService, 
-                directoryService.getAdminSession(), new LdapDN() );
-            LdifFileLoader loader = new LdifFileLoader( root, ldifFile, ldifFilters );
+            LdifFileLoader loader = new LdifFileLoader( directoryService.getAdminSession(), ldifFile, ldifFilters );
             int count = loader.execute();
             LOG.info( "Loaded " + count + " entries from LDIF file '" + getCanonical( ldifFile ) + "'" );
             addFileEntry( ldifFile );

@@ -449,7 +449,7 @@ public class JdbmPartition extends BTreePartition
     
     public final void add( AddOperationContext addContext ) throws Exception
     {
-        store.add( addContext.getDn(), ((ClonedServerEntry)addContext.getEntry()).getClonedEntry() );
+        store.add( addContext.getDn(), (ServerEntry)((ClonedServerEntry)addContext.getEntry()).getClonedEntry() );
     }
 
 

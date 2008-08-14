@@ -32,8 +32,6 @@ import java.util.Iterator;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.commons.cli.CommandLine;
@@ -60,6 +58,9 @@ import org.apache.directory.shared.ldap.codec.extended.ExtendedResponse;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequest;
 import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -212,39 +213,36 @@ public class ImportCommand extends ToolCommand
      * Send the entry to the encoder, then wait for a
      * reponse from the LDAP server on the results of the operation.
      * 
-     * @param entry
+     * @param ldifEntry
      *            The entry to add
      * @param msgId
      *            message id number
      */
-    private int addEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException, InvalidNameException,
+    private int addEntry( LdifEntry ldifEntry, int messageId ) throws IOException, DecoderException, InvalidNameException,
         NamingException, EncoderException
     {
         AddRequest addRequest = new AddRequest();
 
-        String dn = entry.getDn();
+        String dn = ldifEntry.getDn().getUpName();
 
         if ( isDebugEnabled() )
         {
             System.out.println( "Adding entry " + dn );
         }
 
-        Attributes attributes = entry.getAttributes();
+        Entry entry = ldifEntry.getEntry();
 
         addRequest.setEntry( new LdapDN( dn ) );
 
         // Copy the attributes
         addRequest.initAttributes();
 
-        for ( NamingEnumeration attrs = attributes.getAll(); attrs.hasMoreElements(); )
+        for ( EntryAttribute attribute:entry )
         {
-            Attribute attribute = ( Attribute ) attrs.nextElement();
+            addRequest.addAttributeType( attribute.getId() );
 
-            addRequest.addAttributeType( attribute.getID() );
-
-            for ( NamingEnumeration values = attribute.getAll(); values.hasMoreElements(); )
+            for ( Value<?> value: attribute )
             {
-                Object value = values.nextElement();
                 addRequest.addAttributeValue( value );
             }
         }
@@ -300,7 +298,7 @@ public class ImportCommand extends ToolCommand
     {
         DelRequest delRequest = new DelRequest();
 
-        String dn = entry.getDn();
+        String dn = entry.getDn().getUpName();
 
         if ( isDebugEnabled() )
         {
@@ -359,7 +357,7 @@ public class ImportCommand extends ToolCommand
     {
         ModifyDNRequest modifyDNRequest = new ModifyDNRequest();
 
-        String dn = entry.getDn();
+        String dn = entry.getDn().getUpName();
 
         if ( isDebugEnabled() )
         {
@@ -425,7 +423,7 @@ public class ImportCommand extends ToolCommand
     {
         ModifyRequest modifyRequest = new ModifyRequest();
 
-        String dn = entry.getDn();
+        String dn = entry.getDn().getUpName();
 
         if ( isDebugEnabled() )
         {

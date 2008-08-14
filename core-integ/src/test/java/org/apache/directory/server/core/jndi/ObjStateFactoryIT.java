@@ -21,10 +21,10 @@ package org.apache.directory.server.core.jndi;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
@@ -64,7 +64,9 @@ public class ObjStateFactoryIT
     public void testObjectFactory() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+
 
         LdapContext sysRoot = getSystemContext( service );
         sysRoot.addToEnvironment( Context.OBJECT_FACTORIES, PersonObjectFactory.class.getName() );

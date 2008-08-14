@@ -32,6 +32,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
@@ -179,13 +180,15 @@ public class SchemaServiceIT
         assertFalse( ldifReader.hasNext() );
         
         // should be fine with unique OID
-        LdapContext root = getRootContext( service );
-        root.createSubcontext( numberOfGunsAttrEntry.getDn(), numberOfGunsAttrEntry.getAttributes() );
-         
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), numberOfGunsAttrEntry.getEntry() ) ); 
+
         // should blow chuncks using same OID
         try
         {
-            root.createSubcontext( shipOCEntry.getDn(), shipOCEntry.getAttributes() );
+            service.getAdminSession().add( 
+                new DefaultServerEntry( service.getRegistries(), shipOCEntry.getEntry() ) ); 
+            
             fail( "Should not be possible to create two schema entities with the same OID." );
         }
         catch( NamingException e )

@@ -93,6 +93,82 @@ public class ServerStringValueTest
         at.setSyntax( s );
     }
     
+    
+    /**
+     * Serialize a ServerStringValue
+     */
+    private ByteArrayOutputStream serializeValue( ServerStringValue value ) throws IOException
+    {
+        ObjectOutputStream oOut = null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try
+        {
+            oOut = new ObjectOutputStream( out );
+            value.serialize( oOut );
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oOut != null )
+                {
+                    oOut.flush();
+                    oOut.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+        
+        return out;
+    }
+    
+    
+    /**
+     * Deserialize a ServerStringValue
+     */
+    private ServerStringValue deserializeValue( ByteArrayOutputStream out, AttributeType at ) throws IOException, ClassNotFoundException
+    {
+        ObjectInputStream oIn = null;
+        ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
+
+        try
+        {
+            oIn = new ObjectInputStream( in );
+
+            ServerStringValue value = new ServerStringValue( at );
+            value.deserialize( oIn );
+
+            return value;
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oIn != null )
+                {
+                    oIn.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+    }
+    
+    
     /**
      * Test the constructor with a null value
      */
@@ -615,28 +691,17 @@ public class ServerStringValueTest
     @Test public void testNormalizedStringValueSerialization() throws NamingException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
-        ServerStringValue sv = new ServerStringValue( at, "  Test   Test  " );
+        ServerStringValue ssv = new ServerStringValue( at, "  Test   Test  " );
         
-        sv.normalize();
-        String normalized = sv.getNormalizedValue();
+        ssv.normalize();
+        String normalized = ssv.getNormalizedValue();
         
         assertEquals( "test test", normalized );
-        assertEquals( "  Test   Test  ", sv.get() );
+        assertEquals( "  Test   Test  ", ssv.get() );
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        ServerStringValue ssvSer = deserializeValue( serializeValue( ssv ), at );
         
-        sv.writeExternal( out );
-        
-        ObjectInputStream in = null;
-
-        byte[] data = baos.toByteArray();
-        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-        
-        ServerStringValue sv2 = new ServerStringValue( at );
-        sv2.readExternal( in );
-        
-        assertEquals( sv, sv2 );
+        assertEquals( ssv, ssvSer );
    }
 
 
@@ -646,29 +711,17 @@ public class ServerStringValueTest
     @Test public void testNoNormalizedStringValueSerialization() throws NamingException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
-        ServerStringValue sv = new ServerStringValue( at, "test" );
+        ServerStringValue ssv = new ServerStringValue( at, "test" );
         
-        sv.normalize();
-        String normalized = sv.getNormalizedValue();
+        ssv.normalize();
+        String normalized = ssv.getNormalizedValue();
         
         assertEquals( "test", normalized );
-        assertEquals( "test", sv.get() );
+        assertEquals( "test", ssv.get() );
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        ServerStringValue ssvSer = deserializeValue( serializeValue( ssv ), at );
         
-        sv.writeExternal( out );
-        
-        ObjectInputStream in = null;
-
-        byte[] data = baos.toByteArray();
-        
-        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-        
-        ServerStringValue sv2 = new ServerStringValue( at );
-        sv2.readExternal( in );
-        
-        assertEquals( sv, sv2 );
+        assertEquals( ssv, ssvSer );
    }
 
 
@@ -678,29 +731,17 @@ public class ServerStringValueTest
     @Test public void testNullStringValueSerialization() throws NamingException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
-        ServerStringValue sv = new ServerStringValue( at );
+        ServerStringValue ssv = new ServerStringValue( at );
         
-        sv.normalize();
-        String normalized = sv.getNormalizedValue();
+        ssv.normalize();
+        String normalized = ssv.getNormalizedValue();
         
         assertEquals( null, normalized );
-        assertEquals( null, sv.get() );
+        assertEquals( null, ssv.get() );
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        ServerStringValue ssvSer = deserializeValue( serializeValue( ssv ), at );
         
-        sv.writeExternal( out );
-        
-        ObjectInputStream in = null;
-
-        byte[] data = baos.toByteArray();
-        
-        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-        
-        ServerStringValue sv2 = new ServerStringValue( at );
-        sv2.readExternal( in );
-        
-        assertEquals( sv, sv2 );
+        assertEquals( ssv, ssvSer );
    }
 
 
@@ -710,28 +751,33 @@ public class ServerStringValueTest
     @Test public void testEmptyStringValueSerialization() throws NamingException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
-        ServerStringValue sv = new ServerStringValue( at, "" );
+        ServerStringValue ssv = new ServerStringValue( at, "" );
         
-        sv.normalize();
-        String normalized = sv.getNormalizedValue();
+        ssv.normalize();
+        String normalized = ssv.getNormalizedValue();
         
         assertEquals( "", normalized );
-        assertEquals( "", sv.get() );
+        assertEquals( "", ssv.get() );
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        ServerStringValue ssvSer = deserializeValue( serializeValue( ssv ), at );
         
-        sv.writeExternal( out );
-        
-        ObjectInputStream in = null;
+        assertEquals( ssv, ssvSer );
+    }
 
-        byte[] data = baos.toByteArray();
+
+    /**
+     * Test serialization of an empty StringValue
+     */
+    @Test public void testStringValueEmptyNormalizedSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        // First check with a value which will be normalized
+        ServerStringValue ssv = new ServerStringValue( at, "  " );
         
-        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+        //assertEquals( "", normalized );
+        assertEquals( "  ", ssv.get() );
         
-        ServerStringValue sv2 = new ServerStringValue( at );
-        sv2.readExternal( in );
+        ServerStringValue ssvSer = deserializeValue( serializeValue( ssv ), at );
         
-        assertEquals( sv, sv2 );
-   }
+        assertEquals( ssv, ssvSer );
+    }
 }
