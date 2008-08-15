@@ -3102,6 +3102,7 @@ public class LdapDNTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         LdapDNSerializer.serialize( dn, out );
+        out.flush();
 
         byte[] data = baos.toByteArray();
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
@@ -3168,6 +3169,7 @@ public class LdapDNTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         LdapDNSerializer.serialize( dn, out );
+        out.flush();
 
         byte[] data = baos.toByteArray();
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );

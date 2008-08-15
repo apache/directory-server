@@ -1127,6 +1127,7 @@ public class RdnTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         RdnSerializer.serialize( rdn, out );
+        out.flush();
 
         ObjectInputStream in = null;
 
@@ -1150,6 +1151,7 @@ public class RdnTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         RdnSerializer.serialize( rdn, out );
+        out.flush();
 
         ObjectInputStream in = null;
 
@@ -1175,6 +1177,7 @@ public class RdnTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         RdnSerializer.serialize( rdn, out );
+        out.flush();
 
         ObjectInputStream in = null;
 
@@ -1200,6 +1203,7 @@ public class RdnTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         RdnSerializer.serialize( rdn, out );
+        out.flush();
 
         ObjectInputStream in = null;
 
@@ -1225,6 +1229,7 @@ public class RdnTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         RdnSerializer.serialize( rdn, out );
+        out.flush();
 
         ObjectInputStream in = null;
 
@@ -1250,6 +1255,7 @@ public class RdnTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         RdnSerializer.serialize( rdn, out );
+        out.flush();
 
         ObjectInputStream in = null;
 
@@ -1276,6 +1282,7 @@ public class RdnTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         RdnSerializer.serialize( rdn, out );
+        out.flush();
 
         ObjectInputStream in = null;
 
@@ -1302,6 +1309,7 @@ public class RdnTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         RdnSerializer.serialize( rdn, out );
+        out.flush();
 
         ObjectInputStream in = null;
 

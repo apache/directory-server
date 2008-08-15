@@ -97,8 +97,6 @@ public class LdapDNSerializer
         {
             RdnSerializer.serialize( rdn, out );
         }
-        
-        out.flush();
     }
 
 

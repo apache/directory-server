@@ -1409,8 +1409,6 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
            
                break;
        }
-       
-       out.flush();
    }
 
 

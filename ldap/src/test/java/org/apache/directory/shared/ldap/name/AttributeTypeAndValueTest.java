@@ -420,6 +420,7 @@ public class AttributeTypeAndValueTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         AtavSerializer.serialize( atav, out );
+        out.flush();
 
         ObjectInputStream in = null;
 
@@ -446,6 +447,7 @@ public class AttributeTypeAndValueTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         AtavSerializer.serialize( atav, out );
+        out.flush();
 
         ObjectInputStream in = null;
 
@@ -532,6 +534,7 @@ public class AttributeTypeAndValueTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         AtavSerializer.serialize( atav, out );
+        out.flush();
 
         ObjectInputStream in = null;
 
@@ -553,6 +556,7 @@ public class AttributeTypeAndValueTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         AtavSerializer.serialize( atav, out );
+        out.flush();
 
         ObjectInputStream in = null;
 

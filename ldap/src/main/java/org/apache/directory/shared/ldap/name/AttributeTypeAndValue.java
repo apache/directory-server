@@ -896,8 +896,6 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
             out.writeInt( ((byte[])normValue).length );
             out.write( (byte[])normValue );
         }
-        
-        out.flush();
     }
     
     
