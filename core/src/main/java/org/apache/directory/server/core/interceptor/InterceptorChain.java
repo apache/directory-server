@@ -1154,7 +1154,6 @@ public class InterceptorChain
                     }
                     catch ( Exception ne )
                     {
-                        ne.printStackTrace();
                         throw ne;
                     }
                     catch ( Throwable e )
