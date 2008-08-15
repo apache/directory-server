@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
@@ -48,20 +49,27 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.naming.InsufficientResourcesException;
 import javax.naming.directory.SearchControls;
  
 
@@ -78,6 +86,9 @@ import javax.naming.directory.SearchControls;
  */
 public class OperationalAttributeInterceptor extends BaseInterceptor
 {
+    /** The LoggerFactory used by this Interceptor */
+    private static Logger LOG = LoggerFactory.getLogger( OperationalAttributeInterceptor.class );
+
     private final EntryFilter DENORMALIZING_SEARCH_FILTER = new EntryFilter()
     {
         public boolean accept( SearchingOperationContext operation, ClonedServerEntry serverEntry ) 
@@ -112,7 +123,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     private LdapDN subschemaSubentryDn;
     
+    /** The registries */
     private Registries registries;
+    
+    private static AttributeType CREATE_TIMESTAMP_ATTRIBUTE_TYPE;
 
 
     /**
@@ -133,7 +147,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Value<?> subschemaSubentry = service.getPartitionNexus()
                 .getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = new LdapDN( (String)subschemaSubentry.get() );
-        subschemaSubentryDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
+        
+        CREATE_TIMESTAMP_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.CREATE_TIMESTAMP_AT );
     }
 
 
@@ -153,7 +169,29 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         ServerEntry entry = opContext.getEntry();
 
         entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
-        entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        
+        EntryAttribute createTimeStamp = new DefaultServerAttribute( CREATE_TIMESTAMP_ATTRIBUTE_TYPE );
+        
+        if ( opContext.getEntry().contains( createTimeStamp ) )
+        {
+            // As we already have a CreateTimeStamp value in the context, use it, but only if
+            // the principal is admin
+            if ( opContext.getSession().getAuthenticatedPrincipal().getName().equals( 
+                ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ))
+            {
+                entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            }
+            else
+            {
+                String message = "The CreateTimeStamp attribute cannot be created by a user";
+                LOG.error( message );
+                throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+            }
+        }
+        else
+        {
+            entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        }
         
         nextInterceptor.add( opContext );
     }

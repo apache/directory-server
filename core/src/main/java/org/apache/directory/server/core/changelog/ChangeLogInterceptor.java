@@ -296,6 +296,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.ModRdn );
         forward.setDn( renameContext.getDn() );
+        forward.setNewRdn( renameContext.getNewRdn().getUpName() );
         forward.setDeleteOldRdn( renameContext.getDelOldDn() );
 
         LdifEntry reverse = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), 

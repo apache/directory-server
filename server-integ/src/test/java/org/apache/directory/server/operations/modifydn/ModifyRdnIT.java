@@ -459,7 +459,7 @@ public class ModifyRdnIT
      * Ensure that the attribute itself contains the unescaped value.
      */
     @Test
-    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
+    //@Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
     public void testModifyRdnWithEncodedNewRdn() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
@@ -499,7 +499,8 @@ public class ModifyRdnIT
         // Check that cn contains the unescaped value
         Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( "Number of cn occurences", 1, cn.size() );
-        assertTrue( cn.contains( newCnEscapedVal ) );
+        String expectedCn = new String( new byte[] { ( byte ) 0xC3, ( byte ) 0xA4, '+' }, "UTF-8" );
+        assertTrue( cn.contains( expectedCn ) );
 
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
@@ -512,7 +513,7 @@ public class ModifyRdnIT
      * Ensure that the attribute itself contains the unescaped value.
      */
     @Test
-    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
+    //@Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
     public void testModifyRdnWithEscapedPoundNewRdn() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
@@ -550,7 +551,7 @@ public class ModifyRdnIT
         // Check that cn contains the unescaped value
         Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( "Number of cn occurences", 1, cn.size() );
-        assertTrue( cn.contains( "\\#test" ) );
+        assertTrue( cn.contains( "#test" ) );
 
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
@@ -729,7 +730,7 @@ public class ModifyRdnIT
      * @throws NamingException
      */
     @Test
-    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
+    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1231" )
     public void testModifyMultiValuedRdnVariant5() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
@@ -776,7 +777,7 @@ public class ModifyRdnIT
      * @throws NamingException
      */
     @Test
-    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
+    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1231" )
     public void testModifyMultiValuedRdnVariant6() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );

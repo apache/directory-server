@@ -39,6 +39,7 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -1550,7 +1551,23 @@ public class JdbmStore<E> implements Store<E>
             String newNormType = newAtav.getNormType();
             String newNormValue = ( String ) newAtav.getNormValue();
             AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newNormType );
-            entry.add( newRdnAttrType, ( String ) newAtav.getUpValue() );
+            
+            Object unEscapedRdn = Rdn.unescapeValue( (String)newAtav.getUpValue() );
+            
+            Value<?> value = null;
+            
+            if ( unEscapedRdn instanceof String )
+            {
+                value = new ServerStringValue( newRdnAttrType, (String)unEscapedRdn );
+            }
+            else
+            {
+                value = new ServerBinaryValue( newRdnAttrType, (byte[])unEscapedRdn );
+            }
+            
+            value.normalize();
+            
+            entry.add( newRdnAttrType, value );
 
             if ( hasUserIndexOn( newNormType ) )
             {
