@@ -28,7 +28,6 @@ import java.security.Principal;
 
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.LdapDNSerializer;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -192,7 +191,7 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
     public void readExternal( ObjectInput in ) throws IOException , ClassNotFoundException
     {
         // Read the name
-        name = LdapDNSerializer.deserialize( in );
+        name = (LdapDN)in.readObject();
         
         // read the authentication level
         int level = in.readInt();
@@ -214,11 +213,11 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
         // Write the name
         if ( name == null )
         {
-            LdapDNSerializer.serialize( LdapDN.EMPTY_LDAPDN, out );
+            out.writeObject( LdapDN.EMPTY_LDAPDN );
         }
         else
         {
-            LdapDNSerializer.serialize( name, out );
+            out.writeObject( name );
         }
         
         // write the authentication level
@@ -232,6 +231,6 @@ public final class LdapPrincipal implements Principal, Cloneable, Externalizable
         }
         
         // and flush the result
-        out.flush();
+        //out.flush();
     }
 }

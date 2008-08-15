@@ -344,8 +344,6 @@ public class ServerModification implements Modification
         
         // Write the attribute
         ((DefaultServerAttribute)attribute).serialize( out );
-        
-        out.flush();
     }
     
     

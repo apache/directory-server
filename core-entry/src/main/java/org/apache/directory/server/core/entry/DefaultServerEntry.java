@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.LdapDNSerializer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -2323,9 +2324,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     {
         // First, the DN
         // Write the DN
-        out.writeObject( dn );
+        LdapDNSerializer.serialize( dn, out );
         
-        // Then the attributes. 
+        // Then the attributes.
         out.writeInt( attributes.size() );
         
         // Iterate through the keys. We store the Attribute
@@ -2337,6 +2338,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             // Write the oid to be able to restore the AttributeType when deserializing
             // the attribute
             String oid = attributeType.getOid();
+            
             out.writeUTF( oid );
             
             // Get the attribute
@@ -2345,8 +2347,6 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             // Write the attribute
             attribute.serialize( out );
         }
-        
-        out.flush();
     }
 
     
@@ -2372,7 +2372,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     public void deserialize( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         // Read the DN
-        dn = (LdapDN)in.readObject();
+        dn = LdapDNSerializer.deserialize( in );
         
         // Read the number of attributes
         int nbAttributes = in.readInt();

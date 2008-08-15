@@ -23,6 +23,9 @@ package org.apache.directory.server.core.sp;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -45,6 +48,7 @@ import javax.naming.ldap.LdapContext;
  * @version $Rev$ $Date$
  */
 @RunWith ( CiRunner.class )
+@CleanupLevel(Level.CLASS)
 public class LdapClassLoaderIT
 {
     private static final String HELLOWORLD_CLASS_BASE64 = "yv66vgAAADEAHQoABgAPCQAQABEIABIKABMAFAcAFQcAFgEABjxpbml0PgEAAygpV"

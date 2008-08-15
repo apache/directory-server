@@ -686,26 +686,35 @@ public class ServerBinaryValue extends ClientBinaryValue
                 {
                     normalize();
                     
-                    // Write a flag indicating that the data has been normalized
-                    out.writeBoolean( true );
-                    
-                    if ( Arrays.equals( getReference(), normalizedValue ) )
+                    if ( !normalized )
                     {
-                        // Write the 'same = true' flag
-                        out.writeBoolean( true );
+                        // We may not have a normalizer. Just get out
+                        // after having writen the flag
+                        out.writeBoolean( false );
                     }
                     else
                     {
-                        // Write the 'same = false' flag
-                        out.writeBoolean( false );
+                        // Write a flag indicating that the data has been normalized
+                        out.writeBoolean( true );
                         
-                        // Write the normalized value length
-                        out.write( normalizedValue.length );
-                        
-                        if ( normalizedValue.length > 0 )
+                        if ( Arrays.equals( getReference(), normalizedValue ) )
                         {
-                            // Write the normalized value if not empty
-                            out.write( normalizedValue );
+                            // Write the 'same = true' flag
+                            out.writeBoolean( true );
+                        }
+                        else
+                        {
+                            // Write the 'same = false' flag
+                            out.writeBoolean( false );
+                            
+                            // Write the normalized value length
+                            out.write( normalizedValue.length );
+                            
+                            if ( normalizedValue.length > 0 )
+                            {
+                                // Write the normalized value if not empty
+                                out.write( normalizedValue );
+                            }
                         }
                     }
                 }
@@ -723,8 +732,6 @@ public class ServerBinaryValue extends ClientBinaryValue
             // Write -1 indicating that the value is null
             out.writeInt( -1 );
         }
-        
-        out.flush();
     }
 
     
@@ -771,7 +778,7 @@ public class ServerBinaryValue extends ClientBinaryValue
             wrapped = new byte[wrappedLength];
             
             // Read the data
-            in.read( wrapped, 0, wrappedLength );
+            in.readFully( wrapped );
             
             // Check if we have a normalized value
             normalized = in.readBoolean();

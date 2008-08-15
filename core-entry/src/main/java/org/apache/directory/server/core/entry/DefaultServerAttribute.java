@@ -1232,8 +1232,6 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 }
             }
         }
-        
-        out.flush();
     }
 
     

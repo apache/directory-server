@@ -88,6 +88,7 @@ public class ServerModificationTest
         {
             oOut = new ObjectOutputStream( out );
             value.serialize( oOut );
+            oOut.flush();
         }
         catch ( IOException ioe )
         {

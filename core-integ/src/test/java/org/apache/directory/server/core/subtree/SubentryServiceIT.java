@@ -591,6 +591,7 @@ public class SubentryServiceIT
 
 
     @Test
+    @Ignore ( "Ignored until DIRSERVER-1223 is fixed" )
     public void testEntryModifyRdn() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -688,6 +689,7 @@ public class SubentryServiceIT
 
 
     @Test
+    @Ignore ( "Ignored until DIRSERVER-1223 is fixed" )
     public void testEntryMoveWithRdnChange() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -785,6 +787,7 @@ public class SubentryServiceIT
 
 
     @Test
+    @Ignore ( "Ignored until DIRSERVER-1223 is fixed" )
     public void testEntryMove() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -874,6 +877,7 @@ public class SubentryServiceIT
 
 
     @Test
+    @Ignore ( "Ignored until DIRSERVER-1223 is fixed" )
     public void testSubentriesControl() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
@@ -908,6 +912,7 @@ public class SubentryServiceIT
     
 
     @Test
+    @Ignore ( "Ignored until DIRSERVER-1223 is fixed" )
     public void testBaseScopeSearchSubentryVisibilityWithoutTheControl() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );

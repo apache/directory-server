@@ -562,6 +562,23 @@ public class ServerBinaryValueTest
 
 
     /**
+     * Test serialization of a BinaryValue which normalized value is the same
+     * than the value
+     */
+    @Test public void testNormalizedBinarySameValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        byte[] v1 = StringTools.getBytesUtf8( "Test   Test" );
+        
+        // First check with a value which will be normalized
+        ServerBinaryValue sbv = new ServerBinaryValue( at, v1 );
+        
+        ServerBinaryValue sbvSer = deserializeValue( serializeValue( sbv ), at );
+        
+        assertEquals( sbv, sbvSer );
+    }
+
+
+    /**
      * Test serialization of a BinaryValue which does not have a normalized value
      */
     @Test public void testNoNormalizedBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
