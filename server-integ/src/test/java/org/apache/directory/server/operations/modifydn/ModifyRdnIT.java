@@ -459,7 +459,6 @@ public class ModifyRdnIT
      * Ensure that the attribute itself contains the unescaped value.
      */
     @Test
-    //@Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
     public void testModifyRdnWithEncodedNewRdn() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
@@ -513,7 +512,6 @@ public class ModifyRdnIT
      * Ensure that the attribute itself contains the unescaped value.
      */
     @Test
-    //@Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1216" )
     public void testModifyRdnWithEscapedPoundNewRdn() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
