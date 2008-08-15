@@ -758,6 +758,51 @@ public class RdnTest
 
 
     @Test
+    public void testUnescapeValueStringWithSpaceInTheMiddle()
+    {
+        String res = ( String ) Rdn.unescapeValue( "a b" );
+
+        assertEquals( "a b", res );
+    }
+
+
+    @Test
+    public void testUnescapeValueStringWithSpaceInAtTheBeginning()
+    {
+        String res = ( String ) Rdn.unescapeValue( "\\ a b" );
+
+        assertEquals( " a b", res );
+    }
+
+
+    @Test
+    public void testUnescapeValueStringWithSpaceInAtTheEnd()
+    {
+        String res = ( String ) Rdn.unescapeValue( "a b\\ " );
+
+        assertEquals( "a b ", res );
+    }
+    
+    
+    @Test
+    public void testUnescapeValueStringWithPoundInTheMiddle()
+    {
+        String res = ( String ) Rdn.unescapeValue( "a#b" );
+
+        assertEquals( "a#b", res );
+    }
+    
+    
+    @Test
+    public void testUnescapeValueStringWithPoundAtTheEnd()
+    {
+        String res = ( String ) Rdn.unescapeValue( "ab#" );
+
+        assertEquals( "ab#", res );
+    }
+    
+    
+    @Test
     public void testEscapeValueString()
     {
         String res = Rdn.escapeValue( StringTools.getBytesUtf8( "azerty" ) );

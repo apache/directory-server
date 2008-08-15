@@ -1162,14 +1162,37 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
                            case '<':
                            case '>':
                            case '#':
+                               if ( i != 0)
+                               {
+                                   // '#' are allowed if not in first position
+                                   bytes[pos++] = '#';
+                                   break;
+                               }
                            case '=':
-                           case ' ':
                                throw new IllegalArgumentException( "Unescaped special characters are not allowed" );
 
+                           case ' ':
+                               if ( ( i == 0 ) || ( i == chars.length - 1) )
+                               {
+                                   throw new IllegalArgumentException( "Unescaped special characters are not allowed" );
+                               }
+                               else
+                               {
+                                   bytes[pos++] = ' ';
+                                   break;
+                               }
+
                            default:
-                               byte[] result = StringTools.charToBytes( chars[i] );
-                               System.arraycopy( result, 0, bytes, pos, result.length );
-                               pos += result.length;
+                               if ( ( chars[i] >= 0 ) && ( chars[i] < 128 ) )
+                               {
+                                   bytes[pos++] = (byte)chars[i];
+                               }
+                               else
+                               {
+                                   byte[] result = StringTools.charToBytes( chars[i] );
+                                   System.arraycopy( result, 0, bytes, pos, result.length );
+                                   pos += result.length;
+                               }
                                
                                break;
                        }
