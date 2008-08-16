@@ -151,6 +151,6 @@ public class MemoryChangeLogStoreTest extends TestCase
         assertEquals( zuluTime, read.getZuluTime() );
         assertEquals( revision, read.getRevision() );
         assertEquals( forward, read.getForwardLdif() );
-        assertEquals( reverse, read.getReverseLdif() );
+        assertEquals( reverse, read.getReverseLdifs().get( 0 ) );
     }
 }

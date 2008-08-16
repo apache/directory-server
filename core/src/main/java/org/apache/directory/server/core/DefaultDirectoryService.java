@@ -744,40 +744,43 @@ public class DefaultDirectoryService implements DirectoryService
             while ( cursor.previous() ) // apply ldifs in reverse order
             {
                 ChangeLogEvent event = cursor.get();
-                LdifEntry reverse = event.getReverseLdif();
+                List<LdifEntry> reverses = event.getReverseLdifs();
                 
-                switch( reverse.getChangeType().getChangeType() )
+                for ( LdifEntry reverse:reverses )
                 {
-                    case( ChangeType.ADD_ORDINAL ):
-                        adminSession.add( 
-                            new DefaultServerEntry( registries, reverse.getEntry() ) ); 
-                        break;
+                    switch( reverse.getChangeType().getChangeType() )
+                    {
+                        case( ChangeType.ADD_ORDINAL ):
+                            adminSession.add( 
+                                new DefaultServerEntry( registries, reverse.getEntry() ) ); 
+                            break;
+                            
+                        case( ChangeType.DELETE_ORDINAL ):
+                            adminSession.delete( reverse.getDn() );
+                            break;
+                            
+                        case( ChangeType.MODIFY_ORDINAL ):
+                            List<Modification> mods = reverse.getModificationItems();
+    
+                            adminSession.modify( reverse.getDn(), mods );
+                            break;
+                            
+                        case( ChangeType.MODDN_ORDINAL ):
+                            // NO BREAK - both ModDN and ModRDN handling is the same
                         
-                    case( ChangeType.DELETE_ORDINAL ):
-                        adminSession.delete( reverse.getDn() );
-                        break;
-                        
-                    case( ChangeType.MODIFY_ORDINAL ):
-                        List<Modification> mods = reverse.getModificationItems();
-
-                        adminSession.modify( reverse.getDn(), mods );
-                        break;
-                        
-                    case( ChangeType.MODDN_ORDINAL ):
-                        // NO BREAK - both ModDN and ModRDN handling is the same
-                    
-                    case( ChangeType.MODRDN_ORDINAL ):
-                        LdapDN forwardDn = event.getForwardLdif().getDn();
-                        LdapDN reverseDn = event.getReverseLdif().getDn();
-                        
-                        moddn( reverseDn, forwardDn, reverse.isDeleteOldRdn() );
-
-                        break;
-                        
-                    default:
-                        LOG.error( "ChangeType unknown" );
-                        throw new NotImplementedException( "Reverts of change type " + reverse.getChangeType()
-                                + " has not yet been implemented!");
+                        case( ChangeType.MODRDN_ORDINAL ):
+                            LdapDN forwardDn = event.getForwardLdif().getDn();
+                            LdapDN reverseDn = reverse.getDn();
+                            
+                            moddn( reverseDn, forwardDn, reverse.isDeleteOldRdn() );
+    
+                            break;
+                            
+                        default:
+                            LOG.error( "ChangeType unknown" );
+                            throw new NotImplementedException( "Reverts of change type " + reverse.getChangeType()
+                                    + " has not yet been implemented!");
+                    }
                 }
             }
         }

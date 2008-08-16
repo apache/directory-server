@@ -299,10 +299,10 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setNewRdn( renameContext.getNewRdn().getUpName() );
         forward.setDeleteOldRdn( renameContext.getDelOldDn() );
 
-        LdifEntry reverse = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), 
+        List<LdifEntry> reverses = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), 
             null, renameContext.getDn(), new Rdn( renameContext.getNewRdn() ) );
         
-        renameContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        renameContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
     }
 
 
@@ -331,9 +331,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setNewRdn( opCtx.getNewRdn().getUpName() );
         forward.setNewSuperior( opCtx.getParent().getUpName() );
 
-        LdifEntry reverse = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), 
+        List<LdifEntry> reverses = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), 
             opCtx.getParent(), opCtx.getDn(), new Rdn( opCtx.getNewRdn() ) );
-        opCtx.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
+        opCtx.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
     }
 
 

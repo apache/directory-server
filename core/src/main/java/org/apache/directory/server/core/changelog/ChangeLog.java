@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.changelog;
 
 
+import java.util.List;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -72,6 +74,19 @@ public interface ChangeLog
      * @throws Exception if there are problems logging the change
      */
     ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception;
+
+
+    /**
+     * Records a change as a forward LDIF, some reverse changes to revert the change and
+     * the authorized principal triggering the revertable change event.
+     *
+     * @param principal the authorized LDAP principal triggering the change
+     * @param forward LDIF of the change going to the next state
+     * @param reverses LDIF (anti-operation): the changes required to revert this change
+     * @return the new revision reached after having applied the forward LDIF
+     * @throws Exception if there are problems logging the change
+     */
+    ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws Exception;
 
 
     /**

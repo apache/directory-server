@@ -19,6 +19,8 @@
 package org.apache.directory.server.core.changelog;
 
 
+import java.util.List;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.partition.Partition;
@@ -65,6 +67,9 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
     {
         if ( !enabled )
@@ -73,6 +78,20 @@ public class DefaultChangeLog implements ChangeLog
         }
 
         return store.log( principal, forward, reverse );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws Exception
+    {
+        if ( !enabled )
+        {
+            throw new IllegalStateException( "The ChangeLog has not been enabled." );
+        }
+
+        return store.log( principal, forward, reverses );
     }
 
 

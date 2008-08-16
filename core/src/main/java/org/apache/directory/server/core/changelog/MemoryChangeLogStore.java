@@ -412,11 +412,27 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
     {
         currentRevision++;
         ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(), 
                 principal, forward, reverse );
+        events.add( event );
+        return event;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws Exception
+    {
+        currentRevision++;
+        ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(), 
+                principal, forward, reverses );
         events.add( event );
         return event;
     }

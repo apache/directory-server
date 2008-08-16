@@ -24,6 +24,8 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -42,7 +44,9 @@ public class ChangeLogEvent implements Externalizable
     private String zuluTime;
     private long revision;
     private LdifEntry forwardLdif;
-    private LdifEntry reverseLdif;
+    
+    /** The revert changes. Can contain more than one single change */
+    private List<LdifEntry> reverseLdifs;
     private LdapPrincipal committer;
 
 
@@ -67,7 +71,28 @@ public class ChangeLogEvent implements Externalizable
         this.zuluTime = zuluTime;
         this.revision = revision;
         this.forwardLdif = forwardLdif;
-        this.reverseLdif = reverseLdif;
+        this.reverseLdifs = new ArrayList<LdifEntry>(1);
+        reverseLdifs.add( reverseLdif );
+        this.committer = committer;
+    }
+
+
+    /**
+     * Creates a new instance of ChangeLogEvent.
+     *
+     * @param revision the revision number for the change
+     * @param zuluTime the timestamp for when the change occurred in generalizedTime format
+     * @param committer the user who did the modification
+     * @param forwardLdif the original operation
+     * @param reverseLdifs the reverted operations
+     */
+    public ChangeLogEvent( long revision, String zuluTime, LdapPrincipal committer, LdifEntry forwardLdif,
+                           List<LdifEntry> reverseLdifs )
+    {
+        this.zuluTime = zuluTime;
+        this.revision = revision;
+        this.forwardLdif = forwardLdif;
+        this.reverseLdifs = reverseLdifs;
         this.committer = committer;
     }
 
@@ -84,9 +109,9 @@ public class ChangeLogEvent implements Externalizable
     /**
      * @return the reverseLdif
      */
-    public LdifEntry getReverseLdif()
+    public List<LdifEntry> getReverseLdifs()
     {
-        return reverseLdif;
+        return reverseLdifs;
     }
 
 
@@ -158,12 +183,18 @@ public class ChangeLogEvent implements Externalizable
             forwardLdif = (LdifEntry)in.readObject();
         }
         
-        // Read the reverse LDIF
-        boolean hasReverseLdif = in.readBoolean();
+        // Read the reverse LDIF number
+        int nbReverseLdif = in.readInt();
         
-        if ( hasReverseLdif )
+        if ( nbReverseLdif > 0 )
         {
-            reverseLdif = (LdifEntry)in.readObject();
+            // Read each reverse ldif
+            reverseLdifs = new ArrayList<LdifEntry>(nbReverseLdif);
+            
+            for ( int i = 0; i < nbReverseLdif; i++ )
+            {
+                reverseLdifs.add( (LdifEntry)in.readObject() ); 
+            }
         }
     }
 
@@ -207,10 +238,15 @@ public class ChangeLogEvent implements Externalizable
         }
         
         // write the reverse LDIF
-        if ( reverseLdif != null )
+        if ( reverseLdifs != null )
         {
-            out.writeBoolean( true );
-            out.writeObject( reverseLdif );
+            out.writeInt( reverseLdifs.size() );
+            
+            // write each reverse
+            for ( LdifEntry reverseLdif:reverseLdifs )
+            {
+                out.writeObject( reverseLdif );
+            }
         }
         else
         {
@@ -244,8 +280,17 @@ public class ChangeLogEvent implements Externalizable
         .append( getForwardLdif() )
         .append( ", " );
         
-        sb.append( "\nreverseLdif=" )
-        .append( getReverseLdif() );
+        if ( reverseLdifs != null )
+        {
+            sb.append( "\nreverseLdif number=" ).append( reverseLdifs.size() );
+            int i = 0;
+            
+            for ( LdifEntry reverseLdif:reverseLdifs )
+            {
+                sb.append( "\nReverse[" ).append( i++ ).append( "] :\n" );
+                sb.append( reverseLdif );
+            }
+        }
         
         sb.append( " }" );
 
