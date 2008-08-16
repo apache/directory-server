@@ -481,9 +481,12 @@ public class LdifUtilsTest
         attrs.put( "sn", "doe" );
         attrs.put( "uid", "jdoe" );
 
-        LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, null, dn, new Rdn( "cn=jack doe" ) );
+        List<LdifEntry> reverseds = LdifUtils.reverseModifyRdn( attrs, null, dn, new Rdn( "cn=jack doe" ) );
 
-        assertNotNull( reversed );
+        assertNotNull( reverseds );
+        assertEquals( 1, reverseds.size() );
+        
+        LdifEntry reversed = reverseds.get( 0 );
         assertEquals( "cn=jack doe, dc=example, dc=com", reversed.getDn().getUpName() );
         assertEquals( ChangeType.ModRdn, reversed.getChangeType() );
         assertTrue( reversed.isDeleteOldRdn() );
@@ -512,9 +515,12 @@ public class LdifUtilsTest
         attrs.put( "sn", "doe" );
         attrs.put( "uid", "jdoe" );
 
-        LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, null, dn, new Rdn( "cn=jack doe" ) );
+        List<LdifEntry> reverseds = LdifUtils.reverseModifyRdn( attrs, null, dn, new Rdn( "cn=jack doe" ) );
 
-        assertNotNull( reversed );
+        assertNotNull( reverseds );
+        assertEquals( 1, reverseds.size() );
+        
+        LdifEntry reversed = reverseds.get( 0 );
         assertEquals( "cn=jack doe, dc=example, dc=com", reversed.getDn().getUpName() );
         assertEquals( ChangeType.ModRdn, reversed.getChangeType() );
         assertFalse( reversed.isDeleteOldRdn() );
@@ -550,9 +556,12 @@ public class LdifUtilsTest
         attrs.put( "sn", "doe" );
         attrs.put( "uid", "jdoe" );
 
-        LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, new Rdn( "cn=jack doe" ) );
+        List<LdifEntry> reverseds = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, new Rdn( "cn=jack doe" ) );
 
-        assertNotNull( reversed );
+        assertNotNull( reverseds );
+        assertEquals( 1, reverseds.size() );
+        
+        LdifEntry reversed = reverseds.get( 0 );
         assertEquals( "cn=jack doe,ou=system", reversed.getDn().getUpName() );
         assertEquals( ChangeType.ModRdn, reversed.getChangeType() );
         assertFalse( reversed.isDeleteOldRdn() );
@@ -580,9 +589,12 @@ public class LdifUtilsTest
         attrs.put( "sn", "doe" );
         attrs.put( "uid", "jdoe" );
 
-        LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, null );
+        List<LdifEntry> reverseds = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, null );
 
-        assertNotNull( reversed );
+        assertNotNull( reverseds );
+        assertEquals( 1, reverseds.size() );
+        
+        LdifEntry reversed = reverseds.get( 0 );
         assertEquals( "cn=john doe,ou=system", reversed.getDn().getUpName() );
         assertEquals( ChangeType.ModDn, reversed.getChangeType() );
         assertFalse( reversed.isDeleteOldRdn() );
@@ -609,9 +621,12 @@ public class LdifUtilsTest
         attrs.put( "sn", "doe" );
         attrs.put( "uid", "jdoe" );
 
-        LdifEntry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, new Rdn( "cn=jack doe" ) );
+        List<LdifEntry> reverseds = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, new Rdn( "cn=jack doe" ) );
 
-        assertNotNull( reversed );
+        assertNotNull( reverseds );
+        assertEquals( 1, reverseds.size() );
+        
+        LdifEntry reversed = reverseds.get( 0 );
         assertEquals( "cn=jack doe,ou=system", reversed.getDn().getUpName() );
         assertEquals( ChangeType.ModRdn, reversed.getChangeType() );
         assertTrue( reversed.isDeleteOldRdn() );

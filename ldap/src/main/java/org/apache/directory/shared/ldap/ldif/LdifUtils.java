@@ -624,7 +624,7 @@ public class LdifUtils
      * @return A new LDIF entry with a reverted DN
      * @throws NamingException If the name reverting failed
      */
-    public static LdifEntry reverseRename( Attributes t0, LdapDN t0_dn, Rdn t1_rdn ) throws NamingException
+    public static List<LdifEntry> reverseRename( Attributes t0, LdapDN t0_dn, Rdn t1_rdn ) throws NamingException
     {
         LdifEntry entry = new LdifEntry();
         LdapDN parent = null;
@@ -651,11 +651,15 @@ public class LdifUtils
         newDn = ( LdapDN ) parent.clone();
         newDn.add( t1_rdn );
 
+        List<LdifEntry> entries = new ArrayList<LdifEntry>(1);
+        
         entry.setChangeType( ChangeType.ModRdn );
         entry.setDeleteOldRdn( reverseDoDeleteOldRdn( t0, t1_rdn ) );
         entry.setDn( newDn );
         entry.setNewRdn( t0_dn.getRdn().getUpName() );
-        return entry;
+        
+        entries.add( entry );
+        return entries;
     }
 
 
@@ -668,10 +672,10 @@ public class LdifUtils
      * @param t1_parentDn the new superior dn if this is a move, otherwise null
      * @param t0_dn the dn of the entry being modified
      * @param t1_rdn the new rdn to use
-     * @return A reverse LDIF
+     * @return A reverse LDIF, with potentially more than one reverse operation 
      * @throws NamingException If something went wrong
      */
-    public static LdifEntry reverseModifyRdn( Attributes t0, LdapDN t1_parentDn, LdapDN t0_dn, Rdn t1_rdn )
+    public static List<LdifEntry> reverseModifyRdn( Attributes t0, LdapDN t1_parentDn, LdapDN t0_dn, Rdn t1_rdn )
             throws NamingException
     {
         if ( t0_dn == null )
@@ -686,6 +690,8 @@ public class LdifUtils
 
         // if there is no new superior in the picture then this is a rename
         // operation where the parent is retained and only the rdn is changed
+        // We still have to take care that the entry attributes are correctly
+        // restored if the new RDN has more than one AVAs
         if ( t1_parentDn == null )
         {
             return reverseRename( t0, t0_dn, t1_rdn );
@@ -695,7 +701,11 @@ public class LdifUtils
         // a name change, we can delegate this to a simpler method
         if ( t1_rdn == null )
         {
-            return reverseModifyDn( t1_parentDn, t0_dn );
+            List<LdifEntry> entries = new ArrayList<LdifEntry>(1);
+            LdifEntry entry = reverseModifyDn( t1_parentDn, t0_dn );
+            entries.add( entry );
+            
+            return entries;
         }
 
         // -------------------------------------------------------------------
@@ -728,7 +738,9 @@ public class LdifUtils
         reverse.setChangeType( ChangeType.ModRdn );
         reverse.setDeleteOldRdn( reverseDoDeleteOldRdn( t0, t1_rdn ) );
 
-        return reverse;
+        List<LdifEntry> entries = new ArrayList<LdifEntry>(1);
+        entries.add( reverse );
+        return entries;
     }
 
 
