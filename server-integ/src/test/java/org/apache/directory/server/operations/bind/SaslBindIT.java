@@ -217,7 +217,6 @@ public class SaslBindIT
 
              NamingEnumeration<? extends Attribute> answer = attrs.getAll();
              Attribute result = answer.next();
-             System.out.println( result );
              assertEquals( 6, result.size() );
              assertTrue( result.contains( SupportedSaslMechanisms.GSSAPI ) );
              assertTrue( result.contains( SupportedSaslMechanisms.DIGEST_MD5 ) );

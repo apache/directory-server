@@ -265,8 +265,6 @@ public class ChangeLogInterceptor extends BaseInterceptor
             mods, 
             clientEntry );
         
-        //System.out.println( "forward : " + forward );
-        //System.out.println( "reverse : " + reverse );
         opContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 

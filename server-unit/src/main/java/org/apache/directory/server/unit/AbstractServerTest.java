@@ -396,12 +396,6 @@ public abstract class AbstractServerTest extends TestCase
         }
 
         sysRoot = null;
-//        apacheDS = new ApacheDS();
-        
-        if ( start >= nbTests )
-        {
-            System.out.println( "Delta = " + ( System.currentTimeMillis() - t0 ) );
-        }
     }
 
     
