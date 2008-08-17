@@ -83,7 +83,7 @@ public class BindRequestPerfTest extends TestCase
         // Decode the BindRequest PDU
         try
         {
-            int nbLoops = 1000;
+            int nbLoops = 1;
             long t0 = System.currentTimeMillis();
             
             for ( int i = 0; i < nbLoops; i++ )
@@ -94,7 +94,7 @@ public class BindRequestPerfTest extends TestCase
             }
             
             long t1 = System.currentTimeMillis();
-            System.out.println( "testDecodeBindRequestSimpleNoControlsPerf, " + nbLoops + " loops, Delta = " + ( t1 - t0 ) );
+            //System.out.println( "testDecodeBindRequestSimpleNoControlsPerf, " + nbLoops + " loops, Delta = " + ( t1 - t0 ) );
             
             ldapDecoder.decode( stream, ldapMessageContainer );
         }
@@ -150,7 +150,7 @@ public class BindRequestPerfTest extends TestCase
     public void testEncodeBindRequestPerf() throws Exception
     {
         LdapDN name = new LdapDN( "uid=akarasulu,dc=example,dc=com" );
-        int nbLoops = 10000;
+        int nbLoops = 1;
         long t0 = System.currentTimeMillis();
         
         for ( int i = 0; i< nbLoops; i++)
@@ -185,6 +185,6 @@ public class BindRequestPerfTest extends TestCase
         }
 
         long t1 = System.currentTimeMillis();
-        System.out.println( "BindRequest testEncodeBindRequestPerf, " + nbLoops + " loops, Delta = " + (t1 - t0));
+        //System.out.println( "BindRequest testEncodeBindRequestPerf, " + nbLoops + " loops, Delta = " + (t1 - t0));
     }
 }
