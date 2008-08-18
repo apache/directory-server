@@ -1391,8 +1391,11 @@ public class JdbmStore<E> implements Store<E>
         {
             Index<?,E> index = getUserIndex( modsOid );
 
-            // Drop all existing attribute value index entries and add new ones
-            ( ( JdbmIndex<?,E> ) index ).drop( id );
+            // if the id exists in the index drop all existing attribute value index entries and add new ones
+            if( index.reverse( id ) )
+            {
+                ( ( JdbmIndex<?,E> ) index ).drop( id );
+            }
             
             for ( Value<?> value : mods )
             {

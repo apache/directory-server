@@ -869,4 +869,33 @@ public class JdbmStoreTest
         assertNull( lookedup.get( "sn" ) );
     }
 
+    
+    @Test
+    public void testModifyReplaceNonExistingIndexAttribute() throws Exception
+    {
+        LdapDN dn = new LdapDN( "cn=Tim B,ou=Sales,o=Good Times Co." );
+        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        entry.add( "objectClass", "top", "person", "organizationalPerson" );
+        entry.add( "cn", "Tim B");
+        
+        store.add( dn, entry );
+        
+        List<Modification> mods = new ArrayList<Modification>();
+        ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.OU_AT,
+            attributeRegistry.lookup( SchemaConstants.OU_AT_OID ) );
+        
+        String attribVal = "Marketing";
+        attrib.add( attribVal );
+        
+        Modification add = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
+        mods.add( add );
+        
+        ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
+        
+        assertNull( lookedup.get( "ou" ) ); // before replacing
+        
+        store.modify( dn, mods );
+        assertEquals( attribVal, lookedup.get( "ou" ).get().get() );
+    }
 }
