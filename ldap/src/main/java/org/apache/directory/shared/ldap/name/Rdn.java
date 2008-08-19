@@ -34,7 +34,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.apache.commons.collections.MultiHashMap;
+import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -149,7 +149,7 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
     * Note : there is no Generic available classes in commons-collection...
     */
    @SuppressWarnings({"unchecked"})
-   private Map<String, AttributeTypeAndValue> atavTypes = new MultiHashMap();
+   private Map<String, AttributeTypeAndValue> atavTypes = new MultiValueMap();
 
    /**
     * We keep the type for a single valued RDN, to avoid the creation of an HashMap
@@ -294,7 +294,7 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
            default:
                // We must duplicate the treeSet and the hashMap
                atavs = new TreeSet<AttributeTypeAndValue>();
-               atavTypes = new MultiHashMap();
+               atavTypes = new MultiValueMap();
 
                for ( AttributeTypeAndValue currentAtav:rdn.atavs )
                {
@@ -402,7 +402,7 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
 
                // and store the existing AttributeTypeAndValue into it.
                atavs.add( atav );
-               atavTypes = new MultiHashMap();
+               atavTypes = new MultiValueMap();
                atavTypes.put( atavType, atav );
 
                atav = null;
@@ -453,7 +453,7 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
 
                // and store the existing AttributeTypeAndValue into it.
                atavs.add( this.atav );
-               atavTypes = new MultiHashMap();
+               atavTypes = new MultiValueMap();
                atavTypes.put( atavType, this.atav );
 
                this.atav = null;
@@ -686,7 +686,7 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
 
                default:
                    // We must duplicate the treeSet and the hashMap
-                   rdn.atavTypes = new MultiHashMap();
+                   rdn.atavTypes = new MultiValueMap();
                    rdn.atavs = new TreeSet<AttributeTypeAndValue>();
 
                    for ( AttributeTypeAndValue currentAtav:this.atavs )
@@ -1480,7 +1480,7 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
            default :
                atavs = new TreeSet<AttributeTypeAndValue>();
 
-               atavTypes = new MultiHashMap();
+               atavTypes = new MultiValueMap();
 
                for ( int i = 0; i < nbAtavs; i++  )
                {
