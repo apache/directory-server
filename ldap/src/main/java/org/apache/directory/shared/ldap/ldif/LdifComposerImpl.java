@@ -24,9 +24,9 @@ package org.apache.directory.shared.ldap.ldif;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.MultiMap;
 
 
 /**
@@ -146,7 +146,7 @@ public class LdifComposerImpl implements LdifComposer
      * @param attrHash the multi map of single and multivalued attributes.
      * @return the LDIF as a String.
      */
-    public String compose( MultiMap<String,?> attrHash )
+    public String compose( Map<String,?> attrHash )
     {
         StringWriter sw = new StringWriter();
         PrintWriter out = new PrintWriter( sw );

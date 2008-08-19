@@ -21,7 +21,7 @@
 package org.apache.directory.shared.ldap.ldif;
 
 
-import org.apache.directory.shared.ldap.util.MultiMap;
+import java.util.Map;
 
 
 /**
@@ -42,5 +42,5 @@ public interface LdifComposer
      *            the entry to export to ldif
      * @return the ldif of an entry
      */
-    String compose( MultiMap<String,?> an_entry );
+    String compose( Map<String,?> an_entry );
 }
