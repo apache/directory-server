@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.newldap;
+package org.apache.directory.server.ldap;
 
 
 import junit.framework.TestCase;
