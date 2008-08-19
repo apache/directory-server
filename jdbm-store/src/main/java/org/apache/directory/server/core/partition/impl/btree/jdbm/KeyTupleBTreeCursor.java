@@ -94,6 +94,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void beforeValue( K key, V value ) throws Exception
     {
+        checkClosed( "beforeValue()" );
         if ( key != null && ! key.equals( this.key ) )
         {
             throw new UnsupportedOperationException( "This cursor locks down the key so keywise advances are not allowed." );
@@ -122,6 +123,8 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
          */
         while ( browser.getNext( valueTuple ) )
         {
+            checkClosed( "afterValue" );
+
             //noinspection unchecked
             V next = ( V ) valueTuple.getKey();
 
@@ -167,6 +170,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
      */
     public void before( Tuple<K,V> element ) throws Exception
     {
+        checkClosed( "before()" );
         browser = btree.browse( element.getValue() );
         clearValue();
     }
@@ -180,6 +184,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void beforeFirst() throws Exception
     {
+        checkClosed( "beforeFirst()" );
         browser = btree.browse();
         clearValue();
     }
@@ -187,6 +192,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void afterLast() throws Exception
     {
+        checkClosed( "afterLast()" );
         browser = btree.browse( null );
     }
 
@@ -207,6 +213,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public boolean previous() throws Exception
     {
+        checkClosed( "previous()" );
         if ( browser.getPrevious( valueTuple ) )
         {
             // work around to fix direction change problem with jdbm browser
@@ -231,6 +238,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public boolean next() throws Exception
     {
+        checkClosed( "next()" );
         if ( browser.getNext( valueTuple ) )
         {
             // work around to fix direction change problem with jdbm browser
@@ -255,6 +263,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public Tuple<K,V> get() throws Exception
     {
+        checkClosed( "get()" );
         if ( valueAvailable )
         {
             //noinspection unchecked

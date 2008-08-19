@@ -104,6 +104,15 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
 
 
     /* 
+     * @see Cursor#close()
+     */
+    public void close( Exception e ) throws Exception
+    {
+        indexCursor.close( e );
+    }
+
+
+    /* 
      * @see Cursor#first()
      */
     public boolean first() throws Exception

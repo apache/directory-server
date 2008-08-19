@@ -43,6 +43,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
     private boolean available = false;
 
 
+    @SuppressWarnings("unchecked")
     public SubstringCursor( Store<ServerEntry> db,
                             final SubstringEvaluator substringEvaluator ) throws Exception
     {
@@ -51,7 +52,6 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
 
         if ( hasIndex )
         {
-            //noinspection unchecked
             wrapped = ( ( Index<String,ServerEntry> ) db.getUserIndex( evaluator.getExpression().getAttribute() ) )
                 .forwardCursor();
         }
@@ -105,6 +105,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public void beforeFirst() throws Exception
     {
+        checkClosed( "beforeFirst()" );
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
             ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
@@ -131,6 +132,8 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public void afterLast() throws Exception
     {
+        checkClosed( "afterLast()" );
+
         // to keep the cursor always *after* the last matched tuple
         // This fixes an issue if the last matched tuple is also the last record present in the 
         // index. In this case the wrapped cursor is positioning on the last tuple instead of positioning after that
@@ -170,6 +173,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
     {
         while ( wrapped.previous() )
         {
+            checkClosed( "previous()" );
             IndexEntry<String,ServerEntry> entry = wrapped.get();
             if ( evaluateCandidate( entry ) )
             {
@@ -190,6 +194,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
     {
         while ( wrapped.next() )
         {
+            checkClosed( "next()" );
             IndexEntry<String,ServerEntry> entry = wrapped.get();
             if ( evaluateCandidate( entry ) )
             {
@@ -208,6 +213,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public IndexEntry<String, ServerEntry> get() throws Exception
     {
+        checkClosed( "get()" );
         if ( available )
         {
             return indexEntry;

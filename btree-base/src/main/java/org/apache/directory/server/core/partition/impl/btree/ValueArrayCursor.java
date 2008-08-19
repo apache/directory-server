@@ -113,26 +113,6 @@ public class ValueArrayCursor<K,V> extends AbstractCursor<Tuple>
     }
 
 
-    public boolean relative( int relativePosition ) throws Exception
-    {
-        checkClosed( "relative()" );
-        if ( ( relativePosition + pos ) >= values.size() )
-        {
-            pos = values.size();
-            return false;
-        }
-
-        if ( ( relativePosition + pos ) < 0 )
-        {
-            pos = BEFORE_FIRST;
-            return false;
-        }
-
-        pos += relativePosition;
-        return true;
-    }
-
-
     public boolean first() throws Exception
     {
         checkClosed( "first()" );

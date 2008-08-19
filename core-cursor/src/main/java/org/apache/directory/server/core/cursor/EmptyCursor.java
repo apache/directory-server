@@ -32,52 +32,52 @@ public class EmptyCursor<E> extends AbstractCursor<E>
         return false;
     }
 
-    public void before( E element ) throws CursorClosedException
+    public void before( E element ) throws Exception
     {
         checkClosed( "before()" );
     }
 
 
-    public void after( E element ) throws CursorClosedException
+    public void after( E element ) throws Exception
     {
         checkClosed( "after()" );
     }
 
 
-    public void beforeFirst() throws CursorClosedException
+    public void beforeFirst() throws Exception
     {
         checkClosed( "beforeFirst()" );
     }
 
 
-    public void afterLast() throws CursorClosedException
+    public void afterLast() throws Exception
     {
         checkClosed( "afterLast()" );
     }
 
 
-    public boolean first() throws CursorClosedException
+    public boolean first() throws Exception
     {
         checkClosed( "first()" );
         return false;
     }
 
 
-    public boolean last() throws CursorClosedException
+    public boolean last() throws Exception
     {
         checkClosed( "last()" );
         return false;
     }
 
 
-    public boolean previous() throws CursorClosedException
+    public boolean previous() throws Exception
     {
         checkClosed( "previous()" );
         return false;
     }
 
 
-    public boolean next() throws CursorClosedException
+    public boolean next() throws Exception
     {
         checkClosed( "next()" );
         return false;

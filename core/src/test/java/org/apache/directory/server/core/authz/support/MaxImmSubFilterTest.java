@@ -1053,5 +1053,12 @@ public class MaxImmSubFilterTest
         {
             return new CursorIterator<ServerEntry>( this );
         }
+
+
+        public void close( Exception reason ) throws Exception
+        {
+            // TODO Auto-generated method stub
+            
+        }
     }
 }

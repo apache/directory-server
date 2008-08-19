@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.CursorClosedException;
 import org.apache.directory.server.core.cursor.CursorIterator;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -65,6 +66,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     
     /** the first accepted search result that is pre fetched */
     private ClonedServerEntry prefetched;
+    
+    private Exception reason;
 
     
     // ------------------------------------------------------------------------
@@ -188,6 +191,20 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
     
+    protected void checkClosed( String operation ) throws Exception
+    {
+        if ( isClosed() )
+        {
+            if ( reason != null )
+            {
+                throw reason;
+            }
+            
+            throw new CursorClosedException( "Attempting " + operation + " operation on a closed Cursor." );
+        }
+    }
+
+
     // ------------------------------------------------------------------------
     // Cursor Interface Methods
     // ------------------------------------------------------------------------
@@ -213,6 +230,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      */
     public void afterLast() throws Exception
     {
+        checkClosed( "afterLast()" );
         wrapped.afterLast();
         prefetched = null;
     }
@@ -250,6 +268,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      */
     public void beforeFirst() throws Exception
     {
+        checkClosed( "beforeFirst()" );
         wrapped.beforeFirst();
         prefetched = null;
     }
@@ -264,6 +283,20 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     public void close() throws Exception
     {
         wrapped.close();
+        prefetched = null;
+    }
+
+
+    /* 
+     * @see Cursor#close()
+     */
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#close()
+     */
+    public void close( Exception reason ) throws Exception
+    {
+        this.reason = reason;
+        wrapped.close( reason );
         prefetched = null;
     }
 
@@ -296,6 +329,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      */
     public ClonedServerEntry get() throws Exception
     {
+        checkClosed( "get()" );
         if ( available() )
         {
             return prefetched;
@@ -474,9 +508,11 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             throw new OperationAbandonedException();
         }
         
+        checkClosed( "next()" );
         ClonedServerEntry tempResult = null;
         outer: while ( wrapped.next() )
         {
+            checkClosed( "next()" );
             boolean accepted = true;
             
             ServerEntry tempEntry = wrapped.get();
@@ -518,6 +554,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             
             for ( EntryFilter filter : filters )
             {
+                checkClosed( "next()" );
+
                 // if a filter rejects then short and continue with outer loop
                 if ( ! ( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
                 {
@@ -553,9 +591,11 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             throw new OperationAbandonedException();
         }
         
+        checkClosed( "previous()" );
         ClonedServerEntry tempResult = null;
         outer: while ( wrapped.previous() )
         {
+            checkClosed( "previous()" );
             boolean accepted = true;
             tempResult = new ClonedServerEntry( wrapped.get() );
             
@@ -588,6 +628,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             
             for ( EntryFilter filter : filters )
             {
+                checkClosed( "previous()" );
                 // if a filter rejects then short and continue with outer loop
                 if ( ! ( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
                 {

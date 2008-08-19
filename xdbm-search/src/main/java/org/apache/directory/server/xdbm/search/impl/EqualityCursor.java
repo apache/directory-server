@@ -46,6 +46,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         "EqualityCursors only support positioning by element when a user index exists on the asserted attribute.";
 
     /** An equality evaluator for candidates */
+    @SuppressWarnings("unchecked")
     private final EqualityEvaluator equalityEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
@@ -58,6 +59,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     private boolean available = false;
 
 
+    @SuppressWarnings("unchecked")
     public EqualityCursor( Store<ServerEntry> db, EqualityEvaluator equalityEvaluator ) throws Exception
     {
         this.equalityEvaluator = equalityEvaluator;
@@ -66,7 +68,6 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         Value<V> value = equalityEvaluator.getExpression().getValue();
         if ( db.hasUserIndexOn( attribute ) )
         {
-            //noinspection unchecked
             Index<V,ServerEntry> userIndex = ( Index<V, ServerEntry> ) db.getUserIndex( attribute ); 
             userIdxCursor = userIndex.forwardCursor( value.get() );
             ndnIdxCursor = null;
@@ -92,6 +93,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void beforeValue( Long id, V value ) throws Exception
     {
+        checkClosed( "beforeValue()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeValue( id, value );
@@ -105,6 +107,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void before( IndexEntry<V, ServerEntry> element ) throws Exception
     {
+        checkClosed( "before()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.before( element );
@@ -118,6 +121,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void afterValue( Long id, V key ) throws Exception
     {
+        checkClosed( "afterValue()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterValue( id, key );
@@ -131,6 +135,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void after( IndexEntry<V, ServerEntry> element ) throws Exception
     {
+        checkClosed( "after()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.after( element );
@@ -144,6 +149,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void beforeFirst() throws Exception
     {
+        checkClosed( "beforeFirst()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeFirst();
@@ -158,6 +164,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void afterLast() throws Exception
     {
+        checkClosed( "afterLast()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterLast();
@@ -184,6 +191,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     }
 
 
+    @SuppressWarnings("unchecked")
     public boolean previous() throws Exception
     {
         if ( userIdxCursor != null )
@@ -193,6 +201,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
         while( ndnIdxCursor.previous() )
         {
+            checkClosed( "previous()" );
             IndexEntry<?,ServerEntry> candidate = ndnIdxCursor.get();
             if ( equalityEvaluator.evaluate( candidate ) )
             {
@@ -204,6 +213,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     }
 
 
+    @SuppressWarnings("unchecked")
     public boolean next() throws Exception
     {
         if ( userIdxCursor != null )
@@ -213,6 +223,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
         while( ndnIdxCursor.next() )
         {
+            checkClosed( "next()" );
             IndexEntry<?,ServerEntry> candidate = ndnIdxCursor.get();
             if ( equalityEvaluator.evaluate( candidate ) )
             {
@@ -224,8 +235,10 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     }
 
 
+    @SuppressWarnings("unchecked")
     public IndexEntry<V, ServerEntry> get() throws Exception
     {
+        checkClosed( "get()" );
         if ( userIdxCursor != null )
         {
             return userIdxCursor.get();
@@ -233,7 +246,6 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
         if ( available )
         {
-            //noinspection unchecked
             return ( IndexEntry<V, ServerEntry> )ndnIdxCursor.get();
         }
 

@@ -46,7 +46,6 @@ public interface Cursor<E> extends Iterable<E>
      */
     boolean available();
 
-
     /**
      * Prepares this Cursor, so a subsequent call to Cursor#next() with a
      * true return value, will have positioned the Cursor on a dataset 
@@ -202,4 +201,17 @@ public interface Cursor<E> extends Iterable<E>
      * @throws Exception if for some reason this Cursor could not be closed
      */
     void close() throws Exception;
+
+
+    /**
+     * Closes this Cursor and frees any resources it my have allocated.
+     * Repeated calls to this method after this Cursor has already been
+     * called should not fail with exceptions.  The reason argument is 
+     * the Exception instance thrown instead of the standard 
+     * CursorClosedException.
+     *
+     * @param reason exception thrown when this Cursor is accessed after close
+     * @throws Exception if for some reason this Cursor could not be closed
+     */
+    void close( Exception reason ) throws Exception;
 }

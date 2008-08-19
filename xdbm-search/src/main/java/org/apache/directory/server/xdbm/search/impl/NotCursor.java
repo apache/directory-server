@@ -45,11 +45,11 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     private boolean available = false;
 
 
+    @SuppressWarnings("unchecked")
     public NotCursor( Store<ServerEntry> db,
                       Evaluator<? extends ExprNode, ServerEntry> childEvaluator ) throws Exception
     {
         this.childEvaluator = childEvaluator;
-        //noinspection unchecked
         this.ndnCursor = ( IndexCursor<V,ServerEntry> ) db.getNdnIndex().forwardCursor();
     }
 
@@ -86,6 +86,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void beforeFirst() throws Exception
     {
+        checkClosed( "beforeFirst()" );
         ndnCursor.beforeFirst();
         available = false;
     }
@@ -93,6 +94,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void afterLast() throws Exception
     {
+        checkClosed( "afterLast()" );
         ndnCursor.afterLast();
         available = false;
     }
@@ -116,6 +118,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     {
         while ( ndnCursor.previous() )
         {
+            checkClosed( "previous()" );
             IndexEntry<?,ServerEntry> candidate = ndnCursor.get();
             if ( ! childEvaluator.evaluate( candidate ) )
             {
@@ -131,6 +134,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     {
         while ( ndnCursor.next() )
         {
+            checkClosed( "next()" );
             IndexEntry<?,ServerEntry> candidate = ndnCursor.get();
             if ( ! childEvaluator.evaluate( candidate ) )
             {
@@ -144,6 +148,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public IndexEntry<V, ServerEntry> get() throws Exception
     {
+        checkClosed( "get()" );
         if ( available )
         {
             return ndnCursor.get();

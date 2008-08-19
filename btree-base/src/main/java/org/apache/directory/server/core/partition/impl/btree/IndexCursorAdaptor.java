@@ -36,6 +36,7 @@ import java.util.Iterator;
  */
 public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
 {
+    @SuppressWarnings("unchecked")
     final Cursor<Tuple> wrappedCursor;
     final ForwardIndexEntry<K, O> forwardEntry;
     final ReverseIndexEntry<K, O> reverseEntry;
@@ -49,6 +50,7 @@ public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
      * @param forwardIndex true for a cursor over a forward index, false for
      * one over a reverse index
      */
+    @SuppressWarnings("unchecked")
     public IndexCursorAdaptor( Cursor<Tuple> wrappedCursor, boolean forwardIndex )
     {
         this.wrappedCursor = wrappedCursor;
@@ -71,6 +73,7 @@ public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
     }
 
 
+    @SuppressWarnings("unchecked")
     public void beforeValue( Long id, K key ) throws Exception
     {
         if ( wrappedCursor instanceof TupleCursor )
@@ -80,6 +83,7 @@ public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
     }
 
 
+    @SuppressWarnings("unchecked")
     public void afterValue( Long id, K key ) throws Exception
     {
         if ( wrappedCursor instanceof TupleCursor )
@@ -143,18 +147,17 @@ public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
     }
 
 
+    @SuppressWarnings("unchecked")
     public IndexEntry<K, O> get() throws Exception
     {
         if ( forwardEntry != null )
         {
-            //noinspection unchecked
             Tuple<K,Long> tuple = wrappedCursor.get();
             forwardEntry.setTuple( tuple, null );
             return forwardEntry;
         }
         else
         {
-            //noinspection unchecked
             Tuple<Long,K> tuple = wrappedCursor.get();
             reverseEntry.setTuple( tuple, null );
             return reverseEntry;
@@ -171,6 +174,12 @@ public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
     public void close() throws Exception
     {
         wrappedCursor.close();
+    }
+
+
+    public void close( Exception reason ) throws Exception
+    {
+        wrappedCursor.close( reason );
     }
 
 

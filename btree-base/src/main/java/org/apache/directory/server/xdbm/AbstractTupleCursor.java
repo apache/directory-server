@@ -35,12 +35,17 @@ import java.util.Iterator;
 public abstract class AbstractTupleCursor<K,V> implements TupleCursor<K,V>
 {
     private boolean closed;
+    private Exception reason;
 
 
-    protected void checkClosed( String operation ) throws CursorClosedException
+    protected void checkClosed( String operation ) throws Exception
     {
         if ( isClosed() )
         {
+            if ( reason != null )
+            {
+                throw reason;
+            }
             throw new CursorClosedException( "Attempting " + operation + " operation on a closed Cursor." );
         }
     }
@@ -54,6 +59,13 @@ public abstract class AbstractTupleCursor<K,V> implements TupleCursor<K,V>
 
     public void close() throws Exception
     {
+        closed = true;
+    }
+
+
+    public void close( Exception reason ) throws Exception
+    {
+        this.reason = reason;
         closed = true;
     }
 

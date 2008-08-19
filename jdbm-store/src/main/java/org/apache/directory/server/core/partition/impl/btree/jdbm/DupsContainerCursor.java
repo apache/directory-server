@@ -82,12 +82,14 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
     public void beforeKey( K key ) throws Exception
     {
+        checkClosed( "beforeKey()" );
         browser = table.getBTree().browse( key );
         forwardDirection = null;
         clearValue();
     }
 
 
+    @SuppressWarnings("unchecked")
     public void afterKey( K key ) throws Exception
     {
         browser = table.getBTree().browse( key );
@@ -102,7 +104,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
          */
         while ( browser.getNext( jdbmTuple ) )
         {
-            //noinspection unchecked
+            checkClosed( "afterKey()" );
             K next = ( K ) jdbmTuple.getKey();
 
             int nextCompared = table.getKeyComparator().compare( next, key );
@@ -125,14 +127,12 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     }
 
 
-    @SuppressWarnings( { "UnusedDeclaration" } )
     public void beforeValue( K key, DupsContainer<V> value ) throws Exception
     {
         throw new UnsupportedOperationException( "Value based advances not supported." );
     }
 
 
-    @SuppressWarnings( { "UnusedDeclaration" } )
     public void afterValue( K key, DupsContainer<V> value ) throws Exception
     {
         throw new UnsupportedOperationException( "Value based advances not supported." );
@@ -157,38 +157,42 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     }
 
 
-    public void beforeFirst() throws IOException
+    public void beforeFirst() throws Exception
     {
+        checkClosed( "afterKey()" );
         browser = table.getBTree().browse();
         forwardDirection = null;
         clearValue();
     }
 
 
-    public void afterLast() throws IOException
+    public void afterLast() throws Exception
     {
+        checkClosed( "afterKey()" );
         browser = table.getBTree().browse( null );
         forwardDirection = null;
         clearValue();
     }
 
 
-    public boolean first() throws IOException
+    public boolean first() throws Exception
     {
         beforeFirst();
         return next();
     }
 
 
-    public boolean last() throws IOException
+    public boolean last() throws Exception
     {
         afterLast();
         return previous();
     }
 
 
-    public boolean previous() throws IOException
+    @SuppressWarnings("unchecked")
+    public boolean previous() throws Exception
     {
+        checkClosed( "previous()" );
         if ( browser == null )
         {
             afterLast();
@@ -211,7 +215,6 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
         if ( advanceSuccess )
         {
-            //noinspection unchecked
             returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
             returnedTuple.setValue( table.getDupsContainer( ( byte[] ) jdbmTuple.getValue() ) );
             return valueAvailable = true;
@@ -224,8 +227,10 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     }
 
 
-    public boolean next() throws IOException
+    @SuppressWarnings("unchecked")
+    public boolean next() throws Exception
     {
+        checkClosed( "next()" );
         if ( browser == null )
         {
             beforeFirst();
@@ -248,7 +253,6 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
         if ( advanceSuccess )
         {
-            //noinspection unchecked
             returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
             returnedTuple.setValue( table.getDupsContainer( ( byte[] ) jdbmTuple.getValue() ) );
             return valueAvailable = true;
@@ -263,6 +267,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
     public Tuple<K,DupsContainer<V>> get() throws Exception
     {
+        checkClosed( "get()" );
         if ( valueAvailable )
         {
             return returnedTuple;

@@ -77,11 +77,13 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void beforeKey( K key ) throws Exception
     {
+        checkClosed( "beforeKey()" );
         browser = table.getBTree().browse( key );
         clearValue();
     }
 
 
+    @SuppressWarnings("unchecked")
     public void afterKey( K key ) throws Exception
     {
         browser = table.getBTree().browse( key );
@@ -95,7 +97,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
          */
         while ( browser.getNext( jdbmTuple ) )
         {
-            //noinspection unchecked
+            checkClosed( "afterKey()" );
             K next = ( K ) jdbmTuple.getKey();
 
             int nextCompared = table.getKeyComparator().compare( next, key );
@@ -142,36 +144,40 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
-    public void beforeFirst() throws IOException
+    public void beforeFirst() throws Exception
     {
+        checkClosed( "beforeFirst()" );
         browser = table.getBTree().browse();
         clearValue();
     }
 
 
-    public void afterLast() throws IOException
+    public void afterLast() throws Exception
     {
+        checkClosed( "afterLast()" );
         browser = table.getBTree().browse( null );
         clearValue();
     }
 
 
-    public boolean first() throws IOException
+    public boolean first() throws Exception
     {
         beforeFirst();
         return next();
     }
 
 
-    public boolean last() throws IOException
+    public boolean last() throws Exception
     {
         afterLast();
         return previous();
     }
 
 
-    public boolean previous() throws IOException
+    @SuppressWarnings("unchecked")
+    public boolean previous() throws Exception
     {
+        checkClosed( "previous()" );
         if ( browser == null )
         {
             afterLast();
@@ -188,9 +194,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
                 }
             }
 
-            //noinspection unchecked
             returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
-            //noinspection unchecked
             returnedTuple.setValue( ( V ) jdbmTuple.getValue() );
             return valueAvailable = true;
         }
@@ -202,8 +206,10 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
-    public boolean next() throws IOException
+    @SuppressWarnings("unchecked")
+    public boolean next() throws Exception
     {
+        checkClosed( "previous()" );
         if ( browser == null )
         {
             beforeFirst();
@@ -220,9 +226,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
                 }
             }
             
-            //noinspection unchecked
             returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
-            //noinspection unchecked
             returnedTuple.setValue( ( V ) jdbmTuple.getValue() );
             return valueAvailable = true;
         }
@@ -236,6 +240,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public Tuple<K,V> get() throws Exception
     {
+        checkClosed( "get()" );
         if ( valueAvailable )
         {
             return returnedTuple;
