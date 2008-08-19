@@ -30,7 +30,7 @@ import netscape.ldap.LDAPConnection;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.ldap.LdapServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

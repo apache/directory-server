@@ -33,7 +33,7 @@ import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 
-import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.operations.compare.CompareIT;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;

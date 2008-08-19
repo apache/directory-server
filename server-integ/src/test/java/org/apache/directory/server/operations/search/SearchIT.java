@@ -41,7 +41,7 @@ import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.ldap.LdapServer;
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 

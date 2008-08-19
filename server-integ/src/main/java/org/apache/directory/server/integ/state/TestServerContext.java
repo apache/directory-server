@@ -26,7 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.integ.InheritableServerSettings;
-import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.ldap.LdapServer;
 import org.junit.internal.runners.MethodRoadie;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;

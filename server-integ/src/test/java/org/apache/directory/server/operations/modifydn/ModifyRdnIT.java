@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.ldap.LdapServer;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;

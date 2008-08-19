@@ -22,7 +22,7 @@ package org.apache.directory.server.integ.state;
 import java.io.IOException;
 
 import org.apache.directory.server.integ.InheritableServerSettings;
-import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.ldap.LdapServer;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
 import org.junit.internal.runners.TestClass;

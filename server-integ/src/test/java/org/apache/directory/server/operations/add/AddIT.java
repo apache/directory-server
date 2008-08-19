@@ -52,7 +52,7 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 
-import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;

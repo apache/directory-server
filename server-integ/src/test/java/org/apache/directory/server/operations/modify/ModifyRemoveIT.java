@@ -38,7 +38,7 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 
-import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.ldap.LdapServer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.junit.Assert.fail;
@@ -328,6 +328,43 @@ public class ModifyRemoveIT
         }
         catch ( NoSuchAttributeException e )
         {
+        	assertTrue( true );
+            // expected behaviour
+        }
+    }
+
+
+    /**
+     * Remove a an attribute value which is not present in the entry
+     * 
+     * Expected result: Deletion fails with NoSuchAttributeException
+     */
+    @Test
+    public void testRemoveAttributeValueNotPresent() throws Exception
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
+        // Remove telephoneNumber Attribute
+        Attribute attr = new AttributeImpl( "telephoneNumber", "12345" );
+        Attributes attrs = new AttributesImpl();
+        attrs.put( attr );
+        
+        // Inject the new attribute
+        ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
+
+        // Now try to remove a bad value
+        try
+        {
+            Attribute attr2 = new AttributeImpl( "telephoneNumber", "7890" );
+            Attributes attrs2 = new AttributesImpl();
+            attrs2.put( attr2 );
+        	
+            ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs2 );
+            fail( "Deletion of attribute, which is not present in the entry, should fail." );
+        }
+        catch ( NoSuchAttributeException e )
+        {
+        	assertTrue( true );
             // expected behaviour
         }
     }
