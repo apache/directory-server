@@ -19,12 +19,12 @@
  */
 package org.apache.directory.server.core.configuration;
 
+import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.ldif.LdifComposer;
 import org.apache.directory.shared.ldap.ldif.LdifComposerImpl;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.util.MultiMap;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import javax.naming.NamingEnumeration;
@@ -36,9 +36,7 @@ import java.beans.PropertyEditorSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -76,79 +74,7 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
     public String getAsText()
     {
         LdifComposer composer = new LdifComposerImpl();
-        MultiMap map = new MultiMap()
-        {
-            // FIXME Stop forking commons-collections.
-            private final org.apache.commons.collections.MultiHashMap map = 
-                new org.apache.commons.collections.MultiHashMap();
-
-            public Object remove( Object arg0, Object arg1 )
-            {
-                return map.remove( arg0, arg1 );
-            }
-
-            public int size()
-            {
-                return map.size();
-            }
-
-            public Object get( Object arg0 )
-            {
-                return map.get( arg0 );
-            }
-
-            public boolean containsValue( Object arg0 )
-            {
-                return map.containsValue( arg0 );
-            }
-
-            public Object put( Object arg0, Object arg1 )
-            {
-                return map.put( arg0, arg1 );
-            }
-
-            public Object remove( Object arg0 )
-            {
-                return map.remove( arg0 );
-            }
-
-            @SuppressWarnings("unchecked")
-            public Collection<Object> values()
-            {
-                return map.values();
-            }
-
-            public boolean isEmpty()
-            {
-                return map.isEmpty();
-            }
-
-            public boolean containsKey( Object key )
-            {
-                return map.containsKey( key );
-            }
-
-            @SuppressWarnings("unchecked")
-            public void putAll( Map arg0 )
-            {
-                map.putAll( arg0 );
-            }
-
-            public void clear()
-            {
-                map.clear();
-            }
-
-            public Set<?> keySet()
-            {
-                return map.keySet();
-            }
-
-            public Set<?> entrySet()
-            {
-                return map.entrySet();
-            }
-        };
+        Map<String, Object> map = new MultiValueMap();
 
         Attributes attrs = (Attributes) getValue();
         try
